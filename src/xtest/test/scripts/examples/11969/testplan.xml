@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>11969</Test>
+    <RegistryEndpoint>http://localhost:9080/tf5/services/test11969</RegistryEndpoint>
+    <TestStep id="submit_fol">
+        <Rule>
+            <Transaction>PnR</Transaction>
+            <Assertion>Submit a folder</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <ProvideAndRegisterTransaction>
+            <XDSb/>
+            <MetadataFile>fol.xml</MetadataFile>
+            <AssignUuids/>
+        </ProvideAndRegisterTransaction>
+    </TestStep>
+</TestPlan>
