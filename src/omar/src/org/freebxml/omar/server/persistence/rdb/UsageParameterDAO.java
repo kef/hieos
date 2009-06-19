@@ -73,7 +73,7 @@ class UsageParameterDAO extends AbstractDAO {
 
                 String str = "INSERT INTO UsageParameter " + "VALUES( " + "'" +
                     value + "', " + "'" + parentId + "' )";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 

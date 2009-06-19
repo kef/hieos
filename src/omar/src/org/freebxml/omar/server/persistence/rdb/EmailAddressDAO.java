@@ -103,7 +103,7 @@ class EmailAddressDAO extends AbstractDAO {
                     String str = "INSERT INTO " + getTableName() + " VALUES( " +
                         "'" + address + "', " + type + ", " + "'" + parentId +
                         "' )";
-                    log.trace("stmt = " + str);
+                    log.trace("SQL = " + str);
                     stmt.addBatch(str);
                 }
             }
@@ -152,7 +152,7 @@ class EmailAddressDAO extends AbstractDAO {
 
                 String str = "INSERT INTO EmailAddress " + "VALUES( " + "'" +
                     address + "', " + type + ", " + "'" + parentId + "' )";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 
@@ -197,7 +197,7 @@ class EmailAddressDAO extends AbstractDAO {
                     //"accesControlPolicy = null, " +
                     "SET address = '" + address + "', " + "SET type = " + type +
                     " WHERE parent = '" + parentId + "' ";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 

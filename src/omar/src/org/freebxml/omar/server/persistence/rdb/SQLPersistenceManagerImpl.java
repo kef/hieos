@@ -933,9 +933,7 @@ public class SQLPersistenceManagerImpl
                     Thread.currentThread().dumpStack();
                 }
             }
-
-            // HIEOS/BHT (DEBUG):
-            // System.out.println("*** Executing query: " + sqlQuery);
+            log.trace("SQL = " + sqlQuery);  // HIEOS/BHT: (DEBUG)
 
             if (queryParams == null) {
 
@@ -947,8 +945,8 @@ public class SQLPersistenceManagerImpl
                     Object param = iter.next();
                     ((PreparedStatement) stmt).setObject(++paramCount, param);
                 // HIEOS/BHT (DEBUG):
-                // System.out.println("  -> param(" + new Integer(paramCount).toString()
-                //        + "): " + (String)param);
+                log.trace("  -> param(" + new Integer(paramCount).toString()
+                        + "): " + (String)param);
                 }
                 rs = ((PreparedStatement) stmt).executeQuery();
             }
@@ -973,8 +971,8 @@ public class SQLPersistenceManagerImpl
                     // rs.relative(...)
                     rs.next();
                     boolean onRow = rs.relative(startIndex - 1);
-                // HIEOS/BHT (DEBUG):
-                // System.out.println(" -> Total Result Count: " + totalResultCount);
+                    // HIEOS/BHT (DEBUG):
+                    log.trace(" -> Total Result Count: " + totalResultCount);
                 }
 
                 int cnt = 0;
@@ -989,19 +987,19 @@ public class SQLPersistenceManagerImpl
                     }
                 }
             // HIEOS/BHT (DEBUG):
-            // System.out.println(" -> cnt: " + totalResultCount);
+            log.trace(" -> cnt: " + totalResultCount);
             } else if (returnType == ReturnType.REGISTRY_OBJECT) {
                 context.setResponseOption(responseOption);
                 RegistryObjectDAO roDAO = new RegistryObjectDAO(context);
                 res = roDAO.getObjects(rs, startIndex, maxResults);
             // HIEOS/BHT (DEBUG):
-            // System.out.println(" -> Object Size: " + res.size());
+            log.trace(" -> Object Size: " + res.size());
             } else if ((returnType == ReturnType.LEAF_CLASS) ||
                     (returnType == ReturnType.LEAF_CLASS_WITH_REPOSITORY_ITEM)) {
                 res = getObjects(context, connection, rs, tableName, responseOption,
                         objectRefs, startIndex, maxResults);
             // HIEOS/BHT (DEBUG):
-            // System.out.println(" -> Object Size: " + res.size());
+            log.trace(" -> Object Size: " + res.size());
             } else {
                 throw new RegistryException(ServerResourceBundle.getInstance().getString("message.invalidReturnType",
                         new Object[]{returnType}));
@@ -1297,6 +1295,7 @@ public class SQLPersistenceManagerImpl
                         sql.append("'" + id + "')");
 
                         //log.info("sql string=" + sql.toString());
+                        log.trace("SQL = " + sql.toString());
                         ResultSet rs = stmt.executeQuery(sql.toString());
 
                         while (rs.next()) {
@@ -1381,7 +1380,7 @@ public class SQLPersistenceManagerImpl
                 stmt.setString(18, id);
                 stmt.setString(19, id);
                 stmt.setString(20, id);
-
+                log.trace("SQL = " + query.toString());  // HIEOS/BHT: (DEBUG)
                 ResultSet rs = stmt.executeQuery();
                 boolean result = false;
 

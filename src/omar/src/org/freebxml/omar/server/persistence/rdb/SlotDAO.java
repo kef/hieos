@@ -80,7 +80,8 @@ class SlotDAO extends AbstractDAO {
             " WHERE parent = ? ORDER BY name_, sequenceId ASC";
             stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, parentId);
-            
+
+            log.trace("SQL= " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
             
             String lastName = "";
@@ -157,7 +158,7 @@ class SlotDAO extends AbstractDAO {
                 
                 //log.trace("stmt= '" + sql + "'");
                 stmt = context.getConnection().createStatement();
-                
+                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
                 ResultSet rs = stmt.executeQuery(sql);
                 
                 while (rs.next()) {
@@ -269,10 +270,7 @@ class SlotDAO extends AbstractDAO {
                     pstmt.setString(3, slotType);
                     pstmt.setString(4, value);
                     pstmt.setString(5, parentId);
-                    
-                    log.trace("stmt = " + pstmt.toString());
-                    // HIEOS/BHT (DEBUG):
-                    // System.out.println("stmt = " + pstmt.toString());
+                    log.trace("SQL = " + sql);   // HIEOS/BHT: DEBUG (fix)
                     pstmt.addBatch();
                 }
             }
@@ -313,7 +311,7 @@ class SlotDAO extends AbstractDAO {
                 }
             }
             
-            log.trace("stmt = " + str);
+            log.trace("SQL = " + str);
             stmt.execute(str);
             
             int updateCount = stmt.getUpdateCount();

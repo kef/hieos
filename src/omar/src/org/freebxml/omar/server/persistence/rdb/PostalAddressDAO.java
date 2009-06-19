@@ -149,7 +149,7 @@ class PostalAddressDAO extends AbstractDAO {
                 String str = "INSERT INTO PostalAddress " + "VALUES( " + city +
                     ", " + country + ", " + postalCode + ", " + state + ", " +
                     street + ", " + streetNum + ", " + "'" + parentId + "' )";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 
@@ -226,7 +226,7 @@ class PostalAddressDAO extends AbstractDAO {
                 String str = "INSERT INTO PostalAddress " + "VALUES( " + city +
                     ", " + country + ", " + postalCode + ", " + state + ", " +
                     street + ", " + streetNum + ", " + "'" + parentId + "' )";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 
@@ -300,7 +300,7 @@ class PostalAddressDAO extends AbstractDAO {
                     state + ", " + "SET street = " + street + ", " +
                     "SET streetNum = " + streetNum + " " + " WHERE parent = '" +
                     parentId + "' ";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 

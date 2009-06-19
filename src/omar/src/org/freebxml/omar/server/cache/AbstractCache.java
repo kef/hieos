@@ -139,6 +139,7 @@ abstract class AbstractCache implements AuditableEventListener {
 
         try {
             if (id != null) {
+                // HIEOS/BHT: Removed UPPER(id) -- FIXME(PUT BACK)
                 String sqlQuery = "Select * from " + tableName + " WHERE UPPER(id) = ?";
                 ArrayList queryParams = new ArrayList();
                 queryParams.add(id.toUpperCase());

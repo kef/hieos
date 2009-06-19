@@ -179,7 +179,7 @@ class ServiceBindingDAO extends RegistryObjectDAO {
             String sql = "SELECT id FROM ServiceBinding WHERE targetBinding=? AND targetBinding IS NOT NULL";
             stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, serviceBindingId);
-
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {

@@ -59,10 +59,10 @@ public abstract class InternationalStringDAO extends AbstractDAO {
             }else if (tableName.equalsIgnoreCase("UsageDescription")) {
                 is = bu.rimFac.createUsageDescription();
             }
-            stmt = context.getConnection().prepareStatement("SELECT * FROM " + getTableName() +
-                    " WHERE parent = ?");
+            String sql = "SELECT * FROM " + getTableName() + " WHERE parent = ?";
+            stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, parentId);
-
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -116,8 +116,7 @@ public abstract class InternationalStringDAO extends AbstractDAO {
                         pstmt.setString(2, lang);
                         pstmt.setString(3, value);
                         pstmt.setString(4, parentId);
-
-                        log.trace("stmt = " + pstmt.toString());
+                        log.trace("SQL = " + str);  // HIEOS/BHT: DEBUG (fix)
                         pstmt.addBatch();
                     }
                 }

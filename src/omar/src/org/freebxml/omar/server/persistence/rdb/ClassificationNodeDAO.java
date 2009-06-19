@@ -239,9 +239,8 @@ class ClassificationNodeDAO extends RegistryObjectDAO {
                 "parent=? AND parent IS NOT NULL";
             stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, nodeId);
-            
             ResultSet rs = stmt.executeQuery();
-            log.trace(sql);
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
 
             if (rs.next()) {
                 referencingNodeId = rs.getString(1);

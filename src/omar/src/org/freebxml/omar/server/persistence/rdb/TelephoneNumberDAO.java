@@ -124,7 +124,7 @@ class TelephoneNumberDAO extends AbstractDAO {
                         ", " + number + ", " + phoneType + ", " +
                         "'" + parentId + "' )";
 
-                    log.trace("stmt = " + str);
+                    log.trace("SQL = " + str);
                     stmt.addBatch(str);
                 }
             }
@@ -197,7 +197,7 @@ class TelephoneNumberDAO extends AbstractDAO {
                     number + ", " + phoneType + ", " + "'" +
                     parentId + "' )";
 
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
             }
 

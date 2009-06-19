@@ -161,8 +161,10 @@ abstract class IdentifiableDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         
         try {
-            stmt = context.getConnection().prepareStatement("SELECT id FROM " + tableName + " WHERE id=?");
+            String sql = "SELECT id FROM " + tableName + " WHERE id=?";
+            stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, id);
+            log.trace("SQL = " + sql);
             ResultSet rs = stmt.executeQuery();
             boolean result = false;
             
@@ -222,6 +224,7 @@ abstract class IdentifiableDAO extends AbstractDAO {
                     sql.append("'" + id + "')");
                     
                     //log.info("!!!!!!!!!!!!!!!!!!!" + sql.toString());
+                    log.trace("SQL = " + sql.toString());
                     ResultSet rs = stmt.executeQuery(sql.toString());
                     
                     while (rs.next()) {

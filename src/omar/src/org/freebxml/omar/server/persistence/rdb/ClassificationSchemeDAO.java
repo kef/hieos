@@ -124,6 +124,7 @@ class ClassificationSchemeDAO extends RegistryObjectDAO {
                 "classificationScheme=? AND classificationScheme IS NOT NULL";
             stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, schemeId);
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -148,6 +149,7 @@ class ClassificationSchemeDAO extends RegistryObjectDAO {
             String sql = "SELECT id FROM ClassificationNode WHERE parent=? AND parent IS NOT NULL";
             stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, schemeId);
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {

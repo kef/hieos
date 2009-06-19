@@ -150,25 +150,23 @@ abstract class AbstractDAO implements OMARDAO {
                 prepareToDelete(obj);
 
                 String str = getSQLStatementFragment(obj);
-                log.trace("stmt = " + str);
-                // HIEOS/BHT (DEBUG):
-                // System.out.println("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
+                    log.trace("SQL = " + mirrorImageStr);  // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, DELETE the mirror.
                 }
             }
-
+            
             int[] updateCounts = stmt.executeBatch();
 
             iter = objects.iterator();
             while (iter.hasNext()) {
                 Object obj = iter.next();
-
                 onDelete(obj);
             }
 
@@ -217,10 +215,9 @@ abstract class AbstractDAO implements OMARDAO {
 
                 String str = "DELETE from " + getTableName() +
                         " WHERE " + getParentAttribute() + " = ? ";
-                log.trace("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt = context.getConnection().prepareStatement(str);
                 stmt.setString(1, getParentId());
-
                 stmt.execute();
             } else {
                 //If there are composed objects for this type then
@@ -247,16 +244,13 @@ abstract class AbstractDAO implements OMARDAO {
      */
     public List getByParent() throws RegistryException {
         List objects = new ArrayList();
-
-
         PreparedStatement stmt = null;
-
         try {
-            String str = "SELECT * FROM " + getTableName() +
+            String sql = "SELECT * FROM " + getTableName() +
                     " WHERE " + getParentAttribute() + " = ? ";
-            stmt = context.getConnection().prepareStatement(str);
+            stmt = context.getConnection().prepareStatement(sql);
             stmt.setString(1, getParentId());
-
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
             ResultSet rs = stmt.executeQuery();
 
             objects = getObjects(rs, 0, -1);
@@ -282,13 +276,13 @@ abstract class AbstractDAO implements OMARDAO {
      * @see org.freebxml.omar.server.persistence.rdb.OMARDAO#insert(org.oasis.ebxml.registry.bindings.rim.UserType, java.sql.Connection, java.util.List, java.util.HashMap)
      */
     public void insert(List objects) throws RegistryException {
-
         //Return immediatley if no objects to insert
         if (objects.size() == 0) {
             return;
         }
 
         //First process any objects that may already exists in persistence layer
+// BHT: OPTIMIZE ME!!!!!!!!!!!!!
         objects = processExistingObjects(objects);
 
         //Return immediately if no objects to insert
@@ -308,15 +302,14 @@ abstract class AbstractDAO implements OMARDAO {
                 Object obj = iter.next();
 
                 String str = getSQLStatementFragment(obj);
-                log.trace("stmt = " + str);
-                // HIEOS/BHT (DEBUG):
-                // System.out.println("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
+                    log.trace("SQL = " + mirrorImageStr);   // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, insert into the mirror.
                 }
 
@@ -327,14 +320,9 @@ abstract class AbstractDAO implements OMARDAO {
             int[] updateCounts = stmt.executeBatch();
             long endTime = System.currentTimeMillis();
             log.trace("AbstractDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime));
-            // HIEOS/BHT (DEBUG):
-            // System.out.println("AbstractDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime));
-
-
             iter = objects.iterator();
             while (iter.hasNext()) {
                 Object obj = iter.next();
-
                 onInsert(obj);
             }
 
@@ -344,7 +332,6 @@ abstract class AbstractDAO implements OMARDAO {
         } finally {
             closeStatement(stmt);
         }
-
     }
 
     protected List processExistingObjects(List objects) throws RegistryException {
@@ -409,15 +396,14 @@ abstract class AbstractDAO implements OMARDAO {
                 prepareToUpdate(obj);
 
                 String str = getSQLStatementFragment(obj);
-                log.trace("stmt = " + str);
-                // HIEOS/BHT (DEBUG):
-                // System.out.println("stmt = " + str);
+                log.trace("SQL = " + str);
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
+                    log.trace("SQL = " + mirrorImageStr);  // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, update the mirror.
                 }
             }
@@ -654,6 +640,7 @@ abstract class AbstractDAO implements OMARDAO {
                     String sql = selectStmtTemplate.replaceAll("\\$InClauseTerms", inTerms.toString());
 
                     Statement stmt = context.getConnection().createStatement();
+                    log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
                     ResultSet rs = stmt.executeQuery(sql);
                     resultSets.add(rs);
 
