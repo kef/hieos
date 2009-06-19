@@ -838,9 +838,15 @@ class RegistryObjectDAO extends IdentifiableDAO {
                     SQLPersistenceManagerImpl pm = SQLPersistenceManagerImpl.getInstance();
 
                     ArrayList queryParams = new ArrayList();
-                    queryParams.add(id.toUpperCase());
-                    // HIEOS/BHT: Removed UPPER(id) - FIXME (PUT BACK)
-                    ExtrinsicObjectType eo = (ExtrinsicObjectType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExtrinsicObject where UPPER(id) = ?", queryParams, "ExtrinsicObject");
+
+                    // COMMENT 1:
+                    // HIEOS/AMS: Commented the following two lines of code. No need to convert 'id' to upper case
+                    // and subsequently compare using SQL's UPPER function (Using this prevents
+                    /// evaluation of indices on 'id').
+                    // queryParams.add(id.toUpperCase());
+                    // ExtrinsicObjectType eo = (ExtrinsicObjectType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExtrinsicObject where UPPER(id) = ?", queryParams, "ExtrinsicObject");
+                    queryParams.add(id);
+                    ExtrinsicObjectType eo = (ExtrinsicObjectType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExtrinsicObject where id = ?", queryParams, "ExtrinsicObject");
 
                     if (eo != null) {
                         if (extrinsicObjects.length() == 0) {
@@ -849,8 +855,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
                             extrinsicObjects.append(",'" + id + "'");
                         }
                     } else {
-                        // HIEOS/BHT: Removed UPPER(id) - FIXME (PUT BACK)
-                        ExternalLinkType el = (ExternalLinkType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExternalLink where UPPER(id) = ?", queryParams, "ExternalLink");
+                        // HIEOS/AMS: See COMMENT 1.
+                        // ExternalLinkType el = (ExternalLinkType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExternalLink where UPPER(id) = ?", queryParams, "ExternalLink");
+                        ExternalLinkType el = (ExternalLinkType) pm.getRegistryObjectMatchingQuery(context, "SELECT * from ExternalLink where id = ?", queryParams, "ExternalLink");
 
                         if (el != null) {
                             if (externalLinks.length() == 0) {
