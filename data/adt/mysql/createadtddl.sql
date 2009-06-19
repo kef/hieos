@@ -41,13 +41,13 @@ USE adt;
 DROP TABLE IF EXISTS `patient`;
 CREATE TABLE `patient` (
   `uuid` varchar(64) NOT NULL,
-  `id` text,
+  `id` text NOT NULL,
   `timestamp` text,
   `birthdatetime` text,
   `adminsex` text,
   `accountnumber` text,
   `bedid` text,
-  PRIMARY KEY (`uuid`)
+  PRIMARY KEY (`id`(100))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
