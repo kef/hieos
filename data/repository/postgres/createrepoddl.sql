@@ -40,7 +40,7 @@ CREATE TABLE document
 ALTER TABLE document OWNER TO repo;
 
 
-CREATE INDEX "DOC_UNIQUEID_INDEX"
-  ON document
-  USING btree
-  (uniqueid);
+-- CREATE INDEX "DOC_UNIQUEID_INDEX"
+--  ON document
+--  USING btree
+--  (uniqueid);
