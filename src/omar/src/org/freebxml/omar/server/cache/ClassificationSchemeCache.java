@@ -607,10 +607,21 @@ class ClassificationSchemeCache extends AbstractCache {
                     likeOrEqual = "LIKE";
                 }
                 String tableName = "ClassificationNode";
-                String sqlQuery = "SELECT cn.* from ClassificationNode cn WHERE UPPER(cn.path) " +
-                    likeOrEqual + " ? ORDER BY cn.path ASC";
+
+                // COMMENT 1:
+                // HIEOS/AMS: Commented the following lines of code. No need to convert 'path' to upper case
+                // and subsequently compare using SQL's UPPER function (Using this prevents
+                // evaluation of indices on 'cn.path').
+                // String sqlQuery = "SELECT cn.* from ClassificationNode cn WHERE UPPER(cn.path) " +
+                // likeOrEqual + " ? ORDER BY cn.path ASC";
+                String sqlQuery = "SELECT cn.* from ClassificationNode cn WHERE cn.path " +
+                   likeOrEqual + " ? ORDER BY cn.path ASC";
                 ArrayList queryParams = new ArrayList();
-                queryParams.add(path.toUpperCase());
+
+                // HIEOS/AMS: See COMMENT 1
+                // queryParams.add(path.toUpperCase());
+                queryParams.add(path);
+
                 context = new ServerRequestContext("ClassificationSchemeCache.getClassificationNodeByPath", null);
                 List results = executeQueryInternal(context, sqlQuery, queryParams, tableName);
                 if (results.size() == 0) {
