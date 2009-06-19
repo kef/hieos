@@ -1,4 +1,4 @@
-﻿--
+--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -14,7 +14,7 @@
 -- Database: omar
 
 -- DROP DATABASE omar;
-use omar;
+-- use omar;
 delete from adhocquery;
 delete from affectedobject;
 delete from association;

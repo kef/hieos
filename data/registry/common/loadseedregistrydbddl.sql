@@ -1,4 +1,4 @@
-﻿--
+--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -18,7 +18,9 @@
 --
 -- Dumping data for table classificationnode
 --
-use omar;
+
+-- use omar;
+
 INSERT INTO classificationnode (id,home,lid,objectType,status,versionName,comment_,code,parent,path) VALUES 
  ('urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember',NULL,'urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember','urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode','urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted','1.1',NULL,'HasMember','urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType','/urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType/HasMember'),
  ('urn:oasis:names:tc:ebxml-regrep:AssociationType:RelatedTo',NULL,'urn:oasis:names:tc:ebxml-regrep:AssociationType:RelatedTo','urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode','urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted','1.1',NULL,'RelatedTo','urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType','/urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType/RelatedTo'),
