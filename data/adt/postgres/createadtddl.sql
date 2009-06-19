@@ -18,13 +18,13 @@
 CREATE TABLE patient
 (
   uuid text NOT NULL,
-  id text,
+  id text NOT NULL,
   "timestamp" text,
   birthdatetime text,
   adminsex text,
   accountnumber text,
   bedid text,
-  CONSTRAINT patient_pkey PRIMARY KEY (uuid)
+  CONSTRAINT patient_pkey PRIMARY KEY (id)
 )
 WITH (OIDS=TRUE);
 ALTER TABLE patient OWNER TO adt;
