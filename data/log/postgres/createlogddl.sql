@@ -29,10 +29,10 @@ ALTER TABLE ip OWNER TO log;
 
 -- DROP INDEX "IP_INDEX";
 
-CREATE INDEX "IP_INDEX"
-  ON ip
-  USING btree
-  (ip);
+-- CREATE INDEX "IP_INDEX"
+--  ON ip
+--  USING btree
+--  (ip);
 
 
 -- Table: main
@@ -68,10 +68,10 @@ CREATE INDEX "MAIN_IP_INDEX"
 
 -- DROP INDEX "MAIN_MID_INDEX";
 
-CREATE INDEX "MAIN_MID_INDEX"
-  ON main
-  USING btree
-  (messageid);
+--CREATE INDEX "MAIN_MID_INDEX"
+--  ON main
+--  USING btree
+--  (messageid);
 
 
 
