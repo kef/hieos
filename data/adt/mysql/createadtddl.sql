@@ -47,8 +47,10 @@ CREATE TABLE `patient` (
   `adminsex` text,
   `accountnumber` text,
   `bedid` text,
-  PRIMARY KEY (`id`(100))
+  PRIMARY KEY (`id`(100)),
+  KEY `patient_uuid_idx` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 --
 -- Dumping data for table `patient`

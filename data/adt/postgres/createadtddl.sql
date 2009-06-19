@@ -29,6 +29,12 @@ CREATE TABLE patient
 WITH (OIDS=TRUE);
 ALTER TABLE patient OWNER TO adt;
 
+--
+-- Create index on patient 'uuid' col
+--
+CREATE INDEX patient_uuid_idx ON patient USING btree (uuid);
+
+
 -- Table: patientaddress
 
 -- DROP TABLE patientaddress;
