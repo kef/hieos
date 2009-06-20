@@ -1,4 +1,4 @@
-﻿--
+--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -10,7 +10,7 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 --
-use adt;
+-- use adt;
 delete from patientrace;
 delete from patientaddress;
 delete from patientname;
