@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import com.vangent.hieos.xtest.framework.TestConfig;
 
 public class XTestDriverGroovy {
-
     def version = 'xx.yy'
     //controlling variables
     def scripts
@@ -29,7 +28,6 @@ public class XTestDriverGroovy {
     def testSpec = []     // pre-parsed extended test specification (subdir and steps)
     def testSteps = []
     def testPlanSpecs = []
-
     def testDir
     def tokens
     def testCollection
@@ -47,6 +45,7 @@ public class XTestDriverGroovy {
     def tcListingOnly = false
     def sep = File.separator
     def run = false
+    def runForever = false
     def showErrors = false
     def showReadme = false
     def bargs
@@ -70,29 +69,32 @@ public class XTestDriverGroovy {
 
         testdir = null
         try { testdir = System.getenv('HIEOSxTestDir') } catch (Exception e) {}
-        if (testdir == null) error('Environment variable HIEOSxTestDir is not set')
+        if (testdir == null) {
+            error('Environment variable HIEOSxTestDir is not set')
+        }
 	
         mgmt = testdir
         scripts = testdir + "/scripts"
         try { logDir  = System.getenv('HIEOSxLogDir') } catch (Exception e) {}
 
         bassert(logDir != null, 'Environment variable HIEOSxLogDir is not set')
-
         bassert(new File(testdir).exists(),"HIEOSxTestDir directory ${testdir} does not exist")
         bassert(new File(scripts).exists(),"Scripts directory ${scripts} does not exist")
         bassert(new File(scripts + "/collections"),"Scripts directory ${testdir} is not really the test directory, no collections subdirectory exists")
-
         bassert(new File(logDir).exists(),"HIEOSxLogDir directory ${logDir} does not exist")
 
         version = "1.0"
         XTestDriver.version = version
-
         if (args.size() > 0) {
             bargs = (List)  args.reverse() // bargs = bacwards args (works as stack)
             // option processing
             while (bhas()) {
                 def option = bpop('')
                 switch (option) {
+                    case '--forever' :
+                    case '-F':
+                    runForever = true
+                    break;
                     case '--site' :
                     case '-s' :
                     siteName = bpop('--site expects a site name')
@@ -122,8 +124,6 @@ public class XTestDriverGroovy {
                     break;
                     case '--test' :
                     case '-t' :
-                    //			if (testNum)
-                    //				usage('-t option can only be specified once')
                     testNum = bpop('--testnum expects a test number')
                     optAssert(!testNum.startsWith('-'), "--testnum expects a test number")
                     while (bhas() && !bpeak().startsWith('-')) {
@@ -131,7 +131,6 @@ public class XTestDriverGroovy {
                     }
                     parseTestSpec(testNum, scripts, null)
                     testNum = null
-
                     break;
                     case '--scripts' :
                     case '-T' :
@@ -191,20 +190,21 @@ public class XTestDriverGroovy {
                         def pvalue = parts[1]
                         println "Setting ${pname} to ${pvalue}"
                         System.getProperties().put(pname, pvalue)
-                    } else
-                    usage("Unknown option ${option}")
+                    } else {
+                        usage("Unknown option ${option}")
+                    }
                 }
             }
         }
-        else
-        usage("No options entered")
-
+        else {
+            usage("No options entered")
+        }
         /*
         def tlsConfigured = false
         try { tlsConfigured = System.getenv('tlsConfigured') } catch (Exception e) {}
         if (secure && ! tlsConfigured)
-           error('-S option specified but TLS is not configured')
-        */
+        error('-S option specified but TLS is not configured')
+         */
        
         //
         // option validation and extended configuration variable initialization
@@ -227,7 +227,6 @@ public class XTestDriverGroovy {
         bassert(siteName, "No site specified on command line and no default present in actors.xml")
 	
         TestConfig.target = siteName
-	
         TestConfig.siteXPath = "site[@name='${siteName}']"   // preceeding double slash is supplied later
 		
         def siteConfig = sites.site.grep{it.@name == siteName}[0]
@@ -241,39 +240,44 @@ public class XTestDriverGroovy {
         HashMap xRepositories = new HashMap();
         HashMap xSecRepositories = new HashMap();
 	
-        if (verbose)
-            if (secure)
+        if (verbose) {
+            if (secure) {
                 println "Secure transaction"
-            else
+            } else {
                 println "Unsecure transaction"
-	
+            }
+        }
         siteConfig.transaction.each {
             def isSecure = it.@secure
             def name = it.@name
             if (name == 'xcr') {
-                if (isSecure == "1")
+                if (isSecure == "1") {
                     xSecRepositories.put((it.@home).toString(), it.toString())
-                else
+                } else {
                     xRepositories.put((it.@home).toString(), it.toString())
+                }
             } else {
-                if (isSecure == "1")
+                if (isSecure == "1") {
                     secureEndpoints.put((it.@name).toString(), it.toString())
-                else
+                }
+                else {
                     endpoints.put((it.@name).toString(), it.toString())
+                }
             }
         }
 	
         siteConfig.repository.each {
             def isSecure = it.@secure
-            if (isSecure == "1")  // BHT FIX: fixed to use @uid for HashMap as key.
+            if (isSecure == "1")  { // BHT FIX: fixed to use @uid for HashMap as key.
                 secureRepositories.put((it.@uid).toString(), it.toString())
-            else
+            } else {
                 repositories.put((it.@uid).toString(), it.toString())
+            }
         }
 	
-        if (verboseverbose)
+        if (verboseverbose) {
             println "site config is ${endpoints}\nsecure site config is ${secureEndpoints}"
-		
+        }
         TestConfig.endpoints = endpoints;
         TestConfig.secure_endpoints = secureEndpoints;
         TestConfig.repositories = repositories;
@@ -281,14 +285,13 @@ public class XTestDriverGroovy {
         TestConfig.xRepositories = xRepositories;
         TestConfig.xSecRepositories = xSecRepositories;
         TestConfig.secure = secure;
-	
-        if (siteConfig.PidAllocateEndpoint)
+        if (siteConfig.PidAllocateEndpoint) {
             TestConfig.pid_allocate_endpoint = siteConfig.PidAllocateEndpoint
-	
+        }
+
         //
         // Main loop
         //
-	
         if (listingOnly && !testNum) {
             showTestListing(scripts)
             System.exit(-1)
@@ -311,38 +314,41 @@ public class XTestDriverGroovy {
             testCollections.each { testCollection ->
                 if (! new File(testCollection).exists()) {
                     // could be part of scripts
-                    if (new File(scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection).exists())
+                    if (new File(scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection).exists()) {
                         testCollection = scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection
-                    else if (new File(scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection + testCollExt).exists())
+                    } else if (new File(scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection + testCollExt).exists()) {
                         testCollection = scripts + File.separatorChar + testCollDir + File.separatorChar + testCollection + testCollExt
-                    else {
+                    } else {
                         println "testCollection ${testCollection} not found"
                         System.exit(-1)
                     }
                 }
-                if (verboseverbose)
+                if (verboseverbose) {
                     println "Reading test collection ${testCollection}"
-                new File(testCollection).eachLine { line ->
-                def comment= line.indexOf('#')
-                if (comment != -1) {
-                        line = line.substring(0, comment)
                 }
-                tokens = tokenize(line)
-                if (tokens.size() > 0) {
-                    def thisTestNum = tokens[0]
-                    tokens = tokens[1..<tokens.size()]
-                    parseTestSpec(thisTestNum, scripts, tokens)
+                new File(testCollection).eachLine { line ->
+                    def comment= line.indexOf('#')
+                    if (comment != -1) {
+                        line = line.substring(0, comment)
+                    }
+                    tokens = tokenize(line)
+                    if (tokens.size() > 0) {
+                        def thisTestNum = tokens[0]
+                        tokens = tokens[1..<tokens.size()]
+                        parseTestSpec(thisTestNum, scripts, tokens)
+                    }
                 }
             }
         }
-    }
 		
         if (listingOnly && testNum) {
-            if (!showReadme)
+            if (!showReadme) {
                 showDesc(testNum, scripts)
+            }
             showTestListing(scripts, testPlanSpecs)
-            if (showReadme)
+            if (showReadme) {
                 showReadme(testNum, scripts)
+            }
             System.exit(-1)
         }
 	
@@ -350,105 +356,111 @@ public class XTestDriverGroovy {
             showReadme(testNum, scripts)
             System.exit(-1)
         }
+        while (true)
+        {
+            if (run) {
+                runTests()
+            }
+            if (showErrors) {
+                runShowErrors()
+            }
+            if (runForever == false) {
+                break;
+            }
+        }
+        System.exit(0)
+    }
 
-        if (run) {
-            long testRunStartTime = System.currentTimeMillis();  // Start time of test run.
-		
-            if (mgmt.charAt(mgmt.size()-1) != '/')
-                mgmt = mgmt + '/'
-            TestConfig.testmgmt_dir = mgmt
-
-            bassert(logDir, '''-ld <logDir> must be used on command line or HIEOSxLogDir environment
+    def runTests()
+    {
+        long testRunStartTime = System.currentTimeMillis();  // Start time of test run.
+        if (mgmt.charAt(mgmt.size()-1) != '/') {
+            mgmt = mgmt + '/'
+        }
+        TestConfig.testmgmt_dir = mgmt
+        bassert(logDir, '''-ld <logDir> must be used on command line or HIEOSxLogDir environment
 				variable must be set to point to the directory that should hold log files.
 				''')
-
-            if (testSteps != ':all') {
-                testSteps.each { XTestDriver.only_steps.add(it) }
-            }
-			int numTestSpecs = 0;
-            testPlanSpecs.each {
-                ++numTestSpecs
-                def testPlanDir = mkDirName(it)
-			
-                def logDirSpec = it.clone()
-                logDirSpec[0] = logDir
-			
-                mkDir(logDirSpec).mkdirs()
-                TestConfig.log_dir = mkDirName(logDirSpec) + sep
-			
-                println "${it[1..<it.size]}"
-			
-                def ok = XTestDriver.runTest(testPlanDir)
-			
-                println ((ok) ? "...Pass" : "...Fail")
-            }
-            long testRunStopTime = System.currentTimeMillis();  // Stop time of test run.
-            long testRunElapsedTime = testRunStopTime - testRunStartTime;
-            println "\n\n---------------------------------  Test Summary  ------------------------------\n"
-            println "\t Number of test specs: ${numTestSpecs}"
-            println "\t Elapsed time: ${testRunElapsedTime/1000.0} seconds"
+        if (testSteps != ':all') {
+            testSteps.each { XTestDriver.only_steps.add(it) }
         }
-	
-        if (showErrors) {
-            println "\n\n---------------------------------  Error Summary  ------------------------------\n"
-            testPlanSpecs.each {
-                def logDirSpec = it.clone()
-                logDirSpec[0] = logDir
+        int numTestSpecs = 0;
+        testPlanSpecs.each {
+            ++numTestSpecs
+            def testPlanDir = mkDirName(it)
+            def logDirSpec = it.clone()
+            logDirSpec[0] = logDir
+            mkDir(logDirSpec).mkdirs()
+            TestConfig.log_dir = mkDirName(logDirSpec) + sep
+            println "${it[1..<it.size]}"
+            def ok = XTestDriver.runTest(testPlanDir)
+            println ((ok) ? "...Pass" : "...Fail")
+        }
+        long testRunStopTime = System.currentTimeMillis();  // Stop time of test run.
+        long testRunElapsedTime = testRunStopTime - testRunStartTime;
+        println "\n\n---------------------------------  Test Summary  ------------------------------\n"
+        println "\t Number of test specs: ${numTestSpecs}"
+        println "\t Elapsed time: ${testRunElapsedTime/1000.0} seconds"
+    }
 
-                bassert (mkFile(logDirSpec,'log.xml').exists(), "Cannot display log file ${mkFile(logDirSpec,'log.xml')}, probably specified -err option without -run option and this test has not been run before")
-                def log = new XmlParser().parse(mkFile(logDirSpec,'log.xml'))
-                def fatalErrorNode = log.FatalError[0]
-                if (fatalErrorNode) {
-                    println "${logDirSpec[2..logDirSpec.size-1]} ***************"
-                    println "\tEndpoint   : ${logEndpoint(log).text()}"
-                    println "\tFatalError (step ${TestConfig.currentStep}) : ${firstNLines(fatalErrorNode.text(), 8)}"
+    def runShowErrors()
+    {
+        println "\n\n---------------------------------  Error Summary  ------------------------------\n"
+        testPlanSpecs.each {
+            def logDirSpec = it.clone()
+            logDirSpec[0] = logDir
+            bassert (mkFile(logDirSpec,'log.xml').exists(), "Cannot display log file ${mkFile(logDirSpec,'log.xml')}, probably specified -err option without -run option and this test has not been run before")
+            def log = new XmlParser().parse(mkFile(logDirSpec,'log.xml'))
+            def fatalErrorNode = log.FatalError[0]
+            if (fatalErrorNode) {
+                println "${logDirSpec[2..logDirSpec.size-1]} ***************"
+                println "\tEndpoint   : ${logEndpoint(log).text()}"
+                println "\tFatalError (step ${TestConfig.currentStep}) : ${firstNLines(fatalErrorNode.text(), 8)}"
+            }
+            def failedSteps = log.TestStep.grep { it.@status == 'Fail' }
+            if (failedSteps.size > 0) {
+                println "${logDirSpec[2..logDirSpec.size-1]} ***************"
+            }
+            failedSteps.each { step ->
+                def trans = step.find { it.name() =~ /Transaction/ }
+                println "\tstep ****** : ${step.attribute('id')}"
+                println "\ttransaction : ${trans.name()}"
+                println "\tEndpoint    : ${logEndpoint(trans).text()}"
+                step.Error.each { err ->
+                    println "\tError is    : ${firstNLines(err.text(),8).replaceAll('\n', '\n\t')}"
                 }
-                def failedSteps = log.TestStep.grep { it.@status == 'Fail' }
-                if (failedSteps.size > 0)
-				println "${logDirSpec[2..logDirSpec.size-1]} ***************"
-                failedSteps.each { step ->
-                    def trans = step.find { it.name() =~ /Transaction/ }
-                    println "\tstep ****** : ${step.attribute('id')}"
-                    println "\ttransaction : ${trans.name()}"
-                    println "\tEndpoint    : ${logEndpoint(trans).text()}"
-                    step.Error.each { err ->
-                        println "\tError is    : ${firstNLines(err.text(),8).replaceAll('\n', '\n\t')}"
-                    }
-				
-                    try {
-                        def regErrList = trans.Result[0]
-						.find { it.name() =~ /RegistryResponse/ || it.name() =~ /AdhocQueryResponse/ }
-						.find { it.name() =~ /RegistryErrorList/ }
-                        if (regErrList == null)
-						regErrList = trans.Result[0]
-						.find { it.name() =~ /RetrieveDocumentSetResponse/  }
-						.find { it.name() =~ /RegistryResponse/  }
-						.find { it.name() =~ /RegistryErrorList/ }
-                        regErrList.each { regErr ->
-                            println "\tDetails : ${regErr.attribute('errorCode')} : " + findNL(regErr.attribute('codeContext')) + "${regErr.attribute('codeContext').replaceAll('\n', '\n\t')}"
-                            if (showLocationInformation)
-							println "\tLocation : ${regErr.attribute('location').replaceAll('\n', '\n\t')}"
+                try {
+                    def regErrList = trans.Result[0]
+                    .find { it.name() =~ /RegistryResponse/ || it.name() =~ /AdhocQueryResponse/ }
+                    .find { it.name() =~ /RegistryErrorList/ }
+                    if (regErrList == null) regErrList = trans.Result[0]
+                    .find { it.name() =~ /RetrieveDocumentSetResponse/  }
+                    .find { it.name() =~ /RegistryResponse/  }
+                    .find { it.name() =~ /RegistryErrorList/ }
+                    regErrList.each { regErr ->
+                        println "\tDetails : ${regErr.attribute('errorCode')} : " + findNL(regErr.attribute('codeContext')) + "${regErr.attribute('codeContext').replaceAll('\n', '\n\t')}"
+                        if (showLocationInformation) {
+                            println "\tLocation : ${regErr.attribute('location').replaceAll('\n', '\n\t')}"
                         }
                     }
-                    catch (Exception e) {}
                 }
+                catch (Exception e) {}
             }
-		
         }
-	
-        System.exit(0)
-	
     }
 
     def findNL(str) {
-        if (str.indexOf('\n') == -1)
-		return ""
+        if (str.indexOf('\n') == -1) {
+            return ""
+        }
         return "\n\t"
     }
 	
     def logEndpoint(log) {
         if (log.RegistryEndpoint)
-		return log.RegistryEndpoint
+        {
+            return log.RegistryEndpoint
+        }
         return log.Endpoint
     }
 	
@@ -467,7 +479,6 @@ public class XTestDriverGroovy {
                 throw new Exception('foo')
             }
         } catch (Exception e) {
-		
         }
     }
 	
@@ -478,14 +489,6 @@ public class XTestDriverGroovy {
                 def dirName = test.name
                 if (isTestDir([scripts, section, test.name]) || hasTestDir([scripts, section, test.name])) {
                     def firstLine = getTestDescription(test)
-                    //				test.eachFileMatch(~/readme.txt/) { file ->
-                    //					try {
-                    //						file.eachLine { line ->
-                    //							firstLine = line
-                    //							throw new Exception('bo')
-                    //						}
-                    //					} catch (Exception e) {}
-                    //				}
                     println "${dirName}\t${firstLine}"
                 }
             }
@@ -511,8 +514,9 @@ public class XTestDriverGroovy {
             if (file.name.endsWith('.tc')) {
                 def str = file.name.substring(0,file.name.indexOf('.tc'))
                 def indx = str.lastIndexOf('/')
-                if (indx != -1)
-				str = str.substring(indx+1)
+                if (indx != -1) {
+                    str = str.substring(indx+1)
+                }
                 println str
             }
         }
@@ -540,10 +544,11 @@ public class XTestDriverGroovy {
     def firstNLines(string, n) {
         def startingAt = 0
         (1..n).each {
-            if (startingAt != -1)
-			startingAt = string.indexOf('\n', startingAt + 1)
+            if (startingAt != -1) {
+                startingAt = string.indexOf('\n', startingAt + 1)
+            }
         }
-        if (startingAt == -1) return string
+        if (startingAt == -1) { return string }
         return string.substring(0, startingAt)
     }
 
@@ -589,9 +594,9 @@ public class XTestDriverGroovy {
             def testSpec = findTest(scripts, testNum)   // identify section of test kit (test, examples, testdata etc.)
             bassert(testSpec, "Cannot find test ${testNum}")
 		
-            if (verboseverbose)
+            if (verboseverbose) {
                 println "looking for ${mkFileName(testSpec,'testplan.xml')}"
-		
+            }
             if (mkFile(testSpec,'testplan.xml').exists()) {
                 testPlanSpecs << testSpec
             }
@@ -599,13 +604,15 @@ public class XTestDriverGroovy {
                 while (inputTestSpec.size() > 0) {
                     def testEle = inputTestSpec[0]
                     inputTestSpec = inputTestSpec[1..<inputTestSpec.size()]
-                    if (verboseverbose)
+                    if (verboseverbose) {
                         println "looking in ${mkFileName(testSpec, testEle)}"
+                    }
                     if (mkFile(testSpec, testEle).isDirectory()) {
                         // specified sub-test (like SOAP11 vs SOAP12)
                         testPath = testSpec +  [ testEle ]
-                        if (mkFile(testPath, 'testplan.xml').exists())
+                        if (mkFile(testPath, 'testplan.xml').exists()) {
                             testPlanSpecs << testPath
+                        }
                     } else {
                         // must be a test step
                         testSteps << testEle
@@ -621,7 +628,7 @@ public class XTestDriverGroovy {
             System.exit(-1)
         }
         if (testSteps.size() == 0)
-            testSteps = ':all'
+        testSteps = ':all'
 	
         if (verbose) {
             println "scripts location is ${scripts}"
@@ -633,10 +640,9 @@ public class XTestDriverGroovy {
   
     def findAllTestSpecs(dirSpec) {
         def testSpecs = []
-	
-        if (mkFile(dirSpec, 'testplan.xml').exists())
-		testSpecs << dirSpec
-		
+        if (mkFile(dirSpec, 'testplan.xml').exists()) {
+            testSpecs << dirSpec
+        }
         if (mkFile(dirSpec, 'index.idx').exists()) { // file to control ordering of sub-tests
             mkFile(dirSpec, 'index.idx').eachLine {
                 it = it.trim()
@@ -665,8 +671,9 @@ public class XTestDriverGroovy {
         def section = ['tests', 'testdata', 'examples', 'internal', 'play', 'selftest', 'msw', 'development'].find { section ->
             new File(scripts + File.separatorChar + section + File.separatorChar + testNum).isDirectory()
         }
-        if (section)
+        if (section) {
             return [ scripts, section, testNum ]
+        }
         return null
     }
 
@@ -744,7 +751,7 @@ Options are:
   	Use TLS.
 
   -V --version
-  	Print version number of xdstest tool
+  	Print version number of xtest tool
 
   -T --scripts <path to scripts>
 	If not specified then value taken from HIEOSxTestDir environment variable.
@@ -757,12 +764,15 @@ Options are:
 	can also be used to specify a log directory. If a log directory is used
 	the log files are deposited into directories named for the test number.
 
+  -F --forever
+	Run tests in an endless loop for rudimentary stress testing.
+
   -run
   	Required to actually run the test. Just specifying the test with -t TESTNUM is not enough since
   	there are other functions on a test besides just running it.
 """
-        if (msg) println('Error: ' + msg)
-            println(usageMsg)
+        if (msg) { println('Error: ' + msg) }
+        println(usageMsg)
         System.exit(-1)
     }
 }
