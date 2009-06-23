@@ -265,7 +265,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 stmtFragment = "DELETE from RegistryObject WHERE id = '" + ro.getId() + "' " +
                         " AND objectType = '" + ro.getObjectType() + "' ";
             }
-            //System.out.println("*** MIRROR SQL: " + stmtFragment);
+        //System.out.println("*** MIRROR SQL: " + stmtFragment);
         }
         return stmtFragment;
     }
@@ -1197,20 +1197,37 @@ class RegistryObjectDAO extends IdentifiableDAO {
             throws RegistryException {
         Statement stmt = null;
 
-
+        // HIEOS/BHT/AMS: Changed to also update status in the RegistryObject table.
         try {
             stmt = context.getConnection().createStatement();
+            String registryObjectTableName = getTableName();
+            // First update the concrete table (e.g. ExtrinsicObject, RegistryPackage).
+            String sql = this.getSQLStatementFragmentForStatusUpdate(registryObjectTableName, status, ro.getId());
+            log.trace("SQL = " + sql);
+            stmt.addBatch(sql);
 
-            String str = "UPDATE " + getTableName() + " SET status = '" +
-                    status + "' WHERE id = '" + ro.getId() + "'";
-
-            log.trace("SQL = " + str);
-            stmt.execute(str);
+            // Now, update the RegistryObject table (if not already updated above).
+            if (!registryObjectTableName.equals(RegistryObjectDAO.getTableNameStatic())) {
+                sql = this.getSQLStatementFragmentForStatusUpdate(RegistryObjectDAO.getTableNameStatic(), status, ro.getId());
+                log.trace("SQL = " + sql);
+                stmt.addBatch(sql);
+            }
+            stmt.executeBatch();
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException"), e);
             throw new RegistryException(e);
         } finally {
             closeStatement(stmt);
         }
+    }
+
+    // HIEOS/BHT/AMS: Added new method to support status update optimization.
+    /**
+     *
+     * @param tableName
+     * @return
+     */
+    private String getSQLStatementFragmentForStatusUpdate(String tableName, String status, String id) {
+        return "UPDATE " + tableName + " SET status = '" + status + "' WHERE id = '" + id + "'";
     }
 }

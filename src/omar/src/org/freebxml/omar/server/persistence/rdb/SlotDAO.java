@@ -245,13 +245,13 @@ class SlotDAO extends AbstractDAO {
                 // The parent does not exist
                 throw new SlotsParentNotExistException(parentId);
             }
-            
+            /* HIEOS/BHT: Disabled for performance purposes.
             List slotsNamesAlreadyExist = slotsExist(parentId, slots);
             
             if (slotsNamesAlreadyExist.size() > 0) {
                 // Some slots for this RegistryObject already exist
                 throw new SlotsExistException(parentId, slotsNamesAlreadyExist);
-            }
+            }*/
             
             Iterator iter = slots.iterator();
             Vector slotNames = new Vector();

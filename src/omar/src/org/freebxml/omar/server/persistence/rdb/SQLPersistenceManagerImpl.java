@@ -705,7 +705,6 @@ public class SQLPersistenceManagerImpl
     public void updateStatus(ServerRequestContext context, List registryObjectsIds,
             String status)
             throws RegistryException {
-        // FIXME (HIEOS/BHT): Needs rewrite.
         try {
             //Make sure that status is a ref to a StatusType ClassificationNode
             context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
@@ -716,10 +715,12 @@ public class SQLPersistenceManagerImpl
             Iterator iter = refs.iterator();
             while (iter.hasNext()) {
                 ObjectRefType ref = (ObjectRefType) iter.next();
-                RegistryObjectType ro = getRegistryObject(context, ref);
+                // HIEOS/AMS/BHT: Removed next line of code (to speed up process).
+                // RegistryObjectType ro = getRegistryObject(context, ref);
+                // HIEOS/AMS/BHT: Now, calling new method (again, to speed up process).
+                RegistryObjectType ro = getRegistryObjectForStatusUpdate(context, ref);
                 RegistryObjectDAO roDAO = (RegistryObjectDAO) getDAOForObject(ro, context);
                 roDAO.updateStatus(ro, status);
-
                 orefList.getObjectRef().add(ref);
             }
 
@@ -944,9 +945,8 @@ public class SQLPersistenceManagerImpl
                 while (iter.hasNext()) {
                     Object param = iter.next();
                     ((PreparedStatement) stmt).setObject(++paramCount, param);
-                // HIEOS/BHT (DEBUG):
-                log.trace("  -> param(" + new Integer(paramCount).toString()
-                        + "): " + (String)param);
+                    // HIEOS/BHT (DEBUG):
+                    log.trace("  -> param(" + new Integer(paramCount).toString() + "): " + (String) param);
                 }
                 rs = ((PreparedStatement) stmt).executeQuery();
             }
@@ -986,20 +986,20 @@ public class SQLPersistenceManagerImpl
                         break;
                     }
                 }
-            // HIEOS/BHT (DEBUG):
-            log.trace(" -> cnt: " + totalResultCount);
+                // HIEOS/BHT (DEBUG):
+                log.trace(" -> cnt: " + totalResultCount);
             } else if (returnType == ReturnType.REGISTRY_OBJECT) {
                 context.setResponseOption(responseOption);
                 RegistryObjectDAO roDAO = new RegistryObjectDAO(context);
                 res = roDAO.getObjects(rs, startIndex, maxResults);
-            // HIEOS/BHT (DEBUG):
-            log.trace(" -> Object Size: " + res.size());
+                // HIEOS/BHT (DEBUG):
+                log.trace(" -> Object Size: " + res.size());
             } else if ((returnType == ReturnType.LEAF_CLASS) ||
                     (returnType == ReturnType.LEAF_CLASS_WITH_REPOSITORY_ITEM)) {
                 res = getObjects(context, connection, rs, tableName, responseOption,
                         objectRefs, startIndex, maxResults);
-            // HIEOS/BHT (DEBUG):
-            log.trace(" -> Object Size: " + res.size());
+                // HIEOS/BHT (DEBUG):
+                log.trace(" -> Object Size: " + res.size());
             } else {
                 throw new RegistryException(ServerResourceBundle.getInstance().getString("message.invalidReturnType",
                         new Object[]{returnType}));
@@ -1187,6 +1187,55 @@ public class SQLPersistenceManagerImpl
         }
 
         return obj;
+    }
+
+    // HEIOS/AMS/BHT Added new method to optimize status update operations.
+    /**
+     * Return a concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType)
+     * depending on the "objectType" found in the "RegistryObject" table.
+     * 
+     * @param context Holds the context for request processing.
+     * @param ref Holds the object reference that we are interested in.
+     * @return A concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType).
+     * @throws javax.xml.registry.RegistryException
+     */
+    public RegistryObjectType getRegistryObjectForStatusUpdate(ServerRequestContext context, ObjectRefType ref)
+            throws RegistryException {
+        Connection connection = context.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            // First get the type of registry object:
+            String tableName = RegistryObjectDAO.getTableNameStatic();
+            String sql = "SELECT objectType FROM " + tableName + " WHERE id = ?";
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, ref.getId());
+            log.trace("SQL = " + sql.toString());
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            String objectType = rs.getString(1);
+
+            // Now instantiate the proper concrete registry object type:
+            RegistryObjectType concreteRegistryObject = null;
+            if (BindingUtility.CANONICAL_OBJECT_TYPE_ID_RegistryPackage.equalsIgnoreCase(objectType)) {
+                concreteRegistryObject = bu.rimFac.createRegistryPackage();
+            } else {
+                concreteRegistryObject = bu.rimFac.createExtrinsicObject();
+            }
+            concreteRegistryObject.setId(ref.getId());  // Just to be in sync.
+            return concreteRegistryObject;
+        } catch (SQLException e) {
+            throw new RegistryException(e);
+        } catch (JAXBException e) {
+            throw new RegistryException(e);
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException sqle) {
+                    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
+                }
+            }
+        }
     }
 
     /**
