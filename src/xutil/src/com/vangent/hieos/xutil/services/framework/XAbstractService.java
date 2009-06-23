@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.services.framework;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -73,10 +72,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected MessageContext return_message_context = null;
 
 
-    static {
-        BasicConfigurator.configure();
-    }
-
+    /*static {
+    BasicConfigurator.configure();
+    }*/
     /**
      *
      * @return
@@ -199,7 +197,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         if (message == null || message.equals("")) {
             message = e.getMessage();
         }
-        System.out.println("Exception: " + exception_details(e));
+        logger.error("Exception thrown while processing web service request", e);
         endTransaction(false);
         return start_up_error(request, e, actor, message);
     }
@@ -285,9 +283,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     }
 
-   /**
-    *
-    */
+    /**
+     *
+     */
     protected void startTestLog() {
         logger.info("+++ start log [service = " + service_name + "] +++");
     }
@@ -486,7 +484,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * they are invoked by a service request.
      */
     public void init(ServiceContext serviceContext) throws AxisFault {
-        System.out.println("XdsService:::init() - NOOP (not overridden)");
+        logger.info("XdsService:::init() - NOOP (not overridden)");
     }
 
     /**
@@ -494,7 +492,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * of the back-end service class. It allows classes to clean up resources.
      */
     public void destroy(ServiceContext serviceContext) {
-        System.out.println("XdsService:::destroy() - NOOP (not overridden)");
+        logger.info("XdsService:::destroy() - NOOP (not overridden)");
     }
 
     /**
@@ -502,7 +500,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * Irrespective of the service scope this method will be called
      */
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        System.out.println("XdsService:::startUp() - NOOP (not overridden)");
+        logger.info("XdsService:::startUp() - NOOP (not overridden)");
     }
 
     /**
@@ -510,7 +508,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * of the service scope this method will be called
      */
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        System.out.println("XdsService:::shutDown() - NOOP (not overridden)");
+        logger.info("XdsService:::shutDown() - NOOP (not overridden)");
     }
 
     /**
@@ -522,8 +520,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_STOP, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            System.out.println("*** Internal Error occured in XdsService::ATNAlogStop() method ***");
-            e.printStackTrace();
+            logger.error("*** Internal Error occured in XdsService::ATNAlogStop() method ***", e);
         }
     }
 
@@ -536,8 +533,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_START, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            System.out.println("*** Internal Error occured in XdsService::ATNAlogStart() method ***");
-            e.printStackTrace();
+            logger.error("*** Internal Error occured in XdsService::ATNAlogStart() method ***", e);
         }
     }
 }
