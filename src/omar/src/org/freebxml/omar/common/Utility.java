@@ -258,7 +258,10 @@ public class Utility {
                 isValidURN = true;
             } catch (URISyntaxException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug(e, e);
+                    // HIEOS/AMS: Commented the following log statement - logging
+                    // too much for an exception that is being swallowed.
+                    // log.debug(e, e);
+                    log.error(e.getMessage());
                 }            
             }
         }
