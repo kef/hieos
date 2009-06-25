@@ -13,7 +13,6 @@
 
 package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
-//import com.vangent.hieos.services.xds.registry.support.StoredQueryRequestSoapValidator;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.services.framework.ContentValidationService;
@@ -27,6 +26,7 @@ import com.vangent.hieos.xutil.response.Response;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
+import org.apache.log4j.Logger;
 
 // Axis2 LifeCycle support.
 import org.apache.axis2.context.ConfigurationContext;
@@ -40,6 +40,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
  * @author Bernie Thuman
  */
 public class XCAGateway extends XAbstractService implements ContentValidationService {
+    private final static Logger logger = Logger.getLogger(XCAGateway.class);
 
     /**
      * 
@@ -233,8 +234,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
-
-        System.out.println("XCAGateway::startUp(): " + service.getParameterValue("ActorName"));
+        logger.info("XCAGateway::startUp(): " + service.getParameterValue("ActorName"));
         if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
             this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
         } else {
@@ -248,7 +248,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        System.out.println("XCAGateway::shutDown(): " + service.getParameterValue("ActorName"));
+        logger.info("XCAGateway::shutDown(): " + service.getParameterValue("ActorName"));
         if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
             this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
         } else {

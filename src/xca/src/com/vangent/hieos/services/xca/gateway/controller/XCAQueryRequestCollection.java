@@ -40,15 +40,15 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
+    private final static Logger logger = Logger.getLogger(XCAQueryRequestCollection.class);
 
     /**
      *
@@ -138,7 +138,7 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
             ATNAtxn = XATNALogger.TXN_ITI38;
         }
 
-        System.out.println("*** XCA action: " + action + ", endpoint: " + endpoint + " ***");
+        logger.info("*** XCA action: " + action + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
         soap.setAsync(false);

@@ -477,13 +477,13 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
                         queryResultNode = (OMElement) nextNode;
                     } catch (Exception e) {
                         OMText textNode = (OMText) nextNode;
-                        System.out.println("***** BUG: " + nextNode.getClass().getName());
-                        System.out.println(" -- Node -- ");
-                        System.out.println("isBinary: " + textNode.isBinary());
-                        System.out.println("isCharacters: " + textNode.isCharacters());
-                        System.out.println("isOptimized: " + textNode.isOptimized());
-                        System.out.println(textNode.getText());
-                        System.out.flush();
+                        // Only have seen this problem with Intersystems XCA
+                        logger.error("***** BUG: " + nextNode.getClass().getName());
+                        logger.error(" -- Node -- ");
+                        logger.error("isBinary: " + textNode.isBinary());
+                        logger.error("isCharacters: " + textNode.isCharacters());
+                        logger.error("isOptimized: " + textNode.isOptimized());
+                        logger.error(textNode.getText());
                     }
                     response.addQueryResults(queryResultNode);
                 }

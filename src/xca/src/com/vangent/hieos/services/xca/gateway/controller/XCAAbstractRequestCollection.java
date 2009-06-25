@@ -25,6 +25,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 // Third party.
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.XdsWSException;
@@ -35,6 +36,7 @@ import com.vangent.hieos.xutil.exception.XdsException;
  * @author Bernie Thuman
  */
 abstract public class XCAAbstractRequestCollection {
+    private final static Logger logger = Logger.getLogger(XCAAbstractRequestCollection.class);
 
     private String uniqueId = null;             // Target entity id (homeCommunityId, repositoryId, registryName.
     private boolean isLocalRequest = false;     // True if going to a local entity (e.g. registry/repository).
@@ -117,8 +119,8 @@ abstract public class XCAAbstractRequestCollection {
             XATNALogger xATNALogger = new XATNALogger(ATNAtxn, XATNALogger.ActorType.DOCCONSUMER);
             xATNALogger.performAudit(request, endpoint, outcome);
         } catch (Exception e) {
-            System.out.println("*** Internal Error occured in XCAAbstractRequestCollection::performAudit() method ***");
-            e.printStackTrace();
+            // Eat exception.
+            logger.error("Could not perform ATNA audit", e);
         }
     }
 }

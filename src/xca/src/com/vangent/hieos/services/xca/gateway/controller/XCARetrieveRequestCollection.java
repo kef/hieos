@@ -23,7 +23,6 @@ import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import java.util.logging.Level;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -42,15 +41,15 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import javax.xml.namespace.QName;
-
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
-
+    private final static Logger logger = Logger.getLogger(XCARetrieveRequestCollection.class);
+    
     /**
      *
      * @param uniqueId
@@ -152,7 +151,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
             ATNAtxn = XATNALogger.TXN_ITI39;
         }
 
-        System.out.println("*** XCA action: " + action + ", endpoint: " + endpoint + " ***");
+        logger.info("*** XCA action: " + action + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
         soap.setAsync(false);

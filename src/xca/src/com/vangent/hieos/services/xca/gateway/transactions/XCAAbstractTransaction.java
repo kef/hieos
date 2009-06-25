@@ -43,6 +43,7 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 abstract public class XCAAbstractTransaction extends XBaseTransaction {
+    private final static Logger logger = Logger.getLogger(XCAAbstractTransaction.class);
 
     // So the gateway transaction can operate in either mode.
     public enum GatewayType {
@@ -50,8 +51,6 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
         InitiatingGateway, RespondingGateway, Unknown
     };
 
-    // BHT (FIXME) Fixup protected usage (not finished "lifting" refactor).
-    private final static Logger logger = Logger.getLogger(XCAAbstractTransaction.class);
     private ContentValidationService validater;
     private XAbstractService service;
     private XCARequestController requestController = null;
@@ -151,8 +150,8 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
             XATNALogger xATNALogger = new XATNALogger(ATNAtxn, actorType);
             xATNALogger.performAudit(request, endpoint, outcome);
         } catch (Exception e) {
-            System.out.println("*** Internal Error occured in XCAAbstractTransaction::performAudit() method ***");
-            e.printStackTrace();
+            // Eat exception.
+            logger.error("Could not perform ATNA audit", e);
         }
     }
 
@@ -167,8 +166,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
             logger.error(errorString);
         } catch (Exception e) {
             // We really need to ignore this exception to avoid indirect recursion.
-            System.out.println("XCA ERROR: Could not log info");
-            e.printStackTrace(System.out);
+            logger.error("XCA ERROR: Could not log info", e);
         }
     }
 
@@ -182,8 +180,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
             log_message.addOtherParam(logLabel, infoString);
             logger.info(logLabel + " : " + infoString);
         } catch (Exception e) {
-            System.out.println("XCA ERROR: Could not log info");
-            e.printStackTrace(System.out);
+            logger.error("XCA ERROR: Could not log info", e);
         }
     }
 
