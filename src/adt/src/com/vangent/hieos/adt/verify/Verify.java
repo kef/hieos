@@ -16,14 +16,15 @@ import com.vangent.hieos.adt.db.AdtJdbcConnection;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
+
 
 /**
  * 
  * @author thumbe
  */
 public class Verify {
+    private final static Logger logger = Logger.getLogger(Verify.class);
 
     /**
      *
@@ -45,10 +46,10 @@ public class Verify {
             con = new AdtJdbcConnection();
             isv = con.doesIdExist(patientId);
         } catch (XdsInternalException e) {
-            Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, e);
+            logger.error("Could not verify patient id", e);
             throw e;
         } catch (SQLException e) {
-            Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, e);
+            logger.error("Could not verify patient id", e);
             throw new XdsInternalException("Failure validating patient id: " + e.getMessage());
         } finally {
             if (con != null) {

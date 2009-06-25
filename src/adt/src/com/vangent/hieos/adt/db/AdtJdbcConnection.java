@@ -31,8 +31,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * For use in communicating with the ADT database.  At the moment, this is
@@ -41,6 +40,7 @@ import java.util.logging.Logger;
  * @author Andrew McCaffrey
  */
 public class AdtJdbcConnection {
+    private final static Logger logger = Logger.getLogger(AdtJdbcConnection.class);
 
     private Connection con = null;
     private Statement stmt = null;
@@ -172,12 +172,12 @@ public class AdtJdbcConnection {
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         } catch (SQLException ex) {
-            Logger.getLogger(AdtJdbcConnection.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("ADT: Could not create statement", ex);
             try {
                 con.close();
                 con = null;
             } catch (SQLException ex1) {
-                Logger.getLogger(AdtJdbcConnection.class.getName()).log(Level.SEVERE, null, ex1);
+                logger.error("ADT: Could not close connection", ex1);
             }
             throw ex;
         }
@@ -202,16 +202,16 @@ public class AdtJdbcConnection {
                 stmt.close();
                 stmt = null;
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(AdtJdbcConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException e) {
+            logger.error("ADT: Could not close statement", e);
         }
         try {
             if (con != null) {
                 con.close();
                 con = null;
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(AdtJdbcConnection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException e) {
+            logger.error("ADT: Could not close connection", e);
         }
     }
 
@@ -223,6 +223,7 @@ public class AdtJdbcConnection {
      */
     private ResultSet executeQuery(String sql) throws SQLException {
         ResultSet result = null;
+        logger.trace("SQL(adt) = " + sql);
         result = stmt.executeQuery(sql);
         return result;
     }
@@ -235,6 +236,7 @@ public class AdtJdbcConnection {
      * then no update occured.)
      */
     private int executeUpdate(String sql) throws SQLException {
+        logger.trace("SQL(adt) = " + sql);
         return stmt.executeUpdate(sql);
     }
 
@@ -287,7 +289,6 @@ public class AdtJdbcConnection {
         sb.append(this.ADT_MAIN_TABLE);
         sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
         sb.append(";");
-        //System.out.println("DEBUG [addAdtRecord]: " + sb.toString());  // DEBUG
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -314,7 +315,6 @@ public class AdtJdbcConnection {
             sb.append("timestamp" + " = " + "'" + getDate() + "'");
             sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'").append(";");
         }
-        //System.out.println("DEBUG [addAdtRecord]: " + sb.toString());  // DEBUG
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
     }
@@ -333,7 +333,6 @@ public class AdtJdbcConnection {
         sb.append(this.ADT_PATIENT_NAME_TABLE);
         sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'");
         sb.append(";");
-        //System.out.println("DEBUG [addHl7Name]: " + sb.toString());  // DEBUG
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -363,7 +362,6 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_PATIENTNAME_SUFFIX + " = " + "'" + name.getSuffix() + "'");
             sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'").append(";");
         }
-        //System.out.println("DEBUG [addHl7Name]: " + sb.toString());  // DEBUG
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
     }
@@ -382,7 +380,6 @@ public class AdtJdbcConnection {
         sb.append(this.ADT_PATIENT_ADDRESS_TABLE);
         sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'");
         sb.append(";");
-        //System.out.println("DEBUG [addHl7Address]: " + sb.toString());  // DEBUG
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -413,7 +410,6 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_PATIENTADDRESS_ZIPCODE + " = " + "'" + address.getZipCode() + "'");
             sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'").append(";");
         }
-        //System.out.println("DEBUG [addHl7Address]: " + sb.toString());  // DEBUG
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
     }
@@ -461,7 +457,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
         sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "';");
-
         ResultSet result = this.executeQuery(sb.toString());
         return result.next();
     }
@@ -477,8 +472,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT UUID ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
         sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "';");
-        //System.out.println("DEBUG [getPatientUUID]: " + sb.toString());  // DEBUG
-
         ResultSet result = this.executeQuery(sb.toString());
         if (result.first() == false) {
             // not found.
@@ -498,7 +491,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_NAME_TABLE + " ");
         sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
-
         ResultSet result = this.executeQuery(sb.toString());
         Collection names = new ArrayList();
         while (result.next()) {
@@ -526,7 +518,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_RACE_TABLE + " ");
         sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
-
         ResultSet result = this.executeQuery(sb.toString());
         Collection races = new ArrayList();
         while (result.next()) {
@@ -549,7 +540,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_ADDRESS_TABLE + " ");
         sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
-
         ResultSet result = this.executeQuery(sb.toString());
         Collection addresses = new ArrayList();
         while (result.next()) {
@@ -586,7 +576,6 @@ public class AdtJdbcConnection {
             // not found.
             return null;
         }
-
         AdtRecord record = new AdtRecord();
         record.setUuid(uuid);
         record.setPatientAccountNumber(result.getString(this.ADT_MAIN_ACCOUNT_NUMBER));
@@ -608,6 +597,7 @@ public class AdtJdbcConnection {
     public void deleteAdtRecord(String uuid) throws SQLException {
         StringBuffer sb;
         int rowsAffected;
+
         // Delete the main table entries.
         sb = new StringBuffer();
         sb.append("DELETE ");

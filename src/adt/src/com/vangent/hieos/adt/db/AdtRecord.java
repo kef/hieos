@@ -25,8 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Currently for the purposes of XDS, an ADT patient record consists of only a
@@ -36,6 +35,7 @@ import java.util.logging.Logger;
  * @author Andrew McCaffrey
  */
 public class AdtRecord {
+    private final static Logger logger = Logger.getLogger(AdtRecord.class);
 
     private String uuid = null;
     private String patientId = null;
@@ -328,9 +328,9 @@ public class AdtRecord {
         AdtJdbcConnection con = new AdtJdbcConnection();
         try {
             con.addAdtRecord(this);
-        } catch (SQLException ex) {
-            Logger.getLogger(AdtRecord.class.getName()).log(Level.SEVERE, null, ex);
-            throw ex;
+        } catch (SQLException e) {
+            logger.error("Problem adding ADT record", e);
+            throw e;
         } finally {
             con.closeConnection();
         }
