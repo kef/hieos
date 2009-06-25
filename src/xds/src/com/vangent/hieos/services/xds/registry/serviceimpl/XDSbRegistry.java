@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.serviceimpl;
 
 //import com.vangent.hieos.services.xds.registry.support.StoredQueryRequestSoapValidator;
@@ -53,7 +52,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
     public boolean runContentValidationService(Metadata m, Response response) throws MetadataException {
         return true;
     }
-   
+
     /**
      *
      * @param sor
@@ -172,7 +171,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         return result;
     }
 
-     private String getServiceName() {
+    private String getServiceName() {
         return "R.b";
     }
 
@@ -219,7 +218,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         if (!this.isSQ(sor)) {
             throw new XdsValidationException("Only StoredQuery is acceptable on this endpoint");
         }
-        //new StoredQueryRequestSoapValidator(getXdsVersion(), getMessageContext()).runWithException();
+    //new StoredQueryRequestSoapValidator(getXdsVersion(), getMessageContext()).runWithException();
     }
 
     /**
