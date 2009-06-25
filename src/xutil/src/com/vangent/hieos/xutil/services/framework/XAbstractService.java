@@ -43,7 +43,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.TransportHeaders;
-import org.apache.log4j.BasicConfigurator;
+//import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 // Axis2 LifeCycle support:
@@ -287,7 +287,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      */
     protected void startTestLog() {
-        logger.info("+++ start log [service = " + service_name + "] +++");
+        //logger.info("+++ start log [service = " + service_name + "] +++");
     }
 
     /**
@@ -298,7 +298,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.store();
             log_message = null;
         }
-        logger.info("+++ stop log [service = " + service_name + "] +++");
+        //logger.info("+++ stop log [service = " + service_name + "] +++");
     }
 
     /**
