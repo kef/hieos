@@ -69,7 +69,6 @@ public class XLoggerBean implements MessageListener {
                 Object so = m.getObject();  // Serialized object.
                 if (so instanceof XLogMessage) {
                     XLogMessage logMessage = (XLogMessage) so;
-                    //System.out.println("******* XLogMessage RECEIVED *******");
                     this.persist(logMessage);
                 }
             } else if (message instanceof TextMessage) {
