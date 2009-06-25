@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
  * @author yoga
  */
 public class SyslogWriter extends Writer {
-    private final static Logger logger = Logger.getLogger(SyslogWriter.class);
 
+    private final static Logger logger = Logger.getLogger(SyslogWriter.class);
     final int SYSLOG_PORT = 514;
     String syslogHost;
     int syslogPort;
@@ -88,8 +88,9 @@ public class SyslogWriter extends Writer {
 
         if (this.ds != null && this.address != null) {
             String syslogMsg = "<" + syslogMsgLevel + ">" + currentDateTime + " " + myhostname + " " + msg;
-            logger.trace("xxx: Syslog msg=[" + syslogMsg + "]");
-
+            if (logger.isTraceEnabled()) {
+                logger.trace("xxx: Syslog msg=[" + syslogMsg + "]");
+            }
             byte[] bytes = syslogMsg.getBytes();
             //
             //  syslog packets must be less than 1024 bytes
