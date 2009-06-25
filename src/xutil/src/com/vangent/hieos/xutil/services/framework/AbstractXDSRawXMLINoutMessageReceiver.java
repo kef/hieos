@@ -10,10 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.services.framework;
-
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 import java.lang.reflect.Method;
 
@@ -26,9 +23,10 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.i18n.Messages;
 import org.apache.axis2.receivers.AbstractInOutMessageReceiver;
-import org.apache.axis2.addressing.EndpointReference;
+import org.apache.log4j.Logger;
 
 abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOutMessageReceiver {
+    private final static Logger logger = Logger.getLogger(AbstractXDSRawXMLINoutMessageReceiver.class);
 
     abstract public void validate_action(MessageContext msgContext, MessageContext newmsgContext) throws Exception;
 
@@ -74,23 +72,13 @@ abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOu
      */
     public void invokeBusinessLogic(MessageContext msgContext, MessageContext newmsgContext)
             throws AxisFault {
-
         try {
-
             String in_action = msgContext.getWSAAction();
-
-            //System.out.println("in_action = " + in_action);
-
             newmsgContext.setRelationships(new RelatesTo[]{new RelatesTo(msgContext.getMessageID())});
-
             validate_action(msgContext, newmsgContext);
 
-            //System.out.println("out_action = " + newmsgContext.getWSAAction());
-
             // get the implementation class for the Web Service
-
             Object obj = getTheImplementationObject(msgContext);
-
 
             // make return message context available to service
             if (obj instanceof XAbstractService) {
@@ -99,18 +87,12 @@ abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOu
             }
 
             // find the WebService method
-
             Class implClass = obj.getClass();
-
             AxisOperation opDesc = msgContext.getAxisOperation();
-
             Method method = findOperation(opDesc, implClass);
-
             Method methodDisplay = implClass.getMethod("setMessageContextIn",
                     new Class[]{MessageContext.class});
-
             methodDisplay.invoke(obj, new Object[]{msgContext});
-
             if (method == null) {
                 throw new AxisFault(Messages.getMessage(
                         "methodDoesNotExistInOut",
@@ -121,21 +103,13 @@ abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOu
                     obj, new Object[]{msgContext.getEnvelope().getBody().getFirstElement()});
 
             SOAPFactory fac = getSOAPFactory(msgContext);
-
             SOAPEnvelope envelope = fac.getDefaultEnvelope();
-
             if (result != null) {
                 envelope.getBody().addChild(result);
             }
-
-
             newmsgContext.setEnvelope(envelope);
-            //System.out.println("*** AT END: out_action = " + newmsgContext.getWSAAction());
-
         } catch (Exception e) {
-
-            System.out.println("Error in XDSRawXMLInOut:\n" + e.getMessage() + "\ngetSoapAction = " + msgContext.getSoapAction());
-
+            logger.error("Error in XDSRawXMLInOut:\n" + e.getMessage() + "\ngetSoapAction = " + msgContext.getSoapAction());
             throw AxisFault.makeFault(e);
 
         }

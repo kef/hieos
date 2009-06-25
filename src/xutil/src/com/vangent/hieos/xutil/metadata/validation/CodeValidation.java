@@ -298,7 +298,7 @@ public class CodeValidation {
             this.assigning_authorities = new ArrayList<String>();
             for (Iterator it = assigningAuthoritiesConfig.iterator(); it.hasNext();) {
                 XConfigAssigningAuthority aa = (XConfigAssigningAuthority) it.next();
-                System.out.println("Assigning Authority: " + aa.getUniqueId());
+                //System.out.println("Assigning Authority: " + aa.getUniqueId());
                 this.assigning_authorities.add(aa.getUniqueId());
             }
 

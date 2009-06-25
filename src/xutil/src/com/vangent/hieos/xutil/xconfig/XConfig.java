@@ -34,6 +34,7 @@ import org.apache.axiom.om.OMElement;
 import java.util.Collection;
 import java.io.File;
 import java.io.FileInputStream;
+import org.apache.log4j.Logger;
 
 /**
  * Maintains system configuration parameters for IHE XDS.b and XCA profiles.  Acts as a Singleton.
@@ -42,6 +43,7 @@ import java.io.FileInputStream;
  *
  */
 public class XConfig {
+    private final static Logger logger = Logger.getLogger(XConfig.class);
 
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private String _configURL = "http://localhost:8080/xref/config/xconfig.xml";
@@ -230,7 +232,7 @@ public class XConfig {
         String configXML = null;
         if (configLocation != null) {
             try {
-                System.out.println("Loading XConfig from: " + configLocation);
+                logger.info("Loading XConfig from: " + configLocation);
                 // Get the configuration file from the file system.
                 configXML = Io.getStringFromInputStream(new FileInputStream(new File(configLocation)));
             } catch (Exception e) {
@@ -239,7 +241,7 @@ public class XConfig {
             }
         } else {
             configLocation = _configURL;
-            System.out.println("Loading XConfig from: " + configLocation);
+            logger.info("Loading XConfig from: " + configLocation);
             // Get the configuration file from web server.
             try {
                 configXML = HttpClient.httpGet(configLocation);

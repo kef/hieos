@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.services.framework;
 
 import com.vangent.hieos.xutil.response.Response;
@@ -23,47 +22,87 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
-//import org.apache.axis2.description.AxisEndpoint;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XBaseTransaction {
 
+    private final static Logger logger = Logger.getLogger(XBaseTransaction.class);
+    /**
+     *
+     */
     public Response response = null;
+    /**
+     *
+     */
     public XLogMessage log_message = null;
+    /**
+     *
+     */
     public static final short xds_none = 0;
+    /**
+     *
+     */
     public static final short xds_a = 2;
+    /**
+     *
+     */
     public static final short xds_b = 3;
+    /**
+     *
+     */
     public short xds_version = xds_none;
     MessageContext messageContext = null;
-    private final static Logger logger = Logger.getLogger(XBaseTransaction.class);
 
     //Added these 2 boolean values for success flag which is needed to be sent to audit message
+    /**
+     *
+     */
     protected final static boolean SUCCESS = true;
+    /**
+     * 
+     */
     protected final static boolean FAILURE = false;
-
 
     /* BHT: Removed:
     static {
-        BasicConfigurator.configure();
+    BasicConfigurator.configure();
     }
-    */
-
+     */
+    /**
+     *
+     * @return
+     */
     public MessageContext getMessageContext() {
         return messageContext;
     }
 
+    /**
+     *
+     * @param response
+     * @param xds_version
+     * @param messageContext
+     */
     protected void init(Response response, short xds_version, MessageContext messageContext) {
         this.response = response;
         this.xds_version = xds_version;
         this.messageContext = messageContext;
-
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean getStatus() {
         return !response.has_errors();
     }
 
+    /**
+     *
+     */
     protected void log_status() {
         try {
             String e_and_w = response.getErrorsAndWarnings();
@@ -75,9 +114,17 @@ public class XBaseTransaction {
         }
     }
 
+    /**
+     *
+     */
     protected void init_log() {
     }
 
+    /**
+     *
+     * @param e
+     * @return
+     */
     public static String logger_exception_details(Exception e) {
         if (e == null) {
             return "";
@@ -85,6 +132,9 @@ public class XBaseTransaction {
         return e.getClass().getName() + "  " + e.getMessage() + ExceptionUtil.exception_details(e, 10);
     }
 
+    /**
+     *
+     */
     protected void log_response() {
         if (log_message == null) {
             System.out.println("\nFATAL ERROR: XdsCommon.log_response(): log_message is null\n");
@@ -104,12 +154,20 @@ public class XBaseTransaction {
         }
     }
 
+    /**
+     *
+     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     */
     protected void mustBeSimpleSoap() throws XdsFormatException {
         if (getMessageContext().isDoingMTOM()) {
             throw new XdsFormatException("This transaction must use SIMPLE SOAP, MTOM found");
         }
     }
 
+    /**
+     *
+     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     */
     protected void mustBeMTOM() throws XdsFormatException {
         if (!getMessageContext().isDoingMTOM()) {
             throw new XdsFormatException("This transaction must use MTOM, SIMPLE SOAP found");
@@ -122,9 +180,9 @@ public class XBaseTransaction {
      * The inherited classes should have to just call this method from where ever they want to do audit
      * @param transactionNumber
      * @param metadata
-     * @param messageContext
-     * @param type
-     * @param successFlag
+     * @param targetEndpoint
+     * @param outcome 
+     * @param actor
      */
     protected void performAudit(String transactionNumber, OMElement metadata, String targetEndpoint, XATNALogger.ActorType actor, XATNALogger.OutcomeIndicator outcome) {
         try {
@@ -139,9 +197,7 @@ public class XBaseTransaction {
 
             xATNALogger.performAudit(metadata, targetEndpoint, outcome);
         } catch (Exception e) {
-            //response.error("*** Internal Error occured in XdsCommon in performAudit() method ***");
-            System.out.println("*** Internal Error occured in XdsCommon in performAudit() method ***");
-            e.printStackTrace();
+            logger.error("Could not perform ATNA audit", e);
         }
     }
 }

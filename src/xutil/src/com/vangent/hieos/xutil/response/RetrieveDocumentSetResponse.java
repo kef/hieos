@@ -28,11 +28,8 @@ public class RetrieveDocumentSetResponse {
 	
 	public OMElement getResponse() throws XdsInternalException {
 		OMElement response = MetadataSupport.om_factory.createOMElement(new QName(MetadataSupport.xdsB_uri, "RetrieveDocumentSetResponse"));
-		
 		response.addChild(rr.getResponse());
-		
-		System.out.println("response is \n" + response.toString());
-	
+		//System.out.println("response is \n" + response.toString());
 		return response;
 	}
 

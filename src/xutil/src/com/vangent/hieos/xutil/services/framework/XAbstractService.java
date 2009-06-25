@@ -298,7 +298,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.store();
             log_message = null;
         }
-        //logger.info("+++ stop log [service = " + service_name + "] +++");
+    //logger.info("+++ stop log [service = " + service_name + "] +++");
     }
 
     /**
@@ -520,7 +520,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_STOP, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            logger.error("*** Internal Error occured in XdsService::ATNAlogStop() method ***", e);
+            logger.error("Could not perform ATNA audit", e);
         }
     }
 
@@ -533,7 +533,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_START, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            logger.error("*** Internal Error occured in XdsService::ATNAlogStart() method ***", e);
+            logger.error("*** Internal Error occured in XdsService::ATNAlogStop() method ***", e);
         }
     }
 }

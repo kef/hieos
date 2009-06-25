@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.atna;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -32,6 +31,8 @@ import java.net.URL;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author Vincent Lewis (original)
@@ -40,6 +41,8 @@ import org.apache.commons.codec.binary.Base64;
  * @author Bernie Thuman (rewrite).
  */
 public class XATNALogger {
+
+    private final static Logger logger = Logger.getLogger(XATNALogger.class);
 
     // Public accessible parameters.
     public static final String TXN_ITI18 = "ITI-18";
@@ -576,9 +579,9 @@ public class XATNALogger {
         /* BHT: Removed and replaced with line below.
         String queryBase64String = Base64Coder.encodeString(query);  // Convert to base64.
         byte[] queryBase64Bytes = queryBase64String.getBytes();
-        */
+         */
         byte[] queryBase64Bytes = Base64.encodeBase64(query.getBytes());
-        
+
         // Patient ID:
         CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
         amb.setParticipantObject(
@@ -849,11 +852,18 @@ public class XATNALogger {
             this.targetEndpoint = targetEndpoint;
             this.hostAddress = addr.getHostAddress();
             this.pid = ManagementFactory.getRuntimeMXBean().getName();
-            MessageContext messageContext = this.getCurrentMessageContext();
-            this.endpoint = messageContext.getTo().toString();
-            //this.fromAddress = messageContext.getFrom().toString();
-            this.fromAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
-            this.replyTo = messageContext.getReplyTo().toString();
+            if (targetEndpoint != null) {
+                MessageContext messageContext = this.getCurrentMessageContext();
+                this.endpoint = messageContext.getTo().toString();
+                //this.fromAddress = messageContext.getFrom().toString();
+                this.fromAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
+                this.replyTo = messageContext.getReplyTo().toString();
+            } else {
+                // A startup/shutdown scenario.
+                this.endpoint = null;
+                this.fromAddress = null;
+                this.replyTo = null;
+            }
         /*
         // The endpoint for the current web service running.
         AxisEndpoint axisEndPoint = (AxisEndpoint) messageContext.getProperty("endpoint");
@@ -876,8 +886,7 @@ public class XATNALogger {
         System.out.println("-----------------------");
          */
         } catch (Exception e) {
-            System.out.println("Exception in XATNALogger: " + e.getMessage());
-        // FIXME - IGNORE FOR NOW.
+            logger.error("Exception in XATNALogger", e);
         }
     }
 
@@ -885,6 +894,6 @@ public class XATNALogger {
      *
      */
     private void logWarning() {
-        System.out.println("\n\n WARNING: AUDIT LOGGING TURNED OFF. CHECK Xconfig.xml \n\n");
+        logger.warn("WARNING: ATNA AUDIT LOGGING TURNED OFF. CHECK xconfig.xml settings.");
     }
 }

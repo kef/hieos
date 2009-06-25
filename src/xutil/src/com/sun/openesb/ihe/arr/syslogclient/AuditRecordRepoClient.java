@@ -5,12 +5,14 @@
 package com.sun.openesb.ihe.arr.syslogclient;
 
 import java.io.IOException;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author yoga
  */
 public class AuditRecordRepoClient {
+    private final static Logger logger = Logger.getLogger(AuditRecordRepoClient.class);
 
     SyslogWriter logWriter = null;
 
@@ -30,12 +32,12 @@ public class AuditRecordRepoClient {
     
     public void sendAuditMessage(String msg) {
         if (logWriter == null) {
-            System.out.println("ERROR: Fatal: SyslogWriter is null. Will not writer audit message");
+            logger.error("ERROR: Fatal: SyslogWriter is null. Will not writer audit message");
         }
         try {
             logWriter.write(msg);
         } catch (IOException ex) {
-            System.out.println("ERROR: failed to Writer Audit Message");
+            logger.error("ERROR: failed to Writer Audit Message");
         }
     }
 

@@ -18,11 +18,14 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author yoga
  */
 public class SyslogWriter extends Writer {
+    private final static Logger logger = Logger.getLogger(SyslogWriter.class);
 
     final int SYSLOG_PORT = 514;
     String syslogHost;
@@ -49,23 +52,22 @@ public class SyslogWriter extends Writer {
         try {
             this.address = InetAddress.getByName(syslogHost);
         } catch (UnknownHostException e) {
-            System.out.println("Could not find " + syslogHost +
-                    ". All logging will FAIL." + e.getMessage());
+            logger.error("Could not find " + syslogHost +
+                    ". All logging will FAIL." + e.getMessage(), e);
         }
 
         try {
             this.myhostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            System.out.println("Could not find localhost name");
+            logger.error("Could not find localhost name", e);
             this.myhostname = "localhost";
         }
 
         try {
             this.ds = new DatagramSocket();
         } catch (SocketException e) {
-            e.printStackTrace();
-            System.out.println("Could not instantiate DatagramSocket to " + syslogHost +
-                    ". All logging will FAIL." + e.getMessage());
+            logger.error("Could not instantiate DatagramSocket to " + syslogHost +
+                    ". All logging will FAIL." + e.getMessage(), e);
         }
 
     }
@@ -86,7 +88,7 @@ public class SyslogWriter extends Writer {
 
         if (this.ds != null && this.address != null) {
             String syslogMsg = "<" + syslogMsgLevel + ">" + currentDateTime + " " + myhostname + " " + msg;
-            //System.out.println("xxx: Syslog msg=[" + syslogMsg + "]");
+            logger.trace("xxx: Syslog msg=[" + syslogMsg + "]");
 
             byte[] bytes = syslogMsg.getBytes();
             //

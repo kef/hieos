@@ -16,26 +16,23 @@ package com.vangent.hieos.xutil.atna;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 
 import com.sun.openesb.ihe.arr.syslogclient.AuditRecordRepoClient;
-//import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.GregorianCalendar;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
-
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Vincent Lewis
  */
 public class AuditMessageBuilder {
+    private final static Logger logger = Logger.getLogger(AuditMessageBuilder.class);
 
     private String sourceId;
     private String sourceType;
@@ -54,10 +51,9 @@ public class AuditMessageBuilder {
         try {
             syslogHost = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
             syslogPort = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogPort")).intValue();
-            System.out.println("XATNALogger: using syslogHost " + syslogHost + " port " + syslogPort);
+            logger.info("XATNALogger: using syslogHost " + syslogHost + " port " + syslogPort);
         } catch (Exception e) {
-            System.out.println("**** CAN NOT LOAD ATNA properties from XConfig ***");
-            e.printStackTrace();
+            logger.error("**** CAN NOT LOAD ATNA properties from XConfig ***", e);
         }
     }
 
@@ -156,7 +152,6 @@ public class AuditMessageBuilder {
             poi.setParticipantObjectName(participantObjectName);
         }
         if (participantObjectQuery != null) {
-            //System.out.println("not implemented");
             poi.setParticipantObjectQuery(participantObjectQuery);
         }
         List pods = poi.getParticipantObjectDetail();
@@ -265,8 +260,7 @@ public class AuditMessageBuilder {
             AuditRecordRepoClient client = new AuditRecordRepoClient(syslogHost, syslogPort);
             client.sendAuditMessage(ret);
         } catch (Exception e) {
-            System.out.println("xxx: persistAuditRecord(): Failed to Unmarshall. Exception msg=" + e.getMessage());
-            e.printStackTrace();
+            logger.error("xxx: persistAuditRecord(): Failed to Unmarshall.", e);
         }
     }
 
@@ -280,9 +274,8 @@ public class AuditMessageBuilder {
         XMLGregorianCalendar calendar = null;
         try {
             factory = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException ex) {
-            System.out.println("ATNA: TIMESTAMP PROBLEM in AuditMessageBuilder!");
-            Logger.getLogger(AuditMessageBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DatatypeConfigurationException e) {
+            logger.error("ATNA: TIMESTAMP PROBLEM in AuditMessageBuilder!", e);
         }
         if (factory != null) {
             calendar = factory.newXMLGregorianCalendar(now);
