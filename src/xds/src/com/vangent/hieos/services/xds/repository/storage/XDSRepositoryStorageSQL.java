@@ -16,8 +16,7 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.io.ByteArrayInputStream;
 
 import java.sql.PreparedStatement;
@@ -30,6 +29,7 @@ import java.sql.ResultSet;
  * @author Bernie Thuman
  */
 public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
+    private final static Logger logger = Logger.getLogger(XDSRepositoryStorageSQL.class);
 
     /**
      *  Stores an XDS document into RDBMS storage.
@@ -45,20 +45,16 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         try {
             connection.setAutoCommit(false);
             if (!this.documentExists(connection, doc)) {
-                //System.out.println("INSERT DOCID = " + doc.getUniqueId());
                 this.insertDocument(connection, doc);
             } else {
                 // FIXME (BHT): Should we update?  Need to investigate.
-                //System.out.println("UPDATE DOCID = " + doc.getUniqueId());
                 this.updateDocument(connection, doc);
             }
             connection.commit();
         } catch (SQLException ex) {
-            Logger.getLogger(XDSRepositoryStorageSQL.class.getName()).log(Level.SEVERE, null, ex);
             throw new XdsInternalException("Failure storing document in database [id = " + doc.getDocumentId() + "]: " + ex.getMessage());
         } finally {
             try {
-                //System.out.println("FINALLY BLOCK -- close");
                 connection.close();
             } catch (Exception e) {
                 //Do nothing.
@@ -78,6 +74,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         String sql = "SELECT uniqueid from document where uniqueid = ?";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, doc.getUniqueId());
+        logger.trace("SQL(repo) = " + sql);
         ResultSet result = stmt.executeQuery();
         return result.next();
     }
@@ -101,6 +98,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
 
         // Store the blob.
         stmt.setBinaryStream(7, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
+        logger.trace("SQL(repo) = " + sql);
         stmt.execute();
     }
 
@@ -125,6 +123,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         stmt.setBinaryStream(6, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
 
         stmt.setString(7, doc.getUniqueId());
+        logger.trace("SQL(repo) = " + sql);
         stmt.executeUpdate();
     }
 
@@ -142,16 +141,15 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         // Read blob from database.
         ResultSet rs;
         try {
-            PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT documentid, repositoryid, hash, size, mimetype, bytes FROM document WHERE uniqueid = ?");
+            String sql = "SELECT documentid, repositoryid, hash, size, mimetype, bytes FROM document WHERE uniqueid = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
 
             stmt.setString(1, doc.getUniqueId());
+            logger.trace("SQL(repo) = " + sql);
             rs = stmt.executeQuery();
             if (!rs.next()) {
                 throw new XdsInternalException("No document found for uniqueid = " + doc.getUniqueId());
             } else {
-                //System.out.println("DOC id=" + rs.getString(1));
-                //System.out.println("REPO id=" + rs.getString(2) + ", meta=" + doc.getRepositoryId());
                 doc.setDocumentId(rs.getString(1));
                 doc.setHash(rs.getString(3));
                 doc.setLength(rs.getInt(4));
@@ -162,18 +160,14 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
                 // postgreSQL driver (org.postgresql.util.PSQLException: Bad value for type long)
                 // Blob blob = rs.getBlob(6);
                 // InputStream is = blob.getBinaryStream();
-                // System.out.println("BLOB length = " + blob.length());
                 // blob.getBytes(1, (int) blob.length());
                 byte[] bytes = rs.getBytes(6);
                 doc.setBytes(bytes);
-            //System.out.println("BLOB len=" + new Long(blob.length()).toString() + ", meta=" + doc.getLength());
             }
         } catch (SQLException ex) {
-            Logger.getLogger(XDSRepositoryStorageSQL.class.getName()).log(Level.SEVERE, null, ex);
             throw new XdsInternalException("Failure reading document from database [uniqueid = " + doc.getUniqueId() + "]: " + ex.getMessage());
         } finally {
             try {
-                //System.out.println("FINALLY BLOCK -- close");
                 connection.close();
             } catch (Exception e) {
                 //Do nothing.

@@ -280,7 +280,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        System.out.println("RegistryB::startUp()");
+        logger.info("RegistryB::startUp()");
         this.ATNAlogStart(XATNALogger.ActorType.REGISTRY);
     }
 
@@ -290,7 +290,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        System.out.println("RegistryB::shutDown()");
+        logger.info("RegistryB::shutDown()");
         this.ATNAlogStop(XATNALogger.ActorType.REGISTRY);
     }
 }

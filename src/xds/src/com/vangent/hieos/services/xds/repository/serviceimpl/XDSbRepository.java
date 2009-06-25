@@ -29,6 +29,8 @@ import org.apache.axis2.AxisFault;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 
+import org.apache.log4j.Logger;
+
 // Axis2 LifeCycle support:
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
@@ -36,6 +38,7 @@ import org.apache.axis2.description.AxisService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 public class XDSbRepository extends XAbstractService implements ContentValidationService {
+    private final static Logger logger = Logger.getLogger(XDSbRepository.class);
 
     boolean optimize_retrieve = true;
     String alternateRegistryEndpoint = null;
@@ -179,7 +182,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        System.out.println("Repository::startUp()");
+        logger.info("Repository::startUp()");
         this.ATNAlogStart(XATNALogger.ActorType.REPOSITORY);
     }
 
@@ -189,7 +192,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        System.out.println("RepositoryB::shutDown()");
+        logger.info("RepositoryB::shutDown()");
         this.ATNAlogStop(XATNALogger.ActorType.REPOSITORY);
     }
 }

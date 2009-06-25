@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -29,48 +28,46 @@ import org.apache.axiom.om.OMElement;
 
 public class GetDocumentsAndAssociations extends StoredQuery {
 
-	public GetDocumentsAndAssociations(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetDocumentsAndAssociations(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
-		super(params, return_objects, response, log_message,  is_secure);
+        super(params, return_objects, response, log_message, is_secure);
 
 
-		//                         param name,                             required?, multiple?, is string?,   same size as,    alternative
-		validate_parm(params, "$XDSDocumentEntryUniqueId",                 true,      true,     true,         null,            "$XDSDocumentEntryEntryUUID");
-		validate_parm(params, "$XDSDocumentEntryEntryUUID",                true,      true,     true,         null,            "$XDSDocumentEntryUniqueId");
+        //                         param name,                             required?, multiple?, is string?,   same size as,    alternative
+        validate_parm(params, "$XDSDocumentEntryUniqueId", true, true, true, null, "$XDSDocumentEntryEntryUUID");
+        validate_parm(params, "$XDSDocumentEntryEntryUUID", true, true, true, null, "$XDSDocumentEntryUniqueId");
 
         if (this.has_validation_errors) {
-			throw new MetadataValidationException("Metadata Validation error present");
+            throw new MetadataValidationException("Metadata Validation error present");
         }
     }
 
-	public Metadata run_internal() throws XdsException {
-		Metadata metadata;
+    public Metadata run_internal() throws XdsException {
+        Metadata metadata;
 
-		ArrayList<String> uids = get_arraylist_parm("$XDSDocumentEntryUniqueId");
-		ArrayList<String> uuids = get_arraylist_parm("$XDSDocumentEntryEntryUUID");
+        ArrayList<String> uids = get_arraylist_parm("$XDSDocumentEntryUniqueId");
+        ArrayList<String> uuids = get_arraylist_parm("$XDSDocumentEntryEntryUUID");
 
-		if (uids != null) {
-			OMElement ele = get_doc_by_uid(uids);
-			metadata = MetadataParser.parseNonSubmission(ele);
-		} else {
-			if ( uuids != null ) {
-				OMElement ele = get_doc_by_uuid(uuids);
-				metadata = MetadataParser.parseNonSubmission(ele);
-			}
-			else throw new XdsInternalException("GetDocuments Stored Query: uuid not found, uid not found");
-		}
+        if (uids != null) {
+            OMElement ele = get_doc_by_uid(uids);
+            metadata = MetadataParser.parseNonSubmission(ele);
+        } else {
+            if (uuids != null) {
+                OMElement ele = get_doc_by_uuid(uuids);
+                metadata = MetadataParser.parseNonSubmission(ele);
+            } else {
+                throw new XdsInternalException("GetDocuments Stored Query: uuid not found, uid not found");
+            }
+        }
 
-		// for documents in ele, get associations
-		ArrayList<String> doc_ids = metadata.getExtrinsicObjectIds();
-		System.out.println("size matters " + doc_ids.size());
-		if (doc_ids.size() == 0)
-			return metadata;
-		OMElement ele = get_associations(doc_ids, null);
-		metadata.addMetadata(ele, true);
+        // for documents in ele, get associations
+        ArrayList<String> doc_ids = metadata.getExtrinsicObjectIds();
+        if (doc_ids.size() == 0) {
+            return metadata;
+        }
+        OMElement ele = get_associations(doc_ids, null);
+        metadata.addMetadata(ele, true);
 
-		return metadata;
-	}
-
-
-
+        return metadata;
+    }
 }

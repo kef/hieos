@@ -37,7 +37,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
-import java.util.logging.Level;
 import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.apache.axiom.om.OMElement;
@@ -729,8 +728,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         } finally {
             try {
                 conn.close();
-            } catch (SQLException ex) {
-                java.util.logging.Logger.getLogger(RegistryPatientIdentityFeed.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException e) {
+                logger.error("Could not close connection", e);
             }
         }
     }
@@ -805,12 +804,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @param status
      */
     private void logResponse(OMElement response, boolean status) {
-        try {
-            if (response != null) {
-                log_message.addOtherParam("Response", response.toString());
-            }
-        } catch (Exception e) {
-            this.logInternalException(e, "Problem logging response");
+        if (response != null) {
+            log_message.addOtherParam("Response", response.toString());
         }
         log_message.setPass(status);
     }
@@ -821,13 +816,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void logError(String errorString) {
         this.errorDetected = true;  // Make note of a problem.
-        try {
-            log_message.addErrorParam("Errors", errorString);
-            logger.error(errorString);
-        } catch (Exception e) {
-            // We really need to ignore this exception to avoid indirect recursion.
-            e.printStackTrace(System.out);
-        }
+        log_message.addErrorParam("Errors", errorString);
+        logger.error(errorString);
     }
 
     /**
@@ -858,12 +848,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @param infoString
      */
     private void logInfo(String logLabel, String infoString) {
-        try {
-            log_message.addOtherParam(logLabel, infoString);
-            logger.info(logLabel + " : " + infoString);
-        } catch (Exception e) {
-            logger.error(ExceptionUtil.exception_details(e, "REGISTRY ERROR: Could not log info"));
-        }
+        log_message.addOtherParam(logLabel, infoString);
+        logger.info(logLabel + " : " + infoString);
     }
 
     // Inner class

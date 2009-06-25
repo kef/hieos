@@ -14,8 +14,7 @@ package com.vangent.hieos.services.xds.repository.storage;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *  Abstract class that can be extended to provide XDS.b document storage
@@ -24,6 +23,7 @@ import java.util.logging.Logger;
  * @author Bernie Thuman
  */
 abstract public class XDSRepositoryStorage {
+    private final static Logger logger = Logger.getLogger(XDSRepositoryStorage.class);
 
     /**
      *  Stores an XDS.b document into a data store.
@@ -54,14 +54,12 @@ abstract public class XDSRepositoryStorage {
         XConfig xconf;
         xconf = XConfig.getInstance();
         String repoClassImpl = xconf.getHomeCommunityProperty("RepoStorageClassImpl");
-        System.out.println("RepoStorageClassImpl = " + repoClassImpl);
 
         // Dynamically load XDSRepositoryStorage class.
         Class repoStorageClass;
         try {
             repoStorageClass = Class.forName(repoClassImpl);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(XDSRepositoryStorage.class.getName()).log(Level.SEVERE, null, ex);
             throw new XdsInternalException("Repository could not load RepoStorageClassImpl: " + ex.getMessage());
         }
 
@@ -70,10 +68,8 @@ abstract public class XDSRepositoryStorage {
         try {
             repoStorage = (XDSRepositoryStorage) repoStorageClass.newInstance();
         } catch (InstantiationException ex) {
-            Logger.getLogger(XDSRepositoryStorage.class.getName()).log(Level.SEVERE, null, ex);
             throw new XdsInternalException("Repository could not instantiate RepoStorageClassImpl: " + ex.getMessage());
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(XDSRepositoryStorage.class.getName()).log(Level.SEVERE, null, ex);
             throw new XdsInternalException("Repository could not instantiate RepoStorageClassImpl: " + ex.getMessage());
         }
         return repoStorage;

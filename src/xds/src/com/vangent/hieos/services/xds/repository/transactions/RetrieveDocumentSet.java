@@ -217,7 +217,6 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         javax.activation.DataHandler dataHandler = new DataHandler(ds);
 
         OMText t = MetadataSupport.om_factory.createOMText(dataHandler, optimize);
-        //System.out.println("OPTIMIZE IS " + optimize);
         t.setOptimize(optimize);
         OMElement document_response = MetadataSupport.om_factory.createOMElement("DocumentResponse", MetadataSupport.xdsB);
 

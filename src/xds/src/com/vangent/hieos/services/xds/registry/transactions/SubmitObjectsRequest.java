@@ -220,7 +220,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             rov.validateProperUids(m);
 
             if (response.has_errors()) {
-                System.out.println("metadata validator failed");
+                logger.error("metadata validator failed");
             }
 
             if (response.has_errors()) {
@@ -335,42 +335,29 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                                 }
                             }
 
-
                             OMElement to_backend = fm.getV3SubmitObjectsRequest();
-                            // System.out.println("sor11111["+ sor.toString() + "]sor11111");
-                            // System.out.println("to_backend11111["+ to_backend.toString() + "]to_backend11111");
                             log_message.addOtherParam("From Registry Adaptor", to_backend.toString());
-
                             status = submit_to_backend_registry(reg, to_backend);
                             if (!status) {
                                 return;
                             }
-
                         }
                     }
                 }
             }
 
             OMElement to_backend = m.getV3SubmitObjectsRequest();
-            // System.out.println("sor222222["+ sor.toString() + "]sor222222");
-            //System.out.println("to_backend222222["+ to_backend.toString() + "]to_backend222222");
             log_message.addOtherParam("From Registry Adaptor", to_backend.toString());
-
             status = submit_to_backend_registry(reg, to_backend);
-
             if (!status) {
                 return;
             }
 
             // Approve
             ArrayList approvable_object_ids = ra.approvable_object_ids(m);
-
             if (approvable_object_ids.size() > 0) {
-
                 OMElement approve = ra.getApproveObjectsRequest(approvable_object_ids);
-
                 log_message.addOtherParam("Approve", approve.toString());
-
                 submit_to_backend_registry(reg, approve);
             }
 
@@ -379,9 +366,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             // add to the list of things to deprecate, any XFRM or APND documents hanging off documents
             // in the deprecatable_object_ids list
             deprecatable_object_ids.addAll(new RegistryObjectValidator(response, log_message).getXFRMandAPNDDocuments(deprecatable_object_ids));
-
             if (deprecatable_object_ids.size() > 0) {
-
                 // validate that these are documents first
                 ArrayList missing = rov.validateDocuments(deprecatable_object_ids);
                 if (missing != null) {
@@ -389,48 +374,24 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                             missing);
                 }
 
-
                 OMElement deprecate = ra.getDeprecateObjectsRequest(deprecatable_object_ids);
-
                 log_message.addOtherParam("Deprecate", deprecate.toString());
-
                 submit_to_backend_registry(reg, deprecate);
             }
-
             log_response();
-
-
         } catch (MetadataException e) {
             response.add_error("XDSRegistryError", e.getMessage(), this.getClass().getName(), log_message);
             return;
         }
-//			catch (ParserConfigurationException e) {
-//			response.add_error("XDSRegistryError", e.getMessage(), exception_details(e), log_message);
-//			return;
-//			}
-//			catch (ATNAException e) {
-//			response.add_error("XDSRegistryError", e.getMessage(), exception_details(e), log_message);
-//			return;
-//			}
-
-    //    }
-
-
     }
 
     /**
-     * private void validateSourceId(Metadata m) throws MetadataException,
-    MetadataValidationException {
-    String sourceId = m.getExternalIdentifierValue(m.id(m.getSubmissionSet()), MetadataSupport.XDSSubmissionSet_sourceid_uuid);
-    boolean sourceIdValid = false;
-    for (int i=0; i<sourceIds.size(); i++) {
-    if (sourceId.startsWith(sourceIds.get(i)))
-    sourceIdValid = true;
-    }
-    if ( !sourceIdValid)
-    throw new MetadataValidationException("sourceId " + sourceId + " is not acceptable to this Document Registry." +
-    " It must have one of these prefixes: " + sourceIds.toString());
-    } **/
+     *
+     * @param patient_id
+     * @throws java.sql.SQLException
+     * @throws com.vangent.hieos.xutil.exception.XdsException
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
     private void validate_patient_id(String patient_id) throws SQLException,
             XdsException, XdsInternalException {
         //if (Properties.loader().getBoolean("validate_patient_id")) {
@@ -443,21 +404,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
         }
     }
 
-//	private void validate_assigning_authority(String patient_id, Validator val)
-//			throws XdsException {
-//		int ups = patient_id.indexOf("^^^");
-//		if (ups == -1)
-//			throw new XdsException("Cannot parse patient id " + patient_id);
-//		String assigning_authority = patient_id.substring(ups + 3);
-////		String config_assigning_authority = Properties.loader().getString("assigning_authority");
-//		String config_assigning_authority = val.getAssigningAuthority();
-//		if (config_assigning_authority != null)
-//			if ( !config_assigning_authority.equals(assigning_authority)) 
-//				throw new XdsException("Unknown Patient ID Assigning Authority " + 
-//						assigning_authority + " found in submission " +
-//						" this Affinity Domain requires " + config_assigning_authority);
-//	}
-
     //AMS 04/29/2009 - FIXME invoked by XdsRaw. REMOVE at some point.
     public void setSubmitRaw(boolean val) {
         submit_raw = val;
@@ -465,11 +411,15 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
     /* AMS 04/21/2009 - Added new method. */
     private boolean submit_to_backend_registry(BackendRegistry br, OMElement omElement) throws XdsException {
-
         OMElement result = br.submit_to_backend_registry(omElement);
         return getResult(result);// Method should be renamed to getRegistrySubmissionStatus ...
     }
 
+    /**
+     *
+     * @param result
+     * @return
+     */
     private boolean getResult(OMElement result) {
         if (result == null) {
             return false;

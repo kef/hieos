@@ -46,7 +46,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 import org.apache.axis2.context.MessageContext;
@@ -392,7 +391,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         try {
             do {
                 size = is.read(buf, 0, length);
-                //System.out.println("read in " + size + " bytes");
                 if (size > 0) {
                     bos.write(buf, 0, size);
                 }
@@ -406,12 +404,11 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 is.close();  // A bit of a side effect, but OK for now.
                 os.close();
                 bos.close();
-            } catch (IOException ex) {
+            } catch (IOException e) {
                 // Eat exceptions.
-                java.util.logging.Logger.getLogger(ProvideAndRegisterDocumentSet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Problem closing a stream", e);
             }
         }
-        //System.out.println("**** len = " + bytes.length);
 
         // Set document vitals and store.
         this.setDocumentVitals(bytes, doc, m);
@@ -435,7 +432,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         // Validate metadata, set document vitals and store.
         this.validateDocumentMetadata(doc, m);
         this.setDocumentVitals(bytes, doc, m);
-        //System.out.println("*** store mtom byte len = " + bytes.length);
         this.storeDocument(doc);
     }
 

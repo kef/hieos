@@ -91,8 +91,6 @@ public class FindFolders extends StoredQuery {
         a("  patId.value = '"); a(patient_id); a("' ) AND"); n();
         a("  fol.status IN "); a(status); n();
 		add_times("lastUpdateTime",     "updateTimef",       "updateTimet",       update_time_from,      update_time_to, "fol");
-        
-        System.out.println(query.toString());
 
 		return query(this.return_leaf_class);
 
