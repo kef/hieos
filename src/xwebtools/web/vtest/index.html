@@ -10,18 +10,18 @@ and open the template in the editor.
     </head>
     <body>
         <h1>IHE Virtual Testing Configuration (System = HIEOS)</h1>
-        <p>Welcome!  This page provides configuration details to support Internet based testing for HIEOS, Vangent's IHE XDS.b/XCA implementation.
+        <p>Welcome!  This page provides configuration details to support Internet based testing for HIEOS, Vangent's IHE conformant XDS.b/XCA implementation.
         <p>Contact information to support testing is provided at the end of this page.</p>
         <p><b>Please note</b> that we have currently enabled extensive logging on our system. This might result in some system latency.
         <br>
         <u><h2>TLS Configuration (optional)</h2></u>
         The HIEOS platform uses 2-way TLS encryption. In our testing environment, the HIEOS server has been configured with a self-signed X.509 server
         <br>certificate. It has also been pre-configured to accept another self-signed X.509 certificate as a client certificate.
-        <br><br>In order to enable your system to communicate with HIEOS using TLS, the following steps need to be followed -
+        <br><br>In order to enable your system to communicate with HIEOS using TLS, the following steps need to be followed:
             <ul>
                 <li>Download and configure your truststore to accept our <a href="http://208.81.185.143:8080/xwebtools/hieos_test_server_cert.pem">server certificate</a>.
             </ul>
-            Additionally, perform one of the following two steps -
+            Additionally, perform one of the following two steps:
              <ul>
                 <li>Download and configure your truststore and keystore with our test <a href="http://208.81.185.143:8080/xwebtools/hieos_test_client_cert.pem">client certificate</a>
                 <br>and corresponding <a href="http://208.81.185.143:8080/xwebtools/hieos_test_client_key.pem">private key</a>.
@@ -29,18 +29,18 @@ and open the template in the editor.
             </ul>
          <br>
         <u><h2>Patient Identifiers</h2></u>
-        <p>Patient identifiers need to be registered with HIEOS as some XDS.b/XCA transactions require them. One of the following options
-        <br>could be chosen to register patient ids with HIEOS.
+        <p>Patient identifiers need to be registered with the XDS.b Registry before "Provide & Register" transactions can be issued. One of the following options
+        <br>can be chosen to register patient ids with the XDS.b Registry:
             <ol>
                 <li>
-                    <b>PatientIdentityFeed - </b>Web services endpoints have been exposed by HIEOS to accept HL7 V3 messages for
+                    XDS.b Registry web services endpoints (Patient Identify Feed) have been exposed by HIEOS to accept HL7 V3 messages for
                     <br>patient add, update and merge transactions. Patient information can therefore be manipulated in HIEOS
-                    <br>by invoking the mentioned services. Please ensure that the patient ID is a valid HL7 V3 representation.
+                    <br>by invoking the mentioned services. Please ensure that patient identifiers are valid HL7 V3 representations.
                     <br>It is recommended that one of the assigning authorities from the table, <b>XCA Key Parameters</b> (near the end of this page),
                     <br>is used to qualify the patient id.
                     <br><br>
                     <table border="1" cellpadding="3">
-                        <caption align="bottom"><b>Patient ID Feed Web Service Endpoints</b></caption>
+                        <caption align="bottom"><b>XDS.b Registry "Patient Identity Feed" Web Service Endpoints</b></caption>
                         <thead>
                             <tr>
                                 <th>Actor</th>
@@ -53,42 +53,42 @@ and open the template in the editor.
                         <tbody>
                             <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201301UV02(Add Patient)</td>
+                                <td align="center">PRPA_IN201301UV02 (Add Patient)</td>
                                 <td>http://208.81.185.143:8080/axis2/services/xdsregistryb</td>
                                 <td align="center">no</td>
                                 <td align="center">no</td>
                             </tr>
                            <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201301UV02(Add Patient)</td>
+                                <td align="center">PRPA_IN201301UV02 (Add Patient)</td>
                                 <td>https://208.81.185.143:8181/axis2/services/xdsregistryb</td>
                                 <td align="center">yes</td>
                                 <td align="center">no</td>
                             </tr>
                             <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201302UV02(Update Patient)</td>
+                                <td align="center">PRPA_IN201302UV02 (Update Patient)</td>
                                 <td>http://208.81.185.143:8080/axis2/services/xdsregistryb</td>
                                 <td align="center">no</td>
                                 <td align="center">no</td>
                             </tr>
                             <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201302UV02(Update Patient)</td>
+                                <td align="center">PRPA_IN201302UV02 (Update Patient)</td>
                                 <td>https://208.81.185.143:8181/axis2/services/xdsregistryb</td>
                                 <td align="center">yes</td>
                                 <td align="center">no</td>
                             </tr>
                             <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201304UV02(Merge Patient)</td>
+                                <td align="center">PRPA_IN201304UV02 (Merge Patient)</td>
                                 <td>http://208.81.185.143:8080/axis2/services/xdsregistryb</td>
                                 <td align="center">no</td>
                                 <td align="center">no</td>
                             </tr>
                             <tr>
                                 <td align="center">Registry</td>
-                                <td align="center">PRPA_IN201304UV02(Merge Patient)</td>
+                                <td align="center">PRPA_IN201304UV02 (Merge Patient)</td>
                                 <td>https://208.81.185.143:8181/axis2/services/xdsregistryb</td>
                                 <td align="center">yes</td>
                                 <td align="center">no</td>
@@ -110,7 +110,7 @@ and open the template in the editor.
                 </li>
                 <li>
                     You can use the preconfigured patient id "b1f770dad41c457^^^&1.3.6.1.4.1.21367.2009.1.2.315&ISO" which contains 3 valid
-                    <br/>documents (pdf, xml, txt) stored in our XDS.b Repository..
+                    <br/>documents (pdf, xml, txt) stored in our XDS.b Registry/Repository.
                     <!--<br/>Since we leveraged "xdstest" to generate the test data for this patient id, some of the document references do not
                     relate to valid documents
                     <br/>in our XDS.b Repository. -->
