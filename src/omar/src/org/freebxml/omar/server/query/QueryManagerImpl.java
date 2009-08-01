@@ -104,9 +104,11 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
     /**
      * @directed
      */
+    /* HIEOS/BHT - Removed:
     private org.freebxml.omar.server.query.filter.RRFilterQueryProcessor filterQueryProcessor =
         org.freebxml.omar.server.query.filter.RRFilterQueryProcessor.getInstance();
-
+    */
+    
     /**
      * @directed
      */
@@ -229,7 +231,10 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
                         ahqr.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
                         ahqr.setStartIndex(BigInteger.valueOf(paramHolder.startIndex));
                         ahqr.setTotalResultCount(BigInteger.valueOf(paramHolder.totalResultCount));                        
-                    } else if (queryLang.equals(BindingUtility.CANONICAL_QUERY_LANGUAGE_ID_ebRSFilterQuery)) {
+                    }
+                    /* HIEOS/BHT - Removed:
+                     else if (queryLang.equals(BindingUtility.CANONICAL_QUERY_LANGUAGE_ID_ebRSFilterQuery)) {
+
                         FilterQueryType filterQuery = (FilterQueryType)queryExp.getContent().get(0);
                         rolt = filterQueryProcessor.executeQuery(((ServerRequestContext)context), user, 
                                 filterQuery, responseOption, paramHolder);
@@ -240,7 +245,9 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
                         ahqr.setStartIndex(BigInteger.valueOf(paramHolder.startIndex));
                         ahqr.setTotalResultCount(BigInteger.valueOf(paramHolder.totalResultCount));
                         
-                    } else {
+                    }
+                    */
+                    else {
                         throw new UnsupportedCapabilityException(
                             "Unsupported Query Language: ClassificationNode id: " + queryLang);
                     }
