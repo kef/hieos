@@ -40,7 +40,9 @@ import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.common.ReferenceInfo;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.CommonResourceBundle;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.cache.ServerCache;
@@ -372,11 +374,13 @@ public class ServerRequestContext extends CommonRequestContext {
                     getNewSubmittedObjectIds().add(idNew);
                 }
 
+                /* HIEOS/BHT - Removed:
                 RepositoryItem ri = (RepositoryItem) getRepositoryItemsMap().remove(idOld);
                 if (ri != null) {
                     ri.setId(idNew);
                     getRepositoryItemsMap().put(idNew, ri);
                 }
+                */
             }
 
             //Now replace any old versions of RegistryObjects with new versions
@@ -392,6 +396,7 @@ public class ServerRequestContext extends CommonRequestContext {
                 getTopLevelObjectsMap().put(roNew.getId(), roNew);
             }
 
+            /* HIEOS/BHT - Removed:
             //Now replace any old versions of RepositoryItems with new versions
             iter = getNewRIVersionMap().keySet().iterator();
             while (iter.hasNext()) {
@@ -402,6 +407,7 @@ public class ServerRequestContext extends CommonRequestContext {
                 getRepositoryItemsMap().remove(riOld.getId());
                 getRepositoryItemsMap().put(riNew.getId(), riNew);
             }
+            */
 
             //resolve references from each object
             resolveObjectReferences();
@@ -976,7 +982,9 @@ public class ServerRequestContext extends CommonRequestContext {
             }
             serverContext = new ServerRequestContext(context.getId(), req);
             serverContext.setUser(context.getUser());
+            /* HIEOS/BHT - Removed:
             serverContext.setRepositoryItemsMap(context.getRepositoryItemsMap());
+            */
         }
 
         return serverContext;

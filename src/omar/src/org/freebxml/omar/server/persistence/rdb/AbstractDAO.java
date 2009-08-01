@@ -28,13 +28,17 @@ import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import javax.xml.registry.JAXRException;
 import javax.xml.registry.RegistryException;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.common.Utility;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
+*/
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObject;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
@@ -48,7 +52,9 @@ abstract class AbstractDAO implements OMARDAO {
 
     protected static BindingUtility bu = BindingUtility.getInstance();
     protected static Utility util = Utility.getInstance();
+    /* HIEOS/BHT - Removed:
     protected static RepositoryManager rm = RepositoryManagerFactory.getInstance().getRepositoryManager();
+    */
     protected static int DAO_ACTION_QUERY = 0;
     protected static int DAO_ACTION_INSERT = 1;
     protected static int DAO_ACTION_UPDATE = 2;
@@ -485,6 +491,7 @@ abstract class AbstractDAO implements OMARDAO {
      *
      * @return the id of the "spill over" repository item
      */
+    /* HIEOS/BHT - Removed:
     protected String marshalToRepositoryItem(
             String parentId,
             String columnInfo,
@@ -532,10 +539,12 @@ abstract class AbstractDAO implements OMARDAO {
 
         return spillOverId;
     }
+    */
 
     /**
      * Remove specified spillover ExtrinsicObject and ReositoryItem.
      */
+    /* HIEOS/BHT - Removed:
     protected void removeSpillOverRepositoryItem(String parentId, String columnInfo) throws RegistryException {
         String spillOverId = getSpillOverRepositoryItemId(parentId, columnInfo);
 
@@ -571,6 +580,7 @@ abstract class AbstractDAO implements OMARDAO {
             throw new RegistryException(e);
         }
     }
+    */
 
     /**
      * Unmarshalls a "spilled over" RepositoryItem into a String
@@ -578,6 +588,7 @@ abstract class AbstractDAO implements OMARDAO {
      * @param spillOverId the id of the ExtrinsicObject associated with the RepositoryItem 
      * used to unmarshal the "spilled over" content from.
      */
+    /* HIEOS/BHT - Removed:
     public String unmarshallFromRepositoryItem(String spillOverId) throws RegistryException {
         String content = spillOverId;
 
@@ -601,6 +612,7 @@ abstract class AbstractDAO implements OMARDAO {
 
         return content;
     }
+    */
 
     /**
      * Executes a Select statment that has an IN clause while

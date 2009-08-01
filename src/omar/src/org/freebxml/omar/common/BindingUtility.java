@@ -1566,6 +1566,7 @@ public class BindingUtility implements CanonicalConstants {
      * Client uses Datahandler as repository item while server uses RepositoryItemImpl
      * Need to convert.
      */
+    /* HIEOS/BHT - Removed:
     public void convertRepositoryItemMapForServer(Map idToRepositoryItemMap) throws RegistryException {
         Set keys = idToRepositoryItemMap.keySet();
         Iterator keysIter = keys.iterator();
@@ -1576,11 +1577,13 @@ public class BindingUtility implements CanonicalConstants {
             idToRepositoryItemMap.put(key, ri);
         }
     }
+    */
 
     /**
      * Client uses Datahandler as repository item while server uses RepositoryItemImpl
      * Need to convert.
      */
+    /* HIEOS/BHT - Removed:
     public void convertRepositoryItemMapForClient(Map idToRepositoryItemMap) throws RegistryException {
         Set keys = idToRepositoryItemMap.keySet();
         Iterator keysIter = keys.iterator();
@@ -1591,7 +1594,7 @@ public class BindingUtility implements CanonicalConstants {
             idToRepositoryItemMap.put(key, dh);
         }
     }
-
+    */
 
     /**
      * Gets the singleton instance as defined by Singleton pattern.

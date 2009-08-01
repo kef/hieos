@@ -22,11 +22,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import javax.xml.registry.RegistryException;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+ */
 import org.freebxml.omar.server.common.ServerRequestContext;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.server.repository.RepositoryItemKey;
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
+*/
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObject;
 import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
@@ -35,8 +39,11 @@ import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 class ExtrinsicObjectDAO extends RegistryObjectDAO {
     private static final Log log = LogFactory.getLog(ExtrinsicObjectDAO.class);
 
+    /* HIEOS/BHT - Removed:
     RepositoryManager rm = RepositoryManagerFactory.getInstance()
                                                    .getRepositoryManager();
+    */
+
     /**
      * Use this constructor only.
      */
@@ -77,7 +84,8 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
 
         String contentVersionName = null;
         String contentVersionComment = null;
-        
+
+        /* HIEOS/BHT - Removed:
         //Set contentVersion only if RI submitted or if contentVersion
         //matches an existing RI version for same lid
         //
@@ -119,7 +127,7 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
             contentVersionName = null;
             contentVersionComment = null;
         }
-        
+        */
         
         if (action == DAO_ACTION_INSERT) {
             stmtFragment = "INSERT INTO ExtrinsicObject " +

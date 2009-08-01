@@ -12,7 +12,9 @@ package org.freebxml.omar.common.spi;
 
 import java.security.cert.X509Certificate;
 import javax.xml.registry.RegistryException;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
@@ -33,8 +35,9 @@ public interface QueryManager {
         throws RegistryException;
 
     /** getRepositoryItem */
+    /* HIEOS/BHT - Removed:
     public RepositoryItem getRepositoryItem(RequestContext context, String id)
-        throws RegistryException;
+        throws RegistryException; */
         
     /**
      * Looks up the server side User object based upon specified public key certificate.

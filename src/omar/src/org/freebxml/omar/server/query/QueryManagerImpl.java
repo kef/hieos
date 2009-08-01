@@ -34,7 +34,9 @@ import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.CanonicalConstants;
 import org.freebxml.omar.common.CanonicalSchemes;
 import org.freebxml.omar.common.CommonResourceBundle;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 import org.freebxml.omar.common.spi.QueryManager;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
@@ -53,9 +55,9 @@ import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.plugin.AbstractPluginManager;
 /* HIEOS/BHT (REMOVED):
 import org.freebxml.omar.server.query.federation.FederatedQueryManager;
- */
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
+*/
 import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 /* HIEOS/BHT (REMOVED):
 import org.freebxml.omar.server.security.authorization.AuthorizationResult;
@@ -110,8 +112,10 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
      */
     private org.freebxml.omar.server.query.sql.SQLQueryProcessor sqlQueryProcessor =
         org.freebxml.omar.server.query.sql.SQLQueryProcessor.getInstance();
-    
+
+    /* HIEOS/BHT: REMOVED
     private RepositoryManager rm = RepositoryManagerFactory.getInstance().getRepositoryManager();
+    */
 
     /* HIEOS/BHT: REMOVED
     private FederatedQueryManager fqm = null;
@@ -425,6 +429,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
     /**
      * Recursively adds RepositoryItems of the ExtrinsicObjects in the <code>regObjs</code> list.
      */
+    /* HIEOS/BHT - Removed:
     private void addRepositoryItems(List regObjs, RequestContext context) throws RegistryException {
         for (int i = 0; i < regObjs.size(); i++) {
             Object obj = regObjs.get(i);
@@ -449,6 +454,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             }
         }
     }
+    */
     
     /**
      * Removes any objects that the user doesnot have athorization to see.
@@ -891,6 +897,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
      * It returns the RepositroyItem give a UUID
      * 
      */
+    /* HIEOS/BHT - Removed:
     public RepositoryItem getRepositoryItem(    
         RequestContext context, String id) throws RegistryException {
         
@@ -927,7 +934,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         
         return ri;
     }
-    
+    */
     
     /**
      * Gets the RegistryObjects referenced by specified RegistryObject.

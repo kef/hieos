@@ -34,8 +34,9 @@ public class CommonRequestContext implements RequestContext {
     private String id = null;
     
     //Map of  repositoryItems within the request with id keys and RepositoryItem values
+    /* HIEOS/BHT - Removed:
     private Map repositoryItemsMap = new HashMap();
-    
+    */
     
     private CommonRequestContext() {
     }
@@ -74,13 +75,17 @@ public class CommonRequestContext implements RequestContext {
     public void setId(String id) {
     }
 
+    /* HIEOS/BHT - Removed:
     public Map getRepositoryItemsMap() {
         return repositoryItemsMap;
     }
+    */
 
+    /* HIEOS/BHT - Removed:
     public void setRepositoryItemsMap(Map repositoryItemsMap) {
         this.repositoryItemsMap = repositoryItemsMap;
     }
+    */
 
     public Stack getRegistryRequestStack() {
         return requestStack;

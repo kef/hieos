@@ -930,6 +930,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             ResultSet leafObjectsRs = null;
 
+            /* HIEOS/BHT - Removed:
             if (adhocQuerysIds.length() > 0) {
                 AdhocQueryDAO ahqDAO = new AdhocQueryDAO(context);
                 sql = "SELECT * FROM " + ahqDAO.getTableName() +
@@ -939,7 +940,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 leafObjectsRs = stmt.executeQuery(sql);
                 res.addAll(ahqDAO.getObjects(leafObjectsRs, 0, -1));
             }
-
+            */
             if (associationsIds.length() > 0) {
                 AssociationDAO assDAO = new AssociationDAO(context);
                 sql = "SELECT * FROM " + assDAO.getTableName() +

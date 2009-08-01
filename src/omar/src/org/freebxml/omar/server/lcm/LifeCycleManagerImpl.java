@@ -30,7 +30,9 @@ import org.freebxml.omar.common.CanonicalSchemes;
 import org.freebxml.omar.common.spi.LifeCycleManager;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.RegistryResponseHolder;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 import org.freebxml.omar.common.UUIDFactory;
 import org.freebxml.omar.common.exceptions.ObjectsNotFoundException;
 import org.freebxml.omar.common.exceptions.QuotaExceededException;
@@ -42,11 +44,15 @@ import org.freebxml.omar.server.cms.CMSManagerImpl;
 */
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
+/* HIEOS/BHT (REMOVED):
 import org.freebxml.omar.server.lcm.quota.QuotaServiceImpl;
+*/
 import org.freebxml.omar.server.lcm.relocation.RelocationProcessor;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.server.repository.RepositoryItemKey;
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
+ */
 import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 /* HIEOS/BHT (REMOVED):
 import org.freebxml.omar.server.security.authentication.CertificateAuthority;
@@ -106,9 +112,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * @associates <{org.freebxml.omar.common.QueryManagerImpl}>
      */
     org.freebxml.omar.common.spi.QueryManager qm = org.freebxml.omar.common.spi.QueryManagerFactory.getInstance().getQueryManager();
-    QuotaServiceImpl qs = QuotaServiceImpl.getInstance();
+    /* HIEOS/BHT (REMOVED):
+    qs = QuotaServiceImpl.getInstance();
+    */
     org.freebxml.omar.server.common.Utility util = org.freebxml.omar.server.common.Utility.getInstance();
+    /* HIEOS/BHT - Removed:
     RepositoryManager rm = RepositoryManagerFactory.getInstance().getRepositoryManager();
+    */
     UUIDFactory uf = UUIDFactory.getInstance();
     boolean bypassCMS = false;
     /* HIEOS/BHT (REMOVED):
@@ -142,7 +152,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         context = ServerRequestContext.convert(context);
         SubmitObjectsRequest req = (SubmitObjectsRequest) context.getCurrentRegistryRequest();
         UserType user = context.getUser();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryItemMap = context.getRepositoryItemsMap();
+        */
         String errorCodeContext = "LifeCycleManagerImpl.submitObjects";
         String errorCode = "unknown";
 
@@ -202,10 +214,11 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             }
 
             //Must be after CMS since CMS could generate more repository items.
+            /* HIEOS/BHT - Removed:
             if ((((ServerRequestContext) context).getRepositoryItemsMap() != null) &&
                     (!(((ServerRequestContext) context).getRepositoryItemsMap().isEmpty()))) {
                 submitRepositoryItems(((ServerRequestContext) context));
-            }
+            } */
 
         } catch (RegistryException e) {
             ((ServerRequestContext) context).rollback();
@@ -309,10 +322,11 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      *
      * @param context a <code>RequestContext</code>
      */
+    /* HIEOS/BHT - Removed:
     private void submitRepositoryItems(ServerRequestContext context)
             throws QuotaExceededException, RegistryException {
         qs.checkQuota(((ServerRequestContext) context).getUser().getId());
-
+        
         //fix ri ID to match
         //first ExtrinsicObject (in case where ri is submitted without id)
         //only works for submission of one ri and one ExtrinsicObject
@@ -323,11 +337,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         Map idToNotExistingItemsMap = updateExistingRepositoryItems(((ServerRequestContext) context));
         storeRepositoryItems(((ServerRequestContext) context), idToNotExistingItemsMap);
     }
+    */
 
     /**
      * Stores the repository items in idToRepositoryItemMap in the repository
      * @throws RegistryException when the items already exist
      */
+    /* HIEOS/BHT - Removed:
     private void storeRepositoryItems(ServerRequestContext context,
             Map idToRepositoryItemMap)
             throws RegistryException {
@@ -351,7 +367,8 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             }
         }
     }
-
+    */
+    
     /**
      * Calculates the effective user to be used as the identity of the requestor.
      * Implements ability to re-assign user to a different user than the caller
@@ -395,6 +412,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      *
      * @param context a <code>RequestContext</code>
      */
+    /* HIEOS/BHT - Removed:
     private void updateRepositoryItems(ServerRequestContext context)
             throws QuotaExceededException, RegistryException {
         qs.checkQuota(((ServerRequestContext) context).getUser().getId());
@@ -408,11 +426,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         updateRepositoryItems(((ServerRequestContext) context), ((ServerRequestContext) context).getRepositoryItemsMap());
     }
+    */
 
     /**
      * It should be called by submitObjects() to update existing Repository Items
      * @return HashMap of id To RepositoryItem, which are not existing
      */
+    /* HIEOS/BHT - Removed:
     private Map updateExistingRepositoryItems(ServerRequestContext context)
             throws RegistryException {
 
@@ -437,6 +457,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         return notExistItems;
     }
+    */
 
     /** Approves one or more previously submitted objects */
     public RegistryResponse approveObjects(RequestContext context) throws RegistryException {
@@ -490,6 +511,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
     /**
      * @throws RegistryException when the Repository items do not exist
      */
+    /* HIEOS/BHT - Removed:
     private void updateRepositoryItems(ServerRequestContext context,
             Map idToRepositoryItemMap)
             throws RegistryException {
@@ -509,19 +531,24 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             }
         }
     }
+    */
 
     public RegistryResponse updateObjects(RequestContext context) throws RegistryException {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         UpdateObjectsRequest req = (UpdateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
+        */
         UserType user = ((ServerRequestContext) context).getUser();
 
         try {
             calculateEffectiveUser(((ServerRequestContext) context));
 
+            /* HIEOS/BHT - Removed:
             ((ServerRequestContext) context).setRepositoryItemsMap(idToRepositoryMap);
-
+            */
+            
             RegistryObjectListType objs = req.getRegistryObjectList();
 
             //Split Identifiables by RegistryObjects and ObjectRefs
@@ -535,10 +562,12 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //references
             checkAuthorizedAll(((ServerRequestContext) context));
 
+            /* HIEOS/BHT - Removed:
             if ((((ServerRequestContext) context).getRepositoryItemsMap() != null) &&
                     (!(((ServerRequestContext) context).getRepositoryItemsMap().isEmpty()))) {
                 updateRepositoryItems(((ServerRequestContext) context), ((ServerRequestContext) context).getRepositoryItemsMap());
             }
+            */
 
             ArrayList list = new ArrayList();
             list.addAll(((ServerRequestContext) context).getTopLevelObjectsMap().values());
@@ -572,7 +601,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         SetStatusOnObjectsRequest req = (SetStatusOnObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
+        */
         UserType user = ((ServerRequestContext) context).getUser();
 
         try {
@@ -618,7 +649,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         DeprecateObjectsRequest req = (DeprecateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
+        */
         UserType user = ((ServerRequestContext) context).getUser();
 
         try {
@@ -663,7 +696,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         UndeprecateObjectsRequest req = (UndeprecateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
+        */
         UserType user = ((ServerRequestContext) context).getUser();
 
         try {
@@ -717,7 +752,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         ServerRequestContext _context = (ServerRequestContext) context;
         RegistryResponse resp = null;
         RemoveObjectsRequest req = (RemoveObjectsRequest) _context.getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = _context.getRepositoryItemsMap();
+        */
         UserType user = _context.getUser();
 
         //This request option instructs the server to delete objects even if references exist to them
@@ -781,6 +818,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //DeletionScope=DeleteRepositoryItemOnly. If any repository item
             //does not exist, it will stop
             if (deletionScope.equals(BindingUtility.CANONICAL_DELETION_SCOPE_TYPE_ID_DeleteRepositoryItemOnly)) {
+                /* HIEOS/BHT - Removed:
                 List notExist = rm.itemsExist(idList);
 
                 if (notExist.size() > 0) {
@@ -792,9 +830,11 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 //  pm.checkIfReferencesExist((ServerRequestContext) context, idList);
                 //}
                 rm.delete(idList);
+                */
             } else if (deletionScope.equals(BindingUtility.CANONICAL_DELETION_SCOPE_TYPE_ID_DeleteAll)) {
                 //find out which id is not an id of a repository item (i.e.
                 //referencing RO only
+                /* HIEOS/BHT - Removed:
                 List nonItemsIds = rm.itemsExist(idList);
 
                 //find out which id is an id of a repository item
@@ -808,14 +848,16 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                         itemsIds.add(id);
                     }
                 }
-
+                */
 
                 if (!forceDelete) {
                     pm.checkIfReferencesExist((ServerRequestContext) context, idList);
                 }
 
+                /* HIEOS/BHT - Removed:
                 // Delete the repository items
                 rm.delete(itemsIds);
+                */
 
                 //Delete all ROs with the ids
                 pm.delete(_context, orefs);
@@ -921,7 +963,9 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         RelocateObjectsRequest req = (RelocateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
+        */
         UserType user = ((ServerRequestContext) context).getUser();
 
         try {

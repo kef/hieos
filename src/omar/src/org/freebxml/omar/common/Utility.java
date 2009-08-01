@@ -30,8 +30,10 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+/* HIEOS/BHT - Removed:
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
+*/
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 
 import org.apache.commons.logging.Log;
@@ -158,13 +160,15 @@ public class Utility {
      * @return a <code>RepositoryItem</code> value
      * @throws IOException encountered during IO operations
      */
+    /* HIEOS/BHT - Removed:
     public RepositoryItem createRepositoryItem(String id, String content) throws IOException {
         File file = createTempFile(content, true);
         
         DataHandler dh = new DataHandler(new FileDataSource(file));
         RepositoryItem ri = new RepositoryItemImpl(id, dh);
         return ri;
-    }    
+    }
+    */
 
     /**
      * Check whether the id is a valid UUID.

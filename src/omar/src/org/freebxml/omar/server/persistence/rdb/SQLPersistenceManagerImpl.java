@@ -538,10 +538,12 @@ public class SQLPersistenceManagerImpl
             specificationLinkDAO.insert(specificationLinks);
         }
 
+        /* HIEOS/BHT - Removed:
         if (adhocQuerys.size() > 0) {
             AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
             adhocQueryDAO.insert(adhocQuerys);
         }
+        */
 
         if (subscriptions.size() > 0) {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
@@ -665,10 +667,12 @@ public class SQLPersistenceManagerImpl
             specificationLinkDAO.update(specificationLinks);
         }
 
+        /* HIEOS/BHT - Removed:
         if (adhocQuerys.size() > 0) {
             AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
             adhocQueryDAO.update(adhocQuerys);
         }
+        */
 
         if (subscriptions.size() > 0) {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
@@ -1032,10 +1036,13 @@ public class SQLPersistenceManagerImpl
 
         context.setResponseOption(responseOption);
 
+        /* HIEOS/BHT - Removed:
         if (tableName.equalsIgnoreCase(AdhocQueryDAO.getTableNameStatic())) {
             AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
             res = adhocQueryDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(AssociationDAO.getTableNameStatic())) {
+        } else 
+        */
+        if (tableName.equalsIgnoreCase(AssociationDAO.getTableNameStatic())) {
             AssociationDAO associationDAO = new AssociationDAO(context);
             res = associationDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(

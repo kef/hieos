@@ -90,13 +90,16 @@ public interface RequestContext {
      *
      * @return the Map where key is RegistryObject id and value is a RepositoryItem.
      */
+    /* HIEOS/BHT - Removed:
     public Map getRepositoryItemsMap();
+    */
 
     /**
      * Sets the Map that keeps track of association between and ExtrinsicObjects and its RepositoryItem.
      *
      * @param repositoryItemsMap the Map where key is RegistryObject id and value is a RepositoryItem.
      */
+    /* HIEOS/BHT - Removed:
     public void setRepositoryItemsMap(Map repositoryItemsMap);
-    
+    */
 }

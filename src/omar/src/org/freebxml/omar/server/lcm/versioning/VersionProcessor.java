@@ -24,18 +24,24 @@ import javax.xml.registry.RegistryException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
+*/
 import org.freebxml.omar.common.Utility;
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.exceptions.RepositoryItemNotFoundException;
+*/
 import org.freebxml.omar.common.spi.QueryManager;
 import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
+/* HIEOS/BHT - Removed:
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
+*/
 import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
@@ -56,8 +62,10 @@ public class VersionProcessor {
     private static Log log = LogFactory.getLog(VersionProcessor.class);
     private QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
     private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
+    /* HIEOS/BHT - Removed:
     private RepositoryManager rm = RepositoryManagerFactory.getInstance()
     .getRepositoryManager();
+    */
     private HashSet versionableClassNameSet = new HashSet();
     private List versions;
     
@@ -193,7 +201,8 @@ public class VersionProcessor {
             ro.setLid(ro.getId());
         }
     }
-    
+
+    /* HIEOS/BHT - Removed:
     public boolean needToVersionRepositoryItem(ExtrinsicObjectType eo, RepositoryItem riNew) throws RegistryException {
         boolean needToVersion = true;
         
@@ -306,12 +315,14 @@ public class VersionProcessor {
         
         return needToVersion;
     }
-    
+    */
+
     /**
      * Creates a new version of the RepositoryItem associated with specified ExtrinsicObject.
      * Note that when the RepositoryItem is versioned its ExtrinsicObject must also be versioned.
      *
      */
+    /* HIEOS/BHT - Removed:
     public RepositoryItem createRepositoryItemVersion(ExtrinsicObjectType eo) throws RegistryException {
         RepositoryItem riNew = null;
         
@@ -353,7 +364,8 @@ public class VersionProcessor {
         
         return riNew;
     }
-    
+    */
+
     private List getAllRegistryObjectVersions( RegistryObjectType ro ) throws RegistryException {
         if (versions == null) {
             ServerRequestContext    queryContext=null;
@@ -646,11 +658,13 @@ public class VersionProcessor {
         }
         return isVersionable;
     }
-    
+
+    /* HIEOS/BHT - Removed:
     private boolean repositoryItemsAreIdentical(RepositoryItem ri1, RepositoryItem ri2) {
         DataHandler dh1 = ri1.getDataHandler();
         DataHandler dh2 = ri2.getDataHandler();
         
         return dh1.equals(dh2);
     }
+    */
 }
