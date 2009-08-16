@@ -16,6 +16,13 @@ is divided into following sections:
 -->
 <project xmlns:ear2="http://www.netbeans.org/ns/j2ee-earproject/2" basedir=".." default="default" name="xlog-impl">
     <import file="ant-deploy.xml"/>
+    <fail message="Please build using Ant 1.7.1 or higher.">
+        <condition>
+            <not>
+                <antversion atleast="1.7.1"/>
+            </not>
+        </condition>
+    </fail>
     <target depends="dist" description="Build whole project." name="default"/>
     <!-- 
     INITIALIZATION SECTION 
@@ -54,6 +61,27 @@ is divided into following sections:
             </and>
         </condition>
         <available file="${meta.inf}/MANIFEST.MF" property="has.custom.manifest"/>
+        <!--
+                    Variables needed to support directory deployment.
+                -->
+        <condition property="do.package.with.custom.manifest.not.directory.deploy">
+            <and>
+                <isset property="has.custom.manifest"/>
+                <isfalse value="${directory.deployment.supported}"/>
+            </and>
+        </condition>
+        <condition property="do.package.without.custom.manifest.not.directory.deploy">
+            <and>
+                <not>
+                    <isset property="has.custom.manifest"/>
+                </not>
+                <isfalse value="${directory.deployment.supported}"/>
+            </and>
+        </condition>
+        <condition property="do.package.not.directory.deploy">
+            <isfalse value="${directory.deployment.supported}"/>
+        </condition>
+        <!--End Variables needed to support directory deployment.-->
         <condition else="" property="j2ee.appclient.mainclass.tool.param" value="-mainclass ${main.class}">
             <and>
                 <isset property="main.class"/>
@@ -135,10 +163,12 @@ exists or setup the property manually. For example like this:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="init,deps-jar,pre-pre-compile,pre-compile" name="do-compile">
+    <target depends="init,deps-jar,pre-pre-compile,pre-compile,-do-compile-deps" name="do-compile">
         <copy todir="${build.dir}/META-INF">
             <fileset dir="${meta.inf}"/>
         </copy>
+    </target>
+    <target depends="init,deps-jar,pre-pre-compile,pre-compile" if="do.package.not.directory.deploy" name="-do-compile-deps">
         <copyfiles files="${reference.xlogmdb.dist-ear}" todir="${build.dir}//"/>
         <copyfiles files="${file.reference.axiom-api-1.2.7.jar}" todir="${build.dir}//"/>
         <copyfiles files="${file.reference.axiom-impl-1.2.7.jar}" todir="${build.dir}//"/>
@@ -155,8 +185,8 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="init,deps-jar,pre-pre-compile,pre-compile,do-compile,post-compile" description="Compile project." name="compile"/>
     <!--
-    DIST BUILDING SECTION
-    -->
+                DIST BUILDING SECTION
+            -->
     <target name="pre-dist">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
@@ -175,6 +205,28 @@ exists or setup the property manually. For example like this:
             <fileset dir="${build.dir}"/>
         </jar>
     </target>
+    <!--
+                TARGETS NEEDED TO SUPPORT DIRECTORY DEPLOYMENT
+            -->
+    <target depends="init,compile,pre-dist" if="do.package.without.custom.manifest.not.directory.deploy" name="-do-tmp-dist-without-manifest">
+        <dirname file="${dist.jar}" property="dist.jar.dir"/>
+        <mkdir dir="${dist.jar.dir}"/>
+        <jar compress="${jar.compress}" jarfile="${dist.jar}">
+            <fileset dir="${build.dir}"/>
+        </jar>
+    </target>
+    <target depends="init,compile,pre-dist" if="do.package.with.custom.manifest.not.directory.deploy" name="-do-tmp-dist-with-manifest">
+        <dirname file="${dist.jar}" property="dist.jar.dir"/>
+        <mkdir dir="${dist.jar.dir}"/>
+        <jar compress="${jar.compress}" jarfile="${dist.jar}" manifest="${meta.inf}/MANIFEST.MF">
+            <fileset dir="${build.dir}"/>
+        </jar>
+    </target>
+    <target depends="init,compile,pre-dist,-do-tmp-dist-without-manifest,-do-tmp-dist-with-manifest" name="-do-dist-directory-deploy"/>
+    <target depends="init,compile,pre-dist,-do-dist-directory-deploy,post-dist" description="Build distribution (JAR) - if directory deployment is not supported." name="dist-directory-deploy"/>
+    <!--
+                END TARGETS NEEDED TO SUPPORT DIRECTORY DEPLOYMENT
+            -->
     <target name="post-dist">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
@@ -204,7 +256,7 @@ exists or setup the property manually. For example like this:
         <!-- Task to deploy to the Access Manager runtime. -->
         <ant antfile="${project.xlogmdb}/build.xml" inheritall="false" target="-run-deploy-am"/>
     </target>
-    <target depends="-init-cos,dist,pre-run-deploy,-pre-nbmodule-run-deploy,-run-deploy-nb,-init-deploy-ant,-deploy-ant,-run-deploy-am,-post-nbmodule-run-deploy,post-run-deploy" name="run-deploy"/>
+    <target depends="-init-cos,dist-directory-deploy,pre-run-deploy,-pre-nbmodule-run-deploy,-run-deploy-nb,-init-deploy-ant,-deploy-ant,-run-deploy-am,-post-nbmodule-run-deploy,post-run-deploy" name="run-deploy"/>
     <target if="netbeans.home" name="-run-deploy-nb">
         <nbdeploy clientModuleUri="${client.module.uri}" clientUrlPart="${client.urlPart}" debugmode="false" forceRedeploy="${forceRedeploy}"/>
     </target>
