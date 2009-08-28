@@ -84,10 +84,12 @@ public abstract class AbstractProperties {
     }
 
     protected static void initOmarHomeDir(Properties properties) {
+        /* HIEOS/BHT: Removed (no need to create this directory):
         String omarHome = getOmarHome(properties);
         File omarHomeFile = new File(omarHome);
         initHomeDir(OMAR_HOME_KEY, omarHomeFile);
         properties.put(OMAR_HOME_KEY, omarHome);
+         */
     }
 
     /**
