@@ -31,9 +31,10 @@ import org.xml.sax.SAXException;
 
 public class SchemaValidation implements MetadataTypes {
 
+    /*
     public static String validate(OMElement ele, int metadataType) throws XdsInternalException {
         return validate_local(ele, metadataType);
-    }
+    }*/
 
     // The only known use case for localhost validation failing is when this is called from
     // xdstest2 in which case it is trying to call home to reference the schema files.
@@ -62,7 +63,6 @@ public class SchemaValidation implements MetadataTypes {
 
     // empty string as result means no errors
     static private String run(String metadata, int metadataType, String host, String portString) throws XdsInternalException {
-
         MyErrorHandler errors = null;
         DOMParser p = null;
         //String portString = "9080";
@@ -75,6 +75,7 @@ public class SchemaValidation implements MetadataTypes {
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/lcm.xsd" : localSchema + "/v3/lcm.xsd");
                 break;
+                /* XDS.a
             case METADATA_TYPE_PR:
             case METADATA_TYPE_R:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
@@ -88,6 +89,7 @@ public class SchemaValidation implements MetadataTypes {
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
 
                 break;
+                 */
             case METADATA_TYPE_SQ:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/query.xsd " : localSchema + "/v3/query.xsd ") +

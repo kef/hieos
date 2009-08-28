@@ -29,8 +29,6 @@ import org.apache.log4j.Logger;
 
 public class RegistryErrorList extends ErrorLogger {
 
-    public final static short version_2 = 2;
-    public final static short version_3 = 3;
     String errors_and_warnings = "";
     boolean has_errors = false;
     boolean has_warnings = false;
@@ -50,32 +48,22 @@ public class RegistryErrorList extends ErrorLogger {
         this.verbose = verbose;
     }
 
-    public RegistryErrorList(short version) throws XdsInternalException {
-        init(version, true /* log */);
+    public RegistryErrorList() throws XdsInternalException {
+        init(true /* log */);
     }
 
-    public RegistryErrorList(short version, boolean log) throws XdsInternalException {
-        init(version, log);
+    public RegistryErrorList(boolean log) throws XdsInternalException {
+        init(log);
     }
 
     public void format_for_html(boolean value) {
         this.format_for_html = value;
     }
 
-    void init(short version, boolean log) throws XdsInternalException {
-        if (version != version_2 && version != version_3) {
-            throw new XdsInternalException("Class com.vangent.hieos.xutil.response.Response created without valid version");
-        }
-        this.version = version;
-        if (version == version_2) {
-            ebRSns = MetadataSupport.ebRSns2;
-            ebRIMns = MetadataSupport.ebRIMns2;
-            ebQns = MetadataSupport.ebQns2;
-        } else {
-            ebRSns = MetadataSupport.ebRSns3;
-            ebRIMns = MetadataSupport.ebRIMns3;
-            ebQns = MetadataSupport.ebQns3;
-        }
+    void init(boolean log) throws XdsInternalException {
+        ebRSns = MetadataSupport.ebRSns3;
+        ebRIMns = MetadataSupport.ebRIMns3;
+        ebQns = MetadataSupport.ebQns3;
         this.log = log;
         this.validations = new StringBuffer();
     }
@@ -96,10 +84,6 @@ public class RegistryErrorList extends ErrorLogger {
             return "Failure";
         }
         return "Success";
-    }
-
-    public short getVersion() {
-        return version;
     }
 
     public OMElement getRegistryErrorList() {
@@ -193,9 +177,7 @@ public class RegistryErrorList extends ErrorLogger {
             OMElement registry_error_2 = Util.deep_copy(registry_error);
             logger.error("registry_error2 is \n" + registry_error_2.toString());
 
-            if (this.getVersion() == RegistryErrorList.version_3) {
-                registry_error_2.setNamespace(MetadataSupport.ebRSns3);
-            }
+            registry_error_2.setNamespace(MetadataSupport.ebRSns3);
             registryErrorList().addChild(registry_error_2);
             if (registry_error.getAttributeValue(MetadataSupport.severity_qname).equals("Error")) {
                 has_errors = true;

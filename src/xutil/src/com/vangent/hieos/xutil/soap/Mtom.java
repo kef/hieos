@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.soap;
 
 import com.vangent.hieos.xutil.exception.XdsIOException;
@@ -26,48 +25,49 @@ import org.apache.axiom.om.OMText;
 import org.apache.commons.codec.binary.Base64;
 
 public class Mtom {
-	private OMElement document;
-	private String content_type;
-	private byte[] contents;
-	private boolean xop;
-	
-	public boolean isOptimized() { return xop; }
 
-	public void decode(OMElement document) throws XdsIOException, IOException {
-		this.document = document;
-		OMText binaryNode = (OMText) document.getFirstOMChild();
-		//System.out.println("isOptimized: " + binaryNode.isOptimized());
+    private OMElement document;
+    private String content_type;
+    private byte[] contents;
+    private boolean xop;
 
-		xop = binaryNode.isOptimized(); 
-		
-		if (xop) {
-			javax.activation.DataHandler datahandler = (javax.activation.DataHandler) binaryNode.getDataHandler();
-			InputStream is = null;
-			try {
-				is = datahandler.getInputStream();
-				contents = Io.getBytesFromInputStream(is);
-			}
-			catch (IOException e) {
-				throw new XdsIOException("Error accessing XOP encoded document content from message");
-			}
-			this.content_type = datahandler.getContentType();
-		} else {
-			String base64 = binaryNode.getText();
+    public boolean isOptimized() {
+        return xop;
+    }
+
+    public void decode(OMElement document) throws XdsIOException, IOException {
+        this.document = document;
+        OMText binaryNode = (OMText) document.getFirstOMChild();
+        //System.out.println("isOptimized: " + binaryNode.isOptimized());
+
+        xop = binaryNode.isOptimized();
+
+        if (xop) {
+            javax.activation.DataHandler datahandler = (javax.activation.DataHandler) binaryNode.getDataHandler();
+            InputStream is = null;
+            try {
+                is = datahandler.getInputStream();
+                contents = Io.getBytesFromInputStream(is);
+            } catch (IOException e) {
+                throw new XdsIOException("Error accessing XOP encoded document content from message");
+            }
+            this.content_type = datahandler.getContentType();
+        } else {
+            String base64 = binaryNode.getText();
             contents = Base64.decodeBase64(base64.getBytes());
             /* BHT: REMOVED (and replaced with above line).
-			BASE64Decoder d  = new BASE6decoded.toString();4Decoder();
-			contents = d.decodeBuffer(base64);
+            BASE64Decoder d  = new BASE6decoded.toString();4Decoder();
+            contents = d.decodeBuffer(base64);
              */
-			this.content_type = null;
-		}
-	}
+            this.content_type = null;
+        }
+    }
 
-	public String getContent_type() {
-		return content_type;
-	}
+    public String getContent_type() {
+        return content_type;
+    }
 
-	public byte[] getContents() {
-		return contents;
-	}
-	
+    public byte[] getContents() {
+        return contents;
+    }
 }

@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.response;
 
 import com.vangent.hieos.xutil.response.RegistryResponse;
@@ -26,9 +25,6 @@ import org.apache.axiom.om.OMNamespace;
 
 public abstract class Response extends ErrorLogger {
 
-    public final static short version_2 = 2;
-    public final static short version_3 = 3;
-    short version;
     //String status = "Success";
     protected OMNamespace ebRSns;
     protected OMNamespace ebRIMns;
@@ -43,80 +39,48 @@ public abstract class Response extends ErrorLogger {
     OMElement content = null;
     public RegistryErrorList registryErrorList;
 
-    public Response(short version) throws XdsInternalException {
-        init(version, new RegistryErrorList(version, true /* log */));
-    }
-
     public Response() throws XdsInternalException {
-        init(version_3, new RegistryErrorList(version_3, true /* log */));
-    }
-
-    public Response(short version, RegistryErrorList rel) throws XdsInternalException {
-        init(version, rel);
+        init(new RegistryErrorList(true /* log */));
     }
 
     public Response(RegistryErrorList rel) throws XdsInternalException {
-        init(version_3, rel);
+        init(rel);
     }
 
-    void init(short version, RegistryErrorList rel) throws XdsInternalException {
-        if (version != version_2 && version != version_3) {
-            throw new XdsInternalException("Class com.vangent.hieos.xutil.response.Response created without valid version");
-        }
-        this.version = version;
-        if (version == version_2) {
-            ebRSns = MetadataSupport.ebRSns2;
-            ebRIMns = MetadataSupport.ebRIMns2;
-            ebQns = MetadataSupport.ebQns2;
-        } else {
-            ebRSns = MetadataSupport.ebRSns3;
-            ebRIMns = MetadataSupport.ebRIMns3;
-            ebQns = MetadataSupport.ebQns3;
-        }
-
+    void init(RegistryErrorList rel) throws XdsInternalException {
+        ebRSns = MetadataSupport.ebRSns3;
+        ebRIMns = MetadataSupport.ebRIMns3;
+        ebQns = MetadataSupport.ebQns3;
         registryErrorList = rel;
-
     }
 
     abstract public void addQueryResults(OMElement metadata) throws XdsInternalException;
 
     public OMElement getResponse() throws XdsInternalException {
-        if (version == version_2) {
-            response.addAttribute("status", registryErrorList.getStatus(), null);
-            if (registryErrorList.hasContent()) {
-                OMElement error_list = registryErrorList.getRegistryErrorList();
-                if (error_list != null) {
-                    response.addChild(error_list);
-                }
+        if (registryErrorList.hasContent()) {
+            OMElement error_list = registryErrorList.getRegistryErrorList();
+            if (error_list != null) {
+                response.addChild(error_list);
+            }
+        }
+        response.addAttribute("status", MetadataSupport.response_status_type_namespace + registryErrorList.getStatus(), null);
+        if (this instanceof RetrieveMultipleResponse) {
+            return ((RetrieveMultipleResponse) this).rdsr;
+        } else if (this instanceof RegistryResponse) {
+        } else if (this instanceof AdhocQueryResponse) {
+            AdhocQueryResponse a = (AdhocQueryResponse) this;
+            OMElement query_result = a.getQueryResult();
+            if (query_result != null) {
+                response.addChild(query_result);
+            }
+        } else if (this instanceof XCAAdhocQueryResponse) {
+            XCAAdhocQueryResponse a = (XCAAdhocQueryResponse) this;
+            OMElement queryResult = a.getQueryResult();
+            if (queryResult != null) {
+                response.addChild(queryResult);
             }
         } else {
-            if (registryErrorList.hasContent()) {
-                OMElement error_list = registryErrorList.getRegistryErrorList();
-                if (error_list != null) {
-                    response.addChild(error_list);
-                }
-            }
-
-            response.addAttribute("status", MetadataSupport.response_status_type_namespace + registryErrorList.getStatus(), null);
-
-            if (this instanceof RetrieveMultipleResponse) {
-                return ((RetrieveMultipleResponse) this).rdsr;
-            } else if (this instanceof RegistryResponse) {
-            } else if (this instanceof AdhocQueryResponse) {
-                AdhocQueryResponse a = (AdhocQueryResponse) this;
-                OMElement query_result = a.getQueryResult();
-                if (query_result != null) {
-                    response.addChild(query_result);
-                }
-            } else if (this instanceof XCAAdhocQueryResponse) {
-                XCAAdhocQueryResponse a = (XCAAdhocQueryResponse) this;
-                OMElement queryResult = a.getQueryResult();
-                if (queryResult != null) {
-                    response.addChild(queryResult);
-                }
-            } else {
-                throw new XdsInternalException("Response.getResponse(): unknown extending class: " + getClass().getName());
-            }
+            throw new XdsInternalException("Response.getResponse(): unknown extending class: " + getClass().getName());
         }
         return response;
     }

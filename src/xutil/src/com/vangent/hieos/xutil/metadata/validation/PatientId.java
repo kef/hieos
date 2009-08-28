@@ -28,7 +28,7 @@ public class PatientId {
 	Metadata m;
 
 
-	public PatientId( Metadata m, RegistryErrorList rel, boolean is_submit, boolean is_xdsb) {
+	public PatientId( Metadata m, RegistryErrorList rel, boolean is_submit) {
 		this.rel = rel;
 		this.m = m;
 		patient_ids = new ArrayList<String>();

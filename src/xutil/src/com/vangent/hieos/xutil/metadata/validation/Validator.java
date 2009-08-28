@@ -33,7 +33,6 @@ public class Validator {
 	RegistryErrorList rel;
 	Metadata m;
 	boolean is_submit;
-	boolean is_xdsb;
 	Structure s;
 	Attribute a;
 	CodeValidation cv;
@@ -42,17 +41,16 @@ public class Validator {
 	ArrayList<String> assigning_authorities;
 	XLogMessage log_message;
 
-	public Validator(Metadata m, RegistryErrorList rel, boolean is_submit, boolean is_xdsb, XLogMessage log_message) throws XdsException {
+	public Validator(Metadata m, RegistryErrorList rel, boolean is_submit, XLogMessage log_message) throws XdsException {
 		this.rel = rel;
 		this.m = m;
 		this.is_submit = is_submit;
-		this.is_xdsb = is_xdsb;
 		this.log_message = log_message;
 
 		s = new Structure(m, is_submit, rel, log_message);
-		a = new Attribute(m, is_submit, is_xdsb, rel);
+		a = new Attribute(m, is_submit, rel);
 		try {
-			cv = new CodeValidation(m, is_submit, is_xdsb, rel);
+			cv = new CodeValidation(m, is_submit, rel);
 		}
 		catch (XdsInternalException e) {
 			rel.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), null);
@@ -60,7 +58,7 @@ public class Validator {
 		}
 		assigning_authorities = cv.getAssigningAuthorities();
 
-		pid = new PatientId(m, rel, is_submit, is_xdsb);
+		pid = new PatientId(m, rel, is_submit);
 		uid = new UniqueId(m, rel);
 	}
 	
@@ -71,14 +69,9 @@ public class Validator {
 
 
 	public void run() throws XdsInternalException, MetadataValidationException, XdsException {
-
-		//System.out.println("Metadata Validator");
-
 		try {
 			s.run();
-
 			a.run();
-
 			cv.run();
 		}
 		catch (XdsInternalException e) {

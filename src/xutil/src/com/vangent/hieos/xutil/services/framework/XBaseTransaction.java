@@ -39,22 +39,6 @@ public class XBaseTransaction {
      *
      */
     public XLogMessage log_message = null;
-    /**
-     *
-     */
-    public static final short xds_none = 0;
-    /**
-     *
-     */
-    public static final short xds_a = 2;
-    /**
-     *
-     */
-    public static final short xds_b = 3;
-    /**
-     *
-     */
-    public short xds_version = xds_none;
     MessageContext messageContext = null;
 
     //Added these 2 boolean values for success flag which is needed to be sent to audit message
@@ -83,12 +67,10 @@ public class XBaseTransaction {
     /**
      *
      * @param response
-     * @param xds_version
      * @param messageContext
      */
-    protected void init(Response response, short xds_version, MessageContext messageContext) {
+    protected void init(Response response, MessageContext messageContext) {
         this.response = response;
-        this.xds_version = xds_version;
         this.messageContext = messageContext;
     }
 

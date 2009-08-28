@@ -34,7 +34,7 @@ public class XCAAdhocQueryResponse extends Response {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     public XCAAdhocQueryResponse() throws XdsInternalException {
-        super(version_3);
+        super();
         response = MetadataSupport.om_factory.createOMElement("AdhocQueryResponse", ebQns);
         queryResult = MetadataSupport.om_factory.createOMElement("RegistryObjectList", ebRIMns);
     }

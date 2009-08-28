@@ -36,9 +36,7 @@ public class Structure {
 
 	public Structure(Metadata m, boolean is_submit) throws XdsInternalException {
 		this.m = m;
-		rel = new RegistryErrorList( 
-				(m.isVersion2()) ? RegistryErrorList.version_2 : RegistryErrorList.version_3, 
-						false /* log */);
+		rel = new RegistryErrorList(false /* log */);
 		this.is_submit = is_submit;
 		log_message = null;
 	}

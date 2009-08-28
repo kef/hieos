@@ -229,58 +229,34 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             String request_type = (request != null) ? request.getLocalName() : "None";
             OMNamespace ns = (request != null) ? request.getNamespace() : MetadataSupport.ebRSns2;
 
-            if (ns.getNamespaceURI().equals(MetadataSupport.ebRSns2.getNamespaceURI())) {
-                // xds.a submitobjectsrequest
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_2, log);
-                rel.add_error(error_type, message, exception_details(e), log_message);
-                return new RegistryResponse(RegistryErrorList.version_2, rel).getResponse();
-            }
             if (ns.getNamespaceURI().equals(MetadataSupport.ebRSns3.getNamespaceURI())) {
                 // xds.b submitobjectsrequest (could be xds.b retrieve)
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_3, log);
+                RegistryErrorList rel = new RegistryErrorList(log);
                 rel.add_error(error_type, message, exception_details(e), log_message);
-                return new RegistryResponse(RegistryErrorList.version_3, rel).getResponse();
+                return new RegistryResponse(rel).getResponse();
             }
             if (ns.getNamespaceURI().equals(MetadataSupport.xdsB.getNamespaceURI())) {
                 // RetrieveDocumentSet
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_3, log);
+                RegistryErrorList rel = new RegistryErrorList(log);
                 rel.add_error(error_type, message, exception_details(e), log_message);
                 if (request.getLocalName().equals("RetrieveDocumentSetRequest")) {
                     OMElement res = new RetrieveMultipleResponse(rel).getResponse();
                     return res;
                 } else {
-                    return new RegistryResponse(RegistryErrorList.version_3, rel).getResponse();
+                    return new RegistryResponse(rel).getResponse();
                 }
 
             }
             if (ns.getNamespaceURI().equals(MetadataSupport.ebQns3.getNamespaceURI())) {
                 // stored query
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_3, log);
+                RegistryErrorList rel = new RegistryErrorList(log);
                 rel.add_error(error_type, message, exception_details(e), log_message);
-                return new AdhocQueryResponse(RegistryErrorList.version_3, rel).getResponse();
+                return new AdhocQueryResponse(rel).getResponse();
             }
-            if (ns.getNamespaceURI().equals(MetadataSupport.ebQns2.getNamespaceURI())) {
-                // sql query
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_2, log);
-                rel.add_error(error_type, message, exception_details(e), log_message);
-                return new AdhocQueryResponse(RegistryErrorList.version_2, rel).getResponse();
-            }
-
-            // the default when all else fails
-            RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_2, log);
-            rel.add_error(error_type, message, exception_details(e), log_message);
-            return new RegistryResponse(RegistryErrorList.version_2, rel).getResponse();
-
         } catch (XdsInternalException e1) {
-            try {
-                RegistryErrorList rel = new RegistryErrorList(RegistryErrorList.version_2, log);
-                rel.add_error(error_type, e1.getMessage(), exception_details(e1), log_message);
-                return new RegistryResponse(RegistryErrorList.version_2, rel).getResponse();
-            } catch (Exception e2) {
-                return null;
-            }
+            return null;
         }
-
+        return null;
     }
 
     /**
@@ -298,7 +274,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.store();
             log_message = null;
         }
-    //logger.info("+++ stop log [service = " + service_name + "] +++");
+        //logger.info("+++ stop log [service = " + service_name + "] +++");
     }
 
     /**

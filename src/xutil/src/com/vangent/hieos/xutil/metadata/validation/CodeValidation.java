@@ -46,13 +46,11 @@ public class CodeValidation {
     Metadata m;
     RegistryErrorList rel;
     boolean is_submit;
-    boolean xds_b;
 
-    public CodeValidation(Metadata m, boolean is_submit, boolean xds_b, RegistryErrorList rel) throws XdsInternalException {
+    public CodeValidation(Metadata m, boolean is_submit, RegistryErrorList rel) throws XdsInternalException {
         this.m = m;
         this.rel = rel;
         this.is_submit = is_submit;
-        this.xds_b = xds_b;
         loadCodes();
     }
 

@@ -43,8 +43,8 @@ public class RegistryUtility {
 	}
 
 	static public RegistryErrorList metadata_validator(Metadata m, boolean is_submit) throws XdsException {
-		RegistryErrorList rel = new RegistryErrorList((m.isVersion2() ? RegistryErrorList.version_2 : RegistryErrorList.version_3));
-		Validator v = new Validator(m, rel, is_submit, !m.isVersion2(), (XLogMessage)null);
+		RegistryErrorList rel = new RegistryErrorList();
+		Validator v = new Validator(m, rel, is_submit, (XLogMessage)null);
 		v.run();
 		return rel;
 	}
