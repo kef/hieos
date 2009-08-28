@@ -19,9 +19,9 @@ import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
-import com.vangent.hieos.xutil.client.RetrieveB;
-import com.vangent.hieos.xutil.client.RetContext;
-import com.vangent.hieos.xutil.client.RetInfo;
+import com.vangent.hieos.xclient.xds.repository.RetrieveB;
+import com.vangent.hieos.xclient.xds.repository.RetContext;
+import com.vangent.hieos.xclient.xds.repository.RetInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

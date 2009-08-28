@@ -265,7 +265,7 @@ public abstract class QueryContents {
 
 	void run_schema() {
 		try {
-			SchemaValidation.validate_local(result_xml	, MetadataTypes.METADATA_TYPE_SQ);
+			SchemaValidation.validate_local(result_xml, MetadataTypes.METADATA_TYPE_SQ);
 		} catch (Exception e) {
 			this.addException(e);
 		}
@@ -273,12 +273,11 @@ public abstract class QueryContents {
 
 	void run_validator() {
 		try {
-			RegistryErrorList registryErrorList = new RegistryErrorList(RegistryErrorList.version_3);
+			RegistryErrorList registryErrorList = new RegistryErrorList();
 
 			Validator val = new Validator(	m, 
 					registryErrorList, 
 					false /* issubmit */, 
-					true /* xds.b */,
 					null /* logger */);
 			val.run();
 			String errors_and_warnings = registryErrorList.getErrorsAndWarnings();
