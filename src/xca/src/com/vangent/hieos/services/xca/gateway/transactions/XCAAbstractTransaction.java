@@ -82,7 +82,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
         this.gatewayType = gatewayType;
         this.log_message = log_message;
         this.requestController = new XCARequestController(response, this.log_message);
-        super.init(response, XBaseTransaction.xds_b, messageContext); // Initialize superclass whole.
+        super.init(response, messageContext); // Initialize superclass whole.
     }
 
     /**
