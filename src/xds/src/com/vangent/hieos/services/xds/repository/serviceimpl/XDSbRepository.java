@@ -76,7 +76,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
             log_message.setTestMessage(getPnRTransactionName());
             validateWS();
             validatePnRTransaction(sor);
-            ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getXdsVersion(), getMessageContext());
+            ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
             if (alternateRegistryEndpoint != null) {
                 s.setRegistryEndPoint(alternateRegistryEndpoint);
             }
@@ -110,7 +110,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
                 endTransaction(false);
                 return res;
             }
-            RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, XBaseTransaction.xds_b, getMessageContext());
+            RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
             OMElement result = s.retrieveDocumentSet(rdsr, this, true /* optimize */, this);
             endTransaction(s.getStatus());
             return result;
@@ -153,10 +153,6 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
             throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
                     " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
-    }
-
-    private short getXdsVersion() {
-        return XBaseTransaction.xds_b;
     }
 
     private void validatePnRTransaction(OMElement sor) throws XdsValidationException {

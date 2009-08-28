@@ -66,9 +66,9 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
                 return startup_error;
             }
             log_message.setTestMessage(getRTransactionName(sor));
-            validateWS(false);
+            validateWS();
             validateSubmitTransaction(sor);
-            SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getXdsVersion(), getMessageContext());
+            SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
             OMElement result = s.submitObjectsRequest(sor, this);
             endTransaction(s.getStatus());
             return result;
@@ -90,9 +90,9 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         }
         log_message.setTestMessage(getRTransactionName(ahqr));
         String type = getRTransactionName(ahqr);
-        AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext(), isSecure(), XBaseTransaction.xds_b);
+        AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext(), isSecure());
         try {
-            validateWS(type.equals("SQ"));
+            validateWS();
             validateQueryTransaction(ahqr);
         } catch (Exception e) {
             return endTransaction(ahqr, e, XAbstractService.registry_actor, "");
@@ -175,11 +175,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         return "R.b";
     }
 
-    private short getXdsVersion() {
-        return XBaseTransaction.xds_b;
-    }
-
-    private void validateWS(boolean isSQ) throws XdsWSException {
+    private void validateWS() throws XdsWSException {
         checkSOAP12();
         if (isAsync()) {
             throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
@@ -187,6 +183,11 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         }
     }
 
+    /**
+     * 
+     * @param sor
+     * @throws XdsValidationException
+     */
     private void validateSubmitTransaction(OMElement sor)
             throws XdsValidationException {
         OMNamespace ns = sor.getNamespace();
@@ -194,9 +195,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.ebLcm3.getNamespaceURI())) {
             throw new XdsValidationException("Invalid namespace on " + sor.getLocalName() + " (" + ns_uri + ")");
         }
-
         String type = getRTransactionName(sor);
-
         if (!type.startsWith("SubmitObjectsRequest")) {
             throw new XdsValidationException("Only SubmitObjectsRequest is acceptable on this endpoint, found " + sor.getLocalName());
         }
@@ -251,9 +250,10 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
      * @param ahqr
      * @return
      */
+    /*
     private boolean isSQL(OMElement ahqr) {
         return MetadataSupport.firstChildWithLocalName(ahqr, "SQLQuery") != null;
-    }
+    }*/
 
     /**
      *

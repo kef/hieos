@@ -25,7 +25,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.iosupport.ByteBuffer;
 import com.vangent.hieos.xutil.iosupport.Sha1Bean;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -77,12 +76,11 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @param xds_version
      * @param messageContext
      */
-    public ProvideAndRegisterDocumentSet(XLogMessage log_message, short xds_version, MessageContext messageContext) {
+    public ProvideAndRegisterDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
-        this.xds_version = xds_version;
         try {
-            init(new RegistryResponse(Response.version_3), xds_version, messageContext);
+            init(new RegistryResponse(), messageContext);
         } catch (XdsInternalException e) {
             logger.fatal("Internal Error creating RegistryResponse: " + e.getMessage());
         }
@@ -328,7 +326,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String registry_endpoint() throws XdsInternalException {
-        return (registry_endpoint == null) ? Repository.getRegisterTransactionEndpoint(this.xds_version) : registry_endpoint;
+        return (registry_endpoint == null) ? Repository.getRegisterTransactionEndpoint() : registry_endpoint;
     }
 
     /**

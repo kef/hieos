@@ -13,7 +13,6 @@
                 <file file="${file.reference.commons-collections.jar}"/>
                 <file file="${file.reference.dom4j-1.4.jar}"/>
                 <file file="${file.reference.ehcache-0.9.jar}"/>
-                <file file="${file.reference.hibernate2.jar}"/>
                 <file file="${file.reference.jaxr-api.jar}"/>
                 <file file="${file.reference.oasis-regrep.jar}"/>
                 <file file="${file.reference.stax-api-1.0.1.jar}"/>

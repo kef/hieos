@@ -10,7 +10,6 @@
         <library-ref name="commons-collections.jar"/>
         <library-ref name="dom4j-1.4.jar"/>
         <library-ref name="ehcache-0.9.jar"/>
-        <library-ref name="hibernate2.jar"/>
         <library-ref name="jaxr-api.jar"/>
         <library-ref name="oasis-regrep.jar"/>
         <library-ref name="stax-api-1.0.1.jar"/>

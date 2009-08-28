@@ -74,14 +74,13 @@ public class SubmitObjectsRequest extends XBaseTransaction {
     //properties = Properties.loader();
     BasicConfigurator.configure();
     } */
-    public SubmitObjectsRequest(XLogMessage log_message, short xds_version, MessageContext messageContext) {
+    public SubmitObjectsRequest(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
-        this.xds_version = xds_version;
         //AUDIT:POINT
         //Message context was initialized when trying to send audit message
         this.messageContext = messageContext;
         try {
-            init(new RegistryResponse((xds_version == xds_a) ? Response.version_2 : Response.version_3), xds_version, messageContext);
+            init(new RegistryResponse(), messageContext);
         //loadSourceIds();
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
@@ -105,9 +104,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
         try {
             sor.build();
-
             mustBeSimpleSoap();
-
             SubmitObjectsRequestInternal(sor);
             //AUDIT:POINT
             //call to audit message for document repository
@@ -119,7 +116,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                     null,
                     XATNALogger.ActorType.REGISTRY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
-
         } catch (XdsFormatException e) {
             response.add_error("XDSRegistryError", "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsDeprecatedException e) {
@@ -151,19 +147,26 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             response.add_error("XDSRegistryError", "XDS General Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         }
-
         this.log_response();
-
-
         OMElement res = null;
         try {
             res = response.getResponse();
         } catch (XdsInternalException e) {
         }
         return res;
-
     }
 
+    /**
+     *
+     * @param sor
+     * @throws SQLException
+     * @throws SchemaValidationException
+     * @throws MetadataValidationException
+     * @throws XdsInternalException
+     * @throws TransformerConfigurationException
+     * @throws MetadataValidationException
+     * @throws XdsException
+     */
     void SubmitObjectsRequestInternal(OMElement sor)
             throws SQLException, SchemaValidationException, MetadataValidationException, XdsInternalException, TransformerConfigurationException,
             MetadataValidationException, XdsException {
@@ -182,18 +185,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
         //  } else
         // {
 
-        if (xds_version == xds_b) {
-            RegistryUtility.schema_validate_local(sor, MetadataTypes.METADATA_TYPE_Rb);
-        } else {
-            RegistryUtility.schema_validate_local(sor, MetadataTypes.METADATA_TYPE_R);
-        }
-
-
+        RegistryUtility.schema_validate_local(sor, MetadataTypes.METADATA_TYPE_Rb);
         try {
             Metadata m = new Metadata(sor);
-
             log_message.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
-
             ArrayList<String> doc_uids = new ArrayList<String>();
             for (String id : m.getExtrinsicObjectIds()) {
                 String uid = m.getUniqueIdValue(id);
@@ -202,7 +197,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 }
             }
             log_message.addOtherParam("DOCuids", doc_uids.toString());
-
             ArrayList<String> fol_uids = new ArrayList<String>();
             for (String id : m.getFolderIds()) {
                 String uid = m.getUniqueIdValue(id);
@@ -213,7 +207,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             log_message.addOtherParam("FOLuids", fol_uids.toString());
             log_message.addOtherParam("Structure", m.structure());
 
-            Validator val = new Validator(m, response.registryErrorList, true, xds_version == xds_b, log_message);
+            Validator val = new Validator(m, response.registryErrorList, true, log_message);
             val.run();
 
             RegistryObjectValidator rov = new RegistryObjectValidator(response, log_message);
@@ -230,17 +224,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             if (this.validater != null && !this.validater.runContentValidationService(m, response)) {
                 return;
             }
-
-
             String patient_id = m.getSubmissionSetPatientId();
             log_message.addOtherParam("Patient ID", patient_id);
-
             validate_patient_id(patient_id);
-
-
             //validateSourceId(m);
-
-
 
             // check for references to registry contents
             ArrayList referenced_objects = m.getReferencedObjects();
@@ -257,12 +244,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                     throw new XdsPatientIdDoesNotMatchException("The following registry objects were referenced by this submission but do not reference the same patient ID: " +
                             missing);
                 }
-
             }
 
             // allocate uuids for symbolic ids
             IdParser ra = new IdParser(m);
-
             ra.compileSymbolicNamesIntoUuids();
 
             // check that submission does not include any object ids that are already in registry

@@ -20,8 +20,8 @@ is divided into following sections:
 
         -->
 <project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="xds-impl">
-    <import file="xml_binding_build.xml"/>
     <import file="axis2-build.xml"/>
+    <import file="xml_binding_build.xml"/>
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
             <not>

@@ -23,22 +23,17 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 public class Repository {
 
-
     /**
-     * 
+     *
      * @param xds_version
      * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws XdsInternalException
      */
-    static public String getRegisterTransactionEndpoint(short xds_version) throws XdsInternalException {
-        if (xds_version == 3) {
-            XConfigRepository repository = Repository.getRepositoryConfig();
-            XConfigRegistry localRegistry = repository.getLocalRegistry();
-            XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
-            return txn.getEndpointURL();
-        }
-        // Note (BHT): we don't care about XDS.a so ok to leave hardcoded.
-        return "http://localhost:8080/axis2/services/xdsregistryainternal";
+    static public String getRegisterTransactionEndpoint() throws XdsInternalException {
+        XConfigRepository repository = Repository.getRepositoryConfig();
+        XConfigRegistry localRegistry = repository.getLocalRegistry();
+        XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
+        return txn.getEndpointURL();
     }
 
     /**

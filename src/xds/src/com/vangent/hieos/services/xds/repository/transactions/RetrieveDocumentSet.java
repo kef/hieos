@@ -57,11 +57,11 @@ public class RetrieveDocumentSet extends XBaseTransaction {
     boolean optimize = true;
     private final static Logger logger = Logger.getLogger(RetrieveDocumentSet.class);
 
-    public RetrieveDocumentSet(XLogMessage log_message, short xds_version, MessageContext messageContext) {
+    public RetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
         try {
-            init(new RetrieveMultipleResponse(), xds_version, messageContext);
+            init(new RetrieveMultipleResponse(), messageContext);
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error("XDSRepositoryError", e.getMessage(), this.getClass().getName(), log_message);

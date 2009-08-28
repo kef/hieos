@@ -130,7 +130,7 @@ public class StoredQueryFactory {
 
         if (this.response == null) {
             // BHT: Fixed bug (was not setting response instance).
-            this.response = new AdhocQueryResponse(Response.version_3);
+            this.response = new AdhocQueryResponse();
         }
 
         query_id = adhoc_query.getAttributeValue(MetadataSupport.id_qname);
