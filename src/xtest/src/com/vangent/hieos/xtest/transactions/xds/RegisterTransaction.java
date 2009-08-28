@@ -81,7 +81,7 @@ public class RegisterTransaction extends BasicTransaction {
 
 				validate_registry_response(
 						result, 
-						(xds_version == xds_a) ? MetadataTypes.METADATA_TYPE_R : MetadataTypes.METADATA_TYPE_SQ);
+						MetadataTypes.METADATA_TYPE_SQ);
 
 			} else {
 				this.s_ctx.add_name_value(instruction_output, "Result", "None");

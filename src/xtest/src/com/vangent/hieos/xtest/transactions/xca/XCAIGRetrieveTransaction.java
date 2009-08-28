@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xtest.transactions.xca;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
@@ -20,9 +19,9 @@ import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.client.RetrieveB;
-import com.vangent.hieos.xutil.client.RetContext;
-import com.vangent.hieos.xutil.client.RetInfo;
+import com.vangent.hieos.xclient.xds.repository.RetrieveB;
+import com.vangent.hieos.xclient.xds.repository.RetContext;
+import com.vangent.hieos.xclient.xds.repository.RetInfo;
 import com.vangent.hieos.xtest.framework.Linkage;
 import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xutil.xml.Util;
@@ -290,10 +289,10 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
                 uri = part.getText();
             } else if (part_name.equals("URIRef")) {
                 uri_ref = part;
-            } else if (part_name.equals("XDSa")) {
-                xds_version = BasicTransaction.xds_a;
+            } /*else if (part_name.equals("XDSa")) {
+            xds_version = BasicTransaction.xds_a;
             //throw new XdsException("Retrieve transaction (in xdstest2) does not support XDS.a");
-            } else {
+            } */ else {
                 //				throw new XdsException("Don't understand instruction " + part_name + " inside step " + s_ctx.getId());
                 BasicTransaction rt = this;
                 rt.parse_instruction(part);

@@ -31,4 +31,5 @@ $SRC_ROOT\xtest\dist\xtest.jar\
 ;$AXIS_LIBS\wsdl4j-1.6.2.jar\
 ;$AXIS_LIBS\wstx-asl-3.2.4.jar\
 ;$AXIS_LIBS\xercesImpl-2.8.1.jar\
-;$SRC_ROOT\xutil\dist\xutil.jar"
+;$SRC_ROOT\xutil\dist\xutil.jar\
+;$SRC_ROOT\xclient\dist\xclient.jar"

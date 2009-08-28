@@ -91,21 +91,15 @@ PidAllocateEndpoint
 
     <!-- Development copy of Public Registry -->
     <site name="dev">
-        <transaction name="r.a"             >http://localhost:8080/axis2/services/xdsregistrya</transaction>
-        <transaction name="pr.a"            >http://localhost:8080/axis2/services/xdsrepositorya</transaction>
-        <transaction name="q"               >http://localhost:8080/axis2/services/xdsregistrya</transaction>
         <transaction name="sq"              >http://localhost:8080/axis2/services/xdsregistryb</transaction>
         <transaction name="r.b"             >http://localhost:8080/axis2/services/xdsregistryb</transaction>
         <transaction name="pr.b"            >http://localhost:8080/axis2/services/xdsrepositoryb</transaction>
-        <transaction name="r.a" secure="1" >https://localhost:8181/axis2/services/xdsregistrya</transaction>
-        <transaction name="pr.a" secure="1">https://localhost:8181/axis2/services/xdsrepositorya</transaction>
-        <transaction name="q" secure="1"   >https://localhost:8181/axis2/services/xdsregistrya</transaction>
         <transaction name="sq" secure="1"  >https://localhost:8181/axis2/services/xdsregistryb</transaction>
         <transaction name="r.b" secure="1" >https://localhost:8181/axis2/services/xdsregistryb</transaction>
         <transaction name="pr.b" secure="1">https://localhost:8181/axis2/services/xdsrepositoryb</transaction>
 
 	<repository uid="1.3.6.1.4.1.21367.2009.1.2.1010">http://localhost:8080/axis2/services/xdsrepositoryb</repository>
-	<repository uid="1.3.6.1.4.1.21367.2009.1.2.1010" secure="1">https://localhost:8181/axis2/services/xdsrepositoryb</repository>
+	<repository uid="1.3.6.1.4.1.21367.2009.1.2.1010" secure="1">https://localhost:8080/axis2/services/xdsrepositoryb</repository>
 
 
         <!-- These are for the Responding Gateway -->
