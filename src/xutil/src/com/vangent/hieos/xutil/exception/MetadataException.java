@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ * 
+ * @author thumbe
+ */
 public class MetadataException extends XdsException {
 
+    /**
+     *
+     * @param msg
+     */
     public MetadataException(String msg) {
         super(msg);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public MetadataException(String msg, Throwable cause) {
         super(msg, cause);
     }

@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XdsException extends Exception {
 
+    /**
+     *
+     * @param msg
+     */
     public XdsException(String msg) {
         super(msg);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public XdsException(String msg, Throwable cause) {
         super(msg, cause);
     }

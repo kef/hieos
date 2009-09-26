@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XDSMissingDocumentException extends XdsException {
 
+    /**
+     *
+     * @param msg
+     */
     public XDSMissingDocumentException(String msg) {
         super(msg);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public XDSMissingDocumentException(String msg, Throwable cause) {
         super(msg, cause);
     }

@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XdsPatientIdDoesNotMatchException extends XdsException {
 
+    /**
+     *
+     * @param message
+     */
     public XdsPatientIdDoesNotMatchException(String message) {
         super(message);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public XdsPatientIdDoesNotMatchException(String msg, Throwable cause) {
         super(msg, cause);
     }

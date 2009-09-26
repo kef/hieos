@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XdsUnknownPatientIdException extends XdsException {
 
+    /**
+     *
+     * @param message
+     */
     public XdsUnknownPatientIdException(String message) {
         super(message);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public XdsUnknownPatientIdException(String msg, Throwable cause) {
         super(msg, cause);
     }

@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class XDSRegistryOutOfResourcesException extends Exception {
 
+    /**
+     *
+     * @param msg
+     */
     public XDSRegistryOutOfResourcesException(String msg) {
         super(msg);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public XDSRegistryOutOfResourcesException(String msg, Throwable cause) {
         super(msg, cause);
     }

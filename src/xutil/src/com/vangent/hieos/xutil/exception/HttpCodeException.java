@@ -13,13 +13,26 @@
 
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class HttpCodeException extends XdsException {
 
-	public HttpCodeException(String msg) {
+    /**
+     *
+     * @param msg
+     */
+    public HttpCodeException(String msg) {
 		super(msg);
 	}
 
-	public HttpCodeException(String msg, Throwable cause) {
+        /**
+         *
+         * @param msg
+         * @param cause
+         */
+        public HttpCodeException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 

@@ -12,12 +12,25 @@
  */
 package com.vangent.hieos.xutil.exception;
 
+/**
+ *
+ * @author thumbe
+ */
 public class NoMetadataException extends MetadataException {
 
+    /**
+     *
+     * @param msg
+     */
     public NoMetadataException(String msg) {
         super(msg);
     }
 
+    /**
+     *
+     * @param msg
+     * @param cause
+     */
     public NoMetadataException(String msg, Throwable cause) {
         super(msg, cause);
     }
