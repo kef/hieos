@@ -27,7 +27,7 @@ public class GetRelatedDocuments extends Sq {
 
 	OMElement build(ArrayList<String> ids) {
 		this.ids = ids;
-		ArrayList<OMElement> query = build_query_wrapper("urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6");
+		ArrayList<OMElement> query = build_query_wrapper(MetadataSupport.SQ_GetRelatedDocuments);
 
 		if (ids.get(0).startsWith("urn:uuid:")) 
 			add_slot(query, "$XDSDocumentEntryEntryUUID", this.query_singleton(ids));

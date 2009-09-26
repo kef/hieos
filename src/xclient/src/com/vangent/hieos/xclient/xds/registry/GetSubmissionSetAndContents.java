@@ -15,6 +15,7 @@ package com.vangent.hieos.xclient.xds.registry;
 
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 public class GetSubmissionSetAndContents extends Sq {
 	ArrayList<String> ids = null;
@@ -25,7 +26,7 @@ public class GetSubmissionSetAndContents extends Sq {
 
 	OMElement build(ArrayList<String> ids) {
 		this.ids = ids;
-		ArrayList<OMElement> query = build_query_wrapper("urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83");
+		ArrayList<OMElement> query = build_query_wrapper(MetadataSupport.SQ_GetSubmissionSetAndContents);
 		String id_parm = "'" + ids.get(0) + "'";
 		if (ids.get(0).startsWith("urn:uuid:")) {
 			add_slot(query, "$XDSSubmissionSetEntryUUID", id_parm);

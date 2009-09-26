@@ -14,6 +14,7 @@ package com.vangent.hieos.xclient.xds.registry;
 
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 public class FindDocuments extends Sq {
 
@@ -34,9 +35,9 @@ public class FindDocuments extends Sq {
         this.ids = ids;
         ArrayList<OMElement> query;
         if (useLeafClass) {
-            query = build_query_wrapper("urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d");
+            query = build_query_wrapper(MetadataSupport.SQ_FindDocuments);
         } else {
-            query = build_objectref_query_wrapper("urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d");
+            query = build_objectref_query_wrapper(MetadataSupport.SQ_FindDocuments);
         }
         String stat_list = "('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved', 'urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated')";
         add_slot(query, "$XDSDocumentEntryPatientId", this.query_singleton(ids));

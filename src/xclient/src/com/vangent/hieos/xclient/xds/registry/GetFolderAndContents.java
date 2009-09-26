@@ -15,6 +15,7 @@ package com.vangent.hieos.xclient.xds.registry;
 
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 public class GetFolderAndContents extends Sq {
 	ArrayList<String> ids = null;
@@ -25,7 +26,7 @@ public class GetFolderAndContents extends Sq {
 
 	OMElement build(ArrayList<String> ids) {
 		this.ids = ids;
-		ArrayList<OMElement> query = build_query_wrapper("urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7");
+		ArrayList<OMElement> query = build_query_wrapper(MetadataSupport.SQ_GetFolderAndContents);
 		String id = "'" + ids.get(0) + "'";
 		if (id.startsWith("urn:uuid:")) 
 			add_slot(query, "$XDSFolderEntryUUID", id);

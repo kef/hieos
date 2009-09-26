@@ -15,6 +15,7 @@ package com.vangent.hieos.xclient.xds.registry;
 
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 public class FindFolders extends Sq {
 	ArrayList<String> ids = null;
@@ -25,7 +26,7 @@ public class FindFolders extends Sq {
 
 	OMElement build(ArrayList<String> ids) {
 		this.ids = ids;
-		ArrayList<OMElement> query = build_query_wrapper("urn:uuid:958f3006-baad-4929-a4de-ff1114824431");
+		ArrayList<OMElement> query = build_query_wrapper(MetadataSupport.SQ_FindFolders);
 		String stat_list = "('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved', 'urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated')";
 		add_slot(query, "$XDSFolderPatientId", this.query_singleton(ids));
 		add_slot(query, "$XDSFolderStatus", stat_list);
