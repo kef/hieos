@@ -246,12 +246,12 @@ public abstract class StoredQuery extends BasicQuery {
 				if (alternative != null) {
 					Object value2 = parms.get(alternative);
 					if (value2 == null) {
-						response.add_error("XDSRegistryError", "Parameter, " + name + " or " + alternative + " is required, neither are present", this.getClass().getName(), log_message);
+						response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + " or " + alternative + " is required, neither are present", this.getClass().getName(), log_message);
 						this.has_validation_errors = true;
 						return;
 					}
 				} else {
-					response.add_error("XDSRegistryError", "Required parameter, " + name + ", not present in query request", this.getClass().getName(), log_message);
+					response.add_error(MetadataSupport.XDSRegistryError, "Required parameter, " + name + ", not present in query request", this.getClass().getName(), log_message);
 					this.has_validation_errors = true;
 					return;
 				}
@@ -259,17 +259,17 @@ public abstract class StoredQuery extends BasicQuery {
 			return;
 		}
 		if (multiple && !(value instanceof ArrayList)) {
-			response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
 		if (!multiple && (value instanceof ArrayList)) {
-			response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts single value value only but (  )  syntax is present", this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", accepts single value value only but (  )  syntax is present", this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
 		if (multiple && (value instanceof ArrayList) && ((ArrayList) value).size() == 0) {
-			response.add_error("XDSRegistryError", "Parameter, " + name + ", (  )  syntax is present but list is empty", this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", (  )  syntax is present but list is empty", this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
@@ -288,11 +288,11 @@ public abstract class StoredQuery extends BasicQuery {
 							( ((ArrayList)a_o).get(0) instanceof String) 
 					)
 			) {
-				response.add_error("XDSRegistryError", "Parameter, " + name + ", is not coded as a string (is type " + a_o.getClass().getName() + ") (single quotes missing?)", this.getClass().getName(), log_message);
+				response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", is not coded as a string (is type " + a_o.getClass().getName() + ") (single quotes missing?)", this.getClass().getName(), log_message);
 				this.has_validation_errors = true;
 			}
 			if (!is_string && !(a_o instanceof Integer)) {
-				response.add_error("XDSRegistryError", "Parameter, " + name + " is not coded as a number (is type " + a_o.getClass().getName() + ") (single quotes present)", this.getClass().getName(), log_message);
+				response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + " is not coded as a number (is type " + a_o.getClass().getName() + ") (single quotes present)", this.getClass().getName(), log_message);
 				this.has_validation_errors = true;
 			}
 		}
@@ -302,20 +302,20 @@ public abstract class StoredQuery extends BasicQuery {
 
 		Object same_as_value = parms.get(same_size_as);
 		if ( !(same_as_value instanceof ArrayList)) {
-			response.add_error("XDSRegistryError", "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
 		ArrayList same_as_values = (ArrayList) same_as_value;
 
 		if ( !(value instanceof ArrayList)) {
-			response.add_error("XDSRegistryError", "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
 
 		if (same_as_values.size() != values.size()) {
-			response.add_error("XDSRegistryError", "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
+			response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
 			this.has_validation_errors = true;
 			return;
 		}
@@ -507,24 +507,24 @@ public abstract class StoredQuery extends BasicQuery {
 	}
 
 	protected OMElement get_fol_by_uuid(String uuid) throws XdsException
-	{ return get_rp_by_uuid(uuid, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"); }
+	{ return get_rp_by_uuid(uuid, MetadataSupport.XDSFolder_uniqueid_uuid); }
 
 	protected OMElement get_fol_by_uuid(ArrayList<String> uuid) throws XdsException 
-	{ return get_rp_by_uuid(uuid, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"); }
+	{ return get_rp_by_uuid(uuid, MetadataSupport.XDSFolder_uniqueid_uuid); }
 
 
 	protected OMElement get_fol_by_uid(String uid) throws XdsException 
-	{ return get_rp_by_uid(uid, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"); }
+	{ return get_rp_by_uid(uid, MetadataSupport.XDSFolder_uniqueid_uuid); }
 
 	protected OMElement get_fol_by_uid(ArrayList<String> uid) throws XdsException 
-	{ return get_rp_by_uid(uid, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"); }
+	{ return get_rp_by_uid(uid, MetadataSupport.XDSFolder_uniqueid_uuid); }
 
 	protected OMElement get_ss_by_uuid(String uuid) throws XdsException 
-	{ return get_rp_by_uuid(uuid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8"); }
+	{ return get_rp_by_uuid(uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid); }
 
 
 	protected OMElement get_ss_by_uid(String uid) throws XdsException 
-	{ return get_rp_by_uid(uid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8"); }
+	{ return get_rp_by_uid(uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid); }
 
 	protected OMElement get_ss_docs(String ss_uuid, ArrayList<String> format_codes, ArrayList<String> conf_codes)
 	throws XdsException {
@@ -651,7 +651,7 @@ public abstract class StoredQuery extends BasicQuery {
 		a("   a.targetObject = '" + uuid + "' AND"); n();
 		a("   a.sourceObject = fol.id AND"); n();
 		a("   uniq.registryObject = fol.id AND");  n();
-		a("   uniq.identificationScheme = '" + "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a" + "' ");  n();
+		a("   uniq.identificationScheme = '" + MetadataSupport.XDSFolder_uniqueid_uuid + "' ");  n();
 
 		// FIXME (BHT): Investigate (used to always return LEAF CLASS.
         return query(this.return_leaf_class);

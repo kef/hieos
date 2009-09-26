@@ -39,7 +39,7 @@ public class UniqueId {
 //		ids.addAll(m.getExtrinsicObjectIds());
 
 		for (String id : m.getFolderIds()) {
-			String uid = m.getExternalIdentifierValue(id, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a");
+			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSFolder_uniqueid_uuid);
 			if (unique_ids.contains(uid)) 
 				rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage, 
 						"UniqueId " + uid + " is not unique within the submission", 
@@ -48,7 +48,7 @@ public class UniqueId {
 		}
 
 		for (String id : m.getSubmissionSetIds()) {
-			String uid = m.getExternalIdentifierValue(id, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
 			if (unique_ids.contains(uid)) 
 				rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage, 
 						"UniqueId " + uid + " is not unique within the submission", 
@@ -57,7 +57,7 @@ public class UniqueId {
 		}
 
 		for (String id : m.getExtrinsicObjectIds()) {
-			String uid = m.getExternalIdentifierValue(id, "urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab");
+			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
 			if (uid == null) {
 				rel.add_error(MetadataSupport.XDSRegistryError, 
 						"Document unique ID is null", 

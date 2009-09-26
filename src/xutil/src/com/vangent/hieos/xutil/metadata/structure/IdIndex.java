@@ -146,13 +146,13 @@ public class IdIndex {
 	public String getSubmissionSetUniqueId() {
 		OMElement ss = m.getSubmissionSet();
 		String ss_id = ss.getAttributeValue(MetadataSupport.id_qname);
-		return getExternalIdentifierValue(ss_id, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+		return getExternalIdentifierValue(ss_id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
 	}
 
 	public String getSubmissionSetPatientId() {
 		OMElement ss = m.getSubmissionSet();
 		String ss_id = ss.getAttributeValue(MetadataSupport.id_qname);
-		return getExternalIdentifierValue(ss_id, "urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446");
+		return getExternalIdentifierValue(ss_id, MetadataSupport.XDSSubmissionSet_patientid_uuid);
 	}
 
 	public String getSubmissionSetSourceId() {

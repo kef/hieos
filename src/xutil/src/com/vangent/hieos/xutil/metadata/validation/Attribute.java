@@ -133,8 +133,8 @@ public class Attribute {
             String nodeRepresentation = class_ele.getAttributeValue(MetadataSupport.noderepresentation_qname);
 
             if (class_scheme != null &&
-                    (class_scheme.equals("urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d") ||
-                    class_scheme.equals("urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d"))) {
+                    (class_scheme.equals(MetadataSupport.XDSDocumentEntry_author_uuid) ||
+                    class_scheme.equals(MetadataSupport.XDSSubmissionSet_author_uuid))) {
                 // doc.author or ss.author
 
                 if (nodeRepresentation == null || (nodeRepresentation != null && !nodeRepresentation.equals(""))) {
@@ -241,10 +241,10 @@ public class Attribute {
 //			for (int c=0; c<classs.size(); c++) {
 //			OMElement class_ele = (OMElement) classs.get(c);
 //			String classification_node = class_ele.getAttributeValue(MetadataSupport.classificationnode_qname);
-//			if (classification_node.equals("urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd")) {
+//			if (classification_node.equals(MetadataSupport.XDSSubmissionSet_classification_uuid)) {
 //			//ss
 //			ss_class_count++;
-//			} else if (classification_node.equals("urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2")) {
+//			} else if (classification_node.equals(MetadataSupport.XDSFolder_classification_uuid)) {
 //			// fol
 //			fol_class_count++;
 //			}
@@ -258,10 +258,10 @@ public class Attribute {
                     continue;
                 }
                 String classification_node = class_ele.getAttributeValue(MetadataSupport.classificationnode_qname);
-                if (classification_node != null && classification_node.equals("urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd")) {
+                if (classification_node != null && classification_node.equals(MetadataSupport.XDSSubmissionSet_classification_uuid)) {
                     //ss
                     ss_class_count++;
-                } else if (classification_node != null && classification_node.equals("urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2")) {
+                } else if (classification_node != null && classification_node.equals(MetadataSupport.XDSFolder_classification_uuid)) {
                     // fol
                     fol_class_count++;
                 }
@@ -288,13 +288,13 @@ public class Attribute {
             ArrayList classs = m.getClassifications(id);
 
             //                                               classificationScheme								name							required	multiple
-            this.validate_class("Document", id, classs, "urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a", "classCode", true, false);
-            this.validate_class("Document", id, classs, "urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f", "confidentialityCode", true, true);
-            this.validate_class("Document", id, classs, "urn:uuid:2c6b8cb7-8b2a-4051-b291-b1ae6a575ef4", "eventCodeList", false, true);
-            this.validate_class("Document", id, classs, "urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d", "formatCode", true, false);
-            this.validate_class("Document", id, classs, "urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1", "healthCareFacilityTypeCode", true, false);
-            this.validate_class("Document", id, classs, "urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead", "practiceSettingCode", true, false);
-            this.validate_class("Document", id, classs, "urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a", "typeCode", true, false);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_classCode_uuid, "classCode", true, false);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_confCode_uuid, "confidentialityCode", true, true);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_eventCode_uuid, "eventCodeList", false, true);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_formatCode_uuid, "formatCode", true, false);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_hcftCode_uuid, "healthCareFacilityTypeCode", true, false);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_psCode_uuid, "practiceSettingCode", true, false);
+            this.validate_class("Document", id, classs, MetadataSupport.XDSDocumentEntry_classCode_uuid, "typeCode", true, false);
         }
     }
 
@@ -335,9 +335,9 @@ public class Attribute {
             ArrayList ext_ids = m.getExternalIdentifiers(id);
 
             //													name							identificationScheme                          OID required
-            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.patientId", "urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446", false);
-            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.sourceId", "urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832", true);
-            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.uniqueId", "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8", true);
+            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.patientId", MetadataSupport.XDSSubmissionSet_patientid_uuid, false);
+            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.sourceId", MetadataSupport.XDSSubmissionSet_sourceid_uuid, true);
+            this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.uniqueId", MetadataSupport.XDSSubmissionSet_uniqueid_uuid, true);
 
         }
     }
@@ -366,9 +366,9 @@ public class Attribute {
 
 
             //													name							identificationScheme                    OID required
-            this.validate_ext_id("Document", id, ext_ids, "XDSDocumentEntry.patientId", "urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427", false);
+            this.validate_ext_id("Document", id, ext_ids, "XDSDocumentEntry.patientId", MetadataSupport.XDSDocumentEntry_patientid_uuid, false);
             // the oid^ext format is tested in UniqueId.java?
-            this.validate_ext_id("Document", id, ext_ids, "XDSDocumentEntry.uniqueId", "urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab", false);
+            this.validate_ext_id("Document", id, ext_ids, "XDSDocumentEntry.uniqueId", MetadataSupport.XDSDocumentEntry_uniqueid_uuid, false);
 
         }
     }
@@ -413,8 +413,8 @@ public class Attribute {
             ArrayList ext_ids = m.getExternalIdentifiers(id);
 
             //													name							identificationScheme            OID required
-            this.validate_ext_id("Folder", id, ext_ids, "XDSFolder.patientId", "urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a", false);
-            this.validate_ext_id("Folder", id, ext_ids, "XDSFolder.uniqueId", "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a", true);
+            this.validate_ext_id("Folder", id, ext_ids, "XDSFolder.patientId", MetadataSupport.XDSFolder_patientid_uuid, false);
+            this.validate_ext_id("Folder", id, ext_ids, "XDSFolder.uniqueId", MetadataSupport.XDSFolder_uniqueid_uuid, true);
 
         }
 

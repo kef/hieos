@@ -933,7 +933,7 @@ public class Metadata {
             add_to_classifications_of_id(findClassifications(obj));
 
             if (type.equals("RegistryPackage")) {
-                if (has_external_identifier(obj, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8")) {
+                if (has_external_identifier(obj, MetadataSupport.XDSSubmissionSet_uniqueid_uuid)) {
                     if (!discard_duplicates || !getIds(submissionSets).contains(id(obj))) {
                         submissionSets.add(obj);
                     }
@@ -943,7 +943,7 @@ public class Metadata {
                     }
                     submissionSet = obj;
 
-                } else if (has_external_identifier(obj, "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a")) {
+                } else if (has_external_identifier(obj, MetadataSupport.XDSFolder_uniqueid_uuid)) {
                     if (!discard_duplicates || !getIds(folders).contains(id(obj))) {
                         folders.add(obj);
                     }

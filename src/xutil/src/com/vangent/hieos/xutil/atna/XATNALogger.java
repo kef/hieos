@@ -242,7 +242,7 @@ public class XATNALogger {
                 null); /* participantObjecxtDetailValue */
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType("urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd", IHE_XDS_MDT, "submission set classificationNode");
+        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */
@@ -312,7 +312,7 @@ public class XATNALogger {
                 null); /* participantObjecxtDetailValue */
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType("urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd", IHE_XDS_MDT, "submission set classificationNode");
+        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */
@@ -380,7 +380,7 @@ public class XATNALogger {
                 null); /* participantObjecxtDetailValue */
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType("urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd", IHE_XDS_MDT, "submission set classificationNode");
+        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */

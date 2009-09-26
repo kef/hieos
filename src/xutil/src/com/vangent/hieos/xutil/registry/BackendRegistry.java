@@ -146,7 +146,7 @@ public class BackendRegistry {
             logger.error("*****   Exception in calling Omar (ebxmlrr 3.x) Registry  ****  " + e.getMessage());
             // AMS 04/22/2009 - FIXME - Exceptions thrown could be JAXRException, RegistryException - encapsulate into XdsInternalException ???
             // AMS 04/22/2009 - FIXME - Is the following statement correct?
-            response.add_error("XDSRegistryError", "Error parsing response from omar (ebxmlrr 3.x)", RegistryUtility.exception_details(e), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Error parsing response from omar (ebxmlrr 3.x)", RegistryUtility.exception_details(e), log_message);
         }
 
         if (log_message != null) {
