@@ -313,12 +313,12 @@ public class XView {
 		row113(null, "patient ID", m.getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_patientid_uuid));
 		row113(null, "unique ID", m.getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_uniqueid_uuid));
 		row11111(null, "creation/service time", m.getSlotValue(eo, "creationTime", 0), m.getSlotValue(eo, "serviceStartTime", 0), m.getSlotValue(eo, "serviceStopTime", 0));
-		doc_code_row(id, "urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a", "classCode");
-		doc_code_row(id, "urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f", "confCode");
-		doc_code_row(id, "urn:uuid:2c6b8cb7-8b2a-4051-b291-b1ae6a575ef4", "eventCode");
+		doc_code_row(id, MetadataSupport.XDSDocumentEntry_classCode_uuid, "classCode");
+		doc_code_row(id, MetadataSupport.XDSDocumentEntry_confCode_uuid, "confCode");
+		doc_code_row(id, MetadataSupport.XDSDocumentEntry_eventCode_uuid, "eventCode");
 		doc_code_row(id, "urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d", "formatCode");
-		doc_code_row(id, "urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1", "hcftCode");
-		doc_code_row(id, "urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead", "practiceSettingCode");
+		doc_code_row(id, MetadataSupport.XDSDocumentEntry_hcftCode_uuid, "hcftCode");
+		doc_code_row(id, MetadataSupport.XDSDocumentEntry_psCode_uuid, "practiceSettingCode");
 		end();
 	}
 
@@ -345,7 +345,7 @@ public class XView {
 		for (String ctype : ctypes) {
 			row113(null, "content type", ctype);
 		}
-		ArrayList<OMElement> authors = m.getClassifications(id, "urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d");
+		ArrayList<OMElement> authors = m.getClassifications(id, MetadataSupport.XDSSubmissionSet_author_uuid);
 		for (OMElement author : authors) {
 			String author_name = m.getSlotValue(author, "authorPerson", 0);
 			row113(null, "author", author_name);
