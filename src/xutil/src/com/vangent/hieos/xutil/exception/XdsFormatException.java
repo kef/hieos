@@ -10,18 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsFormatException extends XdsException {
 
-	public XdsFormatException(String msg) {
-		super(msg);
-	}
+    public XdsFormatException(String msg) {
+        super(msg);
+    }
 
-	public XdsFormatException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
-
+    public XdsFormatException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

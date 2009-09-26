@@ -14,7 +14,7 @@
 package com.vangent.hieos.xutil.exception;
 
 public class HttpCodeException extends XdsException {
-	
+
 	public HttpCodeException(String msg) {
 		super(msg);
 	}

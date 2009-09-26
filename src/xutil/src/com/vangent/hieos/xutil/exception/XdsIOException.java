@@ -10,16 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsIOException extends XdsException {
-	public XdsIOException(String msg) {
-		super(msg);
-	}
 
-	public XdsIOException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public XdsIOException(String msg) {
+        super(msg);
+    }
 
+    public XdsIOException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

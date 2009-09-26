@@ -10,17 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XDSMissingDocumentException extends XdsException {
 
-	public XDSMissingDocumentException(String msg) {
-		super(msg);
-	}
-	
-	public XDSMissingDocumentException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public XDSMissingDocumentException(String msg) {
+        super(msg);
+    }
 
+    public XDSMissingDocumentException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

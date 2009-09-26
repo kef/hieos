@@ -10,18 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsValidationException extends Exception {
 
-	public XdsValidationException(String reason) {
-		super(reason);
-	}
+    public XdsValidationException(String reason) {
+        super(reason);
+    }
 
-
-	public XdsValidationException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
+    public XdsValidationException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

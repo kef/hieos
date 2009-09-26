@@ -10,17 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsDeprecatedException extends XdsException {
 
-	public XdsDeprecatedException(String msg) {
-		super(msg);
-	}
+    public XdsDeprecatedException(String msg) {
+        super(msg);
+    }
 
-	public XdsDeprecatedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
+    public XdsDeprecatedException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

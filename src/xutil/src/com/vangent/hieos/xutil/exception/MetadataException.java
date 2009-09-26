@@ -10,17 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class MetadataException extends XdsException {
-	
-	public MetadataException(String msg) {
-		super(msg);
-	}
 
-	public MetadataException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public MetadataException(String msg) {
+        super(msg);
+    }
 
+    public MetadataException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

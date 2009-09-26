@@ -10,17 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class NoSubmissionSetException extends MetadataException {
-	
-	public NoSubmissionSetException(String msg) {
-		super(msg);
-	}
 
-	public NoSubmissionSetException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public NoSubmissionSetException(String msg) {
+        super(msg);
+    }
 
+    public NoSubmissionSetException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

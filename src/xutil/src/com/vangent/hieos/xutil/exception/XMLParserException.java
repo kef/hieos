@@ -10,16 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XMLParserException extends XdsException {
-	public XMLParserException(String msg) {
-		super(msg);
-	}
 
-	public XMLParserException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public XMLParserException(String msg) {
+        super(msg);
+    }
 
+    public XMLParserException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

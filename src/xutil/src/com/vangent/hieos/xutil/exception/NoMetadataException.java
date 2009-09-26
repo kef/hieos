@@ -10,17 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class NoMetadataException extends MetadataException {
 
-	public NoMetadataException(String msg) {
-		super(msg);
-	}
+    public NoMetadataException(String msg) {
+        super(msg);
+    }
 
-	public NoMetadataException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
-
+    public NoMetadataException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

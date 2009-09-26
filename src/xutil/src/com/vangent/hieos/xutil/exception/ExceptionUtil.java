@@ -10,19 +10,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+/**
+ * Utility class to report exceptions in user readable format.
+ */
 public class ExceptionUtil {
 
     /**
+     * Prepare an exception string suitable for presentation (no stack trace).
      *
-     * @param e
-     * @param message
-     * @return
+     * @param e The Exception itself.
+     * @param message Brief description of the exception.
+     * @return A string representation of the exception.
      */
     static public String exception_details(Exception e, String message) {
         if (e == null) {
@@ -36,28 +39,14 @@ public class ExceptionUtil {
         return "Exception: " + e.getClass().getName() + "\n" +
                 ((message != null) ? message + "\n" : "") +
                 emessage.replaceAll("<", "&lt;");
-    /*
-    if (e == null)
-    return "No stack trace available";
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(baos);
-    e.printStackTrace(ps);
-
-    String emessage = e.getMessage();
-    if (emessage == null)
-    emessage = "No Message";
-
-    return "Exception thrown: " + e.getClass().getName() + "\n" +
-    ((message != null) ? message + "\n" : "") +
-    emessage.replaceAll("<", "&lt;") + "\n" + new String(baos.toByteArray());
-     */
     }
 
     /**
-     * 
-     * @param e
-     * @param message
-     * @return
+     * Prepare an exception string suitable for presentation (includes stack trace).
+     *
+     * @param e The Exception itself.
+     * @param message Brief description of the exception.
+     * @return A string representation of the exception.
      */
     static public String exception_long_details(Exception e, String message) {
         if (e == null) {
@@ -66,40 +55,41 @@ public class ExceptionUtil {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         e.printStackTrace(ps);
-
         String emessage = e.getMessage();
         if (emessage == null) {
             emessage = "No Message";
         }
-
         return "Exception thrown: " + e.getClass().getName() + "\n" +
                 ((message != null) ? message + "\n" : "") +
                 emessage.replaceAll("<", "&lt;") + "\n" + new String(baos.toByteArray());
     }
 
     /**
-     *
-     * @param e
-     * @return
+     * Prepare an exception string suitable for presentation (no stack trace).
+     * 
+     * @param e The Exception itself.
+     * @return A string representing the exception.
      */
     static public String exception_details(Exception e) {
         return exception_details(e, null);
     }
 
     /**
+     * Prints out a user readable exception string (the first N lines) - no stack trace.
      *
-     * @param e
-     * @param numLines
-     * @return
+     * @param e The Exception itself.
+     * @param numLines The number of text lines to include.
+     * @return A string representatoin of the exception.
      */
     static public String exception_details(Exception e, int numLines) {
         return firstNLines(exception_details(e), numLines);
     }
 
     /**
+     * Returns the complete stack trace for the given Exception.
      *
-     * @param e
-     * @return
+     * @param e The Exception itself.
+     * @return A string representation of the Exception stack trace.
      */
     static public String exception_local_stack(Exception e) {
         StringBuffer buf = new StringBuffer();
@@ -115,34 +105,22 @@ public class ExceptionUtil {
     }
 
     /**
+     * Returns the first 'n' lines of the given string.
      *
-     * @param message
-     * @return
+     * @param str The string in question.
+     * @param n The maximum number of lines to return in the result.
+     * @return The resulting string (limited by 'n' lines max).
      */
-    static public String here(String message) {
-        try {
-            throw new Exception(message);
-        } catch (Exception e) {
-            return exception_details(e, message);
-        }
-    }
-
-    /**
-     *
-     * @param string
-     * @param n
-     * @return
-     */
-    static public String firstNLines(String string, int n) {
+    static private String firstNLines(String str, int n) {
         int startingAt = 0;
         for (int i = 0; i < n; i++) {
             if (startingAt != -1) {
-                startingAt = string.indexOf('\n', startingAt + 1) + 1;
+                startingAt = str.indexOf('\n', startingAt + 1) + 1;
             }
         }
         if (startingAt == -1) {
-            return string;
+            return str;
         }
-        return string.substring(0, startingAt);
+        return str.substring(0, startingAt);
     }
 }

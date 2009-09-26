@@ -10,16 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsUnknownPatientIdException extends XdsException {
-	
-	public XdsUnknownPatientIdException(String message) {
-		super(message);
-	}
 
-	public XdsUnknownPatientIdException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public XdsUnknownPatientIdException(String message) {
+        super(message);
+    }
+
+    public XdsUnknownPatientIdException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

@@ -10,16 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.exception;
 
 public class XdsPatientIdDoesNotMatchException extends XdsException {
 
-	public XdsPatientIdDoesNotMatchException(String message) {
-		super(message);
-	}
+    public XdsPatientIdDoesNotMatchException(String message) {
+        super(message);
+    }
 
-	public XdsPatientIdDoesNotMatchException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public XdsPatientIdDoesNotMatchException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }
