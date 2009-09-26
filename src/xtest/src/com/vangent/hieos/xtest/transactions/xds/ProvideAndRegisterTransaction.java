@@ -16,41 +16,21 @@ import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.StepContext;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
-import com.vangent.hieos.xutil.exception.HttpCodeException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
-import com.vangent.hieos.xutil.soap.Swa;
 import com.vangent.hieos.xtest.framework.TestConfig;
-import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 
-import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.soap.SOAP11Constants;
-import org.apache.axiom.soap.SOAPBody;
-import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axiom.soap.SOAPFactory;
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.Constants;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.OperationClient;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.wsdl.WSDLConstants;
 
 public class ProvideAndRegisterTransaction extends RegisterTransaction {
 
@@ -63,7 +43,6 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
 
     public void run()
             throws XdsException {
-        boolean my_swa = false;
 
         Iterator elements = instruction.getChildElements();
         while (elements.hasNext()) {

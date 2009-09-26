@@ -81,8 +81,8 @@ public class StoredQueryTransaction extends QueryTransaction {
 			compileUseXPathLinkage(metadata, use_xpath);
 
 		Linkage lnk = new Linkage(instruction_output, metadata);
-		lnk.add("$now$", new Hl7Date().now());
-		lnk.add("$lastyear$", new Hl7Date().lastyear());
+		lnk.add("$now$", Hl7Date.now());
+		lnk.add("$lastyear$", Hl7Date.lastyear());
 		lnk.compileLinkage();
 
 
