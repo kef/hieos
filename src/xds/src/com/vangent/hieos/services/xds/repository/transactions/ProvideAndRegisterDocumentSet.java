@@ -99,33 +99,33 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             mustBeMTOM();
             provide_and_register(pnr);
         } catch (XdsFormatException e) {
-            response.add_error("XDSRepositoryError", "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XDSMissingDocumentException e) {
-            response.add_error("XDSMissingDocument", e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSMissingDocument, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XDSMissingDocumentMetadataException e) {
-            response.add_error("XDSMissingDocumentMetadata", e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSMissingDocumentMetadata, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XdsInternalException e) {
-            response.add_error("XDSRepositoryError", "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (XdsIOException e) {
-            response.add_error("XDSRepositoryError", "XDS IO Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "XDS IO Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (XdsConfigurationException e) {
-            response.add_error("XDSRepositoryError", "XDS Configuration Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Configuration Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (MetadataValidationException e) {
-            response.add_error("XDSRepositoryError", "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (MetadataException e) {
-            response.add_error("XDSRepositoryError", "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (SchemaValidationException e) {
-            response.add_error("XDSRepositoryError", "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsException e) {
-            response.add_error("XDSRepositoryError", "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (Exception e) {
-            response.add_error("XDSRepositoryError", "Input Error - no SOAP Body:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, "Input Error - no SOAP Body:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         }
 

@@ -158,7 +158,7 @@ public class StoredQueryFactory {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetAll");
             }
-            response.add_error("XDSRegistryError", "UnImplemented Stored Query query id = " + query_id, this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "UnImplemented Stored Query query id = " + query_id, this.getClass().getName(), log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetDocuments)) {
             // GetDocuments
             if (log_message != null) {
@@ -217,7 +217,7 @@ public class StoredQueryFactory {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + query_id);
             }
-            this.response.add_error("XDSRegistryError", "Unknown Stored Query query id = " + query_id, this.getClass().getName(), log_message);
+            this.response.add_error(MetadataSupport.XDSRegistryError, "Unknown Stored Query query id = " + query_id, this.getClass().getName(), log_message);
         }
     }
 

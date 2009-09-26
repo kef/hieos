@@ -18,6 +18,7 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
@@ -262,16 +263,16 @@ public class FindDocuments extends StoredQuery {
         a("' ) ");
         n();
 
-        this.add_code(class_code_varnames, "clCodeScheme", "urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a", class_codes, class_code_schemes);
-        this.add_code(practice_setting_code_varnames, "psCodeScheme", "urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead", practice_setting_codes, practice_setting_codes_schemes);
+        this.add_code(class_code_varnames, "clCodeScheme", MetadataSupport.XDSDocumentEntry_classCode_uuid, class_codes, class_code_schemes);
+        this.add_code(practice_setting_code_varnames, "psCodeScheme", MetadataSupport.XDSDocumentEntry_psCode_uuid, practice_setting_codes, practice_setting_codes_schemes);
 
         this.add_times("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "doc");
         this.add_times("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "doc");
         this.add_times("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "doc");
 
-        this.add_code(hcft_code_varnames, "hftcScheme", "urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1", hcft_codes, hcft_code_schemes);
-        this.add_code(event_code_varnames, "eclScheme", "urn:uuid:2c6b8cb7-8b2a-4051-b291-b1ae6a575ef4", event_codes, event_code_schemes);
-        this.add_code(conf_code_varnames, "confScheme", "urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f", conf_codes, conf_code_schemes);
+        this.add_code(hcft_code_varnames, "hftcScheme", MetadataSupport.XDSDocumentEntry_hcftCode_uuid, hcft_codes, hcft_code_schemes);
+        this.add_code(event_code_varnames, "eclScheme", MetadataSupport.XDSDocumentEntry_eventCode_uuid, event_codes, event_code_schemes);
+        this.add_code(conf_code_varnames, "confScheme", MetadataSupport.XDSDocumentEntry_confCode_uuid, conf_codes, conf_code_schemes);
 
         this.add_code("fmtCode", "", "urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d", format_codes, null);
 

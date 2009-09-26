@@ -59,7 +59,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
 		String ss_uuid = get_string_parm("$XDSSubmissionSetEntryUUID");
 		if (ss_uuid != null) {
 			// starting from uuid
-			OMElement x = get_rp_by_uuid(ss_uuid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+			OMElement x = get_rp_by_uuid(ss_uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
 			try {
 				metadata = new Metadata(x);
 			} catch (NoSubmissionSetException e) {
@@ -68,7 +68,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
 		} else {
 			// starting from uniqueid
 			String ss_uid = get_string_parm("$XDSSubmissionSetUniqueId");
-			OMElement x = get_rp_by_uid(ss_uid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+			OMElement x = get_rp_by_uid(ss_uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
 			try {
 				metadata = new Metadata(x);
 			} catch (NoSubmissionSetException e) {

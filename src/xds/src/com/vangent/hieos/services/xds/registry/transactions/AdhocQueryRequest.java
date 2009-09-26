@@ -90,7 +90,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 } */
             } else {
                 init(new AdhocQueryResponse(), messageContext);
-                response.add_error("XDSRegistryError", "Invalid XML namespace on AdhocQueryRequest: " + ns_uri, this.getClass().getName(), log_message);
+                response.add_error(MetadataSupport.XDSRegistryError, "Invalid XML namespace on AdhocQueryRequest: " + ns_uri, this.getClass().getName(), log_message);
                 return response.getResponse();
             }
         } catch (XdsInternalException e) {
@@ -112,29 +112,29 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     XATNALogger.ActorType.REGISTRY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (XdsValidationException e) {
-            response.add_error("XDSRegistryError", "Validation Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Validation Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsFormatException e) {
-            response.add_error("XDSRegistryError", "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XDSRegistryOutOfResourcesException e) {
             // query return limitation
-            response.add_error("XDSRegistryOutOfResources", e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryOutOfResources, e.getMessage(), this.getClass().getName(), log_message);
         } catch (SchemaValidationException e) {
-            response.add_error("XDSRegistryMetadataError", "SchemaValidationException: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, "SchemaValidationException: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsInternalException e) {
-            response.add_error("XDSRegistryError", "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (MetadataValidationException e) {
-            response.add_error("XDSRegistryError", "Metadata Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Metadata Error: " + e.getMessage(), this.getClass().getName(), log_message);
             //} catch (SqlRepairException e) {
-            //    response.add_error("XDSRegistryError", "Could not decode SQL: " + e.getMessage(), this.getClass().getName(), log_message);
+            //    response.add_error(MetadataSupport.XDSRegistryError, "Could not decode SQL: " + e.getMessage(), this.getClass().getName(), log_message);
             //    logger.warn(logger_exception_details(e));
         } catch (MetadataException e) {
-            response.add_error("XDSRegistryError", "Metadata error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Metadata error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (SQLException e) {
-            response.add_error("XDSRegistryError", "SQL error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "SQL error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (XdsException e) {
-            response.add_error("XDSRegistryError", "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (Exception e) {
             response.add_error("General Exception", "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
@@ -210,7 +210,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
 
         }
         if (!found_query) {
-            response.add_error("XDSRegistryError", "Only AdhocQuery accepted", this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
         // BHT: (Removed multiple response log entry)
         // this.log_response();
@@ -296,7 +296,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
             //fact.setResponse(response);
             return fact.run();
         } catch (Exception e) {
-            response.add_error("XDSRegistryError", e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
             return null;
         }
     }

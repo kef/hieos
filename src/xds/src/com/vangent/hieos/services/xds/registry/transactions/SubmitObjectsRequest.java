@@ -117,34 +117,34 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                     XATNALogger.ActorType.REGISTRY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (XdsFormatException e) {
-            response.add_error("XDSRegistryError", "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsDeprecatedException e) {
             response.add_error("XDSRegistryDeprecatedDocumentError", "XDS Deprecated Document Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XdsUnknownPatientIdException e) {
-            response.add_error("XDSUnknownPatientId", "XDS Unknown Patient Id:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSUnknownPatientId, "XDS Unknown Patient Id:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XdsPatientIdDoesNotMatchException e) {
-            response.add_error("XDSPatientIdDoesNotMatch", "Patient ID does not match:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSPatientIdDoesNotMatch, "Patient ID does not match:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XdsInternalException e) {
-            response.add_error("XDSRegistryError", "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (MetadataValidationException e) {
-            response.add_error("XDSRegistryMetadataError", "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (SchemaValidationException e) {
-            response.add_error("XDSRegistryMetadataError", "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsException e) {
-            response.add_error("XDSRegistryError", "Exception:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Exception:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (TransformerConfigurationException e) {
-            response.add_error("XDSRegistryError", "Internal Error: Transformer Configuration Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Internal Error: Transformer Configuration Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (SQLException e) {
-            response.add_error("XDSRegistryError", "Internal Logging error: SQLException: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Internal Logging error: SQLException: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         } catch (Exception e) {
-            response.add_error("XDSRegistryError", "XDS General Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "XDS General Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         }
         this.log_response();
@@ -365,7 +365,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             }
             log_response();
         } catch (MetadataException e) {
-            response.add_error("XDSRegistryError", e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
             return;
         }
     }
