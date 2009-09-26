@@ -776,8 +776,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @return
      */
     private String getHL7Date() {
-        Hl7Date date = new Hl7Date();
-        return date.now();
+        return Hl7Date.now();
     }
 
 // All of the log methods below should not generate exceptions if problems occur.

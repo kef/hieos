@@ -263,7 +263,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
             // Set XDSFolder.lastUpdateTime
             if (m.getFolders().size() != 0) {
-                String timestamp = new Hl7Date().now();
+                String timestamp = Hl7Date.now();
                 for (OMElement fol : m.getFolders()) {
                     m.setSlot(fol, "lastUpdateTime", timestamp);
                 }
@@ -314,7 +314,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                             Metadata fm = MetadataParser.parseNonSubmission(res);
                             // Set XDSFolder.lastUpdateTime
                             if (fm.getFolders().size() != 0) {
-                                String timestamp = new Hl7Date().now();
+                                String timestamp = Hl7Date.now();
                                 for (OMElement fol : fm.getFolders()) {
                                     fm.setSlot(fol, "lastUpdateTime", timestamp);
                                 }
