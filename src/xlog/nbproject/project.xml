@@ -12,11 +12,11 @@
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axiom-api-1.2.7.jar}</file>
+                    <file>${file.reference.axiom-api-1.2.8.jar}</file>
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axiom-impl-1.2.7.jar}</file>
+                    <file>${file.reference.axiom-impl-1.2.8.jar}</file>
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
@@ -36,7 +36,7 @@
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-kernel-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-kernel-1.5.jar}</file>
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
