@@ -804,7 +804,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void logResponse(OMElement response, boolean status) {
         if (response != null) {
-            log_message.addOtherParam("Response", response.toString());
+            log_message.addOtherParam("Response", response);
         }
         log_message.setPass(status);
     }
