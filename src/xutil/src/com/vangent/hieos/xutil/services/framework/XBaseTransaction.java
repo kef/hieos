@@ -130,7 +130,7 @@ public class XBaseTransaction {
                 log_message.setPass(true);
             }
 
-            log_message.addOtherParam("Response", response.getResponse().toString());
+            log_message.addOtherParam("Response", response.getResponse());
         } catch (XdsInternalException e) {
             System.out.println("**************ERROR: Internal exception attempting to return to user");
         }
