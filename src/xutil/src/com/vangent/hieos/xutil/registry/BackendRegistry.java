@@ -135,7 +135,7 @@ public class BackendRegistry {
     public OMElement submit_to_backend_registry(OMElement omElement) throws XdsException {
 
         if (log_message != null) {
-            log_message.addOtherParam("omar (ebxmlrr 3.x) request (" + reason + ")", omElement.toString());
+            log_message.addOtherParam("omar (ebxmlrr 3.x) request (" + reason + ")", omElement);
         }
 
         OMElement result = null;
@@ -150,7 +150,7 @@ public class BackendRegistry {
         }
 
         if (log_message != null) {
-            log_message.addOtherParam("omar (ebxmlrr 3.x) response", (result != null) ? result.toString() : "null");
+            log_message.addOtherParam("omar (ebxmlrr 3.x) response", (result != null) ? result : "null");
         }
         return result;
     }
