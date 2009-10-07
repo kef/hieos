@@ -525,68 +525,71 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.stax-api-1.0.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.stax-api-1.0.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.adt.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.adt.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.activation-1.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.activation-1.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.annogen-0.1.0.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.annogen-0.1.0.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.antlr-2.7.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.antlr-2.7.7.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axiom-api-1.2.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-api-1.2.7.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axiom-dom-1.2.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-dom-1.2.7.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axiom-impl-1.2.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-impl-1.2.7.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-adb-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-adb-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-adb-codegen-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-adb-codegen-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-codegen-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-codegen-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-corba-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-corba-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-fastinfoset-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-fastinfoset-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-java2wsdl-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-java2wsdl-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-jaxbri-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jaxbri-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-jaxws-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jaxws-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-jaxws-api-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jaxws-api-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-jibx-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jibx-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-json-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-json-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-jws-api-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jws-api-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-kernel-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-kernel-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-metadata-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-metadata-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-mtompolicy-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-mtompolicy-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-saaj-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-saaj-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-saaj-api-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-saaj-api-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-spring-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-spring-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axis2-xmlbeans-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-xmlbeans-1.4.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.backport-util-concurrent-3.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.backport-util-concurrent-3.1.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-api-1.2.8.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axiom-dom-1.2.8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-dom-1.2.8.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axiom-impl-1.2.8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-impl-1.2.8.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-adb-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-adb-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-adb-codegen-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-adb-codegen-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-ant-plugin-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-ant-plugin-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-clustering-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-clustering-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-codegen-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-codegen-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-corba-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-corba-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-fastinfoset-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-fastinfoset-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-java2wsdl-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-java2wsdl-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-jaxbri-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jaxbri-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-jaxws-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jaxws-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-jibx-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-jibx-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-json-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-json-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-kernel-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-kernel-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-metadata-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-metadata-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-mtompolicy-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-mtompolicy-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-saaj-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-saaj-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-spring-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-spring-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-transport-http-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-transport-http-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-transport-local-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-transport-local-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axis2-xmlbeans-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axis2-xmlbeans-1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.bcel-5.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.bcel-5.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-codec-1.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-codec-1.3.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-fileupload-1.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-fileupload-1.2.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-httpclient-3.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-httpclient-3.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-io-1.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-io-1.4.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.commons-lang-2.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-lang-2.3.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-logging-1.1.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-logging-1.1.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.geronimo-activation_1.1_spec-1.0.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-activation_1.1_spec-1.0.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.geronimo-annotation_1.0_spec-1.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-annotation_1.0_spec-1.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.geronimo-javamail_1.4_spec-1.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-javamail_1.4_spec-1.2.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.geronimo-jaxws_2.1_spec-1.0.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-jaxws_2.1_spec-1.0.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.geronimo-saaj_1.3_spec-1.0.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-saaj_1.3_spec-1.0.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.geronimo-stax-api_1.0_spec-1.0.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-stax-api_1.0_spec-1.0.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.httpcore-4.0-beta1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.httpcore-4.0-beta1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.httpcore-nio-4.0-beta1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.httpcore-nio-4.0-beta1.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.geronimo-ws-metadata_2.0_spec-1.1.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.geronimo-ws-metadata_2.0_spec-1.1.2.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.httpcore-4.0.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.httpcore-4.0.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.jalopy-1.5rc3.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jalopy-1.5rc3.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.jaxb-api-2.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxb-api-2.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.jaxb-impl-2.1.6.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxb-impl-2.1.6.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.jaxb-xjc-2.1.6.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxb-xjc-2.1.6.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.jaxb-impl-2.1.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxb-impl-2.1.7.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.jaxb-xjc-2.1.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxb-xjc-2.1.7.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.jaxen-1.1.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jaxen-1.1.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.jettison-1.0-RC2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jettison-1.0-RC2.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.jibx-bind-1.1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jibx-bind-1.1.5.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.jibx-run-1.1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jibx-run-1.1.5.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.jibx-bind-1.2.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jibx-bind-1.2.1.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.jibx-run-1.2.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.jibx-run-1.2.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.log4j-1.2.15.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.log4j-1.2.15.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.mail-1.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.mail-1.4.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.mex-1.41-impl.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.mex-1.41-impl.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.mex-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.mex-1.5.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.neethi-2.0.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.neethi-2.0.4.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.soapmonitor-1.4.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.soapmonitor-1.4.1.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.smack-3.0.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.smack-3.0.4.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.smackx-3.0.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.smackx-3.0.4.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.soapmonitor-1.5.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.soapmonitor-1.5.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.woden-api-1.0M8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.woden-api-1.0M8.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.woden-impl-dom-1.0M8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.woden-impl-dom-1.0M8.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.wsdl4j-1.6.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.wsdl4j-1.6.2.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.wstx-asl-3.2.4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.wstx-asl-3.2.4.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.xalan-2.7.0.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xalan-2.7.0.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.xercesImpl-2.8.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xercesImpl-2.8.1.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.xml-apis-1.3.04.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xml-apis-1.3.04.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.xercesImpl-2.6.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xercesImpl-2.6.2.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.xml-apis-1.3.02.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xml-apis-1.3.02.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.xml-resolver-1.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xml-resolver-1.2.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xmlbeans-2.3.0.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.XmlSchema-1.4.2.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.XmlSchema-1.4.2.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.addressing-1.4.1.mar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.XmlSchema-1.4.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.XmlSchema-1.4.3.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.addressing-1.5.mar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.file.reference.xwebtoolsconfig.jar} ${manifest.file.reference.xutil.jar} ${manifest.file.reference.xclient.jar} ${manifest.file.reference.mysql-connector-java-5.0.8-bin.jar} ${manifest.file.reference.postgresql-8.3-604.jdbc4.jar} ${manifest.libs.groovy-all.classpath} ${manifest.file.reference.stax-api-1.0.1.jar} ${manifest.file.reference.adt.jar} ${manifest.file.reference.activation-1.1.jar} ${manifest.file.reference.annogen-0.1.0.jar} ${manifest.file.reference.antlr-2.7.7.jar} ${manifest.file.reference.axiom-api-1.2.7.jar} ${manifest.file.reference.axiom-dom-1.2.7.jar} ${manifest.file.reference.axiom-impl-1.2.7.jar} ${manifest.file.reference.axis2-adb-1.4.1.jar} ${manifest.file.reference.axis2-adb-codegen-1.4.1.jar} ${manifest.file.reference.axis2-codegen-1.4.1.jar} ${manifest.file.reference.axis2-corba-1.4.1.jar} ${manifest.file.reference.axis2-fastinfoset-1.4.1.jar} ${manifest.file.reference.axis2-java2wsdl-1.4.1.jar} ${manifest.file.reference.axis2-jaxbri-1.4.1.jar} ${manifest.file.reference.axis2-jaxws-1.4.1.jar} ${manifest.file.reference.axis2-jaxws-api-1.4.1.jar} ${manifest.file.reference.axis2-jibx-1.4.1.jar} ${manifest.file.reference.axis2-json-1.4.1.jar} ${manifest.file.reference.axis2-jws-api-1.4.1.jar} ${manifest.file.reference.axis2-kernel-1.4.1.jar} ${manifest.file.reference.axis2-metadata-1.4.1.jar} ${manifest.file.reference.axis2-mtompolicy-1.4.1.jar} ${manifest.file.reference.axis2-saaj-1.4.1.jar} ${manifest.file.reference.axis2-saaj-api-1.4.1.jar} ${manifest.file.reference.axis2-spring-1.4.1.jar} ${manifest.file.reference.axis2-xmlbeans-1.4.1.jar} ${manifest.file.reference.backport-util-concurrent-3.1.jar} ${manifest.file.reference.commons-codec-1.3.jar} ${manifest.file.reference.commons-fileupload-1.2.jar} ${manifest.file.reference.commons-httpclient-3.1.jar} ${manifest.file.reference.commons-io-1.4.jar} ${manifest.file.reference.commons-logging-1.1.1.jar} ${manifest.file.reference.geronimo-activation_1.1_spec-1.0.1.jar} ${manifest.file.reference.geronimo-annotation_1.0_spec-1.1.jar} ${manifest.file.reference.geronimo-javamail_1.4_spec-1.2.jar} ${manifest.file.reference.geronimo-stax-api_1.0_spec-1.0.1.jar} ${manifest.file.reference.httpcore-4.0-beta1.jar} ${manifest.file.reference.httpcore-nio-4.0-beta1.jar} ${manifest.file.reference.jaxb-api-2.1.jar} ${manifest.file.reference.jaxb-impl-2.1.6.jar} ${manifest.file.reference.jaxb-xjc-2.1.6.jar} ${manifest.file.reference.jaxen-1.1.1.jar} ${manifest.file.reference.jettison-1.0-RC2.jar} ${manifest.file.reference.jibx-bind-1.1.5.jar} ${manifest.file.reference.jibx-run-1.1.5.jar} ${manifest.file.reference.log4j-1.2.15.jar} ${manifest.file.reference.mail-1.4.jar} ${manifest.file.reference.mex-1.41-impl.jar} ${manifest.file.reference.neethi-2.0.4.jar} ${manifest.file.reference.soapmonitor-1.4.1.jar} ${manifest.file.reference.woden-api-1.0M8.jar} ${manifest.file.reference.woden-impl-dom-1.0M8.jar} ${manifest.file.reference.wsdl4j-1.6.2.jar} ${manifest.file.reference.wstx-asl-3.2.4.jar} ${manifest.file.reference.xalan-2.7.0.jar} ${manifest.file.reference.xercesImpl-2.8.1.jar} ${manifest.file.reference.xml-apis-1.3.04.jar} ${manifest.file.reference.xml-resolver-1.2.jar} ${manifest.file.reference.xmlbeans-2.3.0.jar} ${manifest.file.reference.XmlSchema-1.4.2.jar} "/>
+            <attribute name="Class-Path" value="${manifest.file.reference.xwebtoolsconfig.jar} ${manifest.file.reference.xutil.jar} ${manifest.file.reference.xclient.jar} ${manifest.file.reference.mysql-connector-java-5.0.8-bin.jar} ${manifest.file.reference.postgresql-8.3-604.jdbc4.jar} ${manifest.libs.groovy-all.classpath} ${manifest.file.reference.stax-api-1.0.1.jar} ${manifest.file.reference.adt.jar} ${manifest.file.reference.activation-1.1.jar} ${manifest.file.reference.axiom-api-1.2.8.jar} ${manifest.file.reference.axiom-dom-1.2.8.jar} ${manifest.file.reference.axiom-impl-1.2.8.jar} ${manifest.file.reference.axis2-adb-1.5.jar} ${manifest.file.reference.axis2-adb-codegen-1.5.jar} ${manifest.file.reference.axis2-ant-plugin-1.5.jar} ${manifest.file.reference.axis2-clustering-1.5.jar} ${manifest.file.reference.axis2-codegen-1.5.jar} ${manifest.file.reference.axis2-corba-1.5.jar} ${manifest.file.reference.axis2-fastinfoset-1.5.jar} ${manifest.file.reference.axis2-java2wsdl-1.5.jar} ${manifest.file.reference.axis2-jaxbri-1.5.jar} ${manifest.file.reference.axis2-jaxws-1.5.jar} ${manifest.file.reference.axis2-jibx-1.5.jar} ${manifest.file.reference.axis2-json-1.5.jar} ${manifest.file.reference.axis2-kernel-1.5.jar} ${manifest.file.reference.axis2-metadata-1.5.jar} ${manifest.file.reference.axis2-mtompolicy-1.5.jar} ${manifest.file.reference.axis2-saaj-1.5.jar} ${manifest.file.reference.axis2-spring-1.5.jar} ${manifest.file.reference.axis2-transport-http-1.5.jar} ${manifest.file.reference.axis2-transport-local-1.5.jar} ${manifest.file.reference.axis2-xmlbeans-1.5.jar} ${manifest.file.reference.bcel-5.1.jar} ${manifest.file.reference.commons-codec-1.3.jar} ${manifest.file.reference.commons-fileupload-1.2.jar} ${manifest.file.reference.commons-httpclient-3.1.jar} ${manifest.file.reference.commons-io-1.4.jar} ${manifest.file.reference.commons-lang-2.3.jar} ${manifest.file.reference.commons-logging-1.1.1.jar} ${manifest.file.reference.geronimo-annotation_1.0_spec-1.1.jar} ${manifest.file.reference.geronimo-jaxws_2.1_spec-1.0.jar} ${manifest.file.reference.geronimo-saaj_1.3_spec-1.0.1.jar} ${manifest.file.reference.geronimo-stax-api_1.0_spec-1.0.1.jar} ${manifest.file.reference.geronimo-ws-metadata_2.0_spec-1.1.2.jar} ${manifest.file.reference.httpcore-4.0.jar} ${manifest.file.reference.jalopy-1.5rc3.jar} ${manifest.file.reference.jaxb-api-2.1.jar} ${manifest.file.reference.jaxb-impl-2.1.7.jar} ${manifest.file.reference.jaxb-xjc-2.1.7.jar} ${manifest.file.reference.jaxen-1.1.1.jar} ${manifest.file.reference.jettison-1.0-RC2.jar} ${manifest.file.reference.jibx-bind-1.2.1.jar} ${manifest.file.reference.jibx-run-1.2.1.jar} ${manifest.file.reference.log4j-1.2.15.jar} ${manifest.file.reference.mail-1.4.jar} ${manifest.file.reference.mex-1.5.jar} ${manifest.file.reference.neethi-2.0.4.jar} ${manifest.file.reference.smack-3.0.4.jar} ${manifest.file.reference.smackx-3.0.4.jar} ${manifest.file.reference.soapmonitor-1.5.jar} ${manifest.file.reference.woden-api-1.0M8.jar} ${manifest.file.reference.woden-impl-dom-1.0M8.jar} ${manifest.file.reference.wsdl4j-1.6.2.jar} ${manifest.file.reference.wstx-asl-3.2.4.jar} ${manifest.file.reference.xalan-2.7.0.jar} ${manifest.file.reference.xercesImpl-2.6.2.jar} ${manifest.file.reference.xml-apis-1.3.02.jar} ${manifest.file.reference.xml-resolver-1.2.jar} ${manifest.file.reference.xmlbeans-2.3.0.jar} ${manifest.file.reference.XmlSchema-1.4.3.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -599,65 +602,68 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.stax-api-1.0.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.adt.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.activation-1.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.annogen-0.1.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.antlr-2.7.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axiom-api-1.2.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axiom-dom-1.2.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axiom-impl-1.2.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-adb-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-adb-codegen-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-codegen-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-corba-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-fastinfoset-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-java2wsdl-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-jaxbri-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-jaxws-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-jaxws-api-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-jibx-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-json-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-jws-api-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-kernel-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-metadata-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-mtompolicy-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-saaj-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-saaj-api-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-spring-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axis2-xmlbeans-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.backport-util-concurrent-3.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axiom-dom-1.2.8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axiom-impl-1.2.8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-adb-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-adb-codegen-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-ant-plugin-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-clustering-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-codegen-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-corba-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-fastinfoset-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-java2wsdl-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-jaxbri-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-jaxws-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-jibx-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-json-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-kernel-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-metadata-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-mtompolicy-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-saaj-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-spring-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-transport-http-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-transport-local-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axis2-xmlbeans-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.bcel-5.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-codec-1.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-fileupload-1.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-httpclient-3.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-io-1.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.commons-lang-2.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-logging-1.1.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.geronimo-activation_1.1_spec-1.0.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.geronimo-annotation_1.0_spec-1.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.geronimo-javamail_1.4_spec-1.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.geronimo-jaxws_2.1_spec-1.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.geronimo-saaj_1.3_spec-1.0.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.geronimo-stax-api_1.0_spec-1.0.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.httpcore-4.0-beta1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.httpcore-nio-4.0-beta1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.geronimo-ws-metadata_2.0_spec-1.1.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.httpcore-4.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.jalopy-1.5rc3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.jaxb-api-2.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.jaxb-impl-2.1.6.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.jaxb-xjc-2.1.6.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.jaxb-impl-2.1.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.jaxb-xjc-2.1.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.jaxen-1.1.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.jettison-1.0-RC2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.jibx-bind-1.1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.jibx-run-1.1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.jibx-bind-1.2.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.jibx-run-1.2.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.log4j-1.2.15.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.mail-1.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.mex-1.41-impl.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.mex-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.neethi-2.0.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.soapmonitor-1.4.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.smack-3.0.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.smackx-3.0.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.soapmonitor-1.5.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.woden-api-1.0M8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.woden-impl-dom-1.0M8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.wsdl4j-1.6.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.wstx-asl-3.2.4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.xalan-2.7.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.xercesImpl-2.8.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.xml-apis-1.3.04.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.xercesImpl-2.6.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.xml-apis-1.3.02.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.xml-resolver-1.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.XmlSchema-1.4.2.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.addressing-1.4.1.mar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.XmlSchema-1.4.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.addressing-1.5.mar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>

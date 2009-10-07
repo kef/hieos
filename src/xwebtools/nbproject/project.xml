@@ -43,103 +43,99 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.annogen-0.1.0.jar}</file>
+                    <file>${file.reference.axiom-api-1.2.8.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.antlr-2.7.7.jar}</file>
+                    <file>${file.reference.axiom-dom-1.2.8.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axiom-api-1.2.7.jar}</file>
+                    <file>${file.reference.axiom-impl-1.2.8.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axiom-dom-1.2.7.jar}</file>
+                    <file>${file.reference.axis2-adb-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axiom-impl-1.2.7.jar}</file>
+                    <file>${file.reference.axis2-adb-codegen-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-adb-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-ant-plugin-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-adb-codegen-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-clustering-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-codegen-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-codegen-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-corba-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-corba-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-fastinfoset-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-fastinfoset-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-java2wsdl-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-java2wsdl-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-jaxbri-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-jaxbri-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-jaxws-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-jaxws-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-jaxws-api-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-jibx-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-jibx-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-json-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-json-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-kernel-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-jws-api-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-metadata-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-kernel-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-mtompolicy-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-metadata-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-saaj-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-mtompolicy-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-spring-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-saaj-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-transport-http-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-saaj-api-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-transport-local-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-spring-1.4.1.jar}</file>
+                    <file>${file.reference.axis2-xmlbeans-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.axis2-xmlbeans-1.4.1.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library>
-                    <file>${file.reference.backport-util-concurrent-3.1.jar}</file>
+                    <file>${file.reference.bcel-5.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -159,11 +155,11 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.commons-logging-1.1.1.jar}</file>
+                    <file>${file.reference.commons-lang-2.3.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.geronimo-activation_1.1_spec-1.0.1.jar}</file>
+                    <file>${file.reference.commons-logging-1.1.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -171,7 +167,11 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.geronimo-javamail_1.4_spec-1.2.jar}</file>
+                    <file>${file.reference.geronimo-jaxws_2.1_spec-1.0.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.geronimo-saaj_1.3_spec-1.0.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -179,11 +179,15 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.httpcore-4.0-beta1.jar}</file>
+                    <file>${file.reference.geronimo-ws-metadata_2.0_spec-1.1.2.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.httpcore-nio-4.0-beta1.jar}</file>
+                    <file>${file.reference.httpcore-4.0.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.jalopy-1.5rc3.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -191,11 +195,11 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.jaxb-impl-2.1.6.jar}</file>
+                    <file>${file.reference.jaxb-impl-2.1.7.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.jaxb-xjc-2.1.6.jar}</file>
+                    <file>${file.reference.jaxb-xjc-2.1.7.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -207,11 +211,11 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.jibx-bind-1.1.5.jar}</file>
+                    <file>${file.reference.jibx-bind-1.2.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.jibx-run-1.1.5.jar}</file>
+                    <file>${file.reference.jibx-run-1.2.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -223,7 +227,7 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.mex-1.41-impl.jar}</file>
+                    <file>${file.reference.mex-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -231,7 +235,15 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.soapmonitor-1.4.1.jar}</file>
+                    <file>${file.reference.smack-3.0.4.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.smackx-3.0.4.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.soapmonitor-1.5.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -255,11 +267,11 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.xercesImpl-2.8.1.jar}</file>
+                    <file>${file.reference.xercesImpl-2.6.2.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.xml-apis-1.3.04.jar}</file>
+                    <file>${file.reference.xml-apis-1.3.02.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
@@ -271,13 +283,13 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.XmlSchema-1.4.2.jar}</file>
+                    <file>${file.reference.XmlSchema-1.4.3.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries>
                 <library>
-                    <file>${file.reference.addressing-1.4.1.mar}</file>
+                    <file>${file.reference.addressing-1.5.mar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-additional-libraries>
