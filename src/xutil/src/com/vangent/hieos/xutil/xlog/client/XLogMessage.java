@@ -140,7 +140,9 @@ public class XLogMessage implements Serializable {
      * @param value
      */
     public void addHTTPParam(String name, String value) {
-        this.addParam("http", name, value);
+        if (xlogger.isLogEnabled()) {
+            this.addParam("http", name, value);
+        }
     }
 
     /**
@@ -148,8 +150,22 @@ public class XLogMessage implements Serializable {
      * @param name
      * @param value
      */
+    /*
     public void addSOAPParam(String name, String value) {
-        this.addParam("soap", name, value);
+        if (xlogger.isLogEnabled()) {
+            this.addParam("soap", name, value);
+        }
+    }*/
+
+    /**
+     *
+     * @param name
+     * @param value
+     */
+    public void addSOAPParam(String name, Object value) {
+        if (xlogger.isLogEnabled()) {
+            this.addParam("soap", name, value.toString());
+        }
     }
 
     /**
@@ -158,7 +174,9 @@ public class XLogMessage implements Serializable {
      * @param value
      */
     public void addErrorParam(String name, String value) {
-        this.addParam("error", name, value);
+        if (xlogger.isLogEnabled()) {
+            this.addParam("error", name, value);
+        }
     }
 
     /**
@@ -166,16 +184,29 @@ public class XLogMessage implements Serializable {
      * @param name
      * @param value
      */
+    /*
     public void addOtherParam(String name, String value) {
-        this.addParam("other", name, value);
+        if (xlogger.isLogEnabled()) {
+            this.addParam("other", name, value);
+        }
+    }*/
+
+    /**
+     * 
+     * @param name
+     * @param value
+     */
+    public void addOtherParam(String name, Object value) {
+        if (xlogger.isLogEnabled()) {
+            this.addParam("other", name, value.toString());
+        }
     }
 
     /**
      * 
      * @return
      */
-    public HashMap<String, Vector<XLogMessageNameValue>> getEntries()
-    {
+    public HashMap<String, Vector<XLogMessageNameValue>> getEntries() {
         return this.entries;
     }
 
@@ -233,8 +264,7 @@ public class XLogMessage implements Serializable {
          *
          * @return
          */
-        public String getName()
-        {
+        public String getName() {
             return this.name;
         }
 
@@ -242,8 +272,7 @@ public class XLogMessage implements Serializable {
          * 
          * @return
          */
-        public String getValue()
-        {
+        public String getValue() {
             return this.value;
         }
     }

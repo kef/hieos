@@ -126,6 +126,15 @@ public class XLogger {
     }
 
     /**
+     * 
+     * @return
+     */
+    public boolean isLogEnabled()
+    {
+        return this.logEnabled;
+    }
+
+    /**
      *
      */
     private void setLogEnabled() {
