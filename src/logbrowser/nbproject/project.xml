@@ -19,7 +19,7 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.mysql-connector-java-5.0.8-bin.jar}</file>
+                    <file>${file.reference.mysql-connector-java-5.1.10-bin.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library>
