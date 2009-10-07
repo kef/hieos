@@ -36,7 +36,6 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.query.RegistryObjectValidator;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.Structure;
 import com.vangent.hieos.xutil.metadata.validation.Validator;
@@ -172,7 +171,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             MetadataValidationException, XdsException {
         boolean status;
 
-        String sor_string = sor.toString();
+        //String sor_string = sor.toString();
 
         // AMS 04/21/2009 - FIXME
         // At some point this logic needs to be refactored.
@@ -196,7 +195,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                     doc_uids.add(uid);
                 }
             }
-            log_message.addOtherParam("DOCuids", doc_uids.toString());
+            log_message.addOtherParam("DOCuids", doc_uids);
             ArrayList<String> fol_uids = new ArrayList<String>();
             for (String id : m.getFolderIds()) {
                 String uid = m.getUniqueIdValue(id);
@@ -204,7 +203,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                     fol_uids.add(uid);
                 }
             }
-            log_message.addOtherParam("FOLuids", fol_uids.toString());
+            log_message.addOtherParam("FOLuids", fol_uids);
             log_message.addOtherParam("Structure", m.structure());
 
             Validator val = new Validator(m, response.registryErrorList, true, log_message);
@@ -321,7 +320,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                             }
 
                             OMElement to_backend = fm.getV3SubmitObjectsRequest();
-                            log_message.addOtherParam("From Registry Adaptor", to_backend.toString());
+                            log_message.addOtherParam("From Registry Adaptor", to_backend);
                             status = submit_to_backend_registry(reg, to_backend);
                             if (!status) {
                                 return;
@@ -332,7 +331,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             }
 
             OMElement to_backend = m.getV3SubmitObjectsRequest();
-            log_message.addOtherParam("From Registry Adaptor", to_backend.toString());
+            log_message.addOtherParam("From Registry Adaptor", to_backend);
             status = submit_to_backend_registry(reg, to_backend);
             if (!status) {
                 return;
@@ -342,7 +341,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             ArrayList approvable_object_ids = ra.approvable_object_ids(m);
             if (approvable_object_ids.size() > 0) {
                 OMElement approve = ra.getApproveObjectsRequest(approvable_object_ids);
-                log_message.addOtherParam("Approve", approve.toString());
+                log_message.addOtherParam("Approve", approve);
                 submit_to_backend_registry(reg, approve);
             }
 
@@ -360,7 +359,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 }
 
                 OMElement deprecate = ra.getDeprecateObjectsRequest(deprecatable_object_ids);
-                log_message.addOtherParam("Deprecate", deprecate.toString());
+                log_message.addOtherParam("Deprecate", deprecate);
                 submit_to_backend_registry(reg, deprecate);
             }
             log_response();
