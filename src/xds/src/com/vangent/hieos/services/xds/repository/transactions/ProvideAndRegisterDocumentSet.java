@@ -272,7 +272,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         String epr = registry_endpoint();
 
         log_message.addOtherParam("Register transaction endpoint", epr);
-        log_message.addOtherParam("Register transaction", register_transaction.toString());
+        log_message.addOtherParam("Register transaction", register_transaction);
         Soap soap = new Soap();
         try {
             OMElement result;
@@ -299,7 +299,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 log_message.addOtherParam("Register transaction response", "null");
 
             } else {
-                log_message.addOtherParam("Register transaction response", result.toString());
+                log_message.addOtherParam("Register transaction response", result);
                 String status = result.getAttributeValue(MetadataSupport.status_qname);
                 if (status == null) {
                     response.add_error(MetadataSupport.XDSRepositoryError, "Null status from Registry", this.getClass().getName(), log_message);
@@ -337,8 +337,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     private void log_headers(Soap soap) throws XdsInternalException {
         OMElement in_hdr = soap.getInHeader();
         OMElement out_hdr = soap.getOutHeader();
-        log_message.addSOAPParam("Header sent to Registry", (out_hdr == null) ? "Null" : out_hdr.toString());
-        log_message.addSOAPParam("Header received from Registry", (in_hdr == null) ? "Null" : in_hdr.toString());
+        log_message.addSOAPParam("Header sent to Registry", (out_hdr == null) ? "Null" : out_hdr);
+        log_message.addSOAPParam("Header received from Registry", (in_hdr == null) ? "Null" : in_hdr);
     }
 
     /**
