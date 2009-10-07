@@ -125,7 +125,7 @@ public class StoredQueryFactory {
         params = parser.parse(ahqr);
 
         if (log_message != null) {
-            log_message.addOtherParam("Parameters", params.toString());
+            log_message.addOtherParam("Parameters", params);
         }
 
         if (this.response == null) {
