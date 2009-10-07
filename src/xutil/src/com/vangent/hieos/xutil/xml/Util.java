@@ -99,7 +99,7 @@ public class Util {
 		try {
 			 builder = new StAXOMBuilder(parser);
 		} catch (Exception e) {
-			throw new XdsInternalException("Util.parse_xml(): Could not create StAXOMBuilder from parser");
+			throw new XdsInternalException("Could not create StAXOMBuilder: " + e.getMessage());
 		} 
 
 		OMElement documentElement = null; 
