@@ -6,7 +6,7 @@
             <name>xlogmdb</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <included-library>file.reference.xutil.jar</included-library>
-            <included-library>file.reference.axiom-api-1.2.7.jar</included-library>
+            <included-library>file.reference.axiom-api-1.2.8.jar</included-library>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>
