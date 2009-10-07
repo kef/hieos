@@ -517,23 +517,23 @@ exists or setup the property manually. For example like this:
     <target depends="init,compile,compile-jsps,-pre-dist,-do-dist-with-manifest,-do-dist-without-manifest" name="do-dist"/>
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
         <copyfiles files="${file.reference.xutil.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.xutil.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axiom-api-1.2.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-api-1.2.7.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-api-1.2.8.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.commons-logging-1.1.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.commons-logging-1.1.1.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.mysql-connector-java-5.0.8-bin.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.mysql-connector-java-5.0.8-bin.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.postgresql-8.3-604.jdbc4.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.postgresql-8.3-604.jdbc4.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.axiom-impl-1.2.7.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-impl-1.2.7.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.axiom-impl-1.2.8.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.axiom-impl-1.2.8.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.file.reference.xutil.jar} ${manifest.file.reference.axiom-api-1.2.7.jar} ${manifest.file.reference.commons-logging-1.1.1.jar} ${manifest.file.reference.mysql-connector-java-5.0.8-bin.jar} ${manifest.file.reference.postgresql-8.3-604.jdbc4.jar} ${manifest.file.reference.axiom-impl-1.2.7.jar} "/>
+            <attribute name="Class-Path" value="${manifest.file.reference.xutil.jar} ${manifest.file.reference.axiom-api-1.2.8.jar} ${manifest.file.reference.commons-logging-1.1.1.jar} ${manifest.file.reference.mysql-connector-java-5.0.8-bin.jar} ${manifest.file.reference.postgresql-8.3-604.jdbc4.jar} ${manifest.file.reference.axiom-impl-1.2.8.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
         <copyfiles files="${file.reference.xutil.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axiom-api-1.2.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.commons-logging-1.1.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.mysql-connector-java-5.0.8-bin.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.postgresql-8.3-604.jdbc4.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.axiom-impl-1.2.7.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.axiom-impl-1.2.8.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
