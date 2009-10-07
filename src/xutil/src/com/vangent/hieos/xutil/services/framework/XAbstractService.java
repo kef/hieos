@@ -134,7 +134,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         log_message.addHTTPParam(Fields.date, getDateTime());
         log_message.setSecureConnection(is_secure);
         if (request != null) {
-            log_message.addOtherParam("Request", request.toString());
+            log_message.addOtherParam("Request", request);
         } else {
             log_message.addErrorParam("Error", "Cannot access request body in XdsService.begin_service()");
             return start_up_error(request, null, actor, "Request body is null");
@@ -153,18 +153,19 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         // Log SOAP header:
         if (getMessageContext().getEnvelope().getHeader() != null) {
             try {
-                addSoap("Soap Header", getMessageContext().getEnvelope().getHeader().toStringWithConsume());
+
+                log_message.addSOAPParam("Soap Header", getMessageContext().getEnvelope().getHeader());
             } catch (OMException e) {
-            } catch (XMLStreamException e) {
+            //} catch (XMLStreamException e)
             }
         }
 
         // Log SOAP envelope:
         if (getMessageContext().getEnvelope().getBody() != null) {
             try {
-                addSoap("Soap Envelope", getMessageContext().getEnvelope().toStringWithConsume());
+                log_message.addSOAPParam("Soap Envelope", getMessageContext().getEnvelope());
             } catch (OMException e) {
-            } catch (XMLStreamException e) {
+            //} catch (XMLStreamException e) {
             }
         }
         log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
@@ -331,26 +332,29 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param t
      * @param s
      */
+    /*
     private void addSoap(String t, String s) {
         log_message.addSOAPParam(t, s);
-    }
+    }*/
 
     /**
      *
      * @param s
      */
+    /*
     protected void addError(String s) {
         log_message.addErrorParam("Error", s);
-    }
+    }*/
 
     /**
      *
      * @param name
      * @param s
      */
+    /*
     protected void addOther(String name, String s) {
         log_message.addOtherParam(name, s);
-    }
+    }*/
 
     /**
      *
@@ -496,7 +500,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_STOP, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            logger.error("Could not perform ATNA audit", e);
+            logger.error("Could not perform ATNA audit (stop)", e);
         }
     }
 
@@ -509,7 +513,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_START, actorType);
             xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception e) {
-            logger.error("*** Internal Error occured in XdsService::ATNAlogStop() method ***", e);
+            logger.error("Could not perform ATNA audit (start)", e);
         }
     }
 }
