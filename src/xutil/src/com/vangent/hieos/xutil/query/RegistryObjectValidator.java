@@ -117,8 +117,8 @@ public class RegistryObjectValidator extends StoredQuery {
 		dup_uids.addAll(dup_objects.keySet());
 		
 		
-		log_message.addOtherParam("dup uuids", uuids.toString());
-		log_message.addOtherParam("dup uids", dup_uids.toString());
+		log_message.addOtherParam("dup uuids", uuids);
+		log_message.addOtherParam("dup uids", dup_uids);
 		
 		for (String suuid : metadata.getSubmissionSetIds()) {
 			String sid = metadata.getExternalIdentifierValue(suuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
