@@ -91,7 +91,7 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
         // Now send them out.
         OMElement result = this.sendTransaction(rootRequest, this.getEndpointURL(), this.isLocalRequest());
         if (result != null) { // to be safe.
-            logMessage.addOtherParam("Result (" + this.getEndpointURL() + ")", result.toString());
+            logMessage.addOtherParam("Result (" + this.getEndpointURL() + ")", result);
             // Validate the response against the schema.
             try {
                 RegistryUtility.schema_validate_local(result, MetadataTypes.METADATA_TYPE_SQ);
