@@ -24,10 +24,6 @@
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${file.reference.mysql-connector-java-5.0.8-bin.jar}</file>
-                    <path-in-war>/</path-in-war>
-                </library>
-                <library>
                     <file>${file.reference.postgresql-8.3-604.jdbc4.jar}</file>
                     <path-in-war>/</path-in-war>
                 </library>
@@ -41,6 +37,10 @@
                 </library>
                 <library>
                     <file>${file.reference.commons-logging-1.1.1.jar}</file>
+                    <path-in-war>/</path-in-war>
+                </library>
+                <library>
+                    <file>${file.reference.mysql-connector-java-5.1.10-bin.jar}</file>
                     <path-in-war>/</path-in-war>
                 </library>
             </web-module-additional-libraries>
