@@ -454,7 +454,7 @@ public class AdtJdbcConnection {
      */
     public boolean doesIdExist(String id) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("SELECT * ");
+        sb.append("SELECT id ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
         sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "';");
         ResultSet result = this.executeQuery(sb.toString());
