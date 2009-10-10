@@ -98,6 +98,7 @@ public class XLoggerBean implements MessageListener {
             return;
         }
         try {
+            conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             persistIp(conn, logMessage, stmt);
             persistMain(logMessage, stmt);
