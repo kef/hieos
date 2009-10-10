@@ -35,7 +35,7 @@ public class RegistryObjectValidator extends StoredQuery {
 
 	public ArrayList validateExists(ArrayList uuids)  throws XdsException {
 		init();
-		a("SELECT * FROM RegistryObject ro"); n();
+		a("SELECT id FROM RegistryObject ro"); n();
 		a("WHERE"); n();
 		a("  ro.id IN "); a(uuids); n();
 
@@ -67,7 +67,7 @@ public class RegistryObjectValidator extends StoredQuery {
 	public ArrayList<String> validateNotExists(ArrayList<String> ids)  throws XdsException {
 		ArrayList<String> uuids = uuidsOnly(ids);
 		init();
-		a("SELECT * FROM RegistryObject ro"); n();
+		a("SELECT id FROM RegistryObject ro"); n();
 		a("WHERE"); n();
 		a("  ro.id IN "); a(uuids); n();
 
@@ -171,7 +171,7 @@ public class RegistryObjectValidator extends StoredQuery {
 
 	public ArrayList validateDocuments(ArrayList uuids)  throws  XdsException {
 		init();
-		a("SELECT * FROM ExtrinsicObject eo"); n();
+		a("SELECT id FROM ExtrinsicObject eo"); n();
 		a("WHERE"); n();
 		a("  eo.id IN "); a(uuids);  n();
 
@@ -221,21 +221,21 @@ public class RegistryObjectValidator extends StoredQuery {
 
 	public ArrayList validateApproved(ArrayList uuids)  throws  XdsException {
 		init();
-		a("SELECT * FROM ExtrinsicObject eo"); n();
+		a("SELECT id FROM ExtrinsicObject eo"); n();
 		a("WHERE"); n();
 		a("  eo.status = '");
-        a(MetadataSupport.status_type_approved);
-        a("' AND"); n();
+                a(MetadataSupport.status_type_approved);
+                a("' AND"); n();
 		a("  eo.id IN "); a(uuids);  n();
 
 		ArrayList results1 = this.query_for_object_refs();
 
 		init();
-		a("SELECT * FROM RegistryPackage eo"); n();
+		a("SELECT id FROM RegistryPackage eo"); n();
 		a("WHERE"); n();
 		a("  eo.status = '");
-        a(MetadataSupport.status_type_approved);
-        a("' AND"); n();
+                a(MetadataSupport.status_type_approved);
+                a("' AND"); n();
 		a("  eo.id IN "); a(uuids);  n();
 
 		ArrayList results = this.query_for_object_refs();
