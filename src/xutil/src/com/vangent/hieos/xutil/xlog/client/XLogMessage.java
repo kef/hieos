@@ -47,6 +47,14 @@ public class XLogMessage implements Serializable {
     }
 
     /**
+     * 
+     * @return
+     */
+    public boolean isLogEnabled() {
+        return xlogger == null ? false : xlogger.isLogEnabled();
+    }
+
+    /**
      *
      * @return
      */
@@ -152,11 +160,10 @@ public class XLogMessage implements Serializable {
      */
     /*
     public void addSOAPParam(String name, String value) {
-        if (xlogger.isLogEnabled()) {
-            this.addParam("soap", name, value);
-        }
+    if (xlogger.isLogEnabled()) {
+    this.addParam("soap", name, value);
+    }
     }*/
-
     /**
      *
      * @param name
@@ -186,11 +193,10 @@ public class XLogMessage implements Serializable {
      */
     /*
     public void addOtherParam(String name, String value) {
-        if (xlogger.isLogEnabled()) {
-            this.addParam("other", name, value);
-        }
+    if (xlogger.isLogEnabled()) {
+    this.addParam("other", name, value);
+    }
     }*/
-
     /**
      * 
      * @param name

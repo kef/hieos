@@ -25,78 +25,27 @@ import com.vangent.hieos.xutil.xml.Parse;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
+import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMFactory;
+
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author thumbe
+ */
 public class BackendRegistry {
 
     private final static Logger logger = Logger.getLogger(BackendRegistry.class);
-    ErrorLogger response;
-    XLogMessage log_message;
-    String reason = "";
-
-    public BackendRegistry(ErrorLogger response, XLogMessage log_message) {
-        this.response = response;
-        this.log_message = log_message;
-    }
-
-    public BackendRegistry(ErrorLogger response, XLogMessage log_message, String reason) {
-        this.response = response;
-        this.log_message = log_message;
-        this.reason = reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-    static QName object_ref_qname = new QName("ObjectRef");
-    static QName id_qname = new QName("id");
-
-    public ArrayList<String> queryForObjectRefs(String sql) throws XMLParserException, XdsException {
-        OMElement result = query(sql, false /* leaf_class */);
-
-        ArrayList<String> ors = new ArrayList<String>();
-
-        if (result == null) // error occured
-        {
-            return ors;
-        }
-
-        OMElement sql_query_result = MetadataSupport.firstChildWithLocalName(result, "RegistryObjectList");
-
-        if (sql_query_result != null) {
-            for (OMElement or : MetadataSupport.childrenWithLocalName(sql_query_result, "ObjectRef")) {
-                String id = or.getAttributeValue(id_qname);
-                if (id != null && !id.equals("")) {
-                    ors.add(id);
-                }
-            }
-        }
-
-        return ors;
-    }
-
-    public OMElement query(String sql, boolean leaf_class) throws XMLParserException, MetadataException, MetadataValidationException, XdsInternalException, XdsException {
-        OMElement result = basic_query(sql, leaf_class);
-
-        // add in homeCommunityId to all major
-        Metadata m = MetadataParser.parseNonSubmission(result);
-
-        m.fixClassifications();
-
-        return result;
-    }
-
-    public ArrayList<String> objectRefQuery(String sql)
-            throws MetadataValidationException, XMLParserException, XdsException {
-        OMElement response = basic_query(sql, true);
-        Metadata m = MetadataParser.parseNonSubmission(response);
-        return m.getObjectIds(m.getObjectRefs());
-    }
-    static String sql_query_V3_header =
+    //private final static QName object_ref_qname = new QName("ObjectRef");
+    private final static QName idQName = new QName("id");
+    private final static String adhocQueryRequestHeader =
             "<query:AdhocQueryRequest\n" +
             "xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\"\n" +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -105,12 +54,119 @@ public class BackendRegistry {
             "xmlns:rim=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\"\n" +
             "xmlns:query=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\"\n" +
             "xsi:schemaLocation=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0 http://oasis-open.org/committees/regrep/documents/3.0/schema/query.xsd\">\n";
+    ErrorLogger response;
+    XLogMessage logMessage;
+    String reason = "";
 
-    public OMElement basic_query(String sql, boolean leaf_class)
+    /**
+     *
+     * @param response
+     * @param logMessage
+     */
+    public BackendRegistry(ErrorLogger response, XLogMessage logMessage) {
+        this.response = response;
+        this.logMessage = logMessage;
+    }
+
+    /**
+     *
+     * @param response
+     * @param logMessage
+     * @param reason
+     */
+    public BackendRegistry(ErrorLogger response, XLogMessage logMessage, String reason) {
+        this.response = response;
+        this.logMessage = logMessage;
+        this.reason = reason;
+    }
+
+    /**
+     *
+     * @param reason
+     */
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    /**
+     * 
+     * @param sql
+     * @return
+     * @throws XMLParserException
+     * @throws XdsException
+     */
+    public ArrayList<String> queryForObjectRefs(String sql) throws XMLParserException, XdsException {
+
+        // Perform the query (only for references):
+        OMElement result = query(sql, false /* leafClass */);
+
+        // Now create the array of object references:
+        ArrayList<String> ors = new ArrayList<String>();
+        if (result == null) // error occured
+        {
+            return ors;
+        }
+
+        // Parse result and gather all object reference ids:
+        OMElement sqlQueryResult = MetadataSupport.firstChildWithLocalName(result, "RegistryObjectList");
+        if (sqlQueryResult != null) {
+            for (OMElement or : MetadataSupport.childrenWithLocalName(sqlQueryResult, "ObjectRef")) {
+                String id = or.getAttributeValue(idQName);
+                if (id != null && !id.equals("")) {
+                    ors.add(id);
+                }
+            }
+        }
+        return ors;
+    }
+
+    /**
+     *
+     * @param sql
+     * @param leafClass
+     * @return
+     * @throws XMLParserException
+     * @throws MetadataException
+     * @throws MetadataValidationException
+     * @throws XdsInternalException
+     * @throws XdsException
+     */
+    public OMElement query(String sql, boolean leafClass) throws XMLParserException, MetadataException, MetadataValidationException, XdsInternalException, XdsException {
+        OMElement result = this.basicQuery(sql, leafClass);
+        Metadata m = MetadataParser.parseNonSubmission(result);
+        m.fixClassifications();
+        return result;
+    }
+
+    /**
+     *
+     * @param sql
+     * @return
+     * @throws MetadataValidationException
+     * @throws XMLParserException
+     * @throws XdsException
+     */
+    public ArrayList<String> objectRefQuery(String sql)
+            throws MetadataValidationException, XMLParserException, XdsException {
+        OMElement response = this.basicQuery(sql, true /* leafClass */);
+        Metadata m = MetadataParser.parseNonSubmission(response);
+        return m.getObjectIds(m.getObjectRefs());
+    }
+
+    /**
+     *
+     * @param sql
+     * @param leafClass
+     * @return
+     * @throws XMLParserException
+     * @throws XdsInternalException
+     * @throws XdsException
+     */
+    public OMElement basicQuery(String sql, boolean leafClass)
             throws XMLParserException, XdsInternalException, XdsException {
-        String query_string = sql_query_V3_header +
+        String queryString = this.adhocQueryRequestHeader +
                 "<query:ResponseOption returnType=\"" +
-                ((leaf_class) ? "LeafClass" : "ObjectRef") +
+                ((leafClass) ? "LeafClass" : "ObjectRef") +
                 "\" returnComposedObjects=\"true\">\n" +
                 "</query:ResponseOption>\n " +
                 "<rim:AdhocQuery id=\"tempId\">\n" +
@@ -120,41 +176,91 @@ public class BackendRegistry {
                 "</rim:AdhocQuery>\n" +
                 "</query:AdhocQueryRequest>\n";
 
-        OMElement query_element = Parse.parse_xml_string(query_string);
+        OMElement query = Parse.parse_xml_string(queryString);
 
         //AMS 04/26/2009 - FIXME - Handle the condition that there might be no children with name AdhocQuery.
         // Or does validation already account for that?? ---- RESEARCH
-        OMElement query_request = MetadataSupport.firstChildWithLocalName(query_element, "AdhocQuery");//.get(0);
+        OMElement query_request = MetadataSupport.firstChildWithLocalName(query, "AdhocQuery");//.get(0);
         OMElement sql_query = MetadataSupport.firstChildWithLocalName(query_request, "QueryExpression");
         sql_query.setText(sql);
 
-        OMElement result = submit_to_backend_registry(query_element);
+        OMElement result = this.submit(query);
         return result;
     }
 
-    public OMElement submit_to_backend_registry(OMElement omElement) throws XdsException {
+    /**
+     *
+     * @param uuids
+     * @return
+     */
+    public OMElement getApproveObjectsRequest(ArrayList uuids) {
+        OMNamespace lcm = MetadataSupport.ebLcm3;
+        OMElement req = MetadataSupport.om_factory.createOMElement("ApproveObjectsRequest", lcm);
+        req.addChild(makeObjectRefList(uuids));
+        return req;
+    }
 
-        if (log_message != null) {
-            log_message.addOtherParam("omar (ebxmlrr 3.x) request (" + reason + ")", omElement);
+    /**
+     *
+     * @param uuids
+     * @return
+     */
+    public OMElement getDeprecateObjectsRequest(ArrayList uuids) {
+        OMNamespace lcm = MetadataSupport.ebLcm3;
+        OMElement req = MetadataSupport.om_factory.createOMElement("DeprecateObjectsRequest", lcm);
+        req.addChild(makeObjectRefList(uuids));
+        return req;
+
+    }
+
+    /**
+     * Creates ebXML v3 <ObjectRefList> structure given a set of uuids.
+     *
+     * @param uuids Arraylist of uuids.
+     * @return <ObjectRefList> OMElement node.
+     */
+    private OMElement makeObjectRefList(ArrayList uuids) {
+        OMNamespace rim = MetadataSupport.ebRIMns3;
+        OMFactory fact = MetadataSupport.om_factory;
+        OMElement objectRefList = fact.createOMElement("ObjectRefList", rim);
+        for (Iterator it = uuids.iterator(); it.hasNext();) {
+            String uuid = (String) it.next();
+            OMAttribute attribute = fact.createOMAttribute("id", null, uuid);
+            OMElement objectReference = fact.createOMElement("ObjectRef", rim);
+            objectReference.addAttribute(attribute);
+            objectRefList.addChild(objectReference);
         }
+        return objectRefList;
+    }
 
+    /**
+     *
+     * @param request
+     * @return
+     * @throws XdsException
+     */
+    public OMElement submit(OMElement request) throws XdsException {
+        if (logMessage != null) {
+            logMessage.addOtherParam("omar (ebxmlrr 3.x) request (" + reason + ")", request);
+        }
         OMElement result = null;
         try {
-            OmarRegistry or = new OmarRegistry(omElement);
+            OmarRegistry or = new OmarRegistry(request);
             result = or.process();
         } catch (Exception e) {
             logger.error("*****   Exception in calling Omar (ebxmlrr 3.x) Registry  ****  " + e.getMessage());
             // AMS 04/22/2009 - FIXME - Exceptions thrown could be JAXRException, RegistryException - encapsulate into XdsInternalException ???
             // AMS 04/22/2009 - FIXME - Is the following statement correct?
-            response.add_error(MetadataSupport.XDSRegistryError, "Error parsing response from omar (ebxmlrr 3.x)", RegistryUtility.exception_details(e), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, "Error parsing response from omar (ebxmlrr 3.x)", RegistryUtility.exception_details(e), logMessage);
         }
 
-        if (log_message != null) {
-            log_message.addOtherParam("omar (ebxmlrr 3.x) response", (result != null) ? result : "null");
+        if (logMessage != null) {
+            logMessage.addOtherParam("omar (ebxmlrr 3.x) response", (result != null) ? result : "null");
         }
         return result;
     }
 
+    /*
     void insert_version_info(OMElement parent) {
         if (MetadataSupport.firstChildWithLocalName(parent, "VersionInfo") != null) {
             return;
@@ -162,5 +268,5 @@ public class BackendRegistry {
         OMElement vi = MetadataSupport.om_factory.createOMElement("VersionInfo", MetadataSupport.ebRIMns3);
         vi.addAttribute("versionName", "1.1", null);
         parent.addChild(vi);
-    }
+    }*/
 }
