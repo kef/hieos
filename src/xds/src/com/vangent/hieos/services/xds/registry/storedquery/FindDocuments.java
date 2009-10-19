@@ -31,7 +31,7 @@ import org.apache.axiom.om.OMElement;
 
 /**
  * 
- * @author thumbe
+ * @author NIST (Adapted by Bernie Thuman).
  */
 public class FindDocuments extends StoredQuery {
 
@@ -56,27 +56,27 @@ public class FindDocuments extends StoredQuery {
     public FindDocuments(HashMap params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
-        //                         param name,                                      required?, multiple?, is string?,   same size as,                                alternative
-        validate_parm(params, "$XDSDocumentEntryPatientId", true, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryClassCode", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryClassCodeScheme", false, true, true, "$XDSDocumentEntryClassCode", null);
-        validate_parm(params, "$XDSDocumentEntryPracticeSettingCode", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryPracticeSettingCodeScheme", false, true, true, "$XDSDocumentEntryPracticeSettingCode", null);
-        validate_parm(params, "$XDSDocumentEntryCreationTimeFrom", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryCreationTimeTo", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryServiceStartTimeFrom", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryServiceStartTimeTo", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryServiceStopTimeFrom", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryServiceStopTimeTo", false, false, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryHealthcareFacilityTypeCodeScheme", false, true, true, "$XDSDocumentEntryHealthcareFacilityTypeCode", null);
-        validate_parm(params, "$XDSDocumentEntryEventCodeList", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryEventCodeListScheme", false, true, true, "$XDSDocumentEntryEventCodeList", null);
-        validate_parm(params, "$XDSDocumentEntryConfidentialityCode", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryConfidentialityCodeScheme", false, true, true, "$XDSDocumentEntryConfidentialityCode", null);
-        validate_parm(params, "$XDSDocumentEntryFormatCode", false, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryStatus", true, true, true, null, null);
-        validate_parm(params, "$XDSDocumentEntryAuthorPerson", false, true, true, null, null);
+        //                    param name,                                          required?, multiple?, is string?,   same size as,                                  alternative
+        validate_parm(params, "$XDSDocumentEntryPatientId",                        true,      false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryClassCode",                        false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryClassCodeScheme",                  false,     true,      true,         "$XDSDocumentEntryClassCode",                  null);
+        validate_parm(params, "$XDSDocumentEntryPracticeSettingCode",              false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryPracticeSettingCodeScheme",        false,     true,      true,         "$XDSDocumentEntryPracticeSettingCode",        null);
+        validate_parm(params, "$XDSDocumentEntryCreationTimeFrom",                 false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryCreationTimeTo",                   false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryServiceStartTimeFrom",             false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryServiceStartTimeTo",               false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryServiceStopTimeFrom",              false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryServiceStopTimeTo",                false,     false,     true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryHealthcareFacilityTypeCode",       false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryHealthcareFacilityTypeCodeScheme", false,     true,      true,         "$XDSDocumentEntryHealthcareFacilityTypeCode", null);
+        validate_parm(params, "$XDSDocumentEntryEventCodeList",                    false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryEventCodeListScheme",              false,     true,      true,         "$XDSDocumentEntryEventCodeList",              null);
+        validate_parm(params, "$XDSDocumentEntryConfidentialityCode",              false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryConfidentialityCodeScheme",        false,     true,      true,         "$XDSDocumentEntryConfidentialityCode",        null);
+        validate_parm(params, "$XDSDocumentEntryFormatCode",                       false,     true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryStatus",                           true,      true,      true,         null,                                          null);
+        validate_parm(params, "$XDSDocumentEntryAuthorPerson",                     false,     true,      true,         null,                                          null);
 
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");

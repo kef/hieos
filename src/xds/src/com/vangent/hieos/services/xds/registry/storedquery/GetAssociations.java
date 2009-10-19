@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import java.util.ArrayList;
@@ -27,34 +26,50 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public class GetAssociations extends StoredQuery {
 
-	public GetAssociations(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    /**
+     * 
+     * @param params
+     * @param return_objects
+     * @param response
+     * @param log_message
+     * @param is_secure
+     * @throws MetadataValidationException
+     */
+    public GetAssociations(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
-		super(params, return_objects, response, log_message,  is_secure);
+        super(params, return_objects, response, log_message, is_secure);
 
-		//                    param name,             required?, multiple?, is string?,   same size as,    alternative
-		validate_parm(params, "$uuid",                 true,      true,     true,         null,            null);
+        //                    param name, required?, multiple?, is string?,  same size as,  alternative
+        validate_parm(params, "$uuid",    true,      true,      true,        null,          null);
 
         if (this.has_validation_errors) {
-			throw new MetadataValidationException("Metadata Validation error present");
+            throw new MetadataValidationException("Metadata Validation error present");
         }
     }
 
-	public Metadata run_internal() throws XdsException {
-		Metadata metadata;
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public Metadata run_internal() throws XdsException {
+        Metadata metadata;
 
-		ArrayList<String> uuids = get_arraylist_parm("$uuid");
+        ArrayList<String> uuids = get_arraylist_parm("$uuid");
 
-		if (uuids!= null) {
-			OMElement ele = get_associations(uuids, null);
-			metadata = MetadataParser.parseNonSubmission(ele);
-		} 
-		else throw new XdsInternalException("GetAssociations Stored Query: $uuid not found as a multi-value parameter");
+        if (uuids != null) {
+            OMElement ele = get_associations(uuids, null);
+            metadata = MetadataParser.parseNonSubmission(ele);
+        } else {
+            throw new XdsInternalException("GetAssociations Stored Query: $uuid not found as a multi-value parameter");
+        }
 
-		return metadata;
-	}
-
-
-
+        return metadata;
+    }
 }

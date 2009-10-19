@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -25,35 +24,49 @@ import java.util.HashMap;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public class GetFoldersForDocument extends StoredQuery {
 
-	public GetFoldersForDocument(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
-            throws MetadataValidationException{
-		super(params, return_objects, response, log_message,  is_secure);
+    /**
+     *
+     * @param params
+     * @param return_objects
+     * @param response
+     * @param log_message
+     * @param is_secure
+     * @throws MetadataValidationException
+     */
+    public GetFoldersForDocument(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+            throws MetadataValidationException {
+        super(params, return_objects, response, log_message, is_secure);
 
-		//                         param name,                             required?, multiple?, is string?,   same size as,    alternative
-		validate_parm(params, "$XDSDocumentEntryUniqueId",                 true,      false,     true,         null,            "$XDSDocumentEntryEntryUUID");
-		validate_parm(params, "$XDSDocumentEntryEntryUUID",                true,      false,     true,         null,            "$XDSDocumentEntryUniqueId");
+        //                    param name,                   required?, multiple?, is string?,  same size as, alternative
+        validate_parm(params, "$XDSDocumentEntryUniqueId",  true,      false,     true,        null,         "$XDSDocumentEntryEntryUUID");
+        validate_parm(params, "$XDSDocumentEntryEntryUUID", true,      false,     true,        null,         "$XDSDocumentEntryUniqueId");
 
         if (this.has_validation_errors) {
-			throw new MetadataValidationException("Metadata Validation error present");
+            throw new MetadataValidationException("Metadata Validation error present");
         }
     }
 
-	public Metadata run_internal() throws XdsException {
-
-		String uid 			= get_string_parm("$XDSDocumentEntryUniqueId");
-		String uuid 		= get_string_parm("$XDSDocumentEntryEntryUUID");
-		
-		if (uuid == null || uuid.equals(""))
-			uuid = this.get_doc_id_from_uid(uid);
-		
-		if (uuid == null)
-			throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");
-		
-		OMElement folders = this.get_folders_for_document(uuid);
-		
-		return MetadataParser.parseNonSubmission(folders);
-		
-	}
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public Metadata run_internal() throws XdsException {
+        String uid = get_string_parm("$XDSDocumentEntryUniqueId");
+        String uuid = get_string_parm("$XDSDocumentEntryEntryUUID");
+        if (uuid == null || uuid.equals("")) {
+            uuid = this.get_doc_id_from_uid(uid);
+        }
+        if (uuid == null) {
+            throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");
+        }
+        OMElement folders = this.get_folders_for_document(uuid);
+        return MetadataParser.parseNonSubmission(folders);
+    }
 }

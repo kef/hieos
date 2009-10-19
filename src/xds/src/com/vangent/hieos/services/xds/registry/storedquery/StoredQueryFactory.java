@@ -10,9 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.storedquery;
-
 
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.response.Response;
@@ -20,18 +18,6 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 import com.vangent.hieos.xutil.query.StoredQuery;
 
-import com.vangent.hieos.services.xds.registry.storedquery.FindDocuments;
-import com.vangent.hieos.services.xds.registry.storedquery.FindFolders;
-import com.vangent.hieos.services.xds.registry.storedquery.FindSubmissionSets;
-import com.vangent.hieos.services.xds.registry.storedquery.GetAssociations;
-import com.vangent.hieos.services.xds.registry.storedquery.GetDocuments;
-import com.vangent.hieos.services.xds.registry.storedquery.GetDocumentsAndAssociations;
-import com.vangent.hieos.services.xds.registry.storedquery.GetFolderAndContents;
-import com.vangent.hieos.services.xds.registry.storedquery.GetFolders;
-import com.vangent.hieos.services.xds.registry.storedquery.GetFoldersForDocument;
-import com.vangent.hieos.services.xds.registry.storedquery.GetRelatedDocuments;
-import com.vangent.hieos.services.xds.registry.storedquery.GetSubmissionSetAndContents;
-import com.vangent.hieos.services.xds.registry.storedquery.GetSubmissionSets;
 
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -45,8 +31,11 @@ import java.util.HashMap;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public class StoredQueryFactory {
-
     OMElement ahqr;
     boolean return_objects = false;
     HashMap<String, Object> params;
@@ -59,18 +48,21 @@ public class StoredQueryFactory {
 
     /*
     public void setResponse(Response response) {
-        this.response = response;
+    this.response = response;
     }
 
     public void setIsSecure(boolean is) {
-        is_secure = is;
+    is_secure = is;
     }
 
     public void setServiceName(String serviceName) {
-        serviceName = service_name;
+    serviceName = service_name;
     }
      */
-
+    /**
+     *
+     * @return
+     */
     public boolean isLeafClassReturnType() {
         OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
         if (response_option == null) {
@@ -83,14 +75,35 @@ public class StoredQueryFactory {
         return true;
     }
 
+    /**
+     *
+     * @param parmName
+     * @return
+     */
     public boolean hasParm(String parmName) {
         return params.containsKey(parmName);
     }
 
+    /**
+     *
+     * @param parmName
+     * @return
+     */
     public Object getParm(String parmName) {
         return params.get(parmName);
     }
 
+    /**
+     *
+     * @param ahqr
+     * @param resp
+     * @param lmsg
+     * @param sname
+     * @param secure
+     * @throws XdsInternalException
+     * @throws MetadataException
+     * @throws XdsException
+     */
     public StoredQueryFactory(OMElement ahqr, Response resp, XLogMessage lmsg, String sname, boolean secure) throws XdsInternalException, MetadataException, XdsException {
         this.ahqr = ahqr;
         this.response = resp;
@@ -223,10 +236,15 @@ public class StoredQueryFactory {
 
     /*
     public void setLogMessage(Message log_message) {
-        this.log_message = log_message;
+    this.log_message = log_message;
     }
      */
-
+    /**
+     *
+     * @return
+     * @throws XDSRegistryOutOfResourcesException
+     * @throws XdsException
+     */
     public ArrayList<OMElement> run() throws XDSRegistryOutOfResourcesException, XdsException {
         return x.run();
     }

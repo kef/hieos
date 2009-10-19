@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import java.util.ArrayList;
@@ -26,40 +25,55 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public class GetFolders extends StoredQuery {
 
-	public GetFolders(HashMap params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    /**
+     *
+     * @param params
+     * @param return_objects
+     * @param response
+     * @param log_message
+     * @param is_secure
+     * @throws MetadataValidationException
+     */
+    public GetFolders(HashMap params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
-		super(params, return_objects, response, log_message,  is_secure);
+        super(params, return_objects, response, log_message, is_secure);
 
-		//                         param name,                             required?, multiple?, is string?,   same size as,    alternative
-		validate_parm(params, "$XDSFolderEntryUUID",                         true,      true,     true,         null,            "$XDSFolderUniqueId");
-		validate_parm(params, "$XDSFolderUniqueId",                          true,      true,     true,         null,            "$XDSFolderEntryUUID");
+        //                    param name,            required?, multiple?, is string?, same size as, alternative
+        validate_parm(params, "$XDSFolderEntryUUID", true,      true,      true,       null,         "$XDSFolderUniqueId");
+        validate_parm(params, "$XDSFolderUniqueId",  true,      true,      true,       null,         "$XDSFolderEntryUUID");
 
         if (this.has_validation_errors) {
-			throw new MetadataValidationException("Metadata Validation error present");
+            throw new MetadataValidationException("Metadata Validation error present");
         }
     }
 
-	public Metadata run_internal() throws XdsException {
-		Metadata metadata;
-
-		ArrayList<String> fol_uuid = get_arraylist_parm("$XDSFolderEntryUUID");
-		if (fol_uuid != null) {
-			// starting from uuid
-			OMElement x = get_fol_by_uuid(fol_uuid);
-			metadata = MetadataParser.parseNonSubmission(x);
-			if (metadata.getFolders().size() == 0) return metadata;
-		} else {
-			// starting from uniqueid
-			ArrayList<String> fol_uid = get_arraylist_parm("$XDSFolderUniqueId");
-			OMElement x = get_fol_by_uid(fol_uid);
-			metadata = MetadataParser.parseNonSubmission(x);
-		}
-		
-		return metadata;
-
-	}
-
-
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public Metadata run_internal() throws XdsException {
+        Metadata metadata;
+        ArrayList<String> fol_uuid = get_arraylist_parm("$XDSFolderEntryUUID");
+        if (fol_uuid != null) {
+            // starting from uuid
+            OMElement x = get_fol_by_uuid(fol_uuid);
+            metadata = MetadataParser.parseNonSubmission(x);
+            if (metadata.getFolders().size() == 0) {
+                return metadata;
+            }
+        } else {
+            // starting from uniqueid
+            ArrayList<String> fol_uid = get_arraylist_parm("$XDSFolderUniqueId");
+            OMElement x = get_fol_by_uid(fol_uid);
+            metadata = MetadataParser.parseNonSubmission(x);
+        }
+        return metadata;
+    }
 }

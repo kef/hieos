@@ -26,22 +26,39 @@ import java.util.HashMap;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public class GetDocumentsAndAssociations extends StoredQuery {
 
+    /**
+     *
+     * @param params
+     * @param return_objects
+     * @param response
+     * @param log_message
+     * @param is_secure
+     * @throws MetadataValidationException
+     */
     public GetDocumentsAndAssociations(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-
-        //                         param name,                             required?, multiple?, is string?,   same size as,    alternative
-        validate_parm(params, "$XDSDocumentEntryUniqueId", true, true, true, null, "$XDSDocumentEntryEntryUUID");
-        validate_parm(params, "$XDSDocumentEntryEntryUUID", true, true, true, null, "$XDSDocumentEntryUniqueId");
+        //                    param name,                   required?, multiple?, is string?, same size as,  alternative
+        validate_parm(params, "$XDSDocumentEntryUniqueId",  true,      true,      true,       null,          "$XDSDocumentEntryEntryUUID");
+        validate_parm(params, "$XDSDocumentEntryEntryUUID", true,      true,      true,       null,          "$XDSDocumentEntryUniqueId");
 
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
 
