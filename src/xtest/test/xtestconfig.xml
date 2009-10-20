@@ -93,7 +93,10 @@
  
  <Site name="pub">
      <!-- Site specific properties -->
-      <Property name="PidAllocateEndpoint">http://ihexds.nist.gov:9080/xdstools/pidallocate?rest=1</Property>
+     <Property name="PidAllocateEndpoint">http://ihexds.nist.gov:9080/xdstools/pidallocate?rest=1</Property>
+     <Property name="DefaultRegistry">nistregistry</Property>
+     <Property name="DefaultRepository">1.19.6.24.109.42.1</Property>
+     <Property name="DefaultInitiatingGateway">urn:oid:1.19.6.24.109.42.1.3</Property>
   
      <!-- List of Registries -->
       <Registry name="nistregistry">
@@ -170,6 +173,9 @@
  <Site name="lab">
     <!-- Site specific properties -->
      <Property name="PidAllocateEndpoint">http://208.81.185.143:8080/xwebtools/pidallocate?rest=1</Property>
+     <Property name="DefaultRegistry">labregistry</Property>
+     <Property name="DefaultRepository">1.3.6.1.4.1.21367.2009.1.2.1010</Property>
+     <Property name="DefaultInitiatingGateway">urn:oid:1.3.6.1.4.1.21367.2009.1.2.2020</Property>
  
     <!-- List of Registries -->
      <Registry name="labregistry">
