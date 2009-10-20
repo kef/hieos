@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
+     <!-- Registry Actor -->
     <service name="xdsregistryb" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistry" scope="application">
         <description>XDS.b Registry Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistry</parameter>
@@ -27,6 +28,26 @@
         </operation>
     </service>
 
+     <!-- Async Registry Actor -->
+    <service name="xdsregistrybas" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync" scope="application">
+        <description>Asynchronous XDS.b Registry Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync</parameter>
+        <!-- enables server side asynchronous behavior -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <!-- identifies the registry configuration name in the xconfig.xml -->
+        <parameter name="XConfigName">localregistry</parameter>
+        <operation name="SubmitObjectsRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:RegisterDocumentSet-bAsync</actionMapping>
+        </operation>
+
+        <operation name="AdhocQueryRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:RegistryStoredQueryAsync</actionMapping>
+        </operation>
+    </service>
+
+     <!-- Repository Actor -->
     <service name="xdsrepositoryb" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository" scope="application">
         <description> XDS.b Repository Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository</parameter>
@@ -38,6 +59,24 @@
         <operation name="RetrieveDocumentSetRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+    </service>
+
+    <!-- Async Repository Actor -->
+    <service name="xdsrepositorybas" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync" scope="application">
+        <description>Asynchronous XDS.b Repository Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync</parameter>
+        <!-- enables server side asynchronous behavior -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <operation name="ProvideAndRegisterDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bAsync</actionMapping>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+        <operation name="RetrieveDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSetAsync</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
     </service>

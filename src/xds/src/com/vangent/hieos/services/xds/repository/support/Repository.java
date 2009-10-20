@@ -24,21 +24,26 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 public class Repository {
 
     /**
-     *
-     * @param xds_version
-     * @return
+     * This method returns an endpoint URL for the local registry.
+     * @return a String representing the endpoint URL.
      * @throws XdsInternalException
      */
     static public String getRegisterTransactionEndpoint() throws XdsInternalException {
-        XConfigRepository repository = Repository.getRepositoryConfig();
-        XConfigRegistry localRegistry = repository.getLocalRegistry();
-        XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
-        return txn.getEndpointURL();
+        return getRegisterTransaction().getEndpointURL();
     }
 
     /**
-     * 
-     * @return
+     * This method returns whether the local Registry endpoint is asynchronous.
+     * @return a booolean value.
+     * @throws XdsInternalException
+     */
+    static public boolean isRegisterTransactionAsync() throws XdsInternalException {
+        return getRegisterTransaction().isAsyncTransaction();
+    }
+
+    /**
+     * This method returns the Unique Id for the local repository.
+     * @return a String value.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     static public String getRepositoryUniqueId() throws XdsInternalException {
@@ -47,8 +52,8 @@ public class Repository {
     }
 
     /**
-     *
-     * @return
+     * This private utility method returns the local repository.
+     * @return XConfigRepository.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     static private XConfigRepository getRepositoryConfig() throws XdsInternalException {
@@ -60,5 +65,18 @@ public class Repository {
         } catch (Exception e) {
             throw new XdsInternalException("Unable to get Repository configuration + " + e.getMessage());
         }
+    }
+
+    /**
+     * This private utility method returns a transaction configuration definition for
+     * the "RegisterDocumentSet-b" transaction from the local registry.
+     * @return XConfigTransaction.
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    static private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
+        XConfigRepository repository = Repository.getRepositoryConfig();
+        XConfigRegistry localRegistry = repository.getLocalRegistry();
+        XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
+        return txn;
     }
 }

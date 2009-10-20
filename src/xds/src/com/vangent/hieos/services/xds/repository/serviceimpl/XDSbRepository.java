@@ -139,15 +139,15 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
         return true;
     }
 
-    private String getPnRTransactionName() {
+    protected String getPnRTransactionName() {
         return "PnR.b";
     }
 
-    private String getRetTransactionName() {
+    protected String getRetTransactionName() {
         return "RET.b";
     }
 
-    private void validateWS() throws XdsWSException {
+    protected void validateWS() throws XdsWSException {
         checkSOAP12();
         if (isAsync()) {
             throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +

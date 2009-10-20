@@ -274,10 +274,14 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("Register transaction endpoint", epr);
         log_message.addOtherParam("Register transaction", register_transaction);
         Soap soap = new Soap();
+        boolean isAsyncTxn = Repository.isRegisterTransactionAsync();
+        String action = getAction(isAsyncTxn);
+        String expectedReturnAction = getExpectedReturnAction(isAsyncTxn);
+        soap.setAsync(isAsyncTxn);
         try {
             OMElement result;
             try {
-                soap.soapCall(register_transaction, epr, false, true, true, "urn:ihe:iti:2007:RegisterDocumentSet-b", "urn:ihe:iti:2007:RegisterDocumentSet-bResponse");
+                soap.soapCall(register_transaction, epr, false, true, true, action, expectedReturnAction);
                 //AUDIT:POINT
                 //call to audit message for document repository
                 //for Transaction id = ITI-42. (Register Document set-b)
@@ -521,5 +525,27 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         for (OMElement eo : m.getExtrinsicObjects()) {
             m.setSlot(eo, "repositoryUniqueId", Repository.getRepositoryUniqueId());
         }
+    }
+
+    // AMS - TODO - REFACTOR - Externalize or create a static map
+    private String getAction(boolean isAsyncTxn)
+    {
+        String action = "";
+        if (isAsyncTxn)
+            action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsync";
+        else
+            action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+        return action;
+    }
+
+    // AMS - TODO - REFACTOR - Externalize or create a static map
+    private String getExpectedReturnAction(boolean isAsyncTxn)
+    {
+        String action = "";
+         if (isAsyncTxn)
+            action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsyncResponse";
+        else
+            action = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
+        return action;
     }
 }

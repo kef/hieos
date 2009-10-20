@@ -175,7 +175,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         return "R.b";
     }
 
-    private void validateWS() throws XdsWSException {
+    protected void validateWS() throws XdsWSException {
         checkSOAP12();
         if (isAsync()) {
             throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
@@ -225,7 +225,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
      * @param ahqr
      * @return
      */
-    private String getRTransactionName(OMElement ahqr) {
+    protected String getRTransactionName(OMElement ahqr) {
         OMElement ahq = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
         if (ahq != null) {
             return "SQ.b";
