@@ -13,7 +13,6 @@
 
 package com.vangent.hieos.xutil.soap;
 
-import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -71,7 +70,12 @@ public class Soap {
             }
             // Get the configured timeout value.
             XConfig xconfig = XConfig.getInstance();
-            long timeOut = xconfig.getHomeCommunityPropertyAsLong("SOAPtimeOutInMilliseconds");
+            long timeOut;
+            if (async) {
+                timeOut = xconfig.getHomeCommunityPropertyAsLong("SOAPAsyncTimeOutInMilliseconds");
+            } else {
+                timeOut = xconfig.getHomeCommunityPropertyAsLong("SOAPtimeOutInMilliseconds");
+            }
             // Set the timeout value.
             options.setTimeOutInMilliSeconds(timeOut);
             options.setProperty(Constants.Configuration.ENABLE_MTOM,

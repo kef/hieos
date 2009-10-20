@@ -18,6 +18,7 @@
 package com.vangent.hieos.xutil.xconfig;
 
 //import java.lang.StringBuffer;
+import java.util.ArrayList;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 
@@ -27,8 +28,9 @@ import org.apache.axiom.om.OMElement;
  */
 public class XConfigTransaction {
 
-    private String endpointURL = "";
-    private boolean secureEndpoint;
+    private XConfigTransactionEndpoint transactionEndpoint;
+    private boolean secureTransaction;
+    private boolean asyncTransaction;
     private String name = "";
 
     /**
@@ -41,14 +43,31 @@ public class XConfigTransaction {
     }
 
     /**
-     * Get the value of secureEndpoint
+     * Get the value of secureTransaction
      *
-     * @return the value of secureEndpoint
+     * @return the value of secureTransaction
      */
-    public boolean isSecureEndpoint() {
-        return secureEndpoint;
+    public boolean isSecureTransaction() {
+        return secureTransaction;
     }
-    ;
+
+    /**
+     * Get the value of asyncTransaction
+     *
+     * @return the value of asyncTransaction
+     */
+    public boolean isAsyncTransaction() {
+        return asyncTransaction;
+    }
+
+    /**
+     * Get the Endpoint object
+     *
+     * @return the value of XConfigTransactionEndpoint
+     */
+    public XConfigTransactionEndpoint getEndpoint() {
+        return this.transactionEndpoint;
+    }
 
     /**
      * Get the value of endPointURL
@@ -56,30 +75,56 @@ public class XConfigTransaction {
      * @return the value of endPointURL
      */
     public String getEndpointURL() {
-        return endpointURL;
+        return ((this.transactionEndpoint != null) ? this.transactionEndpoint.getEndpointURL() : "");
     }
 
     /**
+     * This method, populates the XConfigTransaction class by evaluating the input OMElement.
      *
-     * @param rootNode
+     * @param rootNode, an OMElement, representing the transaction.
      */
     protected void parse(OMElement rootNode) {
         this.name = rootNode.getAttributeValue(new QName("name"));
-        this.endpointURL = rootNode.getText();
-        // A bit of a hack, but determine secure endpoints if https.
-        this.secureEndpoint = this.endpointURL.startsWith("https");
+        this.secureTransaction =
+                ("true".equalsIgnoreCase(rootNode.getAttributeValue(new QName("secure")))) ? true : false;
+        this.asyncTransaction =
+                ("true".equalsIgnoreCase(rootNode.getAttributeValue(new QName("async")))) ? true : false;
+
+        parseEndpoints(rootNode);
     }
 
     /**
      * 
-     * @return
+     * @return a String representing the state of the XConfigTransaction object.
      */
+    @Override
     public String toString() {
         StringBuffer sbuf = new StringBuffer();
         sbuf.append("\n Transaction:");
         sbuf.append("\n   name: " + this.getName());
         sbuf.append("\n   endpointURL: " + this.getEndpointURL());
-        sbuf.append("\n   secureEndpoint: " + (this.isSecureEndpoint() ? "true" : "false"));
+        sbuf.append("\n   secureTransaction: " + (this.isSecureTransaction() ? "true" : "false"));
+        sbuf.append("\n   asyncTransaction: " + (this.isAsyncTransaction() ? "true" : "false"));
         return sbuf.toString();
+    }
+
+    /**
+     * This method is passed in an OMElement with root corresponding to "Transaction".
+     * It determines the transaction's endpoint by evaluating the child of the "Transaction" element.
+     *
+     * @param rootNode, an OMElement, representing the transaction.
+     */
+    private void parseEndpoints(OMElement rootNode) {
+        ArrayList<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Endpoint");
+        for (OMElement currentNode : list) {
+            XConfigTransactionEndpoint txnEP = new XConfigTransactionEndpoint();
+            txnEP.parse(currentNode);
+            if ((this.isSecureTransaction() == txnEP.isSecureEndpoint()) &&
+                (this.isAsyncTransaction() == txnEP.isAsyncEndpoint()))
+            {
+                this.transactionEndpoint = txnEP;
+                break;
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.RelatesTo;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisOperation;
+import org.apache.axis2.description.Parameter;
 import org.apache.axis2.i18n.Messages;
 import org.apache.axis2.receivers.AbstractInOutMessageReceiver;
 import org.apache.log4j.Logger;
@@ -29,6 +30,31 @@ abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOu
     private final static Logger logger = Logger.getLogger(AbstractXDSRawXMLINoutMessageReceiver.class);
 
     abstract public void validate_action(MessageContext msgContext, MessageContext newmsgContext) throws Exception;
+
+    /**
+     * Overrides the behavior in org.apache.axis2.receivers.AbstractMessageReceiver.
+     * It checks if the msgContext has a parameter, "SpawnNewAsyncThread" (available, if configured in the services.xml).
+     * If this evaluates to "true", a property called DO_ASYNC is set to true in the received message
+     * context. This is an indicator to the abstract message receiver that a separate thread
+     * needs to be launched to service the request.
+     *
+     * @param msgContext    the incoming message context
+     * @throws AxisFault on invalid method (wrong signature) or behaviour (return null)
+     */
+    @Override
+    public void receive(final MessageContext msgContext) throws AxisFault {
+        Boolean doAsync = Boolean.FALSE;
+        Parameter spawnNewAsyncThreadParam = msgContext.getParameter("SpawnNewAsyncThread");
+        if (spawnNewAsyncThreadParam != null && "true".equalsIgnoreCase((String)spawnNewAsyncThreadParam.getValue())) {
+            doAsync = Boolean.TRUE;
+        }
+        msgContext.setProperty(DO_ASYNC, doAsync);
+
+        //System.out.println("============> AbstractXDSRawXMLINoutMessageReceiver.receive() - Thread ID[" +
+        //                   Thread.currentThread().getId() +    "], name[" + Thread.currentThread().getName() + "]");
+
+        super.receive(msgContext);
+    }
 
     private Method findOperation(AxisOperation op, Class implClass) {
 
@@ -73,7 +99,9 @@ abstract public class AbstractXDSRawXMLINoutMessageReceiver extends AbstractInOu
     public void invokeBusinessLogic(MessageContext msgContext, MessageContext newmsgContext)
             throws AxisFault {
         try {
-            String in_action = msgContext.getWSAAction();
+
+            //System.out.println("============> AbstractXDSRawXMLINoutMessageReceiver.invokeBusinessLogic() - Thread ID[" +
+            //               Thread.currentThread().getId() +    "], name[" + Thread.currentThread().getName() + "]"); String in_action = msgContext.getWSAAction();
             newmsgContext.setRelationships(new RelatesTo[]{new RelatesTo(msgContext.getMessageID())});
             validate_action(msgContext, newmsgContext);
 

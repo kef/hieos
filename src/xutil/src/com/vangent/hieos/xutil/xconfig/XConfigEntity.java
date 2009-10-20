@@ -32,7 +32,6 @@ abstract public class XConfigEntity {
 
     private String name = "";
     private String uniqueId = "";
-    private boolean useSecureEndpoints = true;
     private ArrayList<XConfigTransaction> transactions = new ArrayList<XConfigTransaction>();
     private XConfigProperties properties = new XConfigProperties();
 
@@ -76,21 +75,8 @@ abstract public class XConfigEntity {
 
             // Did we find a transaction that matches?
             if (current.getName().equals(txnName)) {
-
-                // Are we using secure end points?
-                if (this.useSecureEndpoints) {
-
-                    // Is this the secure endpoint for the transaction?
-                    if (current.isSecureEndpoint()) {
-                        txn = current;  // MATCH
-                    }
-                } else {  // We are not using secure end points.
-
-                    // Is this the non-secure endpoint for the transaction?
-                    if (!current.isSecureEndpoint()) {
-                        txn = current;  // MATCH
-                    }
-                }
+                txn = current;
+                break;
             }
         }
         return txn;
@@ -103,15 +89,6 @@ abstract public class XConfigEntity {
      */
     public String getUniqueId() {
         return uniqueId;
-    }
-
-    /**
-     * Get the value of useSecureEndpoints
-     *
-     * @return the value of useSecureEndpoints
-     */
-    public boolean useSecureEndpoints() {
-        return useSecureEndpoints;
     }
 
     /**
@@ -133,10 +110,6 @@ abstract public class XConfigEntity {
         this.name = rootNode.getAttributeValue(new QName("name"));
         node = rootNode.getFirstChildWithName(new QName("UniqueId"));
         this.uniqueId = node.getText();
-        node = rootNode.getFirstChildWithName(new QName("UseSecureEndpoints"));
-        if (node != null) {
-            this.useSecureEndpoints = (node.getText().equalsIgnoreCase("true")) ? true : false;
-        }
 
         parseTransactions(rootNode);
         properties.parse(rootNode);

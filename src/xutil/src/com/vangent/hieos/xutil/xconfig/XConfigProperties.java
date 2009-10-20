@@ -55,7 +55,7 @@ public class XConfigProperties {
      *
      * @param rootNode
      */
-    protected void parse(OMElement rootNode) {
+    public void parse(OMElement rootNode) {
         ArrayList<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Property");
         for (OMElement currentNode : list) {
             OMAttribute attribute = currentNode.getAttribute(new QName("name"));
