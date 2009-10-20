@@ -62,10 +62,8 @@ public class StoredQueryTransaction extends QueryTransaction {
         //System.out.println("**** runSQ class Name: " + this.getClass().getName());
 		if (this.getClass().getName().endsWith(".StoredQueryTransaction")) {
 			// if invoked from sub-class, don't re-parse and set endpoint
-			if (async)
-				parseEndpoint("sq.as");
-			else
-				parseEndpoint("sq");		
+                    // Endpoint for default registry
+                    parseRegistryEndpoint(TestConfig.defaultRegistry, "RegistryStoredQuery");
 		}
 
 		if (metadata_filename == null && metadata == null)

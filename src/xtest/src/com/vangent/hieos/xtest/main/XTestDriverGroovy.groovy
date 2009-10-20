@@ -15,6 +15,7 @@ package com.vangent.hieos.xtest.main
 
 import org.apache.log4j.Logger;
 import com.vangent.hieos.xtest.framework.TestConfig;
+import com.vangent.hieos.xtest.config.XTestConfig;
 
 public class XTestDriverGroovy {
     def version = 'xx.yy'
@@ -217,76 +218,25 @@ public class XTestDriverGroovy {
         //
         // parse sites
         //
-        def sites = new XmlSlurper().parse(mgmt + File.separatorChar + 'actors.xml')
-        bassert(sites.site.size()>0,"Could not load actor configuration from ${mgmt + File.separatorChar + 'actors.xml'}")
-		
+        TestConfig.xtestConfig = XTestConfig.getInstance();
         if (!siteName) {
-            // no site is offered on command line, maybe default is declared in actors.xml
-            siteName = sites.defaultsite.text()
+            // get default from xtestconfig.xml
+            siteName = TestConfig.xtestConfig.getDefaultSite();
         }
-        bassert(siteName, "No site specified on command line and no default present in actors.xml")
-	
+        bassert(siteName, "No site specified on command line and no default present in xtestconfig.xml")
+        TestConfig.pid_allocate_endpoint = TestConfig.xtestConfig.getPIDAllocateEndpoint(siteName);
+        TestConfig.defaultRegistry = TestConfig.xtestConfig.getDefaultRegistry(siteName);
+        TestConfig.defaultRepository = TestConfig.xtestConfig.getDefaultRepository(siteName);
+        TestConfig.defaultInitiatingGateway = TestConfig.xtestConfig.getDefaultInitiatingGateway(siteName);
         TestConfig.target = siteName
-        TestConfig.siteXPath = "site[@name='${siteName}']"   // preceeding double slash is supplied later
-		
-        def siteConfig = sites.site.grep{it.@name == siteName}[0]
-		
-        bassert(siteConfig, "Could not load site configuration from ${mgmt + File.separatorChar + 'actors.xml'} for site ${siteName}")
-	
-        HashMap endpoints = new HashMap();
-        HashMap secureEndpoints = new HashMap();
-        HashMap repositories = new HashMap();
-        HashMap secureRepositories = new HashMap();
-        HashMap xRepositories = new HashMap();
-        HashMap xSecRepositories = new HashMap();
-	
+        
+        TestConfig.secure = secure;
         if (verbose) {
             if (secure) {
                 println "Secure transaction"
             } else {
                 println "Unsecure transaction"
             }
-        }
-        siteConfig.transaction.each {
-            def isSecure = it.@secure
-            def name = it.@name
-            if (name == 'xcr') {
-                if (isSecure == "1") {
-                    xSecRepositories.put((it.@home).toString(), it.toString())
-                } else {
-                    xRepositories.put((it.@home).toString(), it.toString())
-                }
-            } else {
-                if (isSecure == "1") {
-                    secureEndpoints.put((it.@name).toString(), it.toString())
-                }
-                else {
-                    endpoints.put((it.@name).toString(), it.toString())
-                }
-            }
-        }
-	
-        siteConfig.repository.each {
-            def isSecure = it.@secure
-            if (isSecure == "1")  { // BHT FIX: fixed to use @uid for HashMap as key.
-                secureRepositories.put((it.@uid).toString(), it.toString())
-            } else {
-                repositories.put((it.@uid).toString(), it.toString())
-            }
-        }
-	
-        if (verboseverbose) {
-            println "site config is ${endpoints}\nsecure site config is ${secureEndpoints}"
-        }
-        TestConfig.endpoints = endpoints;
-        TestConfig.secure_endpoints = secureEndpoints;
-        TestConfig.repositories = repositories;
-        TestConfig.secureRepositories = secureRepositories;
-        TestConfig.xRepositories = xRepositories;
-        TestConfig.xSecRepositories = xSecRepositories;
-        TestConfig.secure = secure;
-        if (siteConfig.PidAllocateEndpoint) {
-            TestConfig.pid_allocate_endpoint = siteConfig.PidAllocateEndpoint
         }
 
         //

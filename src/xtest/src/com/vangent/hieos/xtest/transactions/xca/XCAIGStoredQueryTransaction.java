@@ -14,6 +14,7 @@
 package com.vangent.hieos.xtest.transactions.xca;
 
 import com.vangent.hieos.xtest.framework.StepContext;
+import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xtest.transactions.xds.StoredQueryTransaction;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -35,8 +36,9 @@ public class XCAIGStoredQueryTransaction extends StoredQueryTransaction {
 	public void run() throws XdsException {
 		expectedHomeCommunityId = s_ctx.get("HomeCommunityId");
 		parseParameters(s_ctx, instruction, instruction_output);
+                // Endpoint of default initiating gateway
+                parseInitiatingGatewayEndpoint(TestConfig.defaultInitiatingGateway, "RegistryStoredQuery");
 
-		parseEndpoint("sq.ig");
 
 		parseMetadata();
 
@@ -53,7 +55,7 @@ public class XCAIGStoredQueryTransaction extends StoredQueryTransaction {
 			throw new XdsInternalException("Result to XCA Query is null");
 		Metadata result_metadata = MetadataParser.parseNonSubmission(result_ele);
 
-        System.out.println("homeCommunityID = " + expectedHomeCommunityId);
+                System.out.println("homeCommunityID = " + expectedHomeCommunityId);
 		if (expectedHomeCommunityId != null) {
 			if ( !expectedHomeCommunityId.startsWith("urn:oid:")) {
 				s_ctx.set_error("Expected homeCommunityId value is [" + expectedHomeCommunityId + "]. It is required to have a [urn:oid:] prefix.");

@@ -50,11 +50,9 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
             parse_instruction2(part);
         }
 
-        if (async) {
-            parseEndpoint("pr.as");
-        } else {
-            parseEndpoint("pr");
-        }
+        // PnR always go to default repository
+        String repositoryUniqueId = TestConfig.defaultRepository;
+        parseRepEndpoint(repositoryUniqueId, "ProvideAndRegisterDocumentSet-b");
 
         validate_xds_version();
 

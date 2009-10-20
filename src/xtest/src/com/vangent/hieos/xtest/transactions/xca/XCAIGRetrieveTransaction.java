@@ -69,9 +69,10 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
                 "\nuse_xpath = " + use_xpath +
                 "\nlinkage = " + linkage.toString() +
                 "\nendpoint = " + endpoint +
-                "\nactor config = " + TestConfig.endpoints +
-                "\nrepos config = " + TestConfig.repositories +
+                // "\nactor config = " + TestConfig.endpoints +
+               // "\nrepos config = " + TestConfig.repositories +
                 "\n****************";
+        // AMS - FIX THIS - Write out state of XTestConfig ??
     }
 
     String metadataStructure(Metadata m) {
@@ -134,8 +135,8 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
         } catch (JaxenException e) {
             fatal("XCA IG Retrieve: " + ExceptionUtil.exception_details(e));
         }
-
-        parseEndpoint("r.ig");
+        
+        parseInitiatingGatewayEndpoint(expectedHomeCommunityId, "RetrieveDocumentSet");
 
         s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
 

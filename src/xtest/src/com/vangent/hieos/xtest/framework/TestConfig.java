@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.xtest.framework;
 
+import com.vangent.hieos.xtest.config.XTestConfig;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,22 +33,15 @@ public class TestConfig {
 	// REST service to call to allocate a patient id for testing 
 	// Configured in actors.xml
 	static public String pid_allocate_endpoint = null;
+        static public String defaultRegistry = null;
+        static public String defaultRepository = null;
+        static public String defaultInitiatingGateway = null;
 	
 	// Endpoint Selection support
-	static public HashMap endpoints = null;
-	static public HashMap secure_endpoints = null;
-	static public String target = null;   // target machine - site name in actors.xml
-	
-	static public HashMap repositories = null;
-	static public HashMap secureRepositories = null;
-	
-	// XCR home => endpoint
-	static public HashMap xRepositories = null;
-	static public HashMap xSecRepositories = null;
-	
-	// pointer into actors.xml
-	
-	// XPath (with no trailing /) to element defining selected site
+        static public String target = null;   // target machine - site name in xtestconfig.xml
+
+        static public XTestConfig xtestConfig = null;
+
 	static public String siteXPath = null;
 	
 	static public String currentStep = null;

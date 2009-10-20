@@ -70,9 +70,10 @@ public class RetrieveTransaction extends BasicTransaction {
                 "\nlinkage = " + linkage.toString() +
                 "\nendpoint = " + endpoint +
                 "\nis_xca = " + is_xca +
-                "\nactor config = " + TestConfig.endpoints +
-                "\nrepos config = " + TestConfig.repositories +
+ //               "\nactor config = " + TestConfig.endpoints +
+//                "\nrepos config = " + TestConfig.repositories +
                 "\n****************";
+        //AMS TODO enable logging of the entire XTestConfig object
     }
 
     String metadataStructure(Metadata m) {
@@ -131,7 +132,7 @@ public class RetrieveTransaction extends BasicTransaction {
             compileUseRepositoryUniqueId(m, use_repository_unique_id);
         }
 
-        if (is_xca) {
+        if (is_xca) { 
             String homeXPath = "//*[local-name()='RetrieveDocumentSetRequest']/*[local-name()='DocumentRequest'][1]/*[local-name()='HomeCommunityId']";
             String home = null;
             try {
@@ -141,7 +142,7 @@ public class RetrieveTransaction extends BasicTransaction {
                 fatal("XGR: " + ExceptionUtil.exception_details(e));
             }
 
-            parseGatewayEndpoint(home, TestConfig.secure);  // BHT (FIX) -- removed 'false' hardwire
+            parseRespondingGatewayEndpoint(home, "CrossGatewayRetrieve");  // BHT (FIX) -- removed 'false' hardwire
 
             s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
 
@@ -160,15 +161,15 @@ public class RetrieveTransaction extends BasicTransaction {
                 }
 
             }
-
-            s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
-
-            s_ctx.add_name_value(instruction_output, "Linkage", this.linkage.toString());
-
+            
             // assign endpoint
             //System.out.println("** repositoryUniqueid = " + repositoryUniqueId);
             // BHT FIX - Passed TestConfig.secure vs. false.
-            parseRepEndpoint(repositoryUniqueId, TestConfig.secure);
+            parseRepEndpoint(repositoryUniqueId, "RetrieveDocumentSet");
+            
+            s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
+
+            s_ctx.add_name_value(instruction_output, "Linkage", this.linkage.toString());
 
             //System.out.println(this);
             }

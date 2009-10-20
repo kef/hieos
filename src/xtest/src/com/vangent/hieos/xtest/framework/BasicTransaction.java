@@ -378,104 +378,49 @@ public abstract class BasicTransaction extends OmLogger {
 
     }
 
-    protected void parseEndpoint(String trans) throws XdsInternalException {
+    protected void parseRegistryEndpoint(String registryName, String trans) throws XdsInternalException {
         endpoint = this.s_ctx.getRegistryEndpoint();   // this is busted, always returns null
         if (endpoint == null || endpoint.equals("")) {
-            //endpoint = this.s_ctx.getRegistryEndpoint(trans, xds_version);
-            if (TestConfig.endpoints != null) {
+            xds_version = xds_b;
 
-                if (trans.endsWith(".as")) {
-                    xds_version = xds_b;
-                    if (TestConfig.secure) {
-                        endpoint = (String) TestConfig.secure_endpoints.get(trans);
-                    } else {
-                        endpoint = (String) TestConfig.endpoints.get(trans);
-                    }
+            endpoint = TestConfig.xtestConfig.getRegistryEndpoint(TestConfig.target, registryName, trans, TestConfig.secure, async);
 
-                } else if (xds_version == xds_b) {
-                    if (TestConfig.secure) {
-                        endpoint = (String) TestConfig.secure_endpoints.get(trans + ".b");
-                        if (endpoint == null) {
-                            endpoint = (String) TestConfig.secure_endpoints.get(trans);
-                        }
-                    } else {
-                        endpoint = (String) TestConfig.endpoints.get(trans + ".b");
-                        if (endpoint == null) {
-                            endpoint = (String) TestConfig.endpoints.get(trans);
-                        }
-                    }
-                } else {
-                    if (TestConfig.secure) {
-                        endpoint = (String) TestConfig.secure_endpoints.get(trans + ".a");
-                        if (endpoint == null) {
-                            endpoint = (String) TestConfig.secure_endpoints.get(trans);
-                        }
-                    } else {
-                        endpoint = (String) TestConfig.endpoints.get(trans + ".a");
-                        if (endpoint == null) {
-                            endpoint = (String) TestConfig.endpoints.get(trans);
-                        }
-                    }
-                }
-            }
             if (endpoint == null || endpoint.equals("")) {
                 fatal("No endpoint specified for transaction " + trans + " and XDS version " + xds_version_name() +
                         " and secure = " + TestConfig.secure +
-                        " on server " + TestConfig.target + "\nactor config is " + TestConfig.endpoints.toString());
+                        "\nasync = " + async +
+                        " on server " + TestConfig.target);
             }
             s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
             logger.info("Set Registry Endpoint = " + endpoint);
         }
     }
 
-    protected void parseRepEndpoint(String repositoryUniqueId, boolean isSecure) throws XdsInternalException {
-        endpoint = null;
-        if (isSecure) {
-            if (TestConfig.secureRepositories == null) {
-                fatal("BasicTransaction: parseRetEndpoint(): secureRepositories not configured");
-            }
-            endpoint = (String) TestConfig.secureRepositories.get(
-                    repositoryUniqueId + ((async) ? ".as" : ""));
-        } else {
-            if (TestConfig.repositories == null) {
-                fatal("BasicTransaction: parseRetEndpoint(): repositories not configured");
-            }
-            endpoint = (String) TestConfig.repositories.get(
-                    repositoryUniqueId + ((async) ? ".as" : ""));
-        }
+    protected void parseRepEndpoint(String repositoryUniqueId, String trans) throws XdsInternalException {
 
+        endpoint = TestConfig.xtestConfig.getRepositoryEndpoint(TestConfig.target, repositoryUniqueId, trans, TestConfig.secure, async);
 
         s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
         if (endpoint == null) {
             fatal("Cannot get repository endpoint from configuration:" +
                     "\nrepositoryUniqueId=" + repositoryUniqueId +
-                    "\nisSecure = " + isSecure +
+                    "\nisSecure = " + TestConfig.secure +
                     "\nasync = " + async);
         }
     }
 
-    protected void parseGatewayEndpoint(String home, boolean isSecure) throws XdsInternalException {
-        String xHome = home;
-        if (async) {
-            xHome = xHome + ".as";
-        }
-        if (isSecure) {
-            endpoint = (String) TestConfig.xSecRepositories.get(xHome);
-            if (endpoint == null) {
-                fatal("BasicTransaction:parseGatewayEndpoint(): no endpoint for home " + home +
-                        " async is " + async +
-                        ", XCR config is " + TestConfig.xSecRepositories.toString());
-            }
-        } else {
-            endpoint = (String) TestConfig.xRepositories.get(xHome);
-            if (endpoint == null) {
-                fatal("BasicTransaction:parseGatewayEndpoint(): no endpoint for home " + home +
-                        " async is " + async +
-                        ", XCR config is " + TestConfig.xRepositories.toString());
-            }
-        }
+    protected void parseInitiatingGatewayEndpoint(String home, String trans) throws XdsInternalException {
+
+        endpoint = TestConfig.xtestConfig.getInitiatingGatewayEndpoint(TestConfig.target, home, trans, TestConfig.secure, async);
         s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
     }
+
+    protected void parseRespondingGatewayEndpoint(String home, String trans) throws XdsInternalException {
+
+        endpoint = TestConfig.xtestConfig.getRespondingGatewayEndpoint(TestConfig.target, home, trans, TestConfig.secure, async);
+        s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
+    }
+   
 
     public void fail(String msg) {
         s_ctx.set_error(msg);

@@ -15,6 +15,7 @@ package com.vangent.hieos.xtest.transactions.xds;
 
 import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.StepContext;
+import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -40,10 +41,8 @@ public class RegisterTransaction extends BasicTransaction {
 			parse_instruction(part);
 		}
 
-		if (async)
-			parseEndpoint("r.as");
-		else
-			parseEndpoint("r");
+                // Endpoint for default registry
+                parseRegistryEndpoint(TestConfig.defaultRegistry, "RegisterDocumentSet-b");
 
 		validate_xds_version();
 

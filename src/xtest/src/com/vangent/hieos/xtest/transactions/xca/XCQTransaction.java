@@ -14,6 +14,7 @@
 package com.vangent.hieos.xtest.transactions.xca;
 
 import com.vangent.hieos.xtest.framework.StepContext;
+import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xtest.transactions.xds.StoredQueryTransaction;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -36,10 +37,12 @@ public class XCQTransaction extends StoredQueryTransaction {
 		expectedHomeCommunityId = s_ctx.get("HomeCommunityId");
 		parseParameters(s_ctx, instruction, instruction_output);
 
-		if (async)
-			parseEndpoint("xcq.as");
-		else
-			parseEndpoint("xcq");		
+
+                String tempHomeCommunityId = expectedHomeCommunityId;
+                if (tempHomeCommunityId == null || tempHomeCommunityId.trim().length() == 0) {
+                    tempHomeCommunityId = TestConfig.defaultInitiatingGateway;
+                }
+                parseRespondingGatewayEndpoint(tempHomeCommunityId, "CrossGatewayQuery");
 
 		parseMetadata();
 
