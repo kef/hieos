@@ -79,8 +79,10 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
             rootRequest.addChild(request.getRequest());
         }
 
-        // Now send them out.
-        OMElement result = this.sendTransaction(rootRequest, this.getEndpointURL(), this.isLocalRequest());
+        // Get Transaction configuration
+        XConfigTransaction xconfigTxn = getXConfigTransaction();
+        // Now send the requests out.
+        OMElement result = this.sendTransaction(rootRequest, xconfigTxn);
         if (result != null) { // to be safe.
             logMessage.addOtherParam("Result (" + this.getEndpointURL() + ")", result);
 
@@ -133,28 +135,19 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
     private OMElement sendTransaction(
-            OMElement request, String endpoint, boolean isLocalRequest)
+            OMElement request, XConfigTransaction xconfigTxn)
             throws XdsWSException, XdsException {
-        String action, expectedReturnAction;
-        String ATNAtxn = "";
 
-        if (isLocalRequest) {
-            // For XDS Affinity Domain option.
-            action = "urn:ihe:iti:2007:RetrieveDocumentSet";
-            expectedReturnAction =
-                    "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
-            ATNAtxn = XATNALogger.TXN_ITI43;
-        } else {
-            action = "urn:ihe:iti:2007:CrossGatewayRetrieve";
-            expectedReturnAction =
-                    "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
-            ATNAtxn = XATNALogger.TXN_ITI39;
-        }
+        String endpoint = xconfigTxn.getEndpointURL();
+        boolean isAsyncTxn = xconfigTxn.isAsyncTransaction();
+        String action = getAction(isAsyncTxn);
+        String expectedReturnAction = getExpectedReturnAction(isAsyncTxn);
 
-        logger.info("*** XCA action: " + action + ", endpoint: " + endpoint + " ***");
+        logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction +
+                    ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
-        soap.setAsync(false);
+        soap.setAsync(isAsyncTxn);
         soap.soapCall(request, endpoint,
                 true, // mtom
                 true, // addressing
@@ -164,17 +157,85 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
         OMElement result = soap.getResult();  // Get the result.
 
         // Do ATNA auditing (after getting the result since we are only logging positive cases).
-        this.performAudit(ATNAtxn, request, endpoint, XATNALogger.OutcomeIndicator.SUCCESS);
+        this.performAudit(getATNATransaction(), request, endpoint, XATNALogger.OutcomeIndicator.SUCCESS);
         return result;
     }
 
     /**
-     *
-     * @return
+     * This returns the endpoint URL for the local repository or a responding gateway depending upon
+     * whether the request is local or not.
+     * @return a String value representing the URL.
      */
     public String getEndpointURL() {
+       
+        return getXConfigTransaction().getEndpointURL();
+    }
+
+    /**
+     * This method returns the action based on two criteria - whether the request is local
+     * and whether the request is async.
+     * @return a String value representing the action.
+     */
+    public String getAction(boolean isAsyncTxn)
+    {
+        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+        String action = "";
+        if (this.isLocalRequest()) {
+            // For XDS Affinity Domain option.
+            if (isAsyncTxn)
+                action = "urn:ihe:iti:2007:RetrieveDocumentSetAsync";
+            else
+                action = "urn:ihe:iti:2007:RetrieveDocumentSet";
+        } else {
+             if (isAsyncTxn)
+                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveAsync";
+             else
+                 action = "urn:ihe:iti:2007:CrossGatewayRetrieve";
+        }
+        return action;
+    }
+
+    /**
+     * This method returns the expected return action based on two criteria - whether the request is local
+     * and whether the request is async.
+     * @return a String value representing the expected return action.
+     */
+    public String getExpectedReturnAction(boolean isAsyncTxn)
+    {
+        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+        String action = "";
+        if (this.isLocalRequest()) {
+            // For XDS Affinity Domain option.
+            if (isAsyncTxn)
+                action = "urn:ihe:iti:2007:RetrieveDocumentSetAsyncResponse";
+            else
+                action = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
+        } else {
+             if (isAsyncTxn)
+                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveAsyncResponse";
+             else
+                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
+        }
+        return action;
+    }
+
+    /**
+     * This method returns a transaction configuration definition for either RetrieveDocumentSet or
+     * CrossGatewayRetrieve, depending on whether the request is local or not.
+     * @return XConfigTransaction.
+     */
+    private XConfigTransaction getXConfigTransaction()
+    {
         String txnName = this.isLocalRequest() ? "RetrieveDocumentSet" : "CrossGatewayRetrieve";
         XConfigTransaction txn = this.getConfigEntity().getTransaction(txnName);
-        return txn.getEndpointURL();
+        return txn;
+    }
+
+    /**
+     * This method returns an appropriate ATNA transaction type depending on whether the request is local or not.
+     * @return a String representing an ATNA transaction Type
+     */
+    public String getATNATransaction() {
+        return this.isLocalRequest() ? XATNALogger.TXN_ITI43 : XATNALogger.TXN_ITI39;
     }
 }

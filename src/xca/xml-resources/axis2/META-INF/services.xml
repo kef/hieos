@@ -32,4 +32,40 @@
         </operation>
     </service>
 
+    <!-- Async XCA Initiating Gateway Actor -->
+    <service name="xcaigas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync" scope="application">
+        <description>Async XCA Initiating Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
+        <parameter name="ActorName">InitiatingGateway</parameter>
+        <!-- enables server side asynchronous behavior -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <operation name="AdhocQueryRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:RegistryStoredQueryAsync</actionMapping>
+        </operation>
+        <operation name="RetrieveDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSetAsync</actionMapping>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+    </service>
+
+    <!-- Async XCA Responding Gateway Actor -->
+    <service name="xcargas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync" scope="application">
+        <description>Async XCA Responding Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
+        <parameter name="ActorName">RespondingGateway</parameter>
+        <!-- enables server side asynchronous behavior -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <operation name="AdhocQueryRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:CrossGatewayQueryAsync</actionMapping>
+        </operation>
+        <operation name="RetrieveDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:CrossGatewayRetrieveAsync</actionMapping>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+    </service>
+
 </serviceGroup>
