@@ -139,7 +139,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
      *
      * @return
      */
-    private String getRetTransactionName() {
+    protected String getRetTransactionName() {
         XCAAbstractTransaction.GatewayType gatewayType = this.getGatewayType();
         String transactionName = "RET.b (XCA)";
         if (gatewayType == XCAAbstractTransaction.GatewayType.RespondingGateway) {
@@ -153,7 +153,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
      * @param ahqr
      * @return
      */
-    private String getRTransactionName(OMElement ahqr) {
+    protected String getRTransactionName(OMElement ahqr) {
         OMElement ahq = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
         if (ahq != null) {
             return "SQ.b";
