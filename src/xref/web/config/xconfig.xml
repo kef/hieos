@@ -44,6 +44,7 @@
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">45000</Property> <!-- 45 seconds -->
+        <Property name="SOAPAsyncTimeOutInMilliseconds">120000</Property> <!-- 120 seconds -->
 
         <!-- Log file parameters -->
         <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
@@ -91,11 +92,21 @@
    <!-- List of Registries -->
     <Registry name="localregistry">
         <UniqueId>NA</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
-        <Transaction name="RegisterDocumentSet-b">http://localhost:8080/axis2/services/xdsregistryb</Transaction>
-        <Transaction name="RegisterDocumentSet-b">https://localhost:8181/axis2/services/xdsregistryb</Transaction>
-        <Transaction name="RegistryStoredQuery">http://localhost:8080/axis2/services/xdsregistryb</Transaction>
-        <Transaction name="RegistryStoredQuery">https://localhost:8181/axis2/services/xdsregistryb</Transaction>
+        
+        <Transaction name="RegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xdsregistrybas</Endpoint>
+        </Transaction>
+
+        <Transaction name="RegistryStoredQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xdsregistrybas</Endpoint>
+        </Transaction>
+        
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
         <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.2009.1.3.4.600</Property>
         <Property name="ReceiverDeviceName">GATEWAY_SUNVAN_XDSbRegistry</Property>
@@ -236,12 +247,20 @@
    <!-- List of Repositories -->
     <Repository name="localrepository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1010</UniqueId>
-      <!-- Can turn off using secure endpoints here. Default is to use secure endpoints. -->
-        <UseSecureEndpoints>true</UseSecureEndpoints>
-        <Transaction name="RetrieveDocumentSet">http://localhost:8080/axis2/services/xdsrepositoryb</Transaction>
-        <Transaction name="RetrieveDocumentSet">https://localhost:8181/axis2/services/xdsrepositoryb</Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b">http://localhost:8080/axis2/services/xdsrepositoryb</Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b">https://localhost:8181/axis2/services/xdsrepositoryb</Transaction>
+
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xdsrepositorybas</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xdsrepositorybas</Endpoint>
+        </Transaction>
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
         <!--<Registry>XDSb_REG_MICROSOFT_registry</Registry>-->
@@ -253,20 +272,48 @@
 
     <Repository name="nistrepository">
         <UniqueId>1.19.6.24.109.42.1.5</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
-        <Transaction name="RetrieveDocumentSet">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Transaction>
+
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsrepositorybas</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsrepositorybas</Endpoint>
+        </Transaction>
+
+       <!-- AMS - TODO - DELETE<Transaction name="RetrieveDocumentSet">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Transaction>
         <Transaction name="RetrieveDocumentSet">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Transaction>
+        -->
     </Repository>
 
     <Repository name="ADT_DEJAR_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1000</UniqueId>
+
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://dejar1:8081/</Endpoint>
+            <Endpoint secure="true"  async="false">https://dejar1:8080/</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://dejar1:8081</Endpoint>
+            <Endpoint secure="true"  async="false">https://dejar1:8080/</Endpoint>
+       </Transaction>
+        <!-- AMS - TO DO - where is the extra path infor for the resource -->
+        <!-- AMS - TODO - DELETE
         <UseSecureEndpoints>true</UseSecureEndpoints>
         <Transaction name="RetrieveDocumentSet">http://dejar1:8081/</Transaction>
         <Transaction name="RetrieveDocumentSet">https://dejar1:8080/</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://dejar1:8081/</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://dejar1:8080/</Transaction>
+        -->
     </Repository>
 
 <!--
@@ -282,125 +329,253 @@
 
     <Repository name="OTHER_GE_HIE_SERVICES_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1015</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://gehealthcare16:80/</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+         <!-- AMS - TO DO - where is the extra path infor for the resource -->
+         <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://gehealthcare16:80/</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
 
     <Repository name="PACS_AGFA_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1020</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://97.66.135.203:8080/dcm4chee-xdsb-repository</Endpoint>
+            <Endpoint secure="true"  async="false">https://97.66.135.203:8443/dcm4chee-xdsb-repository</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://97.66.135.203:8080/dcm4chee-xdsb-repository</Endpoint>
+            <Endpoint secure="true"  async="false">https://97.66.135.203:8443/dcm4chee-xdsb-repository</Endpoint>
+        </Transaction>
+        <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://97.66.135.203:8080/dcm4chee-xdsb-repository</Transaction>
         <Transaction name="RetrieveDocumentSet">https://97.66.135.203:8443/dcm4chee-xdsb-repository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://97.66.135.203:8080/dcm4chee-xdsb-repository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://97.66.135.203:8443/dcm4chee-xdsb-repository</Transaction>
+        -->
     </Repository>
-    
+        
     <Repository name="PACS_CSH_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1025</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+         <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
     
+
     <Repository name="XDSab_REG_IBM_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1030</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://xds-ibm.lgs.com:9080/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
+            <Endpoint secure="true"  async="false">https://xds-ibm.lgs.com:9443/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://xds-ibm.lgs.com:9080/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
+            <Endpoint secure="true"  async="false">https://xds-ibm.lgs.com:9443/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
+        </Transaction>
+         <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://xds-ibm.lgs.com:9080/IBMXDSRepository/XDSb/SOAP12/Repository</Transaction>
         <Transaction name="RetrieveDocumentSet">https://xds-ibm.lgs.com:9443/IBMXDSRepository/XDSb/SOAP12/Repository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://xds-ibm.lgs.com:9080/IBMXDSRepository/XDSb/SOAP12/Repository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://xds-ibm.lgs.com:9443/IBMXDSRepository/XDSb/SOAP12/Repository</Transaction>
+        -->
     </Repository>
-    
+
     <Repository name="XDSab_REP_HDS_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1035</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+         <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
-    
+
     <Repository name="XDSb_REP_AXOLOTL_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1040</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://axolotl1:80/docrepository/submit</Endpoint>
+            <Endpoint secure="true"  async="false">https://axolotl1:443/docrepository/submit</Endpoint>
+       </Transaction>
+         <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://axolotl1:80/docrepository/submit</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://axolotl1:443/docrepository/submit</Transaction>
+        -->
     </Repository>
-    
+     
     <Repository name="XDSb_REP_ERC_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1045</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://erc1:80//HealthUnityDocRepositoryService/XDSRepositorySoap.asmx</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+       <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://erc1:80//HealthUnityDocRepositoryService/XDSRepositorySoap.asmx</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
     
     <Repository name="XDSb_REP_MICROSOFT_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1050</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://microsoft2:1125/XDSService/XDSRepository</Endpoint>
+            <Endpoint secure="true"  async="false">https://microsoft2:9081/XDSService/XDSRepository</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://microsoft2:1125/XDSService/XDSRepository</Endpoint>
+            <Endpoint secure="true"  async="false">https://microsoft2:9081/XDSService/XDSRepository</Endpoint>
+       </Transaction>
+       <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://microsoft2:1125/XDSService/XDSRepository</Transaction>
         <Transaction name="RetrieveDocumentSet">https://microsoft2:9081/XDSService/XDSRepository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://microsoft2:1125/XDSService/XDSRepository</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://microsoft2:9081/XDSService/XDSRepository</Transaction>
+        -->
     </Repository>
-    
+
     <Repository name="XDS_REP_HSI_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1055</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+          <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://hsi1:8091/</Endpoint>
+            <Endpoint secure="true"  async="false">https://hsi1:443/Xdsservice/XdsRepository.svc</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://hsi1:8083/</Endpoint>
+            <Endpoint secure="true"  async="false">https://hsi1:8082/</Endpoint>
+       </Transaction>
+       <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://hsi1:8091/</Transaction>
         <Transaction name="RetrieveDocumentSet">https://hsi1:443/Xdsservice/XdsRepository.svc</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://hsi1:8083/</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://hsi1:8082/</Transaction>
+        -->
     </Repository>
     
     <Repository name="ADT_GE_CENTRICITY_BUSINESS_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1060</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+       <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
     
     <Repository name="CIS_LUMEDX_repository">
         <UniqueId>1.3.6.1.4.1.21367.2009.1.2.1065</UniqueId>
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+        </Transaction>
+
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+       </Transaction>
+       <!-- AMS - TODO - DELETE
         <Transaction name="RetrieveDocumentSet">http://XXXX</Transaction>
         <Transaction name="RetrieveDocumentSet">https://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">http://XXXX</Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b">https://XXXX</Transaction>
+        -->
     </Repository>
-
+    
    <!-- List of Gateways -->   
 
     <Gateway name="localig"> <!-- Local Initiating Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.2009.1.2.2020</UniqueId> <!-- Home Community ID -->
-        <UseSecureEndpoints>true</UseSecureEndpoints>
-        <Transaction name="RegistryStoredQuery">http://localhost:8080/axis2/services/xcaig</Transaction>
-        <Transaction name="RegistryStoredQuery">https://localhost:8181/axis2/services/xcaig</Transaction>
-        <Transaction name="RetrieveDocumentSet">http://localhost:8080/axis2/services/xcaig</Transaction>
-        <Transaction name="RetrieveDocumentSet">https://localhost:8181/axis2/services/xcaig</Transaction>
+        <Transaction name="RegistryStoredQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcaigas</Endpoint>
+        </Transaction>
 
-      <!-- In support of XDS Affinity Domain Option -->
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcaigas</Endpoint>
+        </Transaction>
+
+        <!-- In support of XDS Affinity Domain Option -->
         <!-- placed here so the gateway knows where to direct local registry requests. -->
         <Registry>localregistry</Registry>
     </Gateway>
 
     <Gateway name="localrg"> <!-- Local Responding Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.2009.1.2.2020</UniqueId>  <!-- Home Community ID -->
-        <UseSecureEndpoints>true</UseSecureEndpoints>
-        <Transaction name="CrossGatewayQuery">http://localhost:8080/axis2/services/xcarg</Transaction>
-        <Transaction name="CrossGatewayQuery">https://localhost:8181/axis2/services/xcarg</Transaction>
-        <Transaction name="CrossGatewayRetrieve">http://localhost:8080/axis2/services/xcarg</Transaction>
-        <Transaction name="CrossGatewayRetrieve">https://localhost:8181/axis2/services/xcarg</Transaction>
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcargas</Endpoint>
+        </Transaction>
+
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcargas</Endpoint>
+        </Transaction>
 
       <!-- In support of XDS Affinity Domain Option -->
         <!-- placed here so the gateway knows where to direct local registry requests. -->
@@ -409,29 +584,67 @@
 
     <Gateway name="nistrg"> <!-- NIST Responding Gateway -->
         <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
-        <UseSecureEndpoints>true</UseSecureEndpoints>
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/rg</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/rg</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/rgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/rgas</Endpoint>
+        </Transaction>
+
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/rg</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/rg</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/rgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/rgas</Endpoint>
+        </Transaction>
+        <!-- AMS - TODO - DELETE
         <Transaction name="CrossGatewayQuery">http://ihexds.nist.gov:9080/tf5/services/rg</Transaction>
         <Transaction name="CrossGatewayQuery">https://ihexds.nist.gov:9085/tf5/services/rg</Transaction>
         <Transaction name="CrossGatewayRetrieve">http://ihexds.nist.gov:9080/tf5/services/rg</Transaction>
         <Transaction name="CrossGatewayRetrieve">https://ihexds.nist.gov:9085/tf5/services/rg</Transaction>
+        -->
     </Gateway>
 
     <Gateway name="XDSb_REP_AXOLOTL_rg">
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.2009.1.2.2045</UniqueId>  <!-- Home Community ID -->
-        <UseSecureEndpoints>false</UseSecureEndpoints>
+
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://12.96.235.229:80/respgateway/query</Endpoint>
+            <Endpoint secure="true"  async="false">https://12.96.235.229:443/respgateway/query</Endpoint>
+        </Transaction>
+
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://12.96.235.229:80/respgateway/retrieve</Endpoint>
+            <Endpoint secure="true"  async="false">https://12.96.235.229:443/respgateway/retrieve</Endpoint>
+        </Transaction>
+
+        <!-- AMS - TODO - DELETE
         <Transaction name="CrossGatewayQuery">http://12.96.235.229:80/respgateway/query</Transaction>
         <Transaction name="CrossGatewayQuery">https://12.96.235.229:443/respgateway/query</Transaction>
         <Transaction name="CrossGatewayRetrieve">http://12.96.235.229:80/respgateway/retrieve</Transaction>
         <Transaction name="CrossGatewayRetrieve">https://12.96.235.229:443/respgateway/retrieve</Transaction>
+        -->
     </Gateway>
 
     <Gateway name="XDSab_REG_IBM_rg">
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.2009.1.2.2040</UniqueId>  <!-- Home Community ID -->
-        <UseSecureEndpoints>false</UseSecureEndpoints>
+
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://xds-ibm.lgs.com:9080/XGatewayWS/RespondingGatewayQuery</Endpoint>
+            <Endpoint secure="true"  async="false">https://xds-ibm.lgs.com:9443/XGatewayWS/RespondingGatewayQuery</Endpoint>
+        </Transaction>
+
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://xds-ibm.lgs.com:9080/XGatewayWS/RespondingGatewayRetrieve</Endpoint>
+            <Endpoint secure="true"  async="false">https://xds-ibm.lgs.com:9443/XGatewayWS/RespondingGatewayRetrieve</Endpoint>
+        </Transaction>
+
+        <!-- AMS - TODO - DELETE
         <Transaction name="CrossGatewayQuery">http://xds-ibm.lgs.com:9080/XGatewayWS/RespondingGatewayQuery</Transaction>
         <Transaction name="CrossGatewayQuery">https://xds-ibm.lgs.com:9443/XGatewayWS/RespondingGatewayQuery</Transaction>
         <Transaction name="CrossGatewayRetrieve">http://xds-ibm.lgs.com:9080/XGatewayWS/RespondingGatewayRetrieve</Transaction>
         <Transaction name="CrossGatewayRetrieve">https://xds-ibm.lgs.com:9443/XGatewayWS/RespondingGatewayRetrieve</Transaction>
+       ==-->
     </Gateway>
 
 <!--
@@ -446,11 +659,23 @@
 -->
     <Gateway name="GATEWAY_INTERSYSTEMS_rg">
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.2009.1.2.2015</UniqueId>
-        <UseSecureEndpoints>false</UseSecureEndpoints>
+
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://38.112.155.180:80/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Endpoint>
+            <Endpoint secure="true"  async="false">https://38.112.155.180/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Endpoint>
+        </Transaction>
+
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://38.112.155.180:80/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Endpoint>
+            <Endpoint secure="true"  async="false">https://38.112.155.180/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Endpoint>
+        </Transaction>
+
+        <!-- AMS - TODO - DELETE
         <Transaction name="CrossGatewayQuery">http://38.112.155.180:80/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Transaction>
         <Transaction name="CrossGatewayQuery">https://38.112.155.180/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Transaction>
         <Transaction name="CrossGatewayRetrieve">http://38.112.155.180:80/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Transaction>
         <Transaction name="CrossGatewayRetrieve">https://38.112.155.180/Services/HS.IHE.XCA.RespondingGateway.Services.cls</Transaction>
+        ==-->
     </Gateway>
 
 <!--
