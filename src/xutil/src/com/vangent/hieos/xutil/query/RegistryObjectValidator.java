@@ -50,13 +50,13 @@ public class RegistryObjectValidator extends StoredQuery {
     /* REMOVED (BHT) -- NOT USED
     public ArrayList validateExists(ArrayList uuids) throws XdsException {
         init();
-        a("SELECT id FROM RegistryObject ro");
-        n();
-        a("WHERE");
-        n();
-        a("  ro.id IN ");
-        a(uuids);
-        n();
+        append("SELECT id FROM RegistryObject ro");
+        newline();
+        append("WHERE");
+        newline();
+        append("  ro.id IN ");
+        append(uuids);
+        newline();
 
         ArrayList<String> results = this.query_for_object_refs();
 
@@ -100,13 +100,13 @@ public class RegistryObjectValidator extends StoredQuery {
     public ArrayList<String> validateNotExists(ArrayList<String> ids) throws XdsException {
         ArrayList<String> uuids = uuidsOnly(ids);
         init();
-        a("SELECT id FROM RegistryObject ro");
-        n();
-        a("WHERE");
-        n();
-        a("  ro.id IN ");
-        a(uuids);
-        n();
+        append("SELECT id FROM RegistryObject ro");
+        newline();
+        append("WHERE");
+        newline();
+        append("  ro.id IN ");
+        append(uuids);
+        newline();
 
         ArrayList results = this.query_for_object_refs();
 
@@ -132,19 +132,19 @@ public class RegistryObjectValidator extends StoredQuery {
         uid_id_schemes.add(MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
 
         init();
-        a("SELECT ro.id from RegistryObject ro, ExternalIdentifier ei");
-        n();
-        a("WHERE");
-        n();
-        a(" ei.registryobject = ro.id AND ");
-        n();
-        a("  ei.identificationScheme IN ");
-        a(uid_id_schemes);
-        a(" AND");
-        n();
-        a("  ei.value IN ");
-        a(uids);
-        n();
+        append("SELECT ro.id from RegistryObject ro, ExternalIdentifier ei");
+        newline();
+        append("WHERE");
+        newline();
+        append(" ei.registryobject = ro.id AND ");
+        newline();
+        append("  ei.identificationScheme IN ");
+        append(uid_id_schemes);
+        append(" AND");
+        newline();
+        append("  ei.value IN ");
+        append(uids);
+        newline();
 
         // these uuids identify objects that carry one of the uids passed in in the map
         ArrayList<String> uuids = this.query_for_object_refs();
@@ -153,7 +153,7 @@ public class RegistryObjectValidator extends StoredQuery {
             return;
         }
 
-        // at least one uniqueId is already present in the registry. If it is from a document
+        // at least one uniqueId is already present in the registry. If it is from append document
         // and the hashes are the same.  Otherwise it is an error.
 
         this.return_leaf_class = true;
@@ -229,13 +229,13 @@ public class RegistryObjectValidator extends StoredQuery {
      */
     public ArrayList validateDocuments(ArrayList uuids) throws XdsException {
         init();
-        a("SELECT id FROM ExtrinsicObject eo");
-        n();
-        a("WHERE");
-        n();
-        a("  eo.id IN ");
-        a(uuids);
-        n();
+        append("SELECT id FROM ExtrinsicObject eo");
+        newline();
+        append("WHERE");
+        newline();
+        append("  eo.id IN ");
+        append(uuids);
+        newline();
 
         ArrayList results = this.query_for_object_refs();
 
@@ -263,22 +263,22 @@ public class RegistryObjectValidator extends StoredQuery {
      */
     public ArrayList<String> validateAreFolders(ArrayList<String> ids) throws XdsException {
         init();
-        a("SELECT rp.id FROM RegistryPackage rp, ExternalIdentifier ei");
-        n();
-        a("WHERE");
-        n();
-        a("  rp.status = '");
-        a(MetadataSupport.status_type_approved);
-        a("' AND");
-        n();
-        a("  rp.id IN ");
-        a(ids);
-        a(" AND");
-        n();
-        a("  ei.registryObject = rp.id AND");
-        n();
-        a("  ei.identificationScheme = '" + MetadataSupport.XDSFolder_patientid_uuid + "'");
-        n();
+        append("SELECT rp.id FROM RegistryPackage rp, ExternalIdentifier ei");
+        newline();
+        append("WHERE");
+        newline();
+        append("  rp.status = '");
+        append(MetadataSupport.status_type_approved);
+        append("' AND");
+        newline();
+        append("  rp.id IN ");
+        append(ids);
+        append(" AND");
+        newline();
+        append("  ei.registryObject = rp.id AND");
+        newline();
+        append("  ei.identificationScheme = '" + MetadataSupport.XDSFolder_patientid_uuid + "'");
+        newline();
 
         br.setReason("Verify are Folders");
 
@@ -305,32 +305,32 @@ public class RegistryObjectValidator extends StoredQuery {
      */
     public ArrayList validateApproved(ArrayList uuids) throws XdsException {
         init();
-        a("SELECT id FROM ExtrinsicObject eo");
-        n();
-        a("WHERE");
-        n();
-        a("  eo.status = '");
-        a(MetadataSupport.status_type_approved);
-        a("' AND");
-        n();
-        a("  eo.id IN ");
-        a(uuids);
-        n();
+        append("SELECT id FROM ExtrinsicObject eo");
+        newline();
+        append("WHERE");
+        newline();
+        append("  eo.status = '");
+        append(MetadataSupport.status_type_approved);
+        append("' AND");
+        newline();
+        append("  eo.id IN ");
+        append(uuids);
+        newline();
 
         ArrayList results1 = this.query_for_object_refs();
 
         init();
-        a("SELECT id FROM RegistryPackage eo");
-        n();
-        a("WHERE");
-        n();
-        a("  eo.status = '");
-        a(MetadataSupport.status_type_approved);
-        a("' AND");
-        n();
-        a("  eo.id IN ");
-        a(uuids);
-        n();
+        append("SELECT id FROM RegistryPackage eo");
+        newline();
+        append("WHERE");
+        newline();
+        append("  eo.status = '");
+        append(MetadataSupport.status_type_approved);
+        append("' AND");
+        newline();
+        append("  eo.id IN ");
+        append(uuids);
+        newline();
 
         ArrayList results = this.query_for_object_refs();
 
@@ -362,42 +362,42 @@ public class RegistryObjectValidator extends StoredQuery {
             return null;
         }
         init();
-        a("SELECT eo.id FROM ExtrinsicObject eo, ExternalIdentifier pid");
-        n();
-        a("WHERE");
-        n();
-        a("  eo.id IN ");
-        a(uuids);
-        a(" AND ");
-        n();
-        a("  pid.registryobject = eo.id AND");
-        n();
-        a("  pid.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND");
-        n();
-        a("  pid.value = '");
-        a(patient_id);
-        a("'");
-        n();
+        append("SELECT eo.id FROM ExtrinsicObject eo, ExternalIdentifier pid");
+        newline();
+        append("WHERE");
+        newline();
+        append("  eo.id IN ");
+        append(uuids);
+        append(" AND ");
+        newline();
+        append("  pid.registryobject = eo.id AND");
+        newline();
+        append("  pid.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND");
+        newline();
+        append("  pid.value = '");
+        append(patient_id);
+        append("'");
+        newline();
 
         ArrayList results1 = this.query_for_object_refs();
 
         init();
-        a("SELECT eo.id FROM RegistryPackage eo, ExternalIdentifier pid");
-        n();
-        a("WHERE");
-        n();
-        a("  eo.id IN ");
-        a(uuids);
-        a(" AND");
-        n();
-        a("  pid.registryobject = eo.id AND");
-        n();
-        a("  pid.identificationScheme IN ('urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446','urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a') AND");
-        n();
-        a("  pid.value = '");
-        a(patient_id);
-        a("'");
-        n();
+        append("SELECT eo.id FROM RegistryPackage eo, ExternalIdentifier pid");
+        newline();
+        append("WHERE");
+        newline();
+        append("  eo.id IN ");
+        append(uuids);
+        append(" AND");
+        newline();
+        append("  pid.registryobject = eo.id AND");
+        newline();
+        append("  pid.identificationScheme IN ('urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446','urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a') AND");
+        newline();
+        append("  pid.value = '");
+        append(patient_id);
+        append("'");
+        newline();
 
         ArrayList results = this.query_for_object_refs();
 
@@ -427,22 +427,22 @@ public class RegistryObjectValidator extends StoredQuery {
             return new ArrayList();
         }
         init();
-        a("SELECT eo.id FROM ExtrinsicObject eo, Association a");
-        n();
-        a("WHERE");
-        n();
-        a("  a.associationType in ('");
-        a(MetadataSupport.xdsB_ihe_assoc_type_xfrm);
-        a("', '");
-        a(MetadataSupport.xdsB_ihe_assoc_type_apnd);
-        a("') AND");
-        n();
-        a("  a.targetObject IN ");
-        a(uuids);
-        a(" AND");
-        n();
-        a("  a.sourceObject = eo.id");
-        n();
+        append("SELECT eo.id FROM ExtrinsicObject eo, Association a");
+        newline();
+        append("WHERE");
+        newline();
+        append("  a.associationType in ('");
+        append(MetadataSupport.xdsB_ihe_assoc_type_xfrm);
+        append("', '");
+        append(MetadataSupport.xdsB_ihe_assoc_type_apnd);
+        append("') AND");
+        newline();
+        append("  a.targetObject IN ");
+        append(uuids);
+        append(" AND");
+        newline();
+        append("  a.sourceObject = eo.id");
+        newline();
 
         return this.query_for_object_refs();
     }

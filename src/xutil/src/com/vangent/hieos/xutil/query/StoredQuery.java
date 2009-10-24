@@ -25,6 +25,10 @@ import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.metadata.structure.SQCodeAnd;
+import com.vangent.hieos.xutil.metadata.structure.SQCodeOr;
+import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.math.BigInteger;
@@ -32,21 +36,39 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman).
+ */
 public abstract class StoredQuery extends BasicQuery {
 
+    private boolean where = false;
+    private boolean has_alternate_validation_errors = false;
     protected ErrorLogger response;
     protected XLogMessage log_message;
-    protected HashMap<String, Object> params;
+    protected SqParams params;
     protected StringBuffer query;
     protected BackendRegistry br;
     protected boolean return_leaf_class;
     public boolean has_validation_errors = false;
     protected boolean is_secure;
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     * @throws XDSRegistryOutOfResourcesException
+     */
     abstract public Metadata run_internal() throws XdsException, XDSRegistryOutOfResourcesException;
 
+    /**
+     *
+     * @param response
+     * @param log_message
+     */
     public StoredQuery(ErrorLogger response, XLogMessage log_message) {
         this.response = response;
         this.log_message = log_message;
@@ -54,7 +76,15 @@ public abstract class StoredQuery extends BasicQuery {
 
     }
 
-    public StoredQuery(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure) {
+    /**
+     *
+     * @param params
+     * @param return_objects
+     * @param response
+     * @param log_message
+     * @param is_secure
+     */
+    public StoredQuery(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure) {
         this.response = response;
         this.log_message = log_message;
         this.params = params;
@@ -63,10 +93,20 @@ public abstract class StoredQuery extends BasicQuery {
         this.return_leaf_class = return_objects;
     }
 
-    protected void setParams(HashMap<String, Object> params) {
+    /**
+     *
+     * @param params
+     */
+    protected void setParams(SqParams params) {
         this.params = params;
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     * @throws XDSRegistryOutOfResourcesException
+     */
     public ArrayList<OMElement> run() throws XdsException, XDSRegistryOutOfResourcesException {
         Metadata metadata = run_internal();
         if (metadata == null) {
@@ -82,6 +122,11 @@ public abstract class StoredQuery extends BasicQuery {
         }
     }
 
+    /**
+     *
+     * @param rr
+     * @return
+     */
     protected ArrayList<String> get_ids_from_registry_response(OMElement rr) {
         ArrayList<String> ids = new ArrayList<String>();
 
@@ -101,33 +146,34 @@ public abstract class StoredQuery extends BasicQuery {
         return ids;
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
     protected String get_string_parm(String name) {
-        Object o = params.get(name);
-        if (o instanceof String) {
-            return (String) o;
-        }
-        return null;
+        return params.getStringParm(name);
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     * @throws MetadataException
+     */
     protected String get_int_parm(String name) throws MetadataException {
-        Object o = params.get(name);
-        if (o == null) {
-            return null;
-        }
-        if (o instanceof Integer) {
-            Integer i = (Integer) o;
-            return i.toString();
-        }
-        if (o instanceof BigInteger) {
-            BigInteger i = (BigInteger) o;
-            return i.toString();
-        } else {
-            throw new MetadataException("Parameter " + name + " - expecting a number but got " + o.getClass().getName() + " instead");
-        }
+        return params.getIntParm(name);
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     */
     protected ArrayList<String> get_arraylist_parm(String name) throws XdsInternalException, MetadataException {
-        Object o = params.get(name);
+        Object o = params.getParm(name);
         if (o == null) {
             return null;
         }
@@ -141,25 +187,31 @@ public abstract class StoredQuery extends BasicQuery {
         throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     */
     protected ArrayList<Object> get_andor_parm(String name) throws XdsInternalException, MetadataException {
-        Object o = params.get(name);
-        if (o == null) {
-            return null;
-        }
-        if (o instanceof ArrayList) {
-            ArrayList<Object> a = (ArrayList<Object>) o;
-            if (a.size() == 0) {
-                throw new MetadataException("Parameter " + name + " is an empty list");
-            }
-            return a;
-        }
-        throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
+        return (ArrayList<Object>) params.getAndorParm(name);
     }
 
+    /**
+     *
+     * @param values
+     * @return
+     */
     protected boolean isAnd(Object values) {
         return (values instanceof And);
     }
 
+    /**
+     *
+     * @param values
+     * @return
+     */
     protected int andSize(Object values) {
         if (!isAnd(values)) {
             return 0;
@@ -168,6 +220,13 @@ public abstract class StoredQuery extends BasicQuery {
         return and.size();
     }
 
+    /**
+     *
+     * @param andor
+     * @param varname
+     * @return
+     */
+    /*
     protected ArrayList<String> getAndorVarNames(Object andor, String varname) {
         ArrayList<String> names = new ArrayList<String>();
         if (!isAnd(andor)) {
@@ -180,7 +239,8 @@ public abstract class StoredQuery extends BasicQuery {
         }
         return names;
     }
-
+*/
+    /*
     protected String declareClassifications(ArrayList<String> names) {
         StringBuffer buf = new StringBuffer();
 
@@ -189,16 +249,27 @@ public abstract class StoredQuery extends BasicQuery {
         }
 
         return buf.toString();
-    }
+    }*/
 
     ArrayList<String> query_for_object_refs() throws XMLParserException, XdsException {
         return br.queryForObjectRefs(query.toString());
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
     protected OMElement query() throws XdsException {
         return query(true);
     }
 
+    /**
+     *
+     * @param leaf_class
+     * @return
+     * @throws XdsException
+     */
     protected OMElement query(boolean leaf_class) throws XdsException {
         String q = query.toString();
         if (log_message != null) {
@@ -207,25 +278,53 @@ public abstract class StoredQuery extends BasicQuery {
         return br.query(q, leaf_class);
     }
 
+    /**
+     * Reinitialize the query buffer.
+     */
     protected void init() {
         query = new StringBuffer();
     }
 
-    protected void a(String x) {
+    /**
+     *
+     * @param x
+     */
+    protected void append(String x) {
         query.append(x);
     }
 
-    protected void a_quoted(String x) {
+    /**
+     *
+     * @param x
+     */
+    protected void appendQuoted(String x) {
         query.append("'");
         query.append(x);
         query.append("'");
     }
 
-    protected void n() {
+    /**
+     * 
+     */
+    protected void newline() {
         query.append("\n");
     }
 
-    protected void a(ArrayList list) throws MetadataException {
+    /**
+     *
+     * @param list
+     * @throws MetadataException
+     */
+    protected void append(List list) throws MetadataException {
+        append((ArrayList) list);
+    }
+
+    /**
+     * 
+     * @param list
+     * @throws MetadataException
+     */
+    protected void append(ArrayList list) throws MetadataException {
         query.append("(");
         boolean first_time = true;
         for (int i = 0; i < list.size(); i++) {
@@ -253,12 +352,151 @@ public abstract class StoredQuery extends BasicQuery {
         query.append(")");
     }
 
-    protected void validate_parm(HashMap parms, String name, boolean required, boolean multiple, boolean is_string, String same_size_as, String alternative) {
-        Object value = parms.get(name);
+    /**
+     * 
+     * @param name
+     * @param required
+     * @param multiple
+     * @param is_string
+     * @param is_code
+     * @param alternatives
+     */
+    protected void validateQueryParam(String name, boolean required, boolean multiple, boolean is_string, boolean is_code, String... alternatives) {
+        Object value = params.getParm(name);
+
+        System.out.println("validate_parm: name=" + name + " value=" + value + " required=" + required + " multiple=" + multiple + " is_string=" + is_string + " is_code=" + is_code + " alternatives=" + valuesAsString(null, alternatives));
+
+        if (value == null && alternatives == null) {
+            if (required) {
+                response.add_error("XDSRegistryError", "Parameter " + name + " is required but not present in query", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
+            return;
+        }
+
+        if (value == null && alternatives != null) {
+            System.out.println("looking for alternatives");
+            if (!isAlternativePresent(alternatives)) {
+                if (!has_alternate_validation_errors) {
+                    response.add_error("XDSRegistryError", "One of these parameters must be present in the query: " + valuesAsString(name, alternatives), "StoredQuery.java", log_message);
+                    has_alternate_validation_errors = true;  // keeps from generating multiples of this message
+                }
+                has_validation_errors = true;
+                return;
+            }
+        }
+
+        if (value == null) {
+            return;
+        }
+
+        if (is_code) {
+            if (!(value instanceof SQCodedTerm)) {
+                response.add_error("XDSRegistryError", "Parameter, " + name +
+                        ", must be a coded term", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
+
+        } else {
+
+            if (multiple && !(value instanceof ArrayList)) {
+                response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
+            if (!multiple && (value instanceof ArrayList)) {
+                response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts single value value only but (  )  syntax is present", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
+            if (multiple && (value instanceof ArrayList) && ((ArrayList) value).size() == 0) {
+                response.add_error("XDSRegistryError", "Parameter, " + name + ", (  )  syntax is present but list is empty", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
+
+            if (!(value instanceof ArrayList)) {
+                return;
+            }
+
+            ArrayList values = (ArrayList) value;
+
+            for (int i = 0; i < values.size(); i++) {
+                Object a_o = values.get(i);
+                if (is_string &&
+                        !(a_o instanceof String) &&
+                        !((a_o instanceof ArrayList) &&
+                        ((ArrayList) a_o).size() > 0 &&
+                        (((ArrayList) a_o).get(0) instanceof String))) {
+                    response.add_error("XDSRegistryError", "Parameter, " + name + ", is not coded as a string (is type " + a_o.getClass().getName() + ") (single quotes missing?)", "StoredQuery.java", log_message);
+                    this.has_validation_errors = true;
+                }
+                if (!is_string && !(a_o instanceof Integer)) {
+                    response.add_error("XDSRegistryError", "Parameter, " + name + " is not coded as a number (is type " + a_o.getClass().getName() + ") (single quotes present)", "StoredQuery.java", log_message);
+                    this.has_validation_errors = true;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * 
+     * @param mainName
+     * @param alternatives
+     * @return
+     */
+    private String valuesAsString(String mainName, String... alternatives) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        if (mainName != null) {
+            buf.append(mainName);
+        }
+        if (alternatives != null) {
+            for (int i = 0; i < alternatives.length; i++) {
+                buf.append(" ").append(alternatives[i]);
+            }
+        }
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     *
+     * @param alternatives
+     * @return
+     */
+    private boolean isAlternativePresent(String[] alternatives) {
+        if (alternatives == null) {
+            return false;
+        }
+        for (String alternative : alternatives) {
+            Object value = params.getParm(alternative);
+            if (value != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * @param parms
+     * @param name
+     * @param required
+     * @param multiple
+     * @param is_string
+     * @param same_size_as
+     * @param alternative
+     */
+    protected void validate_parm(SqParams parms, String name, boolean required, boolean multiple, boolean is_string, String same_size_as, String alternative) {
+        Object value = parms.getParm(name);
         if (value == null) {
             if (required) {
                 if (alternative != null) {
-                    Object value2 = parms.get(alternative);
+                    Object value2 = parms.getParm(alternative);
                     if (value2 == null) {
                         response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + " or " + alternative + " is required, neither are present", this.getClass().getName(), log_message);
                         this.has_validation_errors = true;
@@ -314,7 +552,7 @@ public abstract class StoredQuery extends BasicQuery {
             return;
         }
 
-        Object same_as_value = parms.get(same_size_as);
+        Object same_as_value = parms.getParm(same_size_as);
         if (!(same_as_value instanceof ArrayList)) {
             response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
             this.has_validation_errors = true;
@@ -336,60 +574,90 @@ public abstract class StoredQuery extends BasicQuery {
 
     }
 
-    protected OMElement get_doc_by_uuid(String uuid) throws XdsException {
+    /**
+     *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getDocumentByUUID(String uuid) throws XdsException {
         ArrayList<String> ids = new ArrayList<String>();
         ids.add(uuid);
-        return get_doc_by_uuid(ids);
+        return getDocumentByUUID(ids);
     }
 
-    protected OMElement get_doc_by_uuid(ArrayList<String> uuids) throws XdsException {
+    /**
+     *
+     * @param uuids
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getDocumentByUUID(ArrayList<String> uuids) throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * FROM ExtrinsicObject eo");
+            append("SELECT * FROM ExtrinsicObject eo");
         } else {
-            a("SELECT eo.id FROM ExtrinsicObject eo");
+            append("SELECT eo.id FROM ExtrinsicObject eo");
         }
-        n();
-        a("WHERE ");
-        n();
-        a("	  eo.id IN ");
-        a(uuids);
-        n();
+        newline();
+        append("WHERE ");
+        newline();
+        append("	  eo.id IN ");
+        append(uuids);
+        newline();
 
         return query(this.return_leaf_class);
     }
 
-    protected OMElement get_doc_by_uid(String uid) throws XdsException {
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getDocumentByUID(String uid) throws XdsException {
         ArrayList<String> uids = new ArrayList<String>();
         uids.add(uid);
-        return get_doc_by_uid(uids);
+        return getDocumentByUID(uids);
     }
 
-    protected OMElement get_doc_by_uid(ArrayList<String> uids) throws XdsException {
+    /**
+     *
+     * @param uids
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getDocumentByUID(ArrayList<String> uids) throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * from ExtrinsicObject eo, ExternalIdentifier ei");
+            append("SELECT * from ExtrinsicObject eo, ExternalIdentifier ei");
         } else {
-            a("SELECT eo.id from ExtrinsicObject eo, ExternalIdentifier ei");
+            append("SELECT eo.id from ExtrinsicObject eo, ExternalIdentifier ei");
         }
-        n();
-        a("WHERE ");
-        n();
-        a("  ei.registryObject=eo.id AND");
-        n();
-        a("  ei.identificationScheme='urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab' AND");
-        n();
-        a("  ei.value IN ");
-        a(uids);
-        n();
+        newline();
+        append("WHERE ");
+        newline();
+        append("  ei.registryObject=eo.id AND");
+        newline();
+        append("  ei.identificationScheme='urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab' AND");
+        newline();
+        append("  ei.value IN ");
+        append(uids);
+        newline();
 
         return query(this.return_leaf_class);
     }
 
-    protected String get_doc_id_from_uid(String uid) throws XdsException {
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws XdsException
+     */
+    protected String getDocumentIDFromUID(String uid) throws XdsException {
         boolean rlc = return_leaf_class;
         this.return_leaf_class = false;
-        OMElement result = get_doc_by_uid(uid);
+        OMElement result = getDocumentByUID(uid);
         Metadata metadata = MetadataParser.parseNonSubmission(result);
         ArrayList<OMElement> obj_refs = metadata.getObjectRefs();
         if (obj_refs.size() == 0) {
@@ -401,83 +669,108 @@ public abstract class StoredQuery extends BasicQuery {
         return metadata.getId(obj_refs.get(0));
     }
 
-    protected OMElement get_associations(ArrayList<String> uuids, ArrayList<String> assoc_types) throws XdsException {
-
+    /**
+     *
+     * @param uuids
+     * @param assoc_types
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getAssociations(ArrayList<String> uuids, ArrayList<String> assoc_types) throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * FROM Association a");
+            append("SELECT * FROM Association a");
         } else {
-            a("SELECT a.id FROM Association a");
+            append("SELECT a.id FROM Association a");
         }
-        n();
-        a("WHERE ");
-        n();
-        a("	  (a.sourceObject IN ");
-        a(uuids);
-        a(" OR");
-        n();
-        a("	  a.targetObject IN ");
-        a(uuids);
-        a(" )");
-        n();
+        newline();
+        append("WHERE ");
+        newline();
+        append("	  (a.sourceObject IN ");
+        append(uuids);
+        append(" OR");
+        newline();
+        append("	  a.targetObject IN ");
+        append(uuids);
+        append(" )");
+        newline();
         if (assoc_types != null) {
-            a("   AND a.associationType IN ");
-            a(assoc_types);
-            n();
+            append("   AND a.associationType IN ");
+            append(assoc_types);
+            newline();
         }
-
         return query(this.return_leaf_class);
     }
 
+    /**
+     *
+     * @param code_var
+     * @param code_scheme_var
+     * @param code_class_uuid
+     * @param codes
+     * @param schemes
+     * @throws MetadataException
+     */
+    /*
     protected void add_code(String code_var, String code_scheme_var, String code_class_uuid,
             ArrayList codes, ArrayList schemes) throws MetadataException {
         if (codes != null) {
-            a("AND (");
-            a(code_var);
-            a(".classifiedobject = doc.id AND ");
-            n();
+            append("AND (");
+            append(code_var);
+            append(".classifiedobject = doc.id AND ");
+            newline();
         }
         if (codes != null) {
-            a("  ");
-            a(code_var);
-            a(".classificationScheme = '");
-            a(code_class_uuid);
-            a("' AND ");
-            n();
+            append("  ");
+            append(code_var);
+            append(".classificationScheme = '");
+            append(code_class_uuid);
+            append("' AND ");
+            newline();
         }
         if (codes != null) {
-            a("  ");
-            a(code_var);
-            a(".nodeRepresentation IN ");
-            a(codes);
-            a(" )");
-            n();
+            append("  ");
+            append(code_var);
+            append(".nodeRepresentation IN ");
+            append(codes);
+            append(" )");
+            newline();
         }
 
         if (schemes != null) {
-            a("AND (");
-            a(code_scheme_var);
-            a(".parent = ");
-            a(code_var);
-            a(".id AND   ");
-            n();
+            append("AND (");
+            append(code_scheme_var);
+            append(".parent = ");
+            append(code_var);
+            append(".id AND   ");
+            newline();
         }
         if (schemes != null) {
-            a("  ");
-            a(code_scheme_var);
-            a(".name = 'codingScheme' AND   ");
-            n();
+            append("  ");
+            append(code_scheme_var);
+            append(".name = 'codingScheme' AND   ");
+            newline();
         }
         if (schemes != null) {
-            a("  ");
-            a(code_scheme_var);
-            a(".value IN ");
-            a(schemes);
-            a(" )");
-            n();
+            append("  ");
+            append(code_scheme_var);
+            append(".value IN ");
+            append(schemes);
+            append(" )");
+            newline();
         }
     }
-
+*/
+    /**
+     *
+     * @param code_vars
+     * @param code_scheme_var
+     * @param code_class_uuid
+     * @param codes
+     * @param schemes
+     * @throws MetadataException
+     */
+    /*
     protected void add_code(ArrayList<String> code_vars, String code_scheme_var, String code_class_uuid,
             ArrayList<Object> codes, ArrayList schemes) throws MetadataException {
         if (codes == null) {
@@ -489,40 +782,40 @@ public abstract class StoredQuery extends BasicQuery {
                 throw new MetadataException("StoredQuery.add_code(): code_vars.size()==1 but codes have type And");
             }
             String code_var = code_vars.get(0);
-            a("AND (");
-            a(code_var);
-            a(".classifiedobject = doc.id AND ");
-            n();
-            a("  ");
-            a(code_var);
-            a(".classificationScheme = '");
-            a(code_class_uuid);
-            a("' AND ");
-            n();
-            a("  ");
-            a(code_var);
-            a(".nodeRepresentation IN ");
-            a(codes);
-            a(" )");
-            n();
+            append("AND (");
+            append(code_var);
+            append(".classifiedobject = doc.id AND ");
+            newline();
+            append("  ");
+            append(code_var);
+            append(".classificationScheme = '");
+            append(code_class_uuid);
+            append("' AND ");
+            newline();
+            append("  ");
+            append(code_var);
+            append(".nodeRepresentation IN ");
+            append(codes);
+            append(" )");
+            newline();
 
             if (schemes != null) {
-                a("AND (");
-                a(code_scheme_var);
-                a(".parent = ");
-                a(code_var);
-                a(".id AND   ");
-                n();
-                a("  ");
-                a(code_scheme_var);
-                a(".name = 'codingScheme' AND   ");
-                n();
-                a("  ");
-                a(code_scheme_var);
-                a(".value IN ");
-                a(schemes);
-                a(" )");
-                n();
+                append("AND (");
+                append(code_scheme_var);
+                append(".parent = ");
+                append(code_var);
+                append(".id AND   ");
+                newline();
+                append("  ");
+                append(code_scheme_var);
+                append(".name = 'codingScheme' AND   ");
+                newline();
+                append("  ");
+                append(code_scheme_var);
+                append(".value IN ");
+                append(schemes);
+                append(" )");
+                newline();
             }
         } else {
             if (!(codes instanceof And)) {
@@ -533,365 +826,646 @@ public abstract class StoredQuery extends BasicQuery {
                 String code_var = code_vars.get(i);
                 ArrayList<String> codes2 = (ArrayList<String>) codes.get(i);
 
-                a("AND (");
-                a(code_var);
-                a(".classifiedobject = doc.id AND ");
-                n();
-                a("  ");
-                a(code_var);
-                a(".classificationScheme = '");
-                a(code_class_uuid);
-                a("' AND ");
-                n();
-                a("  ");
-                a(code_var);
-                a(".nodeRepresentation IN ");
-                a(codes2);
-                a(" )");
-                n();
+                append("AND (");
+                append(code_var);
+                append(".classifiedobject = doc.id AND ");
+                newline();
+                append("  ");
+                append(code_var);
+                append(".classificationScheme = '");
+                append(code_class_uuid);
+                append("' AND ");
+                newline();
+                append("  ");
+                append(code_var);
+                append(".nodeRepresentation IN ");
+                append(codes2);
+                append(" )");
+                newline();
             }
         }
     }
-
+*/
     // times come in as numeric values but convert them to string values to avoid numeric overflow
+    /**
+     * 
+     * @param att_name
+     * @param from_var
+     * @param to_var
+     * @param from_limit
+     * @param to_limit
+     * @param var_name
+     */
+    /*
     protected void add_times(String att_name, String from_var, String to_var,
             String from_limit, String to_limit, String var_name) {
         if (from_limit != null) {
-            a("AND (");
-            a(from_var);
-            a(".parent = " + var_name + ".id AND ");
-            n();
+            append("AND (");
+            append(from_var);
+            append(".parent = " + var_name + ".id AND ");
+            newline();
         }
         if (from_limit != null) {
-            a("  ");
-            a(from_var);
-            a(".name = '");
-            a(att_name);
-            a("' AND     ");
-            n();
+            append("  ");
+            append(from_var);
+            append(".name = '");
+            append(att_name);
+            append("' AND     ");
+            newline();
         }
         if (from_limit != null) {
-            a("  ");
-            a(from_var);
-            a(".value >= ");
-            a_quoted(from_limit);
-            a(" ) ");
-            n();
+            append("  ");
+            append(from_var);
+            append(".value >= ");
+            appendQuoted(from_limit);
+            append(" ) ");
+            newline();
         }
 
         if (to_limit != null) {
-            a("AND (");
-            a(to_var);
-            a(".parent = " + var_name + ".id AND ");
-            n();
+            append("AND (");
+            append(to_var);
+            append(".parent = " + var_name + ".id AND ");
+            newline();
         }
         if (to_limit != null) {
-            a("  ");
-            a(to_var);
-            a(".name = '");
-            a(att_name);
-            a("' AND     ");
-            n();
+            append("  ");
+            append(to_var);
+            append(".name = '");
+            append(att_name);
+            append("' AND     ");
+            newline();
         }
         if (to_limit != null) {
-            a("  ");
-            a(to_var);
-            a(".value < ");
-            a_quoted(to_limit);
-            a(" ) ");
-            n();
+            append("  ");
+            append(to_var);
+            append(".value < ");
+            appendQuoted(to_limit);
+            append(" ) ");
+            newline();
         }
     }
-
+*/
+    /**
+     *
+     * @param uid
+     * @param identification_scheme
+     * @return
+     * @throws XdsException
+     */
     public OMElement get_rp_by_uid(String uid, String identification_scheme) throws XdsException {
         init();
-        a("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
-        n();
-        a("WHERE");
-        n();
-        a("  uniq.registryObject = ss.id AND");
-        n();
-        a("  uniq.identificationScheme = '" + identification_scheme + "' AND");
-        n();
-        a("  uniq.value = '" + uid + "'");
+        append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
+        newline();
+        append("WHERE");
+        newline();
+        append("  uniq.registryObject = ss.id AND");
+        newline();
+        append("  uniq.identificationScheme = '" + identification_scheme + "' AND");
+        newline();
+        append("  uniq.value = '" + uid + "'");
         return query();
     }
 
+    /**
+     *
+     * @param uids
+     * @param identification_scheme
+     * @return
+     * @throws XdsException
+     */
     public OMElement get_rp_by_uid(ArrayList<String> uids, String identification_scheme) throws XdsException {
         init();
-        a("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
-        n();
-        a("WHERE");
-        n();
-        a("  uniq.registryObject = ss.id AND");
-        n();
-        a("  uniq.identificationScheme = '" + identification_scheme + "' AND");
-        n();
-        a("  uniq.value IN ");
-        a(uids);
+        append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
+        newline();
+        append("WHERE");
+        newline();
+        append("  uniq.registryObject = ss.id AND");
+        newline();
+        append("  uniq.identificationScheme = '" + identification_scheme + "' AND");
+        newline();
+        append("  uniq.value IN ");
+        append(uids);
         return query();
     }
 
+    /**
+     *
+     * @param ss_uuid
+     * @param identification_scheme
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_rp_by_uuid(String ss_uuid, String identification_scheme)
             throws XdsException {
         init();
-        a("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
-        n();
-        a("WHERE ");
-        n();
-        a("	  ss.id = '" + ss_uuid + "' AND");
-        n();
-        a("   uniq.registryObject = ss.id AND");
-        n();
-        a("   uniq.identificationScheme = '" + identification_scheme + "' ");
-        n();
+        append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
+        newline();
+        append("WHERE ");
+        newline();
+        append("	  ss.id = '" + ss_uuid + "' AND");
+        newline();
+        append("   uniq.registryObject = ss.id AND");
+        newline();
+        append("   uniq.identificationScheme = '" + identification_scheme + "' ");
+        newline();
 
         return query();
     }
 
+    /**
+     *
+     * @param ss_uuid
+     * @param identification_scheme
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_rp_by_uuid(ArrayList<String> ss_uuid, String identification_scheme)
             throws XdsException {
         init();
-        a("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
-        n();
-        a("WHERE ");
-        n();
-        a("	  ss.id IN ");
-        a(ss_uuid);
-        a(" AND");
-        n();
-        a("   uniq.registryObject = ss.id AND");
-        n();
-        a("   uniq.identificationScheme = '" + identification_scheme + "' ");
-        n();
+        append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
+        newline();
+        append("WHERE ");
+        newline();
+        append("	  ss.id IN ");
+        append(ss_uuid);
+        append(" AND");
+        newline();
+        append("   uniq.registryObject = ss.id AND");
+        newline();
+        append("   uniq.identificationScheme = '" + identification_scheme + "' ");
+        newline();
 
         return query();
     }
 
+    /**
+     *
+     * @param uuids
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_objects_by_uuid(ArrayList<String> uuids) throws XdsException {
         if (uuids.size() == 0) {
             return null;
         }
 
         init();
-        a("SELECT * FROM RegistryObject ro");
-        n();
-        a("WHERE ");
-        n();
-        a("	  ro.id IN ");
-        a(uuids);
-        n();
+        append("SELECT * FROM RegistryObject ro");
+        newline();
+        append("WHERE ");
+        newline();
+        append("	  ro.id IN ");
+        append(uuids);
+        newline();
 
         return query();
     }
 
+    /**
+     *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_fol_by_uuid(String uuid) throws XdsException {
         return get_rp_by_uuid(uuid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
+    /**
+     *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_fol_by_uuid(ArrayList<String> uuid) throws XdsException {
         return get_rp_by_uuid(uuid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
-    protected OMElement get_fol_by_uid(String uid) throws XdsException {
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getFolderByUID(String uid) throws XdsException {
         return get_rp_by_uid(uid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
-    protected OMElement get_fol_by_uid(ArrayList<String> uid) throws XdsException {
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getFolderByUID(ArrayList<String> uid) throws XdsException {
         return get_rp_by_uid(uid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
-    protected OMElement get_ss_by_uuid(String uuid) throws XdsException {
+    /**
+     *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getSubmissionSetByUUID(String uuid) throws XdsException {
         return get_rp_by_uuid(uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
     }
 
-    protected OMElement get_ss_by_uid(String uid) throws XdsException {
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getSubmissionSetByUID(String uid) throws XdsException {
         return get_rp_by_uid(uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
     }
 
-    protected OMElement get_ss_docs(String ss_uuid, ArrayList<String> format_codes, ArrayList<String> conf_codes)
+    /**
+     * 
+     * @param ss_uuid
+     * @param format_codes
+     * @param conf_codes
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement get_ss_docs(String ss_uuid, SQCodedTerm format_codes, SQCodedTerm conf_codes)
             throws XdsException {
         init();
-        a("SELECT * FROM ExtrinsicObject doc, Association a");
-        n();
+        append("SELECT * FROM ExtrinsicObject obj, Association a");
+        newline();
         if (conf_codes != null) {
-            a(", Classification conf");
-            n();
+            append(declareClassifications(conf_codes));
         }
+        newline();
         if (format_codes != null) {
-            a(", Classification fmtCode");
-            n();
+            append(declareClassifications(format_codes));
         }
-        if (false) {
-            a(", Slot adomain");
-        }
-
-        a("WHERE");
-        n();
-        a("   a.sourceObject = '" + ss_uuid + "' AND");
-        n();
-        a("   a.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   a.targetObject = doc.id ");
-        n();
-
-        if (conf_codes != null && conf_codes.size() > 0) {
-            a("  AND (");
-            n();
-            a("   conf.classificationScheme = 'urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f' AND");
-            n();
-            a("   conf.classifiedObject = doc.id AND");
-            n();
-            a("   conf.nodeRepresentation IN ");
-            a(conf_codes);
-            n();
-            a(")");
-            n();
-        }
-
-        if (format_codes != null && format_codes.size() > 0) {
-            a("AND (");
-            n();
-            a("  fmtCode.classifiedObject = doc.id AND");
-            n();
-            a("  fmtCode.classificationScheme = 'urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d' AND ");
-            n();
-            a("  fmtCode.nodeRepresentation IN ");
-            a(format_codes);
-            n();
-            a(" ) ");
-            n();
-        }
-        if (false) {
-            a("  AND (adomain.name='AffinityDomain' AND adomain.parent=doc.id AND adomain.value=$affinitydomain) ");
-        }
-
+        append("WHERE");
+        newline();
+        append("   a.sourceObject = '" + ss_uuid + "' AND");
+        newline();
+        append("   a.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   a.targetObject = obj.id ");
+        newline();
+        addCode(conf_codes);
+        addCode(format_codes);
         return query();
     }
 
-    protected OMElement get_fol_docs(String fol_uuid, ArrayList<String> format_codes, ArrayList<String> conf_codes)
+    /**
+     *
+     * @param fol_uuid
+     * @param format_codes
+     * @param conf_codes
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement get_fol_docs(String fol_uuid, SQCodedTerm format_codes, SQCodedTerm conf_codes)
             throws XdsException {
         return get_ss_docs(fol_uuid, format_codes, conf_codes);
     }
 
-    protected OMElement get_assocs(String package_uuid, ArrayList<String> content_uuids) throws XdsException {
+    /**
+     *
+     * @param package_uuid
+     * @param content_uuids
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getAssociations(String package_uuid, ArrayList<String> content_uuids) throws XdsException {
         init();
-
-        a("SELECT * FROM Association ass");
-        n();
-        a("WHERE");
-        n();
-        a("   ass.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   ass.sourceObject = '" + package_uuid + "' AND");
-        n();
-        a("   ass.targetObject IN (");
+        append("SELECT * FROM Association ass");
+        newline();
+        append("WHERE");
+        newline();
+        append("   ass.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   ass.sourceObject = '" + package_uuid + "' AND");
+        newline();
+        append("   ass.targetObject IN (");
         for (int i = 0; i < content_uuids.size(); i++) {
             if (i > 0) {
-                a(",");
+                append(",");
             }
-            a("'" + (String) content_uuids.get(i) + "'");
+            append("'" + (String) content_uuids.get(i) + "'");
         }
-        a(")");
-        n();
-
+        append(")");
+        newline();
         return query();
     }
 
+    /**
+     *
+     * @param package_uuids
+     * @param content_uuids
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_assocs(ArrayList<String> package_uuids, ArrayList<String> content_uuids) throws XdsException {
         init();
-
-        a("SELECT * FROM Association ass");
-        n();
-        a("WHERE");
-        n();
-        a("   ass.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   ass.sourceObject IN (");
+        append("SELECT * FROM Association ass");
+        newline();
+        append("WHERE");
+        newline();
+        append("   ass.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   ass.sourceObject IN (");
         for (int i = 0; i < package_uuids.size(); i++) {
             if (i > 0) {
-                a(",");
+                append(",");
             }
-            a("'" + (String) package_uuids.get(i) + "'");
+            append("'" + (String) package_uuids.get(i) + "'");
         }
-        a(") AND");
-        n();
-        a("ass.targetObject IN (");
+        append(") AND");
+        newline();
+        append("ass.targetObject IN (");
         for (int i = 0; i < content_uuids.size(); i++) {
             if (i > 0) {
-                a(",");
+                append(",");
             }
-            a("'" + (String) content_uuids.get(i) + "'");
+            append("'" + (String) content_uuids.get(i) + "'");
         }
-        a(")");
-        n();
-
+        append(")");
+        newline();
         return query(true);
     }
 
+    /**
+     * 
+     * @param package_uuids
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_assocs(ArrayList<String> package_uuids) throws XdsException {
         if (package_uuids == null || package_uuids.size() == 0) {
             return null;
         }
-
         init();
-
-        a("SELECT * FROM Association ass");
-        n();
-        a("WHERE");
-        n();
-        a("   ass.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   ass.sourceObject IN (");
+        append("SELECT * FROM Association ass");
+        newline();
+        append("WHERE");
+        newline();
+        append("   ass.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   ass.sourceObject IN (");
         for (int i = 0; i < package_uuids.size(); i++) {
             if (i > 0) {
-                a(",");
+                append(",");
             }
-            a("'" + (String) package_uuids.get(i) + "'");
+            append("'" + (String) package_uuids.get(i) + "'");
         }
-        a(")");
-        n();
-
+        append(")");
+        newline();
         return query();
     }
 
+    /**
+     *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
     protected OMElement get_folders_for_document(String uuid) throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * FROM RegistryPackage fol, ExternalIdentifier uniq");
+            append("SELECT * FROM RegistryPackage fol, ExternalIdentifier uniq");
         } else {
-            a("SELECT fol.id FROM RegistryPackage fol, ExternalIdentifier uniq");
+            append("SELECT fol.id FROM RegistryPackage fol, ExternalIdentifier uniq");
         }
-        //a("SELECT * FROM RegistryPackage fol, ExternalIdentifier uniq");
-        a(", Association a");
-        n();
-        a("WHERE");
-        n();
-
-        a("   a.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   a.targetObject = '" + uuid + "' AND");
-        n();
-        a("   a.sourceObject = fol.id AND");
-        n();
-        a("   uniq.registryObject = fol.id AND");
-        n();
-        a("   uniq.identificationScheme = '" + MetadataSupport.XDSFolder_uniqueid_uuid + "' ");
-        n();
+        //append("SELECT * FROM RegistryPackage fol, ExternalIdentifier uniq");
+        append(", Association a");
+        newline();
+        append("WHERE");
+        newline();
+        append("   a.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   a.targetObject = '" + uuid + "' AND");
+        newline();
+        append("   a.sourceObject = fol.id AND");
+        newline();
+        append("   uniq.registryObject = fol.id AND");
+        newline();
+        append("   uniq.identificationScheme = '" + MetadataSupport.XDSFolder_uniqueid_uuid + "' ");
+        newline();
 
         // FIXME (BHT): Investigate (used to always return LEAF CLASS.
         return query(this.return_leaf_class);
         //return query();
+    }
+
+    /**
+     *
+     * @param term
+     * @return
+     */
+    public String declareClassifications(SQCodedTerm term) {
+        if (term instanceof SQCodeOr) {
+            return declareClassifications((SQCodeOr) term);
+        }
+        if (term instanceof SQCodeAnd) {
+            return declareClassifications((SQCodeAnd) term);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param or
+     * @return
+     */
+    public String declareClassifications(SQCodeOr or) {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append(", Classification " + or.getCodeVarName() + "\n");
+        buf.append(", Slot " + or.getSchemeVarName() + "\n");
+
+        return buf.toString();
+    }
+
+    /**
+     *
+     * @param and
+     * @return
+     */
+    public String declareClassifications(SQCodeAnd and) {
+        StringBuffer buf = new StringBuffer();
+
+        for (String name : and.getCodeVarNames()) {
+            buf.append(", Classification " + name + "\n");
+        }
+
+        for (String name : and.getSchemeVarNames()) {
+            buf.append(", Slot " + name + "\n");
+        }
+
+        return buf.toString();
+    }
+
+    /**
+     * 
+     * @param names
+     * @return
+     */
+    public String declareClassifications(List<String> names) {
+        StringBuffer buf = new StringBuffer();
+
+        for (String name : names) {
+            buf.append(", Classification " + name + "\n");
+        }
+
+        return buf.toString();
+    }
+
+    /**
+     *
+     * @param term
+     * @throws MetadataException
+     */
+    public void addCode(SQCodedTerm term) throws MetadataException {
+        if (term instanceof SQCodeOr) {
+            addCode((SQCodeOr) term);
+        }
+        if (term instanceof SQCodeAnd) {
+            addCode((SQCodeAnd) term);
+        }
+    }
+
+    /**
+     *
+     * @param term
+     * @throws MetadataException
+     */
+    private void addCode(SQCodeOr term) throws MetadataException {
+        and();
+        append(" (");
+        append(term.getCodeVarName());
+        append(".classifiedobject = obj.id AND ");
+        newline();
+        append("  ");
+        append(term.getCodeVarName());
+        append(".classificationScheme = '");
+        append(term.classification);
+        append("' AND ");
+        newline();
+        append("  ");
+        append(term.getCodeVarName());
+        append(".nodeRepresentation IN ");
+        append(term.getCodes());
+        append(" )");
+        newline();
+
+        and();
+        append(" (");
+        append(term.getSchemeVarName());
+        append(".parent = ");
+        append(term.getCodeVarName());
+        append(".id AND   ");
+        newline();
+        append("  ");
+        append(term.getSchemeVarName());
+        append(".name = 'codingScheme' AND   ");
+        newline();
+        append("  ");
+        append(term.getSchemeVarName());
+        append(".value IN ");
+        append(term.getSchemes());
+        append(" )");
+        newline();
+    }
+
+    /**
+     *
+     * @param term
+     * @throws MetadataException
+     */
+    private void addCode(SQCodeAnd term) throws MetadataException {
+        for (SQCodeOr or : term.getCodeOrs()) {
+            addCode(or);
+        }
+    }
+
+    // times come in as numeric values but convert them to string values to avoid numeric overflow
+    /**
+     * 
+     * @param att_name
+     * @param from_var
+     * @param to_var
+     * @param from_limit
+     * @param to_limit
+     * @param var_name
+     */
+    public void addTimes(String att_name, String from_var, String to_var,
+            String from_limit, String to_limit, String var_name) {
+        if (from_limit != null) {
+            and();
+            append(" (");
+            append(from_var);
+            append(".parent = " + var_name + ".id AND ");
+            newline();
+        }
+        if (from_limit != null) {
+            append("  ");
+            append(from_var);
+            append(".name = '");
+            append(att_name);
+            append("' AND     ");
+            newline();
+        }
+        if (from_limit != null) {
+            append("  ");
+            append(from_var);
+            append(".value >= ");
+            appendQuoted(from_limit);
+            append(" ) ");
+            newline();
+        }
+
+        if (to_limit != null) {
+            and();
+            append(" (");
+            append(to_var);
+            append(".parent = " + var_name + ".id AND ");
+            newline();
+        }
+        if (to_limit != null) {
+            append("  ");
+            append(to_var);
+            append(".name = '");
+            append(att_name);
+            append("' AND     ");
+            newline();
+        }
+        if (to_limit != null) {
+            append("  ");
+            append(to_var);
+            append(".value < ");
+            appendQuoted(to_limit);
+            append(" ) ");
+            newline();
+        }
+    }
+
+    /**
+     * 
+     */
+    public void and() {
+        if (!where) {
+            append("AND");
+        }
+        where = false;
     }
 }
 
