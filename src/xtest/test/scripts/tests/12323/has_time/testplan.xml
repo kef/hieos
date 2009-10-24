@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>12323/has_time</Test>
+    <TestStep id="has_time">
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Submit folder with lastUpdateTime</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>fol_has_time.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+</TestPlan>

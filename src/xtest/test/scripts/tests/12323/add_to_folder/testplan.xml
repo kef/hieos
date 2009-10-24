@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>12323/add_to_folder</Test>
+    <TestStep id="add_to_folder">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <WaitBefore>4000</WaitBefore>
+            <!-- delay 4 seconds to make sure time with 1 sec resolution changes -->
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>add_doc.xml</MetadataFile>
+            <UseId testdir="../has_time" id="Folder" step="has_time" section="AssignedUuids" symbol="$Folder$"/>
+        </RegisterTransaction>
+    </TestStep>
+</TestPlan>

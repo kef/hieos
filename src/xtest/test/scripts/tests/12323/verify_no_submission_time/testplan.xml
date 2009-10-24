@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>12323/verify_no_submission_time</Test>
+    <TestStep id="verify_no_time_submission">
+        <Rule>
+            <Assertion>Verify folder submitted in no_time step has today's date</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
+                    xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                    xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4">
+                        <Slot name="$XDSFolderEntryUUID">
+                            <ValueList>
+                                <Value>('$uuid1$')</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <UseId testdir="../no_time" id="Folder" step="no_time" section="AssignedUuids" symbol="$uuid1$"/>
+            <ExpectedContents>
+                <SubmissionSets count="0"/>
+                <Associations count="0"/>
+                <Documents count="0"/>
+                <Folders count="1"/>
+            </ExpectedContents>
+            <Assertions>
+                <DataRef file="THIS" as="output"/>
+                <Assert id="todaysDate">
+                    substring(//TestStep[@id="verify_no_time_submission"]/StoredQueryTransaction/Result/*[local-name()='AdhocQueryResponse']/*[local-name()='RegistryObjectList']/*[local-name()='RegistryPackage']/*[local-name()='Slot'][@name='lastUpdateTime']/*[local-name()='ValueList']/*[local-name()='Value'],1,8)="$DATE$"
+                </Assert>
+            </Assertions>
+        </StoredQueryTransaction>
+    </TestStep>
+</TestPlan>

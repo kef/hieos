@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>12323/no_time</Test>
+    <TestStep id="no_time">
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Submit folder with no lastUpdateTime</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>fol_no_time.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+</TestPlan>
