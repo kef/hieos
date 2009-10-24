@@ -70,7 +70,6 @@ class ClassificationDAO extends RegistryObjectDAO {
         String classifiedObjectId = classification.getClassifiedObject();
 
         String nodeRep = classification.getNodeRepresentation();
-
         if (nodeRep != null) {
             nodeRep = "'" + nodeRep + "'";
         }
@@ -145,6 +144,8 @@ class ClassificationDAO extends RegistryObjectDAO {
             cl.setClassifiedObject(classifiedObjectId);
 
             String nodeRep = rs.getString("nodeRepresentation");
+            // HIEOS PATCH (Set to an empty string if null):
+            if (nodeRep == null) { nodeRep = ""; }
             cl.setNodeRepresentation(nodeRep);
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
