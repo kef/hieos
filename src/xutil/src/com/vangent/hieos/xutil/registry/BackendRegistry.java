@@ -241,32 +241,24 @@ public class BackendRegistry {
      */
     public OMElement submit(OMElement request) throws XdsException {
         if (logMessage != null) {
-            logMessage.addOtherParam("omar (ebxmlrr 3.x) request (" + reason + ")", request);
+            logMessage.addOtherParam("ebXML Request (" + reason + ")", request);
         }
         OMElement result = null;
-        try {
-            OmarRegistry or = new OmarRegistry(request);
-            result = or.process();
-        } catch (Exception e) {
-            logger.error("*****   Exception in calling Omar (ebxmlrr 3.x) Registry  ****  " + e.getMessage());
-            // AMS 04/22/2009 - FIXME - Exceptions thrown could be JAXRException, RegistryException - encapsulate into XdsInternalException ???
-            // AMS 04/22/2009 - FIXME - Is the following statement correct?
-            response.add_error(MetadataSupport.XDSRegistryError, "Error parsing response from omar (ebxmlrr 3.x)", RegistryUtility.exception_details(e), logMessage);
-        }
-
+        OmarRegistry or = new OmarRegistry(request);
+        result = or.process();
         if (logMessage != null) {
-            logMessage.addOtherParam("omar (ebxmlrr 3.x) response", (result != null) ? result : "null");
+            logMessage.addOtherParam("ebXML Response", (result != null) ? result : "null");
         }
         return result;
     }
 
     /*
     void insert_version_info(OMElement parent) {
-        if (MetadataSupport.firstChildWithLocalName(parent, "VersionInfo") != null) {
-            return;
-        }
-        OMElement vi = MetadataSupport.om_factory.createOMElement("VersionInfo", MetadataSupport.ebRIMns3);
-        vi.addAttribute("versionName", "1.1", null);
-        parent.addChild(vi);
+    if (MetadataSupport.firstChildWithLocalName(parent, "VersionInfo") != null) {
+    return;
+    }
+    OMElement vi = MetadataSupport.om_factory.createOMElement("VersionInfo", MetadataSupport.ebRIMns3);
+    vi.addAttribute("versionName", "1.1", null);
+    parent.addChild(vi);
     }*/
 }

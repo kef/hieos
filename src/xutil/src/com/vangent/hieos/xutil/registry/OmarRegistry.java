@@ -136,8 +136,8 @@ public class OmarRegistry {
                         message.getClass().getName());
             }
         } catch (Exception e) {
-            // FIXME (BHT): Can not just eat exceptions.
-            log.error("**OMAR EXCEPTION**", e);
+            log.error("**ebXML EXCEPTION**", e);
+            throw new XdsInternalException("ebXML Internal Exception: " + e.getMessage());
         }
         OMElement response = null;
         try {
@@ -153,8 +153,8 @@ public class OmarRegistry {
             //convert the response to OMElement to send the response
             response = AXIOMUtil.stringToOM(respStr);
         } catch (Exception e) {
-            // FIXME (BHT): Do not eat exceptions.
-            log.error("**OMAR EXCEPTION**", e);
+            log.error("**ebXML EXCEPTION**", e);
+            throw new XdsInternalException("ebXML Internal Exception: " + e.getMessage());
         }
         return response;
     }
