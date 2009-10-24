@@ -17,13 +17,12 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -41,14 +40,12 @@ public class GetSubmissionSets extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetSubmissionSets(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-
-        //                    param name, required?, multiple?, is string?, same size as, alternative
-        validate_parm(params, "$uuid",    true,      true,      true,       null,         null);
-
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$uuid", true, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -61,16 +58,13 @@ public class GetSubmissionSets extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-
         ArrayList<String> uuids = get_arraylist_parm("$uuid");
-
         if (uuids != null && uuids.size() > 0) {
             OMElement ele = get_submissionsets(uuids);
             // this may contain duplicates - parse differently
             metadata = new Metadata();
             //metadata.setGrokMetadata(false);
             metadata.addMetadata(ele, true);
-
             if (metadata.getSubmissionSetIds().size() > 0) {
                 OMElement assocs_ele = this.get_associations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
                 metadata.addMetadata(assocs_ele, true);
@@ -78,7 +72,6 @@ public class GetSubmissionSets extends StoredQuery {
         } else {
             throw new XdsInternalException("GetSubmissionSets Stored Query: $uuid not found");
         }
-
         return metadata;
     }
 
@@ -91,28 +84,27 @@ public class GetSubmissionSets extends StoredQuery {
     protected OMElement get_submissionsets(ArrayList<String> uuids) throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
+            append("SELECT * FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
         } else {
-            a("SELECT rp.id FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
+            append("SELECT rp.id FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
         }
-        n();
-        a("WHERE ");
-        n();
-        a("	  a.sourceObject = rp.id AND");
-        n();
-        a("   a.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("	  a.targetObject IN ");
-        a(uuids);
-        a(" AND");
-        n();
-        a("   ei.registryObject = rp.id AND");
-        n();
-        a("   ei.identificationScheme = 'urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446'");
-        n();
-
+        newline();
+        append("WHERE ");
+        newline();
+        append(" a.sourceObject = rp.id AND");
+        newline();
+        append(" a.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append(" a.targetObject IN ");
+        append(uuids);
+        append(" AND");
+        newline();
+        append(" ei.registryObject = rp.id AND");
+        newline();
+        append(" ei.identificationScheme = 'urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446'");
+        newline();
         return query(this.return_leaf_class);
     }
 
@@ -128,24 +120,22 @@ public class GetSubmissionSets extends StoredQuery {
             throws XdsException {
         init();
         if (this.return_leaf_class) {
-            a("SELECT * FROM Association a");
+            append("SELECT * FROM Association a");
         } else {
-            a("SELECT a.id FROM Association a");
+            append("SELECT a.id FROM Association a");
         }
-        n();
-        a("WHERE ");
-        n();
-        a("  a.associationType = '" + type + "' AND");
-        n();
-        a("  a.sourceObject IN");
-        a(froms);
-        a(" AND");
-        n();
-        a("  a.targetObject IN");
-        a(tos);
-        n();
-
-
+        newline();
+        append("WHERE ");
+        newline();
+        append(" a.associationType = '" + type + "' AND");
+        newline();
+        append(" a.sourceObject IN");
+        append(froms);
+        append(" AND");
+        newline();
+        append(" a.targetObject IN");
+        append(tos);
+        newline();
         return query(this.return_leaf_class);
     }
 }

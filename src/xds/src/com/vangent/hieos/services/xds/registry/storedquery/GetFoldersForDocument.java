@@ -16,11 +16,10 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-
-import java.util.HashMap;
 
 import org.apache.axiom.om.OMElement;
 
@@ -39,14 +38,13 @@ public class GetFoldersForDocument extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetFoldersForDocument(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetFoldersForDocument(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-        //                    param name,                   required?, multiple?, is string?,  same size as, alternative
-        validate_parm(params, "$XDSDocumentEntryUniqueId",  true,      false,     true,        null,         "$XDSDocumentEntryEntryUUID");
-        validate_parm(params, "$XDSDocumentEntryEntryUUID", true,      false,     true,        null,         "$XDSDocumentEntryUniqueId");
-
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, "$XDSDocumentEntryUniqueId");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -61,7 +59,7 @@ public class GetFoldersForDocument extends StoredQuery {
         String uid = get_string_parm("$XDSDocumentEntryUniqueId");
         String uuid = get_string_parm("$XDSDocumentEntryEntryUUID");
         if (uuid == null || uuid.equals("")) {
-            uuid = this.get_doc_id_from_uid(uid);
+            uuid = this.getDocumentIDFromUID(uid);
         }
         if (uuid == null) {
             throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");

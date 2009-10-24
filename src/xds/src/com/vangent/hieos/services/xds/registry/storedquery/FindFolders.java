@@ -18,13 +18,13 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -42,17 +42,16 @@ public class FindFolders extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public FindFolders(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public FindFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-        //                    param name,                     required?, multiple?, is string?,   same size as,               alternative
-        validate_parm(params, "$XDSFolderPatientId",          true,      false,     true,         null,                       null);
-        validate_parm(params, "$XDSFolderLastUpdateTimeFrom", false,     false,     false,        null,                       null);
-        validate_parm(params, "$XDSFolderLastUpdateTimeTo",   false,     false,     false,        null,                       null);
-        validate_parm(params, "$XDSFolderCodeList",           false,     true,      true,         "$XDSFolderCodeListScheme", null);
-        validate_parm(params, "$XDSFolderCodeListScheme",     false,     true,      true,         "$XDSFolderCodeList",       null);
-        validate_parm(params, "$XDSFolderStatus",             true,      true,      true,         null,                       null);
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$XDSFolderPatientId", true, false, true, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderCodeList", false, true, true, true, (String[]) null);
+        validateQueryParam("$XDSFolderStatus", true, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -72,65 +71,64 @@ public class FindFolders extends StoredQuery {
         return m;
     }
 
+    /**
+     * 
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     * @throws XdsException
+     */
     OMElement impl() throws XdsInternalException, MetadataException, XdsException {
-        String patient_id = get_string_parm("$XDSFolderPatientId");
-        String update_time_from = get_int_parm("$XDSFolderLastUpdateTimeFrom");
-        String update_time_to = get_int_parm("$XDSFolderLastUpdateTimeTo");
-        ArrayList<String> codes = get_arraylist_parm("$XDSFolderCodeList");
-        ArrayList<String> code_schemes = get_arraylist_parm("$XDSFolderCodeListScheme");
+        String patient_id = this.get_string_parm("$XDSFolderPatientId");
+        String update_time_from = this.get_int_parm("$XDSFolderLastUpdateTimeFrom");
+        String update_time_to = this.get_int_parm("$XDSFolderLastUpdateTimeTo");
+        SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         ArrayList<String> status = get_arraylist_parm("$XDSFolderStatus");
-
         if (patient_id == null || patient_id.length() == 0) {
             throw new XdsException("Patient ID parameter empty");
         }
         if (status.size() == 0) {
             throw new XdsException("Status parameter empty");
         }
-
         init();
         if (this.return_leaf_class) {
-            a("SELECT *  ");
-            n();
+            append("SELECT *  ");
+            newline();
         } else {
-            a("SELECT fol.id  ");
-            n();
+            append("SELECT obj.id  ");
+            newline();
         }
-
-        a("FROM RegistryPackage fol, ExternalIdentifier patId");
-        n();
+        append("FROM RegistryPackage obj, ExternalIdentifier patId");
+        newline();
         if (update_time_from != null) {
-            a(", Slot updateTimef");
+            append(", Slot updateTimef");
         }
-        n();
+        newline();
         if (update_time_to != null) {
-            a(", Slot updateTimet");
+            append(", Slot updateTimet");
         }
-        n();
+        newline();
         if (codes != null) {
-            a(", Classification code");
+            append(declareClassifications(codes));
         }
-        n();
-        if (code_schemes != null) {
-            a(", Slot codescheme");
-        }
-        n();
-        a("WHERE");
-        n();
+        newline();
+        append("WHERE");
+        newline();
 
         // patientID
-        a("(fol.id = patId.registryobject AND	");
-        n();
-        a("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
-        n();
-        a("  patId.value = '");
-        a(patient_id);
-        a("' ) AND");
-        n();
-        a("  fol.status IN ");
-        a(status);
-        n();
-        add_times("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "fol");
-
+        append("(obj.id = patId.registryobject AND	");
+        newline();
+        append("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
+        newline();
+        append("  patId.value = '");
+        append(patient_id);
+        append("' ) AND");
+        newline();
+        append("  obj.status IN ");
+        append(status);
+        newline();
+        this.addCode(codes);
+        this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
         return query(this.return_leaf_class);
     }
 }

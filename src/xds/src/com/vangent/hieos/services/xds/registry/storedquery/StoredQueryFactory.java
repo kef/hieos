@@ -25,10 +25,9 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -38,7 +37,7 @@ import org.apache.axiom.om.OMElement;
 public class StoredQueryFactory {
     OMElement ahqr;
     boolean return_objects = false;
-    HashMap<String, Object> params;
+    SqParams params;
     String query_id;
     XLogMessage log_message = null;
     StoredQuery x;
@@ -81,7 +80,7 @@ public class StoredQueryFactory {
      * @return
      */
     public boolean hasParm(String parmName) {
-        return params.containsKey(parmName);
+        return params.hasParm(parmName);
     }
 
     /**
@@ -90,7 +89,7 @@ public class StoredQueryFactory {
      * @return
      */
     public Object getParm(String parmName) {
-        return params.get(parmName);
+        return params.getParm(parmName);
     }
 
     /**

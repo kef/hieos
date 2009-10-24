@@ -13,14 +13,13 @@
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -40,14 +39,13 @@ public class GetFolders extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetFolders(HashMap params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-        //                    param name,            required?, multiple?, is string?, same size as, alternative
-        validate_parm(params, "$XDSFolderEntryUUID", true,      true,      true,       null,         "$XDSFolderUniqueId");
-        validate_parm(params, "$XDSFolderUniqueId",  true,      true,      true,       null,         "$XDSFolderEntryUUID");
-
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, "$XDSFolderUniqueId");
+        validateQueryParam("$XDSFolderUniqueId", true, true, true, false, "$XDSFolderEntryUUID");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -71,7 +69,7 @@ public class GetFolders extends StoredQuery {
         } else {
             // starting from uniqueid
             ArrayList<String> fol_uid = get_arraylist_parm("$XDSFolderUniqueId");
-            OMElement x = get_fol_by_uid(fol_uid);
+            OMElement x = getFolderByUID(fol_uid);
             metadata = MetadataParser.parseNonSubmission(x);
         }
         return metadata;

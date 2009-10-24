@@ -18,13 +18,12 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -42,15 +41,14 @@ public class GetRelatedDocuments extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetRelatedDocuments(HashMap<String, Object> params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetRelatedDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-        //                    param name,                   required?, multiple?, is string?,   same size as, alternative
-        validate_parm(params, "$XDSDocumentEntryUniqueId",  true,      false,     true,         null,         "$XDSDocumentEntryEntryUUID");
-        validate_parm(params, "$XDSDocumentEntryEntryUUID", true,      false,     true,         null,         "$XDSDocumentEntryUniqueId");
-        validate_parm(params, "$AssociationTypes",          true,      true,      true,         null,         null);
-
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, "$XDSDocumentEntryUniqueId");
+        validateQueryParam("$AssociationTypes", true, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -63,13 +61,11 @@ public class GetRelatedDocuments extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata = new Metadata();
-
         String uid = get_string_parm("$XDSDocumentEntryUniqueId");
         String uuid = get_string_parm("$XDSDocumentEntryEntryUUID");
         ArrayList<String> assoc_types = get_arraylist_parm("$AssociationTypes");
         ArrayList<String> doc_ids_to_query_for = new ArrayList<String>();
         ArrayList<String> doc_ids = new ArrayList<String>();
-
         if (assoc_types == null || assoc_types.size() == 0) {
             throw new XdsInternalException("No $AssociationTypes specified in query");
         }
@@ -87,7 +83,7 @@ public class GetRelatedDocuments extends StoredQuery {
         // if uid supplied, query to get metadata and add uuid to doc_ids since we do have metadata
         // already loaded into Metadata metadata (which is the return vessel)
         if (uid != null) {
-            OMElement ele = get_doc_by_uid(uid);
+            OMElement ele = getDocumentByUID(uid);
             metadata = MetadataParser.parseNonSubmission(ele);
             doc_ids.addAll(metadata.getExtrinsicObjectIds());
         } else {
@@ -97,7 +93,6 @@ public class GetRelatedDocuments extends StoredQuery {
                 throw new XdsInternalException("GetDocuments Stored Query: uuid not found, uid not found");
             }
         }
-
         if (doc_ids.size() == 0 && doc_ids_to_query_for.size() == 0) {
             return metadata;
         }
@@ -108,7 +103,7 @@ public class GetRelatedDocuments extends StoredQuery {
         combined_ids.addAll(doc_ids_to_query_for);
 
         // load all associations related to combined_ids
-        OMElement associations = get_associations(combined_ids, assoc_types);
+        OMElement associations = getAssociations(combined_ids, assoc_types);
         Metadata association_metadata = MetadataParser.parseNonSubmission(associations);
 
         // no associations => empty return
@@ -133,7 +128,7 @@ public class GetRelatedDocuments extends StoredQuery {
         }
 
         // load documents from our potential-document ids
-        metadata.addMetadata(get_doc_by_uuid(doc_ids_to_query_for));
+        metadata.addMetadata(getDocumentByUUID(doc_ids_to_query_for));
 
         // add associations to final list that reference included documents at both ends
         ArrayList<String> loaded_doc_ids = metadata.getExtrinsicObjectIds();
@@ -145,7 +140,6 @@ public class GetRelatedDocuments extends StoredQuery {
                 metadata.add_association(assoc);
             }
         }
-
         return metadata;
     }
 }

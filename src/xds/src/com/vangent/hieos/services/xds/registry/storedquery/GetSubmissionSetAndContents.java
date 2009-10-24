@@ -15,16 +15,15 @@ package com.vangent.hieos.services.xds.registry.storedquery;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoSubmissionSetException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -45,10 +44,9 @@ public class GetSubmissionSetAndContents extends StoredQuery {
      */
     /*
     public GetSubmissionSetAndContents(HashMap<String, String> params, ErrorLogger response, XLogMessage log_message) {
-        super(response, log_message);
-        this.params = params;
+    super(response, log_message);
+    this.params = params;
     }*/
-
     /**
      *
      * @param params
@@ -58,17 +56,15 @@ public class GetSubmissionSetAndContents extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetSubmissionSetAndContents(HashMap params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetSubmissionSetAndContents(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message, is_secure);
 
-
-        //                    param name,                             required?, multiple?, is string?, same size as, alternative
-        validate_parm(params, "$XDSSubmissionSetEntryUUID",           true,      false,     true,       null,         "$XDSSubmissionSetUniqueId");
-        validate_parm(params, "$XDSSubmissionSetUniqueId",            true,      false,     true,       null,         "$XDSSubmissionSetEntryUUID");
-        validate_parm(params, "$XDSDocumentEntryFormatCode",          false,     true,      true,       null,         null);
-        validate_parm(params, "$XDSDocumentEntryConfidentialityCode", false,     true,      true,       null,         null);
-
+        // param name, required?, multiple?, is string?, is code?, alternative
+        validateQueryParam("$XDSSubmissionSetEntryUUID", true, false, true, false, "$XDSSubmissionSetUniqueId");
+        validateQueryParam("$XDSSubmissionSetUniqueId", true, false, true, false, "$XDSSubmissionSetEntryUUID");
+        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -81,7 +77,6 @@ public class GetSubmissionSetAndContents extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-
         String ss_uuid = get_string_parm("$XDSSubmissionSetEntryUUID");
         if (ss_uuid != null) {
             // starting from uuid
@@ -100,14 +95,12 @@ public class GetSubmissionSetAndContents extends StoredQuery {
             } catch (NoSubmissionSetException e) {
                 return null;
             }
-
             ss_uuid = metadata.getSubmissionSet().getAttributeValue(MetadataSupport.id_qname);
         }
 
         // ss_uuid has now been set
-
-        ArrayList<String> conf_codes = this.get_arraylist_parm("$XDSDocumentEntryConfidentialityCode");
-        ArrayList<String> format_codes = this.get_arraylist_parm("$XDSDocumentEntryFormatCode");
+        SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
+        SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
 
         OMElement doc_metadata = get_ss_docs(ss_uuid, format_codes, conf_codes);
         metadata.addMetadata(doc_metadata);
@@ -146,26 +139,29 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         content_ids.addAll(metadata.getIds(metadata.getAssociationsInclusive(content_ids)));
 
         metadata.filter(content_ids);
-
         return metadata;
     }
 
-    OMElement get_ss_folders(String ss_uuid) throws XdsException {
+    /**
+     *
+     * @param ss_uuid
+     * @return
+     * @throws XdsException
+     */
+    private OMElement get_ss_folders(String ss_uuid) throws XdsException {
         init();
-
-        a("SELECT * FROM RegistryPackage fol, Association a");
-        n();
-        a("WHERE");
-        n();
-        a("   a.associationType = '");
-        a(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        a("' AND");
-        n();
-        a("   a.sourceObject = '" + ss_uuid + "' AND");
-        n();
-        a("   a.targetObject = fol.id ");
-        n();
-
+        append("SELECT * FROM RegistryPackage fol, Association a");
+        newline();
+        append("WHERE");
+        newline();
+        append("   a.associationType = '");
+        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append("' AND");
+        newline();
+        append("   a.sourceObject = '" + ss_uuid + "' AND");
+        newline();
+        append("   a.targetObject = fol.id ");
+        newline();
         return query();
     }
 }
