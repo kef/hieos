@@ -23,7 +23,7 @@
         <ObjectRef id="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427"/>
         <ObjectRef id="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d"/>
         <ObjectRef id="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d"/>
-        <ExtrinsicObject id="Document01" mimeType="text/xml"
+        <ExtrinsicObject id="Document01" mimeType="text/plain"
             objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1">
             <Name>
                 <LocalizedString value="DocC"/>
@@ -71,12 +71,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>
@@ -210,7 +210,7 @@
                 </Name>
             </ExternalIdentifier>
         </ExtrinsicObject>
-        <ExtrinsicObject id="Document02" mimeType="text/xml"
+        <ExtrinsicObject id="Document02" mimeType="text/plain"
             objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1">
             <Name>
                 <LocalizedString value="DocD"/>
@@ -223,7 +223,7 @@
             </Slot>
             <Slot name="size">
                 <ValueList>
-                    <Value>36</Value>
+                    <Value>50</Value>
                 </ValueList>
             </Slot>
             <Slot name="URI">
@@ -233,7 +233,7 @@
             </Slot>
             <Slot name="hash">
                 <ValueList>
-                    <Value>e543712c0e10501972de13a5bfcbe826c49feb75</Value>
+                    <Value>b53a776c57061fa2fb304d499d934cd81cc324e2</Value>
                 </ValueList>
             </Slot>
             <Slot name="creationTime">
@@ -258,12 +258,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>
@@ -385,6 +385,17 @@
                 <Value>20051224</Value>
               </ValueList>
             </Slot>
+            <Classification classificationScheme="urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5"
+                classifiedObject="Folder" nodeRepresentation="Referrals">
+                <Name>
+                    <LocalizedString value="Referrals"/>
+                </Name>
+                <Slot name="codingScheme">
+                    <ValueList>
+                        <Value>Connect-a-thon folderCodeList</Value>
+                    </ValueList>
+                </Slot>
+            </Classification>
             <ExternalIdentifier identificationScheme="urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"
                 value="folder_uniqueid">
                 <Name>

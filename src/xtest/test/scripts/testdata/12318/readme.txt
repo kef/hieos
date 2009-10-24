@@ -1,4 +1,4 @@
-Initialization of XCA RG Test Data
+Initialize XCA RG Test Data
 
 This initializes a Registry/Repository behind an XCA interface for testing the XCA interface.
 It loads 2 documents, a small text document and a larger PDF document.

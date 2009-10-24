@@ -23,7 +23,7 @@
         <ObjectRef id="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427"/>
         <ObjectRef id="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d"/>
         <ObjectRef id="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d"/>
-        <ExtrinsicObject id="Document01" mimeType="application/pdf"
+        <ExtrinsicObject id="Document01" mimeType="text/plain"
             objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1">
             <Name>
                 <LocalizedString value="Physical"/>
@@ -51,12 +51,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>
@@ -218,12 +218,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>

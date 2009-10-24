@@ -1,4 +1,4 @@
-Initialization for Registry testing
+Initialize XDS.a for Registry testing
 
-Two versions of the testplan are supplied, one coded for XDS.a and one for XDS.b.
-To use, rename one of them to testplan.xml and run with xdstest.
+This test data is suitable for Stored Query testing only. It uses Register.a to load metadata into the
+Registry.  The Repository references are fake.

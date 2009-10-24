@@ -69,6 +69,7 @@
         </RegisterTransaction>
     </TestStep>
     <TestStep id="reset_patient_id">
+        <ExpectedStatus>Success</ExpectedStatus>
         <NewPatientId/>
     </TestStep>
 </TestPlan>
