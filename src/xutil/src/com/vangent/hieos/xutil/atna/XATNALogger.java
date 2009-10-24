@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 //import com.vangent.hieos.xutil.base64.Base64Coder;
 
 // Third-party.
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -803,7 +804,7 @@ public class XATNALogger {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String getQueryPatientID(OMElement request, String queryId) throws MetadataValidationException, XdsInternalException {
-        HashMap<String, Object> params = null;
+        SqParams params = null;
 
         if (queryId == null) {
             return "QueryId not known";  // Early exit (FIXME).
@@ -818,13 +819,13 @@ public class XATNALogger {
         String patientId = null;
         if (queryId.equals(MetadataSupport.SQ_FindDocuments)) {
             // $XDSDocumentEntryPatientId
-            patientId = (String) params.get("$XDSDocumentEntryPatientId");
+            patientId = params.getStringParm("$XDSDocumentEntryPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_FindFolders)) {
             // $XDSFolderPatientId
-            patientId = (String) params.get("$XDSFolderPatientId");
+            patientId = params.getStringParm("$XDSFolderPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_FindSubmissionSets)) {
             // $XDSSubmissionSetPatientId
-            patientId = (String) params.get("$XDSSubmissionSetPatientId");
+            patientId = params.getStringParm("$XDSSubmissionSetPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_GetAll)) {
             // FIXME: NOT IMPLEMENTED [NEED TO FIGURE OUT WHAT TO PULL OUT HERE.
             return "SQ_GetAll not implemented";
