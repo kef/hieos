@@ -57,6 +57,7 @@ public class GetDateServlet extends HttpServlet {
         Log log = new Log();
         try {
             Connection con = log.getConnection();
+            System.out.println("LOG (dateStatement) = " + this.sqlCommand);
             dateStatement = con.prepareStatement(this.sqlCommand);
         } catch (SQLException e) {
         } catch (LoggerException e) {

@@ -310,17 +310,17 @@ public class GetTableServlet extends HttpServlet {
 
                 int nbResByPage = new Integer(numberResultsByPage).intValue();
 
-                limitOffset = " LIMIT " + nbResByPage + " OFFSET " + (nbResByPage * pageNumber) + " ;";
+                limitOffset = " LIMIT " + nbResByPage + " OFFSET " + (nbResByPage * pageNumber);
             } else {
-                limitOffset = " LIMIT " + MAX_RESULTS_BY_PAGE + " OFFSET " + (MAX_RESULTS_BY_PAGE * pageNumber) + " ;";
+                limitOffset = " LIMIT " + MAX_RESULTS_BY_PAGE + " OFFSET " + (MAX_RESULTS_BY_PAGE * pageNumber);
             }
 
         } else {
             if (numberResultsByPage != null) {
                 int nbResByPage = new Integer(numberResultsByPage).intValue();
-                limitOffset = " LIMIT " + nbResByPage + " ;";
+                limitOffset = " LIMIT " + nbResByPage;
             } else {
-                limitOffset = " LIMIT " + MAX_RESULTS_BY_PAGE + " ;";
+                limitOffset = " LIMIT " + MAX_RESULTS_BY_PAGE;
             }
         }
         logger.debug("GetTableServlet: sqlRequest before treatment: >" + currentSqlCommand + "<\n");

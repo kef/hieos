@@ -59,6 +59,7 @@ public class TableModel extends AbstractTableModel
 
         Statement statement = c.createStatement();
         log.debug("TABLE_MODEL_SYSLOG: statement created\n");
+        System.out.println("TableModel (SQL) -> " + sqlRequest);
         statementResult = statement.executeQuery(sqlRequest);
         log.debug("TABLE_MODEL_SYSLOG: Query executed\n");
         log.debug("<--" + new GregorianCalendar().getTime() + " TableModel close Database \n");

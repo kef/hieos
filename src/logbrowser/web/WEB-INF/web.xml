@@ -118,7 +118,7 @@
 
             <param-name>sqlCommand</param-name>
 
-            <param-value>SELECT timereceived FROM main order by timereceived desc ;</param-value>
+            <param-value>SELECT timereceived FROM main order by timereceived desc</param-value>
 
         </init-param>
 

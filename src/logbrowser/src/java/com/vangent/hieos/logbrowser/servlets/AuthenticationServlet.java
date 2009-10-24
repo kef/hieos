@@ -163,7 +163,7 @@ public class AuthenticationServlet extends HttpServlet {
                 PreparedStatement selectCompanyName = null;
                 Connection con = log.getConnection();
                 selectCompanyName = con.prepareStatement(
-                        "SELECT company_name,email FROM ip where ip = ? ; ");
+                        "SELECT company_name,email FROM ip where ip = ?");
                 selectCompanyName.setString(1, ipFrom);
                 ResultSet result = selectCompanyName.executeQuery();
                 if (result.next()) {
