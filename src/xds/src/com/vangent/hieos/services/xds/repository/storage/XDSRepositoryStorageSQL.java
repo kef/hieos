@@ -29,6 +29,7 @@ import java.sql.ResultSet;
  * @author Bernie Thuman
  */
 public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
+
     private final static Logger logger = Logger.getLogger(XDSRepositoryStorageSQL.class);
 
     /**
@@ -71,12 +72,25 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      * @throws java.sql.SQLException
      */
     private boolean documentExists(Connection connection, XDSDocument doc) throws SQLException {
-        String sql = "SELECT uniqueid from document where uniqueid = ?";
-        PreparedStatement stmt = connection.prepareStatement(sql);
-        stmt.setString(1, doc.getUniqueId());
-        logger.trace("SQL(repo) = " + sql);
-        ResultSet result = stmt.executeQuery();
-        return result.next();
+        boolean documentExists = false;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            String sql = "SELECT uniqueid from document where uniqueid = ?";
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, doc.getUniqueId());
+            logger.trace("SQL(repo) = " + sql);
+            rs = stmt.executeQuery();
+            documentExists = rs.next();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (stmt != null) {
+                rs.close();
+            }
+        }
+        return documentExists;
     }
 
     /**
@@ -88,6 +102,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      */
     private void insertDocument(Connection connection, XDSDocument doc) throws SQLException {
         String sql = "INSERT INTO document (uniqueid, documentid, repositoryid, hash, size, mimetype, bytes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        //String sql = "INSERT INTO document (uniqueid, documentid, repositoryid, hash, size_, mimetype, bytes) VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, doc.getUniqueId());
         stmt.setString(2, doc.getDocumentId());
@@ -100,6 +115,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         stmt.setBinaryStream(7, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
         logger.trace("SQL(repo) = " + sql);
         stmt.execute();
+        stmt.close();
     }
 
     /**
@@ -111,6 +127,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      */
     private void updateDocument(Connection connection, XDSDocument doc) throws SQLException {
         String sql = "UPDATE document SET documentid=?, repositoryid=?, hash=?, size=?, mimetype=?, bytes=? WHERE uniqueid = ?";
+        //String sql = "UPDATE document SET documentid=?, repositoryid=?, hash=?, size_=?, mimetype=?, bytes=? WHERE uniqueid = ?";
         PreparedStatement stmt = connection.prepareStatement(sql);
 
         stmt.setString(1, doc.getDocumentId());
@@ -125,6 +142,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         stmt.setString(7, doc.getUniqueId());
         logger.trace("SQL(repo) = " + sql);
         stmt.executeUpdate();
+        stmt.close();
     }
 
     /**
@@ -139,11 +157,12 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         Connection connection = this.getConnection();
 
         // Read blob from database.
-        ResultSet rs;
+        ResultSet rs = null;
+        PreparedStatement stmt = null;
         try {
             String sql = "SELECT documentid, repositoryid, hash, size, mimetype, bytes FROM document WHERE uniqueid = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-
+            //String sql = "SELECT documentid, repositoryid, hash, size_, mimetype, bytes FROM document WHERE uniqueid = ?";
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, doc.getUniqueId());
             logger.trace("SQL(repo) = " + sql);
             rs = stmt.executeQuery();
@@ -168,6 +187,12 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
             throw new XdsInternalException("Failure reading document from database [uniqueid = " + doc.getUniqueId() + "]: " + ex.getMessage());
         } finally {
             try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (rs != null) {
+                    rs.close();
+                }
                 connection.close();
             } catch (Exception e) {
                 //Do nothing.
