@@ -42,6 +42,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigAssigningAuthority;
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -268,7 +269,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String getPatientId(OMElement request, OMElement queryRequest) throws XdsInternalException {
-        HashMap params = null;
+        SqParams params = null;
         String queryId = this.getStoredQueryId(queryRequest);
         if (queryId == null) {
             return null;  // Early exit (FIXME).
@@ -289,13 +290,13 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         String patientId = null;
         if (queryId.equals(MetadataSupport.SQ_FindDocuments)) {
             // $XDSDocumentEntryPatientId
-            patientId = (String) params.get("$XDSDocumentEntryPatientId");
+            patientId = params.getStringParm("$XDSDocumentEntryPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_FindFolders)) {
             // $XDSFolderPatientId
-            patientId = (String) params.get("$XDSFolderPatientId");
+            patientId = params.getStringParm("$XDSFolderPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_FindSubmissionSets)) {
             // $XDSSubmissionSetPatientId
-            patientId = (String) params.get("$XDSSubmissionSetPatientId");
+            patientId = params.getStringParm("$XDSSubmissionSetPatientId");
         } else if (queryId.equals(MetadataSupport.SQ_GetAll)) {
             // FIXME: NOT IMPLEMENTED [NEED TO FIGURE OUT WHAT TO PULL OUT HERE.
         }
