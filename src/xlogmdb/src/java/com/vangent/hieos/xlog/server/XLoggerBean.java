@@ -97,9 +97,10 @@ public class XLoggerBean implements MessageListener {
             // Keep going..
             return;
         }
+        Statement stmt = null;
         try {
             conn.setAutoCommit(false);
-            Statement stmt = conn.createStatement();
+            stmt = conn.createStatement();
             persistIp(conn, logMessage, stmt);
             persistMain(logMessage, stmt);
             persistEntries(logMessage, stmt);
@@ -109,6 +110,9 @@ public class XLoggerBean implements MessageListener {
             Logger.getLogger(XLoggerBean.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
+                if (stmt != null) {
+                    stmt.close();
+                }
                 conn.close();
             } catch (SQLException ex) {
                 // Keep going.
@@ -129,7 +133,7 @@ public class XLoggerBean implements MessageListener {
         if (this.ipExists(conn, logMessage.getIpAddress()) == false) {
             // Get the SQL statement to place into batch.
             String sql = this.getSQLInsertStatementForIp(logMessage);
-            //System.out.println("LOG IP SQL: " + sql);
+            System.out.println("LOG IP SQL: " + sql);
             stmt.addBatch(sql);
         }
     }
@@ -142,19 +146,20 @@ public class XLoggerBean implements MessageListener {
      * @throws java.sql.SQLException
      */
     private boolean ipExists(Connection conn, String ipAddress) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM ip WHERE ip = " + this.getSQLQuotedString(ipAddress) + ";";
+        String sql = "SELECT COUNT(*) FROM ip WHERE ip = " + this.getSQLQuotedString(ipAddress);
         //System.out.println("LOG LOOKUP IP = " + sql);
         Statement stmt = conn.createStatement();
-        ResultSet res = stmt.executeQuery(sql);
-        res.next();
+        ResultSet rs = stmt.executeQuery(sql);
+        rs.next();
         boolean result = false;
-        if (res.getInt(1) == 0) {
+        if (rs.getInt(1) == 0) {
             //System.out.println(" ... IP NOT FOUND");
             result = false;
-        } else if (res.getInt(1) > 0) {
+        } else if (rs.getInt(1) > 0) {
             //System.out.println(" ... IP FOUND");
             result = true;
         }
+        rs.close();
         stmt.close();
         return result;
     }
@@ -165,7 +170,7 @@ public class XLoggerBean implements MessageListener {
      */
     private void persistMain(XLogMessage logMessage, Statement stmt) throws SQLException {
         String sql = this.getSQLInsertStatementForMain(logMessage);
-        //System.out.println("LOG MAIN SQL: " + sql);
+        System.out.println("LOG MAIN SQL: " + sql);
         stmt.addBatch(sql);
     }
 
@@ -189,7 +194,7 @@ public class XLoggerBean implements MessageListener {
             while (nameValueIterator.hasNext()) {
                 XLogMessageNameValue nameValue = (XLogMessageNameValue) nameValueIterator.next();
                 String sql = this.getSQLInsertStatementForParam(logMessage, key, nameValue, ++seqId);
-                //System.out.println("LOG PARAM SQL: " + sql);
+                System.out.println("LOG PARAM SQL: " + sql);
                 stmt.addBatch(sql);
             }
         }
