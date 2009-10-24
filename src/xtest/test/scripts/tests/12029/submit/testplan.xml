@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-   <Test>12330/submit</Test>
+   <Test>12029/submit</Test>
     <TestStep id="submit">
         <ExpectedStatus>Success</ExpectedStatus>
         <ProvideAndRegisterTransaction>

@@ -9,6 +9,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -24,7 +25,7 @@
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="Folder" step="submit_doc_w_fol"
+            <UseId testdir="../../testdata/12346" id="Folder" step="submit_doc_w_fol"
                 section="AssignedUids" symbol="$uniqueid$"/>
             <ExpectedContents>
                 <Associations count="1"/>
@@ -41,6 +42,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -56,7 +58,7 @@
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="Folder" step="submit_doc_w_fol"
+            <UseId testdir="../../testdata/12346" id="Folder" step="submit_doc_w_fol"
                 section="AssignedUuids" symbol="$uuid$"/>
             <ExpectedContents>
                 <Associations count="1"/>
@@ -73,6 +75,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -87,13 +90,13 @@
                         </Slot>
                         <Slot name="$XDSDocumentEntryConfidentialityCode">
                             <ValueList>
-                                <Value>('1.3.6.1.4.1.21367.2006.7.103')</Value>
+                                <Value>('1.3.6.1.4.1.21367.2006.7.103^^Connect-a-thon confidentialityCodes')</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="Folder" step="submit_2doc_w_fol"
+            <UseId testdir="../../testdata/12346" id="Folder" step="submit_2doc_w_fol"
                 section="AssignedUuids" symbol="$uuid$"/>
             <ExpectedContents>
                 <Associations count="1"/>
@@ -110,6 +113,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -124,13 +128,13 @@
                         </Slot>
                         <Slot name="$XDSDocumentEntryConfidentialityCode">
                             <ValueList>
-                                <Value>('1.3.6.1.4.1.21367.2006.7.103','1.3.6.1.4.1.21367.2006.7.104')</Value>
+                                <Value>('1.3.6.1.4.1.21367.2006.7.103^^Connect-a-thon confidentialityCodes','1.3.6.1.4.1.21367.2006.7.104^^Connect-a-thon confidentialityCodes')</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="Folder" step="submit_2doc_w_fol"
+            <UseId testdir="../../testdata/12346" id="Folder" step="submit_2doc_w_fol"
                 section="AssignedUuids" symbol="$uuid$"/>
             <ExpectedContents>
                 <Associations count="2"/>
@@ -147,6 +151,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -161,13 +166,13 @@
                         </Slot>
                         <Slot name="$XDSDocumentEntryFormatCode">
                             <ValueList>
-                                <Value>('CDAR2/IHE 1.0')</Value>
+                                <Value>('CDAR2/IHE 1.0^^Connect-a-thon formatCodes')</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="Folder" step="submit_2doc_w_fol"
+            <UseId testdir="../../testdata/12346" id="Folder" step="submit_2doc_w_fol"
                 section="AssignedUuids" symbol="$uuid$"/>
             <ExpectedContents>
                 <Associations count="1"/>

@@ -4,6 +4,7 @@
     <TestStep id="eval">
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <UseId testdir="../submit" id="SubmissionSet01" step="submit_fol"
                 section="AssignedUids" symbol="$ssuid$"/>
             <Metadata>

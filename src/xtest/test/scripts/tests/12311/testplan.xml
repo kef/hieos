@@ -9,9 +9,6 @@
             <Assertion>LeafClass return</Assertion>
         </Rule>
         <XCQTransaction>
-            <UseXPath testdir="../12309" step="finddocs" index="0" symbol="$home$">
-/TestResults/TestStep[@id='finddocs']/XCQTransaction/Result/*[local-name()='AdhocQueryResponse']/*[local-name()='RegistryObjectList']/*[local-name()='ObjectRef'][1]/@home
-            </UseXPath>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -27,6 +24,8 @@
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
+            <UseXPath testdir="../12309" step="finddocs" symbol="$home$">
+                //TestStep[@id='finddocs']/XCQTransaction/Result/*[local-name()='AdhocQueryResponse']/*[local-name()='RegistryObjectList']/*[local-name()='ObjectRef'][1]/@home</UseXPath>
             <UseObjectRef testdir="../12309" step="finddocs" index="0" symbol="$doc_uuid_1$"/>
             <UseObjectRef testdir="../12309" step="finddocs" index="1" symbol="$doc_uuid_2$"/>
             <Assertions>

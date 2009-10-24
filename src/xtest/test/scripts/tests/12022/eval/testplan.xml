@@ -4,6 +4,7 @@
  <TestStep id="original_deprecated">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	 <XDSb/>
    <UseId testdir="../submit" id="SubmissionSet01" step="submit"
                 section="AssignedUids" symbol="$ssuid$"/>
    <MetadataFile>ssandcontents.xml</MetadataFile>
@@ -17,6 +18,7 @@
  <TestStep id="apnd_xfrm_deprecated">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	 <XDSb/>
    <UseId testdir="../apnd" id="SubmissionSet01" step="submit"
                 section="AssignedUids" symbol="$ssuid$"/>
    <MetadataFile>ssandcontents.xml</MetadataFile>
@@ -29,6 +31,7 @@
  <TestStep id="replacement_approved">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	 <XDSb/>
    <UseId testdir="../rplc" id="SubmissionSet01" step="rplc"
                 section="AssignedUids" symbol="$ssuid$"/>
    <MetadataFile>ssandcontents.xml</MetadataFile>

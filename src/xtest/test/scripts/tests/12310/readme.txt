@@ -1,4 +1,4 @@
-XGQ FindDocuments for LeafClass
+XCQ FindDocuments for LeafClass
 
 This test depends on test 12318 to initialize test data.
 

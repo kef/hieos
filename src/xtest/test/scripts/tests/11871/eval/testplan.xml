@@ -4,6 +4,7 @@
  <TestStep id="validate_rplc">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSa/>
    <UseId testdir="../submit" id="SubmissionSet01" step="submit" section="AssignedUuids"
     symbol="$docuuid$"/>
    <Metadata>
@@ -30,6 +31,7 @@
  <TestStep id="validate_new">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSa/>
    <UseId testdir="../rplc" id="SubmissionSet01" step="rplc" section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>
     <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -55,6 +57,7 @@
  <TestStep id="validate_deprecate">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	  <XDSa/>
    <UseId testdir="../submit" id="SubmissionSet01" step="submit" section="AssignedUids"
     symbol="$ssuid$"/>
    <Metadata>

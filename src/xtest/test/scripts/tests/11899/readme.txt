@@ -1,6 +1,6 @@
-SQ FindFolders Stored Query
+SQ.b FindFolders Stored Query
 
-This test relies on test 11890 to pre-load test data.
+This test relies on test 12346 to pre-load test data.
 
 basic
 	Basic operation based on Patient ID parameter

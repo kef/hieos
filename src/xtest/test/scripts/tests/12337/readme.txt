@@ -1,4 +1,4 @@
-ASync XGR XCA Retrieve single document
+ASync XCR Retrieve single document
 
 Generate request for the retrieval of a single document based 
 on metadata returned in test 12311.

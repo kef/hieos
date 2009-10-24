@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-    <Test>12038/retrieve</Test>
+    <Test>12083</Test>
     <RegistryEndpoint>ENDPOINT</RegistryEndpoint>
     <TestStep id="retrieve">
         <ExpectedStatus>Success</ExpectedStatus>
         <RetrieveTransaction>
+            <XDSb/>
             <Metadata>
 <RetrieveDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

@@ -6,6 +6,7 @@
         <ExpectedErrorMessage>XDSMissingDocumentMetadata</ExpectedErrorMessage>
         <ProvideAndRegisterTransaction>
             <XDSb/>
+            <AssignUuids/>
             <MetadataFile>no_doc.xml</MetadataFile>
             <Document id="Document01">my_document.txt</Document>
         </ProvideAndRegisterTransaction>
@@ -15,6 +16,7 @@
         <ExpectedErrorMessage>XDSMissingDocument</ExpectedErrorMessage>
         <ProvideAndRegisterTransaction>
             <XDSb/>
+            <AssignUuids/>
             <MetadataFile>single_doc.xml</MetadataFile>
         </ProvideAndRegisterTransaction>
     </TestStep>

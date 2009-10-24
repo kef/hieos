@@ -4,6 +4,7 @@
     <TestStep id="eval">
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+            <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -19,8 +20,8 @@
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../submit" id="Document01" step="submit"
-                section="AssignedUids" symbol="$doc_uid$"/>
+            <UseId testdir="../submit" id="Document01" step="submit" section="AssignedUids"
+                symbol="$doc_uid$"/>
             <ExpectedContents>
                 <Documents count="0"/>
             </ExpectedContents>

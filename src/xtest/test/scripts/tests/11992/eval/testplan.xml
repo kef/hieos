@@ -4,6 +4,7 @@
  <TestStep id="validate_deprecate">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSb/>
    <UseId testdir="../submit" id="SubmissionSet01" step="submit"
                 section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>
@@ -31,6 +32,7 @@
  <TestStep id="validate_new">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSb/>
    <UseId testdir="../rplc" id="SubmissionSet01" step="rplc"
                 section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>

@@ -1,6 +1,6 @@
-SQ GetDocuments Stored Query
+SQ.b GetDocuments Stored Query
 
-This test relies on test 11980 to pre-load test data.
+This test relies on test 12346 to pre-load test data.
 
 Stored Query must use SOAP version 1.2 
 

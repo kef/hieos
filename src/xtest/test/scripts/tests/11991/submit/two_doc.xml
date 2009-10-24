@@ -36,7 +36,7 @@
             </Slot>
             <Slot name="hash">
                 <ValueList>
-                    <Value>e543712c0e10501972de13a5bfcbe826c49feb75</Value>
+                    <Value>E543712C0E10501972DE13A5BFCBE826C49FEB75</Value>
                 </ValueList>
             </Slot>
             <Slot name="URI">
@@ -71,12 +71,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3.4&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>
@@ -258,12 +258,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3.4&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>

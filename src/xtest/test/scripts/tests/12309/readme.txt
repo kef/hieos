@@ -1,4 +1,4 @@
-XGQ FindDocuments for ObjectRef
+XCQ FindDocuments for ObjectRef
 
 Depends on test 12318 to initialize the test data.
 

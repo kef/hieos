@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-   <Test>11986/submit</Test>
+   <Test>11986</Test>
     <TestStep id="submit">
         <ExpectedStatus>Failure</ExpectedStatus>
         <ExpectedErrorMessage>XDSPatientIdDoesNotMatch</ExpectedErrorMessage>

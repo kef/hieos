@@ -1,1 +1,1 @@
-SQ GetFoldersForDocument Stored Query
+SQ.b GetFoldersForDocument Stored Query

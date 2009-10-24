@@ -5,6 +5,7 @@
     <TestStep id="by_uid">
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <UseId testdir="../submit" id="Document01" step="submit"
                 section="AssignedUids" symbol="$docuid1$"/>
             <UseId testdir="../submit" id="Document02" step="submit"

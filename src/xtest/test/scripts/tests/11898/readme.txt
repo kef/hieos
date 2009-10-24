@@ -1,4 +1,4 @@
-SQ FindSubmissionSets Stored Query
+SQ.b FindSubmissionSets Stored Query
 
 Stored Query must use SOAP version 1.2 
 

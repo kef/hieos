@@ -1,4 +1,4 @@
-SQ GetAssociations Stored Query
+SQ.b GetAssociations Stored Query
 
 Test Steps
 

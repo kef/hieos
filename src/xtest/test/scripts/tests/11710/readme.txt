@@ -1,1 +1,1 @@
-Register IP address against Public Registry
+Registration of IP address on Public Registry

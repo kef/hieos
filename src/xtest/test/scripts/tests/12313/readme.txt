@@ -1,4 +1,4 @@
-XGR Retrieve multiple document
+XCR Retrieve multiple document
 
 Generate request for the retrieval of a single document based on metadata returned in test 12300.
 

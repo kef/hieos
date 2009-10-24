@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-    <Test>12330/retrieve</Test>
+    <Test>12029/retrieve</Test>
     <TestStep id="retrieve">
         <ExpectedStatus>Success</ExpectedStatus>
         <RetrieveTransaction>

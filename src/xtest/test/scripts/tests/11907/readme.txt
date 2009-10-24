@@ -1,4 +1,4 @@
-SQ GetFolderAndContents Stored Query
+SQ.b GetFolderAndContents Stored Query
 
 Test Steps
 

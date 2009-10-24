@@ -4,12 +4,13 @@
     <Rule>Test FindDocuments Cross Gateway Query</Rule>
     <TestStep id="objectref">
         <Rule>
-            <Transaction>CGQ</Transaction>
+            <Transaction>XGQ</Transaction>
             <SQ>FindDocuments</SQ>
             <Assertion>Basic operation with patient ID and status</Assertion>
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
-        <StoredQueryTransaction>
+        <XCQTransaction>
+		<XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -30,11 +31,11 @@
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
-            <UseId testdir="../../testdata/11890" id="SubmissionSet01" step="submit_doc"
+            <UseId testdir="../../testdata/12318" id="SubmissionSet01" step="init"
                 section="AssignedPatientId" symbol="$patient_id$"/>
             <ExpectedContents>
-                <ObjectRefs count="5"/>
+                <ObjectRefs count="2"/>
             </ExpectedContents>
-        </StoredQueryTransaction>
+        </XCQTransaction>
     </TestStep>
 </TestPlan>

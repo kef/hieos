@@ -16,6 +16,17 @@
                 <Value>20041224</Value>
               </ValueList>
             </Slot>
+            <Classification classificationScheme="urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5"
+                classifiedObject="Folder" nodeRepresentation="Referrals">
+                <Name>
+                    <LocalizedString value="Referrals"/>
+                </Name>
+                <Slot name="codingScheme">
+                    <ValueList>
+                        <Value>Connect-a-thon folderCodeList</Value>
+                    </ValueList>
+                </Slot>
+            </Classification>
             <ExternalIdentifier identificationScheme="urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"
                 value="folder_uniqueid">
                 <Name>
@@ -150,12 +161,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>

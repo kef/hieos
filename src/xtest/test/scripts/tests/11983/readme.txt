@@ -1,4 +1,4 @@
-PnR.b - Reject submissions where metadata and documents do not match
+PnR.b Reject submissions where metadata and documents do not match
 
 The submit and eval directories hold test steps with the same names, 
 shown below.  The submit tests test that the proper error is returned.  

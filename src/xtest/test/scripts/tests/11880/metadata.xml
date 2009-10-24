@@ -82,13 +82,13 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>89765a87b^^^&amp;3.4.5&amp;ISO</Value>
                 </ValueList>
             </Slot>
             
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>

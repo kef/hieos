@@ -1,4 +1,9 @@
-XGR XCA Retrieve single document
+XCR Retrieve single document
+
+This test has two parts:
+
+==============================================
+correct - show correct operation
 
 Generate request for the retrieval of a single document based 
 on metadata returned in test 12311.
@@ -19,3 +24,9 @@ When successful, perform the following validations:
 * Document hash, as calculated after the retrieve, matches value in metadata from test 12311
 
 * HomeCommunityId matches configuration
+
+
+==============================================
+missing_home - show proper error returned when homeCommunityId not in request
+
+

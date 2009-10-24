@@ -9,6 +9,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSa/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -40,6 +41,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSa/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
@@ -73,6 +75,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSa/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"

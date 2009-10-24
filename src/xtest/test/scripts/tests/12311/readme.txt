@@ -1,4 +1,4 @@
-XGQ GetDocuments Cross Gateway Query
+XCQ GetDocuments Cross Community Query
 
 This test is dependent on test 12309 which does a FindDocuments query returning ObjectRefs.  
 This test takes those ObjectRefs and retrieves (really query) the full metadata from the 

@@ -5,6 +5,7 @@
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
             <ASync/>
+            <XDSb/>
             <UseId testdir="../submit" id="SubmissionSet01" step="submit"
                 section="AssignedUids" symbol="$ssuid$"/>
             <Metadata>

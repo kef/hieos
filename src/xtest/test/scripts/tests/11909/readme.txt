@@ -1,4 +1,4 @@
-SQ GetRelatedDocuments Stored Query
+SQ.b GetRelatedDocuments Stored Query
 
 Stored Query must use SOAP version 1.2
 

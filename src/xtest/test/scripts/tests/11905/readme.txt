@@ -1,4 +1,4 @@
-SQ GetSubmissionSets Stored Query
+SQ.b GetSubmissionSets Stored Query
 
 
 Test Steps

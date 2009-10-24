@@ -4,6 +4,7 @@
  <TestStep id="validate_original">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSb/>
    <UseId testdir="../submit" id="SubmissionSet01" step="submit"
                 section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>
@@ -30,6 +31,7 @@
  <TestStep id="validate_xfrm">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSb/>
    <UseId testdir="../xfrm" id="SubmissionSet01" step="xfrm"
                 section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>
@@ -56,6 +58,7 @@
  <TestStep id="no_validate_rplc_xfrm">
   <ExpectedStatus>Success</ExpectedStatus>
   <StoredQueryTransaction>
+	     <XDSb/>
    <UseId testdir="../xfrm" id="SubmissionSet01" step="xfrm_rplc"
                 section="AssignedUids" symbol="$ssuid$"/>
    <Metadata>

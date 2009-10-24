@@ -1,4 +1,4 @@
-SQ GetSubmissionSetAndContents Stored Query
+SQ.b GetSubmissionSetAndContents Stored Query
 
 Stored Query must use SOAP version 1.2 
 

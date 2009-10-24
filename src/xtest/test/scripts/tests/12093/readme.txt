@@ -1,1 +1,1 @@
-XGQ Test FindDocuments Cross Gateway Query
+XCQ FindDocuments Cross Community Query

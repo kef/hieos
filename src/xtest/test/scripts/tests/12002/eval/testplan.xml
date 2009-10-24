@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-    <Test>11881/eval</Test>
+    <Test>12002/eval</Test>
     <TestStep id="folder_and_contents">
         <Rule>
             <Transaction>SQ</Transaction>
@@ -8,6 +8,7 @@
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+	    <XDSb/>
             <Metadata>
                 <query:AdhocQueryRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"

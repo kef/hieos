@@ -6,7 +6,7 @@
             <Transaction>R</Transaction>
             <Assertion>Issue RPLC with different patient id - must fail</Assertion>
         </Rule>
-        <NewPatientId/>
+        <AltPatientId/>
         <ExpectedStatus>Failure</ExpectedStatus>
         <ExpectedErrorMessage>XDSPatientIdDoesNotMatch</ExpectedErrorMessage>
         <RegisterTransaction>

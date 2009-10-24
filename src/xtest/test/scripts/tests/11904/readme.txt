@@ -1,4 +1,4 @@
-SQ GetDocumentsAndAssociations Stored Query
+SQ.b GetDocumentsAndAssociations Stored Query
 
 Test Steps
 

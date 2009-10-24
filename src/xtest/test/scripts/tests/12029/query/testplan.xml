@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-    <Test>12330/query</Test>
+    <Test>12029/query</Test>
     <Rule>Retrieve metadata to get access to XDSDocumentEntry.repositoryUniqueId and XDSDocumentEntry.uniqueId</Rule>
     <TestStep id="by_uid">
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
+		<XDSb/>
             <UseId testdir="../submit" id="Document01" step="submit"
                 section="AssignedUids" symbol="$docuid$"/>
             <Metadata>
