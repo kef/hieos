@@ -288,7 +288,7 @@ public class AdtJdbcConnection {
         sb.append("SELECT uuid FROM ");
         sb.append(this.ADT_MAIN_TABLE);
         sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
-        sb.append(";");
+        //sb.append(";");
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -302,7 +302,8 @@ public class AdtJdbcConnection {
             sb.append(" VALUES ");
             sb.append("('" + record.getPatientAccountNumber() + "','" + record.getPatientAdminSex() + "','");
             sb.append(record.getPatientBedId() + "','" + record.getPatientBirthDateTime() + "','");
-            sb.append(record.getPatientId() + "','" + record.getUuid() + "','" + getDate() + "');");
+            //sb.append(record.getPatientId() + "','" + record.getUuid() + "','" + getDate() + "');");
+            sb.append(record.getPatientId() + "','" + record.getUuid() + "','" + getDate() + "')");
         } else {
             // Update:
             sb.append("UPDATE ");
@@ -313,7 +314,8 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_MAIN_BED_ID + " = " + "'" + record.getPatientBedId() + "'").append(",");
             sb.append(this.ADT_MAIN_BIRTHDATETIME + " = " + "'" + record.getPatientBirthDateTime() + "'").append(",");
             sb.append("timestamp" + " = " + "'" + getDate() + "'");
-            sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'").append(";");
+            //sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'").append(";");
+            sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
         }
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
@@ -332,7 +334,7 @@ public class AdtJdbcConnection {
         sb.append("SELECT parent FROM ");
         sb.append(this.ADT_PATIENT_NAME_TABLE);
         sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'");
-        sb.append(";");
+        //sb.append(";");
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -348,7 +350,8 @@ public class AdtJdbcConnection {
             sb.append("('" + name.getDegree() + "','" + name.getFamilyName() + "','");
             sb.append(name.getGivenName() + "','" + name.getParent() + "','");
             sb.append(name.getPrefix() + "','" + name.getSecondAndFurtherName() + "','");
-            sb.append(name.getSuffix() + "');");
+            //sb.append(name.getSuffix() + "');");
+            sb.append(name.getSuffix() + "')");
         } else {
             // Update:
             sb.append("UPDATE ");
@@ -360,7 +363,8 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_PATIENTNAME_PREFIX + " = " + "'" + name.getPrefix() + "'").append(",");
             sb.append(this.ADT_PATIENTNAME_SECOND_AND_FURTHER_NAME + " = " + "'" + name.getSecondAndFurtherName() + "'").append(",");
             sb.append(this.ADT_PATIENTNAME_SUFFIX + " = " + "'" + name.getSuffix() + "'");
-            sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'").append(";");
+            //sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'").append(";");
+            sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'");
         }
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
@@ -379,7 +383,7 @@ public class AdtJdbcConnection {
         sb.append("SELECT parent FROM ");
         sb.append(this.ADT_PATIENT_ADDRESS_TABLE);
         sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'");
-        sb.append(";");
+        //sb.append(";");
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
@@ -395,7 +399,8 @@ public class AdtJdbcConnection {
             sb.append("('" + address.getCity() + "','" + address.getCountry() + "','");
             sb.append(address.getCountyOrParish() + "','" + address.getOtherDesignation() + "','");
             sb.append(address.getParent() + "','" + address.getStateOrProvince() + "','");
-            sb.append(address.getStreetAddress() + "','" + address.getZipCode() + "');");
+            //sb.append(address.getStreetAddress() + "','" + address.getZipCode() + "');");
+            sb.append(address.getStreetAddress() + "','" + address.getZipCode() + "')");
         } else {
             // Update:
             sb.append("UPDATE ");
@@ -408,7 +413,8 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_PATIENTADDRESS_STATE_OR_PROVINCE + " = " + "'" + address.getStateOrProvince() + "'").append(",");
             sb.append(this.ADT_PATIENTADDRESS_STREET_ADDRESS + " = " + "'" + address.getStreetAddress() + "'").append(",");
             sb.append(this.ADT_PATIENTADDRESS_ZIPCODE + " = " + "'" + address.getZipCode() + "'");
-            sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'").append(";");
+            //sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'").append(";");
+            sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'");
         }
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
@@ -426,7 +432,7 @@ public class AdtJdbcConnection {
         sb.append("SELECT parent FROM ");
         sb.append(this.ADT_PATIENT_RACE_TABLE);
         sb.append(" WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + race.getParent() + "'");
-        sb.append(";");
+        //sb.append(";");
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         if (updateMode == false) {
@@ -435,7 +441,8 @@ public class AdtJdbcConnection {
             sb.append(this.ADT_PATIENT_RACE_TABLE);
             sb.append(" (" + this.ADT_PATIENTRACE_PARENT + "," + this.ADT_PATIENTRACE_RACE + ")");
             sb.append(" VALUES ");
-            sb.append("('" + race.getParent() + "','" + race.getRace() + "');");
+            //sb.append("('" + race.getParent() + "','" + race.getRace() + "');");
+            sb.append("('" + race.getParent() + "','" + race.getRace() + "')");
         } else {
             // Update:
             // FIXME (BHT) -- do at some point.
@@ -456,7 +463,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT id ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
-        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "';");
+        //sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "';");
+        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "'");
         ResultSet result = this.executeQuery(sb.toString());
         return result.next();
     }
@@ -471,7 +479,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT UUID ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
-        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "';");
+        //sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "';");
+        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "'");
         ResultSet result = this.executeQuery(sb.toString());
         if (result.first() == false) {
             // not found.
@@ -490,7 +499,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_NAME_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "'");
         ResultSet result = this.executeQuery(sb.toString());
         Collection names = new ArrayList();
         while (result.next()) {
@@ -517,7 +527,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_RACE_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "'");
         ResultSet result = this.executeQuery(sb.toString());
         Collection races = new ArrayList();
         while (result.next()) {
@@ -539,7 +550,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_PATIENT_ADDRESS_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "'");
         ResultSet result = this.executeQuery(sb.toString());
         Collection addresses = new ArrayList();
         while (result.next()) {
@@ -568,7 +580,8 @@ public class AdtJdbcConnection {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
-        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "'");
         ResultSet result = this.executeQuery(sb.toString());
         try {
             result.next();
@@ -602,28 +615,32 @@ public class AdtJdbcConnection {
         sb = new StringBuffer();
         sb.append("DELETE ");
         sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
-        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "'");
         rowsAffected = this.executeUpdate(sb.toString());
 
         // Delete the address table entries.
         sb = new StringBuffer();
         sb.append("DELETE ");
         sb.append("FROM " + this.ADT_PATIENT_ADDRESS_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "'");
         rowsAffected = this.executeUpdate(sb.toString());
 
         // Delete the name table entries.
         sb = new StringBuffer();
         sb.append("DELETE ");
         sb.append("FROM " + this.ADT_PATIENT_NAME_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "'");
         rowsAffected = this.executeUpdate(sb.toString());
 
         // Delete the race table entries.
         sb = new StringBuffer();
         sb.append("DELETE ");
         sb.append("FROM " + this.ADT_PATIENT_RACE_TABLE + " ");
-        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
+        //sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
+        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "'");
         rowsAffected = this.executeUpdate(sb.toString());
     }
 
