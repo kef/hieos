@@ -30,7 +30,6 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.services.xds.repository.support.Repository;
@@ -39,6 +38,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
 
+import com.vangent.hieos.xutil.exception.XDSRepositoryMetadataError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedOutputStream;
@@ -121,6 +121,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             response.add_error(MetadataSupport.XDSRepositoryError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+        } catch (XDSRepositoryMetadataError e) {
+            response.add_error(MetadataSupport.XDSRepositoryMetadataError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
@@ -442,10 +444,11 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @param bytes
      * @param doc
      * @param m
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
+     * @throws XdsInternalException
+     * @throws MetadataException
+     * @throws XDSRepositoryMetadataError
      */
-    private void setDocumentVitals(byte[] bytes, XDSDocument doc, Metadata m) throws XdsInternalException, MetadataException {
+    private void setDocumentVitals(byte[] bytes, XDSDocument doc, Metadata m) throws XdsInternalException, MetadataException, XDSRepositoryMetadataError {
         // Get a reference to the extrinsic object.
         OMElement extrinsic_object = m.getObjectById(doc.getDocumentId());
 
@@ -468,13 +471,38 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             throw new XdsInternalException("Error calculating hash on repository file");
         }
 
+        // If the submitted metadata has a "hash", it must validate against the submitted document's
+        // computed hash value.
+        String submittedDocumentHash = m.getSlotValue(extrinsic_object, "hash", 0);
+        if (submittedDocumentHash != null) {
+            if (!submittedDocumentHash.equalsIgnoreCase(doc.getHash())) {
+                throw new XDSRepositoryMetadataError(
+                        "Submitted hash(" + submittedDocumentHash + ")" +
+                        " does not match computed hash(" +
+                        doc.getHash() + ")");
+            }
+        }
+
+        // If the submitted metadata has a "size", it must validate against the submitted document's
+        // computed size value.
+        String computedDocumentedSize = new Integer(doc.getLength()).toString();
+        String submittedDocumentSize = m.getSlotValue(extrinsic_object, "size", 0);
+        if (submittedDocumentSize != null) {
+            if (!submittedDocumentSize.equalsIgnoreCase(computedDocumentedSize)) {
+                throw new XDSRepositoryMetadataError(
+                        "Submitted size(" + submittedDocumentSize + ")" +
+                        " does not match computed size(" +
+                        computedDocumentedSize + ")");
+            }
+        }
+
         // set size, hash into metadata
-        m.setSlot(extrinsic_object, "size", new Integer(doc.getLength()).toString());
+        m.setSlot(extrinsic_object, "size", computedDocumentedSize);
         m.setSlot(extrinsic_object, "hash", doc.getHash());
-    /* BHT: REMOVED
-    m.setSlot(extrinsic_object, "URI",  document_uri (uid, mime_type));
-    m.setURIAttribute(extrinsic_object, document_uri(uid, mime_type));
-     */
+        /* BHT: REMOVED
+        m.setSlot(extrinsic_object, "URI",  document_uri (uid, mime_type));
+        m.setURIAttribute(extrinsic_object, document_uri(uid, mime_type));
+         */
     }
 
     /**
@@ -528,24 +556,24 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     // AMS - TODO - REFACTOR - Externalize or create a static map
-    private String getAction(boolean isAsyncTxn)
-    {
+    private String getAction(boolean isAsyncTxn) {
         String action = "";
-        if (isAsyncTxn)
+        if (isAsyncTxn) {
             action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsync";
-        else
+        } else {
             action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+        }
         return action;
     }
 
     // AMS - TODO - REFACTOR - Externalize or create a static map
-    private String getExpectedReturnAction(boolean isAsyncTxn)
-    {
+    private String getExpectedReturnAction(boolean isAsyncTxn) {
         String action = "";
-         if (isAsyncTxn)
+        if (isAsyncTxn) {
             action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsyncResponse";
-        else
+        } else {
             action = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
+        }
         return action;
     }
 }
