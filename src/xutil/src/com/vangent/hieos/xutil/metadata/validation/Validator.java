@@ -48,9 +48,9 @@ public class Validator {
         this.log_message = log_message;
 
         s = new Structure(m, is_submit, rel, log_message);
-        a = new Attribute(m, is_submit, rel);
+        a = new Attribute(m, is_submit, rel, log_message);
         try {
-            cv = new CodeValidation(m, is_submit, rel);
+            cv = new CodeValidation(m, is_submit, rel, log_message);
         } catch (XdsInternalException e) {
             rel.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), null);
             throw new XdsInternalException(e.getLocalizedMessage(), e);

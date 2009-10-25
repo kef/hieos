@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.metadata.validation;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -22,10 +21,10 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xml.Util;
-
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigAssigningAuthority;
 
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -34,27 +33,41 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
-
 import org.apache.axiom.om.OMElement;
 
-
 //this gets invoked from both Validator.java and directly from Repository.  Should optimize the implementation so that codes.xml
-//gets cached in memory. (Note: BHT (Added optimization code)).
+//gets cached in memory. (Note: Bernie Thuman (Added optimization code)).
+/**
+ * 
+ * @author NIST (Adapted by Bernie Thuman)
+ */
 public class CodeValidation {
 
     static Codes _codes = null;  // Singleton.
-    Metadata m;
-    RegistryErrorList rel;
-    boolean is_submit;
+    private Metadata m;
+    private RegistryErrorList rel;
+    private boolean is_submit;
+    private XLogMessage logMessage = null;
 
-    public CodeValidation(Metadata m, boolean is_submit, RegistryErrorList rel) throws XdsInternalException {
+    /**
+     *
+     * @param m
+     * @param is_submit
+     * @param rel
+     * @throws XdsInternalException
+     */
+    public CodeValidation(Metadata m, boolean is_submit, RegistryErrorList rel, XLogMessage logMessage) throws XdsInternalException {
         this.m = m;
         this.rel = rel;
         this.is_submit = is_submit;
+        this.logMessage = logMessage;
         loadCodes();
     }
 
-    // this is used for easy access to mime lookup
+    /**
+     *
+     * @throws XdsInternalException
+     */
     public CodeValidation() throws XdsInternalException {
         loadCodes();
     }
@@ -63,83 +76,70 @@ public class CodeValidation {
      *
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private void loadCodes() throws XdsInternalException {
+    private synchronized void loadCodes() throws XdsInternalException {
         if (_codes == null) {
             _codes = new Codes();
             _codes.loadCodes();
         }
     }
 
+    /**
+     *
+     * @param mime_type
+     * @return
+     */
     public boolean isValidMimeType(String mime_type) {
         return _codes.mime_map.containsKey(mime_type);
-//		QName name_att_qname = new QName("name");
-//		QName code_att_qname = new QName("code");
-//		OMElement mime_type_section = null;
-//		for(Iterator it=codes.getChildrenWithName(new QName("CodeType")); it.hasNext();  ) {
-//		OMElement ct = (OMElement) it.next();
-//		if (ct.getAttributeValue(name_att_qname).equals("mimeType")) {
-//		mime_type_section = ct;
-//		break;
-//		}
-//		}
-//		if (mime_type_section == null) throw new XdsInternalException("CodeValidation.java: Configuration Error: Cannot find mime type table");
-
-//		for(Iterator it=mime_type_section.getChildElements(); it.hasNext();  ) {
-//		OMElement code_ele = (OMElement) it.next();
-//		if (code_ele.getAttributeValue(code_att_qname).equals(mime_type))
-//		return true;
-//		}
-//		return false;
     }
 
+    /**
+     *
+     * @return
+     */
     public Collection<String> getKnownFileExtensions() {
         return _codes.ext_map.keySet();
     }
 
+    /**
+     *
+     * @param ext
+     * @return
+     */
     public String getMimeTypeForExt(String ext) {
         return _codes.ext_map.get(ext);
     }
 
+    /**
+     *
+     * @param mime_type
+     * @return
+     */
     public String getExtForMimeType(String mime_type) {
         return _codes.mime_map.get(mime_type);
-//		QName name_att_qname = new QName("name");
-//		QName code_att_qname = new QName("code");
-//		QName ext_att_qname = new QName("ext");
-//		OMElement mime_type_section = null;
-//		for(Iterator it=codes.getChildrenWithName(new QName("CodeType")); it.hasNext();  ) {
-//		OMElement ct = (OMElement) it.next();
-//		if (ct.getAttributeValue(name_att_qname).equals("mimeType")) {
-//		mime_type_section = ct;
-//		break;
-//		}
-//		}
-//		if (mime_type_section == null) throw new XdsInternalException("CodeValidation.java: Configuration Error: Cannot find mime type table");
-
-//		for(Iterator it=mime_type_section.getChildElements(); it.hasNext();  ) {
-//		OMElement code_ele = (OMElement) it.next();
-//		if (code_ele.getAttributeValue(code_att_qname).equals(mime_type))
-//		return code_ele.getAttributeValue(ext_att_qname);
-//		}
-//		return null;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<String> getAssigningAuthorities() {
         return _codes.assigning_authorities;
     }
 
+    /**
+     *
+     * @throws MetadataException
+     * @throws XdsInternalException
+     */
     public void run() throws MetadataException, XdsInternalException {
         ArrayList<String> all_object_ids = m.getObjectIds(m.getAllObjects());
-
         for (String obj_id : all_object_ids) {
             ArrayList<OMElement> classifications = m.getClassifications(obj_id);
-
             for (OMElement cl_ele : classifications) {
-
                 Classification cl = new Classification(cl_ele);
                 validate(cl);
             }
         }
-
         for (OMElement doc_ele : m.getExtrinsicObjects()) {
             String mime_type = doc_ele.getAttributeValue(MetadataSupport.mime_type_qname);
             if (!isValidMimeType(mime_type)) {
@@ -147,7 +147,6 @@ public class CodeValidation {
             } else {
                 val("Mime type " + mime_type, null);
             }
-
             String objectType = doc_ele.getAttributeValue(MetadataSupport.object_type_qname);
             if (!objectType.equals(MetadataSupport.XDSDocumentEntry_objectType_uuid)) {
                 err("XDSDocumentEntry has incorrect objectType, found " + objectType + ", must be " + MetadataSupport.XDSDocumentEntry_objectType_uuid);
@@ -161,9 +160,8 @@ public class CodeValidation {
      * 
      * @param cl
      */
-    void validate(Classification cl) {
+    private void validate(Classification cl) {
         String classification_scheme = cl.getClassificationScheme();
-
         if (classification_scheme == null) {
             String classification_node = cl.getClassificationNode();
             if (classification_node == null || classification_node.equals("")) {
@@ -181,7 +179,6 @@ public class CodeValidation {
         }
         String code = cl.getCodeValue();
         String coding_scheme = cl.getCodeScheme();
-
         if (code == null) {
             err("code (nodeRepresentation attribute) missing", cl);
             return;
@@ -217,7 +214,7 @@ public class CodeValidation {
      * @param topic
      * @param msg
      */
-    void val(String topic, String msg) {
+    private void val(String topic, String msg) {
         if (msg == null) {
             msg = "Ok";
         }
@@ -229,22 +226,23 @@ public class CodeValidation {
      * @param msg
      * @param cl
      */
-    void err(String msg, Classification cl) {
-        rel.add_error(MetadataSupport.XDSRegistryMetadataError, cl.identifying_string() + ": " + msg, this.getClass().getName(), null);
+    private void err(String msg, Classification cl) {
+        rel.add_error(MetadataSupport.XDSRegistryMetadataError, cl.identifying_string() + ": " + msg, this.getClass().getName(), logMessage);
     }
 
     /**
      *
      * @param msg
      */
-    void err(String msg) {
-        rel.add_error(MetadataSupport.XDSRegistryMetadataError, msg, this.getClass().getName(), null);
+    private void err(String msg) {
+        rel.add_error(MetadataSupport.XDSRegistryMetadataError, msg, this.getClass().getName(), logMessage);
     }
 
-    // Created by Bernie Thuman (to optimize Code Validation processing).  Most code was simply moved from
-    // the CodeValidation class.
+    /**
+     * Created by Bernie Thuman (to optimize Code Validation processing).  Most code was simply
+     * moved from the CodeValidation class.
+     */
     public class Codes {
-
         OMElement codes;
         ArrayList<String> assigning_authorities;
         HashMap<String, String> mime_map;  // mime => ext
@@ -254,7 +252,7 @@ public class CodeValidation {
          * 
          * @throws com.vangent.hieos.xutil.exception.XdsInternalException
          */
-        void loadCodes() throws XdsInternalException {
+        public void loadCodes() throws XdsInternalException {
             String fileCodesLocation = System.getenv("HIEOSxCodesFile");
             XConfig xconf = XConfig.getInstance();
             //String localCodesLocation = "http://localhost:8080/xref/codes/codes.xml";
