@@ -99,8 +99,10 @@ public class MetadataSupport {
     public static OMNamespace wsans = om_factory.createOMNamespace("http://www.w3.org/2005/08/addressing", "wsa");
     // Stored Query query ids
     public static String SQ_FindDocuments = "urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d";
+    public static String SQ_FindDocumentsForMultiplePatients = "urn:uuid:3d1bdb10-39a2-11de-89c2-2f44d94eaa9f";
     public static String SQ_FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
     public static String SQ_FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
+    public static String SQ_FindFoldersForMultiplePatients = "urn:uuid:50d3f5ac-39a2-11de-a1ca-b366239e58df";
     public static String SQ_GetAll = "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3";
     public static String SQ_GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
     public static String SQ_GetFolders = "urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4";
