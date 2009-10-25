@@ -165,7 +165,22 @@ public class StoredQueryFactory {
                 log_message.setTestMessage(service_name + " " + "FindFolders");
             }
             x = new FindFolders(params, return_objects, this.response, log_message, is_secure);
-        } else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
+        }
+        else if (query_id.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
+            // FindDocumentsForMultiplePatients
+            if (log_message != null) {
+                log_message.setTestMessage(service_name + " " + "FindDocumentsForMultiplePatients");
+            }
+            x = new FindDocumentsForMultiplePatients(params, return_objects, this.response, log_message, is_secure);
+        }
+        else if (query_id.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
+            // FindFoldersForMultiplePatients
+            if (log_message != null) {
+                log_message.setTestMessage(service_name + " " + "FindFoldersForMultiplePatients");
+            }
+            x = new FindFoldersForMultiplePatients(params, return_objects, this.response, log_message, is_secure);
+        }
+        else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
             // GetAll
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetAll");
