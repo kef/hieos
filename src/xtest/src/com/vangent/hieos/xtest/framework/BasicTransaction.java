@@ -420,7 +420,6 @@ public abstract class BasicTransaction extends OmLogger {
         endpoint = TestConfig.xtestConfig.getRespondingGatewayEndpoint(TestConfig.target, home, trans, TestConfig.secure, async);
         s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
     }
-   
 
     public void fail(String msg) {
         s_ctx.set_error(msg);
@@ -551,7 +550,7 @@ public abstract class BasicTransaction extends OmLogger {
         } else if (part_name.equals("XDSb")) {
             xds_version = BasicTransaction.xds_b;
             this.s_ctx.add_simple_element(this.instruction_output, "Xdsb");
-        /*} else if (part_name.equals("XDSa")) {
+            /*} else if (part_name.equals("XDSa")) {
             xds_version = BasicTransaction.xds_a;
             this.s_ctx.add_simple_element(this.instruction_output, "Xdsa");*/
         } else if (part_name.equals("NoPatientId")) {
@@ -563,6 +562,29 @@ public abstract class BasicTransaction extends OmLogger {
         } else if (part_name.equals("ASync")) {
             async = true;
             this.s_ctx.add_simple_element(this.instruction_output, "ASync");
+        } else if (part_name.equals("WaitBefore")) {
+            String millisecondsStr = part.getText();
+            int milliseconds = 0;
+            try {
+                milliseconds = Integer.parseInt(millisecondsStr);
+            } catch (Exception e) {
+                fatal("WaitBefore: cannot parse delay: " + millisecondsStr);
+            }
+            if (milliseconds == 0) {
+                fatal("WaitBefore: zero delay requested");
+            }
+            try {
+                long t0, t1, diff;
+                System.out.print("Waiting " + milliseconds + " milliseconds ...");
+                t0 = System.currentTimeMillis();
+                do {
+                    t1 = System.currentTimeMillis();
+                    diff = t1 - t0;
+                } while (diff < milliseconds);
+                System.out.println("Done");
+            } catch (Exception e) {
+                fatal("WaitBefore failed: " + e.getMessage());
+            }
         } else {
             throw new XdsException("BasicTransaction: Don't understand instruction " + part_name);
         }
