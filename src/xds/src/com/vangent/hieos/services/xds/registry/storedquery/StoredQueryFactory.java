@@ -17,10 +17,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 import com.vangent.hieos.xutil.query.StoredQuery;
-
-
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -28,6 +25,7 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -40,24 +38,10 @@ public class StoredQueryFactory {
     SqParams params;
     String query_id;
     XLogMessage log_message = null;
-    StoredQuery x;
+    StoredQuery sq;
     String service_name;
-    boolean is_secure = false;
     Response response = null;
 
-    /*
-    public void setResponse(Response response) {
-    this.response = response;
-    }
-
-    public void setIsSecure(boolean is) {
-    is_secure = is;
-    }
-
-    public void setServiceName(String serviceName) {
-    serviceName = service_name;
-    }
-     */
     /**
      *
      * @return
@@ -103,12 +87,11 @@ public class StoredQueryFactory {
      * @throws MetadataException
      * @throws XdsException
      */
-    public StoredQueryFactory(OMElement ahqr, Response resp, XLogMessage lmsg, String sname, boolean secure) throws XdsInternalException, MetadataException, XdsException {
+    public StoredQueryFactory(OMElement ahqr, Response resp, XLogMessage lmsg, String sname) throws XdsInternalException, MetadataException, XdsException {
         this.ahqr = ahqr;
         this.response = resp;
         this.log_message = lmsg;
         this.service_name = sname;
-        this.is_secure = secure;
 
         OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
         if (response_option == null) {
@@ -152,33 +135,33 @@ public class StoredQueryFactory {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindDocuments");
             }
-            x = new FindDocuments(params, return_objects, this.response, log_message, is_secure);
+            sq = new FindDocuments(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_FindSubmissionSets)) {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindSubmissionSets");
             }
             // FindSubmissionSets
-            x = new FindSubmissionSets(params, return_objects, this.response, log_message, is_secure);
+            sq = new FindSubmissionSets(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_FindFolders)) {
             // FindFolders
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindFolders");
             }
-            x = new FindFolders(params, return_objects, this.response, log_message, is_secure);
+            sq = new FindFolders(params, return_objects, this.response, log_message);
         }
         else if (query_id.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
             // FindDocumentsForMultiplePatients
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindDocumentsForMultiplePatients");
             }
-            x = new FindDocumentsForMultiplePatients(params, return_objects, this.response, log_message, is_secure);
+            sq = new FindDocumentsForMultiplePatients(params, return_objects, this.response, log_message);
         }
         else if (query_id.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
             // FindFoldersForMultiplePatients
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindFoldersForMultiplePatients");
             }
-            x = new FindFoldersForMultiplePatients(params, return_objects, this.response, log_message, is_secure);
+            sq = new FindFoldersForMultiplePatients(params, return_objects, this.response, log_message);
         }
         else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
             // GetAll
@@ -191,55 +174,55 @@ public class StoredQueryFactory {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetDocuments");
             }
-            x = new GetDocuments(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetDocuments(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetFolders)) {
             // GetFolders
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetFolders");
             }
-            x = new GetFolders(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetFolders(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetAssociations)) {
             // GetAssociations
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetAssociations");
             }
-            x = new GetAssociations(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetAssociations(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetDocumentsAndAssociations)) {
             // GetDocumentsAndAssociations
             if (log_message != null) {
                 log_message.setTestMessage("GetDocumentsAndAssociations");
             }
-            x = new GetDocumentsAndAssociations(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetDocumentsAndAssociations(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetSubmissionSets)) {
             // GetSubmissionSets
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetSubmissionSets");
             }
-            x = new GetSubmissionSets(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetSubmissionSets(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetSubmissionSetAndContents)) {
             // GetSubmissionSetAndContents
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetSubmissionSetAndContents");
             }
-            x = new GetSubmissionSetAndContents(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetSubmissionSetAndContents(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetFolderAndContents)) {
             // GetFolderAndContents
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetFolderAndContents");
             }
-            x = new GetFolderAndContents(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetFolderAndContents(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetFoldersForDocument)) {
             // GetFoldersForDocument
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetFoldersForDocument");
             }
-            x = new GetFoldersForDocument(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetFoldersForDocument(params, return_objects, this.response, log_message);
         } else if (query_id.equals(MetadataSupport.SQ_GetRelatedDocuments)) {
             // GetRelatedDocuments
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetRelatedDocuments");
             }
-            x = new GetRelatedDocuments(params, return_objects, this.response, log_message, is_secure);
+            sq = new GetRelatedDocuments(params, return_objects, this.response, log_message);
         } else {
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + query_id);
@@ -259,7 +242,7 @@ public class StoredQueryFactory {
      * @throws XDSRegistryOutOfResourcesException
      * @throws XdsException
      */
-    public ArrayList<OMElement> run() throws XDSRegistryOutOfResourcesException, XdsException {
-        return x.run();
+    public List<OMElement> run() throws XDSRegistryOutOfResourcesException, XdsException {
+        return sq.run();
     }
 }

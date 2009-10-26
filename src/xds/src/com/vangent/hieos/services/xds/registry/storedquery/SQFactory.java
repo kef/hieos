@@ -47,7 +47,7 @@ public class SQFactory {
         SqParams parms = new SqParams();
         parms.addStringParm("$XDSDocumentEntryEntryUUID", uuid);
         //Response response, Message log_message
-        GetFoldersForDocument sffd = new GetFoldersForDocument(parms, leafClass, common.response, common.log_message, false);
+        GetFoldersForDocument sffd = new GetFoldersForDocument(parms, leafClass, common.response, common.log_message);
         return sffd.run_internal();
     }
 }

@@ -25,7 +25,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -52,9 +52,9 @@ public class FindDocuments extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public FindDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public FindDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSDocumentEntryPatientId", true, false, true, false, (String[]) null);
@@ -112,21 +112,21 @@ public class FindDocuments extends StoredQuery {
     OMElement impl() throws XdsInternalException, XdsException {
 
         // Parse query parameters:
-        String patient_id = this.get_string_parm("$XDSDocumentEntryPatientId");
+        String patient_id = params.getStringParm("$XDSDocumentEntryPatientId");
         SQCodedTerm class_codes = params.getCodedParm("$XDSDocumentEntryClassCode");
         SQCodedTerm practice_setting_codes = params.getCodedParm("$XDSDocumentEntryPracticeSettingCode");
         SQCodedTerm hcft_codes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
         SQCodedTerm event_codes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
         SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
         SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
-        String creation_time_from = this.get_int_parm("$XDSDocumentEntryCreationTimeFrom");
-        String creation_time_to = this.get_int_parm("$XDSDocumentEntryCreationTimeTo");
-        String service_start_time_from = this.get_int_parm("$XDSDocumentEntryServiceStartTimeFrom");
-        String service_start_time_to = this.get_int_parm("$XDSDocumentEntryServiceStartTimeTo");
-        String service_stop_time_from = this.get_int_parm("$XDSDocumentEntryServiceStopTimeFrom");
-        String service_stop_time_to = this.get_int_parm("$XDSDocumentEntryServiceStopTimeTo");
-        ArrayList<String> status = this.get_arraylist_parm("$XDSDocumentEntryStatus");
-        ArrayList<String> author_person = this.get_arraylist_parm("$XDSDocumentEntryAuthorPerson");
+        String creation_time_from = params.getIntParm("$XDSDocumentEntryCreationTimeFrom");
+        String creation_time_to = params.getIntParm("$XDSDocumentEntryCreationTimeTo");
+        String service_start_time_from = params.getIntParm("$XDSDocumentEntryServiceStartTimeFrom");
+        String service_start_time_to = params.getIntParm("$XDSDocumentEntryServiceStartTimeTo");
+        String service_stop_time_from = params.getIntParm("$XDSDocumentEntryServiceStopTimeFrom");
+        String service_stop_time_to = params.getIntParm("$XDSDocumentEntryServiceStopTimeTo");
+        List<String> status = params.getListParm("$XDSDocumentEntryStatus");
+        List<String> author_person = params.getListParm("$XDSDocumentEntryAuthorPerson");
 
         init();
         if (this.return_leaf_class) {

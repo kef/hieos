@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -41,9 +42,9 @@ public class GetRelatedDocuments extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetRelatedDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetRelatedDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
@@ -61,17 +62,17 @@ public class GetRelatedDocuments extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata = new Metadata();
-        String uid = get_string_parm("$XDSDocumentEntryUniqueId");
-        String uuid = get_string_parm("$XDSDocumentEntryEntryUUID");
-        ArrayList<String> assoc_types = get_arraylist_parm("$AssociationTypes");
-        ArrayList<String> doc_ids_to_query_for = new ArrayList<String>();
-        ArrayList<String> doc_ids = new ArrayList<String>();
+        String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
+        String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
+        List<String> assoc_types = params.getListParm("$AssociationTypes");
+        List<String> doc_ids_to_query_for = new ArrayList<String>();
+        List<String> doc_ids = new ArrayList<String>();
         if (assoc_types == null || assoc_types.size() == 0) {
             throw new XdsInternalException("No $AssociationTypes specified in query");
         }
 
         // filter HasMember out of assoc_types if it exists
-        ArrayList<String> assoc_types2 = new ArrayList<String>();
+        List<String> assoc_types2 = new ArrayList<String>();
         for (String type : assoc_types) {
             if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(type)) {
                 assoc_types2.add(type);

@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.List;
 
 /**
  *
@@ -39,9 +40,9 @@ public class GetFolders extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, "$XDSFolderUniqueId");
@@ -58,7 +59,7 @@ public class GetFolders extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-        ArrayList<String> fol_uuid = get_arraylist_parm("$XDSFolderEntryUUID");
+        List<String> fol_uuid = params.getListParm("$XDSFolderEntryUUID");
         if (fol_uuid != null) {
             // starting from uuid
             OMElement x = get_fol_by_uuid(fol_uuid);
@@ -68,7 +69,7 @@ public class GetFolders extends StoredQuery {
             }
         } else {
             // starting from uniqueid
-            ArrayList<String> fol_uid = get_arraylist_parm("$XDSFolderUniqueId");
+            List<String> fol_uid = params.getListParm("$XDSFolderUniqueId");
             OMElement x = getFolderByUID(fol_uid);
             metadata = MetadataParser.parseNonSubmission(x);
         }

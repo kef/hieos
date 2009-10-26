@@ -46,6 +46,7 @@ import java.util.HashMap;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 
+import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.axiom.om.OMElement;
@@ -214,9 +215,9 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             idParser.compileSymbolicNamesIntoUuids();
 
             // Check that submission does not include any object ids that are already in registry
-            ArrayList<String> idsInSubmission = m.getAllDefinedIds();
+            List<String> idsInSubmission = m.getAllDefinedIds();
             //RegistryObjectValidator roval = new RegistryObjectValidator(response, log_message);
-            ArrayList<String> idsAlreadyInRegistry = rov.validateNotExists(idsInSubmission);
+            List<String> idsAlreadyInRegistry = rov.validateNotExists(idsInSubmission);
             if (idsAlreadyInRegistry.size() != 0) {
                 response.add_error(MetadataSupport.XDSRegistryMetadataError,
                         "The following UUIDs which are present in the submission are already present in registry: " + idsAlreadyInRegistry,
@@ -302,11 +303,11 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             ArrayList deprecatableObjectIds = m.getDeprecatableObjectIds();
             // add to the list of things to deprecate, any XFRM or APND documents hanging off documents
             // in the deprecatable_object_ids list
-            ArrayList XFRMandAPNDDocuments = rov.getXFRMandAPNDDocuments(deprecatableObjectIds);
+            List<String> XFRMandAPNDDocuments = rov.getXFRMandAPNDDocuments(deprecatableObjectIds);
             deprecatableObjectIds.addAll(XFRMandAPNDDocuments);
             if (deprecatableObjectIds.size() > 0) {
                 // validate that these are documents first
-                ArrayList missing = rov.validateDocuments(deprecatableObjectIds);
+                List<String> missing = rov.validateDocuments(deprecatableObjectIds);
                 if (missing != null) {
                     throw new XdsException("The following documents were referenced by this submission but are not present in the registry: " +
                             missing);

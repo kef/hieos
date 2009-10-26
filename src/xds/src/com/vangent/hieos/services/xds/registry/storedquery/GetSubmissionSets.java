@@ -22,7 +22,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -40,9 +40,9 @@ public class GetSubmissionSets extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$uuid", true, true, true, false, (String[]) null);
@@ -58,7 +58,7 @@ public class GetSubmissionSets extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-        ArrayList<String> uuids = get_arraylist_parm("$uuid");
+        List<String> uuids = params.getListParm("$uuid");
         if (uuids != null && uuids.size() > 0) {
             OMElement ele = get_submissionsets(uuids);
             // this may contain duplicates - parse differently
@@ -81,7 +81,7 @@ public class GetSubmissionSets extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_submissionsets(ArrayList<String> uuids) throws XdsException {
+    protected OMElement get_submissionsets(List<String> uuids) throws XdsException {
         init();
         if (this.return_leaf_class) {
             append("SELECT * FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
@@ -116,7 +116,7 @@ public class GetSubmissionSets extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_associations(String type, ArrayList<String> froms, ArrayList<String> tos)
+    protected OMElement get_associations(String type, List<String> froms, List<String> tos)
             throws XdsException {
         init();
         if (this.return_leaf_class) {

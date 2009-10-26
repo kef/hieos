@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -40,9 +41,9 @@ public class GetDocumentsAndAssociations extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetDocumentsAndAssociations(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetDocumentsAndAssociations(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, "$XDSDocumentEntryEntryUUID");
@@ -59,8 +60,8 @@ public class GetDocumentsAndAssociations extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-        ArrayList<String> uids = get_arraylist_parm("$XDSDocumentEntryUniqueId");
-        ArrayList<String> uuids = get_arraylist_parm("$XDSDocumentEntryEntryUUID");
+        List<String> uids = params.getListParm("$XDSDocumentEntryUniqueId");
+        List<String> uuids = params.getListParm("$XDSDocumentEntryEntryUUID");
         if (uids != null) {
             OMElement ele = getDocumentByUID(uids);
             metadata = MetadataParser.parseNonSubmission(ele);

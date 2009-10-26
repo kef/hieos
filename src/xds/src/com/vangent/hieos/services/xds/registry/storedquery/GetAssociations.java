@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.List;
 
 /**
  *
@@ -40,9 +41,9 @@ public class GetAssociations extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetAssociations(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetAssociations(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$uuid", true, true, true, false, (String[]) null);
@@ -58,7 +59,7 @@ public class GetAssociations extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-        ArrayList<String> uuids = get_arraylist_parm("$uuid");
+        List<String> uuids = params.getListParm("$uuid");
         if (uuids != null) {
             OMElement ele = getAssociations(uuids, null);
             metadata = MetadataParser.parseNonSubmission(ele);

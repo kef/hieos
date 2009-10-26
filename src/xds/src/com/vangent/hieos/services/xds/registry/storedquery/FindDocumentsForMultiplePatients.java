@@ -25,7 +25,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -52,16 +52,13 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public FindDocumentsForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public FindDocumentsForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
-        // ***************************************
-        // PLACEHOLDER CODE --- NOT YET IMPLEMENTED PROPERLY
-        // ***************************************
         // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryPatientId", true, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryPatientId", false, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryHealthcareFacilityTypeCode");
         validateQueryParam("$XDSDocumentEntryPracticeSettingCode", false, true, true, true, (String[]) null);
         validateQueryParam("$XDSDocumentEntryCreationTimeFrom", false, false, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryCreationTimeTo", false, false, true, false, (String[]) null);
@@ -69,8 +66,8 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryServiceStartTimeTo", false, false, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryServiceStopTimeFrom", false, false, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryServiceStopTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryClassCode");
+        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, "$XDSDocumentEntryClassCode", "$XDSDocumentEntryHealthcareFacilityTypeCode");
         validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, (String[]) null);
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, (String[]) null);
         validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, (String[]) null);
@@ -94,7 +91,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             Metadata m = MetadataParser.parseNonSubmission(refs);
             // Guard against large queries -- FIXME(BHT): Configure this parameter.
             if (m.getObjectRefs().size() > 25) {
-                throw new XDSRegistryOutOfResourcesException("GetDocuments Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
+                throw new XDSRegistryOutOfResourcesException("GetDocumentsForMultiplePatients Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
             this.return_leaf_class = true;
         }
@@ -113,75 +110,81 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
      * @throws XdsException
      */
     OMElement impl() throws XdsInternalException, XdsException {
-
-        // Parse query parameters:
-        String patient_id = this.get_string_parm("$XDSDocumentEntryPatientId");
+        List<String> patient_id = params.getListParm("$XDSDocumentEntryPatientId");
         SQCodedTerm class_codes = params.getCodedParm("$XDSDocumentEntryClassCode");
+        SQCodedTerm type_codes = params.getCodedParm("$XDSDocumentEntryTypeCode");
         SQCodedTerm practice_setting_codes = params.getCodedParm("$XDSDocumentEntryPracticeSettingCode");
+        String creation_time_from = params.getIntParm("$XDSDocumentEntryCreationTimeFrom");
+        String creation_time_to = params.getIntParm("$XDSDocumentEntryCreationTimeTo");
+        String service_start_time_from = params.getIntParm("$XDSDocumentEntryServiceStartTimeFrom");
+        String service_start_time_to = params.getIntParm("$XDSDocumentEntryServiceStartTimeTo");
+        String service_stop_time_from = params.getIntParm("$XDSDocumentEntryServiceStopTimeFrom");
+        String service_stop_time_to = params.getIntParm("$XDSDocumentEntryServiceStopTimeTo");
         SQCodedTerm hcft_codes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
         SQCodedTerm event_codes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
         SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
         SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
-        String creation_time_from = this.get_int_parm("$XDSDocumentEntryCreationTimeFrom");
-        String creation_time_to = this.get_int_parm("$XDSDocumentEntryCreationTimeTo");
-        String service_start_time_from = this.get_int_parm("$XDSDocumentEntryServiceStartTimeFrom");
-        String service_start_time_to = this.get_int_parm("$XDSDocumentEntryServiceStartTimeTo");
-        String service_stop_time_from = this.get_int_parm("$XDSDocumentEntryServiceStopTimeFrom");
-        String service_stop_time_to = this.get_int_parm("$XDSDocumentEntryServiceStopTimeTo");
-        ArrayList<String> status = this.get_arraylist_parm("$XDSDocumentEntryStatus");
-        ArrayList<String> author_person = this.get_arraylist_parm("$XDSDocumentEntryAuthorPerson");
-
+        List<String> status = params.getListParm("$XDSDocumentEntryStatus");
+        List<String> author_person = params.getListParm("$XDSDocumentEntryAuthorPerson");
         init();
         if (this.return_leaf_class) {
-            append("SELECT *  ");
+            append("SELECT * ");
             newline();
         } else {
             append("SELECT obj.id  ");
             newline();
         }
-        append("FROM ExtrinsicObject obj, ExternalIdentifier patId");
-        newline();
+        append("FROM ExtrinsicObject obj");
+        if (patient_id != null && patient_id.size() > 0) {
+            append(", ExternalIdentifier patId");
+            newline();
+        }
         if (class_codes != null) {
             append(declareClassifications(class_codes));
+        }
+        if (type_codes != null) {
+            append(declareClassifications(type_codes));
         }
         if (practice_setting_codes != null) {
             append(declareClassifications(practice_setting_codes));
         }
         if (hcft_codes != null) {
-            append(declareClassifications(hcft_codes));
+            append(declareClassifications(hcft_codes));  // $XDSDocumentEntryHealthcareFacilityTypeCode
         }
         if (event_codes != null) {
-            append(declareClassifications(event_codes));
-        }
-        if (conf_codes != null) {
-            append(declareClassifications(conf_codes));
-        }
-        if (format_codes != null) {
-            append(declareClassifications(format_codes));
+            append(declareClassifications(event_codes)); // $XDSDocumentEntryEventCodeList
         }
         if (creation_time_from != null) {
             append(", Slot crTimef");
         }
-        newline();
+        newline();                       // $XDSDocumentEntryCreationTimeFrom
         if (creation_time_to != null) {
             append(", Slot crTimet");
         }
-        newline();
+        newline();                       // $XDSDocumentEntryCreationTimeTo
         if (service_start_time_from != null) {
             append(", Slot serStartTimef");
         }
-        newline();
+        newline();                 // $XDSDocumentEntryServiceStartTimeFrom
         if (service_start_time_to != null) {
             append(", Slot serStartTimet");
         }
-        newline();
+        newline();                 // $XDSDocumentEntryServiceStartTimeTo
         if (service_stop_time_from != null) {
             append(", Slot serStopTimef");
         }
-        newline();
+        newline();                  // $XDSDocumentEntryServiceStopTimeFrom
         if (service_stop_time_to != null) {
             append(", Slot serStopTimet");
         }
+        newline();                  // $XDSDocumentEntryServiceStopTimeTo
+        if (conf_codes != null) {
+            append(declareClassifications(conf_codes));  // $XDSDocumentEntryConfidentialityCode
+        }
+        if (format_codes != null) {
+            append(", Classification fmtCode");
+        }
+        newline();             // $XDSDocumentEntryFormatCode
         if (author_person != null) {
             append(", Classification author");
         }
@@ -190,35 +193,33 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             append(", Slot authorperson");
         }
         newline();
-
-        append("WHERE");
-        newline();
-        //   append("doc.objectType = 'urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1'"); newline();
-        //   append("AND ");
-        // patientID
-        append("(obj.id = patId.registryobject AND	");
-        newline();
-        append("  patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
-        newline();
-        append("  patId.value = '");
-        append(patient_id);
-        append("' ) ");
+        where();
         newline();
 
-        this.addCode(class_codes);
-        this.addCode(practice_setting_codes);
-        this.addTimes("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "obj");
-        this.addTimes("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "obj");
-        this.addTimes("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "obj");
-
-        this.addCode(hcft_codes);
-        this.addCode(event_codes);
-        this.addCode(conf_codes);
-        this.addCode(format_codes);
-
+        // patient id
+        if (patient_id != null && patient_id.size() > 0) {
+            append("(obj.id = patId.registryobject AND	");
+            newline();
+            append("  patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
+            newline();
+            append("  patId.value IN ");
+            append(patient_id);
+            append(" ) ");
+            newline();
+        }
+        addCode(class_codes);
+        addCode(type_codes);
+        addCode(practice_setting_codes);
+        addTimes("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "obj");
+        addTimes("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "obj");
+        addTimes("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "obj");
+        addCode(hcft_codes);
+        addCode(event_codes);
+        addCode(conf_codes);
+        addCode(format_codes);
         if (author_person != null) {
             for (String ap : author_person) {
-                append("AND");
+                and();
                 newline();
                 append("(obj.id = author.classifiedObject AND ");
                 newline();
@@ -232,7 +233,8 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
                 newline();
             }
         }
-        append("AND obj.status IN ");
+        and();
+        append(" obj.status IN ");
         append(status);
         return query(this.return_leaf_class);
     }

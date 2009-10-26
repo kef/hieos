@@ -38,9 +38,9 @@ public class GetFoldersForDocument extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetFoldersForDocument(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetFoldersForDocument(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
@@ -56,8 +56,8 @@ public class GetFoldersForDocument extends StoredQuery {
      * @throws XdsException
      */
     public Metadata run_internal() throws XdsException {
-        String uid = get_string_parm("$XDSDocumentEntryUniqueId");
-        String uuid = get_string_parm("$XDSDocumentEntryEntryUUID");
+        String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
+        String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         if (uuid == null || uuid.equals("")) {
             uuid = this.getDocumentIDFromUID(uid);
         }

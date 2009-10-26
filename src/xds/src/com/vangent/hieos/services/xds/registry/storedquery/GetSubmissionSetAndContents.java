@@ -56,9 +56,9 @@ public class GetSubmissionSetAndContents extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetSubmissionSetAndContents(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetSubmissionSetAndContents(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSSubmissionSetEntryUUID", true, false, true, false, "$XDSSubmissionSetUniqueId");
@@ -77,7 +77,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-        String ss_uuid = get_string_parm("$XDSSubmissionSetEntryUUID");
+        String ss_uuid = params.getStringParm("$XDSSubmissionSetEntryUUID");
         if (ss_uuid != null) {
             // starting from uuid
             OMElement x = get_rp_by_uuid(ss_uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
@@ -88,7 +88,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
             }
         } else {
             // starting from uniqueid
-            String ss_uid = get_string_parm("$XDSSubmissionSetUniqueId");
+            String ss_uid = params.getStringParm("$XDSSubmissionSetUniqueId");
             OMElement x = get_rp_by_uid(ss_uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
             try {
                 metadata = new Metadata(x);

@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.AxisFault;
@@ -201,10 +202,10 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
-                ArrayList<OMElement> results = stored_query(ahqr);
+                List<OMElement> results = stored_query(ahqr);
                 //response.query_results = results;
                 if (results != null) {
-                    ((AdhocQueryResponse) response).addQueryResults(results);
+                    ((AdhocQueryResponse) response).addQueryResults((ArrayList)results);
                 }
             }
 
@@ -280,7 +281,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws XDSRegistryOutOfResourcesException
      * @throws XdsValidationException
      */
-    ArrayList<OMElement> stored_query(OMElement ahqr)
+    List<OMElement> stored_query(OMElement ahqr)
             throws XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
         try {
             StoredQueryFactory fact =
@@ -288,8 +289,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     ahqr, // AdhocQueryRequest
                     response, // The response object.
                     log_message, // For logging.
-                    service_name, // For logging.
-                    is_secure);     // For logging.
+                    service_name);     // For logging.
             //fact.setServiceName(service_name);
             //fact.setLogMessage(log_message);
             //fact.setIsSecure(is_secure);

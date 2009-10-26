@@ -41,9 +41,9 @@ public class GetFolderAndContents extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public GetFolderAndContents(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public GetFolderAndContents(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSFolderEntryUUID", true, false, true, false, "$XDSFolderUniqueId");
@@ -63,7 +63,7 @@ public class GetFolderAndContents extends StoredQuery {
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
 
-        String fol_uuid = get_string_parm("$XDSFolderEntryUUID");
+        String fol_uuid = params.getStringParm("$XDSFolderEntryUUID");
         if (fol_uuid != null) {
             // starting from uuid
             OMElement x = get_fol_by_uuid(fol_uuid);
@@ -73,7 +73,7 @@ public class GetFolderAndContents extends StoredQuery {
             }
         } else {
             // starting from uniqueid
-            String fol_uid = get_string_parm("$XDSFolderUniqueId");
+            String fol_uid = params.getStringParm("$XDSFolderUniqueId");
             OMElement x = getFolderByUID(fol_uid);
             metadata = MetadataParser.parseNonSubmission(x);
             if (metadata.getFolders().size() == 0) {

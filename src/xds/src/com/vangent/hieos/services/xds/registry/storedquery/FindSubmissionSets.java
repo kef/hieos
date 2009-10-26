@@ -23,7 +23,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -41,9 +41,9 @@ public class FindSubmissionSets extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public FindSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public FindSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
         // param name, required?, multiple?, is string?, is code?, alternative
         validateQueryParam("$XDSSubmissionSetPatientId", true, false, true, false, (String[]) null);
@@ -80,13 +80,13 @@ public class FindSubmissionSets extends StoredQuery {
      * @throws XdsException
      */
     OMElement impl() throws XdsInternalException, XdsException {
-        String patient_id = this.get_string_parm("$XDSSubmissionSetPatientId");
-        ArrayList<String> source_id = this.get_arraylist_parm("$XDSSubmissionSetSourceId");
-        String submission_time_from = this.get_int_parm("$XDSSubmissionSetSubmissionTimeFrom");
-        String submission_time_to = this.get_int_parm("$XDSSubmissionSetSubmissionTimeTo");
-        String author_person = this.get_string_parm("$XDSSubmissionSetAuthorPerson");
+        String patient_id = params.getStringParm("$XDSSubmissionSetPatientId");
+        List<String> source_id = params.getListParm("$XDSSubmissionSetSourceId");
+        String submission_time_from = params.getIntParm("$XDSSubmissionSetSubmissionTimeFrom");
+        String submission_time_to = params.getIntParm("$XDSSubmissionSetSubmissionTimeTo");
+        String author_person = params.getStringParm("$XDSSubmissionSetAuthorPerson");
         SQCodedTerm content_type = params.getCodedParm("$XDSSubmissionSetContentType");
-        ArrayList<String> status = this.get_arraylist_parm("$XDSSubmissionSetStatus");
+        List<String> status = params.getListParm("$XDSSubmissionSetStatus");
 
         init();
         if (this.return_leaf_class) {

@@ -25,6 +25,7 @@ import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -42,18 +43,15 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
      * @param is_secure
      * @throws MetadataValidationException
      */
-    public FindFoldersForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure)
+    public FindFoldersForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message, is_secure);
+        super(params, return_objects, response, log_message);
 
-        // ***************************************
-        // PLACEHOLDER CODE --- NOT YET IMPLEMENTED PROPERLY
-        // ***************************************
         // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSFolderPatientId", true, false, true, false, (String[]) null);
+        validateQueryParam("$XDSFolderPatientId", false, true, true, false, (String[]) null);
         validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, (String[]) null);
         validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, (String[]) null);
-        validateQueryParam("$XDSFolderCodeList", false, true, true, true, (String[]) null);
+        validateQueryParam("$XDSFolderCodeList", true, true, true, true, (String[]) null);
         validateQueryParam("$XDSFolderStatus", true, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
@@ -82,17 +80,11 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
      * @throws XdsException
      */
     OMElement impl() throws XdsInternalException, MetadataException, XdsException {
-        String patient_id = this.get_string_parm("$XDSFolderPatientId");
-        String update_time_from = this.get_int_parm("$XDSFolderLastUpdateTimeFrom");
-        String update_time_to = this.get_int_parm("$XDSFolderLastUpdateTimeTo");
+        List<String> patient_id = params.getListParm("$XDSFolderPatientId");
+        String update_time_from = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
+        String update_time_to = params.getIntParm("$XDSFolderLastUpdateTimeTo");
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
-        ArrayList<String> status = get_arraylist_parm("$XDSFolderStatus");
-        if (patient_id == null || patient_id.length() == 0) {
-            throw new XdsException("Patient ID parameter empty");
-        }
-        if (status.size() == 0) {
-            throw new XdsException("Status parameter empty");
-        }
+        List<String> status = params.getListParm("$XDSFolderStatus");
         init();
         if (this.return_leaf_class) {
             append("SELECT *  ");
@@ -101,7 +93,11 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
             append("SELECT obj.id  ");
             newline();
         }
-        append("FROM RegistryPackage obj, ExternalIdentifier patId");
+        append("FROM RegistryPackage obj");
+        if (patient_id != null && patient_id.size() > 0) {
+            append(", ExternalIdentifier patId");
+            newline();
+        }
         newline();
         if (update_time_from != null) {
             append(", Slot updateTimef");
@@ -115,23 +111,25 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
             append(declareClassifications(codes));
         }
         newline();
-        append("WHERE");
+        where();
         newline();
 
-        // patientID
-        append("(obj.id = patId.registryobject AND	");
-        newline();
-        append("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
-        newline();
-        append("  patId.value = '");
-        append(patient_id);
-        append("' ) AND");
-        newline();
-        append("  obj.status IN ");
-        append(status);
+        // patient id
+        if (patient_id != null && patient_id.size() > 0) {
+            append("(obj.id = patId.registryobject AND	");
+            newline();
+            append("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
+            newline();
+            append("  patId.value IN ");
+            append(patient_id);
+            append(" ) ");
+            newline();
+        }
         newline();
         this.addCode(codes);
         this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
-        return query(this.return_leaf_class);
+        and();
+        append("  obj.status IN ");
+        append(status);  return query(this.return_leaf_class);
     }
 }
