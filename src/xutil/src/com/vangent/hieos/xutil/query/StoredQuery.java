@@ -24,18 +24,14 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.SQCodeAnd;
 import com.vangent.hieos.xutil.metadata.structure.SQCodeOr;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -54,7 +50,6 @@ public abstract class StoredQuery extends BasicQuery {
     protected BackendRegistry br;
     protected boolean return_leaf_class;
     public boolean has_validation_errors = false;
-    protected boolean is_secure;
 
     /**
      *
@@ -84,13 +79,12 @@ public abstract class StoredQuery extends BasicQuery {
      * @param log_message
      * @param is_secure
      */
-    public StoredQuery(SqParams params, boolean return_objects, Response response, XLogMessage log_message, boolean is_secure) {
+    public StoredQuery(SqParams params, boolean return_leaf_class, Response response, XLogMessage log_message) {
         this.response = response;
         this.log_message = log_message;
         this.params = params;
-        this.is_secure = is_secure;
         br = new BackendRegistry(response, log_message);
-        this.return_leaf_class = return_objects;
+        this.return_leaf_class = return_leaf_class;
     }
 
     /**
@@ -107,15 +101,12 @@ public abstract class StoredQuery extends BasicQuery {
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
      */
-    public ArrayList<OMElement> run() throws XdsException, XDSRegistryOutOfResourcesException {
+    public List<OMElement> run() throws XdsException, XDSRegistryOutOfResourcesException {
         Metadata metadata = run_internal();
         if (metadata == null) {
             return null;
         }
-        if (return_leaf_class) {
-            if (is_secure) {
-                secure_URI(metadata);
-            }
+        if (this.return_leaf_class) {
             return metadata.getAllObjects();//getV3();
         } else {
             return metadata.getObjectRefs(metadata.getMajorObjects(), false);
@@ -127,14 +118,12 @@ public abstract class StoredQuery extends BasicQuery {
      * @param rr
      * @return
      */
-    protected ArrayList<String> get_ids_from_registry_response(OMElement rr) {
-        ArrayList<String> ids = new ArrayList<String>();
-
+    protected List<String> get_ids_from_registry_response(OMElement rr) {
+        List<String> ids = new ArrayList<String>();
         OMElement sqr = MetadataSupport.firstChildWithLocalName(rr, "RegistryObjectList");
         if (sqr == null) {
             return ids;
         }
-
         for (Iterator<OMElement> it = sqr.getChildElements(); it.hasNext();) {
             OMElement ele = (OMElement) it.next();
             if (ele.getLocalName().equals("ObjectRef")) {
@@ -142,7 +131,6 @@ public abstract class StoredQuery extends BasicQuery {
             }
             ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
         }
-
         return ids;
     }
 
@@ -151,20 +139,20 @@ public abstract class StoredQuery extends BasicQuery {
      * @param name
      * @return
      */
+    /*
     protected String get_string_parm(String name) {
-        return params.getStringParm(name);
-    }
-
+    return params.getStringParm(name);
+    }*/
     /**
      *
      * @param name
      * @return
      * @throws MetadataException
      */
+    /*
     protected String get_int_parm(String name) throws MetadataException {
-        return params.getIntParm(name);
-    }
-
+    return params.getIntParm(name);
+    }*/
     /**
      *
      * @param name
@@ -172,21 +160,22 @@ public abstract class StoredQuery extends BasicQuery {
      * @throws XdsInternalException
      * @throws MetadataException
      */
+    /*
     protected ArrayList<String> get_arraylist_parm(String name) throws XdsInternalException, MetadataException {
-        Object o = params.getParm(name);
-        if (o == null) {
-            return null;
-        }
-        if (o instanceof ArrayList) {
-            ArrayList<String> a = (ArrayList<String>) o;
-            if (a.size() == 0) {
-                throw new MetadataException("Parameter " + name + " is an empty list");
-            }
-            return a;
-        }
-        throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
+    Object o = params.getParm(name);
+    if (o == null) {
+    return null;
     }
-
+    if (o instanceof ArrayList) {
+    ArrayList<String> a = (ArrayList<String>) o;
+    if (a.size() == 0) {
+    throw new MetadataException("Parameter " + name + " is an empty list");
+    }
+    return a;
+    }
+    throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
+    }
+     */
     /**
      *
      * @param name
@@ -194,10 +183,11 @@ public abstract class StoredQuery extends BasicQuery {
      * @throws XdsInternalException
      * @throws MetadataException
      */
+    /*
     protected ArrayList<Object> get_andor_parm(String name) throws XdsInternalException, MetadataException {
-        return (ArrayList<Object>) params.getAndorParm(name);
+    return (ArrayList<Object>) params.getAndorParm(name);
     }
-
+     */
     /**
      *
      * @param values
@@ -221,37 +211,12 @@ public abstract class StoredQuery extends BasicQuery {
     }
 
     /**
-     *
-     * @param andor
-     * @param varname
+     * 
      * @return
+     * @throws XMLParserException
+     * @throws XdsException
      */
-    /*
-    protected ArrayList<String> getAndorVarNames(Object andor, String varname) {
-        ArrayList<String> names = new ArrayList<String>();
-        if (!isAnd(andor)) {
-            names.add(varname);
-            return names;
-        }
-        And and = (And) andor;
-        for (int i = 0; i < and.size(); i++) {
-            names.add(varname + i);
-        }
-        return names;
-    }
-*/
-    /*
-    protected String declareClassifications(ArrayList<String> names) {
-        StringBuffer buf = new StringBuffer();
-
-        for (String name : names) {
-            buf.append(", Classification " + name + "\n");
-        }
-
-        return buf.toString();
-    }*/
-
-    ArrayList<String> query_for_object_refs() throws XMLParserException, XdsException {
+    List<String> query_for_object_refs() throws XMLParserException, XdsException {
         return br.queryForObjectRefs(query.toString());
     }
 
@@ -282,6 +247,7 @@ public abstract class StoredQuery extends BasicQuery {
      * Reinitialize the query buffer.
      */
     protected void init() {
+        where = false;
         query = new StringBuffer();
     }
 
@@ -290,6 +256,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @param x
      */
     protected void append(String x) {
+        where = false;
         query.append(x);
     }
 
@@ -298,6 +265,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @param x
      */
     protected void appendQuoted(String x) {
+        where = false;
         query.append("'");
         query.append(x);
         query.append("'");
@@ -315,36 +283,30 @@ public abstract class StoredQuery extends BasicQuery {
      * @param list
      * @throws MetadataException
      */
+    /*
     protected void append(List list) throws MetadataException {
-        append((ArrayList) list);
-    }
-
+    append((ArrayList) list);
+    }*/
     /**
      * 
      * @param list
      * @throws MetadataException
      */
-    protected void append(ArrayList list) throws MetadataException {
+    protected void append(List list) throws MetadataException {
+        where = false;
         query.append("(");
         boolean first_time = true;
-        for (int i = 0; i < list.size(); i++) {
+        for (Object o : list) {
+            //for (int i = 0; i < list.size(); i++) {
             if (!first_time) {
                 query.append(",");
             }
-            Object o = list.get(i);
+            //Object o = list.get(i);
             if (o instanceof String) {
                 query.append("'" + (String) o + "'");
             } else if (o instanceof Integer) {
                 query.append(((Integer) o).toString());
             } else {
-                /*
-                String trace = null;
-                try {
-                throw new Exception("foo");
-                } catch (Exception e) {
-                trace = ExceptionUtil.exception_details(e);
-                }
-                 */
                 throw new MetadataException("Parameter value " + o + " cannot be decoded");
             }
             first_time = false;
@@ -365,7 +327,6 @@ public abstract class StoredQuery extends BasicQuery {
         Object value = params.getParm(name);
 
         System.out.println("validate_parm: name=" + name + " value=" + value + " required=" + required + " multiple=" + multiple + " is_string=" + is_string + " is_code=" + is_code + " alternatives=" + valuesAsString(null, alternatives));
-
         if (value == null && alternatives == null) {
             if (required) {
                 response.add_error("XDSRegistryError", "Parameter " + name + " is required but not present in query", "StoredQuery.java", log_message);
@@ -386,11 +347,9 @@ public abstract class StoredQuery extends BasicQuery {
                 return;
             }
         }
-
         if (value == null) {
             return;
         }
-
         if (is_code) {
             if (!(value instanceof SQCodedTerm)) {
                 response.add_error("XDSRegistryError", "Parameter, " + name +
@@ -400,7 +359,6 @@ public abstract class StoredQuery extends BasicQuery {
             }
 
         } else {
-
             if (multiple && !(value instanceof ArrayList)) {
                 response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", "StoredQuery.java", log_message);
                 this.has_validation_errors = true;
@@ -416,13 +374,10 @@ public abstract class StoredQuery extends BasicQuery {
                 this.has_validation_errors = true;
                 return;
             }
-
             if (!(value instanceof ArrayList)) {
                 return;
             }
-
             ArrayList values = (ArrayList) value;
-
             for (int i = 0; i < values.size(); i++) {
                 Object a_o = values.get(i);
                 if (is_string &&
@@ -439,7 +394,6 @@ public abstract class StoredQuery extends BasicQuery {
                 }
             }
         }
-
     }
 
     /**
@@ -482,99 +436,6 @@ public abstract class StoredQuery extends BasicQuery {
     }
 
     /**
-     * 
-     * @param parms
-     * @param name
-     * @param required
-     * @param multiple
-     * @param is_string
-     * @param same_size_as
-     * @param alternative
-     */
-    protected void validate_parm(SqParams parms, String name, boolean required, boolean multiple, boolean is_string, String same_size_as, String alternative) {
-        Object value = parms.getParm(name);
-        if (value == null) {
-            if (required) {
-                if (alternative != null) {
-                    Object value2 = parms.getParm(alternative);
-                    if (value2 == null) {
-                        response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + " or " + alternative + " is required, neither are present", this.getClass().getName(), log_message);
-                        this.has_validation_errors = true;
-                        return;
-                    }
-                } else {
-                    response.add_error(MetadataSupport.XDSRegistryError, "Required parameter, " + name + ", not present in query request", this.getClass().getName(), log_message);
-                    this.has_validation_errors = true;
-                    return;
-                }
-            }
-            return;
-        }
-        if (multiple && !(value instanceof ArrayList)) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-        if (!multiple && (value instanceof ArrayList)) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", accepts single value value only but (  )  syntax is present", this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-        if (multiple && (value instanceof ArrayList) && ((ArrayList) value).size() == 0) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", (  )  syntax is present but list is empty", this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-
-        if (!(value instanceof ArrayList)) {
-            return;
-        }
-
-        ArrayList values = (ArrayList) value;
-
-        for (int i = 0; i < values.size(); i++) {
-            Object a_o = values.get(i);
-            if (is_string &&
-                    !(a_o instanceof String) &&
-                    !((a_o instanceof ArrayList) &&
-                    ((ArrayList) a_o).size() > 0 &&
-                    (((ArrayList) a_o).get(0) instanceof String))) {
-                response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + ", is not coded as a string (is type " + a_o.getClass().getName() + ") (single quotes missing?)", this.getClass().getName(), log_message);
-                this.has_validation_errors = true;
-            }
-            if (!is_string && !(a_o instanceof Integer)) {
-                response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + name + " is not coded as a number (is type " + a_o.getClass().getName() + ") (single quotes present)", this.getClass().getName(), log_message);
-                this.has_validation_errors = true;
-            }
-        }
-
-        if (same_size_as == null) {
-            return;
-        }
-
-        Object same_as_value = parms.getParm(same_size_as);
-        if (!(same_as_value instanceof ArrayList)) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-        ArrayList same_as_values = (ArrayList) same_as_value;
-
-        if (!(value instanceof ArrayList)) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-
-        if (same_as_values.size() != values.size()) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Parameter, " + same_size_as + " must have same number of values as parameter " + name, this.getClass().getName(), log_message);
-            this.has_validation_errors = true;
-            return;
-        }
-
-    }
-
-    /**
      *
      * @param uuid
      * @return
@@ -592,7 +453,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement getDocumentByUUID(ArrayList<String> uuids) throws XdsException {
+    protected OMElement getDocumentByUUID(List<String> uuids) throws XdsException {
         init();
         if (this.return_leaf_class) {
             append("SELECT * FROM ExtrinsicObject eo");
@@ -627,7 +488,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement getDocumentByUID(ArrayList<String> uids) throws XdsException {
+    protected OMElement getDocumentByUID(List<String> uids) throws XdsException {
         init();
         if (this.return_leaf_class) {
             append("SELECT * from ExtrinsicObject eo, ExternalIdentifier ei");
@@ -659,13 +520,11 @@ public abstract class StoredQuery extends BasicQuery {
         this.return_leaf_class = false;
         OMElement result = getDocumentByUID(uid);
         Metadata metadata = MetadataParser.parseNonSubmission(result);
-        ArrayList<OMElement> obj_refs = metadata.getObjectRefs();
+        List<OMElement> obj_refs = metadata.getObjectRefs();
         if (obj_refs.size() == 0) {
             return null;
         }
-
         return_leaf_class = rlc;
-
         return metadata.getId(obj_refs.get(0));
     }
 
@@ -676,7 +535,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement getAssociations(ArrayList<String> uuids, ArrayList<String> assoc_types) throws XdsException {
+    protected OMElement getAssociations(List<String> uuids, List<String> assoc_types) throws XdsException {
         init();
         if (this.return_leaf_class) {
             append("SELECT * FROM Association a");
@@ -713,54 +572,54 @@ public abstract class StoredQuery extends BasicQuery {
      */
     /*
     protected void add_code(String code_var, String code_scheme_var, String code_class_uuid,
-            ArrayList codes, ArrayList schemes) throws MetadataException {
-        if (codes != null) {
-            append("AND (");
-            append(code_var);
-            append(".classifiedobject = doc.id AND ");
-            newline();
-        }
-        if (codes != null) {
-            append("  ");
-            append(code_var);
-            append(".classificationScheme = '");
-            append(code_class_uuid);
-            append("' AND ");
-            newline();
-        }
-        if (codes != null) {
-            append("  ");
-            append(code_var);
-            append(".nodeRepresentation IN ");
-            append(codes);
-            append(" )");
-            newline();
-        }
-
-        if (schemes != null) {
-            append("AND (");
-            append(code_scheme_var);
-            append(".parent = ");
-            append(code_var);
-            append(".id AND   ");
-            newline();
-        }
-        if (schemes != null) {
-            append("  ");
-            append(code_scheme_var);
-            append(".name = 'codingScheme' AND   ");
-            newline();
-        }
-        if (schemes != null) {
-            append("  ");
-            append(code_scheme_var);
-            append(".value IN ");
-            append(schemes);
-            append(" )");
-            newline();
-        }
+    ArrayList codes, ArrayList schemes) throws MetadataException {
+    if (codes != null) {
+    append("AND (");
+    append(code_var);
+    append(".classifiedobject = doc.id AND ");
+    newline();
     }
-*/
+    if (codes != null) {
+    append("  ");
+    append(code_var);
+    append(".classificationScheme = '");
+    append(code_class_uuid);
+    append("' AND ");
+    newline();
+    }
+    if (codes != null) {
+    append("  ");
+    append(code_var);
+    append(".nodeRepresentation IN ");
+    append(codes);
+    append(" )");
+    newline();
+    }
+
+    if (schemes != null) {
+    append("AND (");
+    append(code_scheme_var);
+    append(".parent = ");
+    append(code_var);
+    append(".id AND   ");
+    newline();
+    }
+    if (schemes != null) {
+    append("  ");
+    append(code_scheme_var);
+    append(".name = 'codingScheme' AND   ");
+    newline();
+    }
+    if (schemes != null) {
+    append("  ");
+    append(code_scheme_var);
+    append(".value IN ");
+    append(schemes);
+    append(" )");
+    newline();
+    }
+    }
+     */
     /**
      *
      * @param code_vars
@@ -772,80 +631,80 @@ public abstract class StoredQuery extends BasicQuery {
      */
     /*
     protected void add_code(ArrayList<String> code_vars, String code_scheme_var, String code_class_uuid,
-            ArrayList<Object> codes, ArrayList schemes) throws MetadataException {
-        if (codes == null) {
-            return;
-        }
-
-        if (code_vars.size() == 1) {
-            if (codes instanceof And) {
-                throw new MetadataException("StoredQuery.add_code(): code_vars.size()==1 but codes have type And");
-            }
-            String code_var = code_vars.get(0);
-            append("AND (");
-            append(code_var);
-            append(".classifiedobject = doc.id AND ");
-            newline();
-            append("  ");
-            append(code_var);
-            append(".classificationScheme = '");
-            append(code_class_uuid);
-            append("' AND ");
-            newline();
-            append("  ");
-            append(code_var);
-            append(".nodeRepresentation IN ");
-            append(codes);
-            append(" )");
-            newline();
-
-            if (schemes != null) {
-                append("AND (");
-                append(code_scheme_var);
-                append(".parent = ");
-                append(code_var);
-                append(".id AND   ");
-                newline();
-                append("  ");
-                append(code_scheme_var);
-                append(".name = 'codingScheme' AND   ");
-                newline();
-                append("  ");
-                append(code_scheme_var);
-                append(".value IN ");
-                append(schemes);
-                append(" )");
-                newline();
-            }
-        } else {
-            if (!(codes instanceof And)) {
-                throw new MetadataException("StoredQuery.add_code():  code_vars.size() > 1 but codes not of type And");
-            }
-
-            for (int i = 0; i < code_vars.size(); i++) {
-                String code_var = code_vars.get(i);
-                ArrayList<String> codes2 = (ArrayList<String>) codes.get(i);
-
-                append("AND (");
-                append(code_var);
-                append(".classifiedobject = doc.id AND ");
-                newline();
-                append("  ");
-                append(code_var);
-                append(".classificationScheme = '");
-                append(code_class_uuid);
-                append("' AND ");
-                newline();
-                append("  ");
-                append(code_var);
-                append(".nodeRepresentation IN ");
-                append(codes2);
-                append(" )");
-                newline();
-            }
-        }
+    ArrayList<Object> codes, ArrayList schemes) throws MetadataException {
+    if (codes == null) {
+    return;
     }
-*/
+
+    if (code_vars.size() == 1) {
+    if (codes instanceof And) {
+    throw new MetadataException("StoredQuery.add_code(): code_vars.size()==1 but codes have type And");
+    }
+    String code_var = code_vars.get(0);
+    append("AND (");
+    append(code_var);
+    append(".classifiedobject = doc.id AND ");
+    newline();
+    append("  ");
+    append(code_var);
+    append(".classificationScheme = '");
+    append(code_class_uuid);
+    append("' AND ");
+    newline();
+    append("  ");
+    append(code_var);
+    append(".nodeRepresentation IN ");
+    append(codes);
+    append(" )");
+    newline();
+
+    if (schemes != null) {
+    append("AND (");
+    append(code_scheme_var);
+    append(".parent = ");
+    append(code_var);
+    append(".id AND   ");
+    newline();
+    append("  ");
+    append(code_scheme_var);
+    append(".name = 'codingScheme' AND   ");
+    newline();
+    append("  ");
+    append(code_scheme_var);
+    append(".value IN ");
+    append(schemes);
+    append(" )");
+    newline();
+    }
+    } else {
+    if (!(codes instanceof And)) {
+    throw new MetadataException("StoredQuery.add_code():  code_vars.size() > 1 but codes not of type And");
+    }
+
+    for (int i = 0; i < code_vars.size(); i++) {
+    String code_var = code_vars.get(i);
+    ArrayList<String> codes2 = (ArrayList<String>) codes.get(i);
+
+    append("AND (");
+    append(code_var);
+    append(".classifiedobject = doc.id AND ");
+    newline();
+    append("  ");
+    append(code_var);
+    append(".classificationScheme = '");
+    append(code_class_uuid);
+    append("' AND ");
+    newline();
+    append("  ");
+    append(code_var);
+    append(".nodeRepresentation IN ");
+    append(codes2);
+    append(" )");
+    newline();
+    }
+    }
+    }
+     */
     // times come in as numeric values but convert them to string values to avoid numeric overflow
     /**
      * 
@@ -858,54 +717,54 @@ public abstract class StoredQuery extends BasicQuery {
      */
     /*
     protected void add_times(String att_name, String from_var, String to_var,
-            String from_limit, String to_limit, String var_name) {
-        if (from_limit != null) {
-            append("AND (");
-            append(from_var);
-            append(".parent = " + var_name + ".id AND ");
-            newline();
-        }
-        if (from_limit != null) {
-            append("  ");
-            append(from_var);
-            append(".name = '");
-            append(att_name);
-            append("' AND     ");
-            newline();
-        }
-        if (from_limit != null) {
-            append("  ");
-            append(from_var);
-            append(".value >= ");
-            appendQuoted(from_limit);
-            append(" ) ");
-            newline();
-        }
-
-        if (to_limit != null) {
-            append("AND (");
-            append(to_var);
-            append(".parent = " + var_name + ".id AND ");
-            newline();
-        }
-        if (to_limit != null) {
-            append("  ");
-            append(to_var);
-            append(".name = '");
-            append(att_name);
-            append("' AND     ");
-            newline();
-        }
-        if (to_limit != null) {
-            append("  ");
-            append(to_var);
-            append(".value < ");
-            appendQuoted(to_limit);
-            append(" ) ");
-            newline();
-        }
+    String from_limit, String to_limit, String var_name) {
+    if (from_limit != null) {
+    append("AND (");
+    append(from_var);
+    append(".parent = " + var_name + ".id AND ");
+    newline();
     }
-*/
+    if (from_limit != null) {
+    append("  ");
+    append(from_var);
+    append(".name = '");
+    append(att_name);
+    append("' AND     ");
+    newline();
+    }
+    if (from_limit != null) {
+    append("  ");
+    append(from_var);
+    append(".value >= ");
+    appendQuoted(from_limit);
+    append(" ) ");
+    newline();
+    }
+
+    if (to_limit != null) {
+    append("AND (");
+    append(to_var);
+    append(".parent = " + var_name + ".id AND ");
+    newline();
+    }
+    if (to_limit != null) {
+    append("  ");
+    append(to_var);
+    append(".name = '");
+    append(att_name);
+    append("' AND     ");
+    newline();
+    }
+    if (to_limit != null) {
+    append("  ");
+    append(to_var);
+    append(".value < ");
+    appendQuoted(to_limit);
+    append(" ) ");
+    newline();
+    }
+    }
+     */
     /**
      *
      * @param uid
@@ -934,7 +793,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    public OMElement get_rp_by_uid(ArrayList<String> uids, String identification_scheme) throws XdsException {
+    public OMElement get_rp_by_uid(List<String> uids, String identification_scheme) throws XdsException {
         init();
         append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
         newline();
@@ -980,7 +839,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_rp_by_uuid(ArrayList<String> ss_uuid, String identification_scheme)
+    protected OMElement get_rp_by_uuid(List<String> ss_uuid, String identification_scheme)
             throws XdsException {
         init();
         append("SELECT * FROM RegistryPackage ss, ExternalIdentifier uniq");
@@ -1005,11 +864,10 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_objects_by_uuid(ArrayList<String> uuids) throws XdsException {
+    protected OMElement get_objects_by_uuid(List<String> uuids) throws XdsException {
         if (uuids.size() == 0) {
             return null;
         }
-
         init();
         append("SELECT * FROM RegistryObject ro");
         newline();
@@ -1018,7 +876,6 @@ public abstract class StoredQuery extends BasicQuery {
         append("	  ro.id IN ");
         append(uuids);
         newline();
-
         return query();
     }
 
@@ -1038,7 +895,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_fol_by_uuid(ArrayList<String> uuid) throws XdsException {
+    protected OMElement get_fol_by_uuid(List<String> uuid) throws XdsException {
         return get_rp_by_uuid(uuid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
@@ -1058,7 +915,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement getFolderByUID(ArrayList<String> uid) throws XdsException {
+    protected OMElement getFolderByUID(List<String> uid) throws XdsException {
         return get_rp_by_uid(uid, MetadataSupport.XDSFolder_uniqueid_uuid);
     }
 
@@ -1137,7 +994,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement getAssociations(String package_uuid, ArrayList<String> content_uuids) throws XdsException {
+    protected OMElement getAssociations(String package_uuid, List<String> content_uuids) throws XdsException {
         init();
         append("SELECT * FROM Association ass");
         newline();
@@ -1168,7 +1025,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_assocs(ArrayList<String> package_uuids, ArrayList<String> content_uuids) throws XdsException {
+    protected OMElement get_assocs(List<String> package_uuids, List<String> content_uuids) throws XdsException {
         init();
         append("SELECT * FROM Association ass");
         newline();
@@ -1205,7 +1062,7 @@ public abstract class StoredQuery extends BasicQuery {
      * @return
      * @throws XdsException
      */
-    protected OMElement get_assocs(ArrayList<String> package_uuids) throws XdsException {
+    protected OMElement get_assocs(List<String> package_uuids) throws XdsException {
         if (package_uuids == null || package_uuids.size() == 0) {
             return null;
         }
@@ -1243,7 +1100,6 @@ public abstract class StoredQuery extends BasicQuery {
         } else {
             append("SELECT fol.id FROM RegistryPackage fol, ExternalIdentifier uniq");
         }
-        //append("SELECT * FROM RegistryPackage fol, ExternalIdentifier uniq");
         append(", Association a");
         newline();
         append("WHERE");
@@ -1260,10 +1116,7 @@ public abstract class StoredQuery extends BasicQuery {
         newline();
         append("   uniq.identificationScheme = '" + MetadataSupport.XDSFolder_uniqueid_uuid + "' ");
         newline();
-
-        // FIXME (BHT): Investigate (used to always return LEAF CLASS.
         return query(this.return_leaf_class);
-        //return query();
     }
 
     /**
@@ -1288,10 +1141,8 @@ public abstract class StoredQuery extends BasicQuery {
      */
     public String declareClassifications(SQCodeOr or) {
         StringBuffer buf = new StringBuffer();
-
         buf.append(", Classification " + or.getCodeVarName() + "\n");
         buf.append(", Slot " + or.getSchemeVarName() + "\n");
-
         return buf.toString();
     }
 
@@ -1302,15 +1153,12 @@ public abstract class StoredQuery extends BasicQuery {
      */
     public String declareClassifications(SQCodeAnd and) {
         StringBuffer buf = new StringBuffer();
-
         for (String name : and.getCodeVarNames()) {
             buf.append(", Classification " + name + "\n");
         }
-
         for (String name : and.getSchemeVarNames()) {
             buf.append(", Slot " + name + "\n");
         }
-
         return buf.toString();
     }
 
@@ -1321,11 +1169,9 @@ public abstract class StoredQuery extends BasicQuery {
      */
     public String declareClassifications(List<String> names) {
         StringBuffer buf = new StringBuffer();
-
         for (String name : names) {
             buf.append(", Classification " + name + "\n");
         }
-
         return buf.toString();
     }
 
@@ -1410,21 +1256,20 @@ public abstract class StoredQuery extends BasicQuery {
     public void addTimes(String att_name, String from_var, String to_var,
             String from_limit, String to_limit, String var_name) {
         if (from_limit != null) {
+            // Parent:
             and();
             append(" (");
             append(from_var);
             append(".parent = " + var_name + ".id AND ");
             newline();
-        }
-        if (from_limit != null) {
+            // Name:
             append("  ");
             append(from_var);
             append(".name = '");
             append(att_name);
             append("' AND     ");
             newline();
-        }
-        if (from_limit != null) {
+            // Value:
             append("  ");
             append(from_var);
             append(".value >= ");
@@ -1434,21 +1279,20 @@ public abstract class StoredQuery extends BasicQuery {
         }
 
         if (to_limit != null) {
+            // Parent:
             and();
             append(" (");
             append(to_var);
             append(".parent = " + var_name + ".id AND ");
             newline();
-        }
-        if (to_limit != null) {
+            // Name:
             append("  ");
             append(to_var);
             append(".name = '");
             append(att_name);
             append("' AND     ");
             newline();
-        }
-        if (to_limit != null) {
+            // Value:
             append("  ");
             append(to_var);
             append(".value < ");
@@ -1466,6 +1310,14 @@ public abstract class StoredQuery extends BasicQuery {
             append("AND");
         }
         where = false;
+    }
+
+    /**
+     *
+     */
+    public void where() {
+        append("WHERE");
+        where = true;
     }
 }
 

@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -212,16 +213,13 @@ public class Structure {
         }
 
         RegistryObjectValidator rov = new RegistryObjectValidator(rel, log_message);
-
         ArrayList<String> ids = new ArrayList<String>();
         ids.add(id);
 
-        ArrayList<String> missing = rov.validateAreFolders(ids);
+        List<String> missing = rov.validateAreFolders(ids);
         if (missing != null && missing.contains(id)) {
             return false;
         }
-
-
         return true;
     }
 

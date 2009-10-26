@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -79,8 +80,8 @@ public class RegistryObjectValidator extends StoredQuery {
      * @param ids
      * @return
      */
-    ArrayList<String> uuidsOnly(ArrayList<String> ids) {
-        ArrayList<String> uuids = new ArrayList<String>();
+    List<String> uuidsOnly(List<String> ids) {
+        List<String> uuids = new ArrayList<String>();
         for (String id : ids) {
             if (id.startsWith("urn:uuid:")) {
                 uuids.add(id);
@@ -97,8 +98,8 @@ public class RegistryObjectValidator extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public ArrayList<String> validateNotExists(ArrayList<String> ids) throws XdsException {
-        ArrayList<String> uuids = uuidsOnly(ids);
+    public List<String> validateNotExists(List<String> ids) throws XdsException {
+        List<String> uuids = uuidsOnly(ids);
         init();
         append("SELECT id FROM RegistryObject ro");
         newline();
@@ -107,9 +108,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  ro.id IN ");
         append(uuids);
         newline();
-
-        ArrayList results = this.query_for_object_refs();
-
+        List<String> results = this.query_for_object_refs();
         return results;
     }
 
@@ -147,7 +146,7 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
 
         // these uuids identify objects that carry one of the uids passed in in the map
-        ArrayList<String> uuids = this.query_for_object_refs();
+        List<String> uuids = this.query_for_object_refs();
 
         if (uuids.size() == 0) {
             return;
@@ -227,7 +226,7 @@ public class RegistryObjectValidator extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public ArrayList validateDocuments(ArrayList uuids) throws XdsException {
+    public List<String> validateDocuments(List<String> uuids) throws XdsException {
         init();
         append("SELECT id FROM ExtrinsicObject eo");
         newline();
@@ -236,10 +235,8 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  eo.id IN ");
         append(uuids);
         newline();
-
-        ArrayList results = this.query_for_object_refs();
-
-        ArrayList missing = null;
+        List<String> results = this.query_for_object_refs();
+        List<String> missing = null;
         for (int i = 0; i < uuids.size(); i++) {
             String uuid = (String) uuids.get(i);
             if (!results.contains(uuid)) {
@@ -250,7 +247,6 @@ public class RegistryObjectValidator extends StoredQuery {
             }
         }
         return missing;
-
     }
 
     // validate the ids are in registry and belong to folders
@@ -261,7 +257,7 @@ public class RegistryObjectValidator extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public ArrayList<String> validateAreFolders(ArrayList<String> ids) throws XdsException {
+    public List<String> validateAreFolders(ArrayList<String> ids) throws XdsException {
         init();
         append("SELECT rp.id FROM RegistryPackage rp, ExternalIdentifier ei");
         newline();
@@ -279,12 +275,9 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
         append("  ei.identificationScheme = '" + MetadataSupport.XDSFolder_patientid_uuid + "'");
         newline();
-
         br.setReason("Verify are Folders");
-
-        ArrayList results1 = this.query_for_object_refs();
-
-        ArrayList<String> missing = null;
+        List<String> results1 = this.query_for_object_refs();
+        List<String> missing = null;
         for (String id : ids) {
             if (!results1.contains(id)) {
                 if (missing == null) {
@@ -293,7 +286,6 @@ public class RegistryObjectValidator extends StoredQuery {
                 missing.add(id);
             }
         }
-
         return missing;
     }
 
@@ -317,7 +309,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append(uuids);
         newline();
 
-        ArrayList results1 = this.query_for_object_refs();
+        List<String> results1 = this.query_for_object_refs();
 
         init();
         append("SELECT id FROM RegistryPackage eo");
@@ -332,10 +324,8 @@ public class RegistryObjectValidator extends StoredQuery {
         append(uuids);
         newline();
 
-        ArrayList results = this.query_for_object_refs();
-
+        List<String> results = this.query_for_object_refs();
         results.addAll(results1);
-
         ArrayList missing = null;
         for (int i = 0; i < uuids.size(); i++) {
             String uuid = (String) uuids.get(i);
@@ -379,7 +369,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("'");
         newline();
 
-        ArrayList results1 = this.query_for_object_refs();
+        List<String> results1 = this.query_for_object_refs();
 
         init();
         append("SELECT eo.id FROM RegistryPackage eo, ExternalIdentifier pid");
@@ -399,7 +389,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("'");
         newline();
 
-        ArrayList results = this.query_for_object_refs();
+        List<String> results = this.query_for_object_refs();
 
         results.addAll(results1);
 
@@ -422,7 +412,7 @@ public class RegistryObjectValidator extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public ArrayList getXFRMandAPNDDocuments(ArrayList uuids) throws XdsException {
+    public List<String> getXFRMandAPNDDocuments(ArrayList uuids) throws XdsException {
         if (uuids.size() == 0) {
             return new ArrayList();
         }
