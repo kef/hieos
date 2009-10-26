@@ -231,11 +231,6 @@ public class StoredQueryFactory {
         }
     }
 
-    /*
-    public void setLogMessage(Message log_message) {
-    this.log_message = log_message;
-    }
-     */
     /**
      *
      * @return
