@@ -68,11 +68,15 @@ public class XLogger {
      * @return
      */
     public XLogMessage getNewMessage(String ipAddress) {
-        // Create message id from timestamp and ipAddress.
+        // Create a unique message ID (nanoTime + IP address):
+        long nanoTime = System.nanoTime();
+        String nanoTimeString = new Long(nanoTime).toString();
+        String id = nanoTimeString + ipAddress;
+        // Create the corresponding log message:
+        XLogMessage m = new XLogMessage(this, id);
+        // Now set a reasonable timestamp (down to milliseconds):
         GregorianCalendar cal = new GregorianCalendar();
         long currentTime = cal.getTimeInMillis();
-        String id = new Long(currentTime).toString() + ipAddress;
-        XLogMessage m = new XLogMessage(this, id);
         m.setIpAddress(ipAddress);
         m.setTimeStamp(currentTime);
         return m;
@@ -129,8 +133,7 @@ public class XLogger {
      * 
      * @return
      */
-    public boolean isLogEnabled()
-    {
+    public boolean isLogEnabled() {
         return this.logEnabled;
     }
 
@@ -156,6 +159,8 @@ public class XLogger {
         //TextMessage tm = session.createTextMessage();
         //tm.setText(messageData.toString());
         //return tm;
+
+        //System.out.println("CLIENT logMessage id = " + messageData.toString());
         ObjectMessage om = session.createObjectMessage(messageData);
         return om;
     }
