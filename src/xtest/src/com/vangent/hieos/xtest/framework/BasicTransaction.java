@@ -465,6 +465,16 @@ public abstract class BasicTransaction extends OmLogger {
                 this.s_ctx.add_name_value(instruction_output, generate_xml("AssignedPatientId", patient_map));
             }
 
+            String alternatePatientId = s_ctx.alternatePatientId;
+            if (alternatePatientId != null) {
+                //alternatePatientId = new PatientIdAllocator().allocate_new_pid();
+                System.out.println("******** AltPatientId = " + alternatePatientId);
+                HashMap<String, String> patient_map;
+                patient_map = tm.assignPatientId(metadata, alternatePatientId);
+                this.s_ctx.add_name_value(instruction_output, generate_xml("AssignedPatientId", patient_map));
+
+            }
+
             // compile in results of previous steps
             if (use_id.size() > 0) {
                 compileUseIdLinkage(metadata, use_id);
@@ -730,6 +740,8 @@ public abstract class BasicTransaction extends OmLogger {
         soap = new Soap();
         soap.setAsync(async);
         try {
+            System.out.println("  Making SOAP call...");
+            long startTime = System.currentTimeMillis();
             soap.soapCall(metadata_element,
                     endpoint,
                     useMtom, //mtom
@@ -737,6 +749,9 @@ public abstract class BasicTransaction extends OmLogger {
                     soap_1_2, // SOAP 1.2
                     getRequestAction(),
                     getResponseAction());
+            long stopTime = System.currentTimeMillis();
+            System.out.println("  ...SOAP call complete (" +
+                    new Long(stopTime - startTime).toString() + " msecs)");
         } catch (XdsException e) {
             s_ctx.set_error(e.getMessage());
             failed();
