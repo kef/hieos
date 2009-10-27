@@ -464,7 +464,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * they are invoked by a service request.
      */
     public void init(ServiceContext serviceContext) throws AxisFault {
-        logger.info("XdsService:::init() - NOOP (not overridden)");
+        //logger.info("XdsService:::init() - NOOP (not overridden)");
     }
 
     /**
@@ -472,7 +472,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * of the back-end service class. It allows classes to clean up resources.
      */
     public void destroy(ServiceContext serviceContext) {
-        logger.info("XdsService:::destroy() - NOOP (not overridden)");
+        //logger.info("XdsService:::destroy() - NOOP (not overridden)");
     }
 
     /**
@@ -480,7 +480,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * Irrespective of the service scope this method will be called
      */
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("XdsService:::startUp() - NOOP (not overridden)");
+        //logger.info("XdsService:::startUp() - NOOP (not overridden)");
     }
 
     /**
@@ -488,7 +488,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * of the service scope this method will be called
      */
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("XdsService:::shutDown() - NOOP (not overridden)");
+        //logger.info("XdsService:::shutDown() - NOOP (not overridden)");
     }
 
     /**
