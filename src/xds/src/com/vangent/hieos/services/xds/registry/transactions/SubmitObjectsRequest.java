@@ -274,7 +274,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                             fm.updateFoldersLastUpdateTimeSlot();
 
                             OMElement to_backend = fm.getV3SubmitObjectsRequest();
-         System.out.println("here you go -> " + to_backend.toString());
                             log_message.addOtherParam("From Registry Adaptor", to_backend);
                             status = submitToBackendRegistry(backendRegistry, to_backend);
                             if (!status) {
