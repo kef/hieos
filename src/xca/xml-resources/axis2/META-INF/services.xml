@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
     <!-- XCA Initiating Gateway Actor -->
-    <service name="xcaig" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway" scope="application">
+    <service name="xcaig" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway">
         <description>XCA Initiating Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
         <parameter name="ActorName">InitiatingGateway</parameter>
@@ -17,7 +17,7 @@
     </service>
 
     <!-- XCA Responding Gateway Actor -->
-    <service name="xcarg" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway" scope="application">
+    <service name="xcarg" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway">
         <description>XCA Responding Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
         <parameter name="ActorName">RespondingGateway</parameter>
@@ -33,7 +33,7 @@
     </service>
 
     <!-- Async XCA Initiating Gateway Actor -->
-    <service name="xcaigas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync" scope="application">
+    <service name="xcaigas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync">
         <description>Async XCA Initiating Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
         <parameter name="ActorName">InitiatingGateway</parameter>
@@ -51,7 +51,7 @@
     </service>
 
     <!-- Async XCA Responding Gateway Actor -->
-    <service name="xcargas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync" scope="application">
+    <service name="xcargas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync">
         <description>Async XCA Responding Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
         <parameter name="ActorName">RespondingGateway</parameter>
