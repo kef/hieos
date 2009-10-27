@@ -48,7 +48,7 @@ public class ParamParser {
 						names.add(name);
 				}
 				
-				System.out.println("SQParams: " + parms);
+				//System.out.println("SQParams: " + parms);
 			}
 		}
 
