@@ -69,6 +69,8 @@ public class XLoggerBean implements MessageListener {
                 Object so = m.getObject();  // Serialized object.
                 if (so instanceof XLogMessage) {
                     XLogMessage logMessage = (XLogMessage) so;
+                    //System.out.println("SERVER logMessage id = " + logMessage.toString());
+                    //System.out.println("SERVER logMessage (computed id) = " + logMessage.getMessageID());
                     this.persist(logMessage);
                 }
             } else if (message instanceof TextMessage) {
@@ -107,6 +109,7 @@ public class XLoggerBean implements MessageListener {
             int[] updateCounts = stmt.executeBatch();
             conn.commit();
         } catch (SQLException ex) {
+            //System.out.println("LOGGER EXCEPTION: " + ex.getMessage());
             Logger.getLogger(XLoggerBean.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
@@ -133,7 +136,7 @@ public class XLoggerBean implements MessageListener {
         if (this.ipExists(conn, logMessage.getIpAddress()) == false) {
             // Get the SQL statement to place into batch.
             String sql = this.getSQLInsertStatementForIp(logMessage);
-            System.out.println("LOG IP SQL: " + sql);
+            //System.out.println("LOG IP SQL: " + sql);
             stmt.addBatch(sql);
         }
     }
@@ -170,7 +173,7 @@ public class XLoggerBean implements MessageListener {
      */
     private void persistMain(XLogMessage logMessage, Statement stmt) throws SQLException {
         String sql = this.getSQLInsertStatementForMain(logMessage);
-        System.out.println("LOG MAIN SQL: " + sql);
+        //System.out.println("LOG MAIN SQL: " + sql);
         stmt.addBatch(sql);
     }
 
@@ -194,7 +197,7 @@ public class XLoggerBean implements MessageListener {
             while (nameValueIterator.hasNext()) {
                 XLogMessageNameValue nameValue = (XLogMessageNameValue) nameValueIterator.next();
                 String sql = this.getSQLInsertStatementForParam(logMessage, key, nameValue, ++seqId);
-                System.out.println("LOG PARAM SQL: " + sql);
+                //System.out.println("LOG PARAM SQL: " + sql);
                 stmt.addBatch(sql);
             }
         }
