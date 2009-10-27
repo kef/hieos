@@ -39,6 +39,7 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
     OMElement test_step_output = null;
     boolean expectedstatus = true;
     public String expectedErrorMessage = "";
+    public String alternatePatientId = null;
     boolean status = true;
     //short xds_version = BasicTransaction.xds_none;
 
@@ -164,7 +165,13 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
                 PatientIdAllocator pia = new PatientIdAllocator();
                 String pid = pia.allocate_new(); // allocate a new patient id
                 add_name_value(test_step_output, "NewPatientID", pid);
-            } else if (instruction_name.equals("ExpectedErrorMessage")) {
+            }
+            else if (instruction_name.equals("AltPatientId")) {
+                PatientIdAllocator pia = new PatientIdAllocator();
+                this.alternatePatientId = pia.allocate_new_pid(); // allocate a new patient id
+                add_name_value(test_step_output, "AltPatientId", this.alternatePatientId);
+            }
+            else if (instruction_name.equals("ExpectedErrorMessage")) {
                 expected_error_message = instruction.getText();
                 add_name_value(test_step_output, instruction_name, expected_error_message);
                 setExpectedErrorMessage(expected_error_message);
