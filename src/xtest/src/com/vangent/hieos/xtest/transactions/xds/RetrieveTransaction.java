@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
@@ -47,6 +48,7 @@ public class RetrieveTransaction extends BasicTransaction {
     OMElement metadata = null;
     OMElement expected_contents = null;
     String expected_mime_type = null;
+    boolean removeHomeFromRequest = false;
     String uri = null;
     OMElement uri_ref = null;
     HashMap<String, String> referenced_documents = new HashMap<String, String>();  // uid, filename
@@ -70,8 +72,8 @@ public class RetrieveTransaction extends BasicTransaction {
                 "\nlinkage = " + linkage.toString() +
                 "\nendpoint = " + endpoint +
                 "\nis_xca = " + is_xca +
- //               "\nactor config = " + TestConfig.endpoints +
-//                "\nrepos config = " + TestConfig.repositories +
+                //               "\nactor config = " + TestConfig.endpoints +
+                //                "\nrepos config = " + TestConfig.repositories +
                 "\n****************";
         //AMS TODO enable logging of the entire XTestConfig object
     }
@@ -132,7 +134,7 @@ public class RetrieveTransaction extends BasicTransaction {
             compileUseRepositoryUniqueId(m, use_repository_unique_id);
         }
 
-        if (is_xca) { 
+        if (is_xca) {
             String homeXPath = "//*[local-name()='RetrieveDocumentSetRequest']/*[local-name()='DocumentRequest'][1]/*[local-name()='HomeCommunityId']";
             String home = null;
             try {
@@ -143,11 +145,19 @@ public class RetrieveTransaction extends BasicTransaction {
             }
 
             parseRespondingGatewayEndpoint(home, "CrossGatewayRetrieve");  // BHT (FIX) -- removed 'false' hardwire
-
+            if (removeHomeFromRequest) {
+                try {
+                    AXIOMXPath xpathExpression = new AXIOMXPath(homeXPath);
+                    List<?> nodes = xpathExpression.selectNodes(metadata_ele);
+                    for (OMElement node : (List<OMElement>) nodes) {
+                        node.detach();
+                    }
+                } catch (JaxenException e) {
+                    fatal("XGR: " + ExceptionUtil.exception_details(e));
+                }
+            }
             s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
-
             s_ctx.add_name_value(instruction_output, "Linkage", this.linkage.toString());
-
         } else {
             // The above 'compile' steps may have updated critical sections of the metadata.  repositoryUniqueId is critical here.
             if (repositoryUniqueId == null) {
@@ -161,12 +171,12 @@ public class RetrieveTransaction extends BasicTransaction {
                 }
 
             }
-            
+
             // assign endpoint
             //System.out.println("** repositoryUniqueid = " + repositoryUniqueId);
             // BHT FIX - Passed TestConfig.secure vs. false.
             parseRepEndpoint(repositoryUniqueId, "RetrieveDocumentSet");
-            
+
             s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
 
             s_ctx.add_name_value(instruction_output, "Linkage", this.linkage.toString());
@@ -305,6 +315,8 @@ public class RetrieveTransaction extends BasicTransaction {
             } else if (part_name.equals("ExpectedMimeType")) {
                 expected_mime_type = part.getText();
                 s_ctx.add_name_value(instruction_output, "ExpectedMimeType", part);
+            } else if (part_name.equals("RemoveHomeFromRequest")) {
+                removeHomeFromRequest = true;
             } else if (part_name.equals("ReferenceDocument")) {
                 String filename = null;
                 String uid = null;
