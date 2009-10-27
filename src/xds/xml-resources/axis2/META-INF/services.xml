@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
      <!-- Registry Actor -->
-    <service name="xdsregistryb" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistry" scope="application">
+    <service name="xdsregistryb" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistry">
         <description>XDS.b Registry Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistry</parameter>
         <!-- identifies the registry configuration name in the xconfig.xml -->
@@ -29,7 +29,7 @@
     </service>
 
      <!-- Async Registry Actor -->
-    <service name="xdsregistrybas" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync" scope="application">
+    <service name="xdsregistrybas" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync">
         <description>Asynchronous XDS.b Registry Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync</parameter>
         <!-- enables server side asynchronous behavior -->
@@ -48,7 +48,7 @@
     </service>
 
      <!-- Repository Actor -->
-    <service name="xdsrepositoryb" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository" scope="application">
+    <service name="xdsrepositoryb" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository">
         <description> XDS.b Repository Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository</parameter>
         <operation name="ProvideAndRegisterDocumentSetRequest">
@@ -64,7 +64,7 @@
     </service>
 
     <!-- Async Repository Actor -->
-    <service name="xdsrepositorybas" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync" scope="application">
+    <service name="xdsrepositorybas" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync">
         <description>Asynchronous XDS.b Repository Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync</parameter>
         <!-- enables server side asynchronous behavior -->
