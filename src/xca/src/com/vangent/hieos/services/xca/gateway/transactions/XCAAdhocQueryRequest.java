@@ -74,7 +74,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRegistryError,
-                    e.getMessage(), this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), this.getClass().getName(), log_message);
         }
     }
 
@@ -89,7 +89,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRegistryError,
                     "SOAP Format Error: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Validate namespace.
@@ -98,7 +98,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.ebQns3.getNamespaceURI())) {
             response.add_error(MetadataSupport.XDSRegistryError,
                     "Invalid XML namespace on AdhocQueryRequest: " + ns_uri,
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Validate against schema.
@@ -107,11 +107,11 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Perform ATNA audit (FIXME - may not be best place).
@@ -153,7 +153,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
             if (homeCommunityId == null) {  // Missing homeCommunityId.
                 response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
                         "homeCommunityId missing or empty",
-                        this.getClass().getName(), log_message);
+                        this.getLocalHomeCommunityId(), log_message);
             } else {  // homeCommunityId is present.
                 this.processTargetedHomeRequest(queryRequest, responseOption, homeCommunityId);
             }
@@ -196,9 +196,6 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
                 if (assigningAuthority == null) {
                     /* --- Go silent here according to XCA spec --- */
                     this.logError("[* Not notifying client *]: Could not parse assigning authority from patient id = " + patientId);
-                /* response.add_error(MetadataSupport.XDSRegistryMetadataError,
-                "Could not parse assigning authority from patient id = " + patientId,
-                "GatewayAdhocQueryRequest.java", log_message); */
                 } else {
                     XConfig xconfig = XConfig.getInstance();
                     // Get the configuration for the assigning authority.
@@ -206,9 +203,6 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
                     if (aa == null) {
                         /* --- Go silent here according to XCA spec --- */
                         this.logError("[* Not notifying client *]: Could not find assigning authority configuration for patient id = " + patientId);
-                    /* response.add_error(MetadataSupport.XDSRegistryError,
-                    "Could not find assigning authority configuration for patient id = " + patientId,
-                    "GatewayAdhocQueryRequest.java", log_message); */
                     } else {
                         // Ok.  Now we should hopefully be good to go.
 
@@ -233,10 +227,6 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
 
             } else {
                 /* --- Go silent here according to XCA spec --- */
-                /*
-                response.add_error(MetadataSupport.XDSStoredQueryMissingParam, "Can not find patientID in request",
-                "GatewayAdhocQueryRequest.java", log_message);
-                 */
                 this.logError("[* Not notifying client *]: Can not find Patient ID on request");
             }
         }
@@ -281,7 +271,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } catch (MetadataValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError,
                     "Problem parsing query parameters",
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
         if (params == null) {
             // Must have caught an exception above.
@@ -313,8 +303,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
     private void processTargetedHomeRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId) throws XdsInternalException {
         this.logInfo("HomeCommunityId", homeCommunityId);
         // See if this is for the local community.
-        XConfig xconfig = XConfig.getInstance();
-        String localHomeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
+        String localHomeCommunityId = this.getLocalHomeCommunityId();
         if (homeCommunityId.equals(localHomeCommunityId)) {  // Destined for the local home.
             this.logInfo("Note", "Going local for homeCommunityId: " + homeCommunityId);
 
@@ -333,7 +322,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
             if (gatewayConfig == null) {
                 response.add_error(MetadataSupport.XDSUnknownCommunity,
                         "Do not understand homeCommunityId " + homeCommunityId,
-                        this.getClass().getName(), log_message);
+                        this.getLocalHomeCommunityId(), log_message);
             } else {
                 // This request is good (targeted for a remote community.
                 this.addRequest(queryRequest, responseOption, homeCommunityId, gatewayConfig, false);
@@ -341,7 +330,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } else {
             response.add_error(MetadataSupport.XDSUnknownCommunity,
                     "Do not understand homeCommunityId " + homeCommunityId,
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
     }
 
@@ -368,7 +357,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         if (registry == null) {
             response.add_error(MetadataSupport.XDSRegistryNotAvailable,
                     "Can not find local registry endpoint",
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
         return registry;
     }

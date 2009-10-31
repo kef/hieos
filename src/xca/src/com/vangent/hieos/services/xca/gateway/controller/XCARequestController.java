@@ -113,11 +113,11 @@ public class XCARequestController {
             } catch (XdsException e) {
                 response.add_error(MetadataSupport.XDSUnavailableCommunity,
                         "Failure contacting community or repository = " + requestCollection.getUniqueId(),
-                        e.toString(), logMessage);
+                        requestCollection.getUniqueId(), logMessage);
             } catch (XdsWSException e) {
                 response.add_error(MetadataSupport.XDSUnavailableCommunity,
                         "Failure contacting community or repository = " + requestCollection.getUniqueId(),
-                        e.toString(), logMessage);
+                        requestCollection.getUniqueId(), logMessage);
             }
         }
         return results;

@@ -67,7 +67,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRepositoryError,
                     e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
     }
 
@@ -83,7 +83,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError,
                     "SOAP Format Error: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Validate namespace.
@@ -92,7 +92,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
             response.add_error(MetadataSupport.XDSRepositoryError,
                     "Invalid XML namespace on RetrieveDocumentSetRequest: " + ns_uri,
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Validate against schema.
@@ -101,11 +101,11 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRepositoryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRepositoryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
 
         // Perform ATNA audit (FIXME - may not be best place).
@@ -141,7 +141,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
                 // home community id is missing in this doc request.
                 response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
                         "homeCommunityId missing or empty",
-                        this.getClass().getName(), log_message);
+                        this.getLocalHomeCommunityId(), log_message);
             } else {
                 // Now retrieve the home community id from the node.
                 String homeCommunityId = homeCommunityNode.getText();
@@ -150,7 +150,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
                     // No home community id found.
                     response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
                             "homeCommunityId missing or empty",
-                            this.getClass().getName(), log_message);
+                            this.getLocalHomeCommunityId(), log_message);
                 } else {
                     // Now determine if we know about this home community
 
@@ -171,7 +171,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
                         if (gatewayConfig == null) {
                             response.add_error(MetadataSupport.XDSUnknownCommunity,
                                     "Do not understand homeCommunityId " + homeCommunityId,
-                                    this.getClass().getName(), log_message);
+                                    this.getLocalHomeCommunityId(), log_message);
                         } else {
                             // This request is good (targeted for a remote community.
                             this.addRequest(docRequest, homeCommunityId, gatewayConfig, false);
@@ -213,13 +213,13 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         if (repositoryIdNode == null) {
             response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                     "RepositoryUniqueId missing or empty",
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         }
         String repositoryUniqueId = repositoryIdNode.getText();
         if (repositoryUniqueId == null || repositoryUniqueId.equals("")) {
             response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                     "RepositoryUniqueId missing or empty",
-                    this.getClass().getName(), log_message);
+                    this.getLocalHomeCommunityId(), log_message);
         } else {
             // Now see if we know anyting about this repository id within our local community.
             XConfig xconf = XConfig.getInstance();
@@ -227,7 +227,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
             if (repositoryConfig == null) {
                 response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                         "RepositoryUniqueId " + repositoryUniqueId + " not known by local community",
-                        this.getClass().getName(), log_message);
+                        this.getLocalHomeCommunityId(), log_message);
             }
         }
         return repositoryConfig;

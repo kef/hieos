@@ -94,7 +94,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
                 response.add_error(MetadataSupport.XDSRepositoryMetadataError,
                         "Remote Gateway or Repository response did not validate against schema  [id = " +
                         this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
-                        e.toString(), logMessage);
+                        this.getUniqueId(), logMessage);
             }
 
             if ((response != null) && this.isLocalRequest()) {

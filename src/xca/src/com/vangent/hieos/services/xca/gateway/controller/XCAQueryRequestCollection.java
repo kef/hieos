@@ -101,7 +101,7 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
                 response.add_error(MetadataSupport.XDSRegistryMetadataError,
                         "Remote Gateway or Registry response did not validate against schema  [id = " +
                         this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
-                        e.toString(), logMessage);
+                        this.getUniqueId(), logMessage);
             }
 
             if ((result != null) && this.isLocalRequest()) {

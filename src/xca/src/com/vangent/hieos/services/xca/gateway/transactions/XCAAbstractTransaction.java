@@ -33,6 +33,8 @@ import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import java.util.logging.Level;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 abstract public class XCAAbstractTransaction extends XBaseTransaction {
+
     private final static Logger logger = Logger.getLogger(XCAAbstractTransaction.class);
 
     // So the gateway transaction can operate in either mode.
@@ -50,7 +53,6 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
 
         InitiatingGateway, RespondingGateway, Unknown
     };
-
     private ContentValidationService validater;
     private XAbstractService service;
     private XCARequestController requestController = null;
@@ -86,6 +88,23 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
     }
 
     /**
+     * Return the homeCommunityId for the local community.
+     *
+     * @return The homeCommunityId for the local community.
+     */
+    protected String getLocalHomeCommunityId() {
+        String localHomeCommunityId = null;
+        try {
+            XConfig xconfig = XConfig.getInstance();
+            localHomeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
+        } catch (XdsInternalException e) {
+            logger.fatal(logger_exception_details(e));
+            log_message.addErrorParam("Internal Error", "Could not find local homeCommunityId in XConfig");
+        }
+        return localHomeCommunityId;
+    }
+
+    /**
      * 
      * @param request
      * @param validater
@@ -115,8 +134,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
             log_message.addErrorParam("Internal Error", "Error generating response from XCA");
         }
         this.log_response();
-        if (this.errorDetected == true)
-        {
+        if (this.errorDetected == true) {
             log_message.setPass(false);  // Force this for internal errors detected.
         }
         return finalResponse;
