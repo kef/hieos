@@ -70,7 +70,7 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
                 "\nlinkage = " + linkage.toString() +
                 "\nendpoint = " + endpoint +
                 // "\nactor config = " + TestConfig.endpoints +
-               // "\nrepos config = " + TestConfig.repositories +
+                // "\nrepos config = " + TestConfig.repositories +
                 "\n****************";
         // AMS - FIX THIS - Write out state of XTestConfig ??
     }
@@ -135,11 +135,12 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
         } catch (JaxenException e) {
             fatal("XCA IG Retrieve: " + ExceptionUtil.exception_details(e));
         }
-        
-        parseInitiatingGatewayEndpoint(expectedHomeCommunityId, "RetrieveDocumentSet");
+        //parseInitiatingGatewayEndpoint(expectedHomeCommunityId, "RetrieveDocumentSet");
+        // The endpoint for the initiating gateway should be based on the test sites default
+        // initiating gateway ... not what is in the request.
+        parseInitiatingGatewayEndpoint(null /* use default */, "RetrieveDocumentSet");
 
         s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
-
         s_ctx.add_name_value(instruction_output, "Linkage", this.linkage.toString());
 
         RetContext r_ctx = null;

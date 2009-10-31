@@ -119,7 +119,8 @@ public class AssertionEngine {
 		for (OMElement asser : raw_assertions) {
 			String id = asser.getAttributeValue(new QName("id"));
 			String xpath = asser.getText();
-			xpath = xpath.replaceAll("\\$DATE\\$", date());	
+			xpath = xpath.replaceAll("\\$DATE\\$", date());
+                        xpath = xpath.replaceAll("\\$configHome\\$", TestConfig.defaultInitiatingGateway);
 			//System.out.println("xpath is " + xpath);
 			assertions.add(new Assertion(id, xpath));
 		}

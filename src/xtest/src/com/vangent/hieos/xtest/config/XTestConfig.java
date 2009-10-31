@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xtest.config;
 
 import com.vangent.hieos.xutil.xml.Util;
@@ -34,18 +33,16 @@ import org.apache.log4j.Logger;
  *
  */
 public class XTestConfig {
-    private final static Logger logger = Logger.getLogger(XTestConfig.class);
 
+    private final static Logger logger = Logger.getLogger(XTestConfig.class);
     // Constants
     private static final String DEFAULT_SITE = "DefaultSite";// Constants
     private static final String SITE_ELEMENT = "Site";
     private static final String CONFIG_FILE_NAME = "xtestconfig.xml";
-
     // state
     private static XTestConfig _instance = null;  // Singleton instance.
     private HashMap<String, XTestConfigSite> sites = new HashMap<String, XTestConfigSite>();// Key = name, Value = <XTestConfigSite>
     private XConfigProperties properties = new XConfigProperties();
-
 
     ///////////////////////////////////////////////////////////////////////////
     // PUBLIC METHODS
@@ -155,10 +152,10 @@ public class XTestConfig {
      * @return a String value.
      */
     public String getRegistryEndpoint(String siteName,
-                                      String registryName,
-                                      String transactionName,
-                                      boolean secureEndpoint,
-                                      boolean asyncEndpoint) {
+            String registryName,
+            String transactionName,
+            boolean secureEndpoint,
+            boolean asyncEndpoint) {
         String endpointUrl = "";
 
         XTestConfigSite site = getSiteByName(siteName);
@@ -183,10 +180,10 @@ public class XTestConfig {
      * @return a String value.
      */
     public String getRepositoryEndpoint(String siteName,
-                                        String repositoryId,
-                                        String transactionName,
-                                        boolean secureEndpoint,
-                                        boolean asyncEndpoint) {
+            String repositoryId,
+            String transactionName,
+            boolean secureEndpoint,
+            boolean asyncEndpoint) {
         String endpointUrl = "";
 
         XTestConfigSite site = getSiteByName(siteName);
@@ -211,14 +208,17 @@ public class XTestConfig {
      * @return a String value.
      */
     public String getInitiatingGatewayEndpoint(String siteName,
-                                               String homeCommunityId,
-                                               String transactionName,
-                                               boolean secureEndpoint,
-                                               boolean asyncEndpoint) {
+            String homeCommunityId,
+            String transactionName,
+            boolean secureEndpoint,
+            boolean asyncEndpoint) {
         String endpointUrl = "";
-
         XTestConfigSite site = getSiteByName(siteName);
         if (site != null) {
+            if (homeCommunityId == null) {
+                // Use the default home community id for the initiating gateway (for the test site configuration):
+                homeCommunityId = site.getDefaultInitiatingGateway();
+            }
             XTestConfigGateway gateway = site.getInitiatingGatewayByHomeCommunityId(homeCommunityId);
             if (gateway != null) {
                 endpointUrl = getActorEndpoint(gateway, transactionName, secureEndpoint, asyncEndpoint);
@@ -239,10 +239,10 @@ public class XTestConfig {
      * @return a String value.
      */
     public String getRespondingGatewayEndpoint(String siteName,
-                                               String homeCommunityId,
-                                               String transactionName,
-                                               boolean secureEndpoint,
-                                               boolean asyncEndpoint) {
+            String homeCommunityId,
+            String transactionName,
+            boolean secureEndpoint,
+            boolean asyncEndpoint) {
         String endpointUrl = "";
 
         XTestConfigSite site = getSiteByName(siteName);
@@ -254,7 +254,6 @@ public class XTestConfig {
         }
         return endpointUrl;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////
     // PROTECTED METHODS
@@ -300,7 +299,7 @@ public class XTestConfig {
                         "XTestConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
             }
         } else {
-             throw new XdsInternalException("XTestConfig: Environment variable HIEOSxTestDir not set");
+            throw new XdsInternalException("XTestConfig: Environment variable HIEOSxTestDir not set");
         }
 
         // Parse the XML file.
@@ -342,9 +341,9 @@ public class XTestConfig {
      * @param asyncEndpoint
      */
     private String getActorEndpoint(XTestConfigActor actor,
-                                   String transactionName,
-                                   boolean secureEndpoint,
-                                   boolean asyncEndpoint) {
+            String transactionName,
+            boolean secureEndpoint,
+            boolean asyncEndpoint) {
         String endpointUrl = "";
 
         XTestConfigTransaction txn = actor.getTransaction(transactionName);
@@ -352,7 +351,7 @@ public class XTestConfig {
             XTestConfigTransactionEndpoint txnEP = txn.getEndpoint(secureEndpoint, asyncEndpoint);
             if (txnEP != null) {
                 endpointUrl = txnEP.getEndpointURL();
-             }
+            }
         }
         return endpointUrl;
     }

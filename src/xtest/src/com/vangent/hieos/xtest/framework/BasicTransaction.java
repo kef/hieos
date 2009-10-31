@@ -492,8 +492,6 @@ public abstract class BasicTransaction extends OmLogger {
             HashMap sourceid_map = tm.assignSourceId(metadata);
             this.s_ctx.add_name_value(instruction_output, generate_xml("AssignedSourceId", sourceid_map));
 
-
-
             // assign uuids
             if (assign_uuids) {
                 IdParser ip = new IdParser(metadata);
