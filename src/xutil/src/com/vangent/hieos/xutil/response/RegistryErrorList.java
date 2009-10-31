@@ -205,7 +205,7 @@ public class RegistryErrorList extends ErrorLogger {
         error.addAttribute("codeContext", context, null);
         error.addAttribute("errorCode", code, null);
         error.addAttribute("location", location, null);
-        error.addAttribute("severity", "Error", null);
+        error.addAttribute("severity", "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error", null);
         registryErrorList().addChild(error);
         this.has_errors = true;
     }
@@ -239,7 +239,7 @@ public class RegistryErrorList extends ErrorLogger {
         error.addAttribute("codeContext", context, null);
         error.addAttribute("errorCode", code, null);
         error.addAttribute("location", location, null);
-        error.addAttribute("severity", "Warning", null);
+        error.addAttribute("severity", "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Warning", null);
         registryErrorList().addChild(error);
         this.has_warnings = true;
     }
