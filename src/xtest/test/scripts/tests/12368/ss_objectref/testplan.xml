@@ -6,7 +6,7 @@
         <Rule>
             <Transaction>SQ</Transaction>
             <SQ>GetSubmissionSets</SQ>
-            <Assertion>LeafClass return of two SubmissionSets with different PatientIds - error</Assertion>
+            <Assertion>ObjectRef return of two SubmissionSets (and 2 Associations) with different PatientIds - no error</Assertion>
         </Rule>
         <ExpectedStatus>Success</ExpectedStatus>
         <StoredQueryTransaction>
@@ -31,7 +31,8 @@
             <UseId testdir="../../../testdata/12374" id="Document01" step="submit_doc"
                 section="AssignedUuids" symbol="$uuid2$"/>
             <ExpectedContents>
-                <ObjectRefs count="2"/>
+                <!-- 2 for Submission Sets and 2 for Associations -->
+                <ObjectRefs count="4"/>
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
