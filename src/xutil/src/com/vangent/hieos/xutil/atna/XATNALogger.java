@@ -27,8 +27,10 @@ import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.net.URL;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
@@ -44,7 +46,6 @@ import org.apache.log4j.Logger;
 public class XATNALogger {
 
     private final static Logger logger = Logger.getLogger(XATNALogger.class);
-
     // Public accessible parameters.
     public static final String TXN_ITI18 = "ITI-18";
     public static final String TXN_ITI38 = "ITI-38";
@@ -98,7 +99,6 @@ public class XATNALogger {
     private AuditMessageBuilder amb = null;
     private OutcomeIndicator outcome = OutcomeIndicator.SUCCESS;
     //private String sourceId = "UNKNOWN";
-
     // Context variables.
     //private String hostName = "";
     private String hostAddress = "";
@@ -848,23 +848,50 @@ public class XATNALogger {
      *
      */
     private void setContextVariables(String targetEndpoint) {
+        // Set host address:
         try {
-            InetAddress addr = InetAddress.getLocalHost();
-            this.targetEndpoint = targetEndpoint;
+            InetAddress addr;
+            addr = InetAddress.getLocalHost();
             this.hostAddress = addr.getHostAddress();
-            this.pid = ManagementFactory.getRuntimeMXBean().getName();
-            if (targetEndpoint != null) {
-                MessageContext messageContext = this.getCurrentMessageContext();
+        } catch (UnknownHostException e) {
+            this.hostAddress = null;
+            logger.error("Exception in XATNALogger", e);
+        }
+        // Set target endpoint and process id:
+        this.targetEndpoint = targetEndpoint;
+        this.pid = ManagementFactory.getRuntimeMXBean().getName();
+        MessageContext messageContext = this.getCurrentMessageContext();
+        if (messageContext != null) {
+
+            // Set current endpoint:
+            try {
                 this.endpoint = messageContext.getTo().toString();
-                //this.fromAddress = messageContext.getFrom().toString();
-                this.fromAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
-                this.replyTo = messageContext.getReplyTo().toString();
-            } else {
-                // A startup/shutdown scenario.
+            } catch (Exception e) {
                 this.endpoint = null;
-                this.fromAddress = null;
-                this.replyTo = null;
+                logger.error("Exception in XATNALogger", e);
             }
+
+            // Set from address:
+            try {
+                this.fromAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
+            } catch (Exception e) {
+                this.fromAddress = null;
+                logger.error("Exception in XATNALogger", e);
+            }
+
+            // Set replyTo address:
+            try {
+                org.apache.axis2.addressing.EndpointReference replyToEndpointRef = messageContext.getReplyTo();
+                this.replyTo = replyToEndpointRef != null ? replyToEndpointRef.toString() : null;
+            } catch (Exception e) {
+                this.replyTo = null;
+                logger.error("Exception in XATNALogger", e);
+            }
+        } else {
+            this.endpoint = null;
+            this.fromAddress = null;
+            this.replyTo = null;
+        }
         /*
         // The endpoint for the current web service running.
         AxisEndpoint axisEndPoint = (AxisEndpoint) messageContext.getProperty("endpoint");
@@ -886,9 +913,7 @@ public class XATNALogger {
         System.out.println("replyToAddress: " + messageContext.getReplyTo().getAddress().toString());
         System.out.println("-----------------------");
          */
-        } catch (Exception e) {
-            logger.error("Exception in XATNALogger", e);
-        }
+        //logger.error("Exception in XATNALogger", e);
     }
 
     /**
