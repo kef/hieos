@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.soap;
 
 import java.util.HashMap;
@@ -18,33 +17,48 @@ import java.util.Map;
 
 public class SoapActionFactory {
 
-    public final static String pnr_b_async_action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bAsync";
-    public final static String pnr_b_action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
-    public final static String ret_b_action = "urn:ihe:iti:2007:RetrieveDocumentSet";
-    public final static String ret_b_async_action = "urn:ihe:iti:2007:RetrieveDocumentSetAsync";
-    public final static String anon_action = "urn:anonOutInOp";
+    public final static String XDSB_REPOSITORY_PNR_ACTION = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
+    public final static String XDSB_REPOSITORY_PNR_ACTION_RESPONSE = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
+    public final static String XDSB_REPOSITORY_RET_ACTION = "urn:ihe:iti:2007:RetrieveDocumentSet";
+    public final static String XDSB_REPOSITORY_RET_ACTION_RESPONSE = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
+    public final static String XDSB_REGISTRY_SQ_ACTION = "urn:ihe:iti:2007:RegistryStoredQuery";
+    public final static String XDSB_REGISTRY_SQ_ACTION_RESPONSE = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+    public final static String XDSB_REGISTRY_REGISTER_ACTION = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+    public final static String XDSB_REGISTRY_REGISTER_ACTION_RESPONSE = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
+    public final static String XDSB_REGISTRY_PIDFEEDADD_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
+    public final static String XDSB_REGISTRY_PIDFEEDUPDATE_ACTION = "urn:hl7-org:v3:PRPA_IN201302UV02";
+    public final static String XDSB_REGISTRY_PIDFEEDMERGE_ACTION = "urn:hl7-org:v3:PRPA_IN201304UV02";
+    public final static String XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    public final static String XDSB_REGISTRY_MPQ_ACTION = "urn:ihe:iti:2009:MultiPatientStoredQuery";
+    public final static String XDSB_REGISTRY_MPQ_ACTION_RESPONSE = "urn:ihe:iti:2009:MultiPatientStoredQueryResponse";
+    public final static String XCA_GATEWAY_CGQ_ACTION = "urn:ihe:iti:2007:CrossGatewayQuery";
+    public final static String XCA_GATEWAY_CGQ_ACTION_RESPONSE = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+    public final static String XCA_GATEWAY_CGR_ACTION = "urn:ihe:iti:2007:CrossGatewayRetrieve";
+    public final static String XCA_GATEWAY_CGR_ACTION_RESPONSE = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
+    public final static String ANON_ACTION = "urn:anonOutInOp";
     private static final Map<String, String> actions =
             new HashMap<String, String>() {
+
                 {
-                    put(pnr_b_action, "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse");
-                    put(pnr_b_async_action, "urn:ihe:iti:2007:DocumentSource_ProvideAndRegisterDocumentSet-bAsyncResponse");
-                    put("urn:ihe:iti:2007:RegisterDocumentSet-b", "urn:ihe:iti:2007:RegisterDocumentSet-bResponse");
-                    put("urn:ihe:iti:2007:RegisterDocumentSet-bAsync", "urn:ihe:iti:2007:RegisterDocumentSet-bAsyncResponse");
-                    put(ret_b_action, "urn:ihe:iti:2007:RetrieveDocumentSetResponse");
-                    put(ret_b_async_action, "urn:ihe:iti:2007:RetrieveDocumentSetAsyncResponse");
-                    put("urn:ihe:iti:2007:RegistryStoredQuery", "urn:ihe:iti:2007:RegistryStoredQueryResponse");
-                    put("urn:ihe:iti:2007:RegistryStoredQueryAsync", "urn:ihe:iti:2007:RegistryStoredQueryAsyncResponse");
-                    put("urn:ihe:iti:2007:CrossGatewayRetrieve", "urn:ihe:iti:2007:CrossGatewayRetrieveResponse");
-                    put("urn:ihe:iti:2007:CrossGatewayRetrieveAsync", "urn:ihe:iti:2007:CrossGatewayRetrieveAsyncResponse");
-                    put("urn:ihe:iti:2007:CrossGatewayQuery", "urn:ihe:iti:2007:CrossGatewayQueryResponse");
-                    put("urn:ihe:iti:2007:CrossGatewayQueryAsync", "urn:ihe:iti:2007:CrossGatewayQueryAsyncResponse");
-                    // Added (BHT): Patient Identity Feed:
-                    put("urn:hl7-org:v3:PRPA_IN201301UV02", "urn:hl7-org:v3:MCCI_IN000002UV01");
-                    put("urn:hl7-org:v3:PRPA_IN201302UV02", "urn:hl7-org:v3:MCCI_IN000002UV01");
-                    put("urn:hl7-org:v3:PRPA_IN201304UV02", "urn:hl7-org:v3:MCCI_IN000002UV01");
+                    put(XDSB_REPOSITORY_PNR_ACTION, XDSB_REPOSITORY_PNR_ACTION_RESPONSE);
+                    put(XDSB_REPOSITORY_RET_ACTION, XDSB_REPOSITORY_RET_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_SQ_ACTION, XDSB_REGISTRY_SQ_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_REGISTER_ACTION, XDSB_REGISTRY_REGISTER_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_PIDFEEDADD_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_PIDFEEDUPDATE_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_PIDFEEDMERGE_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_MPQ_ACTION, XDSB_REGISTRY_MPQ_ACTION_RESPONSE);
+                    put(XCA_GATEWAY_CGQ_ACTION, XCA_GATEWAY_CGQ_ACTION_RESPONSE);
+                    put(XCA_GATEWAY_CGR_ACTION, XCA_GATEWAY_CGR_ACTION_RESPONSE);
                 }
             };
 
+    /**
+     * Return the SOAP "response" action given a SOAP "request" action.
+     *
+     * @param requestAction The SOAP request action.
+     * @return The SOAP response action.
+     */
     static public String getResponseAction(String requestAction) {
         if (requestAction == null) {
             return null;
