@@ -55,23 +55,24 @@ public class FindDocuments extends StoredQuery {
     public FindDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSDocumentEntryPatientId", true, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryTypeCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryPracticeSettingCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryCreationTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryCreationTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStartTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStartTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStopTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStopTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, false, (String[]) null);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryPatientId", true, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryPracticeSettingCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryCreationTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryCreationTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStartTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStartTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStopTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStopTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -114,32 +115,30 @@ public class FindDocuments extends StoredQuery {
         // Parse query parameters:
         String patient_id = params.getStringParm("$XDSDocumentEntryPatientId");
         SQCodedTerm class_codes = params.getCodedParm("$XDSDocumentEntryClassCode");
+        SQCodedTerm type_codes = params.getCodedParm("$XDSDocumentEntryTypeCode");
         SQCodedTerm practice_setting_codes = params.getCodedParm("$XDSDocumentEntryPracticeSettingCode");
-        SQCodedTerm hcft_codes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
-        SQCodedTerm event_codes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
-        SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
-        SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
         String creation_time_from = params.getIntParm("$XDSDocumentEntryCreationTimeFrom");
         String creation_time_to = params.getIntParm("$XDSDocumentEntryCreationTimeTo");
         String service_start_time_from = params.getIntParm("$XDSDocumentEntryServiceStartTimeFrom");
         String service_start_time_to = params.getIntParm("$XDSDocumentEntryServiceStartTimeTo");
         String service_stop_time_from = params.getIntParm("$XDSDocumentEntryServiceStopTimeFrom");
         String service_stop_time_to = params.getIntParm("$XDSDocumentEntryServiceStopTimeTo");
+        SQCodedTerm hcft_codes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
+        SQCodedTerm event_codes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
+        SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
+        SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
         List<String> status = params.getListParm("$XDSDocumentEntryStatus");
         List<String> author_person = params.getListParm("$XDSDocumentEntryAuthorPerson");
 
         init();
-        if (this.return_leaf_class) {
-            append("SELECT *  ");
-            newline();
-        } else {
-            append("SELECT obj.id  ");
-            newline();
-        }
+        select("obj");
         append("FROM ExtrinsicObject obj, ExternalIdentifier patId");
         newline();
         if (class_codes != null) {
             append(declareClassifications(class_codes));
+        }
+        if (type_codes != null) {
+            append(declareClassifications(type_codes));
         }
         if (practice_setting_codes != null) {
             append(declareClassifications(practice_setting_codes));
@@ -181,29 +180,26 @@ public class FindDocuments extends StoredQuery {
         }
         if (author_person != null) {
             append(", Classification author");
-        }
-        newline();
-        if (author_person != null) {
+            newline();
             append(", Slot authorperson");
         }
         newline();
-
         append("WHERE");
         newline();
-        //   append("doc.objectType = 'urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1'"); newline();
-        //   append("AND ");
         // patientID
         append("(obj.id = patId.registryobject AND	");
         newline();
-        append("  patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
+        append(" patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
         newline();
-        append("  patId.value = '");
+        append(" patId.value = '");
         append(patient_id);
         append("' ) ");
         newline();
 
         this.addCode(class_codes);
+        this.addCode(type_codes);
         this.addCode(practice_setting_codes);
+        
         this.addTimes("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "obj");
         this.addTimes("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "obj");
         this.addTimes("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "obj");
@@ -231,6 +227,6 @@ public class FindDocuments extends StoredQuery {
         }
         append("AND obj.status IN ");
         append(status);
-        return query(this.return_leaf_class);
+        return query();
     }
 }

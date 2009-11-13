@@ -45,9 +45,9 @@ public class GetDocuments extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, "$XDSDocumentEntryEntryUUID");
-        validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, "$XDSDocumentEntryUniqueId");
+        // param name, required?, multiple?, is string?, is code?, support AND/OR?, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }

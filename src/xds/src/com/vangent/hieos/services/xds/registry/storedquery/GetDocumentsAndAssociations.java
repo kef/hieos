@@ -45,9 +45,9 @@ public class GetDocumentsAndAssociations extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, "$XDSDocumentEntryEntryUUID");
-        validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, "$XDSDocumentEntryUniqueId");
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -75,7 +75,13 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         }
 
         // for documents in ele, get associations
-        ArrayList<String> doc_ids = metadata.getExtrinsicObjectIds();
+        List<String> doc_ids;
+        if (this.return_leaf_class) {
+            doc_ids = metadata.getExtrinsicObjectIds();
+
+        } else {
+            doc_ids = metadata.getObjectRefIds();
+        }
         if (doc_ids.size() == 0) {
             return metadata;
         }

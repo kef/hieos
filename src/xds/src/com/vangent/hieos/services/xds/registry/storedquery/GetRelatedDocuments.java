@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -46,10 +47,10 @@ public class GetRelatedDocuments extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
-        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, "$XDSDocumentEntryUniqueId");
-        validateQueryParam("$AssociationTypes", true, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, false, "$XDSDocumentEntryUniqueId");
+        validateQueryParam("$AssociationTypes", true, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -65,8 +66,6 @@ public class GetRelatedDocuments extends StoredQuery {
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         List<String> assoc_types = params.getListParm("$AssociationTypes");
-        List<String> doc_ids_to_query_for = new ArrayList<String>();
-        List<String> doc_ids = new ArrayList<String>();
         if (assoc_types == null || assoc_types.size() == 0) {
             throw new XdsInternalException("No $AssociationTypes specified in query");
         }
@@ -80,67 +79,132 @@ public class GetRelatedDocuments extends StoredQuery {
         }
         assoc_types = assoc_types2;
 
-        // if uuid supplied, add id to doc_ids_to_query_for since metadata not yet fetched
-        // if uid supplied, query to get metadata and add uuid to doc_ids since we do have metadata
-        // already loaded into Metadata metadata (which is the return vessel)
+        // if uuid supplied, save it in originalDocId
+        // if uid supplied, query to get it and save its id in originalDocId
+        String originalDocId;
         if (uid != null) {
-            OMElement ele = getDocumentByUID(uid);
-            metadata = MetadataParser.parseNonSubmission(ele);
-            doc_ids.addAll(metadata.getExtrinsicObjectIds());
-        } else {
-            if (uuid != null) {
-                doc_ids_to_query_for.add(uuid);
+            OMElement ele = this.getDocumentByUID(uid);
+            Metadata orig_doc_metadata = MetadataParser.parseNonSubmission(ele);
+            if (orig_doc_metadata.getExtrinsicObjects().size() > 0) {
+                metadata.addExtrinsicObjects(orig_doc_metadata.getExtrinsicObjects());
+                originalDocId = orig_doc_metadata.getExtrinsicObjectIds().get(0);
+            } else if (orig_doc_metadata.getObjectRefs().size() > 0) {
+                metadata.addObjectRefs(orig_doc_metadata.getObjectRefs());
+                originalDocId = orig_doc_metadata.getObjectRefIds().get(0);
             } else {
-                throw new XdsInternalException("GetDocuments Stored Query: uuid not found, uid not found");
+                return metadata;   // original document not found - return empty
             }
-        }
-        if (doc_ids.size() == 0 && doc_ids_to_query_for.size() == 0) {
-            return metadata;
+        } else {
+            originalDocId = uuid;
         }
 
-        // combined_ids is all relevant doc ids, whether or not metadata has been retrieved yet
-        ArrayList<String> combined_ids = new ArrayList<String>();
-        combined_ids.addAll(doc_ids);
-        combined_ids.addAll(doc_ids_to_query_for);
+        this.log_message.addOtherParam("originalDocId", originalDocId);
+        this.log_message.addOtherParam("structure", metadata.structure());
+
+        // at this point result_metadata contains either a single ObjectRef or a single
+        // ExtrinsicObject representing the target document.  originalDocId has its
+        // id
+
 
         // load all associations related to combined_ids
-        OMElement associations = getAssociations(combined_ids, assoc_types);
+        List<String> targetIds = new ArrayList<String>();
+        targetIds.add(originalDocId);
+
+        boolean oldQueryType = this.return_leaf_class;
+        this.return_leaf_class = true;
+        OMElement associations = this.getAssociations(targetIds, assoc_types);
+        this.return_leaf_class = oldQueryType;
+
         Metadata association_metadata = MetadataParser.parseNonSubmission(associations);
 
-        // no associations => empty return
+        // no associations => return nothing
         if (association_metadata.getAssociations().size() == 0) {
             return new Metadata();
         }
 
+        // add associations to final result
+        metadata.addToMetadata(association_metadata.getLeafClassObjects(), true);
+
+        this.log_message.addOtherParam("with Associations", metadata.structure());
+
         // discover ids (potentially for documents) that are referenced by the associations
-        // but are not yet on one of the lists
-        for (OMElement assoc : association_metadata.getAssociations()) {
-            String obj1_id = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            String obj2_id = assoc.getAttributeValue(MetadataSupport.target_object_qname);
+        List<String> assocReferences = association_metadata.getAssocReferences();
 
-            if (!metadata.getExtrinsicObjectIds().contains(obj1_id) &&
-                    !doc_ids_to_query_for.contains(obj1_id)) {
-                doc_ids_to_query_for.add(obj1_id);
+        metadata.addObjectRefs(assocReferences);
+
+        if (this.return_leaf_class) {
+            return this.convertToLeafClass(metadata);
+        } else {
+            return this.convertToObjectRefs(metadata, false);
+        }
+    }
+
+    /**
+     * Load LeafClass form for all objects.  New Metadata object returned.
+     * @param m - metadata to fill in with LeafClass objects. Unaltered.
+     * @return new Metadata object
+     * @throws LoggerException
+     * @throws XdsException
+     */
+    private Metadata convertToLeafClass(Metadata metadata) throws XdsException {
+        Metadata m = metadata.makeClone();
+        List<String> objectRefIds = m.getObjectRefIds();
+        // these could reference any type of object.  Only interested in:
+        // RegistryPackage, ExtrinsicObject, Association
+
+        List<String> idsToRemove = new ArrayList<String>();
+        for (String id : objectRefIds) {
+            if (m.containsObject(id)) {
+                idsToRemove.add(id);
             }
-            if (!metadata.getExtrinsicObjectIds().contains(obj2_id) &&
-                    !doc_ids_to_query_for.contains(obj2_id)) {
-                doc_ids_to_query_for.add(obj2_id);
+            if (!this.isUuid(id)) {
+                throw new MetadataException("Cannot load object with id " + id + " from Registry, this id is not in UUID format (probabaly a symbolic name)");
             }
         }
+        objectRefIds.removeAll(idsToRemove);
 
-        // load documents from our potential-document ids
-        metadata.addMetadata(getDocumentByUUID(doc_ids_to_query_for));
-
-        // add associations to final list that reference included documents at both ends
-        ArrayList<String> loaded_doc_ids = metadata.getExtrinsicObjectIds();
-        for (OMElement assoc : association_metadata.getAssociations()) {
-            String obj1_id = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            String obj2_id = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-
-            if (loaded_doc_ids.contains(obj1_id) && loaded_doc_ids.contains(obj2_id)) {
-                metadata.add_association(assoc);
-            }
+        // nothing left to load
+        if (objectRefIds.size() == 0) {
+            return m;
         }
-        return metadata;
+        m.clearObjectRefs();
+        boolean discard_duplicates = true;
+        boolean origLeafClass = this.return_leaf_class;
+        this.return_leaf_class = true;
+        m.addMetadata(this.getDocumentByUUID(objectRefIds), discard_duplicates);
+        m.addMetadata(this.getRegistryPackageByID(objectRefIds, null), discard_duplicates);
+        m.addMetadata(this.getAssociationByID(objectRefIds), discard_duplicates);
+        this.return_leaf_class = origLeafClass;  // Reset.
+        return m;
+    }
+
+    /**
+     *
+     * @param metadata
+     * @param ignoreExistingObjectRefs
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     * @throws MetadataValidationException
+     */
+    private Metadata convertToObjectRefs(Metadata metadata, boolean ignoreExistingObjectRefs) throws XdsInternalException, MetadataException, MetadataValidationException {
+        Metadata m = metadata.makeClone();
+        if (ignoreExistingObjectRefs) {
+            m.clearObjectRefs();
+        }
+        List<OMElement> leafClasses = m.getAllLeafClasses();
+        List<String> ids = m.getIdsForObjects(leafClasses);
+        m.makeObjectRefs(ids);
+        m.clearLeafClassObjects();
+        return m;
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    private boolean isUuid(String id) {
+        return id.startsWith("urn:uuid:");
     }
 }

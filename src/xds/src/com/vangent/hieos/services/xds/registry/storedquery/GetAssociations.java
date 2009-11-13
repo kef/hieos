@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
-import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -45,8 +44,8 @@ public class GetAssociations extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$uuid", true, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -61,7 +60,7 @@ public class GetAssociations extends StoredQuery {
         Metadata metadata;
         List<String> uuids = params.getListParm("$uuid");
         if (uuids != null) {
-            OMElement ele = getAssociations(uuids, null);
+            OMElement ele = getAssociationsByUUID(uuids, null);
             metadata = MetadataParser.parseNonSubmission(ele);
         } else {
             throw new XdsInternalException("GetAssociations Stored Query: $uuid not found as a multi-value parameter");

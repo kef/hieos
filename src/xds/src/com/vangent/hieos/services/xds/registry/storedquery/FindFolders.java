@@ -45,13 +45,12 @@ public class FindFolders extends StoredQuery {
     public FindFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
-
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSFolderPatientId", true, false, true, false, (String[]) null);
-        validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, (String[]) null);
-        validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, (String[]) null);
-        validateQueryParam("$XDSFolderCodeList", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSFolderStatus", true, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSFolderPatientId", true, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderCodeList", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -91,13 +90,7 @@ public class FindFolders extends StoredQuery {
             throw new XdsException("Status parameter empty");
         }
         init();
-        if (this.return_leaf_class) {
-            append("SELECT *  ");
-            newline();
-        } else {
-            append("SELECT obj.id  ");
-            newline();
-        }
+        select("obj");
         append("FROM RegistryPackage obj, ExternalIdentifier patId");
         newline();
         if (update_time_from != null) {
@@ -118,17 +111,17 @@ public class FindFolders extends StoredQuery {
         // patientID
         append("(obj.id = patId.registryobject AND	");
         newline();
-        append("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
+        append(" patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
         newline();
-        append("  patId.value = '");
+        append(" patId.value = '");
         append(patient_id);
         append("' ) AND");
         newline();
-        append("  obj.status IN ");
+        append(" obj.status IN ");
         append(status);
         newline();
-        this.addCode(codes);
         this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
-        return query(this.return_leaf_class);
+        this.addCode(codes);
+        return query();
     }
 }

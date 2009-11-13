@@ -42,9 +42,9 @@ public class GetFoldersForDocument extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, "$XDSDocumentEntryEntryUUID");
-        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, "$XDSDocumentEntryUniqueId");
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, false, "$XDSDocumentEntryEntryUUID");
+        validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, false, "$XDSDocumentEntryUniqueId");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -64,7 +64,7 @@ public class GetFoldersForDocument extends StoredQuery {
         if (uuid == null) {
             throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");
         }
-        OMElement folders = this.get_folders_for_document(uuid);
+        OMElement folders = this.getFoldersForDocument(uuid);
         return MetadataParser.parseNonSubmission(folders);
     }
 }

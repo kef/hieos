@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
-import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -44,9 +43,9 @@ public class GetFolders extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, "$XDSFolderUniqueId");
-        validateQueryParam("$XDSFolderUniqueId", true, true, true, false, "$XDSFolderEntryUUID");
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, false, "$XDSFolderUniqueId");
+        validateQueryParam("$XDSFolderUniqueId", true, true, true, false, false, "$XDSFolderEntryUUID");
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -62,11 +61,11 @@ public class GetFolders extends StoredQuery {
         List<String> fol_uuid = params.getListParm("$XDSFolderEntryUUID");
         if (fol_uuid != null) {
             // starting from uuid
-            OMElement x = get_fol_by_uuid(fol_uuid);
+            OMElement x = getFolderByUUID(fol_uuid);
             metadata = MetadataParser.parseNonSubmission(x);
-            if (metadata.getFolders().size() == 0) {
-                return metadata;
-            }
+            /*if (metadata.getFolders().size() == 0) {
+            return metadata;
+            }*/
         } else {
             // starting from uniqueid
             List<String> fol_uid = params.getListParm("$XDSFolderUniqueId");

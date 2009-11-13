@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -45,11 +46,12 @@ public class GetFolderAndContents extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSFolderEntryUUID", true, false, true, false, "$XDSFolderUniqueId");
-        validateQueryParam("$XDSFolderUniqueId", true, false, true, false, "$XDSFolderEntryUUID");
-        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSFolderEntryUUID", true, false, true, false, false, "$XDSFolderUniqueId");
+        validateQueryParam("$XDSFolderUniqueId", true, false, true, false, false, "$XDSFolderEntryUUID");
+        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
+
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -62,42 +64,60 @@ public class GetFolderAndContents extends StoredQuery {
      */
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
-
         String fol_uuid = params.getStringParm("$XDSFolderEntryUUID");
+        String fol_uid = params.getStringParm("$XDSFolderUniqueId");
         if (fol_uuid != null) {
             // starting from uuid
-            OMElement x = get_fol_by_uuid(fol_uuid);
+            OMElement x = this.getFolderByUUID(fol_uuid);
             metadata = MetadataParser.parseNonSubmission(x);
-            if (metadata.getFolders().size() == 0) {
-                return metadata;
+            if (this.return_leaf_class) {
+                if (metadata.getFolders().size() == 0) {
+                    return metadata;
+                }
+            } else {
+                if (metadata.getObjectRefs().size() == 0) {
+                    return metadata;
+                }
             }
         } else {
             // starting from uniqueid
-            String fol_uid = params.getStringParm("$XDSFolderUniqueId");
-            OMElement x = getFolderByUID(fol_uid);
+            OMElement x = this.getFolderByUID(fol_uid);
             metadata = MetadataParser.parseNonSubmission(x);
-            if (metadata.getFolders().size() == 0) {
-                return metadata;
+            if (this.return_leaf_class) {
+                if (metadata.getFolders().size() == 0) {
+                    return metadata;
+                }
+            } else {
+                if (metadata.getObjectRefs().size() == 0) {
+                    return metadata;
+                }
             }
-
             fol_uuid = metadata.getFolder(0).getAttributeValue(MetadataSupport.id_qname);
         }
 
-        // ss_uuid has now been set
+        this.log_message.addOtherParam("Folder id", fol_uuid);
 
-        ArrayList<String> content_ids = new ArrayList<String>();
+        List<String> folder_ids = new ArrayList<String>();
+        folder_ids.add(fol_uuid);
+
+        // fol_uuid has now been set
+        List<String> content_ids = new ArrayList<String>();
         SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
         SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
 
-        OMElement doc_metadata = get_fol_docs(fol_uuid, format_codes, conf_codes);
+        OMElement doc_metadata = this.getFolderDocuments(fol_uuid, format_codes, conf_codes);
         metadata.addMetadata(doc_metadata);
-        content_ids.addAll(get_ids_from_registry_response(doc_metadata));
-
-        ArrayList<String> folder_ids = metadata.getFolderIds();
-        if (content_ids.size() > 0) {
-            OMElement assoc_metadata = get_assocs(folder_ids, content_ids);
+        List<String> docIds = this.getIdsFromRegistryResponse(doc_metadata);
+        content_ids.addAll(docIds);
+        this.log_message.addOtherParam("Doc ids", docIds.toString());
+        List<String> assocIds;
+        if (content_ids.size() > 0 && folder_ids.size() > 0) {
+            OMElement assoc_metadata = this.getRegistryPackageAssociations(folder_ids, content_ids);
+            assocIds = this.getIdsFromRegistryResponse(assoc_metadata);
+            this.log_message.addOtherParam("Assoc ids", assocIds.toString());
             metadata.addMetadata(assoc_metadata);
         }
+        this.log_message.addOtherParam("Assoc ids", "None");
         return metadata;
     }
 }

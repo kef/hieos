@@ -44,15 +44,15 @@ public class FindSubmissionSets extends StoredQuery {
     public FindSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSSubmissionSetPatientId", true, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetSourceId", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetSubmissionTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetSubmissionTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetAuthorPerson", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetContentType", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSSubmissionSetStatus", true, true, true, false, false, (String[]) null);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSSubmissionSetPatientId", true, false, true, false, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetSourceId", false, true, true, false, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetSubmissionTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetSubmissionTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetAuthorPerson", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetContentType", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSSubmissionSetStatus", true, true, true, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -89,13 +89,7 @@ public class FindSubmissionSets extends StoredQuery {
         List<String> status = params.getListParm("$XDSSubmissionSetStatus");
 
         init();
-        if (this.return_leaf_class) {
-            append("SELECT *  ");
-            newline();
-        } else {
-            append("SELECT obj.id  ");
-            newline();
-        }
+        select("obj");
         append("FROM RegistryPackage obj, ExternalIdentifier patId");
         newline();
         if (source_id != null) {
@@ -112,9 +106,7 @@ public class FindSubmissionSets extends StoredQuery {
         newline();
         if (author_person != null) {
             append(", Classification author");
-        }
-        newline();
-        if (author_person != null) {
+            newline();
             append(", Slot authorperson");
         }
         newline();
@@ -166,6 +158,6 @@ public class FindSubmissionSets extends StoredQuery {
         this.addCode(content_type);
         append("AND obj.status IN ");
         append(status);
-        return query(this.return_leaf_class);
+        return query();
     }
 }

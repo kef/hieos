@@ -14,7 +14,6 @@ package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
@@ -44,8 +43,8 @@ public class GetSubmissionSets extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$uuid", true, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -59,83 +58,29 @@ public class GetSubmissionSets extends StoredQuery {
     public Metadata run_internal() throws XdsException {
         Metadata metadata;
         List<String> uuids = params.getListParm("$uuid");
-        if (uuids != null && uuids.size() > 0) {
-            OMElement ele = get_submissionsets(uuids);
+        if (uuids != null) {
+            OMElement ele = this.getSubmissionSetsOfContents(uuids);
             // this may contain duplicates - parse differently
             metadata = new Metadata();
-            //metadata.setGrokMetadata(false);
             metadata.addMetadata(ele, true);
-            if (metadata.getSubmissionSetIds().size() > 0) {
-                OMElement assocs_ele = this.get_associations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
-                metadata.addMetadata(assocs_ele, true);
+
+            if (this.return_leaf_class) {
+                if (metadata.getSubmissionSetIds().size() > 0) {
+                    OMElement assocs_ele = this.getAssocations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
+                    metadata.addMetadata(assocs_ele, true);
+                }
+            } else {
+                if (metadata.getObjectRefIds().size() > 0) {
+                    OMElement assocs_ele = this.getAssocations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getObjectRefIds(), uuids);
+                    metadata.addMetadata(assocs_ele, true);
+                }
             }
+            return metadata;
         } else {
-            throw new XdsInternalException("GetSubmissionSets Stored Query: $uuid not found");
+            throw new XdsException("GetSubmissionSets: internal error: no format selected");
         }
-        return metadata;
     }
 
-    /**
-     * 
-     * @param uuids
-     * @return
-     * @throws XdsException
-     */
-    protected OMElement get_submissionsets(List<String> uuids) throws XdsException {
-        init();
-        if (this.return_leaf_class) {
-            append("SELECT * FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
-        } else {
-            append("SELECT rp.id FROM RegistryPackage rp, Association a, ExternalIdentifier ei");
-        }
-        newline();
-        append("WHERE ");
-        newline();
-        append(" a.sourceObject = rp.id AND");
-        newline();
-        append(" a.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
-        append("' AND");
-        newline();
-        append(" a.targetObject IN ");
-        append(uuids);
-        append(" AND");
-        newline();
-        append(" ei.registryObject = rp.id AND");
-        newline();
-        append(" ei.identificationScheme = 'urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446'");
-        newline();
-        return query(this.return_leaf_class);
-    }
-
-    /**
-     *
-     * @param type
-     * @param froms
-     * @param tos
-     * @return
-     * @throws XdsException
-     */
-    protected OMElement get_associations(String type, List<String> froms, List<String> tos)
-            throws XdsException {
-        init();
-        if (this.return_leaf_class) {
-            append("SELECT * FROM Association a");
-        } else {
-            append("SELECT a.id FROM Association a");
-        }
-        newline();
-        append("WHERE ");
-        newline();
-        append(" a.associationType = '" + type + "' AND");
-        newline();
-        append(" a.sourceObject IN");
-        append(froms);
-        append(" AND");
-        newline();
-        append(" a.targetObject IN");
-        append(tos);
-        newline();
-        return query(this.return_leaf_class);
-    }
+   
+    
 }

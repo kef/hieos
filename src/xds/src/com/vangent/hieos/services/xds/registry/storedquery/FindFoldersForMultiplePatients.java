@@ -24,7 +24,6 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -47,12 +46,12 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSFolderPatientId", false, true, true, false, (String[]) null);
-        validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, (String[]) null);
-        validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, (String[]) null);
-        validateQueryParam("$XDSFolderCodeList", true, true, true, true, (String[]) null);
-        validateQueryParam("$XDSFolderStatus", true, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSFolderPatientId", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, false, (String[]) null);
+        validateQueryParam("$XDSFolderCodeList", true, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -86,13 +85,7 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         List<String> status = params.getListParm("$XDSFolderStatus");
         init();
-        if (this.return_leaf_class) {
-            append("SELECT *  ");
-            newline();
-        } else {
-            append("SELECT obj.id  ");
-            newline();
-        }
+        select("obj");
         append("FROM RegistryPackage obj");
         if (patient_id != null && patient_id.size() > 0) {
             append(", ExternalIdentifier patId");
@@ -118,9 +111,9 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         if (patient_id != null && patient_id.size() > 0) {
             append("(obj.id = patId.registryobject AND	");
             newline();
-            append("  patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
+            append(" patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
             newline();
-            append("  patId.value IN ");
+            append(" patId.value IN ");
             append(patient_id);
             append(" ) ");
             newline();
@@ -129,7 +122,8 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         this.addCode(codes);
         this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
         and();
-        append("  obj.status IN ");
-        append(status);  return query(this.return_leaf_class);
+        append(" obj.status IN ");
+        append(status);
+        return query();
     }
 }

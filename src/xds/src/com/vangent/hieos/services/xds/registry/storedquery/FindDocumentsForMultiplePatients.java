@@ -56,22 +56,22 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             throws MetadataValidationException {
         super(params, return_objects, response, log_message);
 
-        // param name, required?, multiple?, is string?, is code?, alternative
-        validateQueryParam("$XDSDocumentEntryPatientId", false, true, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryHealthcareFacilityTypeCode");
-        validateQueryParam("$XDSDocumentEntryPracticeSettingCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryCreationTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryCreationTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStartTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStartTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStopTimeFrom", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryServiceStopTimeTo", false, false, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryClassCode");
-        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, "$XDSDocumentEntryClassCode", "$XDSDocumentEntryHealthcareFacilityTypeCode");
-        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, (String[]) null);
-        validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, (String[]) null);
+        // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
+        validateQueryParam("$XDSDocumentEntryPatientId", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryClassCode", false, true, true, true, false, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryHealthcareFacilityTypeCode");
+        validateQueryParam("$XDSDocumentEntryPracticeSettingCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryCreationTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryCreationTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStartTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStartTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStopTimeFrom", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryServiceStopTimeTo", false, false, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryHealthcareFacilityTypeCode", false, true, true, true, false, "$XDSDocumentEntryEventCodeList", "$XDSDocumentEntryClassCode");
+        validateQueryParam("$XDSDocumentEntryEventCodeList", false, true, true, true, true, "$XDSDocumentEntryClassCode", "$XDSDocumentEntryHealthcareFacilityTypeCode");
+        validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, false, (String[]) null);
         if (this.has_validation_errors) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -93,7 +93,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             if (m.getObjectRefs().size() > 25) {
                 throw new XDSRegistryOutOfResourcesException("GetDocumentsForMultiplePatients Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
-            this.return_leaf_class = true;
+            this.return_leaf_class = true;  // Reset.
         }
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
@@ -127,13 +127,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         List<String> status = params.getListParm("$XDSDocumentEntryStatus");
         List<String> author_person = params.getListParm("$XDSDocumentEntryAuthorPerson");
         init();
-        if (this.return_leaf_class) {
-            append("SELECT * ");
-            newline();
-        } else {
-            append("SELECT obj.id  ");
-            newline();
-        }
+        select("obj");
         append("FROM ExtrinsicObject obj");
         if (patient_id != null && patient_id.size() > 0) {
             append(", ExternalIdentifier patId");
@@ -187,9 +181,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         newline();             // $XDSDocumentEntryFormatCode
         if (author_person != null) {
             append(", Classification author");
-        }
-        newline();
-        if (author_person != null) {
+            newline();
             append(", Slot authorperson");
         }
         newline();
@@ -200,9 +192,9 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         if (patient_id != null && patient_id.size() > 0) {
             append("(obj.id = patId.registryobject AND	");
             newline();
-            append("  patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
+            append(" patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
             newline();
-            append("  patId.value IN ");
+            append(" patId.value IN ");
             append(patient_id);
             append(" ) ");
             newline();
@@ -236,6 +228,6 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         and();
         append(" obj.status IN ");
         append(status);
-        return query(this.return_leaf_class);
+        return query();
     }
 }
