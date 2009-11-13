@@ -39,6 +39,7 @@ import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
 
 import com.vangent.hieos.xutil.exception.XDSRepositoryMetadataError;
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedOutputStream;
@@ -277,8 +278,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("Register transaction", register_transaction);
         Soap soap = new Soap();
         boolean isAsyncTxn = Repository.isRegisterTransactionAsync();
-        String action = getAction(isAsyncTxn);
-        String expectedReturnAction = getExpectedReturnAction(isAsyncTxn);
+        String action = getAction();
+        String expectedReturnAction = getExpectedReturnAction();
         soap.setAsync(isAsyncTxn);
         try {
             OMElement result;
@@ -555,25 +556,19 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         }
     }
 
-    // AMS - TODO - REFACTOR - Externalize or create a static map
-    private String getAction(boolean isAsyncTxn) {
-        String action = "";
-        if (isAsyncTxn) {
-            action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsync";
-        } else {
-            action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
-        }
-        return action;
+    /**
+     * 
+     * @return
+     */
+    private String getAction() {
+        return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION;
     }
 
-    // AMS - TODO - REFACTOR - Externalize or create a static map
-    private String getExpectedReturnAction(boolean isAsyncTxn) {
-        String action = "";
-        if (isAsyncTxn) {
-            action = "urn:ihe:iti:2007:RegisterDocumentSet-bAsyncResponse";
-        } else {
-            action = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
-        }
-        return action;
+    /**
+     *
+     * @return
+     */
+    private String getExpectedReturnAction() {
+         return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION_RESPONSE;
     }
 }
