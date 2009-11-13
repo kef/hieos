@@ -248,8 +248,8 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 // This brings up interesting question, should the Assoc between SS and Assoc be generated also?  YES!
                 for (String fid : folderIds) {
 
-                    OMElement assoc = m.add_association(m.mkAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, fid, replacementDocumentId));
-                    OMElement assoc2 = m.add_association(m.mkAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, m.getSubmissionSetId(), assoc.getAttributeValue(MetadataSupport.id_qname)));
+                    OMElement assoc = m.addAssociation(m.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, fid, replacementDocumentId));
+                    OMElement assoc2 = m.addAssociation(m.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, m.getSubmissionSetId(), assoc.getAttributeValue(MetadataSupport.id_qname)));
                 }
             }
 
