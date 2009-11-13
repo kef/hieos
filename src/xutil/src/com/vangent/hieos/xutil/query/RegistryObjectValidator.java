@@ -108,7 +108,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  ro.id IN ");
         append(uuids);
         newline();
-        List<String> results = this.query_for_object_refs();
+        List<String> results = this.queryForObjectRefs();
         return results;
     }
 
@@ -146,7 +146,7 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
 
         // these uuids identify objects that carry one of the uids passed in in the map
-        List<String> uuids = this.query_for_object_refs();
+        List<String> uuids = this.queryForObjectRefs();
 
         if (uuids.size() == 0) {
             return;
@@ -156,7 +156,7 @@ public class RegistryObjectValidator extends StoredQuery {
         // and the hashes are the same.  Otherwise it is an error.
 
         this.return_leaf_class = true;
-        OMElement objects = get_objects_by_uuid(uuids);   // LeafClass for offending objects
+        OMElement objects = getObjectsByUUID(uuids);   // LeafClass for offending objects
         if (objects == null) {
             throw new XdsInternalException("RegistryObjectValidator.validateProperUids(): could not retrieve LeafClass for ObjectRef obtained from registry: UUIDs were " + uuids);
         }
@@ -235,7 +235,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  eo.id IN ");
         append(uuids);
         newline();
-        List<String> results = this.query_for_object_refs();
+        List<String> results = this.queryForObjectRefs();
         List<String> missing = null;
         for (int i = 0; i < uuids.size(); i++) {
             String uuid = (String) uuids.get(i);
@@ -276,7 +276,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  ei.identificationScheme = '" + MetadataSupport.XDSFolder_patientid_uuid + "'");
         newline();
         br.setReason("Verify are Folders");
-        List<String> results1 = this.query_for_object_refs();
+        List<String> results1 = this.queryForObjectRefs();
         List<String> missing = null;
         for (String id : ids) {
             if (!results1.contains(id)) {
@@ -309,7 +309,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append(uuids);
         newline();
 
-        List<String> results1 = this.query_for_object_refs();
+        List<String> results1 = this.queryForObjectRefs();
 
         init();
         append("SELECT id FROM RegistryPackage eo");
@@ -324,7 +324,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append(uuids);
         newline();
 
-        List<String> results = this.query_for_object_refs();
+        List<String> results = this.queryForObjectRefs();
         results.addAll(results1);
         ArrayList missing = null;
         for (int i = 0; i < uuids.size(); i++) {
@@ -369,7 +369,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("'");
         newline();
 
-        List<String> results1 = this.query_for_object_refs();
+        List<String> results1 = this.queryForObjectRefs();
 
         init();
         append("SELECT eo.id FROM RegistryPackage eo, ExternalIdentifier pid");
@@ -389,7 +389,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("'");
         newline();
 
-        List<String> results = this.query_for_object_refs();
+        List<String> results = this.queryForObjectRefs();
 
         results.addAll(results1);
 
@@ -434,7 +434,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("  a.sourceObject = eo.id");
         newline();
 
-        return this.query_for_object_refs();
+        return this.queryForObjectRefs();
     }
 
     /**
