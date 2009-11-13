@@ -29,6 +29,7 @@ import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xml.XmlFormatter;
 import com.vangent.hieos.xclient.xds.registry.Sq;
 
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,8 +50,8 @@ public class QueryControl {
     // query types
     static final String ssac = "ssac";  // GetSubmissionSetAndContents
     boolean leafClassQuery = true;
-    String queryAction = "urn:ihe:iti:2007:RegistryStoredQuery";
-    String queryResultAction = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+    String queryAction = SoapActionFactory.XDSB_REGISTRY_SQ_ACTION;
+    String queryResultAction = SoapActionFactory.XDSB_REGISTRY_SQ_ACTION_RESPONSE;
     boolean isXca = false;
     String home = "";
     boolean soap11 = false;
@@ -68,8 +69,8 @@ public class QueryControl {
     }
 
     public void crossGateway() {
-        this.queryAction = "urn:ihe:iti:2007:CrossGatewayQuery";
-        this.queryResultAction = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+        this.queryAction = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION;
+        this.queryResultAction = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION_RESPONSE;
         isXca = true;
     }
 
