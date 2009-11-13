@@ -140,19 +140,22 @@ public class SqParams {
 		throw new XdsInternalException("getCodedParm(): bad type = " + o.getClass().getName());
 	}
 
+        /*
 	public boolean isAnd(Object values) {
 		return (values instanceof And);
-	}
+	}*/
 
+        /*
 	public int andSize(Object values) {
 		if ( !isAnd(values)) return 0;
 		And and = (And) values;
 		return and.size();
-	}
+	} */
 
 	// A simple OR query uses a single SQL variable to control
 	// If AND logic is used then we need a separate SQL variable for each AND part
 	// This method allocates the variable names
+        /*
 	public ArrayList<String> getAndorVarNames(Object andor, String varname) {
 		ArrayList<String> names = new ArrayList<String>();
 		if ( !isAnd(andor)) {
@@ -164,6 +167,6 @@ public class SqParams {
 			names.add(varname + i);
 		}
 		return names;
-	}
+	} */
 
 }

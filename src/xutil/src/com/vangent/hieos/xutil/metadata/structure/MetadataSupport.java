@@ -94,6 +94,7 @@ public class MetadataSupport {
     public static QName classscheme_qname = new QName("classScheme");
     public static QName status_qname = new QName("status");
     public static QName severity_qname = new QName("severity");
+    public static QName object_ref_qname = new QName("ObjectRef", MetadataSupport.ebRIMns3_uri);
     public static QName home_community_id_qname = new QName(xdsB.getNamespaceURI(), "HomeCommunityId");
     public static OMNamespace soapns = om_factory.createOMNamespace("http://www.w3.org/2003/05/soap-envelope", "soapenv");
     public static OMNamespace wsans = om_factory.createOMNamespace("http://www.w3.org/2005/08/addressing", "wsa");
