@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xclient.xds.repository;
 
 import com.vangent.hieos.xclient.xds.repository.RetInfo;
@@ -198,18 +197,10 @@ public class RetrieveB extends OmLogger {
     }
 
     protected String getRequestAction() {
-        if (async) {
-            if (is_xca) {
-                return "urn:ihe:iti:2007:CrossGatewayRetrieveAsync";
-            } else {
-                return "urn:ihe:iti:2007:RetrieveDocumentSetAsync";
-            }
+        if (is_xca) {
+            return SoapActionFactory.XCA_GATEWAY_CGR_ACTION;
         } else {
-            if (is_xca) {
-                return "urn:ihe:iti:2007:CrossGatewayRetrieve";
-            } else {
-                return "urn:ihe:iti:2007:RetrieveDocumentSet";
-            }
+            return SoapActionFactory.XDSB_REPOSITORY_RET_ACTION;
         }
     }
 
