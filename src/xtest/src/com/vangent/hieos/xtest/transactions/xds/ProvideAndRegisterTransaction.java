@@ -336,13 +336,15 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
 
     protected String getRequestAction() {
         if (xds_version == BasicTransaction.xds_b) {
+            return SoapActionFactory.XDSB_REPOSITORY_PNR_ACTION;
+            /*
             if (async) {
                 return SoapActionFactory.pnr_b_async_action;
             } else {
                 return SoapActionFactory.pnr_b_action;
-            }
+            }*/
         } else {
-            return SoapActionFactory.anon_action;
+            return SoapActionFactory.ANON_ACTION;
         }
     }
 }
