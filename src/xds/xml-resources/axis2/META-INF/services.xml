@@ -13,6 +13,7 @@
         <operation name="AdhocQueryRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
+            <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201301UV02">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
@@ -32,18 +33,30 @@
     <service name="xdsregistrybas" class="com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync">
         <description>Asynchronous XDS.b Registry Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.registry.serviceimpl.XDSbRegistryAsync</parameter>
-        <!-- enables server side asynchronous behavior -->
+         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <!-- identifies the registry configuration name in the xconfig.xml -->
         <parameter name="XConfigName">localregistry</parameter>
         <operation name="SubmitObjectsRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
-            <actionMapping>urn:ihe:iti:2007:RegisterDocumentSet-bAsync</actionMapping>
+            <actionMapping>urn:ihe:iti:2007:RegisterDocumentSet-b</actionMapping>
         </operation>
-
         <operation name="AdhocQueryRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
-            <actionMapping>urn:ihe:iti:2007:RegistryStoredQueryAsync</actionMapping>
+            <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
+            <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
+        </operation>
+        <operation name="DocumentRegistry_PRPA_IN201301UV02">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
+        </operation>
+        <operation name="DocumentRegistry_PRPA_IN201302UV02">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201302UV02</actionMapping>
+        </operation>
+        <operation name="DocumentRegistry_PRPA_IN201304UV02">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201304UV02</actionMapping>
         </operation>
     </service>
 
@@ -67,16 +80,16 @@
     <service name="xdsrepositorybas" class="com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync">
         <description>Asynchronous XDS.b Repository Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync</parameter>
-        <!-- enables server side asynchronous behavior -->
+         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="ProvideAndRegisterDocumentSetRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
-            <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bAsync</actionMapping>
+            <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
-            <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSetAsync</actionMapping>
+            <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
     </service>
