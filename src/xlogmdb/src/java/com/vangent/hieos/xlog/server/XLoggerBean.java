@@ -83,7 +83,7 @@ public class XLoggerBean implements MessageListener {
                         "Received message of type " +
                         message.getClass().getName());
             }
-        } catch (JMSException e) {
+        } catch (Exception e) {
             System.err.println(e.toString());
             e.printStackTrace(System.err);
         }
