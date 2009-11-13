@@ -38,6 +38,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import javax.xml.namespace.QName;
@@ -48,8 +49,9 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
+
     private final static Logger logger = Logger.getLogger(XCARetrieveRequestCollection.class);
-    
+
     /**
      *
      * @param uniqueId
@@ -140,11 +142,11 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
 
         String endpoint = xconfigTxn.getEndpointURL();
         boolean isAsyncTxn = xconfigTxn.isAsyncTransaction();
-        String action = getAction(isAsyncTxn);
-        String expectedReturnAction = getExpectedReturnAction(isAsyncTxn);
+        String action = getAction();
+        String expectedReturnAction = getExpectedReturnAction();
 
         logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction +
-                    ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
+                ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
@@ -167,7 +169,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * @return a String value representing the URL.
      */
     public String getEndpointURL() {
-       
+
         return getXConfigTransaction().getEndpointURL();
     }
 
@@ -176,21 +178,13 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * and whether the request is async.
      * @return a String value representing the action.
      */
-    public String getAction(boolean isAsyncTxn)
-    {
-        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+    public String getAction() {
         String action = "";
         if (this.isLocalRequest()) {
             // For XDS Affinity Domain option.
-            if (isAsyncTxn)
-                action = "urn:ihe:iti:2007:RetrieveDocumentSetAsync";
-            else
-                action = "urn:ihe:iti:2007:RetrieveDocumentSet";
+            action = SoapActionFactory.XDSB_REPOSITORY_RET_ACTION;
         } else {
-             if (isAsyncTxn)
-                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveAsync";
-             else
-                 action = "urn:ihe:iti:2007:CrossGatewayRetrieve";
+            action = SoapActionFactory.XCA_GATEWAY_CGR_ACTION;
         }
         return action;
     }
@@ -200,21 +194,13 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * and whether the request is async.
      * @return a String value representing the expected return action.
      */
-    public String getExpectedReturnAction(boolean isAsyncTxn)
-    {
-        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+    public String getExpectedReturnAction() {
         String action = "";
         if (this.isLocalRequest()) {
             // For XDS Affinity Domain option.
-            if (isAsyncTxn)
-                action = "urn:ihe:iti:2007:RetrieveDocumentSetAsyncResponse";
-            else
-                action = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
+            action = SoapActionFactory.XDSB_REPOSITORY_RET_ACTION_RESPONSE;
         } else {
-             if (isAsyncTxn)
-                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveAsyncResponse";
-             else
-                 action = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
+            action = SoapActionFactory.XCA_GATEWAY_CGR_ACTION_RESPONSE;
         }
         return action;
     }
@@ -224,8 +210,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * CrossGatewayRetrieve, depending on whether the request is local or not.
      * @return XConfigTransaction.
      */
-    private XConfigTransaction getXConfigTransaction()
-    {
+    private XConfigTransaction getXConfigTransaction() {
         String txnName = this.isLocalRequest() ? "RetrieveDocumentSet" : "CrossGatewayRetrieve";
         XConfigTransaction txn = this.getConfigEntity().getTransaction(txnName);
         return txn;

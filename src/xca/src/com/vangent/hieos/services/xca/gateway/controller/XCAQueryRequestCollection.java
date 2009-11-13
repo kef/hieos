@@ -39,6 +39,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -48,6 +49,7 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
+
     private final static Logger logger = Logger.getLogger(XCAQueryRequestCollection.class);
 
     /**
@@ -125,11 +127,11 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
 
         String endpoint = xconfigTxn.getEndpointURL();
         boolean isAsyncTxn = xconfigTxn.isAsyncTransaction();
-        String action = getAction(isAsyncTxn);
-        String expectedReturnAction = getExpectedReturnAction(isAsyncTxn);
+        String action = getAction();
+        String expectedReturnAction = getExpectedReturnAction();
 
         logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction +
-                    ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
+                ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
@@ -149,47 +151,31 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
     }
 
     /**
-     * This method returns the action based on two criteria - whether the request is local
-     * and whether it is async.
+     * This method returns the SOAP action (either local or remote).
+     *
      * @return a String value representing the action.
      */
-    public String getAction(boolean isAsyncTxn)
-    {
-        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+    public String getAction() {
         String action = "";
         if (this.isLocalRequest()) {
-            if (isAsyncTxn)
-                action = "urn:ihe:iti:2007:RegistryStoredQueryAsync";
-            else
-                action = "urn:ihe:iti:2007:RegistryStoredQuery";
+            action = SoapActionFactory.XDSB_REGISTRY_SQ_ACTION;
         } else {
-             if (isAsyncTxn)
-                 action = "urn:ihe:iti:2007:CrossGatewayQueryAsync";
-             else
-                 action = "urn:ihe:iti:2007:CrossGatewayQuery";
+            action = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION;
         }
         return action;
     }
 
     /**
-     * This method returns the expected return action based on two criteria - whether the request is local
-     * and whether it is async.
+     * This method returns the SOAP response action (either local or remote).
+     * 
      * @return a String value representing the expected return action.
      */
-    public String getExpectedReturnAction(boolean isAsyncTxn)
-    {
-        // AMS - TODO - REFACTOR METHOD - Externalize or create a static map
+    public String getExpectedReturnAction() {
         String action = "";
         if (this.isLocalRequest()) {
-            if (isAsyncTxn)
-                action = "urn:ihe:iti:2007:RegistryStoredQueryAsyncResponse";
-            else
-                action = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+            action = SoapActionFactory.XDSB_REGISTRY_SQ_ACTION_RESPONSE;
         } else {
-             if (isAsyncTxn)
-                 action = "urn:ihe:iti:2007:CrossGatewayQueryAsyncResponse";
-             else
-                 action = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+            action = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION_RESPONSE;
         }
         return action;
     }
@@ -199,8 +185,7 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
      * CrossGatewayQuery, depending on whether the request is local or not.
      * @return XConfigTransaction.
      */
-    private XConfigTransaction getXConfigTransaction()
-    {
+    private XConfigTransaction getXConfigTransaction() {
         String txnName = this.isLocalRequest() ? "RegistryStoredQuery" : "CrossGatewayQuery";
         XConfigTransaction txn = this.getConfigEntity().getTransaction(txnName);
         return txn;
@@ -223,5 +208,4 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
     public String getATNATransaction() {
         return this.isLocalRequest() ? XATNALogger.TXN_ITI18 : XATNALogger.TXN_ITI38;
     }
-
 }
