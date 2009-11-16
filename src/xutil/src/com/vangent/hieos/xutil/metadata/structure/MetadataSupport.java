@@ -139,7 +139,8 @@ public class MetadataSupport {
     public static String XDSRegistryNotAvailable = "XDSRegistryNotAvailable";
     public static String XDSRegistryError = "XDSRegistryError";
     public static String XDSRepositoryError = "XDSRepositoryError";
-    public static String XDSRepositoryWrongRepositoryUniqueId = "XDSRepositoryWrongRepositoryUniqueId";
+    //public static String XDSRepositoryWrongRepositoryUniqueId = "XDSRepositoryWrongRepositoryUniqueId";
+    public static String XDSDocumentUniqueIdError = "XDSDocumentUniqueIdError";
     public static String XDSRegistryDuplicateUniqueIdInMessage = "XDSRegistryDuplicateUniqueIdInMessage";
     public static String XDSRepositoryDuplicateUniqueIdInMessage = "XDSRepositoryDuplicateUniqueIdInMessage";
     public static String XDSDuplicateUniqueIdInRegistry = "XDSDuplicateUniqueIdInRegistry";
