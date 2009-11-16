@@ -31,6 +31,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
 
+import com.vangent.hieos.xutil.exception.XDSDocumentUniqueIdError;
 import java.util.ArrayList;
 
 import javax.activation.FileDataSource;
@@ -99,7 +100,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         try {
 
             mustBeMTOM();
-            retrieve_documents = retrieve_documents(rds);
+            retrieve_documents = retrieveDocuments(rds);
 
             //AUDIT:POINT
             //call to audit message for document repository
@@ -150,14 +151,11 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.MetadataException
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
-    private ArrayList<OMElement> retrieve_documents(OMElement rds) throws MetadataException, XdsException {
+    private ArrayList<OMElement> retrieveDocuments(OMElement rds) throws MetadataException, XdsException {
         ArrayList<OMElement> document_responses = new ArrayList<OMElement>();
-
         for (OMElement doc_request : MetadataSupport.childrenWithLocalName(rds, "DocumentRequest")) {
-
             String rep_id = null;
             String doc_id = null;
-
             try {
                 rep_id = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
                 if (rep_id == null || rep_id.equals("")) {
@@ -166,7 +164,6 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             } catch (Exception e) {
                 throw new MetadataException("Cannot extract RepositoryUniqueId from DocumentRequest");
             }
-
             try {
                 doc_id = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
                 if (doc_id == null || doc_id.equals("")) {
@@ -175,9 +172,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             } catch (Exception e) {
                 throw new MetadataException("Cannot extract DocumentUniqueId from DocumentRequest");
             }
-
-            OMElement document_response = retrieve_document(rep_id, doc_id);
-
+            OMElement document_response = retrieveDocument(rep_id, doc_id);
             if (document_response != null) {
                 document_responses.add(document_response);
             }
@@ -192,9 +187,9 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
-    private OMElement retrieve_document(String rep_id, String doc_id) throws XdsException {
+    private OMElement retrieveDocument(String rep_id, String doc_id) throws XdsException {
         if (!rep_id.equals(Repository.getRepositoryUniqueId())) {
-            response.add_error(MetadataSupport.XDSRepositoryWrongRepositoryUniqueId,
+            response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                     "Repository Unique ID in request " +
                     rep_id +
                     " does not match this repository's id " +
@@ -207,8 +202,18 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         XDSDocument doc = new XDSDocument(rep_id);
         doc.setUniqueId(doc_id);
         XDSRepositoryStorage repoStorage = XDSRepositoryStorage.getInstance();
-        doc = repoStorage.retrieve(doc);
+        try {
+            doc = repoStorage.retrieve(doc);
+        } catch (XDSDocumentUniqueIdError e) {
+            response.add_error(MetadataSupport.XDSDocumentUniqueIdError,
+                    "Document Unique ID in request " +
+                    doc_id +
+                    " not found in this repository " +
+                    Repository.getRepositoryUniqueId(),
+                    this.getClass().getName(), log_message);
+            return null;
 
+        }
         // Set up the DataHandler.
         ByteArrayDataSource ds = new ByteArrayDataSource();
         ds.setBytes(doc.getBytes());
@@ -235,8 +240,6 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         OMElement document_ele = MetadataSupport.om_factory.createOMElement("Document", MetadataSupport.xdsB);
         document_ele.addChild(t);
         document_response.addChild(document_ele);
-
-
         return document_response;
     }
 
