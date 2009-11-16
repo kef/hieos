@@ -46,7 +46,6 @@ import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
