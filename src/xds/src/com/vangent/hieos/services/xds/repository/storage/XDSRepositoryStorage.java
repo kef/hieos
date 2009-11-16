@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.repository.storage;
 
+import com.vangent.hieos.xutil.exception.XDSDocumentUniqueIdError;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import org.apache.log4j.Logger;
@@ -40,7 +41,7 @@ abstract public class XDSRepositoryStorage {
      * @return XDSDocument instance with all document vitals filled in (reused 'doc' instance).
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    abstract public XDSDocument retrieve(XDSDocument doc) throws XdsInternalException;
+    abstract public XDSDocument retrieve(XDSDocument doc) throws XdsInternalException, XDSDocumentUniqueIdError;
 
     /**
      *  Retrieves an XDS.b document from a data source.

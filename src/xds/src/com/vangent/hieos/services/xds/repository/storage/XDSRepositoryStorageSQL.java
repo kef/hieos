@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.repository.storage;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 
+import com.vangent.hieos.xutil.exception.XDSDocumentUniqueIdError;
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
 import java.io.ByteArrayInputStream;
@@ -152,7 +153,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      * @return A filled out XDSDocument instance (reuses passed in value).
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    public XDSDocument retrieve(XDSDocument doc) throws XdsInternalException {
+    public XDSDocument retrieve(XDSDocument doc) throws XdsInternalException, XDSDocumentUniqueIdError {
         // Get the database connection.
         Connection connection = this.getConnection();
 
@@ -167,7 +168,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
             logger.trace("SQL(repo) = " + sql);
             rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new XdsInternalException("No document found for uniqueid = " + doc.getUniqueId());
+                throw new XDSDocumentUniqueIdError("No document found for uniqueid = " + doc.getUniqueId());
             } else {
                 doc.setDocumentId(rs.getString(1));
                 doc.setHash(rs.getString(3));
