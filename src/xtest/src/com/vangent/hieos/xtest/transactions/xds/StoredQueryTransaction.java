@@ -35,29 +35,48 @@ import org.apache.axiom.om.OMNamespace;
 
 public class StoredQueryTransaction extends QueryTransaction {
 
-    String metadata_filename = null;
+    //String metadata_filename = null;
     //OMElement metadata = null;
     OMElement expected_contents = null;
     //Metadata m = null;
     OMElement metadata_ele = null;
     boolean is_xca = false;
 
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     */
     public StoredQueryTransaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
         super(s_ctx, instruction, instruction_output);
     }
 
+    /**
+     *
+     * @throws XdsException
+     */
     public void run() throws XdsException {
         parseParameters(s_ctx, instruction, instruction_output);
-
         parseMetadata();
-
         runSQ();
     }
 
+    /**
+     *
+     * @param isXca
+     */
     public void setIsXCA(boolean isXca) {
         is_xca = isXca;
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsInternalException
+     * @throws FactoryConfigurationError
+     * @throws XdsException
+     */
     protected OMElement runSQ() throws XdsInternalException, FactoryConfigurationError,
             XdsException {
         OMElement result = null;
@@ -90,7 +109,6 @@ public class StoredQueryTransaction extends QueryTransaction {
         lnk.add("$lastyear$", Hl7Date.lastyear());
         lnk.compileLinkage();
 
-
         s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
 
         OMNamespace ns = metadata_ele.getNamespace();
@@ -113,14 +131,11 @@ public class StoredQueryTransaction extends QueryTransaction {
         }
         useMtom = false;
         useAddressing = true;
-
         try {
             this.setMetadata(metadata_ele);
             soapCall();
             result = getSoapResult();
-
             validate_registry_response_no_set_status(result, metadata_type);
-
             if (expected_contents != null) {
                 String errors = validate_expected_contents(result, metadata_type, expected_contents);
 
@@ -128,17 +143,17 @@ public class StoredQueryTransaction extends QueryTransaction {
                     fail(errors);
                 }
             }
-
             add_step_status_to_output();
-
-
         } catch (Exception e) {
             fail(ExceptionUtil.exception_details(e));
         }
-
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     protected String getRequestAction() {
         if (is_xca) {
             return SoapActionFactory.XCA_GATEWAY_CGQ_ACTION;
@@ -147,6 +162,11 @@ public class StoredQueryTransaction extends QueryTransaction {
         }
     }
 
+    /**
+     *
+     * @throws FactoryConfigurationError
+     * @throws XdsInternalException
+     */
     protected void parseMetadata() throws FactoryConfigurationError,
             XdsInternalException {
         // input file is read twice. Adding to log and then sending through Axis2 results in
@@ -158,10 +178,16 @@ public class StoredQueryTransaction extends QueryTransaction {
         if (metadata_filename != null && !metadata_filename.equals("")) {
             metadata_ele = Util.parse_xml(new File(metadata_filename));
         }
-
         metadata = MetadataParser.noParse(metadata_ele);
     }
 
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     * @throws XdsException
+     */
     public void parseParameters(StepContext s_ctx, OMElement instruction,
             OMElement instruction_output) throws XdsException {
         Iterator elements = instruction.getChildElements();
@@ -171,6 +197,13 @@ public class StoredQueryTransaction extends QueryTransaction {
         }
     }
 
+    /**
+     *
+     * @param s_ctx
+     * @param instruction_output
+     * @param part
+     * @throws XdsException
+     */
     public void parseParameter(StepContext s_ctx,
             OMElement instruction_output, OMElement part) throws XdsException {
         String part_name = part.getLocalName();
