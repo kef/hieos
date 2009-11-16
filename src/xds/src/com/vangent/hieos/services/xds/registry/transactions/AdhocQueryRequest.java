@@ -24,10 +24,8 @@ import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
-import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -85,10 +83,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
         try {
             if (ns_uri.equals(MetadataSupport.ebQns3.getNamespaceURI())) {
                 init(new AdhocQueryResponse(), messageContext);
-                /* Removed XDS.a
-                } else if (ns_uri.equals(MetadataSupport.ebQns2.getNamespaceURI())) {
-                init(new AdhocQueryResponse(Response.version_2), xds_version, messageContext);
-                } */
             } else {
                 init(new AdhocQueryResponse(), messageContext);
                 response.add_error(MetadataSupport.XDSRegistryError, "Invalid XML namespace on AdhocQueryRequest: " + ns_uri, this.getClass().getName(), log_message);
@@ -126,9 +120,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
             logger.fatal(logger_exception_details(e));
         } catch (MetadataValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "Metadata Error: " + e.getMessage(), this.getClass().getName(), log_message);
-            //} catch (SqlRepairException e) {
-            //    response.add_error(MetadataSupport.XDSRegistryError, "Could not decode SQL: " + e.getMessage(), this.getClass().getName(), log_message);
-            //    logger.warn(logger_exception_details(e));
         } catch (MetadataException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "Metadata error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (SQLException e) {
@@ -141,7 +132,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
             response.add_error("General Exception", "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         }
-
         this.log_response();
         OMElement res = null;
         try {
@@ -163,58 +153,23 @@ public class AdhocQueryRequest extends XBaseTransaction {
     private void AdhocQueryRequestInternal(OMElement ahqr)
             throws SQLException, XdsException, XDSRegistryOutOfResourcesException, AxisFault,
             XdsValidationException {
-
         boolean found_query = false;
-
         for (Iterator it = ahqr.getChildElements(); it.hasNext();) {
             OMElement ele = (OMElement) it.next();
             String ele_name = ele.getLocalName();
-
-            /*
-            if (ele_name.equals("SQLQuery")) {
-                log_message.setTestMessage("SQL");
-                RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_Q);
-                found_query = true;
-
-                OMElement result = null;
-                // AMS 04/21/2009 - FIXME - THE IF Condition NEVER exectues as it applies to EBXML V2.
-                // At some point this logic needs to be refactored.
-                // In the interim, the following code fragment was commented out to prevent compilation errors.
-                // The compilation errors were owing to removal of a previously existing method in this
-                // class, sql_query(ahqr), which in turn delegated to BackendRegistry.query(OMElememt).
-                // The latter, which has also been removed from BackendRegistry used to initiate a REST call.
-
-                //result = sql_query(ahqr);
-
-
-                // move result elements to response
-                if (result != null) {
-                    Metadata m = new Metadata(result, false, true);
-                    OMElement sqr = m.getWrapper();
-                    if (sqr != null) {
-                        for (Iterator it2 = sqr.getChildElements(); it2.hasNext();) {
-                            OMElement e = (OMElement) it2.next();
-                            ((AdhocQueryResponse) response).addQueryResults(e);
-                        }
-                    }
-                }
-            } else */ if (ele_name.equals("AdhocQuery")) {
+            if (ele_name.equals("AdhocQuery")) {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
-                List<OMElement> results = stored_query(ahqr);
-                //response.query_results = results;
+                List<OMElement> results = storedQuery(ahqr);
                 if (results != null) {
-                    ((AdhocQueryResponse) response).addQueryResults((ArrayList)results);
+                    ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
                 }
             }
-
         }
         if (!found_query) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
-        // BHT: (Removed multiple response log entry)
-        // this.log_response();
     }
 
     /**
@@ -222,28 +177,28 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @param ahqr
      * @return
      */
+    /*
     public String getStoredQueryId(OMElement ahqr) {
-        OMElement adhoc_query = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
-        if (adhoc_query == null) {
-            return null;
-        }
-        return adhoc_query.getAttributeValue(MetadataSupport.id_qname);
+    OMElement adhoc_query = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
+    if (adhoc_query == null) {
+    return null;
     }
-
+    return adhoc_query.getAttributeValue(MetadataSupport.id_qname);
+    }*/
     /**
      *
      * @param ahqr
      * @return
      */
+    /*
     public String getHome(OMElement ahqr) {
-        OMElement ahquery = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
-        if (ahquery == null) {
-            return null;
-        }
-        // BHT (FIX): Fixed to use home_qname versus id_qname.
-        return ahquery.getAttributeValue(MetadataSupport.home_qname);
+    OMElement ahquery = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
+    if (ahquery == null) {
+    return null;
     }
-
+    // BHT (FIX): Fixed to use home_qname versus id_qname.
+    return ahquery.getAttributeValue(MetadataSupport.home_qname);
+    }*/
     // Initiating Gateway shall specify the homeCommunityId attribute in all Cross-Community
     // Queries which do not contain a patient identifier.
     /**
@@ -251,28 +206,28 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @param ahqr
      * @return
      */
+    /*
     public boolean requiresHomeInXGQ(OMElement ahqr) {
-        boolean requires = true;
-        String query_id = getStoredQueryId(ahqr);
-        if (query_id == null) {
-            requires = false;
-        }
-        if (query_id.equals(MetadataSupport.SQ_FindDocuments)) {
-            requires = false;
-        }
-        if (query_id.equals(MetadataSupport.SQ_FindFolders)) {
-            requires = false;
-        }
-        if (query_id.equals(MetadataSupport.SQ_FindSubmissionSets)) {
-            requires = false;
-        }
-        if (query_id.equals(MetadataSupport.SQ_GetAll)) {
-            requires = false;
-        }
-        logger.info("query " + query_id + " requires home = " + requires);
-        return requires;
+    boolean requires = true;
+    String query_id = getStoredQueryId(ahqr);
+    if (query_id == null) {
+    requires = false;
     }
-
+    if (query_id.equals(MetadataSupport.SQ_FindDocuments)) {
+    requires = false;
+    }
+    if (query_id.equals(MetadataSupport.SQ_FindFolders)) {
+    requires = false;
+    }
+    if (query_id.equals(MetadataSupport.SQ_FindSubmissionSets)) {
+    requires = false;
+    }
+    if (query_id.equals(MetadataSupport.SQ_GetAll)) {
+    requires = false;
+    }
+    logger.info("query " + query_id + " requires home = " + requires);
+    return requires;
+    } */
     /**
      *
      * @param ahqr
@@ -281,7 +236,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws XDSRegistryOutOfResourcesException
      * @throws XdsValidationException
      */
-    List<OMElement> stored_query(OMElement ahqr)
+    private List<OMElement> storedQuery(OMElement ahqr)
             throws XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
         try {
             StoredQueryFactory fact =
@@ -289,11 +244,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     ahqr, // AdhocQueryRequest
                     response, // The response object.
                     log_message, // For logging.
-                    service_name);     // For logging.
-            //fact.setServiceName(service_name);
-            //fact.setLogMessage(log_message);
-            //fact.setIsSecure(is_secure);
-            //fact.setResponse(response);
+                    service_name);  // For logging.
             return fact.run();
         } catch (Exception e) {
             response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
