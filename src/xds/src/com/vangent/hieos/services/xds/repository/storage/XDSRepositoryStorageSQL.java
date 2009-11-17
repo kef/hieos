@@ -87,7 +87,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
             if (stmt != null) {
                 stmt.close();
             }
-            if (stmt != null) {
+            if (rs != null) {
                 rs.close();
             }
         }
