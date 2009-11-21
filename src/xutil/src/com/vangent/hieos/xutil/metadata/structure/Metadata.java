@@ -748,7 +748,8 @@ public class Metadata {
      * @return
      */
     public ArrayList<OMElement> getMajorObjects() {
-        return getMajorObjects(null);
+        //return getMajorObjects(null);
+        return this.allObjects;
     }
 
     /**
@@ -1220,6 +1221,30 @@ public class Metadata {
     }
 
     /**
+     * Return the patient identifier for the given OMElement.
+     *
+     * @param ele
+     * @return
+     * @throws MetadataException
+     */
+    private String getPatientId(OMElement ele) throws MetadataException {
+        if (ele == null) {
+            return null;
+        }
+        String id = getId(ele);
+        if (isDocument(id)) {
+            return getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_patientid_uuid);
+        }
+        if (isSubmissionSet(id)) {
+            return getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_patientid_uuid);
+        }
+        if (isFolder(id)) {
+            return getExternalIdentifierValue(id, MetadataSupport.XDSFolder_patientid_uuid);
+        }
+        return null;
+    }
+
+    /**
      *
      * @param id
      * @return
@@ -1587,6 +1612,29 @@ public class Metadata {
     }
 
     /**
+     * Return true if all patient ids in metadata are equivalent.  Otherwise return false.
+     * @return Boolean value indicating result of verification.
+     * @throws MetadataException
+     */
+    public boolean isPatientIdConsistent() throws MetadataException {
+        String patientID = null;
+        for (OMElement ele : allObjects) {
+            String pid = getPatientId(ele);
+            if (patientID == null) {
+                patientID = pid;
+                continue;
+            }
+            if (pid == null) {
+                continue;
+            }
+            if (!patientID.equals(pid)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      *
      * @return
      */
@@ -1914,7 +1962,7 @@ public class Metadata {
     private IdIndex id_index(XLogMessage log_message) throws MetadataException {
         if (idIndex == null) {
             idIndex = new IdIndex();
-            idIndex.set_log_message(log_message);
+            idIndex.setLogMessage(log_message);
             idIndex.setMetadata(this);
         }
         return idIndex;
@@ -2430,7 +2478,7 @@ public class Metadata {
      * @throws XdsInternalException
      */
     public OMElement getV3SubmitObjectsRequest() throws XdsInternalException {
-        OMNamespace rs = MetadataSupport.ebRSns3;
+        //OMNamespace rs = MetadataSupport.ebRSns3;
         OMNamespace lcm = MetadataSupport.ebLcm3;
         OMNamespace rim = MetadataSupport.ebRIMns3;
         OMElement sor = this.om_factory().createOMElement("SubmitObjectsRequest", lcm);
@@ -2597,9 +2645,7 @@ public class Metadata {
                 }
                 map.put(parts[0], parts[1]);
             }
-
             StringBuffer buf = new StringBuffer();
-
             int i = 1;
             for (;; i++) {
                 String iStr = String.valueOf(i);
@@ -2609,38 +2655,40 @@ public class Metadata {
                 }
                 buf.append(part);
             }
-
             if (map.size() != i - 1) {
                 throw new MetadataException("URI value does not parse: index " + i + "  not found but Slot has " + map.size() + " values. Slot is\n" +
                         getSlot(eoId, "URI").toString());
             }
-
             value = buf.toString();
-
         }
-
         if (value == null) {
             return null;
         }
-
         if (!value.startsWith("http://") && !value.startsWith("https://")) {
             throw new MetadataException("URI must have http:// or https:// prefix. URI was calculated to be\n" + value +
                     "\nand original slot is\n" + getSlot(eoId, "URI").toString());
         }
-
         return value;
     }
+    
     int uriChunkSize = 100;
 
     /**
      *
      * @param size
      */
+    /**
     public void setUriChunkSize(int size) {
         uriChunkSize = size;
-    }
+    }*/
 
-    int min(int a, int b) {
+    /**
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    private int min(int a, int b) {
         if (a < b) {
             return a;
         }
@@ -2657,35 +2705,26 @@ public class Metadata {
             removeSlot(this.getId(eo), "URI");
         } catch (MetadataException e) {
         }
-
         if (uri.length() < uriChunkSize) {
             addSlot(eo, "URI", uri);
             return;
         }
-
         OMElement slot = addSlot(eo, "URI");
         StringBuffer buf = new StringBuffer();
-
         int chunkIndex = 1;
         int uriSize = uri.length();
         int strStart = 0;
         int strEnd = min(uriChunkSize, uriSize);
-
         while (true) {
             buf.setLength(0);
             buf.append(String.valueOf(chunkIndex++)).append("|").append(uri.substring(strStart, strEnd));
-
             addSlotValue(slot, buf.toString());
-
             if (strEnd == uriSize) {
                 break;
             }
-
             strStart = strEnd;
             strEnd = min(strStart + uriChunkSize, uriSize);
         }
-
-
     }
 }
 

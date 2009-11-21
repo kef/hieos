@@ -156,6 +156,7 @@ public class MetadataSupport {
     public static String XDSUnknownPatientId = "XDSUnknownPatientId";
     public static String XDSPatientIdDoesNotMatch = "XDSPatientIdDoesNotMatch";
     public static String XDSUnknownStoredQuery = "XDSUnknownStoredQuery";
+    public static String XDSResultNotSinglePatient = "XDSResultNotSinglePatient";
     public static String XDSStoredQueryMissingParam = "XDSStoredQueryMissingParam";
     public static String XDSStoredQueryParamNumber = "XDSStoredQueryParamNumber";
     public static String XDSSqlError = "XDSSqlError";
