@@ -78,13 +78,13 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
      */
     protected void validateRequest(OMElement request) {
         // Validate SOAP format.
-        try {
+        /*try {
             mustBeMTOM();
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError,
                     "SOAP Format Error: " + e.getMessage(),
                     this.getLocalHomeCommunityId(), log_message);
-        }
+        }*/
 
         // Validate namespace.
         OMNamespace ns = request.getNamespace();

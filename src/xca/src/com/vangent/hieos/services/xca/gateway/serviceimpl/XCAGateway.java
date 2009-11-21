@@ -21,7 +21,6 @@ import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSe
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAbstractTransaction;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.response.Response;
 
 import org.apache.axiom.om.OMElement;
@@ -59,8 +58,8 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
                 endTransaction(false);
                 return this.start_up_error(ahqr, null, XAbstractService.registry_actor, "XCA" + " only accepts Stored Query - AdhocQuery element not found");
             }
-
             validateWS();
+            validateNoMTOM();
             validateQueryTransaction(ahqr);
 
             // Delegate all the hard work to the XCAAdhocQueryRequest class (follows same NIST patterns).
@@ -92,6 +91,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
 
             // Do some preliminary validation.
             validateWS();
+            validateMTOM();
             validateRetrieveTransaction(rdsr);
 
             // Delegate all the hard work to the XCARetrieveDocumentSet class (follows same NIST patterns).
@@ -202,18 +202,6 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
         String ns_uri = ns.getNamespaceURI();
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
             throw new XdsValidationException("Invalid namespace on " + sor.getLocalName() + " (" + ns_uri + ")");
-        }
-    }
-
-    /**
-     * 
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
-     */
-    protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (isAsync()) {
-            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
 

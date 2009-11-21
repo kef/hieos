@@ -33,11 +33,7 @@ public class XCAGatewayAsync extends XCAGateway {
      */
     @Override
     protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (!isAsync()) {
-            throw new XdsWSException("Asynchronous web service required on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
-        }
+        validateAsyncWS();
     }
 
     /**

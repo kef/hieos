@@ -83,13 +83,14 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      */
     protected void validateRequest(OMElement request) {
         // Validate SOAP format.
+        /*
         try {
             mustBeSimpleSoap();
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRegistryError,
                     "SOAP Format Error: " + e.getMessage(),
                     this.getLocalHomeCommunityId(), log_message);
-        }
+        }*/
 
         // Validate namespace.
         OMNamespace ns = request.getNamespace();
