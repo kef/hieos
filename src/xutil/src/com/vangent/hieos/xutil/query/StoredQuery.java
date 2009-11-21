@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.SQCodeAnd;
 import com.vangent.hieos.xutil.metadata.structure.SQCodeOr;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
@@ -101,10 +102,16 @@ public abstract class StoredQuery {
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
      */
-    public List<OMElement> run() throws XdsException, XDSRegistryOutOfResourcesException {
+    public List<OMElement> run(boolean validateConsistentPatientId)
+            throws XdsResultNotSinglePatientException, XDSRegistryOutOfResourcesException, XdsException {
         Metadata metadata = run_internal();
         if (metadata == null) {
             return null;
+        }
+        // Validate consistent patient identifiers (only if set to true).
+        if ((validateConsistentPatientId == true) &&
+                (metadata.isPatientIdConsistent() == false)) {
+            throw new XdsResultNotSinglePatientException("More than one Patient ID in Stored Query result");
         }
         if (this.return_leaf_class) {
             return metadata.getAllObjects();//getV3();
@@ -150,7 +157,7 @@ public abstract class StoredQuery {
      * @throws XdsException
      */
     protected OMElement query() throws XdsException {
-         String q = query.toString();
+        String q = query.toString();
         if (log_message != null) {
             log_message.addOtherParam("raw query", q);
         }
@@ -165,13 +172,12 @@ public abstract class StoredQuery {
      */
     /*
     protected OMElement query(boolean leaf_class) throws XdsException {
-        String q = query.toString();
-        if (log_message != null) {
-            log_message.addOtherParam("raw query", q);
-        }
-        return br.query(q, leaf_class);
+    String q = query.toString();
+    if (log_message != null) {
+    log_message.addOtherParam("raw query", q);
+    }
+    return br.query(q, leaf_class);
     }*/
-
     /**
      * Reinitialize the query buffer.
      */
