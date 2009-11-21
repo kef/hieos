@@ -91,7 +91,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
         try {
             sor.build();
-            mustBeSimpleSoap();
             SubmitObjectsRequestInternal(sor);
             //AUDIT:POINT
             //call to audit message for document repository

@@ -24,7 +24,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 

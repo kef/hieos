@@ -93,7 +93,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
             return null;
         }
         try {
-            mustBeSimpleSoap();
             AdhocQueryRequestInternal(ahqr);
 
             //AUDIT:POINT

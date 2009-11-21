@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.registry.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
@@ -23,7 +22,7 @@ import org.apache.axiom.om.OMElement;
  * @author Anand Sastry
  */
 public class XDSbRegistryAsync extends XDSbRegistry {
-    
+
     /**
      * This method ensures that an asynchronous request has been sent. It evaluates the message
      * context to dtermine if "ReplyTo" is non-null and is not anonymous. It also ensures that
@@ -32,19 +31,15 @@ public class XDSbRegistryAsync extends XDSbRegistry {
      */
     @Override
     protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (!isAsync()) {
-            throw new XdsWSException("Asynchronous web service request required on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
-        }
+        validateAsyncWS();
     }
-    
+
     /**
      * This method returns the transaction names supported by the Async Registry.
      * @return a String value representing a transaction name.
      */
     @Override
     protected String getRTransactionName(OMElement ahqr) {
-        return super.getRTransactionName(ahqr)+ " ASync";
+        return super.getRTransactionName(ahqr) + " ASync";
     }
 }

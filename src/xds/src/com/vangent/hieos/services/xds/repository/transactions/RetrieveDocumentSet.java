@@ -98,8 +98,6 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         ArrayList<OMElement> retrieve_documents = null;
 
         try {
-
-            mustBeMTOM();
             retrieve_documents = retrieveDocuments(rds);
 
             //AUDIT:POINT

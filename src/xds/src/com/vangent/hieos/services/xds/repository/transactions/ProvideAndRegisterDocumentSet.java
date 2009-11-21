@@ -97,7 +97,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         this.validater = validater;
         try {
             pnr.build();
-            mustBeMTOM();
             provide_and_register(pnr);
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);

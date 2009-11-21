@@ -16,11 +16,9 @@ package com.vangent.hieos.services.xds.repository.serviceimpl;
 import com.vangent.hieos.xutil.services.framework.*;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.services.xds.repository.transactions.ProvideAndRegisterDocumentSet;
 import com.vangent.hieos.services.xds.repository.transactions.RetrieveDocumentSet;
@@ -75,6 +73,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
             }
             log_message.setTestMessage(getPnRTransactionName());
             validateWS();
+            validateMTOM();
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
             if (alternateRegistryEndpoint != null) {
@@ -102,6 +101,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
             }
             log_message.setTestMessage(getRetTransactionName());
             validateWS();
+            validateMTOM();
             validateRetTransaction(rdsr);
             OMNamespace ns = rdsr.getNamespace();
             String ns_uri = ns.getNamespaceURI();
@@ -123,17 +123,19 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
      *
      * @param endpoint
      */
+    /*
     private void setAlternateRegistryEndpoint(String endpoint) {
         alternateRegistryEndpoint = endpoint;
-    }
+    }*/
 
     /**
      *
      * @param opt
      */
+    /*
     public void optimize_retrieve(boolean opt) {
         optimize_retrieve = opt;
-    }
+    }*/
 
     public boolean runContentValidationService(Metadata m, Response response) throws MetadataException {
         return true;
@@ -145,14 +147,6 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
 
     protected String getRetTransactionName() {
         return "RET.b";
-    }
-
-    protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (isAsync()) {
-            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
-        }
     }
 
     private void validatePnRTransaction(OMElement sor) throws XdsValidationException {

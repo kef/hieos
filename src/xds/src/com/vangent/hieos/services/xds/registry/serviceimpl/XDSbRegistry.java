@@ -19,7 +19,6 @@ import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.services.xds.registry.transactions.AdhocQueryRequest;
 import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
@@ -37,6 +36,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 
 public class XDSbRegistry extends XAbstractService implements ContentValidationService {
 
@@ -67,6 +67,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
             }
             log_message.setTestMessage(getRTransactionName(sor));
             validateWS();
+            validateNoMTOM();
             validateSubmitTransaction(sor);
             SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
             OMElement result = s.submitObjectsRequest(sor, this);
@@ -89,10 +90,11 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
             return startup_error;
         }
         log_message.setTestMessage(getRTransactionName(ahqr));
-        String type = getRTransactionName(ahqr);
+
         AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext(), isSecure());
         try {
             validateWS();
+            validateNoMTOM();
             validateQueryTransaction(ahqr);
         } catch (Exception e) {
             return endTransaction(ahqr, e, XAbstractService.registry_actor, "");
@@ -102,6 +104,15 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         endTransaction(a.getStatus());
         return result;
     }
+
+    /*
+    private void validateQuery() {
+        String soapAction = this.getSOAPAction();
+        System.out.println("**** SOAP INPUT ACTION = " + soapAction);
+        if (soapAction.equals(SoapActionFactory.XDSB_REGISTRY_MPQ_ACTION)) {
+            // Need CODE
+        }
+    }*/
 
     // Added (BHT): Patient Identity Feed:
     /**
@@ -175,14 +186,6 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         return "R.b";
     }
 
-    protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (isAsync()) {
-            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
-        }
-    }
-
     /**
      * 
      * @param sor
@@ -217,7 +220,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
         if (!this.isSQ(sor)) {
             throw new XdsValidationException("Only StoredQuery is acceptable on this endpoint");
         }
-    //new StoredQueryRequestSoapValidator(getXdsVersion(), getMessageContext()).runWithException();
+        //new StoredQueryRequestSoapValidator(getXdsVersion(), getMessageContext()).runWithException();
     }
 
     /**
@@ -252,9 +255,8 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
      */
     /*
     private boolean isSQL(OMElement ahqr) {
-        return MetadataSupport.firstChildWithLocalName(ahqr, "SQLQuery") != null;
+    return MetadataSupport.firstChildWithLocalName(ahqr, "SQLQuery") != null;
     }*/
-
     /**
      *
      */

@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
@@ -31,11 +30,7 @@ public class XDSbRepositoryAsync extends XDSbRepository {
      */
     @Override
     protected void validateWS() throws XdsWSException {
-        checkSOAP12();
-        if (!isAsync()) {
-            throw new XdsWSException("Asynchronous web service required on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
-        }
+        validateAsyncWS();
     }
 
     /**
@@ -44,7 +39,7 @@ public class XDSbRepositoryAsync extends XDSbRepository {
      */
     @Override
     protected String getPnRTransactionName() {
-        return super.getPnRTransactionName()+ " ASync";
+        return super.getPnRTransactionName() + " ASync";
     }
 
     /**
@@ -53,6 +48,6 @@ public class XDSbRepositoryAsync extends XDSbRepository {
      */
     @Override
     protected String getRetTransactionName() {
-        return super.getRetTransactionName()+ " ASync";
+        return super.getRetTransactionName() + " ASync";
     }
 }
