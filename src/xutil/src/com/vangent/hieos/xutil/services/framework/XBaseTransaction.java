@@ -140,21 +140,23 @@ public class XBaseTransaction {
      *
      * @throws com.vangent.hieos.xutil.exception.XdsFormatException
      */
+    /*
     protected void mustBeSimpleSoap() throws XdsFormatException {
         if (getMessageContext().isDoingMTOM()) {
             throw new XdsFormatException("This transaction must use SIMPLE SOAP, MTOM found");
         }
-    }
+    }*/
 
     /**
      *
      * @throws com.vangent.hieos.xutil.exception.XdsFormatException
      */
+    /*
     protected void mustBeMTOM() throws XdsFormatException {
         if (!getMessageContext().isDoingMTOM()) {
             throw new XdsFormatException("This transaction must use MTOM, SIMPLE SOAP found");
         }
-    }
+    }*/
 
     /**
      *  This is the method which calls XAtnaLogger class to pass the audit messages

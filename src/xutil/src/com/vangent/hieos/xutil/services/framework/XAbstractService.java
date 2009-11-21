@@ -55,6 +55,7 @@ import org.apache.axis2.description.AxisService;
 
 // XATNALogger
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.XdsFormatException;
 
 /**
  *
@@ -90,6 +91,63 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected MessageContext getMessageContext() {
         return MessageContext.getCurrentMessageContext();
     }
+
+    /**
+     *
+     * @return
+     */
+    public String getSOAPAction()
+    {
+        MessageContext mc = this.getMessageContext();
+        return mc.getSoapAction();
+    }
+
+    /**
+     * 
+     * @throws XdsWSException
+     */
+    protected void validateWS() throws XdsWSException {
+        checkSOAP12();
+        if (isAsync()) {
+            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
+                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+        }
+    }
+
+    /**
+     * This method ensures that an asynchronous request has been sent. It evaluates the message
+     * context to dtermine if "ReplyTo" is non-null and is not anonymous. It also ensures that
+     * "MessageID" is non-null. It throws an exception if that is not the case.
+     * @throws XdsWSException
+     */
+    protected void validateAsyncWS() throws XdsWSException {
+        checkSOAP12();
+        if (!isAsync()) {
+            throw new XdsWSException("Asynchronous web service required on this endpoint" +
+                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+        }
+    }
+
+     /**
+     *
+     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     */
+    protected void validateNoMTOM() throws XdsFormatException {
+        if (getMessageContext().isDoingMTOM()) {
+            throw new XdsFormatException("This transaction must use SIMPLE SOAP, MTOM found");
+        }
+    }
+
+    /**
+     *
+     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     */
+    protected void validateMTOM() throws XdsFormatException {
+        if (!getMessageContext().isDoingMTOM()) {
+            throw new XdsFormatException("This transaction must use MTOM, SIMPLE SOAP found");
+        }
+    }
+
 
     /**
      *
