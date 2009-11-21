@@ -42,7 +42,7 @@ import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.CommonResourceBundle;
 /* HIEOS/BHT - Removed:
 import org.freebxml.omar.common.RepositoryItem;
-*/
+ */
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.cache.ServerCache;
@@ -50,7 +50,7 @@ import org.freebxml.omar.server.cache.ServerCache;
 import org.freebxml.omar.server.event.EventManager;
 import org.freebxml.omar.server.event.EventManagerFactory;
 import org.freebxml.omar.server.lcm.replication.ReplicationManager;
-*/
+ */
 import org.freebxml.omar.server.lcm.versioning.VersionProcessor;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
@@ -119,6 +119,7 @@ public class ServerRequestContext extends CommonRequestContext {
     private List specialQueryResults = null;
     //Short lived memory used only in handling stored query invocation
     private List storedQueryParams = new ArrayList();
+
     ;
     //The RegistryErrorList for this request
     private RegistryErrorListType errorList = null;
@@ -157,9 +158,9 @@ public class ServerRequestContext extends CommonRequestContext {
         //Only intercept top level requests.
         /* HIEOS/BHT (REMOVED):
         if (request != null) {
-            RequestInterceptorManager.getInstance().preProcessRequest(this);
+        RequestInterceptorManager.getInstance().preProcessRequest(this);
         }
-        */
+         */
 
         try {
             setErrorList(BindingUtility.getInstance().rsFac.createRegistryErrorList());
@@ -322,7 +323,13 @@ public class ServerRequestContext extends CommonRequestContext {
             Set composedObjects = bu.getComposedRegistryObjects(getTopLevelObjectsMap().values(), -1);
             getSubmittedObjectsMap().putAll(bu.getRegistryObjectMap(composedObjects));
 
-            pm.updateIdToLidMap(this, getSubmittedObjectsMap().keySet(), "RegistryObject");
+            // HIEOS(START CHANGE) - force objects into idmap (optimization):
+            //pm.updateIdToLidMap(this, getSubmittedObjectsMap().keySet(), "RegistryObject");
+            for (Object id : getSubmittedObjectsMap().keySet()) {
+                String idString = (String) id;
+                this.getIdToLidMap().put(id, id);
+            }
+            // HIEOS(END CHANGE)
 
             getNewSubmittedObjectIds();
 
@@ -335,7 +342,6 @@ public class ServerRequestContext extends CommonRequestContext {
                 if (ro instanceof AuditableEventType) {
                     throw new InvalidRequestException(ServerResourceBundle.getInstance().getString("message.auditableEventsNotAllowed"));
                 }
-
                 checkId(ro);
             }
 
@@ -351,8 +357,13 @@ public class ServerRequestContext extends CommonRequestContext {
                 referencedIds.add(refInfo.targetObject);
             }
 
-            pm.updateIdToLidMap(this, referencedIds, "RegistryObject");
-
+// HIEOS(START CHANGE) - force objects into idmap (optimization):
+            //pm.updateIdToLidMap(this, referencedIds, "RegistryObject");
+            for (Object id : referencedIds) {
+                String idString = (String) id;
+                this.getIdToLidMap().put(id, id);
+            }
+            // HIEOS(END CHANGE)
 
             //Iterate over idMap and replace keys in various structures that use id as key
             //that are based on temporary ids with their permanent id.
@@ -377,10 +388,10 @@ public class ServerRequestContext extends CommonRequestContext {
                 /* HIEOS/BHT - Removed:
                 RepositoryItem ri = (RepositoryItem) getRepositoryItemsMap().remove(idOld);
                 if (ri != null) {
-                    ri.setId(idNew);
-                    getRepositoryItemsMap().put(idNew, ri);
+                ri.setId(idNew);
+                getRepositoryItemsMap().put(idNew, ri);
                 }
-                */
+                 */
             }
 
             //Now replace any old versions of RegistryObjects with new versions
@@ -400,14 +411,14 @@ public class ServerRequestContext extends CommonRequestContext {
             //Now replace any old versions of RepositoryItems with new versions
             iter = getNewRIVersionMap().keySet().iterator();
             while (iter.hasNext()) {
-                RepositoryItem riOld = (RepositoryItem) iter.next();
-                RepositoryItem riNew = (RepositoryItem) getNewRIVersionMap().get(riOld);
+            RepositoryItem riOld = (RepositoryItem) iter.next();
+            RepositoryItem riNew = (RepositoryItem) getNewRIVersionMap().get(riOld);
 
-                //replace in all RequestContext data structures
-                getRepositoryItemsMap().remove(riOld.getId());
-                getRepositoryItemsMap().put(riNew.getId(), riNew);
+            //replace in all RequestContext data structures
+            getRepositoryItemsMap().remove(riOld.getId());
+            getRepositoryItemsMap().put(riNew.getId(), riNew);
             }
-            */
+             */
 
             //resolve references from each object
             resolveObjectReferences();
@@ -420,12 +431,12 @@ public class ServerRequestContext extends CommonRequestContext {
         /* HIEOS/BHT: REMOVED
         Iterator iter = getObjectRefsMap().values().iterator();
         while (iter.hasNext()) {
-            ObjectRefType ref = (ObjectRefType) iter.next();
-            ReplicationManager replMgr = ReplicationManager.getInstance();
-            if (replMgr.isRemoteObjectRef(ref)) {
-                //This is a Remote ObjectRef. Resolve reference by creating a replica
-                replMgr.createReplica(this, ref);
-            }
+        ObjectRefType ref = (ObjectRefType) iter.next();
+        ReplicationManager replMgr = ReplicationManager.getInstance();
+        if (replMgr.isRemoteObjectRef(ref)) {
+        //This is a Remote ObjectRef. Resolve reference by creating a replica
+        replMgr.createReplica(this, ref);
+        }
         }
          */
     }
@@ -459,25 +470,25 @@ public class ServerRequestContext extends CommonRequestContext {
         /* HIEOS/BHT (REMOVED):
         boolean needToVersionRepositoryItem = false;
         if (ro instanceof ExtrinsicObjectType) {
-            ExtrinsicObjectType eo = (ExtrinsicObjectType) ro;
-            needToVersionRepositoryItem = vp.needToVersionRepositoryItem(eo, (RepositoryItem) getRepositoryItemsMap().get(id));
+        ExtrinsicObjectType eo = (ExtrinsicObjectType) ro;
+        needToVersionRepositoryItem = vp.needToVersionRepositoryItem(eo, (RepositoryItem) getRepositoryItemsMap().get(id));
 
-            if (needToVersionRepositoryItem) {
-                //Following will also create new version of eo implicitly
-                vp.createRepositoryItemVersion(eo);
-            }
+        if (needToVersionRepositoryItem) {
+        //Following will also create new version of eo implicitly
+        vp.createRepositoryItemVersion(eo);
+        }
         }
 
         //Only version RegistryObject if RepositoryItem was not versioned
         //This is because RegistryObject is implictly versioned during
         //versioning of RepositoryItem
         if (!needToVersionRepositoryItem) {
-            boolean needToVersionRegistryObject = vp.needToVersionRegistryObject(ro);
-            if (needToVersionRegistryObject) {
-                vp.createRegistryObjectVersion(ro);
-            }
+        boolean needToVersionRegistryObject = vp.needToVersionRegistryObject(ro);
+        if (needToVersionRegistryObject) {
+        vp.createRegistryObjectVersion(ro);
         }
-        */
+        }
+         */
     }
 
     /*
@@ -736,39 +747,39 @@ public class ServerRequestContext extends CommonRequestContext {
 
     /* REMOVED (HIEOS/BHT):
     private void sendEventsToEventManager() {
-        EventManager eventManager = EventManagerFactory.getInstance().getEventManager();
-        UserType user = getUser();
+    EventManager eventManager = EventManagerFactory.getInstance().getEventManager();
+    UserType user = getUser();
 
-        if (user != null) {
-            if (eventOccured(getCreateEvent())) {
-                eventManager.onEvent(this, getCreateEvent());
-            }
-
-            if (eventOccured(getVersionEvent())) {
-                eventManager.onEvent(this, getVersionEvent());
-            }
-            if (eventOccured(getSetStatusEvent())) {
-                eventManager.onEvent(this, getSetStatusEvent());
-            }
-            if (eventOccured(getApproveEvent())) {
-                eventManager.onEvent(this, getApproveEvent());
-            }
-            if (eventOccured(getDeprecateEvent())) {
-                eventManager.onEvent(this, getDeprecateEvent());
-            }
-            if (eventOccured(getUnDeprecateEvent())) {
-                eventManager.onEvent(this, getUnDeprecateEvent());
-            }
-
-            //Delete during update should be ignored as they are an impl artifact
-            if (eventOccured(getUpdateEvent())) {
-                eventManager.onEvent(this, getUpdateEvent());
-            } else if (eventOccured(getDeleteEvent())) {
-                eventManager.onEvent(this, getDeleteEvent());
-            }
-        }
+    if (user != null) {
+    if (eventOccured(getCreateEvent())) {
+    eventManager.onEvent(this, getCreateEvent());
     }
-    */
+
+    if (eventOccured(getVersionEvent())) {
+    eventManager.onEvent(this, getVersionEvent());
+    }
+    if (eventOccured(getSetStatusEvent())) {
+    eventManager.onEvent(this, getSetStatusEvent());
+    }
+    if (eventOccured(getApproveEvent())) {
+    eventManager.onEvent(this, getApproveEvent());
+    }
+    if (eventOccured(getDeprecateEvent())) {
+    eventManager.onEvent(this, getDeprecateEvent());
+    }
+    if (eventOccured(getUnDeprecateEvent())) {
+    eventManager.onEvent(this, getUnDeprecateEvent());
+    }
+
+    //Delete during update should be ignored as they are an impl artifact
+    if (eventOccured(getUpdateEvent())) {
+    eventManager.onEvent(this, getUpdateEvent());
+    } else if (eventOccured(getDeleteEvent())) {
+    eventManager.onEvent(this, getDeleteEvent());
+    }
+    }
+    }
+     */
 
     /*
      * Called to commit the transaction
@@ -783,7 +794,7 @@ public class ServerRequestContext extends CommonRequestContext {
 
                 /* HIEOS/BHT (REMOVED)
                 saveAuditableEvents();
-                */
+                 */
 
                 //Only commit if LCM_DO_NOT_COMMIT is unspecified or false
                 String dontCommit = null;
@@ -984,7 +995,7 @@ public class ServerRequestContext extends CommonRequestContext {
             serverContext.setUser(context.getUser());
             /* HIEOS/BHT - Removed:
             serverContext.setRepositoryItemsMap(context.getRepositoryItemsMap());
-            */
+             */
         }
 
         return serverContext;
@@ -1005,25 +1016,25 @@ public class ServerRequestContext extends CommonRequestContext {
     public void addAffectedObjectToAuditableEvent(AuditableEventType ae, RegistryObjectType ro) throws RegistryException {
         /* HIEOS/BHT (REMOVED): Left interface to minimize changes to DAO classes.
         try {
-            ObjectRefType ref = BindingUtility.getInstance().rimFac.createObjectRef();
-            ref.setId(ro.getId());
-            ae.getAffectedObjects().getObjectRef().add(ref);
-            affectedObjectsMap.put(ro.getId(), ro);
+        ObjectRefType ref = BindingUtility.getInstance().rimFac.createObjectRef();
+        ref.setId(ro.getId());
+        ae.getAffectedObjects().getObjectRef().add(ref);
+        affectedObjectsMap.put(ro.getId(), ro);
         } catch (JAXBException e) {
-            throw new RegistryException(e);
+        throw new RegistryException(e);
         }
-        */
+         */
     }
 
     public void addAffectedObjectsToAuditableEvent(AuditableEventType ae, ObjectRefListType orefList) throws RegistryException {
         /* HIEOS/BHT (REMOVED): Left interface to minimize changes to DAO classes.
         ae.getAffectedObjects().getObjectRef().addAll(orefList.getObjectRef());
         for (Iterator it = orefList.getObjectRef().iterator(); it.hasNext();) {
-            String id = ((ObjectRefType) it.next()).getId();
-            RegistryObjectType ro = getRegistryObject(id, "RegistryObject");
-            affectedObjectsMap.put(id, ro);
+        String id = ((ObjectRefType) it.next()).getId();
+        RegistryObjectType ro = getRegistryObject(id, "RegistryObject");
+        affectedObjectsMap.put(id, ro);
         }
-        */
+         */
     }
 
     public List getStoredQueryParams() {
@@ -1063,26 +1074,27 @@ public class ServerRequestContext extends CommonRequestContext {
     }
 
     public void checkClassificationNodeRefConstraint(String nodeId, String expectedSchemeId, String attributeName) throws RegistryException {
+        /** HIEOS (DISABLED LOGIC -- checks happen at XDS.b level):
         ClassificationSchemeType expectedScheme = null;
         try {
-            //Check that objectType is the id of a ClassificationNode in ObjectType scheme
-            expectedScheme = (ClassificationSchemeType) ServerCache.getInstance().getRegistryObject(this, expectedSchemeId, "ClassScheme");
+        //Check that objectType is the id of a ClassificationNode in ObjectType scheme
+        expectedScheme = (ClassificationSchemeType) ServerCache.getInstance().getRegistryObject(this, expectedSchemeId, "ClassScheme");
 
-            ClassificationNodeType node = (ClassificationNodeType) this.getRegistryObject(nodeId, "ClassificationNode");
-            String path = node.getPath();
-            String schemePath = "/" + expectedScheme.getId();
+        ClassificationNodeType node = (ClassificationNodeType) this.getRegistryObject(nodeId, "ClassificationNode");
+        String path = node.getPath();
+        String schemePath = "/" + expectedScheme.getId();
 
-            if ((path != null) && (path.length() > 0)) {
-                if (!path.startsWith(schemePath)) {
-                    throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
-                            new Object[]{attributeName, expectedScheme.getId(), nodeId}));
-                }
-            }
-        } catch (ObjectNotFoundException e) {
-            throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
-                    new Object[]{attributeName, expectedScheme.getId(), nodeId}));
-
+        if ((path != null) && (path.length() > 0)) {
+        if (!path.startsWith(schemePath)) {
+        throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
+        new Object[]{attributeName, expectedScheme.getId(), nodeId}));
         }
+        }
+        } catch (ObjectNotFoundException e) {
+        throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
+        new Object[]{attributeName, expectedScheme.getId(), nodeId}));
+
+        } */
     }
 
     public String getQueryId() {
