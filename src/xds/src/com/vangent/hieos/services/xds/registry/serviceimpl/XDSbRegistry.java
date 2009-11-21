@@ -15,7 +15,6 @@ package com.vangent.hieos.services.xds.registry.serviceimpl;
 //import com.vangent.hieos.services.xds.registry.support.StoredQueryRequestSoapValidator;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.Response;
@@ -100,19 +99,24 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
             return endTransaction(ahqr, e, XAbstractService.registry_actor, "");
         }
         a.setServiceName(service_name);
+        a.setIsMPQRequest(this.isMPQRequest());
         OMElement result = a.adhocQueryRequest(ahqr);
         endTransaction(a.getStatus());
         return result;
     }
 
-    /*
-    private void validateQuery() {
+    /**
+     * Returns true if this is an MPQ SOAP request.  Otherwise, returns false.
+     * @return Boolean result indicating MPQ SOAP request status.
+     */
+    private boolean isMPQRequest() {
+        boolean isMPQ = false;
         String soapAction = this.getSOAPAction();
-        System.out.println("**** SOAP INPUT ACTION = " + soapAction);
         if (soapAction.equals(SoapActionFactory.XDSB_REGISTRY_MPQ_ACTION)) {
-            // Need CODE
+            isMPQ = true;
         }
-    }*/
+        return isMPQ;
+    }
 
     // Added (BHT): Patient Identity Feed:
     /**

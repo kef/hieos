@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 
 import java.util.List;
@@ -32,6 +33,7 @@ import org.apache.axiom.om.OMElement;
  * @author NIST (Adapted by Bernie Thuman).
  */
 public class StoredQueryFactory {
+
     OMElement ahqr;
     boolean return_objects = false;
     SqParams params;
@@ -147,22 +149,19 @@ public class StoredQueryFactory {
                 log_message.setTestMessage(service_name + " " + "FindFolders");
             }
             sq = new FindFolders(params, return_objects, this.response, log_message);
-        }
-        else if (query_id.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
+        } else if (query_id.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
             // FindDocumentsForMultiplePatients
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindDocumentsForMultiplePatients");
             }
             sq = new FindDocumentsForMultiplePatients(params, return_objects, this.response, log_message);
-        }
-        else if (query_id.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
+        } else if (query_id.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
             // FindFoldersForMultiplePatients
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "FindFoldersForMultiplePatients");
             }
             sq = new FindFoldersForMultiplePatients(params, return_objects, this.response, log_message);
-        }
-        else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
+        } else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
             // GetAll
             if (log_message != null) {
                 log_message.setTestMessage(service_name + " " + "GetAll");
@@ -236,7 +235,8 @@ public class StoredQueryFactory {
      * @throws XDSRegistryOutOfResourcesException
      * @throws XdsException
      */
-    public List<OMElement> run() throws XDSRegistryOutOfResourcesException, XdsException {
-        return sq.run();
+    public List<OMElement> run(boolean validateConsistentPatientId)
+            throws XDSRegistryOutOfResourcesException, XdsResultNotSinglePatientException, XdsException {
+        return sq.run(validateConsistentPatientId);
     }
 }

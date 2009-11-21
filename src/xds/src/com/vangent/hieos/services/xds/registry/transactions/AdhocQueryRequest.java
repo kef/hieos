@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -49,6 +50,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
     MessageContext messageContext;
     String service_name = "";
     boolean is_secure;
+    boolean _isMPQRequest = false;
     private final static Logger logger = Logger.getLogger(AdhocQueryRequest.class);
 
     /**
@@ -69,6 +71,22 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     public void setServiceName(String service_name) {
         this.service_name = service_name;
+    }
+
+    /**
+     *
+     * @param isMPQRequest
+     */
+    public void setIsMPQRequest(boolean isMPQRequest) {
+        this._isMPQRequest = isMPQRequest;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private boolean isMPQRequest() {
+        return this._isMPQRequest;
     }
 
     /**
@@ -105,6 +123,8 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     null,
                     XATNALogger.ActorType.REGISTRY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
+        } catch (XdsResultNotSinglePatientException e) {
+            response.add_error(MetadataSupport.XDSResultNotSinglePatient, e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "Validation Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsFormatException e) {
@@ -151,12 +171,13 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     private void AdhocQueryRequestInternal(OMElement ahqr)
             throws SQLException, XdsException, XDSRegistryOutOfResourcesException, AxisFault,
-            XdsValidationException {
+            XdsValidationException, XdsResultNotSinglePatientException {
         boolean found_query = false;
         for (Iterator it = ahqr.getChildElements(); it.hasNext();) {
             OMElement ele = (OMElement) it.next();
             String ele_name = ele.getLocalName();
             if (ele_name.equals("AdhocQuery")) {
+                validateQuery(ele);
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
@@ -169,6 +190,36 @@ public class AdhocQueryRequest extends XBaseTransaction {
         if (!found_query) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
+    }
+
+    /**
+     *
+     * @param adhocQueryNode
+     */
+    private void validateQuery(OMElement adhocQueryNode) throws XdsValidationException {
+        String queryId = adhocQueryNode.getAttributeValue(MetadataSupport.id_qname);
+        if (this.isMPQRequest()) {
+            // Only MPQ queries should be valid.
+            if (!isMPQQuery(queryId)) {
+                throw new XdsValidationException("queryId = " + queryId + " is not a valid multi-patient query");
+            }
+        } else {  // Not an MPQ request.
+            // Only non-MPQ queries should be valid.
+            if (isMPQQuery(queryId)) {
+                throw new XdsValidationException("Multi-patient query (id = " + queryId + ") not allowed");
+            }
+            // Other queries will be validated later ...
+        }
+    }
+
+    /**
+     *
+     * @param queryId
+     * @return
+     */
+    private boolean isMPQQuery(String queryId) {
+        return queryId.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients) ||
+                queryId.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients);
     }
 
     /**
@@ -236,18 +287,20 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws XdsValidationException
      */
     private List<OMElement> storedQuery(OMElement ahqr)
-            throws XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
-        try {
-            StoredQueryFactory fact =
-                    new StoredQueryFactory(
-                    ahqr, // AdhocQueryRequest
-                    response, // The response object.
-                    log_message, // For logging.
-                    service_name);  // For logging.
-            return fact.run();
-        } catch (Exception e) {
-            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
-            return null;
-        }
+            throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
+        //try {
+        StoredQueryFactory fact =
+                new StoredQueryFactory(
+                ahqr, // AdhocQueryRequest
+                response, // The response object.
+                log_message, // For logging.
+                service_name);  // For logging.
+        // If this is not an MPQ request, then validate consistent patient identifiers
+        // in response.
+        return fact.run(!this.isMPQRequest());
+        //} catch (Exception e) {
+        //    response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+        //    return null;
+        //}
     }
 }
