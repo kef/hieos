@@ -32,13 +32,22 @@
         by using the "repositoryId" in the associated "Retrieve" requests. -->
         <Property name="LocalRepository">localrepository</Property>
 
-        <!-- ATNA configuration parameters. -->
+         <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">true</Property>
-        <!--<Property name="ATNAsyslogHost">localhost</Property>
-        <Property name="ATNAsyslogPort">4010</Property>-->
-
-        <!-- NIST ATNA log -->
-        <!-- NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
+        <Property name="ATNAsyslogProtocol">udp</Property>
+        <Property name="ATNAsyslogMaxLength">7000</Property>
+	
+	<!-- MIR SYSLOG -->
+	<!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
+	<!-- <Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
+	<Property name="ATNAsyslogPort">4001</Property> -->
+	
+	<!-- MESA SYSLOG -->
+	<!--<Property name="ATNAsyslogHost">localhost</Property>
+	<Property name="ATNAsyslogPort">4001</Property> -->
+	
+	<!-- NIST ATNA log -->
+	<!--NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
         <Property name="ATNAsyslogHost">129.6.24.109</Property>
         <Property name="ATNAsyslogPort">8087</Property>
 
