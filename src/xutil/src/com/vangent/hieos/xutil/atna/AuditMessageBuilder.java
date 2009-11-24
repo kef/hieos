@@ -10,12 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.atna;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 
-import com.sun.openesb.ihe.arr.syslogclient.AuditRecordRepoClient;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.util.GregorianCalendar;
@@ -32,8 +30,8 @@ import org.apache.log4j.Logger;
  * @author Vincent Lewis
  */
 public class AuditMessageBuilder {
-    private final static Logger logger = Logger.getLogger(AuditMessageBuilder.class);
 
+    private final static Logger logger = Logger.getLogger(AuditMessageBuilder.class);
     private String sourceId;
     private String sourceType;
     private CodedValueType eventId;
@@ -45,13 +43,14 @@ public class AuditMessageBuilder {
     ArrayList ass = new ArrayList();
     private static String syslogHost = null;
     private static int syslogPort = 0;
-
+    private static String syslogProtocol = null;
 
     static {
         try {
             syslogHost = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
             syslogPort = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogPort")).intValue();
-            logger.info("XATNALogger: using syslogHost " + syslogHost + " port " + syslogPort);
+            syslogProtocol = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogProtocol");
+            logger.info("XATNALogger: using syslogHost " + syslogHost + " port " + syslogPort + " protocol " + syslogProtocol);
         } catch (Exception e) {
             logger.error("**** CAN NOT LOAD ATNA properties from XConfig ***", e);
         }
@@ -88,10 +87,10 @@ public class AuditMessageBuilder {
     public void setActiveParticipant(String userId, String alternativeUserID, String userName, String userIsRequestor, CodedValueType roleIDCode, String networkAccessPointTypeCode, String networkAccessPointID) {
         ActiveParticipantType apt = new ActiveParticipantType();
         if (userId != null) {
-            apt.setUserID(userId);
+            apt.setUserID(this.stripAddress(userId));
         }
         if (alternativeUserID != null) {
-            apt.setAlternativeUserID(alternativeUserID);
+            apt.setAlternativeUserID(this.stripAddress(alternativeUserID));
         }
         if (userName != null) {
             apt.setUserName(userName);
@@ -108,9 +107,19 @@ public class AuditMessageBuilder {
             apt.setNetworkAccessPointTypeCode(val);
         }
         if (networkAccessPointID != null) {
-            apt.setNetworkAccessPointID(networkAccessPointID);
+            apt.setNetworkAccessPointID(this.stripAddress(networkAccessPointID));
         }
         apts.add(apt);
+    }
+
+    /**
+     * Strip out "Address: " from the inputAddress string.
+     * 
+     * @param inputAddress
+     * @return
+     */
+    private String stripAddress(String inputAddress) {
+        return inputAddress != null ? inputAddress.replaceFirst("Address: ", "") : null;
     }
 
     /**
@@ -252,13 +261,27 @@ public class AuditMessageBuilder {
             marshaller.marshal(msg, sw);
             StringBuffer sb = sw.getBuffer();
             ret = new String(sb);
+            logger.info("Message Content: " + ret);
             ret = ret.replaceAll("-05:00", "");
-            //     int start = ret.indexOf("<AuditMessage>");
-            //     int end = ret.length();
-            //     ret = ret.substring(start, end);
-            //      ret = ret.replaceFirst("<AuditMessage>", "<AuditMessage xmlns:tns=\"http://xml.netbeans.org/schema/rfc3881\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-            AuditRecordRepoClient client = new AuditRecordRepoClient(syslogHost, syslogPort);
-            client.sendAuditMessage(ret);
+
+            // Resolve schema validation errors
+            ret = ret.replaceAll(" xsi:type=\"ActiveParticipantType\"", "");
+
+            // Remove the XML tag before sending the Syslog message
+            int start = ret.indexOf("<AuditMessage>");
+            int end = ret.length();
+            String newString = ret.substring(start, end);
+            //newString = newString.replaceFirst("<AuditMessage>", "<AuditMessage xmlns:tns=\"http://xml.netbeans.org/schema/rfc3881\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+            logger.info("Modified Message Content: " + newString);
+            logger.info("Message Length: " + newString.length());
+
+            //AuditRecordRepoClient client = new AuditRecordRepoClient(syslogHost, syslogPort);
+            //client.sendAuditMessage(ret);
+
+            SysLogAdapter logAdapter = new SysLogAdapter(syslogHost, syslogPort, syslogProtocol);
+            logAdapter.writeLog(newString);
+            logAdapter.close();
+
         } catch (Exception e) {
             logger.error("xxx: persistAuditRecord(): Failed to Unmarshall.", e);
         }
