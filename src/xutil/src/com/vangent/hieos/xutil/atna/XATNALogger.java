@@ -89,7 +89,7 @@ public class XATNALogger {
     private static final String IHE_XDS_MDT = "IHE XDS Metadata";
     private static final String DCM = "DCM";
     private static final String APL_STRT = "Application Start";
-    private static final String APL_ACTV = "Application Acivity";
+    private static final String APL_ACTV = "Application Activity";
     private static final String APL_STP = "Application Stop";
     private static final String UNDEF = "UNKNOWN";
     private static final String AUDIT_SRC_SUFFIX = "SUNVAN";
@@ -396,7 +396,8 @@ public class XATNALogger {
     }
 
     /**
-     *
+     * This transaction is from the perspective of the Repository. The repository is the source
+     * for the document and exports the doc to the consumer (destination)
      * @param rootNode
      */
     private void auditRetrieveDocumentSetToRepository(OMElement rootNode) {
@@ -411,27 +412,27 @@ public class XATNALogger {
         CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, displayName);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "R", this.outcome.toString());
 
-        // Source (Document Comsumer):
+        // Source (Document Repository):
         CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
-        amb.setActiveParticipant(
-                this.replyTo, /* userId */
-                null, /* alternateUserId */
-                null, /* userName */
-                "false", /* userIsRequestor */
-                roleIdCode, /* roleIdCode */
-                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
-                this.fromAddress); /* networkAccessPointId */
-
-        // Destination (Repository):
-        roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
         amb.setActiveParticipant(
                 this.endpoint, /* userId */
                 this.pid, /* alternateUserId */
                 null, /* userName */
-                "true", /* userIsRequestor */
+                "false", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
                 this.hostAddress); /* networkAccessPointId */
+
+        // Destination (Document Consumer):
+        roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
+        amb.setActiveParticipant(
+                this.replyTo, /* userId */
+                null, /* alternateUserId */
+                null, /* userName */
+                "true", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.fromAddress); /* networkAccessPointId */
 
         // Document URIs:
         CodedValueType participantObjectIdentifier = this.getCodedValueType("9", "RFC-3881", "Report Number");
@@ -462,7 +463,8 @@ public class XATNALogger {
     }
 
     /**
-     *
+     * This transaction is from the perspective of the Consumer. The consumer is the destination of the
+     * document and will import the doc from the repository which is the source.
      * @param rootNode
      * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
      * @throws com.vangent.hieos.xutil.exception.MetadataException
@@ -479,28 +481,28 @@ public class XATNALogger {
         CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, displayName);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "C", this.outcome.toString());
 
-        // Source (= Document Consumer) - does not exactly follow spec.:
+        // Source (Document Repository)
         CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
+        URL url = new URL(this.targetEndpoint);
         amb.setActiveParticipant(
-                this.endpoint, /* userId  */
-                this.pid, /* alternateUserId */
+                this.targetEndpoint, /* userId  */
+                null, /* alternateUserId */
                 null, /* userName */
                 "false", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
-                this.hostAddress); /* networkAccessPointId */
+                url.getHost()); /* networkAccessPointId */
 
-        // Destination (Repository):
+        // Destination (Document Consumer):
         roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
-        URL url = new URL(this.targetEndpoint);
         amb.setActiveParticipant(
-                this.targetEndpoint, /* userId */
-                null, /* alternateUserId */
+                this.endpoint, /* userId */
+                this.pid, /* alternateUserId */
                 null, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
-                url.getHost()); /* networkAccessPointId */
+                this.hostAddress); /* networkAccessPointId */
 
         // Document URIs:
         CodedValueType participantObjectIdentifier = this.getCodedValueType("9", "RFC-3881", "Report Number");
@@ -792,6 +794,7 @@ public class XATNALogger {
         CodedValueType codeValueType = new CodedValueType();
         codeValueType.setCode(code);
         codeValueType.setCodeSystem(codeSystem);
+        codeValueType.setCodeSystemName(codeSystem);
         codeValueType.setDisplayName(displayName);
         return codeValueType;
     }
