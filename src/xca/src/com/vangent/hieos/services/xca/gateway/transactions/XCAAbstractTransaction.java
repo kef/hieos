@@ -17,9 +17,7 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.response.Response;
@@ -53,8 +51,6 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
 
         InitiatingGateway, RespondingGateway, Unknown
     };
-    private ContentValidationService validater;
-    private XAbstractService service;
     private XCARequestController requestController = null;
     private GatewayType gatewayType = GatewayType.Unknown;  // Default.
     private boolean errorDetected = false;
@@ -110,15 +106,13 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
      * @param validater
      * @param service
      */
-    public OMElement run(OMElement request, ContentValidationService validater, XAbstractService service) throws SchemaValidationException, XdsInternalException {
-        this.validater = validater;
-        this.service = service;
+    public OMElement run(OMElement request) throws SchemaValidationException, XdsInternalException {
         try {
             validateRequest(request);     // Concrete class responsibility.
             if (response.has_errors()) {
                 return response.getResponse();      // Get out early.
             }
-            run(request);  // Do the real work.
+            runInternal(request);  // Do the real work.
         } catch (XdsException e) {
             // FIXME (Repository/Registry).
             response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(),
@@ -145,7 +139,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
      * @param request
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private void run(OMElement request) throws XdsInternalException {
+    private void runInternal(OMElement request) throws XdsInternalException {
         prepareValidRequests(request);
         ArrayList<OMElement> allResponses = requestController.sendRequests();
         boolean atLeastOneSuccess = consolidateResponses(allResponses);

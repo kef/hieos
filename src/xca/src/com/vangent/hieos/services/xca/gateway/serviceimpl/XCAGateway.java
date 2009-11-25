@@ -15,7 +15,6 @@ package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
@@ -38,7 +37,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
  *
  * @author Bernie Thuman
  */
-public class XCAGateway extends XAbstractService implements ContentValidationService {
+public class XCAGateway extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XCAGateway.class);
 
     /**
@@ -68,7 +67,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
                     log_message, getMessageContext());
 
             // Now, do some work!
-            OMElement result = transaction.run(ahqr, this, this);
+            OMElement result = transaction.run(ahqr);
             endTransaction(transaction.getStatus());
             return result;
         } catch (Exception e) {
@@ -101,7 +100,7 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
                     log_message, getMessageContext());
 
             // Now, do the work.
-            OMElement result = transaction.run(rdsr, this, this);
+            OMElement result = transaction.run(rdsr);
             endTransaction(transaction.getStatus());
             return result;
         } catch (Exception e) {
@@ -203,16 +202,6 @@ public class XCAGateway extends XAbstractService implements ContentValidationSer
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
             throw new XdsValidationException("Invalid namespace on " + sor.getLocalName() + " (" + ns_uri + ")");
         }
-    }
-
-    /**
-     *
-     * @param m
-     * @param response
-     * @return
-     */
-    public boolean runContentValidationService(Metadata m, Response response) {
-        return true;
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):
