@@ -35,7 +35,7 @@
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">true</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
-        <Property name="ATNAsyslogMaxLength">7000</Property>
+        <Property name="ATNAsyslogMaxLength">8192</Property>
 	
 	<!-- MIR SYSLOG -->
 	<!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
