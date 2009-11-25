@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.repository.transactions;
 
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -60,12 +59,10 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
-    ContentValidationService validater;
     String registry_endpoint = null;
     MessageContext messageContext;
     boolean accept_xop = true;
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
-
 
     /* BHT: Removed
     static {
@@ -93,8 +90,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @param validater
      * @return
      */
-    public OMElement provideAndRegisterDocumentSet(OMElement pnr, ContentValidationService validater) {
-        this.validater = validater;
+    public OMElement provideAndRegisterDocumentSet(OMElement pnr) {
         try {
             pnr.build();
             provide_and_register(pnr);
@@ -213,9 +209,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("Structure", m.structure());
 
         this.validate_docs_and_metadata_b(pnr, m);
-        if (this.validater != null && !this.validater.runContentValidationService(m, response)) {
-            return;
-        }
 
         int eo_count = m.getExtrinsicObjectIds().size();
         int doc_count = 0;

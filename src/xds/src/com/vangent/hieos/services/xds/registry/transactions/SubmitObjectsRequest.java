@@ -12,11 +12,9 @@
  */
 package com.vangent.hieos.services.xds.registry.transactions;
 
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.adt.verify.Verify;
-import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
@@ -62,7 +60,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
     MessageContext messageContext;
     boolean submit_raw = false;
-    ContentValidationService validater;
     private final static Logger logger = Logger.getLogger(SubmitObjectsRequest.class);
 
     /**
@@ -86,9 +83,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param validater
      * @return
      */
-    public OMElement submitObjectsRequest(OMElement sor, ContentValidationService validater) {
-        this.validater = validater;
-
+    public OMElement submitObjectsRequest(OMElement sor) {
         try {
             sor.build();
             SubmitObjectsRequestInternal(sor);
@@ -177,10 +172,6 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
             // Get out early if the validation process failed:
             if (response.has_errors()) {
-                return;
-            }
-
-            if (this.validater != null && !this.validater.runContentValidationService(m, response)) {
                 return;
             }
 

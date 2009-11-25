@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.repository.transactions;
 
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -34,7 +33,6 @@ import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
 import com.vangent.hieos.xutil.exception.XDSDocumentUniqueIdError;
 import java.util.ArrayList;
 
-import javax.activation.FileDataSource;
 import javax.activation.DataHandler;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -52,7 +50,6 @@ import org.apache.log4j.Logger;
  */
 public class RetrieveDocumentSet extends XBaseTransaction {
 
-    ContentValidationService validater;
     String registry_endpoint = null;
     MessageContext messageContext;
     boolean optimize = true;
@@ -79,24 +76,19 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.SchemaValidationException
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    public OMElement retrieveDocumentSet(OMElement rds, ContentValidationService validater, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
-        this.validater = validater;
+    public OMElement retrieveDocumentSet(OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
         this.optimize = optimize;
-
         OMNamespace ns = rds.getNamespace();
         String ns_uri = ns.getNamespaceURI();
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
             return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.repository_actor, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
         }
-
         try {
             RegistryUtility.schema_validate_local(rds, MetadataTypes.METADATA_TYPE_RET);
         } catch (Exception e) {
             return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.repository_actor, "Schema validation errors:\n" + e.getMessage(), true);
         }
-
         ArrayList<OMElement> retrieve_documents = null;
-
         try {
             retrieve_documents = retrieveDocuments(rds);
 
@@ -118,8 +110,6 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
         }
-
-
         OMElement registry_response = null;
         try {
             registry_response = response.getResponse();
@@ -136,9 +126,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                 registry_response.addChild(ret_doc);
             }
         }
-
         this.log_response();
-
         return response.getRoot();
     }
 

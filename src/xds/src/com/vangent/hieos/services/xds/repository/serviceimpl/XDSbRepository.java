@@ -19,7 +19,6 @@ import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.services.xds.repository.transactions.ProvideAndRegisterDocumentSet;
 import com.vangent.hieos.services.xds.repository.transactions.RetrieveDocumentSet;
 
@@ -35,7 +34,7 @@ import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
-public class XDSbRepository extends XAbstractService implements ContentValidationService {
+public class XDSbRepository extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
 
     boolean optimize_retrieve = true;
@@ -47,7 +46,6 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
     public XDSbRepository() {
         super();
     }
-
 
     /**
      *
@@ -79,7 +77,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
             if (alternateRegistryEndpoint != null) {
                 s.setRegistryEndPoint(alternateRegistryEndpoint);
             }
-            OMElement result = s.provideAndRegisterDocumentSet(sor, this);
+            OMElement result = s.provideAndRegisterDocumentSet(sor);
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
@@ -111,7 +109,7 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
                 return res;
             }
             RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
-            OMElement result = s.retrieveDocumentSet(rdsr, this, true /* optimize */, this);
+            OMElement result = s.retrieveDocumentSet(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
@@ -136,10 +134,6 @@ public class XDSbRepository extends XAbstractService implements ContentValidatio
     public void optimize_retrieve(boolean opt) {
         optimize_retrieve = opt;
     }*/
-
-    public boolean runContentValidationService(Metadata m, Response response) throws MetadataException {
-        return true;
-    }
 
     protected String getPnRTransactionName() {
         return "PnR.b";

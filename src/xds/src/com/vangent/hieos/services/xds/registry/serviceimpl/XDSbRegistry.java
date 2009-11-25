@@ -19,7 +19,6 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.services.xds.registry.transactions.AdhocQueryRequest;
-import com.vangent.hieos.xutil.services.framework.ContentValidationService;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xds.registry.transactions.SubmitObjectsRequest;
 import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed;
@@ -37,20 +36,8 @@ import org.apache.axis2.description.AxisService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 
-public class XDSbRegistry extends XAbstractService implements ContentValidationService {
-
+public class XDSbRegistry extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
-
-    /**
-     * 
-     * @param m
-     * @param response
-     * @return
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
-     */
-    public boolean runContentValidationService(Metadata m, Response response) throws MetadataException {
-        return true;
-    }
 
     /**
      *
@@ -69,7 +56,7 @@ public class XDSbRegistry extends XAbstractService implements ContentValidationS
             validateNoMTOM();
             validateSubmitTransaction(sor);
             SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
-            OMElement result = s.submitObjectsRequest(sor, this);
+            OMElement result = s.submitObjectsRequest(sor);
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
