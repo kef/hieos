@@ -50,7 +50,8 @@ public class AuditMessageBuilder {
             syslogHost = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
             syslogPort = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogPort")).intValue();
             syslogProtocol = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogProtocol");
-            logger.info("XATNALogger: using syslogHost " + syslogHost + " port " + syslogPort + " protocol " + syslogProtocol);
+            logger.info("XATNALogger: using syslogHost=" +
+                    syslogHost + ", port=" + syslogPort + ", protocol=" + syslogProtocol);
         } catch (Exception e) {
             logger.error("**** CAN NOT LOAD ATNA properties from XConfig ***", e);
         }
@@ -261,7 +262,9 @@ public class AuditMessageBuilder {
             marshaller.marshal(msg, sw);
             StringBuffer sb = sw.getBuffer();
             ret = new String(sb);
-            logger.info("Message Content: " + ret);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Message Content: " + ret);
+            }
             ret = ret.replaceAll("-05:00", "");
 
             // Resolve schema validation errors
@@ -272,18 +275,15 @@ public class AuditMessageBuilder {
             int end = ret.length();
             String newString = ret.substring(start, end);
             //newString = newString.replaceFirst("<AuditMessage>", "<AuditMessage xmlns:tns=\"http://xml.netbeans.org/schema/rfc3881\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-            logger.info("Modified Message Content: " + newString);
-            logger.info("Message Length: " + newString.length());
-
-            //AuditRecordRepoClient client = new AuditRecordRepoClient(syslogHost, syslogPort);
-            //client.sendAuditMessage(ret);
-
+            if (logger.isTraceEnabled()) {
+                logger.trace("Modified Message Content: " + newString);
+                logger.trace("Message Length: " + newString.length());
+            }
             SysLogAdapter logAdapter = new SysLogAdapter(syslogHost, syslogPort, syslogProtocol);
             logAdapter.writeLog(newString);
             logAdapter.close();
-
         } catch (Exception e) {
-            logger.error("xxx: persistAuditRecord(): Failed to Unmarshall.", e);
+            logger.error("XATNALogger: persistMessage() failed with exception: ", e);
         }
     }
 
@@ -298,7 +298,7 @@ public class AuditMessageBuilder {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            logger.error("ATNA: TIMESTAMP PROBLEM in AuditMessageBuilder!", e);
+            logger.error("XATNALogger: TIMESTAMP PROBLEM in AuditMessageBuilder!", e);
         }
         if (factory != null) {
             calendar = factory.newXMLGregorianCalendar(now);
