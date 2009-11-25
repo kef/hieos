@@ -1,9 +1,11 @@
 SRC_ROOT="c:\dev\hieos\src"
 SHARED_LIBS="c:\dev\hieos\lib"
 AXIS_LIBS="c:\dev\hieos\lib\axis2-1.5"
+NIO_LIBS="c:\dev\hieos\lib\httpcore-nio"
 echo SRC_ROOT=$SRC_ROOT
 echo SHARED_LIBS=$SHARED_LIBS
 echo AXIS_LIBS=$AXIS_LIBS
+echo NIO_LIBS=$NIO_LIBS
 export CLASSPATH="\
 $SRC_ROOT\xtest\dist\xtest.jar\
 ;$SHARED_LIBS\groovy-all-1.5.6.jar\
@@ -32,5 +34,8 @@ $SRC_ROOT\xtest\dist\xtest.jar\
 ;$AXIS_LIBS\jaxb-impl-2.1.7.jar\
 ;$SHARED_LIBS\postgresql-8.3-604.jdbc4.jar\
 ;$SHARED_LIBS\stax-api-1.0.1.jar\
+;$SRC_ROOT\xclient\dist\xclient.jar\
 ;$SRC_ROOT\xutil\dist\xutil.jar\
-;$SRC_ROOT\xclient\dist\xclient.jar"
+;$NIO_LIBS\httpcore-nio-4.0.1.jar\
+;$NIO_LIBS\backport-util-concurrent-3.1.jar\
+;$SHARED_LIBS\axis2niossl-1.0.jar"
