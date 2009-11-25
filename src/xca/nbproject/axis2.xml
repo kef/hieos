@@ -6,10 +6,10 @@
     <service name="xcarg">
         <service-class>com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</service-class>
     </service>
-    <libraries>
+    <!--<libraries>
         <library-ref name="xutil.jar"/>
         <library-ref name="mysql-connector-java-5.0.8-bin.jar"/>
         <library-ref name="postgresql-8.3-604.jdbc4.jar"/>
         <library-ref name="xlog.jar"/>
-    </libraries>
+    </libraries>-->
 </axis2>
