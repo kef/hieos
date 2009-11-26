@@ -6,11 +6,11 @@
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
         <parameter name="ActorName">InitiatingGateway</parameter>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
@@ -22,11 +22,11 @@
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
         <parameter name="ActorName">RespondingGateway</parameter>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:CrossGatewayQuery</actionMapping>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:CrossGatewayRetrieve</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
@@ -40,11 +40,11 @@
         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
@@ -58,11 +58,11 @@
          <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:CrossGatewayQuery</actionMapping>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:CrossGatewayRetrieve</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
