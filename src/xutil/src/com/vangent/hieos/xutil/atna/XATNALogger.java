@@ -92,7 +92,7 @@ public class XATNALogger {
     private static final String APL_ACTV = "Application Activity";
     private static final String APL_STP = "Application Stop";
     private static final String UNDEF = "UNKNOWN";
-    private static final String AUDIT_SRC_SUFFIX = "SUNVAN";
+    private static final String AUDIT_SRC_SUFFIX = "VANGENT_HIEOS";
     private ActorType actorType = ActorType.UNKNOWN;
     private String transactionId;
     private boolean performAudit = false;
