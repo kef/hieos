@@ -49,7 +49,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
 
     MessageContext messageContext;
     String service_name = "";
-    boolean is_secure;
+    //boolean is_secure;
     boolean _isMPQRequest = false;
     private final static Logger logger = Logger.getLogger(AdhocQueryRequest.class);
 
@@ -59,10 +59,10 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @param messageContext
      * @param is_secure
      */
-    public AdhocQueryRequest(XLogMessage log_message, MessageContext messageContext, boolean is_secure) {
+    public AdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
-        this.is_secure = is_secure;
+        //this.is_secure = is_secure;
     }
 
     /**

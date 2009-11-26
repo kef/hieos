@@ -7,24 +7,24 @@
         <!-- identifies the registry configuration name in the xconfig.xml -->
         <parameter name="XConfigName">localregistry</parameter>
         <operation name="SubmitObjectsRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegisterDocumentSet-b</actionMapping>
         </operation>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
             <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201301UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201302UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201302UV02</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201304UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201304UV02</actionMapping>
         </operation>
     </service>
@@ -38,24 +38,24 @@
         <!-- identifies the registry configuration name in the xconfig.xml -->
         <parameter name="XConfigName">localregistry</parameter>
         <operation name="SubmitObjectsRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegisterDocumentSet-b</actionMapping>
         </operation>
         <operation name="AdhocQueryRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
             <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201301UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201302UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201302UV02</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201304UV02">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201304UV02</actionMapping>
         </operation>
     </service>
@@ -65,12 +65,12 @@
         <description> XDS.b Repository Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepository</parameter>
         <operation name="ProvideAndRegisterDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
@@ -82,13 +82,14 @@
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.repository.serviceimpl.XDSbRepositoryAsync</parameter>
          <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
+        <!--<parameter name="messageReceiver.invokeOnSeparateThread">true</parameter>-->
         <operation name="ProvideAndRegisterDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>
         <operation name="RetrieveDocumentSetRequest">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XDSRawXMLInOutMessageReceiver"/>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RetrieveDocumentSet</actionMapping>
             <parameter name="enableMTOM" locked="false">true</parameter>
         </operation>

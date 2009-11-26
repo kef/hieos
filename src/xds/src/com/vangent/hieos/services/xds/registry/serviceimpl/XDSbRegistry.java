@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xds.registry.transactions.SubmitObjectsRequest;
 import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed;
 
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
@@ -77,7 +78,7 @@ public class XDSbRegistry extends XAbstractService {
         }
         log_message.setTestMessage(getRTransactionName(ahqr));
 
-        AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext(), isSecure());
+        AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
         try {
             validateWS();
             validateNoMTOM();
@@ -252,8 +253,13 @@ public class XDSbRegistry extends XAbstractService {
      *
      */
     private void forceAnonymousReply() {
+        // FIXME: Need to look at why we need to do this at all.
         EndpointReference epr = new EndpointReference("http://www.w3.org/2005/08/addressing/anonymous");
-        this.return_message_context.setTo(epr);
+        try {
+            this.getResponseMessageContext().setTo(epr);
+        } catch (AxisFault ex) {
+            logger.error("Unable to force anonymous reply", ex);
+        }
     }
 
     /**
