@@ -21,10 +21,8 @@ import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.response.RetrieveMultipleResponse;
-import com.vangent.hieos.xutil.services.framework.Fields;
 import com.vangent.hieos.xutil.xlog.client.XLogger;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +30,6 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
@@ -40,7 +37,6 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.Constants;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.TransportHeaders;
 //import org.apache.log4j.BasicConfigurator;
@@ -63,14 +59,14 @@ import com.vangent.hieos.xutil.exception.XdsFormatException;
  * @author Bernie Thuman (BHT) - Comments, lifecycle logging, streamlining.
  */
 public class XAbstractService implements ServiceLifeCycle, Lifecycle {
+    private final static Logger logger = Logger.getLogger(XAbstractService.class);
 
     protected XLogMessage log_message = null;
     public static short registry_actor = 1;
     public static short repository_actor = 2;
-    private final static Logger logger = Logger.getLogger(XAbstractService.class);
     protected String service_name;
-    boolean is_secure;
-    protected MessageContext return_message_context = null;
+    //boolean is_secure;
+    //protected MessageContext return_message_context = null;
 
 
     /*static {
@@ -80,9 +76,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @return
      */
+    /*
     protected boolean isSecure() {
         return is_secure;
-    }
+    }*/
 
     /**
      *
@@ -90,6 +87,17 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected MessageContext getMessageContext() {
         return MessageContext.getCurrentMessageContext();
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected MessageContext getResponseMessageContext() throws AxisFault
+    {
+        MessageContext messageContext = this.getMessageContext();
+        MessageContext responseMessageContext = messageContext.getOperationContext().getMessageContext("Out");
+        return responseMessageContext;
     }
 
     /**
@@ -153,19 +161,21 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param return_context
      */
+    /*
     public void setReturnMessageContext(MessageContext return_context) {
         this.return_message_context = return_context;
-    }
+    }*/
 
     /**
      *
      */
+    /*
     public void useXop() {
         this.return_message_context = MessageContext.getCurrentMessageContext();
         if (return_message_context != null) {
             return_message_context.getOptions().setProperty(Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE);
         }
-    }
+    }*/
 
     /**
      *
@@ -187,7 +197,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         // Log basic parameters:
         log_message.addOtherParam(Fields.service, service_name);
-        is_secure = getMessageContext().getTo().toString().indexOf("https://") != -1;
+        boolean is_secure = getMessageContext().getTo().toString().indexOf("https://") != -1;
         log_message.addHTTPParam(Fields.isSecure, (is_secure) ? "true" : "false");
         log_message.addHTTPParam(Fields.date, getDateTime());
         log_message.setSecureConnection(is_secure);
@@ -418,9 +428,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param inMessage
      */
+    /*
     public void setMessageContextIn(MessageContext inMessage) {
         //currentMessageContext = inMessage ;
-    }
+    }*/
 
     /**
      *
