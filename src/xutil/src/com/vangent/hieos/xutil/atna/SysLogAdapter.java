@@ -12,88 +12,123 @@
  */
 package com.vangent.hieos.xutil.atna;
 
-import com.vangent.hieos.xutil.xconfig.XConfig;
+import java.io.IOException;
 import org.apache.log4j.Logger;
-import org.productivity.java.syslog4j.SyslogConfigIF;
-import org.productivity.java.syslog4j.SyslogIF;
-import org.productivity.java.syslog4j.Syslog;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.net.SocketException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
+ * ATNA Syslog Messages over UDP (RFC5426) with The Syslog Protocol (RFC5424)
  *
- * @author Adeola O.
+ * @author Adeola O. / Bernie Thuman
  */
 public class SysLogAdapter {
 
-    private SyslogIF syslog = null;
     private final static Logger logger = Logger.getLogger(SysLogAdapter.class);
+    private final static String APP_NAME = "HIEOS";
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    private InetAddress syslogHostAddress = null;
+    private String localHostName = null;
+    private DatagramSocket socket = null;
+    private int syslogPort = 514;
 
     /**
+     * Initialize the SysLogAdaptor with the target host, port and protocl (now only "udp").
      *
-     * @param host
-     * @param port
-     * @param protocol
+     * @param syslogHost Target syslog host.
+     * @param syslogPort Target syslog port.
+     * @param syslogProtocol Syslog protocol to use (now only "udp").
      */
-    public SysLogAdapter(String host, int port, String protocol) {
+    public SysLogAdapter(String syslogHost, int syslogPort, String syslogProtocol) {
         if (logger.isTraceEnabled()) {
-            logger.trace("SYSLOG USING Protocol=" + protocol + ", Host=" + host + ", Port=" + port);
+            logger.trace("SYSLOG USING Protocol=" + syslogProtocol + ", Host=" + syslogHost + ", Port=" + syslogPort);
         }
-        initialize(host, port, protocol);
+        initialize(syslogHost, syslogPort, syslogProtocol);
     }
 
-    /**
+     /**
+     * Initialize the SysLogAdaptor with the target host, port and protocl (now only "udp").
      *
-     * @param host
-     * @param port
-     * @param protocol
+     * @param syslogHost Target syslog host.
+     * @param syslogPort Target syslog port.
+     * @param syslogProtocol Syslog protocol to use (now only "udp").
      */
-    private void initialize(String host, int port, String protocol) {
-        syslog = Syslog.getInstance(protocol);
+    private void initialize(String syslogHost, int syslogPort, String syslogProtocol) {
         if (logger.isTraceEnabled()) {
-            logger.trace("INITIALIZING SYSLOG USING Protocol=" + protocol);
+            logger.trace("Initializing ATNA/syslog using protocol=" + syslogProtocol);
         }
+        this.syslogPort = syslogPort;
 
-        // Initialize the Syslog message length
+        // Initialize the Syslog message length (not used right now).
+        /*
         int syslogMaxLength = 1024;
         try {
-            syslogMaxLength = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogMaxLength")).intValue();
+        syslogMaxLength = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogMaxLength")).intValue();
         } catch (Exception ex) {
-            logger.error("Error retrieving SysLogMaxlength from Config file: " + ex);
+        logger.error("Error retrieving SysLogMaxlength from Config file: " + ex);
+        }*/
+
+        // Get the address for the target syslog host:
+        try {
+            this.syslogHostAddress = InetAddress.getByName(syslogHost);
+        } catch (UnknownHostException e) {
+            logger.error("Could not find " + syslogHost + ". All ATNA logging will fail!", e);
         }
-        SyslogConfigIF config = syslog.getConfig();
-        config.setHost(host);
-        config.setPort(port);
-        config.setMaxMessageLength(syslogMaxLength);
-        config.setUseStructuredData(true);
-        syslog.initialize("udp", config);
-        if (logger.isTraceEnabled()) {
-            logger.trace("SYSLOG USING Protocol=" + syslog.getProtocol() + ", Host=" +
-                    syslog.getConfig().getHost() + ", Port=" + syslog.getConfig().getPort());
+
+        // Get the host name for the local host:
+        try {
+            this.localHostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Could not find localhost name", e);
+            this.localHostName = "localhost";
+        }
+
+        // Create new datagram socket:
+        try {
+            this.socket = new DatagramSocket();
+        } catch (SocketException e) {
+            e.printStackTrace();
+            logger.error("Could not instantiate DatagramSocket. All ATNA logging will fail!", e);
         }
     }
 
     /**
+     * Write the message to the syslog.
      *
-     * @param msg
+     * @param msg The message to write.
      */
-    public void writeLog(String msg) {
-        if (syslog == null) {
-            logger.error("ERROR: Fatal: SyslogWriter is null. Will not write audit message");
-        } else {
-            if (logger.isTraceEnabled()) {
-                logger.trace("LOG USING: Max length=" + syslog.getConfig().getMaxMessageLength() + ",Host=" +
-                        syslog.getConfig().getHost() + ", Port=" + syslog.getConfig().getPort() +
-                        ", Protocol=" + syslog.getProtocol());
+    public void write(String msg) {
+        if (this.socket != null) {
+            java.util.Date date = new java.util.Date();
+            String currentDateTime = dateFormat.format(date);
+
+            // See http://www.faqs.org/rfcs/rfc5424.html for format:
+            // PRI = <13> (13 * 8 + 6)
+            // VERSION = 1
+            // TIMESTAMP
+            // HOSTNAME
+            // APP-NAME
+            // PROCID
+            // MSGID
+            String syslogMsg = "<110>1 " + currentDateTime + " " + this.localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
+            //System.out.println("xxx: Syslog msg=[" + syslogMsg + "]");
+
+            byte[] bytes = syslogMsg.getBytes();
+            // syslog packets must be less than 1024 bytes (Ignore for now).
+            int bytesLength = bytes.length;
+            DatagramPacket packet = new DatagramPacket(bytes, bytesLength,
+                    this.syslogHostAddress, this.syslogPort);
+            try {
+                this.socket.send(packet);
+                this.socket.close();
+            } catch (IOException e) {
+                logger.error("Unable to send ATNA message.", e);
             }
-            syslog.info(msg);
-        }
-    }
-
-    /**
-     *
-     */
-    public void close() {
-        if (syslog != null) {
-            syslog.flush();
         }
     }
 }

@@ -33,17 +33,14 @@ public class SchemaValidation implements MetadataTypes {
 
     /*
     public static String validate(OMElement ele, int metadataType) throws XdsInternalException {
-        return validate_local(ele, metadataType);
+    return validate_local(ele, metadataType);
     }*/
-
     // The only known use case for localhost validation failing is when this is called from
     // xdstest2 in which case it is trying to call home to reference the schema files.
     // What is really needed is a configuration parm that points the reference to the local filesystem
     // and include the schema files in the xdstest2tool environment.
-
     // port 80 does not exist for requests on-machine (on the server). only requests coming in from
     // off-machine go through the firewall where the port translation happens.
-
     // even though this says validate_local, it is used by all requests
     public static String validate_local(OMElement ele, int metadataType) throws XdsInternalException {
         String msg;
@@ -60,7 +57,6 @@ public class SchemaValidation implements MetadataTypes {
         return msg;
     }
 
-
     // empty string as result means no errors
     static private String run(String metadata, int metadataType, String host, String portString) throws XdsInternalException {
         MyErrorHandler errors = null;
@@ -75,21 +71,21 @@ public class SchemaValidation implements MetadataTypes {
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/lcm.xsd" : localSchema + "/v3/lcm.xsd");
                 break;
-                /* XDS.a
+            /* XDS.a
             case METADATA_TYPE_PR:
             case METADATA_TYPE_R:
-                schemaLocation = "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
-                break;
+            schemaLocation = "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
+            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
+            break;
             case METADATA_TYPE_Q:
-                schemaLocation =
-                        "urn:oasis:names:tc:ebxml-regrep:query:xsd:2.1 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/query.xsd " : localSchema + "/v2/query.xsd ") +
-                        "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
+            schemaLocation =
+            "urn:oasis:names:tc:ebxml-regrep:query:xsd:2.1 " +
+            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/query.xsd " : localSchema + "/v2/query.xsd ") +
+            "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
+            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
 
-                break;
-                 */
+            break;
+             */
             case METADATA_TYPE_SQ:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/query.xsd " : localSchema + "/v3/query.xsd ") +
@@ -105,10 +101,13 @@ public class SchemaValidation implements MetadataTypes {
             default:
                 throw new XdsInternalException("SchemaValidation: invalid metadata type = " + metadataType);
         }
+/*
+        schemaLocation += " urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0 " +
+                ((localSchema == null) ? "http://" + host + ":" + portString + "/xdsref/schema/v3/rim.xsd" : localSchema + "/v3/rim.xsd");
 
         schemaLocation += " http://schemas.xmlsoap.org/soap/envelope/ " +
                 ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/soap.xsd" : localSchema + "/v3/soap.xsd");
-
+*/
         // build parse to do schema validation
         try {
             p = new DOMParser();
@@ -147,12 +146,12 @@ public class SchemaValidation implements MetadataTypes {
 
     /*
     protected static String exception_details(Exception e) {
-        if (e == null) {
-            return "No stack trace available";
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        e.printStackTrace(ps);
-        return "Exception thrown: " + e.getClass().getName() + "\n" + e.getMessage() + "\n" + new String(baos.toByteArray());
+    if (e == null) {
+    return "No stack trace available";
+    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(baos);
+    e.printStackTrace(ps);
+    return "Exception thrown: " + e.getClass().getName() + "\n" + e.getMessage() + "\n" + new String(baos.toByteArray());
     } */
 }

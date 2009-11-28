@@ -280,8 +280,7 @@ public class AuditMessageBuilder {
                 logger.trace("Message Length: " + newString.length());
             }
             SysLogAdapter logAdapter = new SysLogAdapter(syslogHost, syslogPort, syslogProtocol);
-            logAdapter.writeLog(newString);
-            logAdapter.close();
+            logAdapter.write(newString);  // This will close the socket (at this point).
         } catch (Exception e) {
             logger.error("XATNALogger: persistMessage() failed with exception: ", e);
         }
