@@ -167,7 +167,7 @@ if ( messageResult != null )
  			  }
  	 }
  	 
-	$("messageId").innerHTML = "<b>Message ID:</b> <a href=\"message.html?message="+number+"\" target='_new'>" + number + "</a><img src='images/copy.gif' alt='copy'  onclick = 'copy(\""+number+"\");'>" + "<b>Download EVS</b> <a href=\"/logbrowser/GetEVSServlet?message="+number+"\" target='_new'>" + number + "</a></br>"
+	$("messageId").innerHTML = "<b>Message ID:</b> <a href=\"message.html?message="+number+"\" target='_new'>" + number + "</a></br>"
 
    }
    else

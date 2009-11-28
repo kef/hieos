@@ -30,7 +30,7 @@ function init_()
 		  
         if ( isAdmin )
          {
-           $('status').innerHTML = "<p style='color:red;'>Connected as admin &nbsp;&nbsp;&nbsp; <div id='options'><a href='#' onclick='logout();'>Logout</a><br/>"+
+           $('status').innerHTML = "<p style='color:red;'> Connected as admin &nbsp;&nbsp;&nbsp; <div id='options'><a href='#' onclick='logout();'>Logout</a><br/>"+
            "<a href='admin/pwd.html'>Change Password</a><br /><a href='admin/fastDelete.html'>Fast Delete Messages</a></div> </p>" ;
            ptrFuncGetCompanyList() ;
          }
