@@ -33,6 +33,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 
@@ -68,10 +69,7 @@ public class XLogger {
      * @return
      */
     public XLogMessage getNewMessage(String ipAddress) {
-        // Create a unique message ID (nanoTime + IP address):
-        long nanoTime = System.nanoTime();
-        String nanoTimeString = new Long(nanoTime).toString();
-        String id = nanoTimeString + ipAddress;
+        String id = UUID.randomUUID().toString();
         // Create the corresponding log message:
         XLogMessage m = new XLogMessage(this, id);
         // Now set a reasonable timestamp (down to milliseconds):
