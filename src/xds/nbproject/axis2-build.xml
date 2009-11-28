@@ -21,7 +21,6 @@
                 <file file="${file.reference.omar.jar}"/>
                 <file file="${file.reference.mysql-connector-java-5.1.10-bin.jar}"/>
                 <file file="${file.reference.postgresql-8.3-604.jdbc4.jar}"/>
-                <file file="${file.reference.syslog4j-0.9.30.jar}"/>
             </resources>
         </copy>
         <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
