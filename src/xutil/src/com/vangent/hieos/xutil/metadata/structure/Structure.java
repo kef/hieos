@@ -301,8 +301,9 @@ public class Structure {
         }
     }
 
-    void fols_in_ss() {
-        ArrayList fols = m.getExtrinsicObjects();
+    private void fols_in_ss() {
+        //ArrayList fols = m.getExtrinsicObjects();
+        ArrayList fols = m.getFolders();
 
         for (int i = 0; i < fols.size(); i++) {
             OMElement fol = (OMElement) fols.get(i);
