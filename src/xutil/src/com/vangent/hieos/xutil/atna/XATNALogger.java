@@ -28,9 +28,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.net.URL;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
@@ -178,6 +176,15 @@ public class XATNALogger {
         CodedValueType eventId = this.getCodedValueType("110100", DCM, APL_ACTV);
         CodedValueType eventType = this.getCodedValueType("110120", DCM, APL_STRT);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", "0");
+        CodedValueType roleIdCode = this.getCodedValueType("110150", "DCM", "Application");
+        amb.setActiveParticipant(
+               "root", /* userId */
+                this.pid, /* altnerateuserId */
+                null, /* userName */
+                "false", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.hostAddress);  /* networkAccessPointId  */
     }
 
     /**
@@ -187,6 +194,15 @@ public class XATNALogger {
         CodedValueType eventId = this.getCodedValueType("110100", DCM, APL_ACTV);
         CodedValueType eventType = this.getCodedValueType("110121", DCM, APL_STP);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", "0");
+        CodedValueType roleIdCode = this.getCodedValueType("110150", "DCM", "Application");
+        amb.setActiveParticipant(
+                "root", /* userId */
+                this.pid, /* altnerateuserId */
+                null, /* userName */
+                "false", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.hostAddress);  /* networkAccessPointId  */
     }
 
     /**
