@@ -12,9 +12,7 @@
  */
 package com.vangent.hieos.xutil.query;
 
-//import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.registry.BackendRegistry;
-//import com.vangent.hieos.xutil.metadata.structure.And;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -552,6 +550,7 @@ public abstract class StoredQuery {
      * @return
      * @throws XdsException
      */
+    /*
     protected OMElement getObjectsByUUID(List<String> uuids) throws XdsException {
         if (uuids.size() == 0) {
             return null;
@@ -566,7 +565,7 @@ public abstract class StoredQuery {
         append(uuids);
         newline();
         return query();
-    }
+    } */
 
     /**
      *
@@ -620,11 +619,31 @@ public abstract class StoredQuery {
 
     /**
      *
+     * @param uuid
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getSubmissionSetByUUID(List<String> uuid) throws XdsException {
+        return getRegistryPackageByUUID(uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+    }
+
+    /**
+     *
      * @param uid
      * @return
      * @throws XdsException
      */
     protected OMElement getSubmissionSetByUID(String uid) throws XdsException {
+        return getRegistryPackageByUID(uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+    }
+
+    /**
+     *
+     * @param uids
+     * @return
+     * @throws XdsException
+     */
+    protected OMElement getSubmissionSetByUID(List<String> uid) throws XdsException {
         return getRegistryPackageByUID(uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
     }
 
@@ -1061,7 +1080,7 @@ public abstract class StoredQuery {
         newline();
         append("  ");
         append(term.getSchemeVarName());
-        append(".name = 'codingScheme' AND   ");
+        append(".name_ = 'codingScheme' AND   ");
         newline();
         append("  ");
         append(term.getSchemeVarName());
@@ -1104,7 +1123,7 @@ public abstract class StoredQuery {
             // Name:
             append("  ");
             append(from_var);
-            append(".name = '");
+            append(".name_ = '");
             append(att_name);
             append("' AND     ");
             newline();
@@ -1127,7 +1146,7 @@ public abstract class StoredQuery {
             // Name:
             append("  ");
             append(to_var);
-            append(".name = '");
+            append(".name_ = '");
             append(att_name);
             append("' AND     ");
             newline();

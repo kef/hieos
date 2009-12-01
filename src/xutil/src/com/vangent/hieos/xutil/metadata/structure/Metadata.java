@@ -887,7 +887,6 @@ public class Metadata {
     public ArrayList<String> getAllDefinedIds() {
         ArrayList<String> ids = new ArrayList<String>();
         ArrayList<OMElement> objects = getAllObjects();
-
         for (int i = 0; i < objects.size(); i++) {
             OMElement object = (OMElement) objects.get(i);
             addIds(ids, object);
@@ -1291,14 +1290,11 @@ public class Metadata {
      */
     public ArrayList getReferencedObjectsThatMustHaveSamePatientId() throws MetadataValidationException, MetadataException {
         ArrayList<String> objects = new ArrayList<String>();
-
         for (Iterator it = associations.iterator(); it.hasNext();) {
             OMElement association = (OMElement) it.next();
-
             String association_type = association.getAttributeValue(MetadataSupport.association_type_qname);
             String target_object = association.getAttributeValue(MetadataSupport.target_object_qname);
             String source_object = association.getAttributeValue(MetadataSupport.source_object_qname);
-
             if (association_type == null) {
                 throw new MetadataValidationException("Association has no associationType attribute");
             }
@@ -1308,15 +1304,12 @@ public class Metadata {
             if (target_object == null) {
                 throw new MetadataValidationException(association_type + " Association has no targetObject attribute");
             }
-
             if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(association_type) && "Reference".equals(getSlotValue(association, "SubmissionSetStatus", 0))) {
                 continue;
             }
-
             if (source_object.startsWith("urn:uuid:") && id_index().getObjectById(source_object) == null) {
                 objects.add(source_object);
             }
-
             if (target_object.startsWith("urn:uuid:")) {
                 OMElement o = id_index().getObjectById(target_object);
                 if (o == null) {
@@ -1325,7 +1318,6 @@ public class Metadata {
                     objects.add(target_object);
                 }
             }
-
         }
         return objects;
     }
