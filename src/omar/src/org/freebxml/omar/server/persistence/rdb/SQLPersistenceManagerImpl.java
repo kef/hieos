@@ -540,10 +540,10 @@ public class SQLPersistenceManagerImpl
 
         /* HIEOS/BHT - Removed:
         if (adhocQuerys.size() > 0) {
-            AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-            adhocQueryDAO.insert(adhocQuerys);
+        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
+        adhocQueryDAO.insert(adhocQuerys);
         }
-        */
+         */
 
         if (subscriptions.size() > 0) {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
@@ -669,10 +669,10 @@ public class SQLPersistenceManagerImpl
 
         /* HIEOS/BHT - Removed:
         if (adhocQuerys.size() > 0) {
-            AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-            adhocQueryDAO.update(adhocQuerys);
+        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
+        adhocQueryDAO.update(adhocQuerys);
         }
-        */
+         */
 
         if (subscriptions.size() > 0) {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
@@ -1038,10 +1038,10 @@ public class SQLPersistenceManagerImpl
 
         /* HIEOS/BHT - Removed:
         if (tableName.equalsIgnoreCase(AdhocQueryDAO.getTableNameStatic())) {
-            AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-            res = adhocQueryDAO.getObjects(rs, startIndex, maxResults);
+        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
+        res = adhocQueryDAO.getObjects(rs, startIndex, maxResults);
         } else 
-        */
+         */
         if (tableName.equalsIgnoreCase(AssociationDAO.getTableNameStatic())) {
             AssociationDAO associationDAO = new AssociationDAO(context);
             res = associationDAO.getObjects(rs, startIndex, maxResults);
@@ -1209,18 +1209,19 @@ public class SQLPersistenceManagerImpl
     public RegistryObjectType getRegistryObjectForStatusUpdate(ServerRequestContext context, ObjectRefType ref)
             throws RegistryException {
         Connection connection = context.getConnection();
-        PreparedStatement stmt = null;
         try {
-            // First get the type of registry object:
-            String tableName = RegistryObjectDAO.getTableNameStatic();
-            String sql = "SELECT objectType FROM " + tableName + " WHERE id = ?";
-            stmt = connection.prepareStatement(sql);
-            stmt.setString(1, ref.getId());
-            log.trace("SQL = " + sql.toString());
-            ResultSet rs = stmt.executeQuery();
-            rs.next();
-            String objectType = rs.getString(1);
-
+            // Look to see if object is in ExtrinisicObject table first ... hedge bets (this is the
+            // most probable case.
+            String objectType = this.getRegistryObjectType(connection, ref, ExtrinsicObjectDAO.getTableNameStatic());
+            if (objectType == null) {
+                // Did not find in ExtrinsicObject table ... look in RegistryPackage table now.
+                objectType = this.getRegistryObjectType(connection, ref, RegistryPackageDAO.getTableNameStatic());
+                if (objectType == null) {
+                    // BAD -- none found!!!
+                    throw new RegistryException(
+                            "Can not find ExtrinsicObject or RegistryPackage for id = " + ref.getId());
+                }
+            }
             // Now instantiate the proper concrete registry object type:
             RegistryObjectType concreteRegistryObject = null;
             if (BindingUtility.CANONICAL_OBJECT_TYPE_ID_RegistryPackage.equalsIgnoreCase(objectType)) {
@@ -1230,9 +1231,38 @@ public class SQLPersistenceManagerImpl
             }
             concreteRegistryObject.setId(ref.getId());  // Just to be in sync.
             return concreteRegistryObject;
-        } catch (SQLException e) {
-            throw new RegistryException(e);
         } catch (JAXBException e) {
+            throw new RegistryException(e);
+        } finally {
+            // Nothing to do now.
+        }
+    }
+
+    // HIEOS/BHT -- added
+    /**
+     * Return the RegistryObjectType for the given tableName and referenced object.  If not found,
+     * return null.
+     *
+     * @param connection Database connection.
+     * @param ref Object reference in question.
+     * @param tableName The table name to query.
+     * @return The object type if the record is found.  Otherwise, null.
+     * @throws RegistryException
+     */
+    private String getRegistryObjectType(Connection connection, ObjectRefType ref, String tableName) throws RegistryException {
+        String objectType = null;
+        PreparedStatement stmt = null;
+        try {
+            String sql = "SELECT objectType FROM " + tableName + " WHERE id = ?";
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, ref.getId());
+            log.trace("SQL = " + sql.toString());
+            ResultSet rs = stmt.executeQuery();
+            boolean exists = rs.next();
+            if (exists == true) {
+                objectType = rs.getString(1);
+            }
+        } catch (SQLException e) {
             throw new RegistryException(e);
         } finally {
             if (stmt != null) {
@@ -1243,6 +1273,7 @@ public class SQLPersistenceManagerImpl
                 }
             }
         }
+        return objectType;
     }
 
     /**

@@ -67,5 +67,6 @@ interface OMARDAO {
     public void update(List registryObjects) throws RegistryException;
 
     // HIEOS/BHT (ADDED): MySQL View bug workaround.
-    public String getSQLStatementFragmentForMirrorImage(Object obj) throws RegistryException;
+    // NO LONGER NEEDED
+    // public String getSQLStatementFragmentForMirrorImage(Object obj) throws RegistryException;
 }

@@ -250,8 +250,10 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
     /* ADDED (HIEOS/BHT) -> To deal with major MySQL issue with view performance */
     /* Some code lifted from getSQLStatementFragment() below */
+    /* NO LONGER NEEDED
     public String getSQLStatementFragmentForMirrorImage(Object object)
             throws RegistryException {
+        if (true) { return null; }
         String stmtFragment = null;
         RegistryObjectType ro = (RegistryObjectType) object;
         if (object instanceof RegistryObjectType) {
@@ -268,7 +270,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
         //System.out.println("*** MIRROR SQL: " + stmtFragment);
         }
         return stmtFragment;
-    }
+    }*/
 
     /**
      * Returns the SQL fragment string needed by insert or update statements
@@ -1208,11 +1210,12 @@ class RegistryObjectDAO extends IdentifiableDAO {
             stmt.addBatch(sql);
 
             // Now, update the RegistryObject table (if not already updated above).
+            /*
             if (!registryObjectTableName.equals(RegistryObjectDAO.getTableNameStatic())) {
                 sql = this.getSQLStatementFragmentForStatusUpdate(RegistryObjectDAO.getTableNameStatic(), status, ro.getId());
                 log.trace("SQL = " + sql);
                 stmt.addBatch(sql);
-            }
+            }*/
             stmt.executeBatch();
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException"), e);

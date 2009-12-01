@@ -10,10 +10,10 @@
  */
 package org.freebxml.omar.server.query.sql;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+//import java.io.ByteArrayInputStream;
+//import java.io.InputStream;
+//import java.io.InputStreamReader;
+//import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,6 @@ import org.oasis.ebxml.registry.bindings.rim.RegistryObjectList;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.UserType;
 
-
 /**
  * Processor for SQL queries. Used by the QueryManagerImpl.
  *
@@ -39,6 +38,7 @@ import org.oasis.ebxml.registry.bindings.rim.UserType;
  * @author Farrukh S. Najmi
  */
 public class SQLQueryProcessor {
+
     /**
      * @link
      * @shapeType PatternLink
@@ -52,12 +52,11 @@ public class SQLQueryProcessor {
     boolean bypassSQLParser = false;
 
     protected SQLQueryProcessor() {
-        bypassSQLParser = Boolean.valueOf(RegistryProperties.getInstance()
-            .getProperty("org.freebxml.omar.server.query.sql.SQLQueryProcessor.bypassSQLParser", "false")).booleanValue();
+        bypassSQLParser = Boolean.valueOf(RegistryProperties.getInstance().getProperty("org.freebxml.omar.server.query.sql.SQLQueryProcessor.bypassSQLParser", "false")).booleanValue();
     }
 
     public RegistryObjectListType executeQuery(ServerRequestContext context, UserType user, String sqlQuery,
-        ResponseOptionType responseOption, IterativeQueryParams paramHolder, boolean bypassSQLParserForQuery) throws RegistryException {
+            ResponseOptionType responseOption, IterativeQueryParams paramHolder, boolean bypassSQLParserForQuery) throws RegistryException {
         RegistryObjectList sqlResult = null;
         log.debug("unparsed query: " + sqlQuery + ";");
         // System.out.println("unparsed query: " + sqlQuery + ";"); // HIEOS/BHT (DEBUG).
@@ -66,26 +65,25 @@ public class SQLQueryProcessor {
 
             //Fix the query according to the responseOption to return the right type of objects
             String fixedQuery = sqlQuery;
-            String tableName=null;
-
-
+            String tableName = null;
+            /* HIEOS (DISABLED):
             if (!(bypassSQLParser||bypassSQLParserForQuery)) {
-                //parse the queryString to sget at certain info like the select column and table name etc.
-                InputStream stream = new ByteArrayInputStream(sqlQuery.getBytes("utf-8"));
-                SQLParser parser = new SQLParser(new InputStreamReader(stream, "utf-8"));
-                fixedQuery = parser.processQuery(user, responseOption);
-                log.debug("Fixed query: " + fixedQuery + ";");
-                tableName = parser.firstTableName;
-            } else {
-                String[] strs = sqlQuery.toUpperCase().split(" FROM ");
-                if (strs.length > 1) {
-                    tableName = (strs[1].split(" "))[0];
-                }
-                //tableName = sqlQuery.substring(sqlQuery.indexOf("FROM"));
+            //parse the queryString to sget at certain info like the select column and table name etc.
+            InputStream stream = new ByteArrayInputStream(sqlQuery.getBytes("utf-8"));
+            SQLParser parser = new SQLParser(new InputStreamReader(stream, "utf-8"));
+            fixedQuery = parser.processQuery(user, responseOption);
+            log.debug("Fixed query: " + fixedQuery + ";");
+            tableName = parser.firstTableName;
+            } else { */
+            String[] strs = sqlQuery.toUpperCase().split(" FROM ");
+            if (strs.length > 1) {
+                tableName = (strs[1].split(" "))[0];
             }
-	    if (log.isTraceEnabled()) {
+            //tableName = sqlQuery.substring(sqlQuery.indexOf("FROM"));
+            /*} HIEOS (DISABLED) */
+            if (log.isTraceEnabled()) {
                 log.trace(ServerResourceBundle.getInstance().getString("message.executingQuery",
-				                                                        new Object[]{fixedQuery}));
+                        new Object[]{fixedQuery}));
             }
             //Get the List of objects (ObjectRef, RegistryObject, leaf class) as
             //specified by the responeOption
@@ -96,9 +94,7 @@ public class SQLQueryProcessor {
             }
 
             log.debug("queryParams = " + queryParams);
-            List objs = PersistenceManagerFactory.getInstance()
-                                                 .getPersistenceManager()
-                                                 .executeSQLQuery(context, fixedQuery, queryParams,
+            List objs = PersistenceManagerFactory.getInstance().getPersistenceManager().executeSQLQuery(context, fixedQuery, queryParams,
                     responseOption, tableName, objectRefs, paramHolder);
 
             if (queryParams != null) {
@@ -106,7 +102,7 @@ public class SQLQueryProcessor {
             }
 
             List list = sqlResult.getIdentifiable();
-            if ((list != null) && (objs != null))  {
+            if ((list != null) && (objs != null)) {
                 list.addAll(objs);
             }
 
@@ -115,47 +111,47 @@ public class SQLQueryProcessor {
             //TODO: Not sure what this code was about but leaving it commented for now.
 
             /*
-                // Attaching the ObjectRef to the response. objectsRefs contains duplicates!
-                Iterator objectRefsIter = objectRefs.iterator();
-                // It is to store the ObjectRef 's id after removing duplicated ObjectRef. It is a dirty fix, change it later!!!!
-                List finalObjectRefsIds = new java.util.ArrayList();
-                List finalObjectRefs = new java.util.ArrayList();
-                while(objectRefsIter.hasNext()) {
-                    Object obj = objectRefsIter.next();
-                    if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ObjectRef) {
-                        ObjectRef objectRef = (ObjectRef) obj;
-                        String id = objectRef.getId();
-                        if (!finalObjectRefsIds.contains(id)) {
-                            finalObjectRefsIds.add(id);
-                            ObjectRef or = new ObjectRef();
-                            or.setId(id);
-                            finalObjectRefs.add(or);
-                        }
-                    }
-                    else {
-                        throw new RegistryException("Unexpected object" + obj);
-                    }
-                }
+            // Attaching the ObjectRef to the response. objectsRefs contains duplicates!
+            Iterator objectRefsIter = objectRefs.iterator();
+            // It is to store the ObjectRef 's id after removing duplicated ObjectRef. It is a dirty fix, change it later!!!!
+            List finalObjectRefsIds = new java.util.ArrayList();
+            List finalObjectRefs = new java.util.ArrayList();
+            while(objectRefsIter.hasNext()) {
+            Object obj = objectRefsIter.next();
+            if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ObjectRef) {
+            ObjectRef objectRef = (ObjectRef) obj;
+            String id = objectRef.getId();
+            if (!finalObjectRefsIds.contains(id)) {
+            finalObjectRefsIds.add(id);
+            ObjectRef or = new ObjectRef();
+            or.setId(id);
+            finalObjectRefs.add(or);
+            }
+            }
+            else {
+            throw new RegistryException("Unexpected object" + obj);
+            }
+            }
 
-                Iterator finalObjectRefsIter = finalObjectRefs.iterator();
-                while (finalObjectRefsIter.hasNext()) {
-                    Object obj = finalObjectRefsIter.next();
-                    if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ObjectRef) {
-                        RegistryObjectListTypeTypeItem li = new RegistryObjectListTypeTypeItem();
-                        li.setObjectRef((ObjectRef)obj);
-                        sqlResult.addRegistryObjectListTypeTypeItem(li);
-                    }
-                    else {
-                        throw new RegistryException("Unexpected object" + obj);
-                    }
-                }
-            */
-        } catch (UnsupportedEncodingException e) {
+            Iterator finalObjectRefsIter = finalObjectRefs.iterator();
+            while (finalObjectRefsIter.hasNext()) {
+            Object obj = finalObjectRefsIter.next();
+            if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ObjectRef) {
+            RegistryObjectListTypeTypeItem li = new RegistryObjectListTypeTypeItem();
+            li.setObjectRef((ObjectRef)obj);
+            sqlResult.addRegistryObjectListTypeTypeItem(li);
+            }
+            else {
+            throw new RegistryException("Unexpected object" + obj);
+            }
+            }
+             */
+        /* HIEOS (DISABLED) } catch (UnsupportedEncodingException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
             throw new RegistryException(e);
         } catch (ParseException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
-            throw new RegistryException(e);
+            throw new RegistryException(e); */
         } catch (javax.xml.bind.JAXBException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
             throw new RegistryException(e);

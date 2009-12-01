@@ -160,12 +160,13 @@ abstract class AbstractDAO implements OMARDAO {
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
+                /* NO LONGER NEEDED
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
                     log.trace("SQL = " + mirrorImageStr);  // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, DELETE the mirror.
-                }
+                }*/
             }
             
             int[] updateCounts = stmt.executeBatch();
@@ -312,12 +313,13 @@ abstract class AbstractDAO implements OMARDAO {
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
+                /* NO LONGER NEEDED
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
                     log.trace("SQL = " + mirrorImageStr);   // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, insert into the mirror.
-                }
+                }*/
 
                 prepareToInsert(obj);
             }
@@ -406,12 +408,13 @@ abstract class AbstractDAO implements OMARDAO {
                 stmt.addBatch(str);
 
                 // HIEOS/BHT (Added block to get rid of MySQL performance bug with DB views).
+                /* NO LONGER NEEDED
                 String mirrorImageStr = this.getSQLStatementFragmentForMirrorImage(obj);
                 if (mirrorImageStr != null)
                 {
                     log.trace("SQL = " + mirrorImageStr);  // HIEOS/BHT (DEBUG)
                     stmt.addBatch(mirrorImageStr);  // Now, update the mirror.
-                }
+                }*/
             }
 
             int[] updateCounts = stmt.executeBatch();
