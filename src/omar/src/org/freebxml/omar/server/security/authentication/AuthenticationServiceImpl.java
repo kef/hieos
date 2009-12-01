@@ -469,15 +469,14 @@ public class AuthenticationServiceImpl /*implements AuthenticationService*/ {
      * Loads and caches the predefined users during startup.
      */
     private void loadPredefinedUsers() throws RegistryException {
+        /* HIEOS/BHT: DISABLED
         ServerRequestContext context = null;
         try {
             context = new ServerRequestContext("AuthenticationServiceImpl.loadPredefinedUsers", null);
             registryOperator = (User)pm.getRegistryObject(context, ALIAS_REGISTRY_OPERATOR, "User");
             registryGuest = (User)pm.getRegistryObject(context, ALIAS_REGISTRY_GUEST, "User");
-            /* HIEOS/BHT: DISABLED
             farrukh = (User)pm.getRegistryObject(context, ALIAS_FARRUKH, "User");
             nikola = (User)pm.getRegistryObject(context, ALIAS_NIKOLA, "User");
-             */
             if (registryOperator == null) {
                 throw new RegistryException(ServerResourceBundle.getInstance().getString("message.registryOperator", new Object[]{ALIAS_REGISTRY_OPERATOR}));
             }
@@ -490,13 +489,14 @@ public class AuthenticationServiceImpl /*implements AuthenticationService*/ {
         } finally {
 	    // All of above uses of this context were queries, roll back.
 	    context.rollback();
-	}
+	} */
     }
     
     /*
      * Loads the list of RegistryAdministrators from the property file during startup.
      */
     private void loadRegistryAdministrators() {
+        /* HIEOS/DISABLED:
         String adminList = RegistryProperties.getInstance().getProperty("omar.security.authorization.registryAdministrators");
 
         if (adminList != null) {
@@ -518,7 +518,7 @@ public class AuthenticationServiceImpl /*implements AuthenticationService*/ {
             }
         } else {
             log.warn(ServerResourceBundle.getInstance().getString("message.RegistryHasNotDefinedRegistryAdministratorsYet"));
-        }
+        }*/
     }
     
     /**

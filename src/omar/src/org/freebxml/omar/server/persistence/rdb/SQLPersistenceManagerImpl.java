@@ -729,6 +729,7 @@ public class SQLPersistenceManagerImpl
             }
 
             // repeat behaviour of DAO.prepareToXXX methdos for direct/indirect setStatus
+            /* HIEOS/DISABLED:
             if (context.getCurrentRegistryRequest() instanceof ApproveObjectsRequest) {
                 context.getApproveEvent().setAffectedObjects(orefList);
                 context.addAffectedObjectsToAuditableEvent(context.getApproveEvent(), orefList);
@@ -743,7 +744,7 @@ public class SQLPersistenceManagerImpl
                 context.getSetStatusEvent().setAffectedObjects(orefList);
                 context.getSetStatusEvent().setEventType(req.getStatus());
                 context.addAffectedObjectsToAuditableEvent(context.getSetStatusEvent(), orefList);
-            }
+            }*/
         } catch (JAXBException e) {
             throw new RegistryException(e);
         } catch (JAXRException e) {
