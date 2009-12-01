@@ -164,6 +164,9 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             Validator val = new Validator(m, response.registryErrorList, true, log_message);
             val.run();
 
+            // VALIDATION STEP:
+            // Make sure that object ids submitted do not already exist (see RegistryObjectValidator
+            // for additional rules).
             RegistryObjectValidator rov = new RegistryObjectValidator(response, log_message);
             rov.validateProperUids(m);
             if (response.has_errors()) {
@@ -172,7 +175,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
             // Get out early if the validation process failed:
             if (response.has_errors()) {
-                return;
+                return;  // EARLY EXIT!
             }
 
             // VALIDATION STEP:
@@ -183,10 +186,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             this.validatePatientId(patientId);
 
             // Check for references to registry contents
-            ArrayList referencedObjects = m.getReferencedObjects();
+            List<String> referencedObjects = m.getReferencedObjects();
             if (referencedObjects.size() > 0) {
-                // Make sure that referenced objects are "approved":
-                ArrayList missing = rov.validateApproved(referencedObjects);
+                // Make sure that referenced objects are "APPROVED":
+                List<String> missing = rov.validateApproved(referencedObjects);
                 if (missing != null) {
                     throw new XdsDeprecatedException("The following registry objects were referenced by this submission but are not present, as Approved documents, in the registry: " +
                             missing);
@@ -205,8 +208,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             idParser.compileSymbolicNamesIntoUuids();
 
             // Check that submission does not include any object ids that are already in registry
+/* DISABLED - In general, we should be OK here given prior checks.  Also, the underlying registry does
+ * allow updates to occur based on prior submissions.
+ *
             List<String> idsInSubmission = m.getAllDefinedIds();
-            //RegistryObjectValidator roval = new RegistryObjectValidator(response, log_message);
             List<String> idsAlreadyInRegistry = rov.validateNotExists(idsInSubmission);
             if (idsAlreadyInRegistry.size() != 0) {
                 response.add_error(MetadataSupport.XDSRegistryMetadataError,
@@ -214,14 +219,13 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                         this.getClass().getName(),
                         log_message);
             }
-
+*/
             // Update any folders "lastUpdateTime" slot with the current time:
             m.updateFoldersLastUpdateTimeSlot();
 
             // If this submission includes a DocumentEntry replace and the original DocumentEntry is in a folder
             // then the replacement document must be put into the folder as well.  This must happen here
             // so the following logic to update folder lastUpdateTime can be triggered.
-
             HashMap<String, String> rplcToOrigIds = new HashMap<String, String>();
             for (OMElement assoc : m.getAssociations()) {
                 if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(m.getAssocType(assoc))) {
@@ -237,12 +241,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 // for each folder, add an association placing replacment in that folder
                 // This brings up interesting question, should the Assoc between SS and Assoc be generated also?  YES!
                 for (String fid : folderIds) {
-
                     OMElement assoc = m.addAssociation(m.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, fid, replacementDocumentId));
                     OMElement assoc2 = m.addAssociation(m.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, m.getSubmissionSetId(), assoc.getAttributeValue(MetadataSupport.id_qname)));
                 }
             }
-
 
             BackendRegistry backendRegistry = new BackendRegistry(response, log_message);
             // if this submission adds a document to a folder then update that folder's lastUpdateTime Slot
@@ -289,7 +291,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             }
 
             // Deprecate
-            ArrayList deprecatableObjectIds = m.getDeprecatableObjectIds();
+            ArrayList<String> deprecatableObjectIds = m.getDeprecatableObjectIds();
             // add to the list of things to deprecate, any XFRM or APND documents hanging off documents
             // in the deprecatable_object_ids list
             List<String> XFRMandAPNDDocuments = rov.getXFRMandAPNDDocuments(deprecatableObjectIds);
@@ -328,7 +330,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param objectIds
      * @throws XdsException
      */
-    private void submitDeprecateObjectsRequest(BackendRegistry backendRegistry, ArrayList objectIds) throws XdsException {
+    private void submitDeprecateObjectsRequest(BackendRegistry backendRegistry, ArrayList<String> objectIds) throws XdsException {
         OMElement deprecateObjectsRequest = backendRegistry.getDeprecateObjectsRequest(objectIds);
         log_message.addOtherParam("Deprecate", deprecateObjectsRequest);
         submitToBackendRegistry(backendRegistry, deprecateObjectsRequest);

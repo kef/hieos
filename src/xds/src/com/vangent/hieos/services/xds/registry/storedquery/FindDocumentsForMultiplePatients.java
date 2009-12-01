@@ -219,7 +219,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
                 newline();
                 append("  authorperson.parent = author.id AND");
                 newline();
-                append("  authorperson.name = 'authorPerson' AND");
+                append("  authorperson.name_ = 'authorPerson' AND");
                 newline();
                 append("  authorperson.value LIKE '" + ap + "' )");
                 newline();
