@@ -102,16 +102,16 @@
       <Registry name="nistregistry">
           <UniqueId>NA</UniqueId>      
           <Transaction name="RegisterDocumentSet-b">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsregistryb</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsregistryb</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsregistrybas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsregistrybas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsregistryb</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsregistryb</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsregistrybas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsregistrybas</Endpoint>
           </Transaction>
           <Transaction name="RegistryStoredQuery">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsregistryb</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsregistryb</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsregistrybas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsregistrybas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsregistryb</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsregistryb</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsregistrybas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsregistrybas</Endpoint>
           </Transaction>
       </Registry>
   
@@ -119,16 +119,16 @@
       <Repository name="nistrepository">
           <UniqueId>1.19.6.24.109.42.1</UniqueId>
           <Transaction name="RetrieveDocumentSet">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsrepositorybas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsrepositorybas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsrepositorybas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsrepositorybas</Endpoint>
           </Transaction>
           <Transaction name="ProvideAndRegisterDocumentSet-b">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xdsrepositoryb</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xdsrepositoryb</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xdsrepositorybas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xdsrepositorybas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsrepositorybas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsrepositorybas</Endpoint>
           </Transaction>
       </Repository>
       
@@ -137,16 +137,16 @@
       <InitiatingGateway name="nistig"> <!-- Local Initiating Gateway -->
           <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId> <!-- Home Community ID -->
           <Transaction name="RegistryStoredQuery">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xcaig</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xcaig</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xcaigas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xcaigas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xcaig</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xcaig</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xcaigas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xcaigas</Endpoint>
           </Transaction>
           <Transaction name="RetrieveDocumentSet">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xcaig</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xcaig</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xcaigas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xcaigas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xcaig</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xcaig</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xcaigas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xcaigas</Endpoint>
           </Transaction>
       </InitiatingGateway>
   
@@ -155,16 +155,16 @@
       <RespondingGateway name="nistrg"> <!-- Local Responding Gateway -->
           <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
           <Transaction name="CrossGatewayQuery">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xcarg</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xcarg</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xcargas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xcargas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xcarg</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xcarg</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xcargas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xcargas</Endpoint>
           </Transaction>
           <Transaction name="CrossGatewayRetrieve">
-              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf5/services/xcarg</Endpoint>
-              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf5/services/xcarg</Endpoint>
-              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf5/services/xcargas</Endpoint>
-              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf5/services/xcargas</Endpoint>
+              <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xcarg</Endpoint>
+              <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xcarg</Endpoint>
+              <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xcargas</Endpoint>
+              <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xcargas</Endpoint>
           </Transaction>
       </RespondingGateway>
   
