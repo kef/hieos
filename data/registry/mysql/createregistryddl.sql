@@ -1,4 +1,4 @@
---
+﻿--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -37,12 +37,12 @@ USE omar;
 --
 -- Temporary table structure for view `identifiable`
 --
-DROP TABLE IF EXISTS `identifiable`;
-DROP VIEW IF EXISTS `identifiable`;
-CREATE TABLE `identifiable` (
-  `id` varchar(256),
-  `home` varchar(256)
-);
+-- DROP TABLE IF EXISTS `identifiable`;
+-- DROP VIEW IF EXISTS `identifiable`;
+-- CREATE TABLE `identifiable` (
+--  `id` varchar(256),
+--  `home` varchar(256)
+-- );
 
 --
 -- Definition of table `adhocquery`
@@ -98,16 +98,16 @@ CREATE TABLE `affectedobject` (
 
 DROP TABLE IF EXISTS `association`;
 CREATE TABLE `association` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
-  `associationType` varchar(256) NOT NULL,
-  `sourceObject` varchar(256) NOT NULL,
-  `targetObject` varchar(256) NOT NULL,
+  `associationType` varchar(128) NOT NULL,
+  `sourceObject` varchar(64) NOT NULL,
+  `targetObject` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `src_Ass_idx` (`sourceObject`),
   KEY `tgt_Ass_idx` (`targetObject`),
@@ -157,17 +157,17 @@ CREATE TABLE `auditableevent` (
 
 DROP TABLE IF EXISTS `classification`;
 CREATE TABLE `classification` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
-  `classificationNode` varchar(256) DEFAULT NULL,
-  `classificationScheme` varchar(256) DEFAULT NULL,
-  `classifiedObject` varchar(256) NOT NULL,
-  `nodeRepresentation` varchar(256) DEFAULT NULL,
+  `classificationNode` varchar(64) DEFAULT NULL,
+  `classificationScheme` varchar(64) DEFAULT NULL,
+  `classifiedObject` varchar(64) NOT NULL,
+  `nodeRepresentation` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `clsObj_Class_idx` (`classifiedObject`)
 ) TYPE=InnoDB;
@@ -186,15 +186,15 @@ CREATE TABLE `classification` (
 
 DROP TABLE IF EXISTS `classificationnode`;
 CREATE TABLE `classificationnode` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
-  `code` varchar(256) DEFAULT NULL,
-  `parent` varchar(256) DEFAULT NULL,
+  `code` varchar(64) DEFAULT NULL,
+  `parent` varchar(64) DEFAULT NULL,
   `path` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_Node_idx` (`parent`),
@@ -216,15 +216,15 @@ CREATE TABLE `classificationnode` (
 
 DROP TABLE IF EXISTS `classscheme`;
 CREATE TABLE `classscheme` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
   `isInternal` varchar(1) NOT NULL,
-  `nodeType` varchar(256) NOT NULL,
+  `nodeType` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) TYPE=InnoDB;
 
@@ -244,8 +244,8 @@ DROP TABLE IF EXISTS `description`;
 CREATE TABLE `description` (
   `charset` varchar(32) DEFAULT NULL,
   `lang` varchar(32) NOT NULL,
-  `value` varchar(1024) NOT NULL,
-  `parent` varchar(256) NOT NULL,
+  `value` varchar(256) NOT NULL,
+  `parent` varchar(64) NOT NULL,
   PRIMARY KEY (`parent`)
 ) TYPE=InnoDB;
 
@@ -283,16 +283,16 @@ CREATE TABLE `emailaddress` (
 
 DROP TABLE IF EXISTS `externalidentifier`;
 CREATE TABLE `externalidentifier` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
-  `registryObject` varchar(256) NOT NULL,
-  `identificationScheme` varchar(256) NOT NULL,
-  `value` varchar(256) NOT NULL,
+  `registryObject` varchar(64) NOT NULL,
+  `identificationScheme` varchar(64) NOT NULL,
+  `value` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ro_EID_idx` (`registryObject`),
   KEY `idscheme_EID_idx` (`identificationScheme`),
@@ -339,15 +339,15 @@ CREATE TABLE `externallink` (
 
 DROP TABLE IF EXISTS `extrinsicobject`;
 CREATE TABLE `extrinsicobject` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
   `isOpaque` varchar(1) NOT NULL,
-  `mimeType` varchar(256) DEFAULT NULL,
+  `mimeType` varchar(128) DEFAULT NULL,
   `contentVersionName` varchar(16) DEFAULT NULL,
   `contentVersionComment` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -394,8 +394,8 @@ DROP TABLE IF EXISTS `name_`;
 CREATE TABLE `name_` (
   `charset` varchar(32) DEFAULT NULL,
   `lang` varchar(32) NOT NULL,
-  `value` varchar(1024) NOT NULL,
-  `parent` varchar(256) NOT NULL,
+  `value` varchar(256) NOT NULL,
+  `parent` varchar(64) NOT NULL,
   PRIMARY KEY (`parent`)
 ) TYPE=InnoDB;
 
@@ -476,8 +476,8 @@ CREATE TABLE `notifyaction` (
 
 DROP TABLE IF EXISTS `objectref`;
 CREATE TABLE `objectref` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) TYPE=InnoDB;
 
@@ -630,11 +630,11 @@ CREATE TABLE `registryobject` (
 
 DROP TABLE IF EXISTS `registrypackage`;
 CREATE TABLE `registrypackage` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -727,10 +727,10 @@ CREATE TABLE `servicebinding` (
 DROP TABLE IF EXISTS `slot`;
 CREATE TABLE `slot` (
   `sequenceId` int(11) NOT NULL,
-  `name_` varchar(256) NOT NULL,
-  `slotType` varchar(256) DEFAULT NULL,
-  `value` varchar(256) DEFAULT NULL,
-  `parent` varchar(256) NOT NULL,
+  `name_` varchar(128) NOT NULL,
+  `slotType` varchar(128) DEFAULT NULL,
+  `value` varchar(128) DEFAULT NULL,
+  `parent` varchar(64) NOT NULL,
   PRIMARY KEY (`parent`,`name_`,`sequenceId`)
 ) TYPE=InnoDB;
 
@@ -867,11 +867,11 @@ CREATE TABLE `usageparameter` (
 
 DROP TABLE IF EXISTS `user_`;
 CREATE TABLE `user_` (
-  `id` varchar(256) NOT NULL,
-  `home` varchar(256) DEFAULT NULL,
-  `lid` varchar(256) NOT NULL,
-  `objectType` varchar(256) DEFAULT NULL,
-  `status` varchar(256) NOT NULL,
+  `id` varchar(64) NOT NULL,
+  `home` varchar(64) DEFAULT NULL,
+  `lid` varchar(64) NOT NULL,
+  `objectType` varchar(128) DEFAULT NULL,
+  `status` varchar(128) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
   `comment_` varchar(256) DEFAULT NULL,
   `personName_firstName` varchar(64) DEFAULT NULL,
@@ -892,9 +892,9 @@ CREATE TABLE `user_` (
 -- Definition of view `identifiable`
 --
 
-DROP TABLE IF EXISTS `identifiable`;
-DROP VIEW IF EXISTS `identifiable`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `identifiable` AS select `adhocquery`.`id` AS `id`,`adhocquery`.`home` AS `home` from `adhocquery` union all select `association`.`id` AS `id`,`association`.`home` AS `home` from `association` union all select `auditableevent`.`id` AS `id`,`auditableevent`.`home` AS `home` from `auditableevent` union all select `classification`.`id` AS `id`,`classification`.`home` AS `home` from `classification` union all select `classificationnode`.`id` AS `id`,`classificationnode`.`home` AS `home` from `classificationnode` union all select `classscheme`.`id` AS `id`,`classscheme`.`home` AS `home` from `classscheme` union all select `externalidentifier`.`id` AS `id`,`externalidentifier`.`home` AS `home` from `externalidentifier` union all select `externallink`.`id` AS `id`,`externallink`.`home` AS `home` from `externallink` union all select `extrinsicobject`.`id` AS `id`,`extrinsicobject`.`home` AS `home` from `extrinsicobject` union all select `federation`.`id` AS `id`,`federation`.`home` AS `home` from `federation` union all select `organization`.`id` AS `id`,`organization`.`home` AS `home` from `organization` union all select `registry`.`id` AS `id`,`registry`.`home` AS `home` from `registry` union all select `registrypackage`.`id` AS `id`,`registrypackage`.`home` AS `home` from `registrypackage` union all select `service`.`id` AS `id`,`service`.`home` AS `home` from `service` union all select `servicebinding`.`id` AS `id`,`servicebinding`.`home` AS `home` from `servicebinding` union all select `specificationlink`.`id` AS `id`,`specificationlink`.`home` AS `home` from `specificationlink` union all select `subscription`.`id` AS `id`,`subscription`.`home` AS `home` from `subscription` union all select `user_`.`id` AS `id`,`user_`.`home` AS `home` from `user_` union all select `person`.`id` AS `id`,`person`.`home` AS `home` from `person` union all select `objectref`.`id` AS `id`,`objectref`.`home` AS `home` from `objectref`;
+-- DROP TABLE IF EXISTS `identifiable`;
+-- DROP VIEW IF EXISTS `identifiable`;
+-- CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `identifiable` AS select `adhocquery`.`id` AS --`id`,`adhocquery`.`home` AS `home` from `adhocquery` union all select `association`.`id` AS `id`,`association`.`home` AS `home` --from `association` union all select `auditableevent`.`id` AS `id`,`auditableevent`.`home` AS `home` from `auditableevent` union --all select `classification`.`id` AS `id`,`classification`.`home` AS `home` from `classification` union all select --`classificationnode`.`id` AS `id`,`classificationnode`.`home` AS `home` from `classificationnode` union all select --`classscheme`.`id` AS `id`,`classscheme`.`home` AS `home` from `classscheme` union all select `externalidentifier`.`id` AS --`id`,`externalidentifier`.`home` AS `home` from `externalidentifier` union all select `externallink`.`id` AS --`id`,`externallink`.`home` AS `home` from `externallink` union all select `extrinsicobject`.`id` AS `id`,`extrinsicobject`.`home` --AS `home` from `extrinsicobject` union all select `federation`.`id` AS `id`,`federation`.`home` AS `home` from `federation` union --all select `organization`.`id` AS `id`,`organization`.`home` AS `home` from `organization` union all select `registry`.`id` AS --`id`,`registry`.`home` AS `home` from `registry` union all select `registrypackage`.`id` AS `id`,`registrypackage`.`home` AS --`home` from `registrypackage` union all select `service`.`id` AS `id`,`service`.`home` AS `home` from `service` union all select --`servicebinding`.`id` AS `id`,`servicebinding`.`home` AS `home` from `servicebinding` union all select `specificationlink`.`id` --AS `id`,`specificationlink`.`home` AS `home` from `specificationlink` union all select `subscription`.`id` AS --`id`,`subscription`.`home` AS `home` from `subscription` union all select `user_`.`id` AS `id`,`user_`.`home` AS `home` from --`user_` union all select `person`.`id` AS `id`,`person`.`home` AS `home` from `person` union all select `objectref`.`id` AS --`id`,`objectref`.`home` AS `home` from `objectref`;
 
 
 

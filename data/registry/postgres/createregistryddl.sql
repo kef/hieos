@@ -70,16 +70,16 @@ ALTER TABLE public.affectedobject OWNER TO omar;
 --
 
 CREATE TABLE association (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
-    associationtype character varying(256) NOT NULL,
-    sourceobject character varying(256) NOT NULL,
-    targetobject character varying(256) NOT NULL,
+    associationtype character varying(128) NOT NULL,
+    sourceobject character varying(64) NOT NULL,
+    targetobject character varying(64) NOT NULL,
     CONSTRAINT association_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association'::text))
 );
 
@@ -117,17 +117,17 @@ ALTER TABLE public.auditableevent OWNER TO omar;
 --
 
 CREATE TABLE classification (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
-    classificationnode character varying(256),
-    classificationscheme character varying(256),
-    classifiedobject character varying(256) NOT NULL,
-    noderepresentation character varying(256),
+    classificationnode character varying(64),
+    classificationscheme character varying(64),
+    classifiedobject character varying(64) NOT NULL,
+    noderepresentation character varying(128),
     CONSTRAINT classification_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification'::text))
 );
 
@@ -141,15 +141,15 @@ ALTER TABLE public.classification OWNER TO omar;
 --
 
 CREATE TABLE classificationnode (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
-    code character varying(256),
-    parent character varying(256),
+    code character varying(64),
+    parent character varying(64),
     path character varying(1024),
     CONSTRAINT classificationnode_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode'::text))
 );
@@ -164,15 +164,15 @@ ALTER TABLE public.classificationnode OWNER TO omar;
 --
 
 CREATE TABLE classscheme (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
     isinternal character varying(1) NOT NULL,
-    nodetype character varying(256) NOT NULL,
+    nodetype character varying(128) NOT NULL,
     CONSTRAINT classscheme_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationScheme'::text))
 );
 
@@ -188,8 +188,8 @@ ALTER TABLE public.classscheme OWNER TO omar;
 CREATE TABLE description (
     charset character varying(32),
     lang character varying(32) NOT NULL,
-    value character varying(1024) NOT NULL,
-    parent character varying(256) NOT NULL
+    value character varying(256) NOT NULL,
+    parent character varying(64) NOT NULL
 );
 
 
@@ -217,16 +217,16 @@ ALTER TABLE public.emailaddress OWNER TO omar;
 --
 
 CREATE TABLE externalidentifier (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
-    registryobject character varying(256) NOT NULL,
-    identificationscheme character varying(256) NOT NULL,
-    value character varying(256) NOT NULL,
+    registryobject character varying(64) NOT NULL,
+    identificationscheme character varying(64) NOT NULL,
+    value character varying(128) NOT NULL,
     CONSTRAINT externalidentifier_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier'::text))
 );
 
@@ -260,15 +260,15 @@ ALTER TABLE public.externallink OWNER TO omar;
 --
 
 CREATE TABLE extrinsicobject (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
     isopaque character varying(1) NOT NULL,
-    mimetype character varying(256),
+    mimetype character varying(128),
     contentversionname character varying(16),
     contentversioncomment character varying(256)
 );
@@ -304,8 +304,8 @@ ALTER TABLE public.federation OWNER TO omar;
 --
 
 CREATE TABLE objectref (
-    id character varying(256) NOT NULL,
-    home character varying(256)
+    id character varying(64) NOT NULL,
+    home character varying(64)
 );
 
 
@@ -388,11 +388,11 @@ ALTER TABLE public.registry OWNER TO omar;
 --
 
 CREATE TABLE registrypackage (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
     CONSTRAINT registrypackage_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage'::text))
@@ -497,11 +497,11 @@ ALTER TABLE public.subscription OWNER TO omar;
 --
 
 CREATE TABLE user_ (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256),
-    status character varying(256) NOT NULL,
+    id character varying(64) NOT NULL,
+    home character varying(64),
+    lid character varying(64) NOT NULL,
+    objecttype character varying(128),
+    status character varying(128) NOT NULL,
     versionname character varying(16),
     comment_ character varying(256),
     personname_firstname character varying(64),
@@ -519,11 +519,11 @@ ALTER TABLE public.user_ OWNER TO omar;
 -- Name: identifiable; Type: VIEW; Schema: public; Owner: omar
 --
 
-CREATE VIEW identifiable AS
-    ((((((((((((((((((SELECT adhocquery.id, adhocquery.home FROM adhocquery UNION ALL SELECT association.id, association.home FROM association) UNION ALL SELECT auditableevent.id, auditableevent.home FROM auditableevent) UNION ALL SELECT classification.id, classification.home FROM classification) UNION ALL SELECT classificationnode.id, classificationnode.home FROM classificationnode) UNION ALL SELECT classscheme.id, classscheme.home FROM classscheme) UNION ALL SELECT externalidentifier.id, externalidentifier.home FROM externalidentifier) UNION ALL SELECT externallink.id, externallink.home FROM externallink) UNION ALL SELECT extrinsicobject.id, extrinsicobject.home FROM extrinsicobject) UNION ALL SELECT federation.id, federation.home FROM federation) UNION ALL SELECT organization.id, organization.home FROM organization) UNION ALL SELECT registry.id, registry.home FROM registry) UNION ALL SELECT registrypackage.id, registrypackage.home FROM registrypackage) UNION ALL SELECT service.id, service.home FROM service) UNION ALL SELECT servicebinding.id, servicebinding.home FROM servicebinding) UNION ALL SELECT specificationlink.id, specificationlink.home FROM specificationlink) UNION ALL SELECT subscription.id, subscription.home FROM subscription) UNION ALL SELECT user_.id, user_.home FROM user_) UNION ALL SELECT person.id, person.home FROM person) UNION ALL SELECT objectref.id, objectref.home FROM objectref;
+--CREATE VIEW identifiable AS
+--    ((((((((((((((((((SELECT adhocquery.id, adhocquery.home FROM adhocquery UNION ALL SELECT association.id, association.home --FROM association) UNION ALL SELECT auditableevent.id, auditableevent.home FROM auditableevent) UNION ALL SELECT --classification.id, classification.home FROM classification) UNION ALL SELECT classificationnode.id, classificationnode.home FROM --classificationnode) UNION ALL SELECT classscheme.id, classscheme.home FROM classscheme) UNION ALL SELECT externalidentifier.id, --externalidentifier.home FROM externalidentifier) UNION ALL SELECT externallink.id, externallink.home FROM externallink) UNION ALL --SELECT extrinsicobject.id, extrinsicobject.home FROM extrinsicobject) UNION ALL SELECT federation.id, federation.home FROM --federation) UNION ALL SELECT organization.id, organization.home FROM organization) UNION ALL SELECT registry.id, registry.home --FROM registry) UNION ALL SELECT registrypackage.id, registrypackage.home FROM registrypackage) UNION ALL SELECT service.id, --service.home FROM service) UNION ALL SELECT servicebinding.id, servicebinding.home FROM servicebinding) UNION ALL SELECT --specificationlink.id, specificationlink.home FROM specificationlink) UNION ALL SELECT subscription.id, subscription.home FROM --subscription) UNION ALL SELECT user_.id, user_.home FROM user_) UNION ALL SELECT person.id, person.home FROM person) UNION ALL --SELECT objectref.id, objectref.home FROM objectref;
 
 
-ALTER TABLE public.identifiable OWNER TO omar;
+--ALTER TABLE public.identifiable OWNER TO omar;
 
 --
 -- TOC entry 1589 (class 1259 OID 78552)
@@ -534,8 +534,8 @@ ALTER TABLE public.identifiable OWNER TO omar;
 CREATE TABLE name_ (
     charset character varying(32),
     lang character varying(32) NOT NULL,
-    value character varying(1024) NOT NULL,
-    parent character varying(256) NOT NULL
+    value character varying(256) NOT NULL,
+    parent character varying(64) NOT NULL
 );
 
 
@@ -616,18 +616,18 @@ ALTER TABLE public.postaladdress OWNER TO omar;
 -- Name: registryobject; Type: TABLE; Schema: public; Owner: omar; Tablespace: 
 --
 
-CREATE TABLE registryobject (
-    id character varying(256) NOT NULL,
-    home character varying(256),
-    lid character varying(256) NOT NULL,
-    objecttype character varying(256) NOT NULL,
-    status character varying(256) NOT NULL,
-    versionname character varying(16),
-    comment_ character varying(256)
-);
+--CREATE TABLE registryobject (
+--    id character varying(256) NOT NULL,
+--    home character varying(256),
+--    lid character varying(256) NOT NULL,
+--    objecttype character varying(256) NOT NULL,
+--    status character varying(256) NOT NULL,
+--    versionname character varying(16),
+--    comment_ character varying(256)
+--);
 
 
-ALTER TABLE public.registryobject OWNER TO omar;
+--ALTER TABLE public.registryobject OWNER TO omar;
 
 --
 -- TOC entry 1595 (class 1259 OID 78591)
@@ -652,10 +652,10 @@ ALTER TABLE public.repositoryitem OWNER TO omar;
 
 CREATE TABLE slot (
     sequenceid integer NOT NULL,
-    name_ character varying(256) NOT NULL,
-    slottype character varying(256),
-    value character varying(256),
-    parent character varying(256) NOT NULL
+    name_ character varying(128) NOT NULL,
+    slottype character varying(128),
+    value character varying(128),
+    parent character varying(64) NOT NULL
 );
 
 
@@ -905,8 +905,8 @@ ALTER TABLE ONLY registry
 -- Name: registryobject_pkey; Type: CONSTRAINT; Schema: public; Owner: omar; Tablespace: 
 --
 
-ALTER TABLE ONLY registryobject
-    ADD CONSTRAINT registryobject_pkey PRIMARY KEY (id, objecttype);
+--ALTER TABLE ONLY registryobject
+--    ADD CONSTRAINT registryobject_pkey PRIMARY KEY (id, objecttype);
 
 
 --
@@ -1232,6 +1232,18 @@ CREATE INDEX value_eid_idx ON externalidentifier USING btree (value);
 
 CREATE INDEX value_usgdes_idx ON usagedescription USING btree (value);
 
+-- View: registryobject
+
+-- DROP VIEW registryobject;
+
+--CREATE OR REPLACE VIEW registryobject AS 
+--(SELECT extrinsicobject.id, extrinsicobject.objecttype
+--   FROM extrinsicobject)
+--UNION 
+-- SELECT registrypackage.id, registrypackage.objecttype
+--   FROM registrypackage;
+
+--ALTER TABLE public.registryobject OWNER TO omar;
 
 --
 -- TOC entry 1976 (class 0 OID 0)
