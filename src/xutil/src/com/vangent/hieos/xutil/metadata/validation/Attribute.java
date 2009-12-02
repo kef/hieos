@@ -23,11 +23,12 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
- * @author thumbe
+ * @author NIST (Adapted).
  */
 public class Attribute {
 
@@ -72,28 +73,28 @@ public class Attribute {
      *
      */
     private void init() {
+        // Submission set slots:
         ss_slots = new ArrayList<String>();
-        // required
         ss_slots.add("submissionTime");
+        ss_slots.add("intendedRecipient");
 
+        // Document slots:
         doc_slots = new ArrayList<String>();
-        // required
         doc_slots.add("creationTime");
         doc_slots.add("languageCode");
-        doc_slots.add("hash");
-        doc_slots.add("size");
         doc_slots.add("sourcePatientId");
         doc_slots.add("sourcePatientInfo");
-        // optional
         doc_slots.add("intendedRecipient");
         doc_slots.add("legalAuthenticator");
         doc_slots.add("serviceStartTime");
         doc_slots.add("serviceStopTime");
+        doc_slots.add("hash");
+        doc_slots.add("size");
         doc_slots.add("URI");
         doc_slots.add("repositoryUniqueId");
 
+        // Folder slots:
         fol_slots = new ArrayList<String>();
-        // optional
         fol_slots.add("lastUpdateTime");
     }
 
@@ -161,8 +162,97 @@ public class Attribute {
         validate_special_class_structure();
         validate_special_fol_class_structure();
 
-
         // validate special structure in some classifications and slots and associations and externalids
+    }
+
+    /**
+     * Validate HL7 V2 (V2.5) Organization Name (XON) data type.
+     *
+     * FROM:
+     * IHE ITI Technical Framework, Volume 3 (ITI TF-3): Cross-Transaction and Content Specifications
+     *
+     * This type provides the name and identification of an organization. This specification
+     * restricts the coding to the following fields:
+     * XON.1 – Organization Name – this field is required
+     * XON.6.2 – Assigning Authority Universal Id – this field is required if XON.10 is valued and not an OID
+     * XON.6.3 – Assigning Authority Universal Id Type – this field is required if XON.10 is valued and not
+     *           an OID and shall have the value “ISO”
+     * XON.10 – Organization Identifier – this field is optional
+     *
+     * Examples:
+     *  Some Hospital
+     *  Some Hospital^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
+     *  Some Hospital^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
+     *
+     * @param value The slot value (supposably in XON format) to validate.
+     * @return List<String> of errors.  The empty list if none found.
+     */
+    private List<String> validate_XON(String value) {
+        List<String> errs = new ArrayList<String>();
+        // Split the string into its component parts:
+        String[] parts = value.split("\\^");
+        if (parts.length < 1) {
+            errs.add("No value specified for XON slot");
+            return errs;  // EARLY EXIT!
+        }
+        // Get XON.1 part:
+        String xon_1 = parts[0];
+        if (xon_1.length() == 0) {
+            errs.add("XON.1 missing");
+        }
+
+        // Get other XON parts:
+        String xon_6 = (parts.length < 6) ? "" : parts[5];
+        xon_6 = xon_6.replaceAll("\\&amp;", "&");
+        String xon_10 = (parts.length < 10) ? "" : parts[9];
+        String[] xon_6_parts = xon_6.split("\\&");
+        String xon_6_2 = (xon_6_parts.length < 2) ? "" : xon_6_parts[1];
+        String xon_6_3 = (xon_6_parts.length < 3) ? "" : xon_6_parts[2];
+
+        // Perform validation rules:
+        if (xon_10.length() > 0 && !is_oid(xon_10)) {
+            if (xon_6_2.length() == 0) {
+                errs.add("XON.10 is valued and not an OID so XON.6.2 is required");
+            } else if (!is_oid(xon_6_2)) {
+                errs.add("XON.6.2 must be an OID");
+            }
+            if (!xon_6_3.equals("ISO")) {
+                errs.add("XON.10 is valued and not an OID so XON.6.3 is required to have the value ISO");
+            }
+        }
+        // Check to see if other XON positions have any values:
+        for (int i = 1; i <= 10; i++) {
+            if (i == 1 || i == 6 || i == 10) {
+                continue;
+            }
+            if (parts.length < i) {
+                continue;
+            }
+            if (parts[i - 1].length() > 0) {
+                errs.add("Only XON.1, XON.6, XON.10 are allowed to have values: found value in XON." + i);
+            }
+        }
+        return errs;
+    }
+
+    /**
+     *
+     * @param ai_slot
+     */
+    private void validate_author_institution(OMElement ai_slot) {
+        OMElement value_list_ele = MetadataSupport.firstChildWithLocalName(ai_slot, "ValueList");
+        if (value_list_ele == null) {
+            err("authorInstitution Slot has no ValueList");
+            return;
+        }
+        List<OMElement> values = MetadataSupport.childrenWithLocalName(value_list_ele, "Value");
+        for (OMElement value_ele : values) {
+            String value = value_ele.getText();
+            List<String> errs = this.validate_XON(value);
+            for (String err : errs) {
+                err("authorInstitution: " + err);
+            }
+        }
     }
 
     /**
@@ -190,7 +280,6 @@ public class Attribute {
                             class_scheme + ") with no nodeRepresentation attribute.  It is required and must be the empty string.");
                 }
 
-
                 String author_person = m.getSlotValue(class_ele, "authorPerson", 0);
                 if (author_person == null) {
                     err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
@@ -208,18 +297,18 @@ public class Attribute {
                 for (OMElement slot : MetadataSupport.childrenWithLocalName(class_ele, "Slot")) {
                     String slot_name = slot.getAttributeValue(MetadataSupport.slot_name_qname);
                     if (slot_name != null &&
-                            (slot_name.equals("authorPerson") ||
-                            slot_name.equals("authorInstitution") ||
+                            (slot_name.equals("authorPerson") || // FIXME: Should probably validate as XCN
                             slot_name.equals("authorRole") ||
                             slot_name.equals("authorSpecialty"))) {
+                        // Do nothing.
+                    } else if (slot_name != null && slot_name.equals("authorInstitution")) {
+                        validate_author_institution(slot);
                     } else {
                         err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
                                 class_scheme + ") with an unknown type of slot with name " + slot_name + ".  Only XDS prescribed slots are allowed inside this classification");
-
                     }
                 }
             }
-
         }
     }
 
@@ -268,6 +357,85 @@ public class Attribute {
     }
 
     /**
+     * 
+     * @param pid
+     * @return
+     */
+    private String validate_CX_datatype(String pid) {
+        if (pid == null) {
+            return "No Patient ID found";
+        }
+        String[] parts = pid.split("\\^\\^\\^");
+        if (parts.length != 2) {
+            return "Not Patient ID format: ^^^ not found:";
+        }
+        String part2 = parts[1];
+        part2 = part2.replaceAll("&amp;", "&");
+        String[] partsa = part2.split("&");
+        if (partsa.length != 3) {
+            return "Expected &OID&ISO after ^^^ in CX data type (bad pid = " + pid + ")";
+        }
+        if (partsa[0].length() != 0) {
+            return "Expected &OID&ISO after ^^^ in CX data type (bad pid = " + pid + ")";
+        }
+        if (!partsa[2].equals("ISO")) {
+            return "Expected &OID&ISO after ^^^ in CX data type (bad pid = " + pid + ")";
+        }
+        if (!is_oid(partsa[1])) {
+            return "Expected &OID&ISO after ^^^ in CX data type: OID part does not parse as an OID (bad pid = "
+                    + pid + ")";
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @param spi_slot
+     */
+    private void validate_source_patient_id(OMElement spi_slot) {
+        OMElement value_list = MetadataSupport.firstChildWithLocalName(spi_slot, "ValueList");
+        List<OMElement> valueEles = MetadataSupport.childrenWithLocalName(value_list, "Value");
+        if (valueEles.size() != 1) {
+            err("sourcePatientId must have exactly one value");
+            return;
+        }
+        String msg = validate_CX_datatype(valueEles.get(0).getText());
+        if (msg != null) {
+            err("Slot sourcePatientId format error: " + msg);
+        }
+    }
+
+    /**
+     *
+     * @param spi_slot
+     */
+    private void validate_source_patient_info(OMElement spi_slot) {
+        OMElement value_list = MetadataSupport.firstChildWithLocalName(spi_slot, "ValueList");
+        for (OMElement value : MetadataSupport.childrenWithLocalName(value_list, "Value")) {
+            String content = value.getText();
+            if (content == null || content.equals("")) {
+                err("Slot sourcePatientInfo has empty Slot value");
+                continue;
+            }
+            String[] parts = content.split("\\|");
+            if (parts.length != 2) {
+                err("Slot sourcePatientInfo Value must have two parts separated by | ");
+                continue;
+            }
+            if (!parts[0].startsWith("PID-")) {
+                err("Slot sourcePatientInfo Values must start with PID- ");
+                continue;
+            }
+            if (parts[0].startsWith("PID-3")) {
+                String msg = validate_CX_datatype(parts[1]);
+                if (msg != null) {
+                    err("Slot sourcePatientInfo#PID-3 must be valid Patient ID: " + msg);
+                }
+            }
+        }
+    }
+
+    /**
      *
      * @throws MetadataException
      */
@@ -283,9 +451,13 @@ public class Attribute {
                     continue;
                 }
                 if (slot_name.equals("legalAuthenticator")) {
+                    // FIXME: Should validate against XCN format.
                 } else if (slot_name.equals("sourcePatientId")) {
+                    validate_source_patient_id(slot);
                 } else if (slot_name.equals("sourcePatientInfo")) {
+                    validate_source_patient_info(slot);
                 } else if (slot_name.equals("intendedRecipient")) {
+                    // FIXME: Should validate against XON/XCN format (multi-valued).
                 } else if (slot_name.equals("URI")) {
                 }
             }
@@ -362,9 +534,9 @@ public class Attribute {
             ArrayList classs = m.getClassifications(id);
             //                                               classificationScheme								name							required	multiple
             if (this.is_submit) {
-                this.validate_class("Folder", id, classs, "urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5", "codeList", false, false);
+                this.validate_class("Folder", id, classs, "urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5", "codeList", true, true);
             } else {
-                this.validate_class("Folder", id, classs, "urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5", "codeList", false, true);
+                this.validate_class("Folder", id, classs, "urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5", "codeList", true, true);
             }
         }
     }
@@ -393,7 +565,7 @@ public class Attribute {
             String id = (String) ss_ids.get(i);
             ArrayList slots = m.getSlots(id);
             ArrayList ext_ids = m.getExternalIdentifiers(id);
-            //													name							identificationScheme                          OID required
+            //	name, identificationScheme, OID required
             this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.patientId", MetadataSupport.XDSSubmissionSet_patientid_uuid, false);
             this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.sourceId", MetadataSupport.XDSSubmissionSet_sourceid_uuid, true);
             this.validate_ext_id("Submission Set", id, ext_ids, "XDSSubmissionSet.uniqueId", MetadataSupport.XDSSubmissionSet_uniqueid_uuid, true);
@@ -444,7 +616,7 @@ public class Attribute {
             OMElement docEle = m.getObjectById(id);
             ArrayList slots = m.getSlots(id);
             ArrayList ext_ids = m.getExternalIdentifiers(id);
-            //                      				name						multi	required	number
+            // name, multi, required, number
             validate_slot("Document", id, slots, "creationTime", false, true, true);
             validate_slot("Document", id, slots, "hash", false, true, false);
             validate_slot("Document", id, slots, "intendedRecipient", true, false, false);
@@ -453,7 +625,7 @@ public class Attribute {
             validate_slot("Document", id, slots, "serviceStartTime", false, false, true);
             validate_slot("Document", id, slots, "serviceStopTime", false, false, true);
             validate_slot("Document", id, slots, "size", false, true, true);
-            validate_slot("Document", id, slots, "sourcePatientInfo", true, true, false);
+            validate_slot("Document", id, slots, "sourcePatientInfo", true, false, false);
 
             // These are tricky since the validation is based on the metadata format (xds.a or xds.b) instead of
             // on the transaction. All Stored Queries are encoded in ebRIM 3.0 (xds.b format) but they could
@@ -600,7 +772,7 @@ public class Attribute {
         if (value == null) {
             return false;
         }
-        return value.matches("\\d(?=\\d*\\.)(?:\\.(?=\\d)|\\d){0,63}");
+        return value.matches("\\d(?=\\d*\\.)(?:\\.(?=\\d)|\\d){0,255}");
     }
 
     /**
@@ -668,7 +840,7 @@ public class Attribute {
                 case '8':
                 case '9':
                 case '0':
-                    return;
+                    continue;
             }
             throw new Exception("Not an integer");
         }

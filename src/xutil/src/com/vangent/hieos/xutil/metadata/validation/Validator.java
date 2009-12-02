@@ -28,8 +28,11 @@ import java.util.Iterator;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (Adapted by Bernie Thuman)
+ */
 public class Validator {
-
     RegistryErrorList rel;
     Metadata m;
     boolean is_submit;
@@ -38,15 +41,23 @@ public class Validator {
     CodeValidation cv;
     PatientId pid;
     UniqueId uid;
-    ArrayList<String> assigning_authorities;
+    //ArrayList<String> assigning_authorities;
     XLogMessage log_message;
 
+    /**
+     *
+     * @param m
+     * @param rel
+     * @param is_submit
+     * @param log_message
+     * @throws XdsException
+     */
     public Validator(Metadata m, RegistryErrorList rel, boolean is_submit, XLogMessage log_message) throws XdsException {
         this.rel = rel;
         this.m = m;
         this.is_submit = is_submit;
         this.log_message = log_message;
-
+        // Prepare all validation structures:
         s = new Structure(m, is_submit, rel, log_message);
         a = new Attribute(m, is_submit, rel, log_message);
         try {
@@ -55,16 +66,17 @@ public class Validator {
             rel.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), null);
             throw new XdsInternalException(e.getLocalizedMessage(), e);
         }
-        assigning_authorities = cv.getAssigningAuthorities();
-
+        //assigning_authorities = cv.getAssigningAuthorities();
         pid = new PatientId(m, rel, is_submit);
         uid = new UniqueId(m, rel);
     }
 
-    /* Commented out (BHT) -- not used.
-    public ArrayList<String> getAssigningAuthority() {
-    return this.assigning_authorities;
-    }*/
+    /**
+     *
+     * @throws XdsInternalException
+     * @throws MetadataValidationException
+     * @throws XdsException
+     */
     public void run() throws XdsInternalException, MetadataValidationException, XdsException {
         try {
             s.run();
@@ -84,10 +96,15 @@ public class Validator {
         }
         uid.run();
         rel.getRegistryErrorList(); // forces output of validation report
-        //System.out.println("Metadata Validator Done");
     }
 
     // internal classifications must point to object that contains them
+    /**
+     *
+     * @param e
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
     void validate_internal_classifications(OMElement e) throws MetadataValidationException, MetadataException {
         String e_id = e.getAttributeValue(MetadataSupport.id_qname);
         if (e_id == null || e_id.equals("")) {
@@ -100,21 +117,23 @@ public class Validator {
                 String value = classified_object_att.getAttributeValue();
                 if (!e_id.equals(value)) {
                     throw new MetadataValidationException("Classification " + m.getIdentifyingString(child) +
-                            "\n   is nested inside " + m.getIdentifyingString(e) +
-                            "\n   but classifies object " + m.getIdentifyingString(value));
+                            "\n is nested inside " + m.getIdentifyingString(e) +
+                            "\n but classifies object " + m.getIdentifyingString(value));
                 }
             }
         }
     }
 
-    void val(String topic, String msg) {
+    /*
+     void val(String topic, String msg) {
         if (msg == null) {
             msg = "Ok";
         }
         rel.add_validation(topic, msg, "Validator.java");
-    }
+    }*/
 
-    void err(String msg) {
+    /*
+     void err(String msg) {
         rel.add_error(MetadataSupport.XDSRegistryMetadataError, msg, this.getClass().getName(), null);
-    }
+    } */
 }
