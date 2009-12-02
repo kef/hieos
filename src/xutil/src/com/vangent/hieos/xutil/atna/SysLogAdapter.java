@@ -31,7 +31,7 @@ public class SysLogAdapter {
 
     private final static Logger logger = Logger.getLogger(SysLogAdapter.class);
     private final static String APP_NAME = "HIEOS";
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private InetAddress syslogHostAddress = null;
     private String localHostName = null;
     private DatagramSocket socket = null;
@@ -108,14 +108,14 @@ public class SysLogAdapter {
             String currentDateTime = dateFormat.format(date);
 
             // See http://www.faqs.org/rfcs/rfc5424.html for format:
-            // PRI = <13> (13 * 8 + 6)
+            // PRI = <85> (10 * 8 + 5)
             // VERSION = 1
             // TIMESTAMP
             // HOSTNAME
             // APP-NAME
             // PROCID
             // MSGID
-            String syslogMsg = "<110>1 " + currentDateTime + " " + this.localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
+            String syslogMsg = "<85>1 " + currentDateTime + " " + this.localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
             //System.out.println("xxx: Syslog msg=[" + syslogMsg + "]");
 
             byte[] bytes = syslogMsg.getBytes();
