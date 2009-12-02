@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
-   <Test>vbigpnr2/submit</Test>
-    <TestStep id="submit_docs1">
+   <Test>vsmallpnr/submit</Test>
+    <TestStep id="submit_docs">
         <NewPatientId/>
         <ExpectedStatus>Success</ExpectedStatus>
         <ProvideAndRegisterTransaction>
@@ -11,6 +11,8 @@
             <Document id="Document01">test_pdf_doc.pdf</Document>
             <Document id="Document02">test_hitsp_c32.xml</Document>
 		<Document id="Document03">test_txt_doc.txt</Document>
+		<Document id="Document04">test_txt_doc.txt</Document>
+		<Document id="Document05">test_txt_doc.txt</Document>
         </ProvideAndRegisterTransaction>
     </TestStep>
     <TestStep id="reset_patient_id">
