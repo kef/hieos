@@ -31,13 +31,14 @@ public abstract class SQCodedTerm {
 			"$XDSFolderCodeList"
 	};
 
+        // Trimmed down various parameters to get around an Oracle alias length problem.
 	static String[] codeParmVarName = {
 			"classCode",
-			"typeCode"	,
-			"practiceSettingCode",
-			"healthcareFacilityTypeCode",
-			"eventCodeList",
-			"confidentialityCode",
+			"typeCode",
+			"psCode",        // practiceSettingCode
+			"hfTypeCode",    // healthcareFacilityTypeCode
+			"eCodeList",     // eventCodeList
+			"cCode",         // confidentialityCode
 			"formatCode",
 			"contentType",
 			"codeList"
