@@ -48,6 +48,7 @@ public abstract class StoredQuery {
     protected StringBuffer query;
     protected BackendRegistry br;
     protected boolean return_leaf_class;
+    private long maxLeafObjectsAllowedFromQuery = 25;  // Default.
     public boolean has_validation_errors = false;
 
     /**
@@ -68,6 +69,24 @@ public abstract class StoredQuery {
         this.log_message = log_message;
         br = new BackendRegistry(response, log_message);
 
+    }
+
+    /**
+     * Set the maximum value for constraining Leaf Class query results.
+     *
+     * @param maxLeafObjectsAllowedFromQuery maximum to allow.
+     */
+    public void setMaxLeafObjectsAllowedFromQuery(long maxLeafObjectsAllowedFromQuery) {
+        this.maxLeafObjectsAllowedFromQuery = maxLeafObjectsAllowedFromQuery;
+    }
+
+    /**
+     * Get the maximum value for constraining Leaf Class query results.
+     * 
+     * @return maximum to allow.
+     */
+    public long getMaxLeafObjectsAllowedFromQuery() {
+        return this.maxLeafObjectsAllowedFromQuery;
     }
 
     /**
@@ -552,21 +571,20 @@ public abstract class StoredQuery {
      */
     /*
     protected OMElement getObjectsByUUID(List<String> uuids) throws XdsException {
-        if (uuids.size() == 0) {
-            return null;
-        }
-        init();
-        select("ro");
-        append("FROM RegistryObject ro");
-        newline();
-        append("WHERE");
-        newline();
-        append(" ro.id IN ");
-        append(uuids);
-        newline();
-        return query();
+    if (uuids.size() == 0) {
+    return null;
+    }
+    init();
+    select("ro");
+    append("FROM RegistryObject ro");
+    newline();
+    append("WHERE");
+    newline();
+    append(" ro.id IN ");
+    append(uuids);
+    newline();
+    return query();
     } */
-
     /**
      *
      * @param uuid
