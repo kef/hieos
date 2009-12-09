@@ -12,10 +12,8 @@
  */
 package com.vangent.hieos.xclient.xds.repository;
 
-import com.vangent.hieos.xclient.xds.repository.RetInfo;
-import com.vangent.hieos.xclient.xds.repository.RetContext;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
-import com.vangent.hieos.xutil.registry.*;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -31,6 +29,8 @@ import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsPreparsedException;
 import com.vangent.hieos.xutil.exception.XdsWSException;
+import com.vangent.hieos.xutil.registry.OmLogger;
+import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.soap.Soap;
 
 import java.io.IOException;
@@ -40,10 +40,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
 
 public class RetrieveB extends OmLogger {
 
@@ -55,6 +51,7 @@ public class RetrieveB extends OmLogger {
     boolean is_xca = false;
     boolean soap12 = true;
     boolean async = false;
+    private XUAObject xuaObject = null;  // Default (no XUA).
 
     public void setIsXca(boolean isXca) {
         is_xca = isXca;
@@ -86,6 +83,10 @@ public class RetrieveB extends OmLogger {
 
     public void setSoap12(boolean v) {
         soap12 = v;
+    }
+
+    public void setXUAObject(XUAObject xua) {
+        this.xuaObject = xua;
     }
 
     OMElement build_request(RetContext rc) {
@@ -183,6 +184,8 @@ public class RetrieveB extends OmLogger {
             throws XdsWSException, XdsException {
         Soap soap = new Soap();
         soap.setAsync(async);
+        //setting XUA object to soap call
+        soap.setXUAObject(this.xuaObject);  // May be null, ok.
         soap.soapCall(metadata_ele, endpoint,
                 true, // mtom
                 true, // addressing
