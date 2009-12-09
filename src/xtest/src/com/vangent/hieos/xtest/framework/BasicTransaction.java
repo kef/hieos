@@ -31,6 +31,7 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public abstract class BasicTransaction extends OmLogger {
     protected boolean useMtom;
     protected boolean useAddressing;
     OMElement metadata_element;
+    protected XUAObject xuaObject = null;
 
     public abstract void run() throws XdsException;
 
@@ -737,6 +739,8 @@ public abstract class BasicTransaction extends OmLogger {
     protected void soapCall() {
         soap = new Soap();
         soap.setAsync(async);
+        setXUAConfiguration();
+        soap.setXUAObject(this.xuaObject);  // may be null, ok.
         try {
             System.out.println("  Making SOAP call...");
             long startTime = System.currentTimeMillis();
@@ -783,5 +787,24 @@ public abstract class BasicTransaction extends OmLogger {
 
     protected void setMetadata(OMElement metadata_ele) {
         this.metadata_element = metadata_ele;
+    }
+
+    /**
+     * Retrieves XUA configuration for the current test site.
+     */
+    protected void setXUAConfiguration() {
+        String site = TestConfig.target;
+        boolean xuaEnabled = new Boolean(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Enabled"));
+        if (xuaEnabled == true) {
+            xuaObject = new XUAObject();
+            xuaObject.setXUAEnabled(true);
+            xuaObject.setUserName(TestConfig.xtestConfig.getSiteProperty(site, "XUA:UserName"));
+            xuaObject.setSTSUri(TestConfig.xtestConfig.getSiteProperty(site, "XUA:ServiceURI"));
+            xuaObject.setPassword(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Password"));
+            xuaObject.setSTSUrl(TestConfig.xtestConfig.getSiteProperty(site, "XUA:STSURL"));
+            xuaObject.setXUASupportedSOAPActions(TestConfig.xtestConfig.getSiteProperty(site, "XUA:SOAPActions"));
+        } else {
+            xuaObject = null;
+        }
     }
 }

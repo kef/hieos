@@ -71,6 +71,18 @@ public class XTestConfig {
     }
 
     /**
+     * Returns the value of a given property from the given site.
+     * 
+     * @param siteName Name of the current test site.
+     * @param property Name of the property to find.
+     * @return The value of the property for the given site.
+     */
+    public String getSiteProperty(String siteName, String property)
+    {
+        return this.getSiteByName(siteName).getProperty(property);
+    }
+
+    /**
      * Gets the value of the Default Site.
      *
      * @return a String value.

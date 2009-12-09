@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.xtest.transactions.xds;
 
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.StepContext;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
@@ -199,6 +200,8 @@ public class RetrieveTransaction extends BasicTransaction {
             System.out.println("** ENDPOINT **: " + endpoint);
             RetrieveB ret_b = new RetrieveB(r_ctx, endpoint);
             ret_b.setAsync(async);
+            setXUAConfiguration();
+            ret_b.setXUAObject(this.xuaObject);  // May be null, ok.
             ret_b.setExpectedMimeType(this.expected_mime_type);
             ret_b.setStepContext(instruction_output);
             ret_b.setIsXca(is_xca);

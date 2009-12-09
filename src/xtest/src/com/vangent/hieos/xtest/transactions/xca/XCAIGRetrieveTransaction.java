@@ -158,6 +158,8 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
             System.out.println("** ENDPOINT **: " + endpoint);
             RetrieveB ret_b = new RetrieveB(r_ctx, endpoint);
             ret_b.setAsync(async);
+            setXUAConfiguration();
+            ret_b.setXUAObject(this.xuaObject);  // May be null, ok.
             ret_b.setExpectedMimeType(this.expected_mime_type);
             ret_b.setStepContext(instruction_output);
             ret_b.setIsXca(false);  // 'false' forces a RetrieveDocumentSet versus CrossGatewayRetrieve

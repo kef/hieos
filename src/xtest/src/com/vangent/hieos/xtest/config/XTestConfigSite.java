@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xtest.config;
 
 // Third-party.
@@ -29,8 +28,8 @@ import org.apache.log4j.Logger;
  *
  */
 public class XTestConfigSite {
-    private static final Logger logger = Logger.getLogger(XTestConfigSite.class);
 
+    private static final Logger logger = Logger.getLogger(XTestConfigSite.class);
     // Constants
     private static final String PID_ALLOCATE_ENDPOINT = "PidAllocateEndpoint";
     private static final String DEFAULT_REGISTRY = "DefaultRegistry";
@@ -41,11 +40,8 @@ public class XTestConfigSite {
     private static final String INITIATING_GATEWAY_ELEMENT = "InitiatingGateway";
     private static final String RESPONDING_GATEWAY_ELEMENT = "RespondingGateway";
     private static final String NAME_ATTRIBUTE = "name";
-
-
     // State
     private String name = "";
-
     private XConfigProperties properties = new XConfigProperties();
     private HashMap<String, XTestConfigRegistry> registries = new HashMap<String, XTestConfigRegistry>(); // Key = registry name, Value = XTestConfigRegistry
     private HashMap<String, XTestConfigRepository> repositories = new HashMap<String, XTestConfigRepository>();// Key = repository unique id, XTestConfigRepository
@@ -75,6 +71,16 @@ public class XTestConfigSite {
     }
 
     /**
+     * Return the value for the given property name.
+     * 
+     * @param property The property name to lookup.
+     * @return The value of the given property (as a String).
+     */
+    public String getProperty(String property) {
+        return (String) properties.getProperty(property);
+    }
+
+    /**
      * Get the value of the Default Registry.
      *
      * @return a String value.
@@ -92,7 +98,7 @@ public class XTestConfigSite {
         return (String) properties.getProperty(DEFAULT_REPOSITORY);
     }
 
-     /**
+    /**
      * Get the value of the Default Initiating Gateway.
      *
      * @return a String value.
@@ -113,7 +119,7 @@ public class XTestConfigSite {
         }
         return registry;
     }
-    
+
     /**
      * This returns a XTestConfigRepository, a repository definition,  given a repository uid.
      * @param repositoryId
@@ -174,7 +180,6 @@ public class XTestConfigSite {
     ///////////////////////////////////////////////////////////////////////////
     // PRIVATE METHODS
     //////////////////////////////////////////////////////////////////////////
-
     /**
      * This method is passed in a Site OMElement.
      * It establishes the sites properties.
