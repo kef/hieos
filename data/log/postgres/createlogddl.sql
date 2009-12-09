@@ -1,4 +1,4 @@
---
+﻿--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -11,9 +11,20 @@
 --  limitations under the License.
 --
 
+--
+-- Drop Table Statements
+--
+DROP TABLE error;
+DROP TABLE http;
+DROP TABLE other;
+DROP TABLE soap;
+DROP TABLE logdetail;
+DROP TABLE main;
+DROP TABLE ip;
+
+
 -- Table: ip
 
--- DROP TABLE ip;
 
 CREATE TABLE ip
 (
@@ -37,16 +48,14 @@ ALTER TABLE ip OWNER TO log;
 
 -- Table: main
 
--- DROP TABLE main;
-
 CREATE TABLE main
 (
   messageid character varying(255) NOT NULL,
-  is_secure boolean,
+  is_secure char(1),
   ip character varying(100) NOT NULL,
   timereceived timestamp without time zone NOT NULL DEFAULT '2008-08-30 19:56:01.093'::timestamp without time zone,
   test text NOT NULL,
-  pass boolean,
+  pass char(1),
   CONSTRAINT main_pkey PRIMARY KEY (messageid),
   CONSTRAINT main_ip_fkey FOREIGN KEY (ip)
       REFERENCES ip (ip) MATCH SIMPLE
@@ -75,113 +84,40 @@ CREATE INDEX "MAIN_IP_INDEX"
 
 
 
--- Table: error
+-- Table: logdetail
+--
+-- logdetail replaces the following tables - error, soap, http and other.
+--
 
--- DROP TABLE error;
-
-CREATE TABLE error
+CREATE TABLE logdetail
 (
+  type character varying(10) NOT NULL,
   messageid character varying(255) NOT NULL,
   "name" character varying(255) NOT NULL,
   "value" text,
   seqid integer NOT NULL DEFAULT 0,
-  CONSTRAINT error_messageid_fkey FOREIGN KEY (messageid)
+  CONSTRAINT logdetail_messageid_fkey FOREIGN KEY (messageid)
       REFERENCES main (messageid) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 )
 WITH (OIDS=FALSE);
-ALTER TABLE error OWNER TO log;
 
--- Index: "ERROR_MID_INDEX"
+ALTER TABLE logdetail OWNER TO log;
 
--- DROP INDEX "ERROR_MID_INDEX";
+-- Index: "LOGDETAIL_MID_INDEX"
 
-CREATE INDEX "ERROR_MID_INDEX"
-  ON error
+-- DROP INDEX "LOGDETAIL_MID_INDEX";
+
+CREATE INDEX "LOGDETAIL_MID_INDEX"
+  ON logdetail
   USING btree
   (messageid);
 
+-- Index: "LOGDETAIL_TYPE_INDEX"
 
+-- DROP INDEX "LOGDETAIL_TYPE_INDEX";
 
--- Table: http
-
--- DROP TABLE http;
-
-CREATE TABLE http
-(
-  messageid character varying(255) NOT NULL,
-  "name" character varying(255) NOT NULL,
-  "value" text,
-  seqid integer NOT NULL DEFAULT 0,
-  CONSTRAINT http_messageid_fkey FOREIGN KEY (messageid)
-      REFERENCES main (messageid) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
-)
-WITH (OIDS=FALSE);
-ALTER TABLE http OWNER TO log;
-
--- Index: "HTTP_MID_INDEX"
-
--- DROP INDEX "HTTP_MID_INDEX";
-
-CREATE INDEX "HTTP_MID_INDEX"
-  ON http
+CREATE INDEX "LOGDETAIL_TYPE_INDEX"
+  ON logdetail
   USING btree
-  (messageid);
-
-
-
-
--- Table: other
-
--- DROP TABLE other;
-
-CREATE TABLE other
-(
-  messageid character varying(255) NOT NULL,
-  "name" character varying(255) NOT NULL,
-  "value" text,
-  seqid integer NOT NULL DEFAULT 0,
-  CONSTRAINT other_messageid_fkey FOREIGN KEY (messageid)
-      REFERENCES main (messageid) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
-)
-WITH (OIDS=FALSE);
-ALTER TABLE other OWNER TO log;
-
--- Index: "OTHER_MID_INDEX"
-
--- DROP INDEX "OTHER_MID_INDEX";
-
-CREATE INDEX "OTHER_MID_INDEX"
-  ON other
-  USING btree
-  (messageid);
-
-
-
--- Table: soap
-
--- DROP TABLE soap;
-
-CREATE TABLE soap
-(
-  messageid character varying(255) NOT NULL,
-  "name" character varying(255) NOT NULL,
-  "value" text,
-  seqid integer NOT NULL DEFAULT 0,
-  CONSTRAINT soap_messageid_fkey FOREIGN KEY (messageid)
-      REFERENCES main (messageid) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE CASCADE
-)
-WITH (OIDS=FALSE);
-ALTER TABLE soap OWNER TO log;
-
--- Index: "SOAP_MID_INDEX"
-
--- DROP INDEX "SOAP_MID_INDEX";
-
-CREATE INDEX "SOAP_MID_INDEX"
-  ON soap
-  USING btree
-  (messageid);
+  (type);
