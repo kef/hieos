@@ -332,12 +332,14 @@ exists or setup the property manually. For example like this:
     <target depends="compile" name="library-inclusion-in-archive">
         <copyfiles files="${file.reference.xutil.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.log4j-1.2.15.jar}" todir="${build.classes.dir}"/>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
         <copyfiles files="${file.reference.xutil.jar}" manifestproperty="manifest.file.reference.xutil.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" manifestproperty="manifest.file.reference.axiom-api-1.2.8.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.log4j-1.2.15.jar}" manifestproperty="manifest.file.reference.log4j-1.2.15.jar" todir="${dist.ear.dir}"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.file.reference.xutil.jar} ${manifest.file.reference.axiom-api-1.2.8.jar} "/>
+            <attribute name="Class-Path" value="${manifest.file.reference.xutil.jar} ${manifest.file.reference.axiom-api-1.2.8.jar} ${manifest.file.reference.log4j-1.2.15.jar} "/>
         </manifest>
     </target>
     <target name="-copy-meta-inf">
