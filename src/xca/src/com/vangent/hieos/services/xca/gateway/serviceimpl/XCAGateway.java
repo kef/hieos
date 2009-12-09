@@ -13,14 +13,12 @@
 
 package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
-import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAbstractTransaction;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.response.Response;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
@@ -47,15 +45,14 @@ public class XCAGateway extends XAbstractService {
      */
     public OMElement AdhocQueryRequest(OMElement ahqr) {
         try {
-            OMElement startup_error = beginTransaction(getQueryTransactionName(), ahqr, XAbstractService.registry_actor);
+            OMElement startup_error = beginTransaction(getQueryTransactionName(), ahqr, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
                 return startup_error;
             }
-            log_message.setTestMessage(getQueryTransactionName());
             OMElement ahq = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
             if (ahq == null) {
                 endTransaction(false);
-                return this.start_up_error(ahqr, null, XAbstractService.registry_actor, "XCA" + " only accepts Stored Query - AdhocQuery element not found");
+                return this.start_up_error(ahqr, null, XAbstractService.ActorType.REGISTRY, "XCA" + " only accepts Stored Query - AdhocQuery element not found");
             }
             validateWS();
             validateNoMTOM();
@@ -71,7 +68,7 @@ public class XCAGateway extends XAbstractService {
             endTransaction(transaction.getStatus());
             return result;
         } catch (Exception e) {
-            return endTransaction(ahqr, e, XAbstractService.registry_actor, "");
+            return endTransaction(ahqr, e, XAbstractService.ActorType.REGISTRY, "");
         }
     }
 
@@ -82,12 +79,10 @@ public class XCAGateway extends XAbstractService {
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) {
         try {
-            OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.repository_actor);
+            OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.ActorType.REPOSITORY);
             if (startup_error != null) {
                 return startup_error;
             }
-            log_message.setTestMessage(getRetTransactionName());
-
             // Do some preliminary validation.
             validateWS();
             validateMTOM();
@@ -104,7 +99,7 @@ public class XCAGateway extends XAbstractService {
             endTransaction(transaction.getStatus());
             return result;
         } catch (Exception e) {
-            return endTransaction(rdsr, e, XAbstractService.repository_actor, "");
+            return endTransaction(rdsr, e, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
 
