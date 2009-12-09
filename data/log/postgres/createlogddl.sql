@@ -1,4 +1,4 @@
-﻿--
+--
 --  This code is subject to the HIEOS License, Version 1.0
 -- 
 --  Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
@@ -12,15 +12,15 @@
 --
 
 --
--- Drop Table Statements
+-- Drop Table Statements (some old tables are in the list).
 --
-DROP TABLE error;
-DROP TABLE http;
-DROP TABLE other;
-DROP TABLE soap;
-DROP TABLE logdetail;
-DROP TABLE main;
-DROP TABLE ip;
+DROP TABLE IF EXISTS error;
+DROP TABLE IF EXISTS http;
+DROP TABLE IF EXISTS other;
+DROP TABLE IF EXISTS soap;
+DROP TABLE IF EXISTS logdetail;
+DROP TABLE IF EXISTS main;
+DROP TABLE IF EXISTS ip;
 
 
 -- Table: ip
