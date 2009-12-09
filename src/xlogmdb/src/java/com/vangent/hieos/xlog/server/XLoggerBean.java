@@ -21,16 +21,15 @@ import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage.XLogMessageNameValue;
+import java.io.ByteArrayInputStream;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 import javax.jms.ObjectMessage;
-import javax.jms.JMSException;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Vector;
@@ -39,6 +38,7 @@ import java.util.Iterator;
 
 import java.sql.Statement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.ResultSet;
 
@@ -51,6 +51,8 @@ import java.sql.ResultSet;
     @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue")
 })
 public class XLoggerBean implements MessageListener {
+
+    private final static Logger logger = Logger.getLogger(XLoggerBean.class);
 
     /**
      *
@@ -69,28 +71,26 @@ public class XLoggerBean implements MessageListener {
                 Object so = m.getObject();  // Serialized object.
                 if (so instanceof XLogMessage) {
                     XLogMessage logMessage = (XLogMessage) so;
-                    //System.out.println("SERVER logMessage id = " + logMessage.toString());
-                    //System.out.println("SERVER logMessage (computed id) = " + logMessage.getMessageID());
+                    logger.info("SERVER logMessage id = " + logMessage.toString());
+                    logger.info("SERVER logMessage (computed id) = " + logMessage.getMessageID());
                     this.persist(logMessage);
                 }
             } else if (message instanceof TextMessage) {
                 TextMessage m = (TextMessage) message;
-                System.out.println("--- Received message ");
-                System.out.println(m.getText());
-                System.out.println("----------");
+                logger.info("--- Received message ");
+                logger.info(m.getText());
+                logger.info("----------");
             } else {
-                System.out.println(
-                        "Received message of type " +
-                        message.getClass().getName());
+                logger.info("Received message of type " + message.getClass().getName());
             }
         } catch (Exception e) {
-            System.err.println(e.toString());
+            logger.error(e.toString());
             e.printStackTrace(System.err);
         }
     }
 
     /**
-     * 
+     * Invokes the methods to create the audit log entries
      * @param logMessage
      */
     private void persist(XLogMessage logMessage) {
@@ -99,156 +99,173 @@ public class XLoggerBean implements MessageListener {
             // Keep going..
             return;
         }
-        Statement stmt = null;
+
         try {
             conn.setAutoCommit(false);
-            stmt = conn.createStatement();
-            persistIp(conn, logMessage, stmt);
-            persistMain(logMessage, stmt);
-            persistEntries(logMessage, stmt);
-            int[] updateCounts = stmt.executeBatch();
+            persistIp(conn, logMessage);
+            persistMain(conn, logMessage);
+            persistEntries(conn, logMessage);
             conn.commit();
         } catch (SQLException ex) {
-            //System.out.println("LOGGER EXCEPTION: " + ex.getMessage());
-            Logger.getLogger(XLoggerBean.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("SQLException: ", ex);
+            ex.printStackTrace();
         } finally {
             try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-                conn.close();
+                if (conn != null) {
+                    conn.close();
+                }                
             } catch (SQLException ex) {
                 // Keep going.
-                Logger.getLogger(XLoggerBean.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("SQLException: ", ex);
             }
         }
     }
 
     /**
-     * 
+     * Creates the IP record if it does not already exist
+     *
      * @param conn
      * @param logMessage
-     * @param stmt
      * @throws java.sql.SQLException
      */
-    private void persistIp(Connection conn, XLogMessage logMessage, Statement stmt) throws SQLException {
+    private void persistIp(Connection conn, XLogMessage logMessage) throws SQLException {
         // First see if the IP table needs to have an entry.
         if (this.ipExists(conn, logMessage.getIpAddress()) == false) {
-            // Get the SQL statement to place into batch.
-            String sql = this.getSQLInsertStatementForIp(logMessage);
-            //System.out.println("LOG IP SQL: " + sql);
-            stmt.addBatch(sql);
+            String sql = "INSERT INTO IP (ip,company_name,email) VALUES (" +
+                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
+                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
+                "'UNKNOWN')";
+            if(logger.isTraceEnabled())
+                logger.trace("LOG IP SQL: " + sql);
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+            if (stmt !=null)
+                stmt.close();
         }
     }
 
     /**
-     * 
+     * Checks if an IP record already exists for the server/ip address
+     *
      * @param conn
      * @param ipAddress
-     * @return
+     * @return boolean
      * @throws java.sql.SQLException
      */
     private boolean ipExists(Connection conn, String ipAddress) throws SQLException {
         String sql = "SELECT COUNT(*) FROM ip WHERE ip = " + this.getSQLQuotedString(ipAddress);
-        //System.out.println("LOG LOOKUP IP = " + sql);
+        if(logger.isTraceEnabled())
+            logger.trace("LOG LOOKUP IP = " + sql);
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         rs.next();
         boolean result = false;
         if (rs.getInt(1) == 0) {
-            //System.out.println(" ... IP NOT FOUND");
             result = false;
         } else if (rs.getInt(1) > 0) {
-            //System.out.println(" ... IP FOUND");
             result = true;
         }
-        rs.close();
-        stmt.close();
+        if(logger.isTraceEnabled())
+            logger.trace("IP Found = " + result);
+        if (rs !=null)
+            rs.close();
+        if (stmt !=null)
+            stmt.close();
         return result;
     }
 
     /**
+     * Creates a MAIN record for the log entries
      *
+     * @param conn
      * @param logMessage
+     * @throws java.sql.SQLException
      */
-    private void persistMain(XLogMessage logMessage, Statement stmt) throws SQLException {
-        String sql = this.getSQLInsertStatementForMain(logMessage);
-        //System.out.println("LOG MAIN SQL: " + sql);
-        stmt.addBatch(sql);
+    private void persistMain(Connection conn, XLogMessage logMessage) throws SQLException {
+        // Get the timestamp properly formatted.
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTimeInMillis(logMessage.getTimeStamp());
+        Timestamp timestamp = new Timestamp(gc.getTimeInMillis());
+
+        String sql = "INSERT INTO MAIN (messageid,is_secure,ip,timereceived,test,pass) VALUES(?,?,?,?,?,?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, logMessage.getMessageID());
+        stmt.setString(2, convertBooleanToString(logMessage.isSecureConnection()));
+        stmt.setString(3, logMessage.getIpAddress());
+        stmt.setTimestamp(4, timestamp);
+        stmt.setString(5, logMessage.getTestMessage());
+        stmt.setString(6, convertBooleanToString(logMessage.isPass()));
+
+        if (logger.isTraceEnabled())
+            logger.trace("SQL(LOG-MAIN) = " + sql);
+        stmt.execute();
+        if (stmt !=null)
+            stmt.close();
     }
 
     /**
+     * Creates the LOGDETAIL records for the log entry details
      *
+     * @param conn
      * @param logMessage
+     * @throws java.sql.SQLException
      */
-    private void persistEntries(XLogMessage logMessage, Statement stmt) throws SQLException {
+    private void persistEntries(Connection conn, XLogMessage logMessage) throws SQLException {
         HashMap<String, Vector<XLogMessageNameValue>> entries = logMessage.getEntries();
+
+        // Setup the prepared statement for the log entries
+        String sql = "INSERT INTO LOGDETAIL (type,messageid,name,value,seqid) VALUES(?,?,?,?,?)";
+        if(logger.isTraceEnabled())
+            logger.trace("SQL(LOG-LOGDETAIL) = " + sql);
+        PreparedStatement pstmt = conn.prepareStatement(sql);
 
         // Now iterate over each detailed entry in the hashmap.
         Set<String> keys = entries.keySet();
         Iterator it = keys.iterator();
         while (it.hasNext()) {
             String key = (String) it.next();
-            //System.out.println("Log processing - " + key);
+            //logger.trace("Log processing - " + key);
             // Now, process all entries.
             Vector<XLogMessageNameValue> nameValues = entries.get(key);
             Iterator nameValueIterator = nameValues.iterator();
             int seqId = 0;
             while (nameValueIterator.hasNext()) {
                 XLogMessageNameValue nameValue = (XLogMessageNameValue) nameValueIterator.next();
-                String sql = this.getSQLInsertStatementForParam(logMessage, key, nameValue, ++seqId);
-                //System.out.println("LOG PARAM SQL: " + sql);
-                stmt.addBatch(sql);
+
+                // create the insert statement
+                this.getSQLInsertStatementForParam(pstmt, logMessage, key, nameValue, ++seqId);
             }
         }
+
+        // submit the batch of statements for execution
+        int[] updateCounts = pstmt.executeBatch();
+        if (pstmt !=null)
+            pstmt.close();
+        if(logger.isTraceEnabled())
+            logger.trace("Number of LOG Rows Inserted: " + updateCounts.length);
     }
 
     /**
+     * Sets up a batch of prepared statements to create the Log detail records
      *
+     * @param pstmt
      * @param logMessage
-     * @return
-     */
-    private String getSQLInsertStatementForIp(XLogMessage logMessage) {
-        return "INSERT INTO IP (ip,company_name,email) VALUES (" +
-                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
-                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
-                "'UNKNOWN')";
-    }
-
-    /**
-     *
-     * @param logMessage
-     * @return
-     */
-    private String getSQLInsertStatementForMain(XLogMessage logMessage) {
-        // Get the timestamp properly formatted.
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTimeInMillis(logMessage.getTimeStamp());
-        Timestamp timestamp = new Timestamp(gc.getTimeInMillis());
-        return "INSERT INTO MAIN (messageid,is_secure,ip,timereceived,test,pass) VALUES (" +
-                getSQLQuotedString(logMessage.getMessageID()) + "," +
-                logMessage.isSecureConnection() + "," +
-                getSQLQuotedString(logMessage.getIpAddress()) + "," +
-                getSQLQuotedString(timestamp.toString()) + "," +
-                getSQLQuotedString(logMessage.getTestMessage()) + "," +
-                logMessage.isPass() +
-                ")";
-    }
-
-    /**
-     *
-     * @param logMessage
-     * @param tableName
+     * @param logType
      * @param nameValue
      * @param seqId
-     * @return
+     * @throws java.sql.SQLException
      */
-    private String getSQLInsertStatementForParam(XLogMessage logMessage, String tableName, XLogMessageNameValue nameValue, int seqId) {
-        return "INSERT INTO " + tableName + " (messageid,name,value,seqid) VALUES (" +
-                getSQLQuotedString(logMessage.getMessageID()) + "," +
-                getSQLQuotedString(nameValue.getName()) + "," +
-                getSQLQuotedString(nameValue.getValue()) + "," +
-                (new Integer(seqId)).toString() + ")";
+      private void getSQLInsertStatementForParam(PreparedStatement pstmt, XLogMessage logMessage, String logType, XLogMessageNameValue nameValue, int seqId)
+            throws SQLException{
+        if(logger.isTraceEnabled())
+            logger.trace("(LOG-DETAIL) ID, NAME, SEQ, SIZE & VALUE: " + logType + ";" + logMessage.getMessageID() + ";" + nameValue.getName() + ";" + seqId
+                    + ";" + nameValue.getValue().length() + ";" + nameValue.getValue());
+        pstmt.setString(1, logType);
+        pstmt.setString(2, logMessage.getMessageID());
+        pstmt.setString(3, nameValue.getName());
+        pstmt.setBinaryStream(4, new ByteArrayInputStream(nameValue.getValue().getBytes()), nameValue.getValue().length());
+        pstmt.setInt(5, new Integer(seqId));
+        pstmt.addBatch();        
     }
 
     /**
@@ -268,7 +285,7 @@ public class XLoggerBean implements MessageListener {
     }
 
     /**
-     *
+     * Wraps a string in single quotes
      * @param val
      * @return
      */
@@ -277,7 +294,7 @@ public class XLoggerBean implements MessageListener {
     }
 
     /**
-     *
+     * Obtain database connection
      * @return Database connection on success.  Otherwise, null.
      */
     private Connection getConnection() {
@@ -286,8 +303,20 @@ public class XLoggerBean implements MessageListener {
         try {
             con = conWrapper.getConnection(SQLConnectionWrapper.logJNDIResourceName);
         } catch (XdsInternalException ex) {
-            Logger.getLogger(XLoggerBean.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("ERROR Retrieving DB Connection: ", ex);
         }
         return con;
+    }
+
+    /**
+     * Converts a boolean to a string  - T or F
+     * @param value
+     * @return String
+     */
+    private String convertBooleanToString(boolean value){
+        if (value)
+            return "T";
+        else
+            return "F";
     }
 }
