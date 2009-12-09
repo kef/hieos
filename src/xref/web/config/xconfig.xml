@@ -33,13 +33,13 @@
         <Property name="LocalRepository">localrepository</Property>
 
          <!-- ATNA configuration parameters. --> 
-        <Property name="ATNAPerformAudit">true</Property>
+        <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
 	
 	<!-- MIR SYSLOG -->
 	<!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
-	<!-- <Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
-	<Property name="ATNAsyslogPort">4001</Property> -->
+	<!--<Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
+	<Property name="ATNAsyslogPort">4001</Property>-->
 	
 	<!-- MESA SYSLOG -->
 	<!--<Property name="ATNAsyslogHost">localhost</Property>
@@ -55,13 +55,23 @@
         <Property name="SOAPAsyncTimeOutInMilliseconds">120000</Property> <!-- 120 seconds -->
 
         <!-- Log file parameters -->
-        <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
+        <Property name="LogEnabled">false</Property>  <!-- set to false to turn logging off. -->
 
         <!-- Repository parameters (may want to move to repository configuration section). -->
         <Property name="RepoStorageClassImpl">com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorageSQL</Property>
 
         <!-- Other global properties will go here. -->
     </HomeCommunity>
+
+    <XUA name="XUAProperties">
+        <Property name="XUAEnabled">false</Property>
+        <Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>
+        <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
+        <!--
+        <Property name="SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
+        -->
+        <Property name="SOAPActions">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</Property>
+    </XUA>
 
    <!-- List of assigning authorities (tells the Initiating Gateway where to go when it receives
         a registry query by patient id). Each patient id has an associated assigning authority.  This
@@ -231,5 +241,6 @@
             <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
         </Transaction>
     </Gateway>
+
 
 </Config>
