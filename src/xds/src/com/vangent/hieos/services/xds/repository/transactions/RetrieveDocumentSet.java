@@ -81,12 +81,12 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         OMNamespace ns = rds.getNamespace();
         String ns_uri = ns.getNamespaceURI();
         if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
-            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.repository_actor, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
+            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.ActorType.REPOSITORY, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
         }
         try {
             RegistryUtility.schema_validate_local(rds, MetadataTypes.METADATA_TYPE_RET);
         } catch (Exception e) {
-            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.repository_actor, "Schema validation errors:\n" + e.getMessage(), true);
+            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.ActorType.REPOSITORY, "Schema validation errors:\n" + e.getMessage(), true);
         }
         ArrayList<OMElement> retrieve_documents = null;
         try {

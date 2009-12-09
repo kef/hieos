@@ -13,12 +13,8 @@
 
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
-import com.vangent.hieos.xutil.services.framework.*;
-import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.services.xds.repository.transactions.ProvideAndRegisterDocumentSet;
 import com.vangent.hieos.services.xds.repository.transactions.RetrieveDocumentSet;
 
@@ -33,12 +29,12 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 public class XDSbRepository extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
 
-    boolean optimize_retrieve = true;
-    String alternateRegistryEndpoint = null;
+    //String alternateRegistryEndpoint = null;
 
     /**
      *
@@ -65,23 +61,22 @@ public class XDSbRepository extends XAbstractService {
      */
     public OMElement ProvideAndRegisterDocumentSetRequest(OMElement sor) throws AxisFault {
         try {
-            OMElement startup_error = beginTransaction(getPnRTransactionName(), sor, XAbstractService.repository_actor);
+            OMElement startup_error = beginTransaction(getPnRTransactionName(), sor, XAbstractService.ActorType.REPOSITORY);
             if (startup_error != null) {
                 return startup_error;
             }
-            log_message.setTestMessage(getPnRTransactionName());
             validateWS();
             validateMTOM();
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
-            if (alternateRegistryEndpoint != null) {
+            /*if (alternateRegistryEndpoint != null) {
                 s.setRegistryEndPoint(alternateRegistryEndpoint);
-            }
+            }*/
             OMElement result = s.provideAndRegisterDocumentSet(sor);
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
-            return endTransaction(sor, e, XAbstractService.repository_actor, "");
+            return endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
 
@@ -93,18 +88,17 @@ public class XDSbRepository extends XAbstractService {
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) throws AxisFault {
         try {
-            OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.repository_actor);
+            OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.ActorType.REPOSITORY);
             if (startup_error != null) {
                 return startup_error;
             }
-            log_message.setTestMessage(getRetTransactionName());
             validateWS();
             validateMTOM();
             validateRetTransaction(rdsr);
             OMNamespace ns = rdsr.getNamespace();
             String ns_uri = ns.getNamespaceURI();
             if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
-                OMElement res = this.start_up_error(rdsr, "AbstractRepository.java", XAbstractService.repository_actor, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
+                OMElement res = this.start_up_error(rdsr, "AbstractRepository.java", XAbstractService.ActorType.REPOSITORY, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
                 endTransaction(false);
                 return res;
             }
@@ -113,7 +107,7 @@ public class XDSbRepository extends XAbstractService {
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
-            return endTransaction(rdsr, e, XAbstractService.repository_actor, "");
+            return endTransaction(rdsr, e, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
 

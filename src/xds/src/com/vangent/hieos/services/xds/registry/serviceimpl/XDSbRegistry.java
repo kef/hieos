@@ -12,18 +12,13 @@
  */
 package com.vangent.hieos.services.xds.registry.serviceimpl;
 
-//import com.vangent.hieos.services.xds.registry.support.StoredQueryRequestSoapValidator;
-import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
-import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.services.xds.registry.transactions.AdhocQueryRequest;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xds.registry.transactions.SubmitObjectsRequest;
 import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed;
 
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
@@ -48,11 +43,10 @@ public class XDSbRegistry extends XAbstractService {
      */
     public OMElement SubmitObjectsRequest(OMElement sor) throws AxisFault {
         try {
-            OMElement startup_error = beginTransaction(getRTransactionName(sor), sor, XAbstractService.registry_actor);
+            OMElement startup_error = beginTransaction(getRTransactionName(sor), sor, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
                 return startup_error;
             }
-            log_message.setTestMessage(getRTransactionName(sor));
             validateWS();
             validateNoMTOM();
             validateSubmitTransaction(sor);
@@ -61,7 +55,7 @@ public class XDSbRegistry extends XAbstractService {
             endTransaction(s.getStatus());
             return result;
         } catch (Exception e) {
-            return endTransaction(sor, e, XAbstractService.registry_actor, "");
+            return endTransaction(sor, e, XAbstractService.ActorType.REGISTRY, "");
         }
     }
 
@@ -72,21 +66,19 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement ahqr) throws AxisFault {
-        OMElement startup_error = beginTransaction(getRTransactionName(ahqr), ahqr, XAbstractService.registry_actor);
+        OMElement startup_error = beginTransaction(getRTransactionName(ahqr), ahqr, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
         }
-        log_message.setTestMessage(getRTransactionName(ahqr));
-
         AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
         try {
             validateWS();
             validateNoMTOM();
             validateQueryTransaction(ahqr);
         } catch (Exception e) {
-            return endTransaction(ahqr, e, XAbstractService.registry_actor, "");
+            return endTransaction(ahqr, e, XAbstractService.ActorType.REGISTRY, "");
         }
-        a.setServiceName(service_name);
+        a.setServiceName(this.getServiceName());
         a.setIsMPQRequest(this.isMPQRequest());
         OMElement result = a.adhocQueryRequest(ahqr);
         endTransaction(a.getStatus());
@@ -115,11 +107,10 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201301UV02(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
-        OMElement startup_error = beginTransaction("PIDFEED.Add", PRPA_IN201301UV02_Message, XAbstractService.registry_actor);
+        OMElement startup_error = beginTransaction("PIDFEED.Add", PRPA_IN201301UV02_Message, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
         }
-        log_message.setTestMessage("PIDFEED.Add");
         logger.info("*** PID Feed: Patient Registry Record Added ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -137,11 +128,10 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201302UV02(OMElement PRPA_IN201302UV02_Message) throws AxisFault {
-        OMElement startup_error = beginTransaction("PIDFEED.Update", PRPA_IN201302UV02_Message, XAbstractService.registry_actor);
+        OMElement startup_error = beginTransaction("PIDFEED.Update", PRPA_IN201302UV02_Message, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
         }
-        log_message.setTestMessage("PIDFEED.Update");
         logger.info("*** PID Feed: Patient Registry Record Updated ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -159,12 +149,10 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201304UV02(OMElement PRPA_IN201304UV02_Message) throws AxisFault {
-        OMElement startup_error = beginTransaction("PIDFEED.Merge", PRPA_IN201304UV02_Message, XAbstractService.registry_actor);
+        OMElement startup_error = beginTransaction("PIDFEED.Merge", PRPA_IN201304UV02_Message, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
         }
-        log_message.setTestMessage("PIDFEED.Merge");
-
         logger.info("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -174,9 +162,10 @@ public class XDSbRegistry extends XAbstractService {
         return result;
     }
 
+    /*
     private String getServiceName() {
         return "R.b";
-    }
+    }*/
 
     /**
      * 
