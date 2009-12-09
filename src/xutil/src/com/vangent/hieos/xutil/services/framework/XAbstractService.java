@@ -12,11 +12,11 @@
  */
 package com.vangent.hieos.xutil.services.framework;
 
+import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-//import com.vangent.hieos.xutil.registry.Properties;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.response.RegistryResponse;
@@ -39,7 +39,6 @@ import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.TransportHeaders;
-//import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 // Axis2 LifeCycle support:
@@ -52,34 +51,24 @@ import org.apache.axis2.description.AxisService;
 // XATNALogger
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsFormatException;
+import com.vangent.hieos.xutil.xua.client.XServiceProvider;
 
 /**
  *
  * @author NIST
- * @author Bernie Thuman (BHT) - Comments, lifecycle logging, streamlining.
+ * @author Bernie Thuman (BHT) - Comments, rewrites, lifecycle logging, streamlining.
  */
 public class XAbstractService implements ServiceLifeCycle, Lifecycle {
+
     private final static Logger logger = Logger.getLogger(XAbstractService.class);
-
     protected XLogMessage log_message = null;
-    public static short registry_actor = 1;
-    public static short repository_actor = 2;
-    protected String service_name;
-    //boolean is_secure;
-    //protected MessageContext return_message_context = null;
 
+    public enum ActorType {
 
-    /*static {
-    BasicConfigurator.configure();
-    }*/
-    /**
-     *
-     * @return
-     */
-    /*
-    protected boolean isSecure() {
-        return is_secure;
-    }*/
+        REGISTRY, REPOSITORY
+    }
+    private String service_name;
+    private ActorType mActor = ActorType.REGISTRY; // Default.
 
     /**
      *
@@ -93,8 +82,15 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @return
      */
-    protected MessageContext getResponseMessageContext() throws AxisFault
-    {
+    protected String getServiceName() {
+        return this.service_name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected MessageContext getResponseMessageContext() throws AxisFault {
         MessageContext messageContext = this.getMessageContext();
         MessageContext responseMessageContext = messageContext.getOperationContext().getMessageContext("Out");
         return responseMessageContext;
@@ -104,8 +100,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @return
      */
-    public String getSOAPAction()
-    {
+    public String getSOAPAction() {
         MessageContext mc = this.getMessageContext();
         return mc.getSoapAction();
     }
@@ -136,7 +131,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
     }
 
-     /**
+    /**
      *
      * @throws com.vangent.hieos.xutil.exception.XdsFormatException
      */
@@ -156,27 +151,6 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
     }
 
-
-    /**
-     *
-     * @param return_context
-     */
-    /*
-    public void setReturnMessageContext(MessageContext return_context) {
-        this.return_message_context = return_context;
-    }*/
-
-    /**
-     *
-     */
-    /*
-    public void useXop() {
-        this.return_message_context = MessageContext.getCurrentMessageContext();
-        if (return_message_context != null) {
-            return_message_context.getOptions().setProperty(Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE);
-        }
-    }*/
-
     /**
      *
      * @param service_name
@@ -184,16 +158,19 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param actor
      * @return
      */
-    protected OMElement beginTransaction(String service_name, OMElement request, short actor) {
+    protected OMElement beginTransaction(String service_name, OMElement request, ActorType actor) throws AxisFault {
 
         // This gets around a bug in Leopard (MacOS X 10.5) on Macs
         System.setProperty("http.nonProxyHosts", "");
         this.service_name = service_name;
+        this.mActor = actor;
+
         String remoteIP = (String) this.getMessageContext().getProperty(MessageContext.REMOTE_ADDR);
         logger.info("Start " + service_name + " : " + remoteIP + " : " + getMessageContext().getTo().toString());
         startTestLog();
         XLogger xlogger = XLogger.getInstance();
         log_message = xlogger.getNewMessage(remoteIP);
+        log_message.setTestMessage(this.service_name);
 
         // Log basic parameters:
         log_message.addOtherParam(Fields.service, service_name);
@@ -205,7 +182,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.addOtherParam("Request", request);
         } else {
             log_message.addErrorParam("Error", "Cannot access request body in XdsService.begin_service()");
-            return start_up_error(request, null, actor, "Request body is null");
+            return start_up_error(request, null, this.mActor, "Request body is null");
         }
 
         // Log HTTP header:
@@ -221,10 +198,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         // Log SOAP header:
         if (getMessageContext().getEnvelope().getHeader() != null) {
             try {
-
                 log_message.addSOAPParam("Soap Header", getMessageContext().getEnvelope().getHeader());
             } catch (OMException e) {
-            //} catch (XMLStreamException e)
+                //} catch (XMLStreamException e)
             }
         }
 
@@ -233,13 +209,44 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             try {
                 log_message.addSOAPParam("Soap Envelope", getMessageContext().getEnvelope());
             } catch (OMException e) {
-            //} catch (XMLStreamException e) {
+                //} catch (XMLStreamException e) {
             }
         }
         log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
         log_message.addHTTPParam(Fields.endpoint, getMessageContext().getTo().toString());
 
-        return null;  // No error.
+        return this.validateXUA(request);  // Make sure we are good with XUA.
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    private OMElement validateXUA(OMElement request) {
+        // Validate XUA constraints here:
+        XServiceProvider xServiceProvider = new XServiceProvider(log_message);
+        XServiceProvider.Status response;
+        try {
+            MessageContext messageCtx = this.getMessageContext();
+            response = xServiceProvider.run(messageCtx);
+        } catch (Exception ex) {  // Catch everything here!!!
+            // We have to treat this as a failure to validate assertion
+            String exText = "XUA SAML Validation Exception (ignoring request) " + ex.getMessage();
+            log_message.addErrorParam("XUA:ERROR", exText);
+            return this.endTransaction(
+                    request, new XdsException(exText),
+                    this.mActor, this.service_name);
+        }
+        if (response != XServiceProvider.Status.CONTINUE) {
+            // The assertion has not been validated, discontinue with processing SOAP request.
+            log_message.addErrorParam("XUA:ERROR", "XUA did not pass validation!");
+            return this.endTransaction(request,
+                    new XdsException("XUA did not pass validation!"),
+                    this.mActor,
+                    this.service_name);
+        }
+        return null;  // All is good.
     }
 
     /**
@@ -250,7 +257,6 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         logger.info("End " + service_name + " " +
                 ((log_message == null) ? "null" : log_message.getMessageID()) + " : " +
                 ((status) ? "Pass" : "Fail"));
-
         stopTestLog();
     }
 
@@ -262,12 +268,12 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param message
      * @return
      */
-    protected OMElement endTransaction(OMElement request, Exception e, short actor, String message) {
+    protected OMElement endTransaction(OMElement request, Exception e, ActorType actor, String message) {
         if (message == null || message.equals("")) {
             message = e.getMessage();
         }
         logger.error("Exception thrown while processing web service request", e);
-        endTransaction(false);
+        endTransaction(false /* status */);
         return start_up_error(request, e, actor, message);
     }
 
@@ -279,8 +285,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param message
      * @return
      */
-    protected OMElement start_up_error(OMElement request, Exception e, short actor, String message) {
-        return start_up_error(request, e, actor, message, false);
+    protected OMElement start_up_error(OMElement request, Exception e, ActorType actor, String message) {
+        return start_up_error(request, e, actor, message, true);
     }
 
     /**
@@ -292,8 +298,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param log
      * @return
      */
-    public OMElement start_up_error(OMElement request, Object e, short actor, String message, boolean log) {
-        String error_type = (actor == registry_actor) ? MetadataSupport.XDSRegistryError : MetadataSupport.XDSRepositoryError;
+    public OMElement start_up_error(OMElement request, Object e, ActorType actor, String message, boolean log) {
+        String error_type = (actor == ActorType.REGISTRY) ? MetadataSupport.XDSRegistryError : MetadataSupport.XDSRepositoryError;
         try {
             String request_type = (request != null) ? request.getLocalName() : "None";
             OMNamespace ns = (request != null) ? request.getNamespace() : MetadataSupport.ebRSns2;
@@ -394,44 +400,6 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
         log_message.addHTTPParam(title, buffer.toString());
     }
-
-    /**
-     *
-     * @param t
-     * @param s
-     */
-    /*
-    private void addSoap(String t, String s) {
-        log_message.addSOAPParam(t, s);
-    }*/
-
-    /**
-     *
-     * @param s
-     */
-    /*
-    protected void addError(String s) {
-        log_message.addErrorParam("Error", s);
-    }*/
-
-    /**
-     *
-     * @param name
-     * @param s
-     */
-    /*
-    protected void addOther(String name, String s) {
-        log_message.addOtherParam(name, s);
-    }*/
-
-    /**
-     *
-     * @param inMessage
-     */
-    /*
-    public void setMessageContextIn(MessageContext inMessage) {
-        //currentMessageContext = inMessage ;
-    }*/
 
     /**
      *

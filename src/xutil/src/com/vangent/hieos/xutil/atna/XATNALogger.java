@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 
 // Third-party.
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
+import com.vangent.hieos.xutil.xua.client.XServiceProvider;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -105,6 +106,7 @@ public class XATNALogger {
     private String fromAddress = "";
     private String replyTo = "";
     private String targetEndpoint = "";
+    private String userName = "";
 
     /**
      * 
@@ -217,12 +219,12 @@ public class XATNALogger {
         CodedValueType eventType = this.getCodedValueType(this.transactionId, IHE_TX, PROVD_N_REG_DOC_SET_B);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "C", this.outcome.toString());
 
-        // Source (Document Supplier):
+        // Source (Document Source):
         CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
         amb.setActiveParticipant(
                 this.replyTo, /* userId */
                 null, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -355,12 +357,12 @@ public class XATNALogger {
         CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, REG_DOC_SET);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "C", this.outcome.toString());
 
-        // Source (Repository):
+        // Source (Repository / Document Source):
         CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
         amb.setActiveParticipant(
                 this.replyTo, /* userId */
                 null, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -444,7 +446,7 @@ public class XATNALogger {
         amb.setActiveParticipant(
                 this.replyTo, /* userId */
                 null, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -514,7 +516,7 @@ public class XATNALogger {
         amb.setActiveParticipant(
                 this.endpoint, /* userId */
                 this.pid, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -571,7 +573,7 @@ public class XATNALogger {
         amb.setActiveParticipant(
                 this.replyTo, /* userId  */
                 null, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -654,7 +656,7 @@ public class XATNALogger {
         amb.setActiveParticipant(
                 this.endpoint, /* userId  */
                 this.pid, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -746,7 +748,7 @@ public class XATNALogger {
         amb.setActiveParticipant(
                 this.replyTo, /* userId */
                 null, /* alternateUserId */
-                null, /* userName */
+                this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
@@ -906,6 +908,10 @@ public class XATNALogger {
                 this.replyTo = null;
                 logger.error("Exception in XATNALogger", e);
             }
+
+            // Set userName on request (if available):
+            this.userName = this.getUserNameFromRequest();
+
         } else {
             this.endpoint = null;
             this.fromAddress = null;
@@ -933,6 +939,16 @@ public class XATNALogger {
         System.out.println("-----------------------");
          */
         //logger.error("Exception in XATNALogger", e);
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String getUserNameFromRequest()
+    {
+        XServiceProvider xServiceProvider = new XServiceProvider(null);
+        return xServiceProvider.getUserNameFromRequest(this.getCurrentMessageContext());
     }
 
     /**

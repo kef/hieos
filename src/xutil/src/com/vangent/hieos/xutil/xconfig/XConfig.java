@@ -55,7 +55,8 @@ public class XConfig {
     private HashMap registries = new HashMap();             // Key = registry name, Value = XConfigRegistry
     private HashMap repositories = new HashMap();           // Key = repository unique id, XConfigRepository
     private HashMap assigningAuthorities = new HashMap();   // Key = AA unique ID, XConfigAssigningAuthority
-
+    private XConfigXUAProperties xuaProperties = null;
+    
     /**
      * Returns Singleton instance of XConfig.
      *
@@ -270,6 +271,7 @@ public class XConfig {
         parseRepositories(rootNode);
         parseGateways(rootNode);
         parseAssigningAuthorities(rootNode);
+        parseXUAProperties(rootNode);
     }
 
     /**
@@ -355,6 +357,45 @@ public class XConfig {
             assigningAuthority.parse(currentNode, this);
             this.assigningAuthorities.put(assigningAuthority.getUniqueId(), assigningAuthority);
         }
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void parseXUAProperties(OMElement rootNode) {
+        OMElement currentNode = rootNode.getFirstChildWithName(new QName("XUA"));
+        this.xuaProperties = new XConfigXUAProperties();
+        this.xuaProperties.parse(currentNode);
+    }
+
+    /**
+     *
+     * @param propKey
+     * @return
+     */
+    public String getXUAProperty(String propKey)
+    {
+        return this.xuaProperties.getProperty(propKey);
+    }
+
+    /**
+     *
+     * @param propKey
+     * @return
+     */
+    public boolean getXUAPropertyAsBoolean(String propKey)
+    {
+        return this.xuaProperties.getPropertyAsBoolean(propKey);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public XConfigXUAProperties getXUAConfigProperties()
+    {
+        return this.xuaProperties;
     }
 
     /**

@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.soap;
 
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -33,18 +32,30 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
+import java.util.List;
+import org.apache.axis2.engine.Phase;
+import com.vangent.hieos.xutil.xua.handlers.XUAOutPhaseHandler;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
+import java.util.Iterator;
 
 public class Soap {
 
     // BHT (FIXED): Can not have this as static; encountered multi-threading problem / and nested
     // call problem.
     //static ServiceClient serviceClient = null
+    // OutPhase Name
+    private static final String XUA_OUT_PHASE_NAME = "XUAOutPhase";
+    private XUAObject xuaObject = null;
     ServiceClient serviceClient = null;
     OMElement result = null;
     boolean async = false;
 
     public void setAsync(boolean async) {
         this.async = async;
+    }
+
+    public void setXUAObject(XUAObject xuaObj) {
+        this.xuaObject = xuaObj;
     }
 
     public OMElement soapCall(OMElement body, String endpoint, boolean mtom,
@@ -91,9 +102,8 @@ public class Soap {
             if (async && !options.isUseSeparateListener()) {
                 options.setUseSeparateListener(async);
             }
-
+            this.setupXUAOutPhaseHandler();
             OMElement result = serviceClient.sendReceive(body);
-
             if (async) {
                 serviceClient.cleanupTransport();
             }
@@ -190,5 +200,45 @@ public class Soap {
         }
 
         return Util.deep_copy(out.getEnvelope().getHeader());
+    }
+
+    /**
+     *
+     */
+    private void setupXUAOutPhaseHandler() {
+        if ((this.xuaObject != null) && (this.xuaObject.isXUAEnabled())) {
+            List outFlowPhases = serviceClient.getAxisConfiguration().getOutFlowPhases();
+            // Check to see if the out phase handler already exists
+            for (Iterator it = outFlowPhases.iterator(); it.hasNext();) {
+                Phase phase = (Phase) it.next();
+                if (phase.getName().equals(XUA_OUT_PHASE_NAME)) {
+                    // Already exists.
+                    return;  // EARLY EXIT!
+                }
+            }
+            System.out.println("Adding XUA out phase handler!!!");
+            Phase xuaOutPhase = this.getXUAOutPhaseHandler();
+            outFlowPhases.add(xuaOutPhase);
+        }
+    }
+
+    /**
+     *  Instantiating the OutPhase XUA handler
+     *  Create an XUA Out Phase handler and attach it
+     *  to the out Phase
+     */
+    private Phase getXUAOutPhaseHandler() {
+        Phase phase = null;
+        try {
+            phase = new Phase(XUA_OUT_PHASE_NAME);
+            XUAOutPhaseHandler xuaOutPhaseHandler = new XUAOutPhaseHandler();
+            xuaOutPhaseHandler.setXUAObject(this.xuaObject);
+            phase.addHandler(xuaOutPhaseHandler);
+
+        } catch (Throwable t) {
+            System.out.println("Exception while initializing the out phase handler");
+            t.printStackTrace();
+        }
+        return phase;
     }
 }

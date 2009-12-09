@@ -19,7 +19,6 @@ package com.vangent.hieos.xutil.xconfig;
 
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMAttribute;
 import javax.xml.namespace.QName;
