@@ -28,6 +28,8 @@ import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.sql.SQLException;
@@ -47,11 +49,11 @@ import org.apache.log4j.Logger;
  */
 public class AdhocQueryRequest extends XBaseTransaction {
 
-    MessageContext messageContext;
-    String service_name = "";
-    //boolean is_secure;
-    boolean _isMPQRequest = false;
+    private MessageContext messageContext;
+    private String service_name = "";
+    private boolean _isMPQRequest = false;
     private final static Logger logger = Logger.getLogger(AdhocQueryRequest.class);
+    private String xconfRegistryName = "localregistry";
 
     /**
      *
@@ -59,10 +61,10 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @param messageContext
      * @param is_secure
      */
-    public AdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
+    public AdhocQueryRequest(String xconfRegistryName, XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
-        //this.is_secure = is_secure;
+        this.xconfRegistryName = xconfRegistryName;
     }
 
     /**
@@ -181,7 +183,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
-                List<OMElement> results = storedQuery(ahqr);
+                List<OMElement> results = this.storedQuery(ahqr);
                 if (results != null) {
                     ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
                 }
@@ -190,6 +192,32 @@ public class AdhocQueryRequest extends XBaseTransaction {
         if (!found_query) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
+    }
+
+    /**
+     * Return the max number of leafClass objects to be returned on stored query
+     * requests.
+     *
+     * @return max number allowed (as a long).
+     */
+    protected long getMaxLeafObjectsAllowedFromQuery() {
+        long defaultMaxLeafObjectsAllowedFromQuery = 25;
+        XConfig xconfig;
+        try {
+            xconfig = XConfig.getInstance();
+        } catch (XdsInternalException ex) {
+            return defaultMaxLeafObjectsAllowedFromQuery;
+        }
+        XConfigRegistry registry = xconfig.getRegistryByName(this.xconfRegistryName);
+        String propValue = registry.getProperty("MaxLeafObjectsAllowedFromQuery");
+        long maxLeafObjectsAllowedFromQuery = defaultMaxLeafObjectsAllowedFromQuery;
+        if (propValue != null) {
+            maxLeafObjectsAllowedFromQuery = new Long(propValue);
+            if (maxLeafObjectsAllowedFromQuery < 1) {
+                maxLeafObjectsAllowedFromQuery = defaultMaxLeafObjectsAllowedFromQuery;
+            }
+        }
+        return maxLeafObjectsAllowedFromQuery;
     }
 
     /**
@@ -288,7 +316,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     private List<OMElement> storedQuery(OMElement ahqr)
             throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
-        //try {
         StoredQueryFactory fact =
                 new StoredQueryFactory(
                 ahqr, // AdhocQueryRequest
@@ -297,10 +324,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 service_name);  // For logging.
         // If this is not an MPQ request, then validate consistent patient identifiers
         // in response.
-        return fact.run(!this.isMPQRequest());
-        //} catch (Exception e) {
-        //    response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
-        //    return null;
-        //}
+        return fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
     }
 }

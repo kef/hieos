@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 

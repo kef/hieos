@@ -89,9 +89,9 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             this.return_leaf_class = false;
             OMElement refs = impl();
             Metadata m = MetadataParser.parseNonSubmission(refs);
-            // Guard against large queries -- FIXME(BHT): Configure this parameter.
-            if (m.getObjectRefs().size() > 25) {
-                throw new XDSRegistryOutOfResourcesException("GetDocumentsForMultiplePatients Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
+            // Guard against large leaf class queries.
+            if (m.getObjectRefs().size() > this.getMaxLeafObjectsAllowedFromQuery()) {
+                throw new XDSRegistryOutOfResourcesException("FindDocumentsForMultiplePatients Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
             this.return_leaf_class = true;  // Reset.
         }

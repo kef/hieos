@@ -231,12 +231,16 @@ public class StoredQueryFactory {
 
     /**
      *
+     * @param validateConsistentPatientId
+     * @param maxLeafObjectsAllowedFromQuery
      * @return
      * @throws XDSRegistryOutOfResourcesException
+     * @throws XdsResultNotSinglePatientException
      * @throws XdsException
      */
-    public List<OMElement> run(boolean validateConsistentPatientId)
+    public List<OMElement> run(boolean validateConsistentPatientId, long maxLeafObjectsAllowedFromQuery)
             throws XDSRegistryOutOfResourcesException, XdsResultNotSinglePatientException, XdsException {
+        sq.setMaxLeafObjectsAllowedFromQuery(maxLeafObjectsAllowedFromQuery);
         return sq.run(validateConsistentPatientId);
     }
 }

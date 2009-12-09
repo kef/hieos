@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -62,7 +63,18 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata run_internal() throws XdsException, XDSRegistryOutOfResourcesException {
+        if (this.return_leaf_class == true) {
+            this.return_leaf_class = false;
+            OMElement refs = impl();
+            Metadata m = MetadataParser.parseNonSubmission(refs);
+            // Guard against large leaf class queries.
+            if (m.getObjectRefs().size() > this.getMaxLeafObjectsAllowedFromQuery()) {
+                throw new XDSRegistryOutOfResourcesException(
+                        "FindFoldersForMultiplePatients Stored Query for LeafClass is limited to " + this.getMaxLeafObjectsAllowedFromQuery() + " documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
+            }
+            this.return_leaf_class = true;  // Reset.
+        }
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
         if (log_message != null) {

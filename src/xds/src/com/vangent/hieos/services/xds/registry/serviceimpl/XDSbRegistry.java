@@ -30,7 +30,10 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 
 public class XDSbRegistry extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
@@ -70,7 +73,7 @@ public class XDSbRegistry extends XAbstractService {
         if (startup_error != null) {
             return startup_error;
         }
-        AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
+        AdhocQueryRequest a = new AdhocQueryRequest(this.getRegistryXConfigName(), log_message, getMessageContext());
         try {
             validateWS();
             validateNoMTOM();
@@ -161,11 +164,6 @@ public class XDSbRegistry extends XAbstractService {
         endTransaction(true /* success */);
         return result;
     }
-
-    /*
-    private String getServiceName() {
-        return "R.b";
-    }*/
 
     /**
      * 

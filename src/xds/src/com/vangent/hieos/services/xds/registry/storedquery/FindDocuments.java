@@ -90,9 +90,10 @@ public class FindDocuments extends StoredQuery {
             this.return_leaf_class = false;
             OMElement refs = impl();
             Metadata m = MetadataParser.parseNonSubmission(refs);
-            // Guard against large queries -- FIXME(BHT): Configure this parameter.
-            if (m.getObjectRefs().size() > 25) {
-                throw new XDSRegistryOutOfResourcesException("GetDocuments Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
+            // Guard against large leaf class queries
+            if (m.getObjectRefs().size() > this.getMaxLeafObjectsAllowedFromQuery()) {
+                throw new XDSRegistryOutOfResourcesException(
+                        "FindDocuments Stored Query for LeafClass is limited to " + this.getMaxLeafObjectsAllowedFromQuery() + " documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
             this.return_leaf_class = true;
         }
@@ -199,7 +200,7 @@ public class FindDocuments extends StoredQuery {
         this.addCode(class_codes);
         this.addCode(type_codes);
         this.addCode(practice_setting_codes);
-        
+
         this.addTimes("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "obj");
         this.addTimes("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "obj");
         this.addTimes("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "obj");
