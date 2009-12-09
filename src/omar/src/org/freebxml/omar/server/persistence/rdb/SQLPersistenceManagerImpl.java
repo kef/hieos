@@ -215,7 +215,7 @@ public class SQLPersistenceManagerImpl
     private void constructDatabaseURL() {
         databaseURL = RegistryProperties.getInstance().getProperty("omar.persistence.rdb.databaseURL");
 
-        log.info(ServerResourceBundle.getInstance().getString("message.dbURLEquals", new Object[]{databaseURL}));
+        //log.info(ServerResourceBundle.getInstance().getString("message.dbURLEquals", new Object[]{databaseURL}));
     }
 
     /**Load the username and password for database access*/
