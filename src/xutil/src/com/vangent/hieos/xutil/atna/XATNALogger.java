@@ -30,6 +30,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.net.URL;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
@@ -824,15 +825,20 @@ public class XATNALogger {
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private String getQueryPatientID(OMElement request, String queryId) throws MetadataValidationException, XdsInternalException {
-        SqParams params = null;
-
+    private String getQueryPatientID(OMElement request, String queryId) {
         if (queryId == null) {
             return "QueryId not known";  // Early exit (FIXME).
         }
         // Parse the query parameters.
         ParamParser parser = new ParamParser();
-        params = parser.parse(request);
+        SqParams params = null;
+        try {
+            params = parser.parse(request);
+        } catch (MetadataValidationException ex) {
+            logger.error("Could not parse stored query in ATNA", ex);
+        } catch (XdsInternalException ex) {
+            logger.error("Could not parse stored query in ATNA", ex);
+        }
 
         if (params == null) {
             return "Query Parameters could not be parsed";  // Early exit.
