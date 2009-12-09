@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage.XLogMessageNameValue;
 import java.io.ByteArrayInputStream;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -113,7 +114,7 @@ public class XLoggerBean implements MessageListener {
             try {
                 if (conn != null) {
                     conn.close();
-                }                
+                }
             } catch (SQLException ex) {
                 // Keep going.
                 logger.error("SQLException: ", ex);
@@ -126,21 +127,35 @@ public class XLoggerBean implements MessageListener {
      *
      * @param conn
      * @param logMessage
-     * @throws java.sql.SQLException
      */
     private void persistIp(Connection conn, XLogMessage logMessage) throws SQLException {
         // First see if the IP table needs to have an entry.
         if (this.ipExists(conn, logMessage.getIpAddress()) == false) {
             String sql = "INSERT INTO IP (ip,company_name,email) VALUES (" +
-                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
-                this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
-                "'UNKNOWN')";
-            if(logger.isTraceEnabled())
+                    this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
+                    this.getSQLQuotedString(logMessage.getIpAddress()) + "," +
+                    "'UNKNOWN')";
+            if (logger.isTraceEnabled()) {
                 logger.trace("LOG IP SQL: " + sql);
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
-            if (stmt !=null)
-                stmt.close();
+            }
+            Statement stmt = null;
+            try {
+                stmt = conn.createStatement();
+                stmt.executeUpdate(sql);
+            } catch (SQLException ex) {
+                logger.error("SQLException: ", ex);
+                ex.printStackTrace();
+                throw ex;
+            } finally {
+                if (stmt != null) {
+                    try {
+                        stmt.close();
+                    } catch (SQLException ex) {
+                        // Keep going.
+                        logger.error("SQLException: ", ex);
+                    }
+                }
+            }
         }
     }
 
@@ -154,23 +169,46 @@ public class XLoggerBean implements MessageListener {
      */
     private boolean ipExists(Connection conn, String ipAddress) throws SQLException {
         String sql = "SELECT COUNT(*) FROM ip WHERE ip = " + this.getSQLQuotedString(ipAddress);
-        if(logger.isTraceEnabled())
+        if (logger.isTraceEnabled()) {
             logger.trace("LOG LOOKUP IP = " + sql);
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-        rs.next();
-        boolean result = false;
-        if (rs.getInt(1) == 0) {
-            result = false;
-        } else if (rs.getInt(1) > 0) {
-            result = true;
         }
-        if(logger.isTraceEnabled())
-            logger.trace("IP Found = " + result);
-        if (rs !=null)
-            rs.close();
-        if (stmt !=null)
-            stmt.close();
+        Statement stmt = null;
+        ResultSet rs = null;
+        boolean result = false;
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                result = false;
+            } else if (rs.getInt(1) > 0) {
+                result = true;
+            }
+            if (logger.isTraceEnabled()) {
+                logger.trace("IP Found = " + result);
+            }
+        } catch (SQLException ex) {
+            logger.error("SQLException: ", ex);
+            ex.printStackTrace();
+            throw ex;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    // Keep going.
+                    logger.error("SQLException: ", ex);
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    // Keep going.
+                    logger.error("SQLException: ", ex);
+                }
+            }
+        }
         return result;
     }
 
@@ -188,19 +226,33 @@ public class XLoggerBean implements MessageListener {
         Timestamp timestamp = new Timestamp(gc.getTimeInMillis());
 
         String sql = "INSERT INTO MAIN (messageid,is_secure,ip,timereceived,test,pass) VALUES(?,?,?,?,?,?)";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setString(1, logMessage.getMessageID());
-        stmt.setString(2, convertBooleanToString(logMessage.isSecureConnection()));
-        stmt.setString(3, logMessage.getIpAddress());
-        stmt.setTimestamp(4, timestamp);
-        stmt.setString(5, logMessage.getTestMessage());
-        stmt.setString(6, convertBooleanToString(logMessage.isPass()));
-
-        if (logger.isTraceEnabled())
-            logger.trace("SQL(LOG-MAIN) = " + sql);
-        stmt.execute();
-        if (stmt !=null)
-            stmt.close();
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, logMessage.getMessageID());
+            stmt.setString(2, convertBooleanToString(logMessage.isSecureConnection()));
+            stmt.setString(3, logMessage.getIpAddress());
+            stmt.setTimestamp(4, timestamp);
+            stmt.setString(5, logMessage.getTestMessage());
+            stmt.setString(6, convertBooleanToString(logMessage.isPass()));
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL(LOG-MAIN) = " + sql);
+            }
+            stmt.execute();
+        } catch (SQLException ex) {
+            logger.error("SQLException: ", ex);
+            ex.printStackTrace();
+            throw ex;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    // Keep going.
+                    logger.error("SQLException: ", ex);
+                }
+            }
+        }
     }
 
     /**
@@ -208,41 +260,54 @@ public class XLoggerBean implements MessageListener {
      *
      * @param conn
      * @param logMessage
-     * @throws java.sql.SQLException
      */
-    private void persistEntries(Connection conn, XLogMessage logMessage) throws SQLException {
+    private void persistEntries(Connection conn, XLogMessage logMessage) {
         HashMap<String, Vector<XLogMessageNameValue>> entries = logMessage.getEntries();
 
         // Setup the prepared statement for the log entries
         String sql = "INSERT INTO LOGDETAIL (type,messageid,name,value,seqid) VALUES(?,?,?,?,?)";
-        if(logger.isTraceEnabled())
+        if (logger.isTraceEnabled()) {
             logger.trace("SQL(LOG-LOGDETAIL) = " + sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql);
+        }
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql);
 
-        // Now iterate over each detailed entry in the hashmap.
-        Set<String> keys = entries.keySet();
-        Iterator it = keys.iterator();
-        while (it.hasNext()) {
-            String key = (String) it.next();
-            //logger.trace("Log processing - " + key);
-            // Now, process all entries.
-            Vector<XLogMessageNameValue> nameValues = entries.get(key);
-            Iterator nameValueIterator = nameValues.iterator();
-            int seqId = 0;
-            while (nameValueIterator.hasNext()) {
-                XLogMessageNameValue nameValue = (XLogMessageNameValue) nameValueIterator.next();
+            // Now iterate over each detailed entry in the hashmap.
+            Set<String> keys = entries.keySet();
+            Iterator it = keys.iterator();
+            while (it.hasNext()) {
+                String key = (String) it.next();
+                //logger.trace("Log processing - " + key);
+                // Now, process all entries.
+                Vector<XLogMessageNameValue> nameValues = entries.get(key);
+                Iterator nameValueIterator = nameValues.iterator();
+                int seqId = 0;
+                while (nameValueIterator.hasNext()) {
+                    XLogMessageNameValue nameValue = (XLogMessageNameValue) nameValueIterator.next();
+                    this.addLogDetailEntryToBatch(pstmt, logMessage, key, nameValue, seqId);
+                    ++seqId;
+                }
+            }
 
-                // create the insert statement
-                this.getSQLInsertStatementForParam(pstmt, logMessage, key, nameValue, ++seqId);
+            // submit the batch of statements for execution
+            int[] updateCounts = pstmt.executeBatch();
+            if (logger.isTraceEnabled()) {
+                logger.trace("Number of LOG Rows Inserted: " + updateCounts.length);
+            }
+        } catch (SQLException ex) {
+            logger.error("SQLException: ", ex);
+            ex.printStackTrace();
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException ex) {
+                    // Keep going.
+                    logger.error("SQLException: ", ex);
+                }
             }
         }
-
-        // submit the batch of statements for execution
-        int[] updateCounts = pstmt.executeBatch();
-        if (pstmt !=null)
-            pstmt.close();
-        if(logger.isTraceEnabled())
-            logger.trace("Number of LOG Rows Inserted: " + updateCounts.length);
     }
 
     /**
@@ -255,17 +320,17 @@ public class XLoggerBean implements MessageListener {
      * @param seqId
      * @throws java.sql.SQLException
      */
-      private void getSQLInsertStatementForParam(PreparedStatement pstmt, XLogMessage logMessage, String logType, XLogMessageNameValue nameValue, int seqId)
-            throws SQLException{
-        if(logger.isTraceEnabled())
-            logger.trace("(LOG-DETAIL) ID, NAME, SEQ, SIZE & VALUE: " + logType + ";" + logMessage.getMessageID() + ";" + nameValue.getName() + ";" + seqId
-                    + ";" + nameValue.getValue().length() + ";" + nameValue.getValue());
+    private void addLogDetailEntryToBatch(PreparedStatement pstmt, XLogMessage logMessage, String logType, XLogMessageNameValue nameValue, int seqId)
+            throws SQLException {
+        if (logger.isTraceEnabled()) {
+            logger.trace("(LOG-DETAIL) ID, NAME, SEQ, SIZE & VALUE: " + logType + ";" + logMessage.getMessageID() + ";" + nameValue.getName() + ";" + seqId + ";" + nameValue.getValue().length() + ";" + nameValue.getValue());
+        }
         pstmt.setString(1, logType);
         pstmt.setString(2, logMessage.getMessageID());
         pstmt.setString(3, nameValue.getName());
         pstmt.setBinaryStream(4, new ByteArrayInputStream(nameValue.getValue().getBytes()), nameValue.getValue().length());
         pstmt.setInt(5, new Integer(seqId));
-        pstmt.addBatch();        
+        pstmt.addBatch();
     }
 
     /**
@@ -313,10 +378,7 @@ public class XLoggerBean implements MessageListener {
      * @param value
      * @return String
      */
-    private String convertBooleanToString(boolean value){
-        if (value)
-            return "T";
-        else
-            return "F";
+    private String convertBooleanToString(boolean value) {
+        return value == true ? "T" : "F";
     }
 }
