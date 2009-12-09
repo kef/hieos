@@ -54,7 +54,7 @@ CREATE TABLE main
   is_secure char(1),
   ip character varying(100) NOT NULL,
   timereceived timestamp without time zone NOT NULL DEFAULT '2008-08-30 19:56:01.093'::timestamp without time zone,
-  test text NOT NULL,
+  test character varying(100) NOT NULL,
   pass char(1),
   CONSTRAINT main_pkey PRIMARY KEY (messageid),
   CONSTRAINT main_ip_fkey FOREIGN KEY (ip)

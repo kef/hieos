@@ -77,7 +77,7 @@ CREATE TABLE `main` (
   `is_secure` char(1) DEFAULT NULL,
   `ip` varchar(100) NOT NULL,
   `timereceived` timestamp NOT NULL DEFAULT '2008-08-30 19:56:01',
-  `test` text NOT NULL,
+  `test` varchar(100) NOT NULL,
   `pass` char(1) DEFAULT NULL,
   PRIMARY KEY (`messageid`),
   KEY `MAIN_IP_INDEX` (`ip`) USING BTREE,
