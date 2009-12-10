@@ -36,7 +36,7 @@
 		</SecureEndpont>
 	</Repository>
 	<Repository name="local">
-		<UniqueId>1.3.6.1.4.1.21367.2009.1.2.1010</UniqueId>
+		<UniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</UniqueId>
 		<Endpoint>
 			http://localhost:8080/axis2/services/xdsrepositoryb
 		</Endpoint>
