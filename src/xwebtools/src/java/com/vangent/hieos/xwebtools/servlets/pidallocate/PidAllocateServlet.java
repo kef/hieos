@@ -80,7 +80,7 @@ public class PidAllocateServlet extends BasicServlet {
             h().o("Place your Patient ID here if you want to force it into the Registry");
             h().o("<form action=\"/xwebtools/pidallocate\" method=\"post\">");
             h().o("Patient Id: <input type=\"text\" name=\"pid\" />");
-            h().o(" example: e38fc7671012415^^^&1.3.6.1.4.1.21367.2009.1.2.315&ISO");
+            h().o(" example: e38fc7671012415^^^&1.3.6.1.4.1.21367.2010.1.2.315&ISO");
             h().o("<br />");
             h().o("<input type=\"submit\" value=\"Submit\" />");
             h().o("</form>");
