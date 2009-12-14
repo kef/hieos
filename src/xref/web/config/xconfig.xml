@@ -89,7 +89,7 @@
 
     <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
     <AssigningAuthority name = "IHENA">
-        <UniqueId>&amp;1.3.6.1.4.1.21367.2009.1.2.300&amp;ISO</UniqueId>
+        <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</UniqueId>
         <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
         <Gateway>nistrg</Gateway>
         <!--<Gateway>XDSb_REP_AXOLOTL_rg</Gateway>
@@ -99,7 +99,7 @@
 
     <!-- HIMSS Registration System. -->
     <AssigningAuthority name = "PAMX">
-        <UniqueId>&amp;1.3.6.1.4.1.21367.2009.1.2.315&amp;ISO</UniqueId>
+        <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
         <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
         <Gateway>nistrg</Gateway>
         <!--
