@@ -273,8 +273,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             message = e.getMessage();
         }
         logger.error("Exception thrown while processing web service request", e);
+        OMElement errorResult =  this.start_up_error(request, e, actor, message);
         endTransaction(false /* status */);
-        return start_up_error(request, e, actor, message);
+        return errorResult;
     }
 
     /**
