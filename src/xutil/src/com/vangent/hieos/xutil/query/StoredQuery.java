@@ -212,7 +212,7 @@ public abstract class StoredQuery {
      * @param is_code
      * @param alternatives
      */
-    protected void validateQueryParam(String name, boolean required, boolean multiple, boolean is_string, boolean is_code, boolean support_and_or, String... alternatives) {
+    protected void validateQueryParam(String name, boolean required, boolean multiple, boolean is_string, boolean is_code, boolean and_or_ok, String... alternatives) {
         Object value = params.getParm(name);
 
         //System.out.println("validate_parm: name=" + name + " value=" + value + " required=" + required + " multiple=" + multiple + " is_string=" + is_string + " is_code=" + is_code + " alternatives=" + valuesAsString(null, alternatives));
@@ -246,7 +246,12 @@ public abstract class StoredQuery {
                 this.has_validation_errors = true;
                 return;
             }
-
+            if ((value instanceof SQCodeAnd) && !and_or_ok) {
+                response.add_error("XDSRegistryError", "Parameter, " + name +
+                        ", is coded with AND/OR semantics which are not allowed on this parameter", "StoredQuery.java", log_message);
+                this.has_validation_errors = true;
+                return;
+            }
         } else {
             if (multiple && !(value instanceof ArrayList)) {
                 response.add_error("XDSRegistryError", "Parameter, " + name + ", accepts multiple values but (  ) syntax is missing", "StoredQuery.java", log_message);
