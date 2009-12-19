@@ -61,7 +61,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
     String registry_endpoint = null;
     MessageContext messageContext;
-    boolean accept_xop = true;
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
 
     /* BHT: Removed
@@ -216,25 +215,15 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             doc_count++;
             String id = document.getAttributeValue(MetadataSupport.id_qname);
             OMText binaryNode = (OMText) document.getFirstOMChild();
-            if (!accept_xop) {
-                if (binaryNode.isOptimized() == true) {
-                    throw new XdsIOException("Submission uses XOP for optimized encoding - not acceptable on this endpoint");
-                }
-            }
             boolean optimized = false;
             javax.activation.DataHandler datahandler = null;
             try {
                 datahandler = (javax.activation.DataHandler) binaryNode.getDataHandler();
                 optimized = true;
             } catch (Exception e) {
-                // good - message not optimized
-                }
-
-            if (!accept_xop) {
-                if (optimized) {
-                    throw new XdsIOException("Submission uses XOP for optimized encoding - this is not acceptable on this endpoint");
-                }
+                // Message is not optimized.
             }
+
             // Create the XDSDocument to hold relevant storage parameters.
             XDSDocument doc = new XDSDocument(Repository.getRepositoryUniqueId());
             doc.setDocumentId(id);
@@ -247,8 +236,20 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 }
                 this.store_document_swa_xop(m, doc, is);
             } else {
-                String base64 = binaryNode.getText();
+                String base64 = document.getText();
+                //String base64 = binaryNode.getText();
+                /* DEBUG:
+                System.out.println("+++ NOT XOP OPTIMIZED +++");
+                System.out.println("++++ BEGIN BASE64 CONTENT ++++");
+                System.out.println(base64);
+                System.out.println("++++ END BASE64 CONTENT ++++");
+                System.out.println("-> base64.length = " + base64.length());
+                System.out.println("-> base64(bytes).length = " + base64.getBytes().length);
+                 */
                 byte[] ba = Base64.decodeBase64(base64.getBytes());
+                /* DEBUG:
+                System.out.println("-> base64(decoded).length = " + ba.length);
+                 */
                 /* BHT: Replaced code (with above line) to get rid of sun.misc dependency.
                 BASE64Decoder d = new BASE64Decoder();
                 byte[] ba = d.decodeBuffer(base64);
@@ -561,6 +562,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      */
     private String getExpectedReturnAction() {
-         return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION_RESPONSE;
+        return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION_RESPONSE;
     }
 }
