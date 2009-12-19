@@ -164,9 +164,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         System.setProperty("http.nonProxyHosts", "");
         this.service_name = service_name;
         this.mActor = actor;
+        MessageContext messageContext = this.getMessageContext();
 
-        String remoteIP = (String) this.getMessageContext().getProperty(MessageContext.REMOTE_ADDR);
-        logger.info("Start " + service_name + " : " + remoteIP + " : " + getMessageContext().getTo().toString());
+        String remoteIP = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
+        logger.info("Start " + service_name + " : " + remoteIP + " : " + messageContext.getTo().toString());
         startTestLog();
         XLogger xlogger = XLogger.getInstance();
         log_message = xlogger.getNewMessage(remoteIP);
@@ -174,7 +175,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         // Log basic parameters:
         log_message.addOtherParam(Fields.service, service_name);
-        boolean is_secure = getMessageContext().getTo().toString().indexOf("https://") != -1;
+        boolean is_secure = messageContext.getTo().toString().indexOf("https://") != -1;
         log_message.addHTTPParam(Fields.isSecure, (is_secure) ? "true" : "false");
         log_message.addHTTPParam(Fields.date, getDateTime());
         log_message.setSecureConnection(is_secure);
@@ -186,7 +187,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
 
         // Log HTTP header:
-        TransportHeaders transportHeaders = (TransportHeaders) getMessageContext().getProperty("TRANSPORT_HEADERS");
+        TransportHeaders transportHeaders = (TransportHeaders) messageContext.getProperty("TRANSPORT_HEADERS");
         for (Object o_key : transportHeaders.keySet()) {
             String key = (String) o_key;
             String value = (String) transportHeaders.get(key);
@@ -196,24 +197,24 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
 
         // Log SOAP header:
-        if (getMessageContext().getEnvelope().getHeader() != null) {
+        if (messageContext.getEnvelope().getHeader() != null) {
             try {
-                log_message.addSOAPParam("Soap Header", getMessageContext().getEnvelope().getHeader());
+                log_message.addSOAPParam("Soap Header", messageContext.getEnvelope().getHeader());
             } catch (OMException e) {
                 //} catch (XMLStreamException e)
             }
         }
 
         // Log SOAP envelope:
-        if (getMessageContext().getEnvelope().getBody() != null) {
+        if (messageContext.getEnvelope().getBody() != null) {
             try {
-                log_message.addSOAPParam("Soap Envelope", getMessageContext().getEnvelope());
+                log_message.addSOAPParam("Soap Envelope", messageContext.getEnvelope());
             } catch (OMException e) {
                 //} catch (XMLStreamException e) {
             }
         }
         log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
-        log_message.addHTTPParam(Fields.endpoint, getMessageContext().getTo().toString());
+        log_message.addHTTPParam(Fields.endpoint, messageContext.getTo().toString());
 
         return this.validateXUA(request);  // Make sure we are good with XUA.
     }
