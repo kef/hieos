@@ -78,8 +78,8 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
                 }
 
                 javax.activation.DataHandler dataHandler = new javax.activation.DataHandler(new FileDataSource(filename));
-                OMText t = metadata.om_factory().createOMText(dataHandler, true);
-                t.setOptimize(use_xop);
+                OMText t = metadata.om_factory().createOMText(dataHandler, this.use_xop);
+                t.setOptimize(this.use_xop);
                 OMElement document = metadata.om_factory().createOMElement("Document", MetadataSupport.xdsB);
                 document.addAttribute("id", id, null);
                 document.addChild(t);
@@ -97,7 +97,7 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
                 OMElement result = null;
 
                 setMetadata(body);
-                useMtom = use_xop;
+                useMtom = true;
                 useAddressing = true;
 
                 soapCall();
