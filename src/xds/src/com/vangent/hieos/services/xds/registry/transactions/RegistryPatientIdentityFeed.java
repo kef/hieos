@@ -46,6 +46,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import org.apache.commons.codec.binary.Base64;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -72,11 +73,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
     private final static String XPATH_PRIOR_REGISTRATION_PATIENT_ID =
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id[1]";
-
     //private Message log_message = null;
     private String xconfRegistryName = "localregistry";
     private boolean errorDetected = false;
-    private String patientId = "NOT ON REQUEST";
+    private String _patientId = "NOT ON REQUEST";
 
     /**
      * 
@@ -110,7 +110,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                     this.processPatientRegistyDuplicatesResolved(request);
                     break;
             }
-            this.logResponse(result, !this.errorDetected /* success */);
+            //this.logResponse(result, !this.errorDetected /* success */);
         } catch (PatientIdentityFeedException feedException) {
             ex = feedException;
         } catch (XdsInternalException internalException) {
@@ -128,11 +128,60 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         OMElement idNode = this.getFirstChildWithName(request, "id");
         String messageId = (idNode != null) ? idNode.getAttributeValue(new QName("root")) : "UNKNOWN";
         this.logPatientIdentityFeedToATNA(
-                this.patientId,
+                this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
                 updateMode /* updateMode */,
                 this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS);
         // ATNA log (Stop)
+        return result;
+    }
+
+    /**
+     *
+     * @param request
+     * @param messageType
+     * @return
+     */
+    public OMElement run_Simple(OMElement patientFeedRequest) {
+        OMElement result = null;
+        Exception ex = null;
+        if (log_message.isLogEnabled()) {
+            // Log the raw message.
+            OMElement rawMessageNode = this.getFirstChildWithName(patientFeedRequest, "RawMessage");
+            if (rawMessageNode != null) {
+                byte[] base64 = Base64.decodeBase64(rawMessageNode.getText().getBytes());
+                this.logInfo("Raw Message", new String(base64));
+            }
+            OMElement sourceIPNode = this.getFirstChildWithName(patientFeedRequest, "SourceIPAddress");
+            String sourceIP = sourceIPNode.getText();
+            this.logInfo("Source IP", sourceIP);
+        }
+
+        // First determine what kind of request we have.
+        OMElement actionNode = this.getFirstChildWithName(patientFeedRequest, "Action");
+        String action = actionNode.getText().toUpperCase();
+        if (log_message.isLogEnabled()) {
+            String logServiceText = log_message.getTestMessage() + "-" + action;
+            log_message.setTestMessage(logServiceText);
+        }
+        try {
+            if (action.equals("ADD")) {
+
+                this.processPatientRegistryRecordAdded_Simple(patientFeedRequest);
+            } else if (action.equals("MERGE")) {
+                this.processPatientRegistyDuplicatesResolved_Simple(patientFeedRequest);
+            }
+        } catch (PatientIdentityFeedException feedException) {
+            ex = feedException;
+        } catch (XdsInternalException internalException) {
+            ex = internalException;
+        } catch (Exception e) {
+            ex = e;
+            this.logException(e.getMessage());  // Some lower level exception.
+        }
+        /* FIXME */
+        result = patientFeedRequest;
+        this.logResponse(null /* response */, !this.errorDetected /* success */);
         return result;
     }
 
@@ -145,18 +194,44 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private void processPatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message)
             throws PatientIdentityFeedException, XdsInternalException {
         // Pull out the patient from the request.
-        OMElement patientNode = this.selectSingleNode(PRPA_IN201301UV02_Message, this.XPATH_PATIENT);
+        OMElement patientNode = this.selectSingleNode(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.XPATH_PATIENT);
         OMElement idNode = this.getFirstChildWithName(patientNode, "id");
         if (idNode != null) {
-            this.patientId = this.getPatientIdFromIIType(idNode);
-            this.logInfo("Patient ID", this.patientId);
+            this._patientId = this.getPatientIdFromIIType(idNode);
+            this.logInfo("Patient ID", this._patientId);
 
             // First see if the patient id already exists.
-            if (!this.adtPatientExists(this.patientId)) {
-                this.adtUpdate(patientNode, this.patientId, false /* updateMode */);
+            if (!this.adtPatientExists(this._patientId)) {
+                this.adtUpdate(patientNode, this._patientId, false /* updateMode */);
             } else {
                 // Patient Id already exists (ignore request).
-                throw this.logException("Patient ID " + this.patientId + " already exists - skipping ADD!");
+                throw this.logException("Patient ID " + this._patientId + " already exists - skipping ADD!");
+            }
+        } else {
+            throw this.logException("No patient id found on request");
+        }
+    }
+
+    /**
+     *
+     * @param patientFeedRequest
+     * @return
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private void processPatientRegistryRecordAdded_Simple(OMElement patientFeedRequest)
+            throws PatientIdentityFeedException, XdsInternalException {
+        // Pull out the patient from the request.
+        OMElement idNode = this.getFirstChildWithName(patientFeedRequest, "PatientId");
+        if (idNode != null) {
+            this._patientId = idNode.getText();
+            this.logInfo("Patient ID", this._patientId);
+
+            // First see if the patient id already exists.
+            if (!this.adtPatientExists(this._patientId)) {
+                this.adtUpdate(null /* v3 - ignore here */, this._patientId, false /* updateMode */);
+            } else {
+                // Patient Id already exists (ignore request).
+                throw this.logException("Patient ID " + this._patientId + " already exists - skipping ADD!");
             }
         } else {
             throw this.logException("No patient id found on request");
@@ -172,18 +247,18 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private void processPatientRegistryRecordUpdated(OMElement PRPA_IN201302UV02_Message)
             throws PatientIdentityFeedException, XdsInternalException {
         // Pull out the patient from the request.
-        OMElement patientNode = this.selectSingleNode(PRPA_IN201302UV02_Message, this.XPATH_PATIENT);
+        OMElement patientNode = this.selectSingleNode(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.XPATH_PATIENT);
         OMElement idNode = this.getFirstChildWithName(patientNode, "id");
         if (idNode != null) {
-            this.patientId = this.getPatientIdFromIIType(idNode);
-            this.logInfo("Patient ID", this.patientId);
+            this._patientId = this.getPatientIdFromIIType(idNode);
+            this.logInfo("Patient ID", this._patientId);
 
             // First see if the patient id already exists.
-            if (this.adtPatientExists(this.patientId)) {
-                this.adtUpdate(patientNode, this.patientId, true /* updateMode */);
+            if (this.adtPatientExists(this._patientId)) {
+                this.adtUpdate(patientNode, this._patientId, true /* updateMode */);
             } else {
                 // Patient Id already exists (ignore request).
-                throw this.logException("Patient ID " + this.patientId + " does not exist - skipping UPDATE!");
+                throw this.logException("Patient ID " + this._patientId + " does not exist - skipping UPDATE!");
             }
         } else {
             throw this.logException("No patient id found on request");
@@ -198,17 +273,41 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void processPatientRegistyDuplicatesResolved(OMElement PRPA_IN201304UV02_Message)
             throws PatientIdentityFeedException, XdsInternalException {
-        OMElement patientNode = this.selectSingleNode(PRPA_IN201304UV02_Message, this.XPATH_PATIENT);
+        OMElement patientNode = this.selectSingleNode(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.XPATH_PATIENT);
         OMElement idNode = this.getFirstChildWithName(patientNode, "id");
         String survivingPatientId = this.getPatientIdFromIIType(idNode);
         // Get the patient Id that will be subsumed (this is the duplicate).
         String priorRegistrationPatientId = this.getPriorRegistrationPatientId(PRPA_IN201304UV02_Message);
+        this.doMerge(survivingPatientId, priorRegistrationPatientId);
+    }
 
+    /**
+     *
+     * @param patientFeedRequest
+     * @return
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private void processPatientRegistyDuplicatesResolved_Simple(OMElement patientFeedRequest)
+            throws PatientIdentityFeedException, XdsInternalException {
+        OMElement idNode = this.getFirstChildWithName(patientFeedRequest, "PatientId");
+        String survivingPatientId = idNode.getText();
+        // Get the patient Id that will be subsumed (this is the duplicate).
+        OMElement priorRegistrationPatientIdNode = this.getFirstChildWithName(patientFeedRequest, "MergePatientId");
+        String priorRegistrationPatientId = priorRegistrationPatientIdNode.getText();
+        this.doMerge(survivingPatientId, priorRegistrationPatientId);
+    }
+
+    /**
+     *
+     * @param survivingPatientId
+     * @param priorRegistrationPatientId
+     */
+    private void doMerge(String survivingPatientId, String priorRegistrationPatientId) throws PatientIdentityFeedException, XdsInternalException {
         // Check existance of surviving patient id on request.
         if (survivingPatientId == null) {
             throw this.logException("Surviving Patient ID not present on request- skipping MERGE!");
         }
-        this.patientId = survivingPatientId;
+        this._patientId = survivingPatientId;
         this.logInfo("Patient ID (Surviving)", survivingPatientId);
 
         // Check existance of priorRegistration on request.
@@ -271,7 +370,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @return
      */
     String getPriorRegistrationPatientId(OMElement rootNode) {
-        OMElement idNode = this.selectSingleNode(rootNode, this.XPATH_PRIOR_REGISTRATION_PATIENT_ID);
+        OMElement idNode = this.selectSingleNode(rootNode, RegistryPatientIdentityFeed.XPATH_PRIOR_REGISTRATION_PATIENT_ID);
         String patientId = null;
         if (idNode != null) {
             patientId = this.getPatientIdFromIIType(idNode);
@@ -492,10 +591,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private String getUUID() {
         return UuidAllocator.allocate();
-    /*
-    UUIDFactory factory = UUIDFactory.getInstance();
-    UUID uuid = factory.newUUID();
-    return uuid.toString(); */
+        /*
+        UUIDFactory factory = UUIDFactory.getInstance();
+        UUID uuid = factory.newUUID();
+        return uuid.toString(); */
     }
 
 // ADT methods (keep here for now, but should move ultimately into a well factored structure.
@@ -556,7 +655,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         OMElement patientPersonNode = this.getFirstChildWithName(patientNode, "patientPerson");
         if (patientPersonNode == null) {
             this.logInfo("Note", "Request does not contain <patientPerson>");
-        // Just keep going since we do have a patient id.
+            // Just keep going since we do have a patient id.
         } else {
             // Update patient demographic data.
             this.adtSetPatientBirthTime(patientPersonNode, arb);

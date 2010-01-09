@@ -27,6 +27,11 @@
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201304UV02</actionMapping>
         </operation>
+        <!-- To support a simpler interface (from HL7v2 Adaptor); not supported in async -->
+        <operation name="PatientFeedRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hieos:xds:PatientFeedRequest</actionMapping>
+        </operation>
     </service>
 
      <!-- Async Registry Actor -->

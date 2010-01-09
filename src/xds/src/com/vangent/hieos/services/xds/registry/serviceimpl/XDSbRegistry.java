@@ -30,10 +30,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 
 public class XDSbRegistry extends XAbstractService {
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
@@ -85,6 +82,25 @@ public class XDSbRegistry extends XAbstractService {
         a.setIsMPQRequest(this.isMPQRequest());
         OMElement result = a.adhocQueryRequest(ahqr);
         endTransaction(a.getStatus());
+        return result;
+    }
+
+    /**
+     *
+     * @param patientFeedRequest
+     * @return
+     * @throws AxisFault
+     */
+    public OMElement PatientFeedRequest(OMElement patientFeedRequest) throws AxisFault {
+       OMElement startup_error = beginTransaction("PIDFEED.V2", patientFeedRequest, XAbstractService.ActorType.REGISTRY);
+        if (startup_error != null) {
+            return startup_error;
+        }
+        logger.info("*** PID Feed: SIMPLE ***");
+        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        OMElement result = rpif.run_Simple(patientFeedRequest);
+        endTransaction(true /* success */);
         return result;
     }
 
