@@ -35,6 +35,8 @@ public class SoapActionFactory {
     public final static String XCA_GATEWAY_CGQ_ACTION_RESPONSE = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
     public final static String XCA_GATEWAY_CGR_ACTION = "urn:ihe:iti:2007:CrossGatewayRetrieve";
     public final static String XCA_GATEWAY_CGR_ACTION_RESPONSE = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
+    public final static String XDS_REGISTRY_PIDFEEDSIMPLE_ACTION = "urn:hieos:xds:PatientFeedRequest";
+    public final static String XDS_REGISTRY_PIDFEEDSIMPLE_ACTION_RESPONSE = "urn:hieos:xds:PatientFeedResponse";
     public final static String ANON_ACTION = "urn:anonOutInOp";
     private static final Map<String, String> actions =
             new HashMap<String, String>() {
@@ -50,6 +52,7 @@ public class SoapActionFactory {
                     put(XDSB_REGISTRY_MPQ_ACTION, XDSB_REGISTRY_MPQ_ACTION_RESPONSE);
                     put(XCA_GATEWAY_CGQ_ACTION, XCA_GATEWAY_CGQ_ACTION_RESPONSE);
                     put(XCA_GATEWAY_CGR_ACTION, XCA_GATEWAY_CGR_ACTION_RESPONSE);
+                    put(XDS_REGISTRY_PIDFEEDSIMPLE_ACTION, XDS_REGISTRY_PIDFEEDSIMPLE_ACTION_RESPONSE);
                 }
             };
 
