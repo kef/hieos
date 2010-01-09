@@ -96,7 +96,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      */
     private OMElement createRegistryRequest(String action, String sourceIP, Message inMessage) throws HL7Exception {
         OMFactory fact = OMAbstractFactory.getOMFactory();
-        OMNamespace ns = this.getOMNamespace(fact);
+        OMNamespace ns = this.getHIEOS_OMNamespace(fact);
         OMElement patientFeedRequestNode = fact.createOMElement("PatientFeedRequest", ns);
 
         // PatientFeedRequest/Action
@@ -126,7 +126,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @param fact
      * @return
      */
-    private OMNamespace getOMNamespace(OMFactory fact) {
+    private OMNamespace getHIEOS_OMNamespace(OMFactory fact) {
         String hieos_uri = "urn:hieos:1.0";
         return fact.createOMNamespace(hieos_uri, "hieos");
     }
@@ -148,7 +148,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
         </PatientFeedRequest>
          */
         OMFactory fact = OMAbstractFactory.getOMFactory();
-        OMNamespace ns = this.getOMNamespace(fact);
+        OMNamespace ns = this.getHIEOS_OMNamespace(fact);
         OMElement patientFeedRequestNode = this.createRegistryRequest("ADD", sourceIP, inMessage);
 
         // PatientFeedRequest/PatientId
@@ -179,7 +179,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
         </PatientFeedRequest>
          */
         OMFactory fact = OMAbstractFactory.getOMFactory();
-        OMNamespace ns = this.getOMNamespace(fact);
+        OMNamespace ns = this.getHIEOS_OMNamespace(fact);
         OMElement patientFeedRequestNode = this.createRegistryRequest("MERGE", sourceIP, inMessage);
 
         // PatientFeedRequest/PatientId
