@@ -100,31 +100,47 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @param inMessage
      * @return
      */
-    private OMElement createRegistryRequest(String action, String sourceIP, Message inMessage) throws HL7Exception {
+    private OMElement createRegistryRequest(String action, String sourceIP, Message inMessage, String messageControlId, String sourceIdentity) throws HL7Exception {
         OMFactory fact = OMAbstractFactory.getOMFactory();
         OMNamespace ns = this.getHIEOS_OMNamespace(fact);
         OMElement patientFeedRequestNode = fact.createOMElement("PatientFeedRequest", ns);
 
         // PatientFeedRequest/Action
-        OMElement actionNode = fact.createOMElement("Action", ns);
-        actionNode.setText(action);
-        patientFeedRequestNode.addChild(actionNode);
+        this.createTextNode(patientFeedRequestNode, "Action", action, fact, ns);
 
         // PatientFeedRequest/SourceIPAddress
-        OMElement sourceIPAddressNode = fact.createOMElement("SourceIPAddress", ns);
-        sourceIPAddressNode.setText(sourceIP);
-        patientFeedRequestNode.addChild(sourceIPAddressNode);
+        this.createTextNode(patientFeedRequestNode, "SourceIPAddress", sourceIP, fact, ns);
 
         // PatientFeedRequest/RawMessage
-        OMElement rawMessageNode = fact.createOMElement("RawMessage", ns);
         // Convert to base 64 before sending:
         String encodedMessage = new PipeParser().encode(inMessage);
         byte[] base64 = Base64.encodeBase64(encodedMessage.getBytes());
-        rawMessageNode.setText(new String(base64));
-        patientFeedRequestNode.addChild(rawMessageNode);
+        this.createTextNode(patientFeedRequestNode, "RawMessage", new String(base64), fact, ns);
+
+        // PatientFeedRequest/MessageControlId
+        this.createTextNode(patientFeedRequestNode, "MessageControlId", messageControlId, fact, ns);
+
+        // PatientFeedRequest/SourceIdentity
+        this.createTextNode(patientFeedRequestNode, "SourceIdentity", sourceIdentity, fact, ns);
 
         // Return the request node.
         return patientFeedRequestNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param name
+     * @param text
+     * @param fact
+     * @param ns
+     * @return
+     */
+    private OMElement createTextNode(OMElement rootNode, String name, String text, OMFactory fact, OMNamespace ns) {
+        OMElement node = fact.createOMElement(name, ns);
+        node.setText(text);
+        rootNode.addChild(node);
+        return node;
     }
 
     /**
@@ -161,23 +177,23 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @param patientId
      * @return
      */
-    protected OMElement createRegistryAddRequest(String sourceIP, Message inMessage, String patientId) throws HL7Exception {
+    protected OMElement createRegistryAddRequest(String sourceIP, Message inMessage, String messageControlId, String sourceIdentity, String patientId) throws HL7Exception {
         /*
         <PatientFeedRequest>
         <Action>ADD</Action>
         <SourceIPAddress>10.23.1.102</SourceIPAddress>
         <PatientId>&amp;17.22.30.40.50&amp;ISO</PatientId>
         <RawMessage>....</MergePatientId>
+        <MessageControlId>...</MessageControlId>
+        <SourceIdentity>...</SourceIdentity>
         </PatientFeedRequest>
          */
         OMFactory fact = OMAbstractFactory.getOMFactory();
         OMNamespace ns = this.getHIEOS_OMNamespace(fact);
-        OMElement patientFeedRequestNode = this.createRegistryRequest("ADD", sourceIP, inMessage);
+        OMElement patientFeedRequestNode = this.createRegistryRequest("ADD", sourceIP, inMessage, messageControlId, sourceIdentity);
 
         // PatientFeedRequest/PatientId
-        OMElement patientIdNode = fact.createOMElement("PatientId", ns);
-        patientIdNode.setText(patientId);
-        patientFeedRequestNode.addChild(patientIdNode);
+        this.createTextNode(patientFeedRequestNode, "PatientId", patientId, fact, ns);
 
         // Return the node.
         return patientFeedRequestNode;
@@ -191,7 +207,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @param mergePatientId
      * @return
      */
-    protected OMElement createRegistryMergeRequest(String sourceIP, Message inMessage, String patientId, String mergePatientId) throws HL7Exception {
+    protected OMElement createRegistryMergeRequest(String sourceIP, Message inMessage, String messageControlId, String sourceIdentity, String patientId, String mergePatientId) throws HL7Exception {
         /*
         <PatientFeedRequest>
         <Action>MERGE</Action>
@@ -199,21 +215,19 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
         <PatientId>&amp;17.22.30.40.50&amp;ISO</PatientId>
         <MergePatientId>&amp;17.22.30.40.50&amp;ISO</MergePatientId>
         <RawMessage>....</MergePatientId>
+        <MessageControlId>...</MessageControlId>
+        <SourceIdentity>...</SourceIdentity>
         </PatientFeedRequest>
          */
         OMFactory fact = OMAbstractFactory.getOMFactory();
         OMNamespace ns = this.getHIEOS_OMNamespace(fact);
-        OMElement patientFeedRequestNode = this.createRegistryRequest("MERGE", sourceIP, inMessage);
+        OMElement patientFeedRequestNode = this.createRegistryRequest("MERGE", sourceIP, inMessage, messageControlId, sourceIdentity);
 
         // PatientFeedRequest/PatientId
-        OMElement patientIdNode = fact.createOMElement("PatientId", ns);
-        patientIdNode.setText(patientId);
-        patientFeedRequestNode.addChild(patientIdNode);
+        this.createTextNode(patientFeedRequestNode, "PatientId", patientId, fact, ns);
 
         // PatientFeedRequest/MergePatientId
-        OMElement mergePatientIdNode = fact.createOMElement("MergePatientId", ns);
-        mergePatientIdNode.setText(mergePatientId);
-        patientFeedRequestNode.addChild(mergePatientIdNode);
+        this.createTextNode(patientFeedRequestNode, "MergePatientId", mergePatientId, fact, ns);
 
         // Return the node.
         return patientFeedRequestNode;
@@ -227,5 +241,21 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      */
     protected String formatPatientId(String pid, String assigningAuthority) {
         return pid + "^^^&" + assigningAuthority + "&ISO";
+    }
+
+    /**
+     *
+     * @param sendingApplication
+     * @param sendingFacility
+     * @return
+     */
+    protected String formatPatientIdentitySource(String sendingFacility, String sendingApplication) {
+        if (sendingApplication == null) {
+            sendingApplication = "";
+        }
+        if (sendingFacility == null) {
+            sendingFacility = "";
+        }
+        return sendingFacility + "|" + sendingApplication;
     }
 }

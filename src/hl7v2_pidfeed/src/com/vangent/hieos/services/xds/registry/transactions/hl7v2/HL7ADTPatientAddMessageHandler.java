@@ -52,13 +52,21 @@ public class HL7ADTPatientAddMessageHandler extends HL7ADTPatientIdentityFeedMes
             String messageType = terser.get("/.MSH-9-2");
             String patientId = terser.get("/.PID-3-1");
             String assigningAuthorityUniversalId = terser.get("/PID-3-4-2");
+            String messageControlId = terser.get("/.MSH-10");
+            String sendingApplication = terser.get("/.MSH-3");
+            String sendingFacility = terser.get("/.MSH-4");
             log.info("Message Type = " + messageType);
+            log.info("Message Control Id = " + messageControlId);
+            log.info("Sending Application = " + sendingApplication);
+            log.info("Sending Facility = " + sendingFacility);
             log.info("Patient Id = " + patientId);
             log.info("Assigning Authority = " + assigningAuthorityUniversalId);
             OMElement registryRequest =
                     this.createRegistryAddRequest(
                     this.getRemoteIPAddress(socket),
                     inMessage,
+                    messageControlId,
+                    this.formatPatientIdentitySource(sendingFacility, sendingApplication),
                     this.formatPatientId(patientId, assigningAuthorityUniversalId));
             OMElement registryResponse = this.sendRequestToRegistry(registryRequest);
             return this.generateACK(inMessage, registryResponse);

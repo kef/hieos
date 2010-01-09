@@ -54,7 +54,13 @@ public class HL7ADTPatientMergeMessageHandler extends HL7ADTPatientIdentityFeedM
             String assigningAuthorityUniversalId = terser.get("/.PID-3-4-2");
             String mergePatientId = terser.get("/.MRG-1-1");
             String mergeAssigningAuthorityUniversalId = terser.get("/.MRG-1-4-2");
+            String messageControlId = terser.get("/.MSH-10");
+            String sendingApplication = terser.get("/.MSH-3");
+            String sendingFacility = terser.get("/.MSH-4");
             log.info("Message Type = " + messageType);
+            log.info("Message Control Id = " + messageControlId);
+            log.info("Sending Application = " + sendingApplication);
+            log.info("Sending Facility = " + sendingFacility);
             log.info("Patient Id = " + patientId);
             log.info("Assigning Authority = " + assigningAuthorityUniversalId);
             log.info("Patient Id (merge) = " + mergePatientId);
@@ -63,6 +69,8 @@ public class HL7ADTPatientMergeMessageHandler extends HL7ADTPatientIdentityFeedM
                     this.createRegistryMergeRequest(
                     this.getRemoteIPAddress(socket),
                     inMessage,
+                    messageControlId,
+                    this.formatPatientIdentitySource(sendingFacility, sendingApplication),
                     this.formatPatientId(patientId, assigningAuthorityUniversalId),
                     this.formatPatientId(mergePatientId, mergeAssigningAuthorityUniversalId));
 

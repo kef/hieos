@@ -10,4 +10,12 @@
   <MergePatientId>&amp;18.22.30.40.50&amp;ISO</MergePatientId>
 
   <RawMessage>...</RawMessage> <!-- HL7 message base64 encoded -->
+
+  <!-- To support ATNA logging -->
+
+  <!-- MSH-10 -->
+  <MessageControlId>TBD</MessageControlId>
+
+  <!-- Contactenated Facility|SendingApplication -->
+  <SourceIdentity>Facility|Sending Application</SourceIdentity>
 </PatientFeedRequest>
