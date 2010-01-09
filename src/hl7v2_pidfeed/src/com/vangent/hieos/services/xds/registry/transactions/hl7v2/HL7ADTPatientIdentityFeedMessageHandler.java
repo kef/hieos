@@ -17,11 +17,15 @@ import ca.uhn.hl7v2.app.ApplicationException;
 import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Segment;
+import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Iterator;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -150,14 +154,77 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @return
      */
     Message generateACK(Message inMessage, OMElement registryResponse) throws HL7Exception, IOException {
+        String responseCode = this.getTextFromNode(registryResponse, "ResponseCode");
+        String responseText = this.getTextFromNode(registryResponse, "ResponseText");
+        String errorText = this.getTextFromNode(registryResponse, "ErrorText");
         Segment inHeader = (Segment) inMessage.get("MSH");
         Message retVal;
         try {
             retVal = DefaultApplication.makeACK(inHeader);
+            Terser terser = new Terser(retVal);
+            if (errorText == null) {
+                terser.set("/.MSA-3-1", responseText);
+            } else {
+                this.fillAckErrorDetails(retVal, errorText);
+                /*
+                log.error("ErrorText = " + errorText);
+                terser.set("/.MSA-1", "AR");
+                terser.set("/.MSA-3-1", errorText);
+                terser.set("/.ERR-1-4", "207&Application Internal Error&HL70357");
+                // ERR|^^^207&Application Internal Error&HL70357 */
+            }
+            DefaultXMLParser xmlParser = new DefaultXMLParser();
+            String xmlEncodedMessage = xmlParser.encode(retVal);
+            log.info("XML Encoded Response Message:\n" + xmlEncodedMessage);
         } catch (IOException e) {
             throw new HL7Exception(e);
         }
         return retVal;
+    }
+
+    /**
+     * 
+     * @param ack
+     * @param errorText
+     * @throws HL7Exception
+     */
+    private void fillAckErrorDetails(Message ack, String errorText) throws HL7Exception  {
+            //populate MSA and ERR with  error ...
+            Segment msa = (Segment) ack.get("MSA");
+            Terser.set(msa, 1, 0, 1, 1, "AR");
+            Terser.set(
+                msa,
+                3,
+                0,
+                1,
+                1,
+                errorText);
+            //this is max length
+
+            //populate ERR segment if it exists (may not depending on version)
+            Structure s = ack.get("ERR");
+            if (s != null) {
+                Segment err = (Segment) s;
+                Terser.set(err, 1, 0, 4, 1, "207");
+                Terser.set(err, 1, 0, 4, 2, "Application Internal Error");
+                Terser.set(err, 1, 0, 4, 3, "HL70357");
+            }
+    }
+
+    /**
+     *
+     * @param ele
+     * @param localName
+     * @return
+     */
+    private String getTextFromNode(OMElement ele, String localName) {
+        for (Iterator it = ele.getChildElements(); it.hasNext();) {
+            OMElement child = (OMElement) it.next();
+            if (child.getLocalName().equals(localName)) {
+                return child.getText();
+            }
+        }
+        return null;
     }
 
     /**
