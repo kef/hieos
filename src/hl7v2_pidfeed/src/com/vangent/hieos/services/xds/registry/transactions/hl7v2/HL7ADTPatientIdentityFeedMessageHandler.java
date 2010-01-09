@@ -14,10 +14,13 @@ package com.vangent.hieos.services.xds.registry.transactions.hl7v2;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
+import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.parser.PipeParser;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
+import java.io.IOException;
 import java.net.Socket;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -62,7 +65,9 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      *
      * @param request
      */
-    protected void sendRequestToRegistry(OMElement request) throws HL7Exception {
+    protected OMElement sendRequestToRegistry(OMElement request) throws HL7Exception {
+        log.info("Registry Request:\n");
+        log.info(request.toString());
         String action = "urn:hieos:xds:PatientFeedRequest";
         String expectedReturnAction = "urn:hieos:xds:PatientFeedResponse";
         String endpoint = this.getProperties().getProperty(XDS_REGISTRY_ENDPOINT);
@@ -83,8 +88,9 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
             throw new HL7Exception(e);
         }
         OMElement result = soap.getResult();  // Get the result.
-        log.info("REGISTRY RESULT:\n");
+        log.info("Registry Response:\n");
         log.info(result.toString());
+        return result;
     }
 
     /**
@@ -119,6 +125,23 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
 
         // Return the request node.
         return patientFeedRequestNode;
+    }
+
+    /**
+     *
+     * @param inMessage
+     * @param registryResponse
+     * @return
+     */
+    Message generateACK(Message inMessage, OMElement registryResponse) throws HL7Exception, IOException {
+        Segment inHeader = (Segment) inMessage.get("MSH");
+        Message retVal;
+        try {
+            retVal = DefaultApplication.makeACK(inHeader);
+        } catch (IOException e) {
+            throw new HL7Exception(e);
+        }
+        return retVal;
     }
 
     /**

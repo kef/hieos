@@ -12,14 +12,9 @@
  */
 package com.vangent.hieos.services.xds.registry.transactions.hl7v2;
 
-import java.io.IOException;
-
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
-import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;
-import ca.uhn.hl7v2.model.Segment;
-import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import java.net.Socket;
 import org.apache.axiom.om.OMElement;
@@ -70,22 +65,12 @@ public class HL7ADTPatientMergeMessageHandler extends HL7ADTPatientIdentityFeedM
                     inMessage,
                     this.formatPatientId(patientId, assigningAuthorityUniversalId),
                     this.formatPatientId(mergePatientId, mergeAssigningAuthorityUniversalId));
-            log.info("Registry Request:\n");
-            log.info(registryRequest.toString());
-            this.sendRequestToRegistry(registryRequest);
+
+            OMElement registryResponse = this.sendRequestToRegistry(registryRequest);
+            return this.generateACK(inMessage, registryResponse);
         } catch (Exception e) {
             log.error("Exception: " + e.getMessage());
             throw new HL7Exception(e);
         }
-
-        // Generate the ACK.
-        Segment inHeader = (Segment) inMessage.get("MSH");
-        Message retVal;
-        try {
-            retVal = DefaultApplication.makeACK(inHeader);
-        } catch (IOException e) {
-            throw new HL7Exception(e);
-        }
-        return retVal;
     }
 }

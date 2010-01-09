@@ -1,0 +1,8 @@
+<PatientFeedResponse>
+   <DeviceId>TBD</DeviceId>
+   <DeviceName>TBD</DeviceName>
+   <!-- 0 - Pass, 1 - Fail -->
+   <ResponseCode>0</ResponseCode>
+   <ResponseText>TBD</ResponseText>
+   <ErrorText>TBD</ErrorText>
+</PatientFeedResponse>
