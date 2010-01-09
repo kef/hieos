@@ -166,10 +166,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         }
         try {
             if (action.equals("ADD")) {
-
                 this.processPatientRegistryRecordAdded_Simple(patientFeedRequest);
             } else if (action.equals("MERGE")) {
                 this.processPatientRegistyDuplicatesResolved_Simple(patientFeedRequest);
+            }
+            else {
+                throw new PatientIdentityFeedException("Action not known");
             }
         } catch (PatientIdentityFeedException feedException) {
             ex = feedException;
@@ -182,6 +184,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         /* FIXME */
         result = patientFeedRequest;
         this.logResponse(null /* response */, !this.errorDetected /* success */);
+
+        // Generate the response.
+        result = this.createPatientFeedResponse_Simple((ex != null) ? ex.getMessage() : null);
+        this.logResponse(result, !this.errorDetected /* success */);
         return result;
     }
 
@@ -507,6 +513,69 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             textNode.setText(errorString);
         }
         return ackResponseNode;
+    }
+
+    /**
+     * 
+     * @param errorString
+     * @return
+     */
+    private OMElement createPatientFeedResponse_Simple(String errorString) {
+        // <PatientFeedResponse>
+        //    <DeviceId>TBD</DeviceId>
+        //    <DeviceName>TBD</DeviceName>
+        //    <!-- 0 - Pass, 1 - Fail -->
+        //    <ResponseCode>0</ResponseCode>
+        //    <ResponseText>TBD</ResponseText>
+        //    <ErrorText>TBD</ErrorText>
+        // </PatientFeedResponse>
+        OMFactory fact = OMAbstractFactory.getOMFactory();
+        OMNamespace ns = this.getHIEOS_OMNamespace(fact);
+        OMElement patientFeedResponseNode = fact.createOMElement("PatientFeedResponse", ns);
+
+        // PatientFeedResponse/DeviceId
+        OMElement deviceIdNode = fact.createOMElement("DeviceId", ns);
+        deviceIdNode.setText(this.getRegistryReceiverDeviceId());
+        patientFeedResponseNode.addChild(deviceIdNode);
+
+        // PatientFeedResponse/DeviceName
+        OMElement deviceNameNode = fact.createOMElement("DeviceName", ns);
+        deviceNameNode.setText(this.getRegistryReceiverDeviceName());
+        patientFeedResponseNode.addChild(deviceNameNode);
+
+        // PatientFeedResponse/ResponseCode
+        OMElement responseCodeNode = fact.createOMElement("ResponseCode", ns);
+        patientFeedResponseNode.addChild(responseCodeNode);
+
+        // PatientFeedResponse/ResponseText
+        OMElement responseTextNode = fact.createOMElement("ResponseText", ns);
+        patientFeedResponseNode.addChild(responseTextNode);
+
+        // No set the text in ResponseText and ErrorText (on error).
+        if (errorString == null) {
+            responseCodeNode.setText("0");
+            responseTextNode.setText("PASS");
+        } else {
+            responseCodeNode.setText("1");
+            responseTextNode.setText("FAIL");
+            // PatientFeedResponse/ErrorText
+            OMElement errorTextNode = fact.createOMElement("ErrorText", ns);
+            patientFeedResponseNode.addChild(errorTextNode);
+            errorTextNode.setText(errorString);
+        }
+
+        // Return the response node.
+        return patientFeedResponseNode;
+    }
+
+    /**
+     *
+     * @param fact
+     * @return
+     */
+    private OMNamespace getHIEOS_OMNamespace(OMFactory fact) {
+        String hieos_uri = "urn:hieos:1.0";
+        return fact.createOMNamespace(hieos_uri, "hieos");
     }
 
     /**
