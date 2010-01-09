@@ -1,0 +1,13 @@
+<PatientFeedRequest>
+  <!-- Specify the action: ADD or MERGE -->
+  <Action>MERGE</Action>
+
+  <SourceIPAddress>10.23.1.102</SourceIPAddress>
+
+  <PatientId>&amp;17.22.30.40.50&amp;ISO</PatientId>
+
+  <!-- Only required for a merge (this one will be subsumed) -->
+  <MergePatientId>&amp;18.22.30.40.50&amp;ISO</MergePatientId>
+
+  <RawMessage>...</RawMessage> <!-- HL7 message base64 encoded -->
+</PatientFeedRequest>
