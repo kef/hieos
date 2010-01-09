@@ -165,13 +165,13 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
             if (errorText == null) {
                 terser.set("/.MSA-3-1", responseText);
             } else {
-                this.fillAckErrorDetails(retVal, errorText);
-                /*
                 log.error("ErrorText = " + errorText);
                 terser.set("/.MSA-1", "AR");
                 terser.set("/.MSA-3-1", errorText);
-                terser.set("/.ERR-1-4", "207&Application Internal Error&HL70357");
                 // ERR|^^^207&Application Internal Error&HL70357 */
+                terser.set("/.ERR-1-4-1", "207");
+                terser.set("/.ERR-1-4-2", "Application Internal Error");
+                terser.set("/.ERR-1-4-3", "HL70357");
             }
             DefaultXMLParser xmlParser = new DefaultXMLParser();
             String xmlEncodedMessage = xmlParser.encode(retVal);
@@ -188,6 +188,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
      * @param errorText
      * @throws HL7Exception
      */
+    /*
     private void fillAckErrorDetails(Message ack, String errorText) throws HL7Exception  {
             //populate MSA and ERR with  error ...
             Segment msa = (Segment) ack.get("MSA");
@@ -209,7 +210,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
                 Terser.set(err, 1, 0, 4, 2, "Application Internal Error");
                 Terser.set(err, 1, 0, 4, 3, "HL70357");
             }
-    }
+    } */
 
     /**
      *
