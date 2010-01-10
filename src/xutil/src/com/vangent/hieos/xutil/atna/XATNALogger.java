@@ -30,7 +30,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.net.URL;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
@@ -47,6 +46,7 @@ public class XATNALogger {
 
     private final static Logger logger = Logger.getLogger(XATNALogger.class);
     // Public accessible parameters.
+    public static final String TXN_ITI8 = "ITI-8";
     public static final String TXN_ITI18 = "ITI-18";
     public static final String TXN_ITI38 = "ITI-38";
     public static final String TXN_ITI39 = "ITI-39";
@@ -181,7 +181,7 @@ public class XATNALogger {
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", "0");
         CodedValueType roleIdCode = this.getCodedValueType("110150", "DCM", "Application");
         amb.setActiveParticipant(
-               "root", /* userId */
+                "root", /* userId */
                 this.pid, /* altnerateuserId */
                 null, /* userName */
                 "false", /* userIsRequestor */
@@ -728,8 +728,12 @@ public class XATNALogger {
      * @param messageId
      * @param updateMode
      * @param successFlag
+     * @param sourceIdentity
+     * @param sourceIP
      */
-    public void auditPatientIdentityFeedToRegistry(String patientId, String messageId, boolean updateMode, OutcomeIndicator outcome) {
+    public void auditPatientIdentityFeedToRegistry(String patientId, 
+            String messageId, boolean updateMode, OutcomeIndicator outcome,
+            String sourceIdentity, String sourceIP) {
         if (!this.performAudit) {
             this.logWarning();
             return;  // Early exit.
@@ -747,13 +751,13 @@ public class XATNALogger {
         // Source (Patient Identity Source):
         CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
         amb.setActiveParticipant(
-                this.replyTo, /* userId */
+                sourceIdentity != null ? sourceIdentity : this.replyTo, /* userId */
                 null, /* alternateUserId */
                 this.userName, /* userName */
                 "true", /* userIsRequestor */
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
-                this.fromAddress); /* networkAccessPointId */
+                sourceIP != null ? sourceIP : this.fromAddress); /* networkAccessPointId */
 
         // Destination (Registry):
         roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
@@ -951,8 +955,7 @@ public class XATNALogger {
      *
      * @return
      */
-    private String getUserNameFromRequest()
-    {
+    private String getUserNameFromRequest() {
         XServiceProvider xServiceProvider = new XServiceProvider(null);
         return xServiceProvider.getUserNameFromRequest(this.getCurrentMessageContext());
     }
