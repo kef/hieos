@@ -128,10 +128,13 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         OMElement idNode = this.getFirstChildWithName(request, "id");
         String messageId = (idNode != null) ? idNode.getAttributeValue(new QName("root")) : "UNKNOWN";
         this.logPatientIdentityFeedToATNA(
+                XATNALogger.TXN_ITI44,
                 this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
                 updateMode /* updateMode */,
-                this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS);
+                this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS,
+                null /* sourceIdentity */,
+                null /* sourceIP */);
         // ATNA log (Stop)
         return result;
     }
@@ -164,13 +167,14 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             String logServiceText = log_message.getTestMessage() + "-" + action;
             log_message.setTestMessage(logServiceText);
         }
+        boolean updateMode = true;
         try {
             if (action.equals("ADD")) {
+                updateMode = false;
                 this.processPatientRegistryRecordAdded_Simple(patientFeedRequest);
             } else if (action.equals("MERGE")) {
                 this.processPatientRegistyDuplicatesResolved_Simple(patientFeedRequest);
-            }
-            else {
+            } else {
                 throw new PatientIdentityFeedException("Action not known");
             }
         } catch (PatientIdentityFeedException feedException) {
@@ -188,6 +192,18 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         // Generate the response.
         result = this.createPatientFeedResponse_Simple((ex != null) ? ex.getMessage() : null);
         this.logResponse(result, !this.errorDetected /* success */);
+
+        // ATNA log (Start)
+        String messageId = this.getPatientFeedRequestNodeText(patientFeedRequest, "MessageControlId");
+        this.logPatientIdentityFeedToATNA(
+                XATNALogger.TXN_ITI8,
+                this._patientId,
+                (messageId != null) ? messageId : "UNKNOWN",
+                updateMode /* updateMode */,
+                this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS,
+                this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIdentity") /* sourceIdentity */,
+                this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIPAddress") /* sourceIP */);
+        // ATNA log (Stop)
         return result;
     }
 
@@ -227,9 +243,9 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private void processPatientRegistryRecordAdded_Simple(OMElement patientFeedRequest)
             throws PatientIdentityFeedException, XdsInternalException {
         // Pull out the patient from the request.
-        OMElement idNode = this.getFirstChildWithName(patientFeedRequest, "PatientId");
-        if (idNode != null) {
-            this._patientId = idNode.getText();
+        String id = this.getPatientFeedRequestNodeText(patientFeedRequest, "PatientId");
+        if (id != null) {
+            this._patientId = id;
             this.logInfo("Patient ID", this._patientId);
 
             // First see if the patient id already exists.
@@ -295,11 +311,9 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void processPatientRegistyDuplicatesResolved_Simple(OMElement patientFeedRequest)
             throws PatientIdentityFeedException, XdsInternalException {
-        OMElement idNode = this.getFirstChildWithName(patientFeedRequest, "PatientId");
-        String survivingPatientId = idNode.getText();
+        String survivingPatientId = this.getPatientFeedRequestNodeText(patientFeedRequest, "PatientId");
         // Get the patient Id that will be subsumed (this is the duplicate).
-        OMElement priorRegistrationPatientIdNode = this.getFirstChildWithName(patientFeedRequest, "MergePatientId");
-        String priorRegistrationPatientId = priorRegistrationPatientIdNode.getText();
+        String priorRegistrationPatientId = this.getPatientFeedRequestNodeText(patientFeedRequest, "MergePatientId");
         this.doMerge(survivingPatientId, priorRegistrationPatientId);
     }
 
@@ -346,6 +360,21 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
 // Helper methods:
+    /**
+     *
+     * @param patientFeedRequest
+     * @param name
+     * @return
+     */
+    String getPatientFeedRequestNodeText(OMElement patientFeedRequest, String name) {
+        String result = null;
+        OMElement node = this.getFirstChildWithName(patientFeedRequest, name);
+        if (node != null) {
+            result = node.getText();
+        }
+        return result;
+    }
+
     /**
      *
      * @param idNode
@@ -954,12 +983,16 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @param messageId
      * @param updateMode
      */
-    private void logPatientIdentityFeedToATNA(String patientId, String messageId, boolean updateMode, XATNALogger.OutcomeIndicator outcome) {
+    private void logPatientIdentityFeedToATNA(
+            String transactionId,
+            String patientId, String messageId, boolean updateMode, XATNALogger.OutcomeIndicator outcome,
+            String sourceIdentity, String sourceIP) {
         try {
             //this.selectSingleNode(request, this.XPATH_MESSAGE_ID);
-            XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_ITI44, XATNALogger.ActorType.REGISTRY);
+            XATNALogger xATNALogger = new XATNALogger(transactionId, XATNALogger.ActorType.REGISTRY);
             xATNALogger.auditPatientIdentityFeedToRegistry(
-                    patientId, messageId, updateMode, outcome);
+                    patientId, messageId, updateMode, outcome,
+                    sourceIdentity, sourceIP);
         } catch (Exception e) {
             this.logInternalException(e, "Error trying to perform ATNA logging for Patient Identity Feed");
         }
