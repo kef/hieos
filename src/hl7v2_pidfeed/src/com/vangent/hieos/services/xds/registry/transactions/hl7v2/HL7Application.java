@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,10 @@ public abstract class HL7Application implements Application {
 
     private HL7ServerProperties props;
 
+    /**
+     *
+     * @param props
+     */
     public HL7Application(HL7ServerProperties props) {
         this.props = props;
     }
@@ -64,15 +68,14 @@ public abstract class HL7Application implements Application {
      * @throws HL7Exception
      */
     public Message processMessage(Message inMessage, Socket socket) throws ApplicationException, HL7Exception {
-        log.info("+++++ Inbound HL7 Message +++++");
+        log.info("++++++++++++++++++++++ Inbound HL7 Message ++++++++++++++++++++++");
         log.info("Sender IP = " + this.getRemoteIPAddress(socket));
         log.info("HL7 Version = " + inMessage.getVersion());
         DefaultXMLParser xmlParser = new DefaultXMLParser();
         String xmlEncodedMessage = xmlParser.encode(inMessage);
         String encodedMessage = new PipeParser().encode(inMessage);
-
-        log.info("XML Encoded Message:\n" + xmlEncodedMessage);
         log.info("Raw HL7 Message:\n" + encodedMessage);
+        log.info("XML Encoded Message:\n" + xmlEncodedMessage);
         return this.handleMessage(inMessage, socket);
     }
 
