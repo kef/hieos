@@ -21,7 +21,6 @@ import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 
 import java.net.URISyntaxException;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -70,14 +69,8 @@ public class XServiceProvider {
      */
     public XServiceProvider.Status run(MessageContext mc) throws XdsException {
         // Get configuration.
-        XConfig xconfig = null;
-        try {
-            xconfig = XConfig.getInstance();
-        } catch (XdsInternalException ex) {
-            logger.fatal("Exception while loading XConfig from XServiceProvider", ex);
-            throw new XdsException(
-                    "Exception while loading XConfig from XServiceProvider: " + ex.getMessage());
-        }
+        XConfig xconfig = this.getXConfig();
+
         // Check to see if XUA is enabled
         boolean xuaEnabled = xconfig.getXUAPropertyAsBoolean(XUAConstants.XUAENABLED_PROPERTY);
         if (!xuaEnabled) {
@@ -85,13 +78,24 @@ public class XServiceProvider {
             return Status.CONTINUE;
         }
 
+        logMessage.addSOAPParam("XUA:Note", "XUA is enabled!");
+
         // Check to see if the received soap action is an XUA constrained action or not
         XConfigXUAProperties xuaProperties = xconfig.getXUAConfigProperties();
         boolean xuaConstrainedSOAPAction = xuaProperties.containsSOAPAction(mc.getSoapAction());
         if (!xuaConstrainedSOAPAction) {
             // We are not constraining this SOAP action using XUA, just continue.
+            logMessage.addSOAPParam("XUA:Note", "Skipping this SOAP Action - " + mc.getSoapAction());
             return Status.CONTINUE;
         }
+
+        // Now check to see if this IP address should be constrained
+        if (!this.IPAddressIsConstrained(mc)) {
+            // Continue if we should not constain this IP address.
+            logMessage.addSOAPParam("XUA:Note", "The source IP address is not constrained by XUA");
+            return Status.CONTINUE;
+        }
+
         if (logMessage.isLogEnabled()) {
             logMessage.addSOAPParam("XUA:SOAPAction", mc.getSoapAction());
         }
@@ -154,13 +158,67 @@ public class XServiceProvider {
         /*
         Iterator ite = assertion.getChildrenWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Subject"));
         while (ite.hasNext()) {
-            OMElement subjectEle = (OMElement) ite.next();
-            OMElement nameIDEle = subjectEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "NameID"));
-            userName = nameIDEle.getText();
+        OMElement subjectEle = (OMElement) ite.next();
+        OMElement nameIDEle = subjectEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "NameID"));
+        userName = nameIDEle.getText();
         }*/
         // concat username in a specified formate for ATNA logging.
         //alias"<"user"@"issuer">"
         return SPProviderID + "<" + userName + "@" + Issuer + ">";
+    }
+
+    /**
+     *
+     * @param messageContext
+     * @return
+     * @throws XdsException
+     */
+    private boolean IPAddressIsConstrained(MessageContext messageContext) throws XdsException {
+        XConfig xconfig = this.getXConfig();
+        XConfigXUAProperties xuaProperties = xconfig.getXUAConfigProperties();
+        String sourceIPAddress = this.getSourceIPAddress(messageContext);
+        if (sourceIPAddress == null)
+        {
+            // If for some reason, we can not get the source IP address - constrain anyway.
+            return true;
+        }
+        // Now see if we should constrain the IP address (based on the configuration).
+        return xuaProperties.IPAddressIsConstrained(sourceIPAddress);
+    }
+
+    /**
+     *
+     * @param messageContext
+     * @return
+     */
+    private String getSourceIPAddress(MessageContext messageContext) {
+        String sourceIPAddress = null;
+        try {
+            sourceIPAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
+            logMessage.addSOAPParam("XUA:SourceIPAddress", sourceIPAddress);
+        } catch (Exception e) {
+            logMessage.addSOAPParam("XUA:SourceIPAddress", "Could not get source IP address; constraining source.");
+            logger.error("XUA:Exception: Could not get source IP address; constaining source.", e);
+        }
+        return sourceIPAddress;
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    private XConfig getXConfig() throws XdsException {
+        // Get configuration.
+        XConfig xconfig = null;
+        try {
+            xconfig = XConfig.getInstance();
+            return xconfig;
+        } catch (XdsInternalException ex) {
+            logger.fatal("Exception while loading XConfig from XServiceProvider", ex);
+            throw new XdsException(
+                    "Exception while loading XConfig from XServiceProvider: " + ex.getMessage());
+        }
     }
 
     /**
