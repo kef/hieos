@@ -132,6 +132,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
         OMElement res = null;
         try {
             res = response.getResponse();
+            this.log_response();
         } catch (XdsInternalException e) {
         }
         return res;
@@ -305,7 +306,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 }
                 this.submitDeprecateObjectsRequest(backendRegistry, deprecatableObjectIds);
             }
-            this.log_response();
+            //this.log_response();
         } catch (MetadataException e) {
             response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
             return;
