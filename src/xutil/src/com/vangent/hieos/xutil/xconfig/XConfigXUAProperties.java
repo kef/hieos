@@ -23,6 +23,7 @@ public class XConfigXUAProperties {
 
     private XConfigProperties properties = new XConfigProperties();
     ArrayList soapActionsList = null;
+    ArrayList constrainedIPList = null;
 
     /**
      *
@@ -53,15 +54,50 @@ public class XConfigXUAProperties {
 
     /**
      *
+     * @param IPAddress
+     * @return
+     */
+    public boolean IPAddressIsConstrained(String IPAddress) {
+        // Check to see if all IP addresses should be constrained.
+        if (this.constrainedIPList.size() == 0) {
+            // Always constrain if the IP list is empty.
+            return true;
+        }
+        if (this.constrainedIPList.contains("all")) {
+            // Constrain all IP addresses.
+            return true;
+        }
+        // Only constrain if the IP address is on our list.
+        return this.constrainedIPList.contains(IPAddress.toLowerCase());
+    }
+
+    /**
+     *
      * @param rootNode
      */
     protected void parse(OMElement rootNode) {
         properties.parse(rootNode);
-        String soapActionsUnParsed = this.getProperty("SOAPActions");
-        String[] soapActions = soapActionsUnParsed.split(";");
+        // Load SOAP actions to control.
         this.soapActionsList = new ArrayList();
-        for (int i = 0; i < soapActions.length; i++) {
-            soapActionsList.add(soapActions[i].toLowerCase());
+        this.parseList("SOAPActions", this.soapActionsList);
+        // Load IP addresses to control.
+        this.constrainedIPList = new ArrayList();
+        this.parseList("ConstrainedIPAddresses", this.constrainedIPList);
+    }
+
+    /**
+     *
+     * @param propKey
+     * @param targetList
+     */
+    private void parseList(String propKey, ArrayList targetList) {
+        // Load IP addresses to control.
+        String listUnParsed = this.getProperty(propKey);
+        String[] listParsed = listUnParsed.split(";");
+        for (int i = 0; i < listParsed.length; i++) {
+            if (listParsed[i].length() != 0) {
+                targetList.add(listParsed[i].toLowerCase());
+            }
         }
     }
 }
