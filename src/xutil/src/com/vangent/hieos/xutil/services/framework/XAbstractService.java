@@ -274,7 +274,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             message = e.getMessage();
         }
         logger.error("Exception thrown while processing web service request", e);
-        OMElement errorResult =  this.start_up_error(request, e, actor, message);
+        OMElement errorResult = this.start_up_error(request, e, actor, message);
+        if (log_message.isLogEnabled() && (errorResult != null)) {
+            log_message.addOtherParam("Response - ERROR", errorResult);
+        }
         endTransaction(false /* status */);
         return errorResult;
     }
@@ -306,7 +309,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             String request_type = (request != null) ? request.getLocalName() : "None";
             OMNamespace ns = (request != null) ? request.getNamespace() : MetadataSupport.ebRSns2;
 
-            if (ns.getNamespaceURI().equals(MetadataSupport.ebRSns3.getNamespaceURI())) {
+            if (ns.getNamespaceURI().equals(MetadataSupport.ebRSns3.getNamespaceURI()) || ns.getNamespaceURI().equals("urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0")) {
                 // xds.b submitobjectsrequest (could be xds.b retrieve)
                 RegistryErrorList rel = new RegistryErrorList(log);
                 rel.add_error(error_type, message, exception_details(e), log_message);
