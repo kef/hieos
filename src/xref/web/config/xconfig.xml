@@ -33,7 +33,7 @@
         <Property name="LocalRepository">localrepository</Property>
 
          <!-- ATNA configuration parameters. --> 
-        <Property name="ATNAPerformAudit">true</Property>
+        <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
 	
 	<!-- MIR SYSLOG -->
@@ -57,8 +57,10 @@
         -->
 
         <!-- ibm1 -->
+        <!--
         <Property name="ATNAsyslogHost">10.243.0.139</Property>
         <Property name="ATNAsyslogPort">514</Property>
+        -->
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">45000</Property> <!-- 45 seconds -->
@@ -74,9 +76,9 @@
     </HomeCommunity>
 
     <XUA name="XUAProperties">
-        <Property name="XUAEnabled">true</Property>
-        <!--<Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
-        <Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>
+        <Property name="XUAEnabled">false</Property>
+        <Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>
+        <!--<Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
         <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
         <!--
         <Property name="SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
@@ -98,7 +100,7 @@
     <AssigningAuthority name = "xdstest">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</UniqueId>
         <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
-        <!--<Gateway>nistrg</Gateway>-->
+        <Gateway>nistrg</Gateway>
         <!--
         <Gateway>EHR_SPIRIT_rg</Gateway>
         <Gateway>EHR_ITH-ICOSERVE_rg</Gateway>-->
@@ -108,10 +110,11 @@
     <AssigningAuthority name = "IHENA">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</UniqueId>
         <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
+        <Gateway>nistrg</Gateway>
+        <!--
         <Gateway>OTHER_ICW_rg</Gateway>
         <Gateway>XDS_REG_IBM_rg</Gateway>
-        <!--<Gateway>nistrg</Gateway>-->
-        <!--<Gateway>XDSb_REP_AXOLOTL_rg</Gateway>
+        <Gateway>XDSb_REP_AXOLOTL_rg</Gateway>
         <Gateway>GATEWAY_INTERSYSTEMS_rg</Gateway>-->
         <!--<Gateway>localrg</Gateway>-->
     </AssigningAuthority>
@@ -120,10 +123,10 @@
     <AssigningAuthority name = "PAMX">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
         <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
+        <Gateway>nistrg</Gateway>
+        <!--
         <Gateway>OTHER_ICW_rg</Gateway>
         <Gateway>XDSb_REG_MISYS_rg</Gateway>
-        <!--<Gateway>nistrg</Gateway>-->
-        <!--
         <Gateway>EHR_SPIRIT_rg</Gateway>
         <Gateway>EHR_ITH-ICOSERVE_rg</Gateway>-->
     </AssigningAuthority>
@@ -423,13 +426,15 @@
         </Transaction>
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
-        <!--<Registry>localregistry</Registry>-->
-        <Registry>XDSb_REG_EMC_IHE_registry</Registry>
+        <Registry>localregistry</Registry>
+        <!--
+        <Registry>XDSb_REG_EMC_IHE_registry</Registry>-->
         <!--
         <Registry>localregistry</Registry>-->
         <!--
         <Registry>XDSb_REG_MICROSOFT_registry</Registry>-->
-        <!--<Registry>EHR_INTERSYSTEMS_registry</Registry>-->
+        <!--
+        <Registry>EHR_INTERSYSTEMS_registry</Registry>-->
         <!--
         <Registry>XDS_REG_IBM_registry</Registry>-->
 
@@ -848,13 +853,13 @@
 
     <Gateway name="nistrg"> <!-- NIST Responding Gateway -->
         <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
             <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
             <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/rgas</Endpoint>
             <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
         </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
             <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
             <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/rgas</Endpoint>
