@@ -23,12 +23,12 @@
 -- Definition of table document
 --
 
+DROP TABLE IF EXISTS document;
 
-CREATE TABLE document 
-(
+CREATE TABLE document (
   uniqueid varchar(256) NOT NULL,
   hash varchar(256) NOT NULL,
-  size BIGINT NOT NULL,
+  size_ BIGINT NOT NULL,
   mimetype varchar(256) NOT NULL,
   repositoryid varchar(256) NOT NULL,
   bytes byteA NOT NULL,
