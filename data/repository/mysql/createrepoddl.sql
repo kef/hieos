@@ -42,7 +42,7 @@ DROP TABLE IF EXISTS `document`;
 CREATE TABLE `document` (
   `uniqueid` varchar(256) NOT NULL,
   `hash` varchar(256) NOT NULL,
-  `size` int(10) unsigned NOT NULL,
+  `size_` int(10) unsigned NOT NULL,
   `mimetype` varchar(256) NOT NULL,
   `repositoryid` varchar(256) NOT NULL,
   `bytes` longblob NOT NULL,
