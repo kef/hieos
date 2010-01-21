@@ -13,10 +13,9 @@
 
 -- Table: patient
 
--- DROP TABLE patient;
+DROP TABLE IF EXISTS patient;
 
-CREATE TABLE patient
-(
+CREATE TABLE patient (
   uuid text NOT NULL,
   id text NOT NULL,
   "timestamp" text,
@@ -37,10 +36,9 @@ CREATE INDEX patient_uuid_idx ON patient USING btree (uuid);
 
 -- Table: patientaddress
 
--- DROP TABLE patientaddress;
+DROP TABLE IF EXISTS patientaddress;
 
-CREATE TABLE patientaddress
-(
+CREATE TABLE patientaddress (
   parent text NOT NULL,
   streetaddress text NOT NULL,
   otherdesignation text NOT NULL,
@@ -56,10 +54,9 @@ ALTER TABLE patientaddress OWNER TO adt;
 
 -- Table: patientname
 
--- DROP TABLE patientname;
+DROP TABLE IF EXISTS patientname;
 
-CREATE TABLE patientname
-(
+CREATE TABLE patientname (
   parent text NOT NULL,
   familyname text NOT NULL,
   givenname text NOT NULL,
@@ -75,10 +72,9 @@ ALTER TABLE patientname OWNER TO adt;
 
 -- Table: patientrace
 
--- DROP TABLE patientrace;
+DROP TABLE IF EXISTS patientrace;
 
-CREATE TABLE patientrace
-(
+CREATE TABLE patientrace (
   parent text NOT NULL,
   race text NOT NULL,
   CONSTRAINT patientrace_pkey PRIMARY KEY (parent)
