@@ -14,12 +14,14 @@ package com.vangent.hieos.logbrowser.util;
 
 import java.awt.Color;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.text.Format;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -27,8 +29,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 public class TableModel extends AbstractTableModel
         implements TableModelListener {
@@ -37,57 +38,90 @@ public class TableModel extends AbstractTableModel
     private Vector<String> headerVector = new Vector<String>();
     private String xmlString;
     private Map fieldsAndFormats = null;
-    private Log log = LogFactory.getLog(this.getClass());
+    private final static Logger logger = Logger.getLogger(TableModel.class);
     private static final long serialVersionUID = 1L;
+    public final static String STRING = "String";
+    public final static String INTEGER = "Integer";
+    public final static String DATE = "Date";
+    public final static String TIMESTAMP = "Timestamp";
+    private final static String ROW_NUM_SELECT = "select * from (select a.*, rownum rnum from (";
+    private final static String ROW_NUM_RANGE = ")a where rownum <= ?) where rnum > ?";
+    private final static String ROW_LIMIT_OFFSET = " limit ? offset ?";
 
     public TableModel() throws SQLException {
     }
 
-    /* AMS - FIXME
-
-    Description: Changed the CTOR to accept a Map, fieldsAndFormats, implying that the TableModel
-    now creates formatted data in the dataVector.
-
-    Fix:
-    Use a different data structure instead of Map.
-
+    /**
+     * @param sqlRequest - SQL Prepared Statement
+     * @param sqlParams - Prepared Statement variables
+     * @param fieldsAndFormats - Formats for fields
+     * @param c - connection
+     * @throws SQLException
      */
-    public TableModel(String sqlRequest, Map fieldsAndFormats, Connection c) throws SQLException {
+    public TableModel(String sqlRequest, Vector<HashMap> sqlParams, Map fieldsAndFormats, Connection c) throws SQLException {
         this.fieldsAndFormats = fieldsAndFormats;
-        ResultSet statementResult;
-        log.debug("TABLE_MODEL_SYSLOG: database connection created\n");
-
-        Statement statement = c.createStatement();
-        log.debug("TABLE_MODEL_SYSLOG: statement created\n");
-        System.out.println("TableModel (SQL) -> " + sqlRequest);
-        statementResult = statement.executeQuery(sqlRequest);
-        log.debug("TABLE_MODEL_SYSLOG: Query executed\n");
-        log.debug("<--" + new GregorianCalendar().getTime() + " TableModel close Database \n");
-
-        ResultSetMetaData metaData = statementResult.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        dataVector = new Vector<Vector<Object>>();
-        headerVector = new Vector<String>();
-
-        log.debug("TABLE_MODEL_SYSLOG: colomn count : " + columnCount + "\n");
-        log.debug("TABLE_MODEL_SYSLOG: Table--------------------------------------");
-        for (int i = 0; i < columnCount; i++) {
-            headerVector.add(metaData.getColumnName((i + 1)));
-            log.debug(metaData.getColumnName((i + 1)) + "\t");
-        }
-
-        while (statementResult.next()) {
-            Vector<Object> tmp = new Vector<Object>(columnCount);
-            for (int j = 0; j < columnCount; j++) {
-                String columnName = getColumnName(j);
-                Object columnData = statementResult.getObject(columnName);
-                columnData = getFormattedData(columnName, columnData);
-                tmp.add(columnData);
-                log.debug(columnData + "\t");
+        ResultSet statementResult = null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = c.prepareStatement(sqlRequest);
+            if (logger.isDebugEnabled()) {
+                logger.debug("TABLE_MODEL: (SQL) -> " + sqlRequest);
             }
-            log.debug("\n");
-            dataVector.add(tmp);
+
+            // Set Parameters and Exceute Statement
+            logger.info("TABLE_MODEL: Start Query: " + new GregorianCalendar().getTime());
+            java.util.Date startTime = new GregorianCalendar().getTime();
+            pstmt = setPStmtParameters(pstmt, sqlParams);
+            statementResult = pstmt.executeQuery();
+
+            ResultSetMetaData metaData = statementResult.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            dataVector = new Vector<Vector<Object>>();
+            headerVector = new Vector<String>();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("TABLE_MODEL: column count : " + columnCount);
+            }
+            for (int i = 0; i < columnCount; i++) {
+                headerVector.add(metaData.getColumnLabel((i + 1)));
+                if (logger.isDebugEnabled()) {
+                    logger.debug("LABEL: " + metaData.getColumnLabel((i + 1)));
+                }
+            }
+
+            while (statementResult.next()) {
+                Vector<Object> tmp = new Vector<Object>(columnCount);
+                for (int j = 0; j < columnCount; j++) {
+                    String columnName = getColumnName(j);
+                    Object columnData;
+                    if (metaData.getColumnType(j + 1) == Types.TIMESTAMP) {
+                        columnData = statementResult.getTimestamp(columnName);
+                    } else {
+                        columnData = statementResult.getObject(columnName);
+                    }
+                    columnData = getFormattedData(columnName, columnData);
+                    tmp.add(columnData);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("COLUMN DATA: " + columnData);
+                    }
+                }
+                dataVector.add(tmp);
+            }
+            logger.info("TABLE_MODEL: Query executed: " + new GregorianCalendar().getTime() + ", Time (MS): " + (new GregorianCalendar().getTime().getTime() - startTime.getTime()));
+        } catch (SQLException ex) {
+            throw ex;
+        } finally {
+            try {
+                if (statementResult != null) {
+                    statementResult.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException ex) {
+                logger.error(ex);
+            }
         }
     }
 
@@ -168,7 +202,6 @@ public class TableModel extends AbstractTableModel
     public void tableChanged(TableModelEvent e) {
         fireTableChanged(e);
     }
-
     Color curColor;
 
     /**
@@ -189,11 +222,91 @@ public class TableModel extends AbstractTableModel
         Object formattedData = fieldData;
         Format fmt = (Format) fieldsAndFormats.get(fieldName);
         if (fmt != null) {
-            /* AMS - FIXME - Cannot assume that fieldData is always a string.
-            Will work for now */
-
-            formattedData = (String) fmt.format(fieldData);
+            formattedData = fmt.format(fieldData);
         }
         return formattedData;
+    }
+
+    /**
+     * Checks the database type and adds the database specific paging syntax
+     * to the current SQL statement
+     *
+     * @param databaseType
+     * @param currentSqlCommand
+     * @param currentSqlParams
+     * @param pageNumber
+     * @param nbResByPage
+     * @return HashMap - contains the prepared statement with paging and list of parameters
+     */
+    public static HashMap getSQLWithPaging(String databaseType, String currentSqlCommand,
+            Vector<HashMap> currentSqlParams, int pageNumber, int nbResByPage) {
+
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        StringBuffer completeSQL = new StringBuffer();
+        Vector<HashMap> completeSqlParams = new Vector<HashMap>();
+        completeSqlParams.addAll(currentSqlParams);
+
+        if (databaseType.toLowerCase().contains("oracle")) {
+            // Oracle Paging - Wraps a SQL statement with the ROWNUM command to enable retrieval of a
+            // specified range of records.
+            completeSQL.append(ROW_NUM_SELECT);
+            completeSQL.append(currentSqlCommand);
+            completeSQL.append(ROW_NUM_RANGE);
+            completeSqlParams.add(setSqlParam(INTEGER, (nbResByPage * pageNumber) + nbResByPage));
+            completeSqlParams.add(setSqlParam(INTEGER, nbResByPage * pageNumber));
+        } else {
+            // Appends the Limit and Offset commands to a SQL statement to enable retrieval of a
+            // specified range of records.
+            completeSQL.append(currentSqlCommand);
+            completeSQL.append(ROW_LIMIT_OFFSET);
+            completeSqlParams.add(setSqlParam(INTEGER, nbResByPage));
+            completeSqlParams.add(setSqlParam(INTEGER, nbResByPage * pageNumber));
+        }
+
+        // Return the SQL Statement and Prepared Statement Parameters
+        result.put("completeSQL", completeSQL);
+        result.put("completeSqlParams", completeSqlParams);
+
+        return result;
+    }
+
+    /**
+     * Sets the bindings for a prepared statement
+     *
+     * @param pstmt - Prepared Statement
+     * @param params - List of parameters for prepared statement
+     * @return PreparedStatement - with bindings set
+     */
+    public static PreparedStatement setPStmtParameters(PreparedStatement pstmt, Vector<HashMap> params)
+            throws SQLException {
+        //logger.info("Num of Params: " + params.size() + ", Params: " + params);
+        int j = 0;
+        for (HashMap param : params) {
+            j = j + 1;
+            if (param.containsKey(INTEGER)) {
+                pstmt.setInt(j, (Integer) param.get(INTEGER));
+            } else if (param.containsKey(TIMESTAMP)) {
+                //logger.debug("Param Timestamp: " + new java.sql.Timestamp(((java.util.Date) param.get(TIMESTAMP)).getTime()));
+                pstmt.setTimestamp(j, new java.sql.Timestamp(((java.util.Date) param.get(TIMESTAMP)).getTime()));
+            } else if (param.containsKey(DATE)) {
+                //logger.debug("Param Date: " + new java.sql.Date(((java.util.Date) param.get(DATE)).getTime()));
+                pstmt.setDate(j, new java.sql.Date(((java.util.Date) param.get(DATE)).getTime()));
+            } else {
+                pstmt.setString(j, (String) param.get(STRING));
+            }
+        }
+        return pstmt;
+    }
+
+    /**
+     *
+     * @param type - parameter data type
+     * @param param - parameter value
+     * @return HashMap - contains the parameter value and it's data type
+     */
+    public static HashMap setSqlParam(String type, Object param) {
+        HashMap<String, Object> sqlParam = new HashMap<String, Object>();
+        sqlParam.put(type, param);
+        return sqlParam;
     }
 }

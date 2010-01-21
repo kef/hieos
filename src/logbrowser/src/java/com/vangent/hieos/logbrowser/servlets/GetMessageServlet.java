@@ -18,15 +18,16 @@ import com.vangent.hieos.logbrowser.log.db.Message;
 
 import java.io.IOException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 public class GetMessageServlet extends HttpServlet {
+
+    private final static Logger logger = Logger.getLogger(GetMessageServlet.class);
 
     /**
      *
@@ -48,22 +49,27 @@ public class GetMessageServlet extends HttpServlet {
         String messageId = req.getParameter("message");
         Log log = new Log();
         try {
+            if (logger.isDebugEnabled()){
+                logger.debug("RETRIEVE MESSAGE ID: " + messageId);
+            }
             Message m = log.readMessage(messageId);
             s.append("{ \"result\" : " + m.toJSon() + " } ");
         } catch (LoggerException e) {
             s.append(" { \"result\" : {");
             s.append(" \"error\" : \"" + e.getMessage().replaceAll("\n", "\\u000a").replaceAll("\"", "'") + "\"");
             s.append("}}");
+            logger.error("MESSAGE ERROR: " + s.toString());
         } finally {
             try {
                 log.closeConnection();
             } catch (LoggerException ex) {
-                Logger.getLogger(GetMessageServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
         try {
             res.getWriter().write(s.toString());
         } catch (IOException e) {
+            logger.error(e);
         }
     }
 }

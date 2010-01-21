@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 
 /**
@@ -37,42 +38,57 @@ public class GenericTable extends AbstractLogTable {
     public static String SEQUENCE_ID = "seqid";  // Added (BHT)
     public static String NAME = "name";
     public static String VALUE = "value";
-    private String writeSqlCommand = null;
     private String readSqlCommand = null;
-    private String deleteMessageCommand = null;
     private PreparedStatement readPreparedStatement;
-    private PreparedStatement writePreparedStatement;
-    private PreparedStatement deletePreparedStatement;
     private String parameterName;
     private String parameterValue;
+    private String parameterType;
     private int sequenceId = 0;
+    private final static Logger logger = Logger.getLogger(GenericTable.class);
 
     private GenericTable() {
     }
 
     /**
-     * Initiate the generic table in the specified database ( Connection c ) , with a specified name
-     * @param c
-     * @param inTableName
+     * Initiate prepared statements to retrieve log details from the specified database
+     * @param message
      * @throws LoggerException
-     * @throws SQLException
+     * 
      */
-    public GenericTable(Message m, String inTableName) throws LoggerException {
-        tableName = inTableName;
+    public GenericTable(Message m) throws LoggerException {
+        tableName = "logdetail";
         conn = m.getConnection();
+        readSqlCommand = "select messageid, type, name, value FROM logdetail where messageid = ? order by  seqid";
 
-        //createTableSqlCommand = "create table " + tableName + " ( " + MESSAGE_ID + " varchar(255) not null REFERENCES " + MainTable.TABLE_NAME + "(" + MainTable.MESSAGE_ID + ") ON DELETE CASCADE ON UPDATE CASCADE , " + NAME + " varchar(255) not null , " + VALUE + " text   );";
-        readSqlCommand = "select " + MESSAGE_ID + " , " + NAME + " ," + VALUE + " FROM " + tableName + " where " + MESSAGE_ID + " = ?" + " ORDER BY " + SEQUENCE_ID + " ;";
-        writeSqlCommand = "insert into " + tableName + " values (?,?,?,?);";
-        deleteMessageCommand = "delete FROM " + inTableName + " WHERE " + MESSAGE_ID + " =? ;";
         try {
             if (conn == null || conn.isClosed()) {
                 throw new LoggerException("Database null or closed");
             }
             readPreparedStatement = conn.prepareStatement(readSqlCommand);
-            writePreparedStatement = conn.prepareStatement(writeSqlCommand);
-            deletePreparedStatement = conn.prepareStatement(deleteMessageCommand);
         } catch (SQLException sqlException) {
+            logger.error("Database problem (SqlException ) " + sqlException.getMessage());
+            throw new LoggerException("Database problem (SqlException ) " + sqlException.getMessage());
+        }
+    }
+
+    /**
+     * Initiate prepared statements for the log detail table in the database
+     * @param message
+     * @param inLogType
+     * @throws LoggerException
+     * @throws SQLException
+     */
+    public GenericTable(Message m, String inLogType) throws LoggerException {
+        tableName = "logdetail";
+        conn = m.getConnection();
+        readSqlCommand = "select messageid, type, name, value FROM logdetail where type = '" + inLogType + "' and messageid = ? order by  seqid";
+        try {
+            if (conn == null || conn.isClosed()) {
+                throw new LoggerException("Database null or closed");
+            }
+            readPreparedStatement = conn.prepareStatement(readSqlCommand);
+        } catch (SQLException sqlException) {
+            logger.error("Database problem (SqlException ) " + sqlException.getMessage());
             throw new LoggerException("Database problem (SqlException ) " + sqlException.getMessage());
         }
     }
@@ -87,43 +103,32 @@ public class GenericTable extends AbstractLogTable {
         Vector<GenericTable> vector = null;
         if (inMessageId != null) {
             vector = new Vector<GenericTable>();
+             ResultSet res = null;
             try {
                 readPreparedStatement.setString(1, inMessageId);
-                ResultSet res = readPreparedStatement.executeQuery();
+                res = readPreparedStatement.executeQuery();
                 while (res.next()) {
                     GenericTable gt = new GenericTable();
-                    gt.setParameterName(res.getString(2));
-                    gt.setParameterValue(res.getString(3));
+                    gt.setParameterType(res.getString(2));
+                    gt.setParameterName(res.getString(3));
+                    gt.setParameterValue(res.getString(4));
                     vector.add(gt);
                 }
             } catch (SQLException sqlException) {
+                logger.error("Database problem (SqlException ) " + sqlException.getMessage());
                 throw new LoggerException("Database problem (SqlException ) " + sqlException.getMessage());
+            }
+            finally{
+                if (res != null){
+                    try {
+                        res.close();
+                    } catch (SQLException ex) {
+                        logger.error("Error Closing ResultSet: " + ex);
+                    }
+                }
             }
         }
         return vector;
-    }
-
-    /**
-     *  write the parameter and its value for the current message. The current name and value are used.
-     */
-    public int writeToDB() throws LoggerException {
-        if (writePreparedStatement != null) {
-            try {
-                if (messageId == null) {
-                    throw new LoggerException("MainTable:writeToDB() : messageId is null");
-                }
-                writePreparedStatement.setString(1, messageId);
-                writePreparedStatement.setString(2, parameterName);
-                writePreparedStatement.setString(3, parameterValue);
-                writePreparedStatement.setInt(4, sequenceId);
-                writePreparedStatement.execute();
-            } catch (SQLException sqlException) {
-                throw new LoggerException("Database problem (SqlException ) " + sqlException.getMessage() + "\n" + writePreparedStatement.toString());
-            }
-            return 0;
-        } else {
-            return -1;
-        }
     }
 
     public void setMessageID(String messageID) {
@@ -132,6 +137,14 @@ public class GenericTable extends AbstractLogTable {
 
     public String getMessageID(String messageID) {
         return messageId;
+    }
+
+    public String getParameterType() {
+        return parameterType;
+    }
+
+    public void setParameterType(String parameterType) {
+        this.parameterType = parameterType;
     }
 
     public String getParameterValue() {
@@ -178,7 +191,18 @@ public class GenericTable extends AbstractLogTable {
         return array.toString();
     }
 
-    public void deleteMessage(String messageId) {
-        deleteMessage(messageId, deletePreparedStatement);
+    /**
+     * Close the PreparedStatement and DB Connection
+     * @throws SQLException
+     */
+    public void close() throws LoggerException {
+        try{
+            if (readPreparedStatement != null){
+                readPreparedStatement.close(); 
+            }
+        }catch (SQLException ex){
+            logger.error("Error Closing Connection: " + ex);
+        }
     }
+
 }

@@ -73,8 +73,8 @@
                             <td>
                                 <select id="pass" name="pass">
                                     <option value="" selected="selected"> </option>
-                                    <option value="true"> True </option>
-                                    <option value="false"> False </option>
+                                    <option value="T"> True </option>
+                                    <option value="F"> False </option>
                                 </select>
                             </td>
                         </tr>
@@ -194,7 +194,7 @@
                     </fieldset>
                     <br />
                     <input type="button" value="Refresh now"
-                           onclick="performAdvancedSearch();showHidePreferenceTab('displayTab','tab3');"
+                           onclick="currentPage=0;performAdvancedSearch();showHidePreferenceTab('displayTab','tab3');"
                            class="button" /><br />
                     <input type="button" value="Get All Messages"
                            onclick="getAllMessages(); reinitFields ();showHidePreferenceTab('displayTab','tab3');"

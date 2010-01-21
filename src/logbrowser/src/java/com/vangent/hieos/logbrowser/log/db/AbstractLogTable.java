@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.apache.log4j.Logger;
 
 /**
  * Class allowing to do several tasks on a database such as : <br/>
@@ -41,8 +42,7 @@ public abstract class AbstractLogTable {
     protected Connection conn;
     protected String messageId;
     protected String tableName;
-
-    abstract int writeToDB() throws LoggerException;
+    private final static Logger logger = Logger.getLogger(AbstractLogTable.class);
 
     /**
      * Tests if the message 'messageID' exists in the table named 'tableName'
@@ -61,11 +61,15 @@ public abstract class AbstractLogTable {
             throw new LoggerException("Database null or closed");
         }
 
-        String sqlRequest = "SELECT count(*) from " + currentTable + " where  messageid='" + messageID + "' ;";
-        Statement st;
+        String sqlRequest = "SELECT count(*) from " + currentTable + " where  messageid='" + messageID + "'";
+        if (logger.isDebugEnabled()){
+            logger.debug("MessageExist SQL: " + sqlRequest);
+        }
+        Statement st = null;
+        ResultSet res = null;
         try {
             st = conn.createStatement();
-            ResultSet res = st.executeQuery(sqlRequest);
+            res = st.executeQuery(sqlRequest);
             res.next();
             if (res.getInt(1) == 0) {
                 return false;
@@ -73,8 +77,21 @@ public abstract class AbstractLogTable {
                 return true;
             }
         } catch (SQLException e) {
+            logger.error("AbstractLogTable::messageExist()::" + e.getMessage());
             throw new LoggerException("AbstractLogTable::messageExist()::" + e.getMessage());
+        }finally {
+            try{
+                if (res != null){
+                    res.close();
+                }
+                if (st != null){
+                    st.close();
+                }
+            }catch (SQLException se) {
+                logger.error("Unable to close ResultSet and/or Statement: " + se);
+            }
         }
+
         return false;
     }
 
@@ -86,10 +103,10 @@ public abstract class AbstractLogTable {
     public void deleteMessage(String inMessageId, PreparedStatement deletePreparedStatement) {
         try {
             deletePreparedStatement.setString(1, inMessageId);
-            System.out.println(deletePreparedStatement.toString());
+            logger.info("Deleting log data for Message ID: " + inMessageId);
             deletePreparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Unable to delete message number :" + inMessageId);
+            logger.error("Unable to delete data for Message ID :" + inMessageId);
             e.printStackTrace();
         }
     }

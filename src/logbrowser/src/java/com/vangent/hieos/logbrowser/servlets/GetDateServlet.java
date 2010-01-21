@@ -26,16 +26,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeSet;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 public class GetDateServlet extends HttpServlet {
 
+    private final static Logger logger = Logger.getLogger(GetDateServlet.class);
     private String sqlCommand = null;
 
     /**
@@ -60,18 +60,21 @@ public class GetDateServlet extends HttpServlet {
             System.out.println("LOG (dateStatement) = " + this.sqlCommand);
             dateStatement = con.prepareStatement(this.sqlCommand);
         } catch (SQLException e) {
+            logger.error(e);
         } catch (LoggerException e) {
+            logger.error(e);
         }
         if (dateStatement == null) {
             try {
                 log.closeConnection();
                 return; // EARLY EXIT: Can not continue processing
             } catch (LoggerException ex) {
-                Logger.getLogger(GetDateServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
+        ResultSet result = null;
         try {
-            ResultSet result = dateStatement.executeQuery();
+            result = dateStatement.executeQuery();
             TreeSet<Date> set = new TreeSet<Date>();
             SimpleDateFormat sdf = null;
             SimpleDateFormat sdf2 = null;
@@ -107,19 +110,24 @@ public class GetDateServlet extends HttpServlet {
             res.getWriter().write(time.toString());
             time = null;
         } catch (SQLException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             try {
+                if(result != null){
+                    result.close();
+                }
+                if (dateStatement != null) {
+                    dateStatement.close();
+                }
                 log.closeConnection();
             } catch (LoggerException ex) {
-                Logger.getLogger(GetDateServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
+            } catch (SQLException se) {
+                logger.error(se);
             }
         }
     }

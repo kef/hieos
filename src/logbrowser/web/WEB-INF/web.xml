@@ -19,12 +19,11 @@
         <servlet-class>com.vangent.hieos.logbrowser.servlets.GetTableServlet</servlet-class>
         <init-param>
             <param-name>sqlCommand</param-name>
-            <param-value>SELECT main.messageid , main.is_secure,
+            <param-value>SELECT main.messageid, main.is_secure,
                          main.timereceived as "Timestamp",
                          ip.company_name as "Company Name or IP", main.ip  as "ip",
                          main.test as "Test", main.pass
-                         FROM main, ip where main.ip = ip.ip order
-                         by main.timereceived desc ;
+                         FROM main, ip where main.ip = ip.ip
             </param-value>
         </init-param>
     </servlet>

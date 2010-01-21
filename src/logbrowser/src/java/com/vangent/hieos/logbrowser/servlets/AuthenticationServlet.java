@@ -26,8 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  *  
@@ -57,7 +55,7 @@ import org.apache.commons.logging.LogFactory;
 public class AuthenticationServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private org.apache.commons.logging.Log logger = LogFactory.getLog(this.getClass());
+    private final static Logger logger = Logger.getLogger(AuthenticationServlet.class);
     private String passwordFile;
     private String passwordRead;
     private String url;
@@ -95,7 +93,7 @@ public class AuthenticationServlet extends HttpServlet {
             try {
                 log.closeConnection();
             } catch (LoggerException ex) {
-                Logger.getLogger(AuthenticationServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
             return;  // EARLY EXIT: Can not continue.
         }
@@ -127,7 +125,7 @@ public class AuthenticationServlet extends HttpServlet {
             try {
                 log.closeConnection();
             } catch (LoggerException ex) {
-                Logger.getLogger(AuthenticationServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex);
             }
         }
     }
@@ -177,7 +175,7 @@ public class AuthenticationServlet extends HttpServlet {
                 try {
                     log.closeConnection();
                 } catch (LoggerException ex) {
-                    Logger.getLogger(AuthenticationServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex);
                 }
             }
         }

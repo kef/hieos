@@ -22,15 +22,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 
 public class GetCompanyServlet extends HttpServlet {
+
+    private final static Logger logger = Logger.getLogger(GetCompanyServlet.class);
 
     /**
      *
@@ -53,30 +54,14 @@ public class GetCompanyServlet extends HttpServlet {
         Log log = new Log();
         try {
             Connection con = log.getConnection();
-            selectACompanyName = con.prepareStatement("SELECT distinct company_name FROM ip WHERE ip = ? ;");
-            selectAllCompanyName = con.prepareStatement("SELECT distinct company_name FROM ip WHERE company_name != 'Unknown' order by company_name;");
-        } catch (LoggerException e) {
-            getError(e, res);
-        } catch (SQLException e) {
-            getError(e, res);
-        }
+            selectACompanyName = con.prepareStatement("SELECT distinct company_name FROM ip WHERE ip = ?");
+            selectAllCompanyName = con.prepareStatement("SELECT distinct company_name FROM ip WHERE company_name != 'Unknown' order by company_name");
 
-        // Guard against flow through.
-        if (selectACompanyName == null || selectAllCompanyName == null) {
-            try {
-                log.closeConnection();
-            } catch (LoggerException ex) {
-                Logger.getLogger(GetCompanyServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return;  // Can not continue processing.
-        }
-
-        // Write XML to response.
-        String option = req.getParameter("option");
-        String ip = req.getParameter("ip");
-        if (ip != null) {
-            res.setContentType("text/xml");
-            try {
+            // Write XML to response.
+            String option = req.getParameter("option");
+            String ip = req.getParameter("ip");
+            if (ip != null) {
+                res.setContentType("text/xml");
                 res.getWriter().write("<result>");
                 selectACompanyName.setString(1, ip);
                 ResultSet result = selectACompanyName.executeQuery();
@@ -86,13 +71,7 @@ public class GetCompanyServlet extends HttpServlet {
                             : "") + ">" + result.getString(1) + "</ip>");
                 }
                 res.getWriter().write("</result>");
-            } catch (SQLException e) {
-                getError(e, res);
-            } catch (IOException e) {
-                getError(e, res);
-            }
-        } else if (option.equals("all")) {
-            try {
+            } else if (option.equals("all")) {
                 res.setContentType("text/xml");
                 StringBuffer buff = new StringBuffer();
                 buff.append("<result>");
@@ -102,20 +81,23 @@ public class GetCompanyServlet extends HttpServlet {
                     buff.append("<company >" + result.getString(1) + "</company>");
                 }
                 buff.append("</result>");
-                try {
-                    res.getWriter().write(buff.toString());
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } catch (SQLException e) {
-                getError(e, res);
+                res.getWriter().write(buff.toString());
             }
+        } catch (LoggerException e) {
+            getError(e, res);
+            e.printStackTrace();
+        } catch (SQLException e) {
+            getError(e, res);
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        try {
-            log.closeConnection();
-        } catch (LoggerException ex) {
-            Logger.getLogger(GetCompanyServlet.class.getName()).log(Level.SEVERE, null, ex);
+        finally{
+            try {
+                log.closeConnection();
+            } catch (LoggerException ex) {
+                logger.error(ex);
+            }
         }
     }
 
@@ -143,6 +125,7 @@ public class GetCompanyServlet extends HttpServlet {
             toPrint.append("</result>");
             print.write(toPrint.toString());
         } catch (IOException e1) {
+            logger.error(e1);
         }
     }
 }

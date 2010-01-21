@@ -23,17 +23,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
 
 public class DeleteMessages extends HttpServlet {
 
+    private final static Logger logger = Logger.getLogger(DeleteMessages.class);
     /**
      *
      * @param config
@@ -66,17 +66,26 @@ public class DeleteMessages extends HttpServlet {
                 int number = new Integer(req.getParameter("number"));
                 for (int i = 0; i < number; i++) {
                     try {
+                        if (logger.isTraceEnabled()){
+                            logger.trace(req.getParameter("message" + i));
+                        }
                         log.deleteMessage(req.getParameter("message" + i));
                     } catch (LoggerException e) {
                     }
                 }
             } else if (date != null || (date1 != null && date2 != null)) {
+               ResultSet result = null;
                 try {
                     if (date != null) {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
                         sdf.parse(date);
-                        ResultSet result = log.getConnection().createStatement().executeQuery("select messageid from main where timereceived like '" + date + "%';");
+                        String sql = "select messageid from main where timereceived like '" + date + "%'";
+                        logger.info("FAST DELETE SQL: " + sql);
+                        result = log.getConnection().createStatement().executeQuery(sql);
                         while (result.next()) {
+                            if (logger.isTraceEnabled()){
+                                logger.trace(result.getString(1));
+                            }
                             log.deleteMessage(result.getString(1));
                         }
                     } else if (date1 != null && date2 != null) {
@@ -92,10 +101,13 @@ public class DeleteMessages extends HttpServlet {
                             calendar.add(GregorianCalendar.MONTH, 1);
                             sdf1 = new SimpleDateFormat("yyyy-MM-dd");
                             String sql = "select messageid from main where timereceived >='" + sdf1.format(dateDate1) + "' and timereceived <'" + sdf1.format(calendar.getTime()) + "' ";
-                            System.out.println(sql);
-                            ResultSet result = log.getConnection().createStatement().executeQuery(sql);
+                            logger.info("FAST DELETE SQL: " + sql);
+                            result = log.getConnection().createStatement().executeQuery(sql);
 
                             while (result.next()) {
+                                if (logger.isTraceEnabled()){
+                                    logger.trace(result.getString(1));
+                                }
                                 log.deleteMessage(result.getString(1));
                             }
 
@@ -105,35 +117,45 @@ public class DeleteMessages extends HttpServlet {
                             calendar.add(GregorianCalendar.MONTH, 1);
                             sdf1 = new SimpleDateFormat("yyyy-MM-dd");
                             String sql = "select messageid from main where timereceived >='" + sdf1.format(dateDate2) + "' and timereceived <'" + sdf1.format(calendar.getTime()) + "' ";
-                            System.out.println(sql);
-                            ResultSet result = log.getConnection().createStatement().executeQuery(sql);
+                            logger.info("FAST DELETE SQL: " + sql);
+                            result = log.getConnection().createStatement().executeQuery(sql);
 
                             while (result.next()) {
-                                //System.out.println( result.getString( 1 ) ) ;
+                                if (logger.isTraceEnabled()){
+                                    logger.trace(result.getString(1));
+                                }
                                 log.deleteMessage(result.getString(1));
                             }
                         } else {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
                             sdf.parse(date1);
-                            ResultSet result = log.getConnection().createStatement().executeQuery("select messageid from main where timereceived like '" + date1 + "%';");
+                            String sql = "select messageid from main where timereceived like '" + date1 + "%'";
+                            logger.info("FAST DELETE SQL: " + sql);
+                            result = log.getConnection().createStatement().executeQuery(sql);
                             while (result.next()) {
-                                //System.out.println( result.getString( 1 ) ) ;
+                                if (logger.isTraceEnabled()){
+                                    logger.trace(result.getString(1));
+                                }
                                 log.deleteMessage(result.getString(1));
                             }
                         }
                     }
                 } catch (SQLException e) {
-                    System.err.println(e.getMessage());
+                    logger.error(e.getMessage());
                 } catch (ParseException e) {
-                    System.err.println(e.getMessage());
+                    logger.error(e.getMessage());
                 } catch (LoggerException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 } finally {
                     try {
+                        if (result != null) {
+                            result.close();
+                        }
                         log.closeConnection();
                     } catch (LoggerException ex) {
-                        Logger.getLogger(DeleteMessages.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.error(ex);
+                    }catch (SQLException se) {
+                        logger.error(se);
                     }
                 }
             }
@@ -141,12 +163,13 @@ public class DeleteMessages extends HttpServlet {
         try {
             log.closeConnection();  // Better cleanup.
         } catch (LoggerException ex) {
-            Logger.getLogger(DeleteMessages.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error(ex);
         }
         res.setContentType("text/xml");
         try {
             res.getWriter().write("<response></response>");
         } catch (IOException e) {
+            logger.error(e);
         }
     }
 }

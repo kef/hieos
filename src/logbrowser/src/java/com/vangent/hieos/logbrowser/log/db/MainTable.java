@@ -20,8 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import org.apache.log4j.Logger;
 
 enum MainTableFields {
 
@@ -43,17 +43,18 @@ public class MainTable extends AbstractLogTable {
     public static final String IS_SECURE = "is_secure";
     public static final String TABLE_NAME = "main";
 
-    public String writeSqlCommand = null;
-    public String readSqlCommand = null;
-    public String deleteMessageCommand = null;
+    public static final String readSqlCommand = "SELECT messageid, is_secure, ip, timereceived, test, pass FROM main WHERE messageid = ?";
+    public static final String deleteMessageCommand = "DELETE FROM main WHERE messageid = ?";
+
     private PreparedStatement readPreparedStatement;
-    private PreparedStatement writePreparedStatement;
     private PreparedStatement deletePreparedStatement;
     private InetAddress ipAddress;
     private Timestamp timestamp;
     private String test;
-    private boolean pass;
-    private boolean isSecure;
+    private String pass;
+    private String isSecure;
+
+    private final static Logger logger = Logger.getLogger(MainTable.class);
 
     /**
      *
@@ -63,18 +64,14 @@ public class MainTable extends AbstractLogTable {
     public MainTable(Connection c) throws LoggerException {
         conn = c;
         tableName = TABLE_NAME;
-        //createTableSqlCommand = "create table " + TABLE_NAME + " ( " + MESSAGE_ID + " varchar(255) not null , " + IS_SECURE + " bool, " + IP + " varchar(100) not null REFERENCES " + IpCompanyTable.TABLE_NAME + "(" + IpCompanyTable.IP_ADDRESS + "), " + TIMESTAMP + " timestamp not null default 'now' , " + TEST + " text not null , " + PASS + " bool , PRIMARY KEY (" + MESSAGE_ID + ")  );";
-        readSqlCommand = "select " + MESSAGE_ID + " , " + IS_SECURE + " , " + IP + " ," + TIMESTAMP + " , " + TEST + " , " + PASS + " FROM " + TABLE_NAME + " where " + MESSAGE_ID + " = ? ;";
-        writeSqlCommand = "insert into " + TABLE_NAME + " values (?,?,?,?,?,?);";
-        deleteMessageCommand = "delete FROM " + TABLE_NAME + " WHERE " + MESSAGE_ID + " =? ;";
+        //readSqlCommand = "select " + MESSAGE_ID + " , " + IS_SECURE + " , " + IP + " ," + TIMESTAMP + " , " + TEST + " , " + PASS + " FROM " + TABLE_NAME + " where " + MESSAGE_ID + " = ?";
+        //deleteMessageCommand = "delete FROM " + TABLE_NAME + " WHERE " + MESSAGE_ID + " =?";
         try {
             if (conn == null || conn.isClosed()) {
                 throw new LoggerException("Database null or closed");
             }
 
-            /** TODO PUT THAT ( preparedStatement ) into a static method in order to do it once and not to each constructor call **/
             readPreparedStatement = conn.prepareStatement(readSqlCommand);
-            writePreparedStatement = conn.prepareStatement(writeSqlCommand);
             deletePreparedStatement = conn.prepareStatement(deleteMessageCommand);
             test = new String();
         } catch (SQLException sqlException) {
@@ -119,7 +116,7 @@ public class MainTable extends AbstractLogTable {
      *
      * @return
      */
-    public boolean isPass() {
+    public String isPass() {
         return pass;
     }
 
@@ -127,7 +124,7 @@ public class MainTable extends AbstractLogTable {
      *
      * @param pass
      */
-    public void setPass(boolean pass) {
+    public void setPass(String pass) {
         this.pass = pass;
     }
 
@@ -170,7 +167,7 @@ public class MainTable extends AbstractLogTable {
      * @throws LoggerException
      */
     public int readFromDB(String inMessageId) throws LoggerException {
-
+        ResultSet result = null;
         try {
             if (conn == null || conn.isClosed()) {
                 throw new LoggerException("Database null or closed");
@@ -180,18 +177,17 @@ public class MainTable extends AbstractLogTable {
                 if (messageExist(inMessageId, MainTable.TABLE_NAME)) {
                     if (readPreparedStatement != null) {
                         readPreparedStatement.setString(1, inMessageId);
-                        ResultSet result = readPreparedStatement.executeQuery();
-                        //"select messageid , ip , timereceived , test , pass FROM " + tableName + " where messageid = ? ;"  ;
+                        result = readPreparedStatement.executeQuery();
                         result.next();
                         messageId = result.getString(1);
-                        isSecure = result.getBoolean(2);
+                        isSecure = result.getString(2);
                         try {
                             ipAddress = InetAddress.getByName(result.getString(3));
                         } catch (UnknownHostException e) {
                         }
                         timestamp = result.getTimestamp(4);
                         test = result.getString(5);
-                        pass = result.getBoolean(6);
+                        pass = result.getString(6);
                     }
                 } else {
                     return -1;
@@ -202,55 +198,18 @@ public class MainTable extends AbstractLogTable {
 
             return 0;
         } catch (SQLException sqlException) {
+            logger.error("Database problem (SqlException ) " + sqlException.getMessage());
             throw new LoggerException("Database problem (SqlException ) " + sqlException.getMessage());
         }
-    }
-
-    /**
-     *
-     * @return
-     * @throws LoggerException
-     */
-    int writeToDB() throws LoggerException {
-        try {
-            if (messageId == null) {
-                throw new LoggerException("MaintTable:writeToDB(): messageId is null");
-            }
-            writePreparedStatement.setString(1, messageId);
-            writePreparedStatement.setBoolean(2, isSecure);
-            // Test Ip
-            if (ipAddress == null) {
+        finally {
+            if (result != null){
                 try {
-                    ipAddress = InetAddress.getByName("localhost");
-                } catch (UnknownHostException e) {
+                    result.close();
+                } catch (SQLException ex) {
+                    logger.error(ex);
                 }
             }
-            writePreparedStatement.setString(3, ipAddress.getHostAddress());
-            // Added 11/14/2007
-            if (!IpCompanyTable.IpExist(this.conn, ipAddress.getHostAddress())) {
-                IpCompanyTable ipCompanyTable = new IpCompanyTable(this.conn);
-                {
-                    ipCompanyTable.writeToDB(ipAddress.getHostAddress());
-                }
-            }
-
-            // timereceived
-            if (timestamp == null) {
-                timestamp = new Timestamp(new GregorianCalendar().getTimeInMillis());
-            }
-            writePreparedStatement.setTimestamp(4, timestamp);
-            // test
-            writePreparedStatement.setString(5, test);
-
-            //pass
-            writePreparedStatement.setBoolean(6, pass);
-            //System.out.println(writePreparedStatement.toString());
-            writePreparedStatement.execute();
-
-        } catch (SQLException e1) {
-            throw new LoggerException("MainTable:writeToDB() problem : (" + e1.getErrorCode() + " ) " + e1.getMessage());
         }
-        return 0;
     }
 
     /**
@@ -290,7 +249,7 @@ public class MainTable extends AbstractLogTable {
         map.put("MessageId", messageId);
         map.put("IP", ipAddress.getHostAddress());
         map.put("Timestamp", timestamp.toString());
-        map.put("Pass", (pass) ? "Pass" : "Fail");
+        map.put("Pass", pass);
         map.put("Test", test);
         return map;
     }
@@ -319,7 +278,7 @@ public class MainTable extends AbstractLogTable {
      *
      * @return
      */
-    public boolean isSecure() {
+    public String isSecure() {
         return isSecure;
     }
 
@@ -327,7 +286,7 @@ public class MainTable extends AbstractLogTable {
      *
      * @param isSecure
      */
-    public void setSecure(boolean isSecure) {
+    public void setSecure(String isSecure) {
         this.isSecure = isSecure;
     }
 
@@ -337,5 +296,22 @@ public class MainTable extends AbstractLogTable {
      */
     public void deleteMessage(String messageId) {
         deleteMessage(messageId, deletePreparedStatement);
+    }
+
+    /**
+     * Close the Prepared Statements
+     *
+     */
+    public void close() {
+        try {
+            if (readPreparedStatement != null) {
+                readPreparedStatement.close();
+            }
+            if (deletePreparedStatement != null) {
+                deletePreparedStatement.close();
+            }
+        } catch (SQLException ex) {
+            logger.error("Error Closing PreparedStatements: " + ex);
+        }
     }
 }

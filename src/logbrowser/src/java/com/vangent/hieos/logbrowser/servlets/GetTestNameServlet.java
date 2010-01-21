@@ -21,15 +21,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 public class GetTestNameServlet extends HttpServlet {
+
+    private final static Logger logger = Logger.getLogger(GetTestNameServlet.class);
 
     /**
      *
@@ -50,27 +52,12 @@ public class GetTestNameServlet extends HttpServlet {
         PreparedStatement queryTestNameWithIP = null;
         Log log = new Log();
         try {
-            queryTestNameWithIP = log.getConnection().prepareStatement("select distinct test from main where ip=? order by test asc ;");
-            queryTestName = log.getConnection().prepareStatement("select distinct test from main order by test asc ;");
-        } catch (SQLException e) {
-            getError(e, res);
-        } catch (LoggerException e) {
-            getError(e, res);
-        }
+            queryTestNameWithIP = log.getConnection().prepareStatement("select distinct test from main where ip=? order by test asc");
+            queryTestName = log.getConnection().prepareStatement("select distinct test from main order by test asc");
 
-        // Make sure that it is OK to proceed.
-        if (queryTestNameWithIP == null || queryTestName == null) {
-            try {
-                log.closeConnection();
-            } catch (LoggerException ex) {
-                Logger.getLogger(GetTestNameServlet.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return;  // EARLY EXIT: Can not continue processing.
-        }
+            // Write XML to response.
+            res.setContentType("text/xml");
 
-        // Write XML to response.
-        res.setContentType("text/xml");
-        try {
             ResultSet result = null;
 
             if (req.getParameter("ip") != null) {
@@ -86,16 +73,19 @@ public class GetTestNameServlet extends HttpServlet {
                         "<test >" + result.getString(1) + "</test>");
             }
             res.getWriter().write("</result>");
-
         } catch (SQLException e) {
             getError(e, res);
-        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (LoggerException e) {
             getError(e, res);
-        } finally {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
             try {
                 log.closeConnection();
             } catch (LoggerException ex) {
-                Logger.getLogger(GetTestNameServlet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error(ex); 
             }
         }
     }

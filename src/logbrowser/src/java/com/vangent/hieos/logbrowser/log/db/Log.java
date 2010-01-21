@@ -17,6 +17,8 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.apache.log4j.Logger;
+
 
 /**
  * Class allowing to connect the logger to the database, to create message, to delete it and to read it
@@ -30,6 +32,9 @@ import java.sql.SQLException;
 public class Log {
 
     private Connection connection = null;
+    private String databaseType = null;
+
+    private final static Logger logger = Logger.getLogger(Log.class);
 
     /**
      *
@@ -55,6 +60,27 @@ public class Log {
 
     /**
      *
+     * @return String
+     * @throws com.vangent.hieos.logbrowser.log.db.LoggerException
+     */
+    public String getDatabaseType() throws LoggerException {
+        if (databaseType == null){
+            if (connection == null) {
+                getConnection();
+            }
+            try {
+                databaseType = connection.getMetaData().getDatabaseProductName();
+            } catch (SQLException ex) {
+                logger.error(ex);
+                throw new LoggerException(ex.getMessage());
+            }
+        }
+        logger.info("Database Type: " + databaseType);
+        return databaseType;
+    }
+
+    /**
+     *
      * @param m
      * @throws LoggerException
      */
@@ -70,9 +96,14 @@ public class Log {
      * @throws LoggerException
      */
     public void deleteMessage(String messageID) throws LoggerException {
+        Message m = null;
         if (messageID != null) {
-            Message m = new Message(this.getConnection(), messageID);
-            deleteMessage(m);
+            try {
+                m = new Message(this.getConnection(), messageID);
+                deleteMessage(m);
+            }finally {
+                m.close();
+            }
         }
     }
 
@@ -85,8 +116,12 @@ public class Log {
     public Message readMessage(String messageID) throws LoggerException {
         Message m = null;
         if (messageID != null) {
-            m = new Message(this.getConnection(), messageID);
-            m.readMessage();
+            try{
+                m = new Message(this.getConnection(), messageID);
+                m.readMessage();
+            }finally{
+                m.close();
+            }
         }
         return m;
     }

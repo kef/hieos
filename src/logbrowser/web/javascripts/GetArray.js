@@ -419,19 +419,23 @@ function parseTableResultJSon(  )
             {
 	
 	
-                if ( mytable[0][i].indexOf("is_secure")!=-1 )
+                if ( mytable[0][i].indexOf("is_secure")!=-1 || mytable[0][i].indexOf("IS_SECURE")!=-1)
                 {
                     toDisplay +="\t\t\t<td style='width:auto;border-left : solid black 1px ;border-right : solid black 1px ;' >\n" ;
                     toDisplay +="";
                     toDisplay +="\t\t\t</td>\n" ;
                 }
-                else if( mytable[0][i].indexOf("ip")!=-1 )
+                else if( mytable[0][i].indexOf("ip")!=-1)
                 {
 	  	
                 }
-                else if( mytable[0][i].indexOf("pass")!=-1 )
+                else if( mytable[0][i].indexOf("pass")!=-1 || mytable[0][i].indexOf("PASS")!=-1  )
                 {
 	  	
+                }
+                else if( mytable[0][i].indexOf("rnum")!=-1 || mytable[0][i].indexOf("RNUM")!=-1)
+                {
+
                 }
                 else if( mytable[0][i].indexOf("Company Name or IP")!=-1 )
                 {
@@ -481,19 +485,19 @@ function parseTableResultJSon(  )
 	
                     if (currentRow[col]!=null )
                     {
-                        if ( (headerTable[col]) == "is_secure" )
+                        if ( (headerTable[col]) == "is_secure"  || (headerTable[col]) == "IS_SECURE" )
                         {
                             rowToDisplay += "<td onclick='ptrFuncGetMessage(\""+ messageNumber +"\");'>" ;
-                            if (  currentRow[col] == true )
+                            if (  currentRow[col] == "T" )
                             {
                                 rowToDisplay +="<img  src='images/icon-secure-pc2.gif'  alt='is_secure' />"
                             }
                             rowToDisplay += "</td>\n";
 		   		
                         }
-                        else if ( (headerTable[col]) == "pass" )
+                        else if ( (headerTable[col]) == "pass" || (headerTable[col]) == "PASS")
                         {
-                            if ( currentRow[col]  == true )
+                            if ( currentRow[col]  == "T" )
                             {
                                 fontColor = "columnTrue" ;
                             }
@@ -525,6 +529,9 @@ function parseTableResultJSon(  )
                             {
                                 col ++ ;
                             }
+                        }
+                        else if ((headerTable[col]).indexOf("rnum") != -1 || (headerTable[col]).indexOf("RNUM") != -1)
+                        {
                         }
                         else
                         {
@@ -634,7 +641,7 @@ function getCountListResult( )
             }
             toDisplay += "</select></form></td>" ;
             toDisplay += "<td class='tdSelect' >Number of results :" +  ( numberOfResults ==null?"0": numberOfResults ) + "</td>" ;
-            toDisplay += "<td class='tdSelect' ><input type=\"button\" class=\"button\" value=\"Refresh now\" onclick=\"performAdvancedSearch();\"  /></td>" ;
+            toDisplay += "<td class='tdSelect' ><input type=\"button\" class=\"button\" value=\"Refresh now\" onclick=\"currentPage=0;performAdvancedSearch();\"  /></td>" ;
             if ( currentPage < nbPagesResults-1 )
             {
                 toDisplay += "<td class='tdSelect'><img src='images/right_arrow.gif' alt='right' onclick='currentPage++; performAdvancedSearch();' style='width:25px;height:25px;' /></td>" ;
