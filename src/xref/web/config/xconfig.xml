@@ -47,8 +47,8 @@
 	
 	<!-- NIST ATNA log -->
 	<!--NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
-        <!--<Property name="ATNAsyslogHost">129.6.24.109</Property>
-        <Property name="ATNAsyslogPort">8087</Property>-->
+        <Property name="ATNAsyslogHost">129.6.24.109</Property>
+        <Property name="ATNAsyslogPort">8087</Property>
         
         <!-- spirit0 -->
         <!--
@@ -89,7 +89,7 @@
              continue on the same instance. The list of IP addresses below will be the
              only ones subject to SAML validation. Separate IPs with a semicolon. An empty
              property or a value set to ALL will constrain all IP addresses. -->
-        <Property name="ConstrainedIPAddresses">10.243.0.59;10.243.0.151</Property>
+        <Property name="ConstrainedIPAddresses">ALL</Property>
     </XUA>
 
    <!-- List of assigning authorities (tells the Initiating Gateway where to go when it receives
