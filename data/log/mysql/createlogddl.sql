@@ -34,55 +34,24 @@
 CREATE DATABASE IF NOT EXISTS `log`;
 USE `log`;
 
+
 --
--- Definition of table `error`
+-- Drop Table Statements (some old tables are in the list).
 --
 
 DROP TABLE IF EXISTS `error`;
-CREATE TABLE `error` (
-  `messageid` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` longtext,
-  `seqid` int(11) NOT NULL DEFAULT '0',
-  KEY `ERROR_MID_INDEX` (`messageid`) USING BTREE,
-  CONSTRAINT `error_messageid_fkey` FOREIGN KEY (`messageid`) REFERENCES `main` (`messageid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `error`
---
-
-/*!40000 ALTER TABLE `error` DISABLE KEYS */;
-/*!40000 ALTER TABLE `error` ENABLE KEYS */;
-
-
---
--- Definition of table `http`
---
-
 DROP TABLE IF EXISTS `http`;
-CREATE TABLE `http` (
-  `messageid` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` longtext,
-  `seqid` int(11) NOT NULL DEFAULT '0',
-  KEY `HTTP_MID_INDEX` (`messageid`) USING BTREE,
-  CONSTRAINT `http_messageid_fkey` FOREIGN KEY (`messageid`) REFERENCES `main` (`messageid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `http`
---
-
-/*!40000 ALTER TABLE `http` DISABLE KEYS */;
-/*!40000 ALTER TABLE `http` ENABLE KEYS */;
+DROP TABLE IF EXISTS `other`;
+DROP TABLE IF EXISTS `soap`;
+DROP TABLE IF EXISTS `logdetail`;
+DROP TABLE IF EXISTS `main`;
+DROP TABLE IF EXISTS `ip`;
 
 
 --
 -- Definition of table `ip`
 --
 
-DROP TABLE IF EXISTS `ip`;
 CREATE TABLE `ip` (
   `ip` varchar(100) NOT NULL,
   `company_name` varchar(255) NOT NULL DEFAULT 'Unknown',
@@ -103,14 +72,13 @@ CREATE TABLE `ip` (
 -- Definition of table `main`
 --
 
-DROP TABLE IF EXISTS `main`;
 CREATE TABLE `main` (
   `messageid` varchar(255) NOT NULL,
-  `is_secure` tinyint(1) DEFAULT NULL,
+  `is_secure` char(1) DEFAULT NULL,
   `ip` varchar(100) NOT NULL,
   `timereceived` timestamp NOT NULL DEFAULT '2008-08-30 19:56:01',
-  `test` text NOT NULL,
-  `pass` tinyint(1) DEFAULT NULL,
+  `test` varchar(100) NOT NULL,
+  `pass` char(1) DEFAULT NULL,
   PRIMARY KEY (`messageid`),
   KEY `MAIN_IP_INDEX` (`ip`) USING BTREE,
   KEY `MAIN_MID_INDEX` (`messageid`) USING BTREE,
@@ -124,49 +92,29 @@ CREATE TABLE `main` (
 /*!40000 ALTER TABLE `main` DISABLE KEYS */;
 /*!40000 ALTER TABLE `main` ENABLE KEYS */;
 
-
 --
--- Definition of table `other`
+-- Definition of table `logdetail`
+--
+-- logdetail replaces the following tables - error, soap, http and other.
 --
 
-DROP TABLE IF EXISTS `other`;
-CREATE TABLE `other` (
+CREATE TABLE `logdetail` (
+  `type` varchar(10) NOT NULL,
   `messageid` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` longtext,
   `seqid` int(11) NOT NULL DEFAULT '0',
-  KEY `OTHER_MID_INDEX` (`messageid`) USING BTREE,
-  CONSTRAINT `other_messageid_fkey` FOREIGN KEY (`messageid`) REFERENCES `main` (`messageid`)
+  KEY `LOGDETAIL_MID_INDEX` (`messageid`) USING BTREE,
+  KEY `LOGDETAIL_TYPE_INDEX` (`type`) USING BTREE,
+  CONSTRAINT `logdetail_messageid_fkey` FOREIGN KEY (`messageid`) REFERENCES `main` (`messageid`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `other`
+-- Dumping data for table `logdetail`
 --
 
-/*!40000 ALTER TABLE `other` DISABLE KEYS */;
-/*!40000 ALTER TABLE `other` ENABLE KEYS */;
-
-
---
--- Definition of table `soap`
---
-
-DROP TABLE IF EXISTS `soap`;
-CREATE TABLE `soap` (
-  `messageid` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` longtext,
-  `seqid` int(11) NOT NULL DEFAULT '0',
-  KEY `SOAP_MID_INDEX` (`messageid`) USING BTREE,
-  CONSTRAINT `soap_messageid_fkey` FOREIGN KEY (`messageid`) REFERENCES `main` (`messageid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `soap`
---
-
-/*!40000 ALTER TABLE `soap` DISABLE KEYS */;
-/*!40000 ALTER TABLE `soap` ENABLE KEYS */;
+/*!40000 ALTER TABLE `logdetail` DISABLE KEYS */;
+/*!40000 ALTER TABLE `logdetail` ENABLE KEYS */;
 
 
 
