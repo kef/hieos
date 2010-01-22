@@ -40,7 +40,7 @@ DROP TABLE organization;
 DROP TABLE person;
 DROP TABLE postaladdress;
 DROP TABLE registry;
-DROP TABLE registryobject;
+--DROP TABLE registryobject;
 DROP TABLE registrypackage;
 DROP TABLE repositoryitem;
 DROP TABLE service;
@@ -177,8 +177,6 @@ CREATE TABLE classificationnode (
    --CONSTRAINT classificationnode_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode'::text))
 );
 
-
-ALTER TABLE public.classificationnode OWNER TO omar;
 
 --
 -- TOC entry 1571 (class 1259 OID 78428)
