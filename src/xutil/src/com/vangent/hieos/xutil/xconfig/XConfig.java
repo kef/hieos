@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
- /*
+/*
  * XConfig.java
  *
  * Created on January 14, 2009
@@ -43,12 +43,11 @@ import org.apache.log4j.Logger;
  *
  */
 public class XConfig {
-    private final static Logger logger = Logger.getLogger(XConfig.class);
 
+    private final static Logger logger = Logger.getLogger(XConfig.class);
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private String _configURL = "http://localhost:8080/xref/config/xconfig.xml";
     static XConfig _instance = null;  // Singleton instance.
-
     // Internal data structure starts here.
     private XConfigHomeCommunity homeCommunity = null;
     private HashMap respondingGateways = new HashMap();     // Key = homeCommunityId, Value = XConfigGateway
@@ -56,7 +55,7 @@ public class XConfig {
     private HashMap repositories = new HashMap();           // Key = repository unique id, XConfigRepository
     private HashMap assigningAuthorities = new HashMap();   // Key = AA unique ID, XConfigAssigningAuthority
     private XConfigXUAProperties xuaProperties = null;
-    
+
     /**
      * Returns Singleton instance of XConfig.
      *
@@ -228,8 +227,12 @@ public class XConfig {
      */
     private void loadConfiguration() throws XdsInternalException {
 
-        // Look for environment variable first.
-        String configLocation = System.getenv("HIEOSxConfigFile");
+        // First see if a system property is set.
+        String configLocation = System.getProperty("com.vangent.hieos.xconfig");
+        if (configLocation == null) {
+            // Look in environment variable next.
+            configLocation = System.getenv("HIEOSxConfigFile");
+        }
         String configXML = null;
         if (configLocation != null) {
             try {
@@ -374,8 +377,7 @@ public class XConfig {
      * @param propKey
      * @return
      */
-    public String getXUAProperty(String propKey)
-    {
+    public String getXUAProperty(String propKey) {
         return this.xuaProperties.getProperty(propKey);
     }
 
@@ -384,8 +386,7 @@ public class XConfig {
      * @param propKey
      * @return
      */
-    public boolean getXUAPropertyAsBoolean(String propKey)
-    {
+    public boolean getXUAPropertyAsBoolean(String propKey) {
         return this.xuaProperties.getPropertyAsBoolean(propKey);
     }
 
@@ -393,8 +394,7 @@ public class XConfig {
      * 
      * @return
      */
-    public XConfigXUAProperties getXUAConfigProperties()
-    {
+    public XConfigXUAProperties getXUAConfigProperties() {
         return this.xuaProperties;
     }
 
