@@ -11,10 +11,6 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.services.xca.gateway.controller;
 
 // Third party.
@@ -41,7 +37,7 @@ public class XCAQueryRequest extends XCARequest {
      * @param responseOption
      */
     public void setResponseOption(OMElement responseOption) {
-        this.responseOption = responseOption;
+        this.responseOption = responseOption.cloneOMElement();  // To be THREAD SAFE.
     }
 
     /**

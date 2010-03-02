@@ -11,18 +11,12 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.services.xca.gateway.controller;
 
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
-import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.soap.Soap;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -62,15 +56,13 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
         super(uniqueId, configEntity, isLocalRequest);
     }
 
-    /**
-     *
-     * @param response
-     * @param logMessage
-     * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
-     */
-    public OMElement sendRequests(Response response, XLogMessage logMessage) throws XdsWSException, XdsException {
+   /**
+    * 
+    * @return
+    * @throws XdsWSException
+    * @throws XdsException
+    */
+    public OMElement sendRequests() throws XdsWSException, XdsException {
         // Get the root node.
         String ns = MetadataSupport.xdsB.getNamespaceURI();
         OMElement rootRequest = MetadataSupport.om_factory.createOMElement(new QName(ns, "RetrieveDocumentSetRequest"));
@@ -85,21 +77,30 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
         XConfigTransaction xconfigTxn = getXConfigTransaction();
         // Now send the requests out.
         OMElement result = this.sendTransaction(rootRequest, xconfigTxn);
+        this.setResult(result);
         if (result != null) { // to be safe.
-            logMessage.addOtherParam("Result (" + this.getEndpointURL() + ")", result);
+            //logMessage.addOtherParam("Result (" + this.getEndpointURL() + ")", result);
 
             // Validate the response against the schema.
             try {
                 RegistryUtility.schema_validate_local(result, MetadataTypes.METADATA_TYPE_RET);
             } catch (Exception e) {
                 result = null;  // Ignore the response.
-                response.add_error(MetadataSupport.XDSRepositoryMetadataError,
+                this.setResult(null);
+                XCAErrorMessage errorMessage = new XCAErrorMessage(
+                        MetadataSupport.XDSRepositoryMetadataError,
                         "Remote Gateway or Repository response did not validate against schema  [id = " +
                         this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
-                        this.getUniqueId(), logMessage);
+                        this.getUniqueId());
+                this.addErrorMessage(errorMessage);
+                /*
+                response.add_error(MetadataSupport.XDSRepositoryMetadataError,
+                "Remote Gateway or Repository response did not validate against schema  [id = " +
+                this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
+                this.getUniqueId(), logMessage);*/
             }
 
-            if ((response != null) && this.isLocalRequest()) {
+            if ((result != null) && this.isLocalRequest()) {
                 XConfigHomeCommunity homeCommunity = XConfig.getInstance().getHomeCommunity();
                 setHomeAttributeOnResult(result, homeCommunity.getHomeCommunityId());
             }

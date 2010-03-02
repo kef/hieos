@@ -11,10 +11,6 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.services.xca.gateway.controller;
 
 import org.apache.axiom.om.OMElement;
@@ -32,7 +28,7 @@ public class XCARequest {
      * @param requestNode
      */
     public XCARequest(OMElement request) {
-        this.request = request;
+        this.request = request.cloneOMElement();  // To be THREAD SAFE.
     }
 
     /**

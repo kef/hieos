@@ -11,14 +11,8 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.services.xca.gateway.controller;
 
-import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xconfig.XConfigEntity;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
@@ -36,24 +30,24 @@ import com.vangent.hieos.xutil.exception.XdsException;
  * @author Bernie Thuman
  */
 abstract public class XCAAbstractRequestCollection {
-    private final static Logger logger = Logger.getLogger(XCAAbstractRequestCollection.class);
 
+    private final static Logger logger = Logger.getLogger(XCAAbstractRequestCollection.class);
     private String uniqueId = null;             // Target entity id (homeCommunityId, repositoryId, registryName.
     private boolean isLocalRequest = false;     // True if going to a local entity (e.g. registry/repository).
     private ArrayList<XCARequest> requests = new ArrayList<XCARequest>();   // Request nodes destined for a community.
     private XConfigEntity configEntity = null;  // Configuration for the target entity (e.g XConfigGateway or XConfigRepository).
+    private OMElement result = null;
+    private ArrayList<XCAErrorMessage> errors = new ArrayList<XCAErrorMessage>();
 
     abstract String getEndpointURL();
 
     /**
      * 
-     * @param response
-     * @param logMessage
      * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
+     * @throws XdsWSException
+     * @throws XdsException
      */
-    abstract OMElement sendRequests(Response response, XLogMessage logMessage) throws XdsWSException, XdsException;
+    abstract OMElement sendRequests() throws XdsWSException, XdsException;
 
     /**
      * 
@@ -108,6 +102,39 @@ abstract public class XCAAbstractRequestCollection {
 
     /**
      *
+     * @return
+     */
+    public OMElement getResult() {
+        return result;
+    }
+
+    /**
+     *
+     * @param result
+     */
+    public void setResult(OMElement result) {
+        this.result = result;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<XCAErrorMessage> getErrors() {
+        return errors;
+    }
+
+    /**
+     * 
+     * @param error
+     */
+    public void addErrorMessage(XCAErrorMessage error)
+    {
+        this.errors.add(error);
+    }
+
+    /**
+     *
      * @param ATNAtxn
      * @param request
      * @param endpoint
@@ -123,4 +150,5 @@ abstract public class XCAAbstractRequestCollection {
             logger.error("Could not perform ATNA audit", e);
         }
     }
+   
 }
