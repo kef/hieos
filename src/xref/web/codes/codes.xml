@@ -375,6 +375,8 @@
 			codingScheme="IHE PCC" />
         <Code code="1.3.6.1.4.1.19376.1.5.3.1.1.10" display="urn:ihe:pcc:edr:2007"
 			codingScheme="IHE PCC" />
+        <Code code="1.3.6.1.4.1.19376.1.5.3.1.1.10" display="urn:ihe:pcc:edr:2007"
+			codingScheme="IHE PCC" />
         <Code code="1.3.6.1.4.1.19376.1.5.3.1.1.5" display="urn:ihe:pcc:xphr:2007"
 			codingScheme="IHE PCC" />
         <Code code="1.3.6.1.4.1.19376.1.5.3.1.1.11.2" display="urn:ihe:pcc:aps:2007"
@@ -413,6 +415,27 @@
         <Code code="urn:ihe:lab:xd-lab:2008" display="CDA Laboratory Report" codingScheme="IHE PCC" />
 
 
+       <!-- Added @ HIMSS 2010 -->
+<Code code="urn:ihe:pcc:xds-ms:2007" display="urn:ihe:pcc:xds-ms:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:xphr:2007" display="urn:ihe:pcc:xphr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:edr:2007" display="urn:ihe:pcc:edr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:aps:2007" display="urn:ihe:pcc:aps:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:handp:2008" display="urn:ihe:pcc:handp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:edu:2008" display="urn:ihe:pcc:edu:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:iti:xds-sd:pdf:2008" display="urn:ihe:iti:xds-sd:pdf:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:iti:xds-sd:text:2008" display="urn:ihe:iti:xds-sd:text:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:iti:bppc:2007" display="urn:ihe:iti:bppc:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:iti:bppc-sd:2007" display="urn:ihe:iti:bppc-sd:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:lab:xd-lab:2008" display="urn:ihe:lab:xd-lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:lab:2008" display="urn:ihe:pcc:lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:tn:2008" display="urn:ihe:pcc:tn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:nn:2008" display="urn:ihe:pcc:nn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:ctnn:2008" display="urn:ihe:pcc:ctnn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:edpn:2008" display="urn:ihe:pcc:edpn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:ldhp:2008" display="urn:ihe:pcc:ldhp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:lds:2008" display="urn:ihe:pcc:lds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:mds:2008" display="urn:ihe:pcc:mds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+<Code code="urn:ihe:pcc:ic:2008" display="urn:ihe:pcc:ic:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
 
     </CodeType>
     <CodeType name="healthcareFacilityTypeCode" classScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1">
