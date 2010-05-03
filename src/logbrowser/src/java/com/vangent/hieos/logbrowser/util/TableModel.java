@@ -47,6 +47,12 @@ public class TableModel extends AbstractTableModel
     private final static String ROW_NUM_SELECT = "select * from (select a.*, rownum rnum from (";
     private final static String ROW_NUM_RANGE = ")a where rownum <= ?) where rnum > ?";
     private final static String ROW_LIMIT_OFFSET = " limit ? offset ?";
+    private final static String MS_ROW_NUM_SELECT_1 = "WITH datarows AS (";
+    private final static String MS_ROW_NUM_SELECT_2 = ", row_number() over (ORDER BY main.timereceived desc, main.messageid asc) AS rnum ";
+    private final static String MS_ROW_NUM_RANGE = ") SELECT * FROM datarows WHERE rnum > ? and rnum <= ?";
+    private final static String ORDER_BY_CLAUSE = " ORDER BY main.timereceived desc, main.messageid asc";
+    private final static String MSSQLSERVER = "microsoft sql server";
+    private final static String ORACLE = "oracle";
 
     public TableModel() throws SQLException {
     }
@@ -246,18 +252,34 @@ public class TableModel extends AbstractTableModel
         Vector<HashMap> completeSqlParams = new Vector<HashMap>();
         completeSqlParams.addAll(currentSqlParams);
 
-        if (databaseType.toLowerCase().contains("oracle")) {
+        if (databaseType.toLowerCase().contains(ORACLE)) {
             // Oracle Paging - Wraps a SQL statement with the ROWNUM command to enable retrieval of a
             // specified range of records.
             completeSQL.append(ROW_NUM_SELECT);
             completeSQL.append(currentSqlCommand);
+            completeSQL.append(ORDER_BY_CLAUSE);
             completeSQL.append(ROW_NUM_RANGE);
             completeSqlParams.add(setSqlParam(INTEGER, (nbResByPage * pageNumber) + nbResByPage));
             completeSqlParams.add(setSqlParam(INTEGER, nbResByPage * pageNumber));
+        } else if (databaseType.toLowerCase().contains(MSSQLSERVER)) {
+            // MS SQLServer Paging - Wraps a SQL statement with the RowNumber command to enable retrieval of a
+            // specified range of records.
+            // First split out the existing SELECT and FROM statements
+            int fromPosition = currentSqlCommand.indexOf("FROM");
+            String currentSqlSelect = currentSqlCommand.substring(0, fromPosition);
+            String currentSqlFrom = currentSqlCommand.substring(fromPosition);
+            completeSQL.append(MS_ROW_NUM_SELECT_1);
+            completeSQL.append(currentSqlSelect);
+            completeSQL.append(MS_ROW_NUM_SELECT_2);
+            completeSQL.append(currentSqlFrom);
+            completeSQL.append(MS_ROW_NUM_RANGE);
+            completeSqlParams.add(setSqlParam(INTEGER, nbResByPage * pageNumber));
+            completeSqlParams.add(setSqlParam(INTEGER, (nbResByPage * pageNumber) + nbResByPage));
         } else {
             // Appends the Limit and Offset commands to a SQL statement to enable retrieval of a
             // specified range of records.
             completeSQL.append(currentSqlCommand);
+            completeSQL.append(ORDER_BY_CLAUSE);
             completeSQL.append(ROW_LIMIT_OFFSET);
             completeSqlParams.add(setSqlParam(INTEGER, nbResByPage));
             completeSqlParams.add(setSqlParam(INTEGER, nbResByPage * pageNumber));
@@ -279,7 +301,7 @@ public class TableModel extends AbstractTableModel
      */
     public static PreparedStatement setPStmtParameters(PreparedStatement pstmt, Vector<HashMap> params)
             throws SQLException {
-        //logger.info("Num of Params: " + params.size() + ", Params: " + params);
+        logger.info("Num of Params: " + params.size() + ", Params: " + params);
         int j = 0;
         for (HashMap param : params) {
             j = j + 1;

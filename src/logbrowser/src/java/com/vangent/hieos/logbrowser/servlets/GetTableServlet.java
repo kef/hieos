@@ -69,7 +69,6 @@ public class GetTableServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final static Logger logger = Logger.getLogger(GetTableServlet.class);
     private final int MAX_RESULTS_BY_PAGE = 50;
-    private final static String ORDER_BY_CLAUSE = " order by main.timereceived desc, main.messageid asc";
 
     private TableModel tableModel;
     private TableSorter sorter;
@@ -164,8 +163,7 @@ public class GetTableServlet extends HttpServlet {
                 session.setAttribute("numberResultsByPage", numberResultsByPage);
 
                 Map fieldsAndFormats = new HashMap();
-                //Format fmt = new SimpleDateFormat("EEE d MMM - HH:mm:ss.SSS");
-                Format fmt = new SimpleDateFormat("EEE d MMM - HH:mm:ss");
+                Format fmt = new SimpleDateFormat("EEE d MMM - HH:mm:ss.SSS");
                 fieldsAndFormats.put("Timestamp", fmt);
 
                 // Execute the SQL Query and Retrieve the log data
@@ -352,7 +350,6 @@ public class GetTableServlet extends HttpServlet {
         session.setAttribute("countSqlParams", currentSqlParams);
 
         // Add Paging logic to the SQL Statement
-        currentSqlCommand += ORDER_BY_CLAUSE;
         if (logger.isDebugEnabled()){
             logger.debug("GetTableServlet: SQLRequest before paging: >" + currentSqlCommand);
         }
