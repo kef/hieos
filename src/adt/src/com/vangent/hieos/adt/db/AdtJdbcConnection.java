@@ -170,7 +170,9 @@ public class AdtJdbcConnection {
     private void initialize() throws XdsInternalException, SQLException {
         con = this.getConnection();
         try {
-            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            // Changed the resultset scroll type from insensitive to sensitive because MS SQL Server does not
+            // support scroll type insensitive with concurrency type of update
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         } catch (SQLException ex) {
             logger.error("ADT: Could not create statement", ex);
             try {
