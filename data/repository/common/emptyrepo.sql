@@ -12,4 +12,4 @@
 --
 -- use repo;
 delete from document;
-commit;
+--commit;

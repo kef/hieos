@@ -15,4 +15,4 @@ delete from patientrace;
 delete from patientaddress;
 delete from patientname;
 delete from patient;
-commit;
+--commit;
