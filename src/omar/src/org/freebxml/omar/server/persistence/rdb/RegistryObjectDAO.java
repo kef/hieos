@@ -252,26 +252,25 @@ class RegistryObjectDAO extends IdentifiableDAO {
     /* Some code lifted from getSQLStatementFragment() below */
     /* NO LONGER NEEDED
     public String getSQLStatementFragmentForMirrorImage(Object object)
-            throws RegistryException {
-        if (true) { return null; }
-        String stmtFragment = null;
-        RegistryObjectType ro = (RegistryObjectType) object;
-        if (object instanceof RegistryObjectType) {
-            if (action == DAO_ACTION_INSERT) {
-                stmtFragment = "INSERT INTO RegistryObject " + this.getSQLStatementFragmentInternal(ro) + ") ";
-            } else if (action == DAO_ACTION_UPDATE) {
-                stmtFragment = "UPDATE RegistryObject SET " + this.getSQLStatementFragmentInternal(ro) +
-                        " WHERE id = '" + ro.getId() + "' " +
-                        " AND objectType = '" + ro.getObjectType() + "' ";
-            } else {
-                stmtFragment = "DELETE from RegistryObject WHERE id = '" + ro.getId() + "' " +
-                        " AND objectType = '" + ro.getObjectType() + "' ";
-            }
-        //System.out.println("*** MIRROR SQL: " + stmtFragment);
-        }
-        return stmtFragment;
+    throws RegistryException {
+    if (true) { return null; }
+    String stmtFragment = null;
+    RegistryObjectType ro = (RegistryObjectType) object;
+    if (object instanceof RegistryObjectType) {
+    if (action == DAO_ACTION_INSERT) {
+    stmtFragment = "INSERT INTO RegistryObject " + this.getSQLStatementFragmentInternal(ro) + ") ";
+    } else if (action == DAO_ACTION_UPDATE) {
+    stmtFragment = "UPDATE RegistryObject SET " + this.getSQLStatementFragmentInternal(ro) +
+    " WHERE id = '" + ro.getId() + "' " +
+    " AND objectType = '" + ro.getObjectType() + "' ";
+    } else {
+    stmtFragment = "DELETE from RegistryObject WHERE id = '" + ro.getId() + "' " +
+    " AND objectType = '" + ro.getObjectType() + "' ";
+    }
+    //System.out.println("*** MIRROR SQL: " + stmtFragment);
+    }
+    return stmtFragment;
     }*/
-
     /**
      * Returns the SQL fragment string needed by insert or update statements
      * within insert or update method of sub-classes. This is done to avoid code
@@ -526,7 +525,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 }
             }
 
-        // end if checking the size of registryObjectsIds
+            // end if checking the size of registryObjectsIds
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
             throw new RegistryException(e);
@@ -646,9 +645,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 // status was before that problem occurred
                 status = BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted;
 
-            // TODO: unfortunately, can't turn read operation into a
-            // write...  (best fix probably a SQL script)
-            // updateStatus(ro, status);
+                // TODO: unfortunately, can't turn read operation into a
+                // write...  (best fix probably a SQL script)
+                // updateStatus(ro, status);
             }
             ro.setStatus(status);
 
@@ -668,9 +667,20 @@ class RegistryObjectDAO extends IdentifiableDAO {
             boolean returnComposedObjects = context.getResponseOption().isReturnComposedObjects();
 
             if (returnComposedObjects) {
+                // HIEOS (CHANGE): Optimized to skip returning composed objects for Classifications
+                // and ExternalIdentifiers.  XDS.b does not currently support these
+                // notions. 
+                if (this instanceof ClassificationDAO || this instanceof ExternalIdentifierDAO) {
+                    return;  // EARLY EXIT!!!
+                }
                 List classifications = classificationDAO.getByParent();
                 ro.getClassification().addAll(classifications);
 
+                // HIEOS (CHANGE): Skip trying to get ExternalIdentifiers for
+                // Assocations.
+                if (this instanceof AssociationDAO) {
+                    return;  // EARLY EXIT!!!
+                }
                 List extIds = externalIdentifierDAO.getByParent();
                 ro.getExternalIdentifier().addAll(extIds);
             }
@@ -934,15 +944,15 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS/BHT - Removed:
             if (adhocQuerysIds.length() > 0) {
-                AdhocQueryDAO ahqDAO = new AdhocQueryDAO(context);
-                sql = "SELECT * FROM " + ahqDAO.getTableName() +
-                        " WHERE id IN (" + adhocQuerysIds + ")";
+            AdhocQueryDAO ahqDAO = new AdhocQueryDAO(context);
+            sql = "SELECT * FROM " + ahqDAO.getTableName() +
+            " WHERE id IN (" + adhocQuerysIds + ")";
 
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(ahqDAO.getObjects(leafObjectsRs, 0, -1));
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(ahqDAO.getObjects(leafObjectsRs, 0, -1));
             }
-            */
+             */
             if (associationsIds.length() > 0) {
                 AssociationDAO assDAO = new AssociationDAO(context);
                 sql = "SELECT * FROM " + assDAO.getTableName() +
@@ -1212,9 +1222,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
             // Now, update the RegistryObject table (if not already updated above).
             /*
             if (!registryObjectTableName.equals(RegistryObjectDAO.getTableNameStatic())) {
-                sql = this.getSQLStatementFragmentForStatusUpdate(RegistryObjectDAO.getTableNameStatic(), status, ro.getId());
-                log.trace("SQL = " + sql);
-                stmt.addBatch(sql);
+            sql = this.getSQLStatementFragmentForStatusUpdate(RegistryObjectDAO.getTableNameStatic(), status, ro.getId());
+            log.trace("SQL = " + sql);
+            stmt.addBatch(sql);
             }*/
             stmt.executeBatch();
         } catch (SQLException e) {
