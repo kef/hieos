@@ -28,6 +28,7 @@ public class SoapActionFactory {
     public final static String XDSB_REGISTRY_PIDFEEDADD_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
     public final static String XDSB_REGISTRY_PIDFEEDUPDATE_ACTION = "urn:hl7-org:v3:PRPA_IN201302UV02";
     public final static String XDSB_REGISTRY_PIDFEEDMERGE_ACTION = "urn:hl7-org:v3:PRPA_IN201304UV02";
+    public final static String XDSB_REGISTRY_PIDFEEDUNMERGE_ACTION = "urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE";
     public final static String XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
     public final static String XDSB_REGISTRY_MPQ_ACTION = "urn:ihe:iti:2009:MultiPatientStoredQuery";
     public final static String XDSB_REGISTRY_MPQ_ACTION_RESPONSE = "urn:ihe:iti:2009:MultiPatientStoredQueryResponse";
@@ -49,6 +50,7 @@ public class SoapActionFactory {
                     put(XDSB_REGISTRY_PIDFEEDADD_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
                     put(XDSB_REGISTRY_PIDFEEDUPDATE_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
                     put(XDSB_REGISTRY_PIDFEEDMERGE_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
+                    put(XDSB_REGISTRY_PIDFEEDUNMERGE_ACTION, XDSB_REGISTRY_PIDFEED_ACTION_RESPONSE);
                     put(XDSB_REGISTRY_MPQ_ACTION, XDSB_REGISTRY_MPQ_ACTION_RESPONSE);
                     put(XCA_GATEWAY_CGQ_ACTION, XCA_GATEWAY_CGQ_ACTION_RESPONSE);
                     put(XCA_GATEWAY_CGR_ACTION, XCA_GATEWAY_CGR_ACTION_RESPONSE);
