@@ -23,6 +23,9 @@ DROP TABLE patientaddress;
 DROP TABLE patientname;
 DROP TABLE patientrace;
 
+DROP TABLE mergedobjects;
+DROP TABLE mergehistory;
+
 
 --
 -- Definition of table `patient`
@@ -36,6 +39,7 @@ CREATE TABLE patient (
   adminsex VARCHAR2(20),
   accountnumber VARCHAR2(100),
   bedid VARCHAR2(100),
+  status CHAR(1) NOT NULL DEFAULT 'A',
   CONSTRAINT patient_pkey PRIMARY KEY (id)
 );
 
@@ -87,3 +91,34 @@ CREATE TABLE patientrace (
   CONSTRAINT patientrace_pkey PRIMARY KEY (parent)
 );
 
+
+--
+-- Definition of table mergehistory 
+--
+CREATE TABLE mergehistory (
+  uniqueid VARCHAR2(64) NOT NULL,
+  survivingpatientid VARCHAR2(64) NOT NULL,
+  subsumedpatientid VARCHAR2(64) NOT NULL,
+  action CHAR(1) NOT NULL,
+  datetimeperformed TIMESTAMP NOT NULL,
+  CONSTRAINT mh_pkey PRIMARY KEY (uniqueid)
+);
+
+--
+-- Create index on mergehistory
+--
+CREATE INDEX mh_patientids_idx ON mergehistory (survivingpatientid, subsumedpatientid);
+CREATE INDEX mh_action_idx ON mergehistory (action);
+
+
+--
+-- Definition of table mergedobjects
+--
+CREATE TABLE mergedobjects (
+  parentid VARCHAR2(64) NOT NULL,
+  externalidentifierid VARCHAR2(64) NOT NULL,
+  CONSTRAINT mo_pkey PRIMARY KEY (parentid, externalidentifierid),
+  CONSTRAINT mo_mh_fkey FOREIGN KEY (parentid)
+      REFERENCES mergehistory (uniqueid)
+      ON DELETE CASCADE
+);

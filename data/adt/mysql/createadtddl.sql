@@ -47,6 +47,7 @@ CREATE TABLE `patient` (
   `adminsex` text,
   `accountnumber` text,
   `bedid` text,
+  `status` CHAR(1) NOT NULL DEFAULT 'A',
   PRIMARY KEY (`id`(100)),
   KEY `patient_uuid_idx` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -128,6 +129,39 @@ CREATE TABLE `patientrace` (
 /*!40000 ALTER TABLE `patientrace` ENABLE KEYS */;
 
 
+--
+-- Definition of table mergehistory
+--
+DROP TABLE IF EXISTS `mergedobjects`;
+DROP TABLE IF EXISTS `mergehistory`;
+
+CREATE TABLE `mergehistory` (
+  `uniqueid` VARCHAR(64) NOT NULL,
+  `survivingpatientid` VARCHAR(64) NOT NULL,
+  `subsumedpatientid` VARCHAR(64) NOT NULL,
+  `action` CHAR(1) NOT NULL,
+  `datetimeperformed` DATETIME NOT NULL,
+  CONSTRAINT mh_pkey PRIMARY KEY (uniqueid)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Create index on mergehistory
+--
+CREATE INDEX mh_patientids_idx ON mergehistory (survivingpatientid, subsumedpatientid);
+CREATE INDEX mh_action_idx ON mergehistory (action);
+
+
+--
+-- Definition of table mergedobjects
+--
+CREATE TABLE `mergedobjects` (
+  `parentid` VARCHAR(64) NOT NULL,
+  `externalidentifierid` VARCHAR(64) NOT NULL,
+  CONSTRAINT mo_pkey PRIMARY KEY (parentid, externalidentifierid),
+  CONSTRAINT mo_mh_fkey FOREIGN KEY (parentid)
+      REFERENCES mergehistory (uniqueid)
+      ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

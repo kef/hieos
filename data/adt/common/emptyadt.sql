@@ -15,4 +15,8 @@ delete from patientrace;
 delete from patientaddress;
 delete from patientname;
 delete from patient;
+
+delete from mergedobjects;
+delete from mergehistory;
+
 --commit;

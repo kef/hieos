@@ -11,6 +11,11 @@
 --  limitations under the License.
 --
 
+--
+-- Postgres DDL for ADT Schema
+--
+
+
 -- Table: patient
 
 DROP TABLE IF EXISTS patient;
@@ -23,6 +28,7 @@ CREATE TABLE patient (
   adminsex text,
   accountnumber text,
   bedid text,
+  status char(1) NOT NULL DEFAULT 'A',
   CONSTRAINT patient_pkey PRIMARY KEY (id)
 )
 WITH (OIDS=TRUE);
@@ -83,3 +89,41 @@ WITH (OIDS=TRUE);
 ALTER TABLE patientrace OWNER TO adt;
 
 
+
+--
+-- Definition of table mergehistory
+--
+DROP TABLE IF EXISTS mergehistory;
+
+CREATE TABLE mergehistory (
+  uniqueid character varying(64) NOT NULL,
+  survivingpatientid character varying(64) NOT NULL,
+  subsumedpatientid character varying(64) NOT NULL,
+  action char(1) NOT NULL,
+  datetimeperformed timestamp without time zone NOT NULL,
+  CONSTRAINT mh_pkey PRIMARY KEY (uniqueid)
+)
+WITH (OIDS=FALSE);
+ALTER TABLE mergehistory OWNER TO adt;
+
+--
+-- Create index on mergehistory
+--
+CREATE INDEX mh_patientids_idx ON mergehistory USING btree (survivingpatientid, subsumedpatientid);
+CREATE INDEX mh_action_idx ON mergehistory USING btree (action);
+
+--
+-- Definition of table mergedobjects
+--
+DROP TABLE IF EXISTS mergedobjects;
+
+CREATE TABLE mergedobjects (
+  parentid character varying(64) NOT NULL,
+  externalidentifierid character varying(64) NOT NULL,
+  CONSTRAINT mo_pkey PRIMARY KEY (parentid, externalidentifierid),
+  CONSTRAINT mo_mh_fkey FOREIGN KEY (parentid)
+      REFERENCES mergehistory (uniqueid) MATCH SIMPLE
+      ON DELETE CASCADE
+)
+WITH (OIDS=FALSE);
+ALTER TABLE mergedobjects OWNER TO adt;
