@@ -33,6 +33,7 @@ public class Verify {
     }
 
     /**
+     * Checks if a Patient exists in the database and is also Active 
      *
      * @param patientId
      * @return
@@ -44,7 +45,7 @@ public class Verify {
         AdtJdbcConnection con = null;
         try {
             con = new AdtJdbcConnection();
-            isv = con.doesIdExist(patientId);
+            isv = con.doesActiveIdExist(patientId);
         } catch (XdsInternalException e) {
             logger.error("Could not verify patient id", e);
             throw e;

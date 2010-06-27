@@ -347,4 +347,20 @@ public class AdtRecordBean {
     static public String firstNChars(String str, int n) {
         return str.substring(0, n);
     }
+ 
+    /**
+     *
+     * @return
+     */
+    public String getPatientStatus() {
+        return record.getPatientStatus();
+    }
+
+    /**
+     *
+     * @param patientStatus
+     */
+    public void setPatientStatus(String patientStatus) {
+        record.setPatientStatus(patientStatus);
+    }
 }

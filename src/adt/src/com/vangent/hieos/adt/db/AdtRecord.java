@@ -39,6 +39,7 @@ public class AdtRecord {
 
     private String uuid = null;
     private String patientId = null;
+    private String patientStatus = "A";
     private String timestamp = null;
     private Collection patientNames = null;             // Collection of Hl7Name
     private String patientBirthDateTime = null;
@@ -88,11 +89,13 @@ public class AdtRecord {
      * @param patientAccountNumber
      * @param patientRace
      * @param patientBedId
+     * @param patientStatus
      */
     public AdtRecord(String patientId, Collection patientNames, String patientBirthDateTime, String patientAdminSex,
-            Collection patientAddresses, String patientAccountNumber, Collection patientRace, String patientBedId) {
+            Collection patientAddresses, String patientAccountNumber, Collection patientRace, String patientBedId, String patientStatus) {
 
         this.setPatientId(patientId);
+        this.setPatientStatus(patientStatus);
         this.setPatientNames(patientNames);
         this.setPatientBirthDateTime(patientBirthDateTime);
         this.setPatientAdminSex(patientAdminSex);
@@ -334,5 +337,19 @@ public class AdtRecord {
         } finally {
             con.closeConnection();
         }
+    }
+ 
+    /**
+     * @return the patientStatus
+     */
+    public String getPatientStatus() {
+        return patientStatus;
+    }
+
+    /**
+     * @param patientStatus the patientStatus to set
+     */
+    public void setPatientStatus(String patientStatus) {
+        this.patientStatus = patientStatus;
     }
 }
