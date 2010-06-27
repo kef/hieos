@@ -46,6 +46,9 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 
 // Exceptions.
@@ -66,7 +69,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
         PatientRegistryRecordAdded,
         PatientRegistryRecordUpdated,
-        PatientRegistryDuplicatesResolved
+        PatientRegistryDuplicatesResolved,
+        PatientRegistryRecordUnmerged
     };
     // XPath expressions:
     private final static String XPATH_PATIENT =
@@ -79,7 +83,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private String _patientId = "NOT ON REQUEST";
 
     /**
-     * 
+     *
      * @param log_message
      */
     public RegistryPatientIdentityFeed(String xconfRegistryName, XLogMessage log_message) {
@@ -88,6 +92,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
+     * Processs Patient ID Feeds for HL7 v3 messages
      *
      * @param request
      * @param messageType
@@ -108,6 +113,9 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                     break;
                 case PatientRegistryDuplicatesResolved:
                     this.processPatientRegistyDuplicatesResolved(request);
+                    break;
+                case PatientRegistryRecordUnmerged:
+                    this.processPatientRegistryRecordUnmerged(request);
                     break;
             }
             //this.logResponse(result, !this.errorDetected /* success */);
@@ -140,7 +148,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     *
+     * Processs Patient ID Feeds for HL7 v2 messages
      * @param request
      * @param messageType
      * @return
@@ -275,12 +283,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             this._patientId = this.getPatientIdFromIIType(idNode);
             this.logInfo("Patient ID", this._patientId);
 
-            // First see if the patient id already exists.
-            if (this.adtPatientExists(this._patientId)) {
+            // First see if the patient id exists and is active.
+            if (this.adtDoesActivePatientExist(this._patientId)) {
                 this.adtUpdate(patientNode, this._patientId, true /* updateMode */);
             } else {
-                // Patient Id already exists (ignore request).
-                throw this.logException("Patient ID " + this._patientId + " does not exist - skipping UPDATE!");
+                // Patient Id does not exist or is not active (ignore request).
+                throw this.logException("Patient ID " + this._patientId + " does not exist or is not active - skipping UPDATE!");
             }
         } else {
             throw this.logException("No patient id found on request");
@@ -319,6 +327,23 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
     /**
      *
+     * @param PRPA_IN201304UV02UNMERGE_Message
+     * @return
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private void processPatientRegistryRecordUnmerged(OMElement PRPA_IN201304UV02UNMERGE_Message)
+            throws PatientIdentityFeedException, XdsInternalException {
+        // Get the Active patient Id
+        OMElement patientNode = this.selectSingleNode(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.XPATH_PATIENT);
+        OMElement idNode = this.getFirstChildWithName(patientNode, "id");
+        String survivingPatientId = this.getPatientIdFromIIType(idNode);
+        // Get the patient Id that will be unmerged.
+        String priorRegistrationPatientId = this.getPriorRegistrationPatientId(PRPA_IN201304UV02UNMERGE_Message);
+        this.doUnmerge(survivingPatientId, priorRegistrationPatientId);
+    }
+
+    /**
+     *
      * @param survivingPatientId
      * @param priorRegistrationPatientId
      */
@@ -341,22 +366,88 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             throw this.logException("Surviving Patient ID and Prior Registration (to be subsumed) ID are the same - skipping MERGE!");
         }
 
-        // We better have knowledge of both patient identifiers:
-        if (!this.adtPatientExists(survivingPatientId)) {
-            throw this.logException("Surviving Patient ID " + survivingPatientId + " not known to registry - skipping MERGE!");
+        // Check that both the Surviving and to be Subsumed Patients both exist and are Active
+        if (!this.adtDoesActivePatientExist(survivingPatientId)) {
+            throw this.logException("Surviving Patient ID " + survivingPatientId + " is not active or is not known to registry - skipping MERGE!");
         }
-
-        if (!this.adtPatientExists(priorRegistrationPatientId)) {
-            throw this.logException("Prior Registration (to be subsumed) Patient ID " + priorRegistrationPatientId + " not known to registry - skipping MERGE!");
+        if (!this.adtDoesActivePatientExist(priorRegistrationPatientId)) {
+            throw this.logException("Prior Registration (to be subsumed) Patient ID " + priorRegistrationPatientId + " is not active or is not known to registry - skipping MERGE!");
         }
 
         // Now, we can do some updates.
+        // TODO: updates are in 2 databases may need 2 phase commit***
 
-        // First, take care of the registry by updating external identifiers.
+        // First get a list of all external identifier ids that will be affected by the merge
+        List externalIdentifierIds = regGetExternalIdentifierIDs(priorRegistrationPatientId);
+        logger.info("Number of Objects being merged: " + externalIdentifierIds.size());
+
+        // Take care of the registry by updating the patient id on the external identifiers.
         this.regUpdateExternalIdentifiers(survivingPatientId, priorRegistrationPatientId);
 
-        // FIXME (Should just MARK): Delete the ADT record for the priorRegistrationPatientId.
-        this.adtDeletePatientId(priorRegistrationPatientId);
+        // Create a history of the Merge
+        this.adtCreateMergeHistory(survivingPatientId, priorRegistrationPatientId, "M", externalIdentifierIds);
+
+        // Disable the ADT record for the priorRegistrationPatientId.
+        this.adtUpdatePatientStatus(priorRegistrationPatientId, "I");
+    }
+
+    /**
+     *
+     * @param survivingPatientId
+     * @param unmergedPatientId
+     */
+    private void doUnmerge(String survivingPatientId, String unmergedPatientId) throws PatientIdentityFeedException, XdsInternalException {
+        // Check existance of active patient id on request.
+        if (survivingPatientId == null) {
+            throw this.logException("Active Patient ID not present on request- skipping UNMERGE!");
+        }
+        this._patientId = survivingPatientId;
+        this.logInfo("Patient ID (Active) ", survivingPatientId);
+
+        // Check existance of the patient being unmerged on request.
+        if (unmergedPatientId == null) {
+            throw this.logException("Prior Registration (to be unmerged) Patient ID not present on request - skipping UNMERGE!");
+        }
+        this.logInfo("Prior Registration (to be unmerged) Patient ID ", unmergedPatientId);
+
+        // See if they are the same patient (if so, skip unmerge).
+        if (survivingPatientId.equals(unmergedPatientId)) {
+            throw this.logException("Active Patient ID and Patient being Unmerged ID are the same - skipping UNMERGE!");
+        }
+
+        // Check that the Active (survived) patient identifier is still active
+        if (!this.adtDoesActivePatientExist(survivingPatientId)) {
+            throw this.logException("Survived (Active) Patient ID " + survivingPatientId + " is not active or is not known to registry - skipping UNMERGE!");
+        }
+
+        // Check that the prior registration (to be unmerged) patient identifier is still inactive
+        String status = this.adtGetPatientStatus(unmergedPatientId);
+        if (status == null || status.equals("A")) {
+            throw this.logException("Patient ID to be unmerged " + unmergedPatientId + " is not disabled or is not known to registry - skipping UNMERGE!");
+        }
+
+        // Check if there is a record of prior registration (to be unmerged) patient id being merged into the surviving patient id
+        // Also check that this is the most recent merge - only the most recent merge can be unmerged
+        if (!this.adtCheckMergeHistory(survivingPatientId, unmergedPatientId)) {
+            throw this.logException("Invalid UnMerge Request for Surviving Patient ID " + survivingPatientId +
+                     " and UnMerged Patient: " + unmergedPatientId + "  - skipping UNMERGE!");
+        }
+
+        // Patients IDs are valid, now perform the unmerge
+
+        // Get a list of all external identifier ids that were affected by the merge
+        List externalIdentifierIds = adtRetrieveMergedRecords(survivingPatientId, unmergedPatientId);
+		logger.info("Number of Objects being unmerged: " + externalIdentifierIds.size());
+
+        // Update the registry by updating the patient id on the external
+        // identifiers involved in the previous merge.
+        this.regUpdateExternalIdentifiers(survivingPatientId, unmergedPatientId, externalIdentifierIds);
+
+        // Create a history of the unmerge
+        this.adtCreateMergeHistory(survivingPatientId, unmergedPatientId, "U", externalIdentifierIds);
+
+        // Activate the ADT Patient record for the unmerged Patient.
+        this.adtUpdatePatientStatus(unmergedPatientId, "A");
     }
 
 // Helper methods:
@@ -384,16 +475,13 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         if (idNode == null) {
             return null;  // GUARD: Early exit.
         }
-        String assigningAuthorityName = idNode.getAttributeValue(new QName("assigningAuthorityName"));
+
         String extension = idNode.getAttributeValue(new QName("extension"));
         String root = idNode.getAttributeValue(new QName("root"));
         String patientId = this.formattedPatientId(root, extension);
-        String assigningAuthority = this.formattedAssigningAuthority(root);
         // DEBUG (Start)
-        logger.info("  assigningAuthorityName = " + assigningAuthorityName);
         logger.info("  extension = " + extension);
         logger.info("  root = " + root);
-        logger.info("*** AA = " + assigningAuthority);
         logger.info("*** Patient ID = " + patientId);
         // DEBUG (Stop)
         return patientId;
@@ -545,7 +633,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param errorString
      * @return
      */
@@ -728,6 +816,22 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
+     * Diasables or Activates a Patient record
+     * @param patientId
+     */
+    private void adtUpdatePatientStatus(String patientId, String status) throws XdsInternalException {
+        String uuid = this.adtGetPatientUUID(patientId);
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        try {
+            conn.updateAdtRecordStatus(uuid, status);
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem updating status for patient ID = " + patientId);
+        } finally {
+            conn.closeConnection();
+        }
+    }
+
+    /**
      *
      * @param patientNode
      * @param patientId
@@ -746,6 +850,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             // We are in "insert mode" (i.e. patient id does not exist)
             arb = new AdtRecordBean();
             uuid = arb.getPatientUUID();  // This is a new UUID.
+            arb.setPatientStatus("A");    // Set the patient status.
         }
         arb.setPatientId(patientId);  // Set the patient id.
 
@@ -790,7 +895,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param patientPersonNode
      * @param arb
      */
@@ -846,7 +951,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param arb
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
@@ -896,9 +1001,112 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         return uuid;
     }
 
+    /**
+     *
+     * @param patientId
+     * @return
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private boolean adtDoesActivePatientExist(String patientId) throws XdsInternalException {
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        boolean patientActive = false;
+        try {
+            patientActive = conn.doesActiveIdExist(patientId);
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem checking if active patient exists = " + patientId);
+        } finally {
+            conn.closeConnection();
+        }
+        return patientActive;
+    }
+
+    /**
+     *
+     * @param patientId
+     * @return
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private String adtGetPatientStatus(String patientId) throws XdsInternalException {
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        String status = null;
+        try {
+            status = conn.getPatientStatus(patientId);
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem getting Patient Status for patient ID existence = " + patientId);
+        } finally {
+            conn.closeConnection();
+        }
+        return status;
+    }
+
+    /**
+     * Creates a history of the Patient IDs and external identifiers IDs involved in a merge or unmerge
+     *
+     * @param survivingPatientId
+     * @param priorRegistrationPatientId
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private void adtCreateMergeHistory(String survivingPatientId, String priorRegistrationPatientId,
+            String action, List externalIdentifierIds) throws XdsInternalException {
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        try {
+            conn.createMergeHistory(survivingPatientId, priorRegistrationPatientId, action, externalIdentifierIds);
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem creating merge history for Patient IDs = " +
+                survivingPatientId + " / " + priorRegistrationPatientId);
+        } finally {
+            conn.closeConnection();
+        }
+    }
+
+    /**
+     * Retreives the external identifier IDs involved in a merge or unmerge
+     *
+     * @param survivingPatientId
+     * @param priorRegistrationPatientId
+     * @param action - M (merge) or U (unmerge)
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private List<String> adtRetrieveMergedRecords(String survivingPatientId, String priorRegistrationPatientId)
+            throws XdsInternalException {
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        List<String> externalIdentifierIds = new ArrayList<String>();
+        try {
+            externalIdentifierIds = conn.retrieveMergedRecords(survivingPatientId, priorRegistrationPatientId, "M");
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem retrieving merge history for Patient IDs = " +
+                survivingPatientId + " / " + priorRegistrationPatientId);
+        } finally {
+            conn.closeConnection();
+        }
+        return externalIdentifierIds;
+    }
+
+    /**
+     * Checks if a patient to be unmerged has been previously merged into the surviving patient
+     *
+     * @param survivingPatientId
+     * @param priorRegistrationPatientId
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private boolean adtCheckMergeHistory(String survivingPatientId, String priorRegistrationPatientId)
+            throws XdsInternalException {
+        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
+        boolean merge = false;
+        try {
+            merge = conn.isPatientMerged(survivingPatientId, priorRegistrationPatientId);
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem checking merge history for Patient IDs = " +
+                survivingPatientId + " / " + priorRegistrationPatientId);
+        } finally {
+            conn.closeConnection();
+        }
+        return merge;
+    }
+
     // Registry helper methods.
     /**
-     * 
+     *
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private Connection regGetDatabaseConnection() throws XdsInternalException {
@@ -914,16 +1122,99 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private void regUpdateExternalIdentifiers(String survivingPatientId, String priorRegistrationPatientId)
             throws XdsInternalException {
         Connection conn = this.regGetDatabaseConnection();
+        PreparedStatement preparedStatement = null;
         try {
-            PreparedStatement preparedStatement = conn.prepareStatement("UPDATE EXTERNALIDENTIFIER SET VALUE = ? WHERE VALUE = ?");
+            preparedStatement = conn.prepareStatement("UPDATE EXTERNALIDENTIFIER SET VALUE = ? WHERE VALUE = ?");
             preparedStatement.setString(1, survivingPatientId);
             preparedStatement.setString(2, priorRegistrationPatientId);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
         } catch (SQLException e) {
             throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem with updating Registry external identifiers");
         } finally {
             try {
+                if (preparedStatement != null){
+                    preparedStatement.close();
+                }
+                if (conn != null){
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                logger.error("Could not close connection", e);
+            }
+        }
+    }
+
+    /**
+     * This method updates the patient id on the external identifiers during an unmerge action
+     * The list of externalIdentifier Ids for the affected records is provided as a parameter.
+     *
+     * @param survivingPatientId
+     * @param priorRegistrationPatientId
+     * @param externalIdentifierIds
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private void regUpdateExternalIdentifiers(String currentPatientId, String newPatientId,
+            List<String> externalIdentifierIds) throws XdsInternalException {
+        Connection conn = this.regGetDatabaseConnection();
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = conn.prepareStatement("UPDATE EXTERNALIDENTIFIER SET VALUE = ? WHERE VALUE = ? AND ID = ?");
+            for (String id : externalIdentifierIds){
+                preparedStatement.setString(1, newPatientId);
+                preparedStatement.setString(2, currentPatientId);
+                preparedStatement.setString(3, id);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem with updating Registry external identifiers for an unmerge");
+        } finally {
+            try {
+                if (preparedStatement != null){
+                    preparedStatement.close();
+                }
+                if (conn != null){
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                logger.error("Could not close connection", e);
+            }
+        }
+    }
+
+    /**
+     * Retrieves a list of ExternalIdentifier IDs associated with a Patient Id
+     *  - each ExternalIdentifier is associated with an ExternalObject (Document) or
+     * a RegistryPackage (SubmissionSet or Folder)
+     *
+     * @param priorRegistrationPatientId
+     * @return List (ExternalIdentifierIDs)
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    private List regGetExternalIdentifierIDs(String priorRegistrationPatientId)
+            throws XdsInternalException {
+        Connection conn = this.regGetDatabaseConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet rs = null;
+        List externalIds = new ArrayList<String>();
+
+        try {
+            preparedStatement = conn.prepareStatement("SELECT ID FROM EXTERNALIDENTIFIER WHERE VALUE = ?");
+            preparedStatement.setString(1, priorRegistrationPatientId);
+            rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                externalIds.add(rs.getString(1));
+            }            
+            return externalIds;
+        } catch (SQLException e) {
+            throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem retrieving Registry external identifier ids");
+        } finally {
+            try {
+                if (rs != null){
+                    rs.close();
+                }
+                if (preparedStatement != null){
+                    preparedStatement.close();
+                }
                 conn.close();
             } catch (SQLException e) {
                 logger.error("Could not close connection", e);
@@ -932,7 +1223,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @return
      */
     private String getXConfigHomeCommunityProperty(String propertyName) {

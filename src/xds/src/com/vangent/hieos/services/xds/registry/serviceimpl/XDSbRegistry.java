@@ -33,6 +33,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 
 public class XDSbRegistry extends XAbstractService {
+
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
 
     /**
@@ -86,13 +87,14 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     *
+     * Processes Patient ID feeds for HL7 V2 messages
+     * 
      * @param patientFeedRequest
      * @return
      * @throws AxisFault
      */
     public OMElement PatientFeedRequest(OMElement patientFeedRequest) throws AxisFault {
-       OMElement startup_error = beginTransaction("PIDFEED.V2", patientFeedRequest, XAbstractService.ActorType.REGISTRY);
+        OMElement startup_error = beginTransaction("PIDFEED.V2", patientFeedRequest, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
         }
@@ -119,7 +121,7 @@ public class XDSbRegistry extends XAbstractService {
 
     // Added (BHT): Patient Identity Feed:
     /**
-     * Patient Registry Record Added
+     * Patient Registry Record Added - HL7 V3
      *
      * @param PRPA_IN201301UV02_Message
      * @return
@@ -130,6 +132,15 @@ public class XDSbRegistry extends XAbstractService {
         if (startup_error != null) {
             return startup_error;
         }
+
+        try {
+            //validateWS();
+            validateNoMTOM();
+        } catch (Exception e) {
+            logger.error("ERROR VALIDATING ADD PATIENT REQUEST");
+            return endTransaction(PRPA_IN201301UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
+        }
+
         logger.info("*** PID Feed: Patient Registry Record Added ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -140,7 +151,7 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     * Patient Registry Record Updated
+     * Patient Registry Record Updated - HL7 V3
      *
      * @param PRPA_IN201302UV02_Message
      * @return
@@ -151,6 +162,15 @@ public class XDSbRegistry extends XAbstractService {
         if (startup_error != null) {
             return startup_error;
         }
+
+        try {
+            //validateWS();
+            validateNoMTOM();
+        } catch (Exception e) {
+            logger.error("ERROR VALIDATING UPDATE PATIENT REQUEST");
+            return endTransaction(PRPA_IN201302UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
+        }
+
         logger.info("*** PID Feed: Patient Registry Record Updated ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -161,7 +181,7 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     * Patient Registry Duplicates Resolved
+     * Patient Registry Duplicates Resolved - HL7 V3
      *
      * @param PRPA_IN201304UV02_Message
      * @return
@@ -172,6 +192,15 @@ public class XDSbRegistry extends XAbstractService {
         if (startup_error != null) {
             return startup_error;
         }
+
+        try {
+            //validateWS();
+            validateNoMTOM();
+        } catch (Exception e) {
+            logger.error("ERROR VALIDATING MERGE PATIENT REQUEST");
+            return endTransaction(PRPA_IN201304UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
+        }
+
         logger.info("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
         logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
@@ -182,7 +211,37 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     * 
+     * Patient Registry Unmerge Record - HL7 V3
+     *
+     * @param PRPA_IN201304UV02_Message
+     * @return
+     * @throws org.apache.axis2.AxisFault
+     */
+    public OMElement DocumentRegistry_PRPA_IN201304UV02UNMERGE(OMElement PRPA_IN201304UV02UNMERGE_Message) throws AxisFault {
+        OMElement startup_error = beginTransaction("PIDFEED.Unmerge", PRPA_IN201304UV02UNMERGE_Message, XAbstractService.ActorType.REGISTRY);
+        if (startup_error != null) {
+            return startup_error;
+        }
+
+        try {
+            //validateWS();
+            validateNoMTOM();
+        } catch (Exception e) {
+            logger.error("ERROR VALIDATING UNMERGE PATIENT REQUEST");
+            return endTransaction(PRPA_IN201304UV02UNMERGE_Message, e, XAbstractService.ActorType.REGISTRY, "");
+        }
+
+        logger.info("*** PID Feed: Patient Registry Record Unmerged ***");
+        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
+        this.forceAnonymousReply();  // BHT (FIXME)
+        endTransaction(true /* success */);
+        return result;
+    }
+
+    /**
+     *
      * @param sor
      * @throws XdsValidationException
      */
