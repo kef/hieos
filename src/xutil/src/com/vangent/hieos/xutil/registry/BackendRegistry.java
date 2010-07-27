@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
  */
 public class BackendRegistry {
 
-    private final static Logger logger = Logger.getLogger(BackendRegistry.class);
     //private final static QName object_ref_qname = new QName("ObjectRef");
     private final static QName idQName = new QName("id");
     private final static String adhocQueryRequestHeader =
