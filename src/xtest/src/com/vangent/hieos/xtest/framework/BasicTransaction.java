@@ -44,6 +44,7 @@ import javax.xml.parsers.FactoryConfigurationError;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.log4j.Logger;
 
 public abstract class BasicTransaction extends OmLogger {
@@ -506,7 +507,7 @@ public abstract class BasicTransaction extends OmLogger {
         }
         OMElement submission;
         if (parse_metadata) {
-            submission = metadata.getV3SubmitObjectsRequest();
+            submission = this.getV3SubmitObjectsRequest(metadata);
         } else {
             submission = Util.deep_copy(metadata.getRoot());
         }
@@ -514,6 +515,39 @@ public abstract class BasicTransaction extends OmLogger {
         //log_input_metadata(submission);
 
         return submission;
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsInternalException
+     */
+    protected OMElement getV3SubmitObjectsRequest(Metadata m) throws XdsInternalException {
+        //OMNamespace rs = MetadataSupport.ebRSns3;
+        OMNamespace lcm = MetadataSupport.ebLcm3;
+        OMNamespace rim = MetadataSupport.ebRIMns3;
+        OMElement sor = this.om_factory().createOMElement("SubmitObjectsRequest", lcm);
+        OMElement lrol = this.om_factory().createOMElement("RegistryObjectList", rim);
+        sor.addChild(lrol);
+        ArrayList objects = this.getV3(m);
+        for (int i = 0; i < objects.size(); i++) {
+            OMElement ele = (OMElement) objects.get(i);
+            lrol.addChild(ele);
+        }
+        return sor;
+    }
+
+    /**
+     *
+     * @param m
+     * @return
+     * @throws XdsInternalException
+     */
+    public ArrayList<OMElement> getV3(Metadata m) throws XdsInternalException {
+        ArrayList al;
+        EbXMLTranslateV2ToV3 v = new EbXMLTranslateV2ToV3();
+        al = v.translate(m.getAllObjects());
+        return al;
     }
 
     protected void parse_assertion_instruction(OMElement assertion_part) throws XdsException {

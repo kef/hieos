@@ -66,7 +66,7 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
         OMElement body = null;
         if (xds_version == BasicTransaction.xds_b) {
             OMElement pnr = metadata.om_factory().createOMElement("ProvideAndRegisterDocumentSetRequest", MetadataSupport.xdsB);
-            pnr.addChild(metadata.getV3SubmitObjectsRequest());
+            pnr.addChild(this.getV3SubmitObjectsRequest(metadata));
             for (String id : document_id_filenames.keySet()) {
                 String filename = (String) document_id_filenames.get(id);
 
