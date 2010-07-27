@@ -17,6 +17,9 @@
         <Property name="InitiatingGateway">localig</Property>
         <Property name="RespondingGateway">localrg</Property>
         <Property name="ValidatePatientId">true</Property>
+        <!-- Set this property to false to disable XML schema validation for all input messages
+             recieved by HIEOS. -->
+        <Property name="XMLSchemaValidationEnabled">true</Property>
 
         <!-- Place to find the "codes.xml" file.
 
