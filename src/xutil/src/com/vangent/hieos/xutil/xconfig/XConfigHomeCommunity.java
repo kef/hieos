@@ -131,11 +131,30 @@ public class XConfigHomeCommunity {
 
     /**
      * 
+     * @param propKey The property key to find.
+     * @return true if property key is found, false otherwise.
+     */
+    public boolean containsProperty(String propKey) {
+        return properties.containsProperty(propKey);
+    }
+
+    /**
+     * 
      * @param propKey
      * @return
      */
     public boolean getPropertyAsBoolean(String propKey) {
         return properties.getPropertyAsBoolean(propKey);
+    }
+
+    /**
+     * 
+     * @param propKey
+     * @param defaultValue
+     * @return
+     */
+    public boolean getPropertyAsBoolean(String propKey, boolean defaultValue) {
+        return properties.getPropertyAsBoolean(propKey, defaultValue);
     }
 
     /**

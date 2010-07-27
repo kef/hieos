@@ -42,12 +42,35 @@ public class XConfigProperties {
     }
 
     /**
+     *
+     * @param propKey The property key to find.
+     * @return true if property key is found, false otherwise.
+     */
+    public boolean containsProperty(String propKey) {
+        return properties.containsKey(propKey);
+    }
+
+    /**
      * 
      * @param propKey
      * @return
      */
     public boolean getPropertyAsBoolean(String propKey) {
         return this.getProperty(propKey).equals("true") ? true : false;
+    }
+
+    /**
+     *
+     * @param propKey
+     * @param defaultValue
+     * @return
+     */
+    public boolean getPropertyAsBoolean(String propKey, boolean defaultValue) {
+        if (this.containsProperty(propKey)) {
+            return this.getPropertyAsBoolean(propKey);
+        } else {
+            return defaultValue;
+        }
     }
 
     /**

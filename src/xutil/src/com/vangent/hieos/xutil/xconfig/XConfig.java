@@ -215,11 +215,31 @@ public class XConfig {
     /**
      * 
      * @param propKey
+     * @param defaultValue
+     * @return
+     */
+    public boolean getHomeCommunityPropertyAsBoolean(String propKey, boolean defaultValue) {
+        return _instance.homeCommunity.getPropertyAsBoolean(propKey, defaultValue);
+    }
+
+    /**
+     * 
+     * @param propKey
      * @return
      */
     public long getHomeCommunityPropertyAsLong(String propKey) {
         String longVal = _instance.getHomeCommunityProperty(propKey);
         return (new Long(longVal)).longValue();
+    }
+
+    /**
+     *
+     * @param propKey
+     * @return
+     */
+    public boolean containsHomeCommunityProperty(String propKey)
+    {
+        return _instance.homeCommunity.containsProperty(propKey);
     }
 
     /**
