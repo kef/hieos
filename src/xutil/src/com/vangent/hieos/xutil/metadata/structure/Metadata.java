@@ -80,7 +80,7 @@ public class Metadata {
     boolean version2;
     OMElement metadataDup = null;  // both of these are set by dup_wrapper which is used by metadata_copy
     OMElement wrapperDup = null;
-    boolean mustDup = false;
+    //boolean mustDup = false;
     int idAllocation = 0;
     IdIndex idIndex = null;
 
@@ -386,6 +386,7 @@ public class Metadata {
      * @param metadata - a collection of metadata objects.  Will be wrapped internally (made into
      * single XML document)
      * @param discard_duplicates
+     * @return
      * @throws XdsInternalException
      * @throws MetadataValidationException
      * @throws MetadataException
@@ -1058,7 +1059,7 @@ public class Metadata {
         OMElement firstChild = ele.getFirstElement();
         firstChild.insertSiblingBefore(slot);
         //ele.addChild(slot);
-        mustDup = true;
+        //mustDup = true;
     }
 
     /**
@@ -1077,7 +1078,7 @@ public class Metadata {
         firstChild.insertSiblingBefore(slot);
         //ele.addChild(slot);
 
-        mustDup = true;
+        //mustDup = true;
         return slot;
     }
 
@@ -1092,7 +1093,7 @@ public class Metadata {
         OMElement valueEle = this.om_factory().createOMElement("Value", null);
         valueEle.setText(value);
         value_list.addChild(valueEle);
-        mustDup = true;
+        //mustDup = true;
         return slot;
     }
 
@@ -2373,102 +2374,6 @@ public class Metadata {
      * @return
      * @throws XdsInternalException
      */
-    public ArrayList getOriginal() throws XdsInternalException {
-        if (!mustDup) {
-            return allObjects;
-        }
-        if (version2) {
-            return getV2();
-        } else {
-            return getV3();
-        }
-    }
-
-    // return ArrayList of OMElements
-    // returns a copy of the original
-    /**
-     *
-     * @return
-     * @throws XdsInternalException
-     */
-    public ArrayList getV2() throws XdsInternalException {
-        ArrayList al;
-        IdParser ip = new IdParser(this);
-        ArrayList undefinedIds = ip.getUndefinedIds();
-        TranslateToV2 v = new TranslateToV2();
-        al = v.translate(allObjects, mustDup);
-        for (Iterator it = undefinedIds.iterator(); it.hasNext();) {
-            String id = (String) it.next();
-            if (!id.startsWith("urn:uuid:")) {
-                continue;
-            }
-            OMElement or;
-            al.add(or = (OMElement) MetadataSupport.om_factory.createOMElement("ObjectRef", MetadataSupport.ebRIMns2));
-            or.addAttribute("id", id, null);
-        }
-        // BHT: BUG FIX TEST (add missing classification references).
-        OMElement or;
-        or = (OMElement) MetadataSupport.om_factory.createOMElement("ObjectRef", MetadataSupport.ebRIMns2);
-        al.add(or);
-        or.addAttribute("id", MetadataSupport.XDSFolder_classification_uuid, null);
-        or = (OMElement) MetadataSupport.om_factory.createOMElement("ObjectRef", MetadataSupport.ebRIMns2);
-        al.add(or);
-        or.addAttribute("id", MetadataSupport.XDSSubmissionSet_classification_uuid, null);
-        // BHT: END BUG FIX HACK
-
-        return al;
-    }
-
-    // returns a copy of the original
-    /**
-     *
-     * @return
-     * @throws XdsInternalException
-     */
-    public ArrayList<OMElement> getV3() throws XdsInternalException {
-        ArrayList al;
-        if (version2) {
-            TranslateToV3 v = new TranslateToV3();
-            al = v.translate(allObjects, mustDup);
-        } else {
-            TranslateToV3 v = new TranslateToV3();
-            al = v.translate(allObjects, mustDup);
-        }
-        return al;
-    }
-
-    /**
-     *
-     * @param root
-     * @param localname
-     * @return
-     */
-    // breadth first search for element with localname
-    private OMElement find_element(OMElement root, String localname) {
-        if (root.getLocalName().equals(localname)) {
-            return root;
-        }
-        for (Iterator it = root.getChildElements(); it.hasNext();) {
-            OMElement child = (OMElement) it.next();
-            if (child.getLocalName().equals(localname)) {
-                return child;
-            }
-        }
-        for (Iterator it = root.getChildElements(); it.hasNext();) {
-            OMElement child = (OMElement) it.next();
-            OMElement ele = find_element(child, localname);
-            if (ele != null) {
-                return ele;
-            }
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @return
-     * @throws XdsInternalException
-     */
     public OMElement getV3SubmitObjectsRequest() throws XdsInternalException {
         //OMNamespace rs = MetadataSupport.ebRSns3;
         OMNamespace lcm = MetadataSupport.ebLcm3;
@@ -2476,11 +2381,15 @@ public class Metadata {
         OMElement sor = this.om_factory().createOMElement("SubmitObjectsRequest", lcm);
         OMElement lrol = this.om_factory().createOMElement("RegistryObjectList", rim);
         sor.addChild(lrol);
+        for (int i = 0; i < allObjects.size(); i++) {
+            lrol.addChild(allObjects.get(i));
+        }
+        /*
         ArrayList objects = this.getV3();
         for (int i = 0; i < objects.size(); i++) {
-            OMElement ele = (OMElement) objects.get(i);
-            lrol.addChild(ele);
-        }
+        OMElement ele = (OMElement) objects.get(i);
+        lrol.addChild(ele);
+        }*/
         return sor;
     }
 
@@ -2662,7 +2571,6 @@ public class Metadata {
         }
         return value;
     }
-    
     int uriChunkSize = 100;
 
     /**
@@ -2671,9 +2579,8 @@ public class Metadata {
      */
     /**
     public void setUriChunkSize(int size) {
-        uriChunkSize = size;
+    uriChunkSize = size;
     }*/
-
     /**
      *
      * @param a
