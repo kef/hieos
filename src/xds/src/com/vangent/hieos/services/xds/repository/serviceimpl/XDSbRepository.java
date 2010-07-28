@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsValidationException;
@@ -32,10 +31,10 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 public class XDSbRepository extends XAbstractService {
+
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
 
     //String alternateRegistryEndpoint = null;
-
     /**
      *
      */
@@ -60,6 +59,7 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement ProvideAndRegisterDocumentSetRequest(OMElement sor) throws AxisFault {
+        long start = System.currentTimeMillis();
         try {
             OMElement startup_error = beginTransaction(getPnRTransactionName(), sor, XAbstractService.ActorType.REPOSITORY);
             if (startup_error != null) {
@@ -70,10 +70,13 @@ public class XDSbRepository extends XAbstractService {
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
             /*if (alternateRegistryEndpoint != null) {
-                s.setRegistryEndPoint(alternateRegistryEndpoint);
+            s.setRegistryEndPoint(alternateRegistryEndpoint);
             }*/
             OMElement result = s.provideAndRegisterDocumentSet(sor);
             endTransaction(s.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PNR TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
             return result;
         } catch (Exception e) {
             return endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
@@ -87,6 +90,7 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) throws AxisFault {
+        long start = System.currentTimeMillis();
         try {
             OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.ActorType.REPOSITORY);
             if (startup_error != null) {
@@ -105,6 +109,9 @@ public class XDSbRepository extends XAbstractService {
             RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
             OMElement result = s.retrieveDocumentSet(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("RETRIEVE DOC TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
             return result;
         } catch (Exception e) {
             return endTransaction(rdsr, e, XAbstractService.ActorType.REPOSITORY, "");
@@ -117,18 +124,16 @@ public class XDSbRepository extends XAbstractService {
      */
     /*
     private void setAlternateRegistryEndpoint(String endpoint) {
-        alternateRegistryEndpoint = endpoint;
+    alternateRegistryEndpoint = endpoint;
     }*/
-
     /**
      *
      * @param opt
      */
     /*
     public void optimize_retrieve(boolean opt) {
-        optimize_retrieve = opt;
+    optimize_retrieve = opt;
     }*/
-
     protected String getPnRTransactionName() {
         return "PnR.b";
     }

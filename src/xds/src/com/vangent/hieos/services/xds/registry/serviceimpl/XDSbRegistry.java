@@ -43,6 +43,7 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement SubmitObjectsRequest(OMElement sor) throws AxisFault {
+        long start = System.currentTimeMillis();
         try {
             OMElement startup_error = beginTransaction(getRTransactionName(sor), sor, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
@@ -54,6 +55,9 @@ public class XDSbRegistry extends XAbstractService {
             SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
             OMElement result = s.submitObjectsRequest(sor);
             endTransaction(s.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("SOR TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
             return result;
         } catch (Exception e) {
             return endTransaction(sor, e, XAbstractService.ActorType.REGISTRY, "");
@@ -67,6 +71,7 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement ahqr) throws AxisFault {
+        long start = System.currentTimeMillis();
         OMElement startup_error = beginTransaction(getRTransactionName(ahqr), ahqr, XAbstractService.ActorType.REGISTRY);
         if (startup_error != null) {
             return startup_error;
@@ -83,6 +88,9 @@ public class XDSbRegistry extends XAbstractService {
         a.setIsMPQRequest(this.isMPQRequest());
         OMElement result = a.adhocQueryRequest(ahqr);
         endTransaction(a.getStatus());
+        if (logger.isDebugEnabled()) {
+            logger.debug("ADHOC QUERY TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+        }
         return result;
     }
 
