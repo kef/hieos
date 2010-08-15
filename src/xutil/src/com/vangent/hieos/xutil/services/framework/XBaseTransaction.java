@@ -68,20 +68,6 @@ public class XBaseTransaction {
 
     /**
      *
-     */
-    protected void log_status() {
-        try {
-            String e_and_w = response.getErrorsAndWarnings();
-            if (e_and_w != null && !e_and_w.equals("")) {
-                log_message.addErrorParam("Error", e_and_w);
-            }
-        } catch (Exception e) {
-            response.error("Internal Error: cannot set final status in test log on transaction");
-        }
-    }
-
-    /**
-     *
      * @param e
      * @return
      */
@@ -96,21 +82,19 @@ public class XBaseTransaction {
      *
      */
     protected void log_response() {
-        if (log_message == null) {
-            System.out.println("\nFATAL ERROR: XdsCommon.log_response(): log_message is null\n");
-            return;
-        }
-        try {
+        if (log_message.isLogEnabled()) {
             if (response.has_errors()) {
                 log_message.setPass(false);
                 log_message.addErrorParam("Errors", response.getErrorsAndWarnings());
             } else {
                 log_message.setPass(true);
             }
-
-            log_message.addOtherParam("Response", response.getResponse());
-        } catch (XdsInternalException e) {
-            System.out.println("**************ERROR: Internal exception attempting to return to user");
+            try {
+                OMElement rsp = response.getResponse();
+                log_message.addOtherParam("Response", rsp);
+            } catch (XdsInternalException ex) {
+                // Ignore (in log code anyway).
+            }
         }
     }
 
@@ -121,7 +105,7 @@ public class XBaseTransaction {
      * @param transactionNumber
      * @param metadata
      * @param targetEndpoint
-     * @param outcome 
+     * @param outcome
      * @param actor
      */
     protected void performAudit(String transactionNumber, OMElement metadata, String targetEndpoint, XATNALogger.ActorType actor, XATNALogger.OutcomeIndicator outcome) {
