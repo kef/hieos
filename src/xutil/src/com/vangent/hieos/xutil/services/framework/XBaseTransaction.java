@@ -16,7 +16,6 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -39,23 +38,8 @@ public class XBaseTransaction {
      *
      */
     public XLogMessage log_message = null;
-    MessageContext messageContext = null;
+    private MessageContext messageContext = null;
 
-    //Added these 2 boolean values for success flag which is needed to be sent to audit message
-    /**
-     *
-     */
-    protected final static boolean SUCCESS = true;
-    /**
-     * 
-     */
-    protected final static boolean FAILURE = false;
-
-    /* BHT: Removed:
-    static {
-    BasicConfigurator.configure();
-    }
-     */
     /**
      *
      * @return
@@ -98,12 +82,6 @@ public class XBaseTransaction {
 
     /**
      *
-     */
-    protected void init_log() {
-    }
-
-    /**
-     *
      * @param e
      * @return
      */
@@ -135,28 +113,6 @@ public class XBaseTransaction {
             System.out.println("**************ERROR: Internal exception attempting to return to user");
         }
     }
-
-    /**
-     *
-     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
-     */
-    /*
-    protected void mustBeSimpleSoap() throws XdsFormatException {
-        if (getMessageContext().isDoingMTOM()) {
-            throw new XdsFormatException("This transaction must use SIMPLE SOAP, MTOM found");
-        }
-    }*/
-
-    /**
-     *
-     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
-     */
-    /*
-    protected void mustBeMTOM() throws XdsFormatException {
-        if (!getMessageContext().isDoingMTOM()) {
-            throw new XdsFormatException("This transaction must use MTOM, SIMPLE SOAP found");
-        }
-    }*/
 
     /**
      *  This is the method which calls XAtnaLogger class to pass the audit messages

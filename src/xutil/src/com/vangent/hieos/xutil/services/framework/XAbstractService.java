@@ -67,7 +67,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         REGISTRY, REPOSITORY
     }
-    private String service_name;
+    private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
 
     /**
@@ -83,7 +83,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @return
      */
     protected String getServiceName() {
-        return this.service_name;
+        return this.serviceName;
     }
 
     /**
@@ -153,7 +153,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      *
-     * @param service_name
+     * @param serviceName
      * @param request
      * @param actor
      * @return
@@ -162,60 +162,64 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         // This gets around a bug in Leopard (MacOS X 10.5) on Macs
         System.setProperty("http.nonProxyHosts", "");
-        this.service_name = service_name;
+        this.serviceName = service_name;
         this.mActor = actor;
         MessageContext messageContext = this.getMessageContext();
 
         String remoteIP = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
-        logger.info("Start " + service_name + " : " + remoteIP + " : " + messageContext.getTo().toString());
-        startTestLog();
         XLogger xlogger = XLogger.getInstance();
         log_message = xlogger.getNewMessage(remoteIP);
-        log_message.setTestMessage(this.service_name);
+        log_message.setTestMessage(this.serviceName);
+        logger.info("Start " + service_name + " " + log_message.getMessageID() + " : " + remoteIP + " : " + messageContext.getTo().toString());
 
-        // Log basic parameters:
-        log_message.addOtherParam(Fields.service, service_name);
-        boolean is_secure = messageContext.getTo().toString().indexOf("https://") != -1;
-        log_message.addHTTPParam(Fields.isSecure, (is_secure) ? "true" : "false");
-        log_message.addHTTPParam(Fields.date, getDateTime());
-        log_message.setSecureConnection(is_secure);
-        if (request != null) {
-            log_message.addOtherParam("Request", request);
-        } else {
-            log_message.addErrorParam("Error", "Cannot access request body in XdsService.begin_service()");
+        if (log_message.isLogEnabled()) {
+            // Log basic parameters:
+            log_message.addOtherParam(Fields.service, service_name);
+            boolean is_secure = messageContext.getTo().toString().indexOf("https://") != -1;
+            log_message.setSecureConnection(is_secure);
+            log_message.addHTTPParam(Fields.isSecure, (is_secure) ? "true" : "false");
+            log_message.addHTTPParam(Fields.date, getDateTime());
+            if (request != null) {
+                log_message.addOtherParam("Request", request);
+            } else {
+                log_message.addErrorParam("Error", "Cannot access request body in XBaseTransaction.beginTransaction()");
+            }
+        }
+
+        // Need to get out if request body is null.
+        if (request == null) {
             return start_up_error(request, null, this.mActor, "Request body is null");
         }
 
-        // Log HTTP header:
-        TransportHeaders transportHeaders = (TransportHeaders) messageContext.getProperty("TRANSPORT_HEADERS");
-        for (Object o_key : transportHeaders.keySet()) {
-            String key = (String) o_key;
-            String value = (String) transportHeaders.get(key);
-            Vector<String> thdrs = new Vector<String>();
-            thdrs.add(key + " : " + value);
-            addHttp("HTTP Header", thdrs);
-        }
-
-        // Log SOAP header:
-        if (messageContext.getEnvelope().getHeader() != null) {
-            try {
-                log_message.addSOAPParam("Soap Header", messageContext.getEnvelope().getHeader());
-            } catch (OMException e) {
-                //} catch (XMLStreamException e)
+        if (log_message.isLogEnabled()) {
+            // Log HTTP header:
+            TransportHeaders transportHeaders = (TransportHeaders) messageContext.getProperty("TRANSPORT_HEADERS");
+            for (Object o_key : transportHeaders.keySet()) {
+                String key = (String) o_key;
+                String value = (String) transportHeaders.get(key);
+                Vector<String> thdrs = new Vector<String>();
+                thdrs.add(key + " : " + value);
+                this.addHttp("HTTP Header", thdrs);
             }
-        }
-
-        // Log SOAP envelope:
-        if (messageContext.getEnvelope().getBody() != null) {
-            try {
-                log_message.addSOAPParam("Soap Envelope", messageContext.getEnvelope());
-            } catch (OMException e) {
-                //} catch (XMLStreamException e) {
+            // Log SOAP header:
+            if (messageContext.getEnvelope().getHeader() != null) {
+                try {
+                    log_message.addSOAPParam("Soap Header", messageContext.getEnvelope().getHeader());
+                } catch (OMException e) {
+                    // Ignore.
+                }
             }
+            // Log SOAP envelope:
+            if (messageContext.getEnvelope().getBody() != null) {
+                try {
+                    log_message.addSOAPParam("Soap Envelope", messageContext.getEnvelope());
+                } catch (OMException e) {
+                    // Ignore.
+                }
+            }
+            log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
+            log_message.addHTTPParam(Fields.endpoint, messageContext.getTo().toString());
         }
-        log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
-        log_message.addHTTPParam(Fields.endpoint, messageContext.getTo().toString());
-
         return this.validateXUA(request);  // Make sure we are good with XUA.
     }
 
@@ -237,7 +241,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.addErrorParam("XUA:ERROR", exText);
             return this.endTransaction(
                     request, new XdsException(exText),
-                    this.mActor, this.service_name);
+                    this.mActor, this.serviceName);
         }
         if (response != XServiceProvider.Status.CONTINUE) {
             // The assertion has not been validated, discontinue with processing SOAP request.
@@ -245,7 +249,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             return this.endTransaction(request,
                     new XdsException("XUA did not pass validation!"),
                     this.mActor,
-                    this.service_name);
+                    this.serviceName);
         }
         return null;  // All is good.
     }
@@ -255,10 +259,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param status
      */
     protected void endTransaction(boolean status) {
-        logger.info("End " + service_name + " " +
+        logger.info("End " + serviceName + " " +
                 ((log_message == null) ? "null" : log_message.getMessageID()) + " : " +
                 ((status) ? "Pass" : "Fail"));
-        stopTestLog();
+        stopXLogger();
     }
 
     /**
@@ -306,7 +310,6 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     public OMElement start_up_error(OMElement request, Object e, ActorType actor, String message, boolean log) {
         String error_type = (actor == ActorType.REGISTRY) ? MetadataSupport.XDSRegistryError : MetadataSupport.XDSRepositoryError;
         try {
-            String request_type = (request != null) ? request.getLocalName() : "None";
             OMNamespace ns = (request != null) ? request.getNamespace() : MetadataSupport.ebRSns2;
 
             if (ns.getNamespaceURI().equals(MetadataSupport.ebRSns3.getNamespaceURI()) || ns.getNamespaceURI().equals("urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0")) {
@@ -340,21 +343,13 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     }
 
     /**
-     *
-     */
-    protected void startTestLog() {
-        //logger.info("+++ start log [service = " + service_name + "] +++");
-    }
-
-    /**
      * Stop the test log facility.
      */
-    protected void stopTestLog() {
+    protected void stopXLogger() {
         if (log_message != null) {
             log_message.store();
             log_message = null;
         }
-        //logger.info("+++ stop log [service = " + service_name + "] +++");
     }
 
     /**
