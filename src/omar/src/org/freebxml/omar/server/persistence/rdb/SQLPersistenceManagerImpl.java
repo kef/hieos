@@ -33,30 +33,43 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.CommonResourceBundle;
-import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.common.exceptions.ReferencesExistException;
-import org.freebxml.omar.server.cache.ServerCache;
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.freebxml.omar.common.IterativeQueryParams;
 import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
-import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.DeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.query.ResponseOption;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
-import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
 import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
-import org.oasis.ebxml.registry.bindings.rim.PersonType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
-import org.oasis.ebxml.registry.bindings.rim.RegistryType;
 import org.oasis.ebxml.registry.bindings.rim.UserType;
 
+/*
+ * HIEOS (CHANGE): Removed unused XDS.b object types.  These include:
+ *
+ * AffectedObject
+ * AuditableEvent
+ * ClassificationNode
+ * ClassificationScheme
+ * EmailAddress
+ * ExternalLink
+ * Federation
+ * ObjectRef
+ * Organization
+ * Person
+ * PostalAddress
+ * Registry
+ * Service
+ * ServiceBinding
+ * SpecificationLink
+ * Subscription
+ * TelephoneNumber
+ * User
+ */
 /**
  * Class Declaration for SQLPersistenceManagerImpl.
  * @see
@@ -335,38 +348,14 @@ public class SQLPersistenceManagerImpl
 
     //Sort objects by their type.
     private void sortRegistryObjects(List registryObjects, List associations,
-            List auditableEvents, List classifications, List schemes,
-            List classificationNodes, List externalIds, List externalLinks,
-            List extrinsicObjects,
-            List federations,
-            List objectRefs, List organizations, List packages,
-            List serviceBindings, List services, List specificationLinks,
-            List adhocQuerys,
-            List subscriptions,
-            List users,
-            List persons,
-            List registrys)
+            List classifications,List externalIds,
+            List extrinsicObjects, List packages)
             throws RegistryException {
         associations.clear();
-        auditableEvents.clear();
         classifications.clear();
-        schemes.clear();
-        classificationNodes.clear();
         externalIds.clear();
-        externalLinks.clear();
         extrinsicObjects.clear();
-        federations.clear();
-        objectRefs.clear();
-        organizations.clear();
         packages.clear();
-        serviceBindings.clear();
-        services.clear();
-        specificationLinks.clear();
-        adhocQuerys.clear();
-        subscriptions.clear();
-        users.clear();
-        persons.clear();
-        registrys.clear();
 
         java.util.Iterator objIter = registryObjects.iterator();
 
@@ -375,48 +364,15 @@ public class SQLPersistenceManagerImpl
 
             if (obj instanceof org.oasis.ebxml.registry.bindings.rim.AssociationType1) {
                 associations.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.AuditableEventType) {
-                auditableEvents.add(obj);
             } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ClassificationType) {
                 classifications.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType) {
-                schemes.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType) {
-                classificationNodes.add(obj);
             } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType) {
                 externalIds.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExternalLinkType) {
-                externalLinks.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType) {
+            }
+            else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType) {
                 extrinsicObjects.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.FederationType) {
-                federations.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ObjectRefType) {
-                objectRefs.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.OrganizationType) {
-                organizations.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.RegistryType) {
-                registrys.add(obj);
             } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.RegistryPackageType) {
                 packages.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ServiceBindingType) {
-                serviceBindings.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ServiceType) {
-                services.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.AdhocQueryType) {
-                adhocQuerys.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.query.FilterQueryType) {
-                adhocQuerys.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.SpecificationLinkType) {
-                specificationLinks.add(obj);
-            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.SubscriptionType) {
-                subscriptions.add(obj);
-            } else if (obj instanceof UserType) {
-                users.add(obj);
-            } else if (obj instanceof PersonType) {
-                persons.add(obj);
-            } else if (obj instanceof RegistryType) {
-                registrys.add(obj);
             } else {
                 throw new RegistryException(CommonResourceBundle.getInstance().getString("message.unexpectedObjectType",
                         new Object[]{obj.getClass().getName(), "org.oasis.ebxml.registry.bindings.rim.IdentifiableType"}));
@@ -432,36 +388,13 @@ public class SQLPersistenceManagerImpl
             throws RegistryException {
 
         List associations = new java.util.ArrayList();
-        List auditableEvents = new java.util.ArrayList();
         List classifications = new java.util.ArrayList();
-        List schemes = new java.util.ArrayList();
-        List classificationNodes = new java.util.ArrayList();
         List externalIds = new java.util.ArrayList();
-        List externalLinks = new java.util.ArrayList();
         List extrinsicObjects = new java.util.ArrayList();
-        List federations = new java.util.ArrayList();
-        List objectRefs = new java.util.ArrayList();
-        List organizations = new java.util.ArrayList();
         List packages = new java.util.ArrayList();
-        List serviceBindings = new java.util.ArrayList();
-        List services = new java.util.ArrayList();
-        List specificationLinks = new java.util.ArrayList();
-        List adhocQuerys = new java.util.ArrayList();
-        List subscriptions = new java.util.ArrayList();
-        List users = new java.util.ArrayList();
-        List persons = new java.util.ArrayList();
-        List registrys = new java.util.ArrayList();
 
-        sortRegistryObjects(registryObjects, associations, auditableEvents,
-                classifications, schemes, classificationNodes, externalIds,
-                externalLinks, extrinsicObjects, federations, objectRefs, organizations, packages,
-                serviceBindings, services, specificationLinks, adhocQuerys, subscriptions, users, persons, registrys);
-
-
-        if (auditableEvents.size() > 0) {
-            AuditableEventDAO auditableEventDAO = new AuditableEventDAO(context);
-            auditableEventDAO.insert(auditableEvents);
-        }
+        sortRegistryObjects(registryObjects, associations,
+                classifications, externalIds, extrinsicObjects, packages);
 
         if (associations.size() > 0) {
             AssociationDAO associationDAO = new AssociationDAO(context);
@@ -473,24 +406,9 @@ public class SQLPersistenceManagerImpl
             classificationDAO.insert(classifications);
         }
 
-        if (schemes.size() > 0) {
-            ClassificationSchemeDAO classificationSchemeDAO = new ClassificationSchemeDAO(context);
-            classificationSchemeDAO.insert(schemes);
-        }
-
-        if (classificationNodes.size() > 0) {
-            ClassificationNodeDAO classificationNodeDAO = new ClassificationNodeDAO(context);
-            classificationNodeDAO.insert(classificationNodes);
-        }
-
         if (externalIds.size() > 0) {
             ExternalIdentifierDAO externalIdentifierDAO = new ExternalIdentifierDAO(context);
             externalIdentifierDAO.insert(externalIds);
-        }
-
-        if (externalLinks.size() > 0) {
-            ExternalLinkDAO externalLinkDAO = new ExternalLinkDAO(context);
-            externalLinkDAO.insert(externalLinks);
         }
 
         if (extrinsicObjects.size() > 0) {
@@ -498,73 +416,10 @@ public class SQLPersistenceManagerImpl
             extrinsicObjectDAO.insert(extrinsicObjects);
         }
 
-        if (federations.size() > 0) {
-            FederationDAO federationDAO = new FederationDAO(context);
-            federationDAO.insert(federations);
-        }
-
-        if (registrys.size() > 0) {
-            RegistryDAO registryDAO = new RegistryDAO(context);
-            registryDAO.insert(registrys);
-        }
-
-        if (objectRefs.size() > 0) {
-            ObjectRefDAO objectRefDAO = new ObjectRefDAO(context);
-            objectRefDAO.insert(objectRefs);
-        }
-
-        if (organizations.size() > 0) {
-            OrganizationDAO organizationDAO = new OrganizationDAO(context);
-            organizationDAO.insert(organizations);
-        }
-
         if (packages.size() > 0) {
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
             registryPackageDAO.insert(packages);
         }
-
-        if (serviceBindings.size() > 0) {
-            ServiceBindingDAO serviceBindingDAO = new ServiceBindingDAO(context);
-            serviceBindingDAO.insert(serviceBindings);
-        }
-
-        if (services.size() > 0) {
-            ServiceDAO serviceDAO = new ServiceDAO(context);
-            serviceDAO.insert(services);
-        }
-
-        if (specificationLinks.size() > 0) {
-            SpecificationLinkDAO specificationLinkDAO = new SpecificationLinkDAO(context);
-            specificationLinkDAO.insert(specificationLinks);
-        }
-
-        /* HIEOS/BHT - Removed:
-        if (adhocQuerys.size() > 0) {
-        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-        adhocQueryDAO.insert(adhocQuerys);
-        }
-         */
-
-        if (subscriptions.size() > 0) {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
-            subscriptionDAO.insert(subscriptions);
-        }
-
-        if (users.size() > 0) {
-            UserDAO userDAO = new UserDAO(context);
-            userDAO.insert(users);
-        }
-
-        if (persons.size() > 0) {
-            PersonDAO personDAO = new PersonDAO(context);
-            personDAO.insert(persons);
-        }
-
-        if (registrys.size() > 0) {
-            RegistryDAO registryDAO = new RegistryDAO(context);
-            registryDAO.insert(registrys);
-        }
-
     }
 
     /**
@@ -574,32 +429,14 @@ public class SQLPersistenceManagerImpl
     public void update(ServerRequestContext context, List registryObjects)
             throws RegistryException {
 
-
         List associations = new java.util.ArrayList();
-        List auditableEvents = new java.util.ArrayList();
         List classifications = new java.util.ArrayList();
-        List schemes = new java.util.ArrayList();
-        List classificationNodes = new java.util.ArrayList();
         List externalIds = new java.util.ArrayList();
-        List externalLinks = new java.util.ArrayList();
         List extrinsicObjects = new java.util.ArrayList();
-        List federations = new java.util.ArrayList();
-        List objectRefs = new java.util.ArrayList();
-        List organizations = new java.util.ArrayList();
         List packages = new java.util.ArrayList();
-        List serviceBindings = new java.util.ArrayList();
-        List services = new java.util.ArrayList();
-        List specificationLinks = new java.util.ArrayList();
-        List adhocQuerys = new java.util.ArrayList();
-        List subscriptions = new java.util.ArrayList();
-        List users = new java.util.ArrayList();
-        List persons = new java.util.ArrayList();
-        List registrys = new java.util.ArrayList();
 
-        sortRegistryObjects(registryObjects, associations, auditableEvents,
-                classifications, schemes, classificationNodes, externalIds,
-                externalLinks, extrinsicObjects, federations, objectRefs, organizations, packages,
-                serviceBindings, services, specificationLinks, adhocQuerys, subscriptions, users, persons, registrys);
+        sortRegistryObjects(registryObjects, associations,
+                classifications, externalIds, extrinsicObjects, packages);
 
         if (associations.size() > 0) {
             AssociationDAO associationDAO = new AssociationDAO(context);
@@ -611,25 +448,10 @@ public class SQLPersistenceManagerImpl
             classificationDAO.update(classifications);
         }
 
-        if (schemes.size() > 0) {
-            ClassificationSchemeDAO classificationSchemeDAO = new ClassificationSchemeDAO(context);
-            classificationSchemeDAO.update(schemes);
-        }
-
-        if (classificationNodes.size() > 0) {
-            ClassificationNodeDAO classificationNodeDAO = new ClassificationNodeDAO(context);
-            classificationNodeDAO.update(classificationNodes);
-        }
-
         if (externalIds.size() > 0) {
             // ExternalId is no longer the first level, right?
             ExternalIdentifierDAO externalIdentifierDAO = new ExternalIdentifierDAO(context);
             externalIdentifierDAO.update(externalIds);
-        }
-
-        if (externalLinks.size() > 0) {
-            ExternalLinkDAO externalLinkDAO = new ExternalLinkDAO(context);
-            externalLinkDAO.update(externalLinks);
         }
 
         if (extrinsicObjects.size() > 0) {
@@ -637,75 +459,17 @@ public class SQLPersistenceManagerImpl
             extrinsicObjectDAO.update(extrinsicObjects);
         }
 
-        if (objectRefs.size() > 0) {
-            ObjectRefDAO objectRefDAO = new ObjectRefDAO(context);
-            objectRefDAO.update(objectRefs);
-        }
-
-        if (organizations.size() > 0) {
-            OrganizationDAO organizationDAO = new OrganizationDAO(context);
-            organizationDAO.update(organizations);
-        }
-
         if (packages.size() > 0) {
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
             registryPackageDAO.update(packages);
         }
-
-        if (serviceBindings.size() > 0) {
-            ServiceBindingDAO serviceBindingDAO = new ServiceBindingDAO(context);
-            serviceBindingDAO.update(serviceBindings);
-        }
-
-        if (services.size() > 0) {
-            ServiceDAO serviceDAO = new ServiceDAO(context);
-            serviceDAO.update(services);
-        }
-
-        if (specificationLinks.size() > 0) {
-            SpecificationLinkDAO specificationLinkDAO = new SpecificationLinkDAO(context);
-            specificationLinkDAO.update(specificationLinks);
-        }
-
-        /* HIEOS/BHT - Removed:
-        if (adhocQuerys.size() > 0) {
-        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-        adhocQueryDAO.update(adhocQuerys);
-        }
-         */
-
-        if (subscriptions.size() > 0) {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
-            subscriptionDAO.update(subscriptions);
-        }
-
-        if (users.size() > 0) {
-            UserDAO userDAO = new UserDAO(context);
-            userDAO.update(users);
-        }
-
-        if (persons.size() > 0) {
-            PersonDAO personDAO = new PersonDAO(context);
-            personDAO.update(persons);
-        }
-
-        if (registrys.size() > 0) {
-            RegistryDAO registryDAO = new RegistryDAO(context);
-            registryDAO.insert(registrys);
-        }
-
-        //Special case handling for AuditableEvents as they can only be created 
-        //by this class and not by clients of this class.
-
-        //Ignore any client supplied AuditableEvents 
-        auditableEvents.clear();
-
     }
 
     /**
      * Update the status of specified objects to the specified status.
      *
      */
+    @SuppressWarnings("static-access")
     public void updateStatus(ServerRequestContext context, List registryObjectsIds,
             String status)
             throws RegistryException {
@@ -829,9 +593,11 @@ public class SQLPersistenceManagerImpl
             dao.delete(objectsToDelete);
         }
 
+        /* HIEOS (REMOVED):
         //Now delete from ObjectRef table
         ObjectRefDAO dao = new ObjectRefDAO(context);
         dao.delete(orefs);
+         */
         //Now, if any of the deleted ROs were of UserType, delete the credentials
         //from the server keystore
         if (userAliases != null) {
@@ -898,6 +664,7 @@ public class SQLPersistenceManagerImpl
     /**
      * Executes an SQL Query.
      */
+    @SuppressWarnings("static-access")
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery, List queryParams,
             ResponseOptionType responseOption, String tableName, List objectRefs,
             IterativeQueryParams paramHolder)
@@ -917,7 +684,8 @@ public class SQLPersistenceManagerImpl
             tableName = org.freebxml.omar.common.Utility.getInstance().mapTableName(tableName);
 
             ReturnType returnType = responseOption.getReturnType();
-            boolean returnComposedObjects = responseOption.isReturnComposedObjects();
+            // HIEOS (REMOVED) - Not used
+            // boolean returnComposedObjects = responseOption.isReturnComposedObjects();
 
             if (maxResults < 0) {
                 if (queryParams == null) {
@@ -1037,89 +805,26 @@ public class SQLPersistenceManagerImpl
 
         context.setResponseOption(responseOption);
 
-        /* HIEOS/BHT - Removed:
-        if (tableName.equalsIgnoreCase(AdhocQueryDAO.getTableNameStatic())) {
-        AdhocQueryDAO adhocQueryDAO = new AdhocQueryDAO(context);
-        res = adhocQueryDAO.getObjects(rs, startIndex, maxResults);
-        } else 
-         */
         if (tableName.equalsIgnoreCase(AssociationDAO.getTableNameStatic())) {
             AssociationDAO associationDAO = new AssociationDAO(context);
             res = associationDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                AuditableEventDAO.getTableNameStatic())) {
-            AuditableEventDAO auditableEventDAO = new AuditableEventDAO(context);
-            res = auditableEventDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
                 ClassificationDAO.getTableNameStatic())) {
             ClassificationDAO classificationDAO = new ClassificationDAO(context);
             res = classificationDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
-                ClassificationSchemeDAO.getTableNameStatic())) {
-            ClassificationSchemeDAO classificationSchemeDAO = new ClassificationSchemeDAO(context);
-            res = classificationSchemeDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                ClassificationNodeDAO.getTableNameStatic())) {
-            ClassificationNodeDAO classificationNodeDAO = new ClassificationNodeDAO(context);
-            res = classificationNodeDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
                 ExternalIdentifierDAO.getTableNameStatic())) {
             ExternalIdentifierDAO externalIdentifierDAO = new ExternalIdentifierDAO(context);
             res = externalIdentifierDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                ExternalLinkDAO.getTableNameStatic())) {
-            ExternalLinkDAO externalLinkDAO = new ExternalLinkDAO(context);
-            res = externalLinkDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
+        }
+        else if (tableName.equalsIgnoreCase(
                 ExtrinsicObjectDAO.getTableNameStatic())) {
             ExtrinsicObjectDAO extrinsicObjectDAO = new ExtrinsicObjectDAO(context);
             res = extrinsicObjectDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
-                FederationDAO.getTableNameStatic())) {
-            FederationDAO federationDAO = new FederationDAO(context);
-            res = federationDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                ObjectRefDAO.getTableNameStatic())) {
-            ObjectRefDAO objectRefDAO = new ObjectRefDAO(context);
-            res = objectRefDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                OrganizationDAO.getTableNameStatic())) {
-            OrganizationDAO organizationDAO = new OrganizationDAO(context);
-            res = organizationDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                RegistryObjectDAO.getTableNameStatic())) {
-            RegistryObjectDAO registryObjectDAO = new RegistryObjectDAO(context);
-            //TODO: Use reflection instead in future
-            res = registryObjectDAO.getObjectsHetero(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
                 RegistryPackageDAO.getTableNameStatic())) {
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
             res = registryPackageDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                ServiceBindingDAO.getTableNameStatic())) {
-            ServiceBindingDAO serviceBindingDAO = new ServiceBindingDAO(context);
-            res = serviceBindingDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(ServiceDAO.getTableNameStatic())) {
-            ServiceDAO serviceDAO = new ServiceDAO(context);
-            res = serviceDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                SpecificationLinkDAO.getTableNameStatic())) {
-            SpecificationLinkDAO specificationLinkDAO = new SpecificationLinkDAO(context);
-            res = specificationLinkDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                SubscriptionDAO.getTableNameStatic())) {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO(context);
-            res = subscriptionDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(UserDAO.getTableNameStatic())) {
-            UserDAO userDAO = new UserDAO(context);
-            res = userDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(PersonDAO.getTableNameStatic())) {
-            PersonDAO personDAO = new PersonDAO(context);
-            res = personDAO.getObjects(rs, startIndex, maxResults);
-        } else if (tableName.equalsIgnoreCase(
-                RegistryDAO.getTableNameStatic())) {
-            RegistryDAO registryDAO = new RegistryDAO(context);
-            res = registryDAO.getObjects(rs, startIndex, maxResults);
         }
 
         return res;
@@ -1137,9 +842,7 @@ public class SQLPersistenceManagerImpl
             ResponseOption responseOption = bu.queryFac.createResponseOption();
             responseOption.setReturnType(ReturnType.LEAF_CLASS);
             responseOption.setReturnComposedObjects(true);
-
             objects = getIdentifiablesMatchingQuery(context, query, queryParams, tableName, responseOption);
-
         } catch (javax.xml.bind.JAXBException e) {
             throw new RegistryException(e);
         }
@@ -1172,7 +875,6 @@ public class SQLPersistenceManagerImpl
         RegistryObjectType ro = null;
 
         List al = getRegistryObjectsMatchingQuery(context, query, queryParams, tableName);
-
         if (al.size() >= 1) {
             ro = (RegistryObjectType) al.get(0);
         }
@@ -1443,7 +1145,7 @@ public class SQLPersistenceManagerImpl
             query.append("SELECT id FROM ServiceBinding WHERE service = ? OR targetBinding = ? UNION ");
             query.append("SELECT id FROM SpecificationLink WHERE serviceBinding = ? OR specificationObject = ? UNION ");
             query.append("SELECT id FROM Subscription WHERE selector = ?  UNION ");
-            query.append("SELECT s.parent FROM Slot s WHERE s.slotType = '" + bu.CANONICAL_DATA_TYPE_ID_ObjectRef + "' AND s.value = ?");
+            query.append("SELECT s.parent FROM Slot s WHERE s.slotType = '" + BindingUtility.CANONICAL_DATA_TYPE_ID_ObjectRef + "' AND s.value = ?");
 
             PreparedStatement stmt = null;
             try {
