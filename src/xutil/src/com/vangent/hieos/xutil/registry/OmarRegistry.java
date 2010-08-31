@@ -128,7 +128,7 @@ public class OmarRegistry {
                 log.trace("OMAR: updateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else if (message instanceof RelocateObjectsRequestType) {
                 log.trace("OMAR: relocateObjects ...");
-                rr = lcm.relocateObjects(context);
+                //rr = lcm.relocateObjects(context);
                 log.trace("OMAR: relocateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else {
                 throw new XdsInternalException(ServerResourceBundle.getInstance().
