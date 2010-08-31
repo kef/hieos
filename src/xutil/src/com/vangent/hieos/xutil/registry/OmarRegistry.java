@@ -22,7 +22,6 @@ import org.freebxml.omar.common.spi.QueryManager;
 import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.freebxml.omar.server.common.ServerRequestContext;
-//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 
 //ebxml bindings imports
 import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequestType;
@@ -34,15 +33,13 @@ import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
-//import org.oasis.ebxml.registry.bindings.rim.UserType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
-//axis 2 imports
 import org.apache.axiom.om.OMElement;
-
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.log4j.Logger;
+
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 
 /**
  *
@@ -111,25 +108,15 @@ public class OmarRegistry {
                 rr = lcm.deprecateObjects(context);
                 log.trace("OMAR: deprecateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else if (message instanceof SetStatusOnObjectsRequestType) {
-                log.trace("OMAR: setStatusOnObjects ...");
-                rr = lcm.setStatusOnObjects(context);
-                log.trace("OMAR: setStatusOnObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
+                throw new XdsInternalException("SetStatusOnObjectsRequest - not supported by Registry");
             } else if (message instanceof UndeprecateObjectsRequestType) {
-                log.trace("OMAR: unDeprecateObjects ...");
-                rr = lcm.unDeprecateObjects(context);
-                log.trace("OMAR: unDeprecateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
+                throw new XdsInternalException("UndeprecateObjectsRequest - not supported by Registry");
             } else if (message instanceof RemoveObjectsRequestType) {
-                log.trace("OMAR: removeObjects ...");
-                rr = lcm.removeObjects(context);
-                log.trace("OMAR: removeObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
+                throw new XdsInternalException("RemoveObjectsRequest - not supported by Registry");
             } else if (message instanceof UpdateObjectsRequestType) {
-                log.trace("OMAR: updateObjects ...");
-                rr = lcm.updateObjects(context);
-                log.trace("OMAR: updateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
+                throw new XdsInternalException("UpdateObjectsRequest - not supported by Registry");
             } else if (message instanceof RelocateObjectsRequestType) {
-                log.trace("OMAR: relocateObjects ...");
-                //rr = lcm.relocateObjects(context);
-                log.trace("OMAR: relocateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
+                throw new XdsInternalException("RelocateObjectsRequest - not supported by Registry");
             } else {
                 throw new XdsInternalException(ServerResourceBundle.getInstance().
                         getString("message.unknownRequest") +
