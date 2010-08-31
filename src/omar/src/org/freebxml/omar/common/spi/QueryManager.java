@@ -15,7 +15,7 @@ import javax.xml.registry.RegistryException;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
 
 public interface QueryManager {
-    public AdhocQueryResponseType submitAdhocQuery(RequestContext context) throws 
+    public AdhocQueryResponseType submitAdhocQuery(RequestContext context) throws
          RegistryException;
     
     //Following are not part of WSDL interface but used originally in server

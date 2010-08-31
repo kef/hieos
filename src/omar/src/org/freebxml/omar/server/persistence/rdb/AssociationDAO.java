@@ -69,6 +69,7 @@ class AssociationDAO extends RegistryObjectDAO {
             associationType = "'" + associationType + "'";
         }
 
+        /* HIEOS (REMOVED):
         UserType sourceOwner = null;
         UserType targetOwner = null;
 
@@ -76,6 +77,7 @@ class AssociationDAO extends RegistryObjectDAO {
         UserType user = context.getUser();
         sourceOwner = user;
         targetOwner = user;
+        */
         
         if (action == DAO_ACTION_INSERT) {
             stmtFragment = "INSERT INTO Association " +

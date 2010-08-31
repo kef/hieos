@@ -17,14 +17,13 @@ import javax.xml.registry.UnsupportedCapabilityException;
 import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.spi.QueryManager;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.common.IterativeQueryParams;
+import org.freebxml.omar.common.spi.RequestContext;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
 import org.oasis.ebxml.registry.bindings.rim.QueryExpressionType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
 
 /*
  * HIEOS (CHANGE) - removed code related to repository manager, query filters,
@@ -69,11 +68,8 @@ public class QueryManagerImpl implements QueryManager {
     public AdhocQueryResponseType submitAdhocQuery(RequestContext context)
             throws RegistryException {
         org.oasis.ebxml.registry.bindings.query.AdhocQueryResponse ahqr = null;
-        context = ServerRequestContext.convert(context);
-        AdhocQueryRequestType req = (AdhocQueryRequestType) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        AdhocQueryRequestType req = (AdhocQueryRequestType) context.getCurrentRegistryRequest();
         org.oasis.ebxml.registry.bindings.query.ResponseOptionType responseOption = req.getResponseOption();
-
-        UserType user = ((ServerRequestContext) context).getUser();
 
         //The result of the query
         RegistryObjectListType rolt = null;
@@ -87,8 +83,8 @@ public class QueryManagerImpl implements QueryManager {
             String queryLang = queryExp.getQueryLanguage();
             if (queryLang.equals(BindingUtility.CANONICAL_QUERY_LANGUAGE_ID_SQL_92)) {
                 String queryStr = (String) queryExp.getContent().get(0);
-                queryStr = replaceSpecialVariables(user, queryStr);
-                rolt = sqlQueryProcessor.executeQuery((ServerRequestContext) context, user,
+                queryStr = replaceSpecialVariables(queryStr);
+                rolt = sqlQueryProcessor.executeQuery((ServerRequestContext)context,
                         queryStr, responseOption, paramHolder);
                 ahqr = BindingUtility.getInstance().queryFac.createAdhocQueryResponse();
                 ahqr.setRegistryObjectList(rolt);
@@ -99,15 +95,12 @@ public class QueryManagerImpl implements QueryManager {
                 throw new UnsupportedCapabilityException(
                         "Unsupported Query Language: ClassificationNode id: " + queryLang);
             }
-        } catch (RegistryException e) {
-            ((ServerRequestContext) context).rollback();
-            throw e;
         } catch (Exception e) {
-            ((ServerRequestContext) context).rollback();
+            ((ServerRequestContext)context).rollback();
             throw new RegistryException(e);
         }
-        ((ServerRequestContext) context).setQueryResults(ahqr.getRegistryObjectList().getIdentifiable());
-        ((ServerRequestContext) context).commit();
+        ((ServerRequestContext)context).setQueryResults(ahqr.getRegistryObjectList().getIdentifiable());
+        ((ServerRequestContext)context).commit();
         ahqr.setRequestId(req.getId());
         return ahqr;
     }
@@ -115,13 +108,14 @@ public class QueryManagerImpl implements QueryManager {
     /**
      * Replaces special environment variables within specified query string.
      */
-    private String replaceSpecialVariables(UserType user, String query) {
+    private String replaceSpecialVariables(String query) {
         String newQuery = query;
 
-        //Replace $currentUser 
+        //Replace $currentUser
+        /* HIEOS (REMOVED):
         if (user != null) {
             newQuery = newQuery.replaceAll("\\$currentUser", "'" + user.getId() + "'");
-        }
+        }*/
 
         //Replace $currentTime       
         Timestamp currentTime = new Timestamp(Calendar.getInstance().getTimeInMillis());

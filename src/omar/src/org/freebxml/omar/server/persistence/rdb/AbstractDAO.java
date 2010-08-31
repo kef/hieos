@@ -389,7 +389,6 @@ abstract class AbstractDAO implements OMARDAO {
         if (objects.size() == 0) {
             return;
         }
-
         log.trace(ServerResourceBundle.getInstance().getString("message.UpdatingRowsInTable", new Object[]{new Integer(objects.size()), getTableName()}));
         action = DAO_ACTION_UPDATE;
 

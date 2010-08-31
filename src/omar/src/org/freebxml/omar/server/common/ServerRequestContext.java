@@ -27,15 +27,14 @@ import javax.xml.registry.InvalidRequestException;
 
 import org.freebxml.omar.common.BindingUtility;
 import javax.xml.registry.JAXRException;
-import org.freebxml.omar.common.CommonRequestContext;
 import org.freebxml.omar.common.spi.QueryManager;
 import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.common.ReferenceInfo;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
+import org.freebxml.omar.common.spi.RequestContext;
 
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
@@ -54,63 +53,51 @@ import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
  *
  * @author  Farrukh S. Najmi
  */
-public class ServerRequestContext extends CommonRequestContext {
+public class ServerRequestContext implements RequestContext {
 
     private static BindingUtility bu = BindingUtility.getInstance();
     private static PersistenceManager pm = PersistenceManagerFactory.getInstance().getPersistenceManager();
     private static QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
-
+    // Current request.
+    RegistryRequestType request = null;
     //Map of top level Identifiable objects within the request with id keys and IdentifiableType values
     private Map topLevelObjectsMap = new HashMap();
-
     //Ids of subset of submittedObjects that are new and not pre-existing in registry
     private Set newSubmittedObjectIds = null;
-
     //New versions of RegistryObjects that are a subset of topLevelObjects that were created by Versioning feature
     private Map newROVersionMap = new HashMap();
-
     //Map of all submitted RegistryObjects objects within the request with id keys and IdentifiableType values
     //includes composedObjects
-
     //Set of all RegistryObject ids referenced from submitted (top level + composed) objects
     private Set referencedInfos = null;
-
     //Set of solved id references for this request
     private SortedSet checkedRefs = new TreeSet();
-
     //Map of submitted RegistryObjects with RO id keys and RegistryObjectType values
     private Map submittedObjectsMap = new HashMap();
-
     //Map of ObjectRefs within the request with id keys and ObjectRef values
     private Map objectRefsMap = new HashMap();
-
     //Maps temporary id key to permanent id value
     private Map idMap = new HashMap();
-
     //Used only by QueryManagerImpl to pass results of a query for read access control check.
     private List queryResults = new ArrayList();
-
     //Short lived memory used only in handling stored query invocation
     private List storedQueryParams = new ArrayList();
-
     //The RegistryErrorList for this request
     private RegistryErrorListType errorList = null;
-
     //Begin former DAOContext members
     private Connection connection = null;
     private ResponseOptionType responseOption;
     private ArrayList objectRefs;
-
     //Map from id to lid for existing objects in registry that are either submitted or referenced in this request
     private Map idToLidMap = new HashMap();
 
     /** Creates a new instance of RequestContext
-     * @param contextId
      * @param request
      * @throws RegistryException
      */
-    public ServerRequestContext(String contextId, RegistryRequestType request) throws RegistryException {
-        super(contextId, request);
+    public ServerRequestContext(RegistryRequestType request) throws RegistryException {
+        //super(contextId, request);
+        this.request = request;
         try {
             setErrorList(BindingUtility.getInstance().rsFac.createRegistryErrorList());
             objectRefs = new ArrayList();
@@ -118,7 +105,15 @@ public class ServerRequestContext extends CommonRequestContext {
             throw new RegistryException(e);
         }
     }
-    
+
+    /**
+     *
+     * @return
+     */
+    public RegistryRequestType getCurrentRegistryRequest() {
+        return this.request;
+    }
+
     /**
      * Checks each object including composed objects.
      * @throws RegistryException
@@ -323,28 +318,27 @@ public class ServerRequestContext extends CommonRequestContext {
      */
     /* HIEOS (REMOVED):
     public List getObjectsRefsFromQueryResults(AdhocQueryType query) throws RegistryException, JAXBException {
-        List orefs = new ArrayList();
-        try {
-            if (query != null) {
-                AdhocQueryRequest req = bu.queryFac.createAdhocQueryRequest();
-                req.setId(org.freebxml.omar.common.Utility.getInstance().createId());
-                req.setAdhocQuery(query);
-                ResponseOption ro = bu.queryFac.createResponseOption();
-                ro.setReturnComposedObjects(false);
-                ro.setReturnType(ReturnType.OBJECT_REF);
-                req.setResponseOption(ro);
-                this.pushRegistryRequest(req);
-                AdhocQueryResponseType resp = qm.submitAdhocQuery(this);
-                orefs.addAll(resp.getRegistryObjectList().getIdentifiable());
-            }
-        } finally {
-            if (query != null) {
-                this.popRegistryRequest();
-            }
-        }
-        return orefs;
+    List orefs = new ArrayList();
+    try {
+    if (query != null) {
+    AdhocQueryRequest req = bu.queryFac.createAdhocQueryRequest();
+    req.setId(org.freebxml.omar.common.Utility.getInstance().createId());
+    req.setAdhocQuery(query);
+    ResponseOption ro = bu.queryFac.createResponseOption();
+    ro.setReturnComposedObjects(false);
+    ro.setReturnType(ReturnType.OBJECT_REF);
+    req.setResponseOption(ro);
+    this.pushRegistryRequest(req);
+    AdhocQueryResponseType resp = qm.submitAdhocQuery(this);
+    orefs.addAll(resp.getRegistryObjectList().getIdentifiable());
+    }
+    } finally {
+    if (query != null) {
+    this.popRegistryRequest();
+    }
+    }
+    return orefs;
     }*/
-
     /**
      *
      * @return
@@ -375,38 +369,17 @@ public class ServerRequestContext extends CommonRequestContext {
      * @throws RegistryException
      */
     public void commit() throws RegistryException {
-        //Dont commit unless this is the last request in stack.
-        if ((connection != null) && (getRegistryRequestStack().size() <= 1)) {
+        if (connection != null) {
             try {
-                //Only commit if LCM_DO_NOT_COMMIT is unspecified or false
-                String dontCommit = null;
-                if (getRegistryRequestStack().size() > 0) {
-                    HashMap slotsMap = bu.getSlotsFromRequest(this.getCurrentRegistryRequest());
-                    dontCommit = (String) slotsMap.get(BindingUtility.CANONICAL_SLOT_LCM_DO_NOT_COMMIT);
-                }
-                if ((dontCommit == null) || (dontCommit.equalsIgnoreCase("false"))) {
-                    connection.commit();
-                    pm.releaseConnection(this, connection);
-                    connection = null;
-                } else {
-                    rollback();
-                }
+                connection.commit();
+                pm.releaseConnection(this, connection);
+                connection = null;
             } catch (RegistryException e) {
                 rollback();
                 throw e;
-            } catch (JAXBException e) {
-                rollback();
-                throw new RegistryException(e);
             } catch (SQLException e) {
                 rollback();
                 throw new RegistryException(e);
-            }
-
-            //Call RequestInterceptors
-            if (getRegistryRequestStack().size() == 1) {
-                //Only intercept top level requests.
-                //Still causing infinite recursion and StackOverflow
-                //RequestInterceptorManager.getInstance().postProcessRequest(this);
             }
         }
     }
@@ -417,8 +390,7 @@ public class ServerRequestContext extends CommonRequestContext {
      */
     public void rollback() throws RegistryException {
         try {
-            //Dont rollback if there are multiple requests on the requestStack
-            if ((connection != null) && (getRegistryRequestStack().size() <= 1)) {
+            if (connection != null) {
                 connection.rollback();
                 pm.releaseConnection(this, connection);
                 connection = null;
@@ -539,6 +511,7 @@ public class ServerRequestContext extends CommonRequestContext {
      * @return the ServerRequestContext
      * @throws RegistryException
      */
+    /* HIEOS (REMOVED):
     public static ServerRequestContext convert(RequestContext context) throws RegistryException {
         ServerRequestContext serverContext = null;
 
@@ -550,10 +523,10 @@ public class ServerRequestContext extends CommonRequestContext {
                 req = context.getCurrentRegistryRequest();
             }
             serverContext = new ServerRequestContext(context.getId(), req);
-            serverContext.setUser(context.getUser());
+            //serverContext.setUser(context.getUser());
         }
         return serverContext;
-    }
+    } */
 
     /**
      *

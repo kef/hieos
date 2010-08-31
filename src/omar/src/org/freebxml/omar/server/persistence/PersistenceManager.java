@@ -63,15 +63,19 @@ public interface PersistenceManager {
      * Updates the idToLidMap in context entries with RegistryObject id as Key and RegistryObject lid as value 
      * for each object that matches specified id.
      *
-     */    
+     */
+    /* HIEOS (REMOVED):
     public void updateIdToLidMap(ServerRequestContext context, Set ids, String tableName) throws RegistryException;       
+    */
     
     /**
      * Checks each object being deleted to make sure that it does not have any currently existing references.
      *
      * @throws ReferencesExistException if references exist to any of the RegistryObject ids specified in roIds
      */
+    /* HIEOS (REMOVED):
     public void checkIfReferencesExist(ServerRequestContext context, List roIds) throws RegistryException;
+    */
     
     /**
      * Gets the specified object using specified id and className
@@ -92,27 +96,32 @@ public interface PersistenceManager {
      *
      * @return An List of RegistryObjectType instances
      */
+    /* HIEOS (REMOVED):
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery,
         ResponseOptionType responseOption, String tableName, List objectRefs)
         throws RegistryException;
+     */
     
     /**
      * Executes and SQL query using specified parameters.
      *
      * @return An List of RegistryObjectType instances
      */
+    /* HIEOS (REMOVED):
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery,
         ResponseOptionType responseOption, String tableName, List objectRefs,
         IterativeQueryParams paramHolder)
         throws RegistryException;
-    
+     */
 
     /**
      * Executes an SQL Query.
      */
+    /* HIEOS (REMOVED):
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery, List queryParams,
         ResponseOptionType responseOption, String tableName, List objectRefs)
         throws RegistryException;
+     */
     
     /**
      * Executes and SQL query using specified parameters.

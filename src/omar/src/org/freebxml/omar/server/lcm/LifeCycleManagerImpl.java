@@ -101,9 +101,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * @param idToRepositoryItemMap is a HashMap with key that is id of a RegistryObject and value that is a RepositoryItem instance.
      */
     public RegistryResponse submitObjects(RequestContext context) throws RegistryException {
-        context = ServerRequestContext.convert(context);
         SubmitObjectsRequest req = (SubmitObjectsRequest) context.getCurrentRegistryRequest();
-
         RegistryResponse resp = null;
         try {
             RegistryObjectListType objs = req.getRegistryObjectList();
@@ -189,13 +187,12 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
     /** Approves one or more previously submitted objects */
     public RegistryResponse approveObjects(RequestContext context) throws RegistryException {
-        context = ServerRequestContext.convert(context);
         ApproveObjectsRequest req = (ApproveObjectsRequest) context.getCurrentRegistryRequest();
-        UserType user = context.getUser();
+        //UserType user = context.getUser();
         RegistryResponse resp = null;
         try {
-            context = new ServerRequestContext("LifeCycleManagerImpl.approveObjects", req);
-            ((ServerRequestContext) context).setUser(user);
+            //context = new ServerRequestContext("LifeCycleManagerImpl.approveObjects", req);
+            //((ServerRequestContext) context).setUser(user);
 
             List idList = new java.util.ArrayList();
             //Add explicitly specified oref params
@@ -319,7 +316,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
     /** Deprecates one or more previously submitted objects */
     public RegistryResponse deprecateObjects(RequestContext context) throws RegistryException {
-        context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
         DeprecateObjectsRequest req = (DeprecateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
         try {

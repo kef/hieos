@@ -28,34 +28,32 @@ import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
 
-
 /**
  *
  * @author Farrukh S. Najmi
  * @author Adrian Chong
  */
 abstract class IdentifiableDAO extends AbstractDAO {
-    private static final Log log = LogFactory.getLog(IdentifiableDAO.class);
 
-    static int identifiableExistsBatchCount = Integer.parseInt(RegistryProperties.getInstance()
-            .getProperty("omar.persistence.rdb.IdentifiableDAO.identifiableExistsBatchCount", "100"));    
-    
+    private static final Log log = LogFactory.getLog(IdentifiableDAO.class);
+    static int identifiableExistsBatchCount = Integer.parseInt(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.IdentifiableDAO.identifiableExistsBatchCount", "100"));
+
     /**
      * Use this constructor only.
      */
     IdentifiableDAO(ServerRequestContext context) {
         super(context);
     }
-                        
+
     /**
      * Delete composed objects that have the specified identifiable
      * as parent.
      */
     protected void deleteComposedObjects(Object object) throws RegistryException {
         super.deleteComposedObjects(object);
-        
+
         if (object instanceof IdentifiableType) {
-            IdentifiableType identifiable = (IdentifiableType)object;
+            IdentifiableType identifiable = (IdentifiableType) object;
             String id = identifiable.getId();
 
             SlotDAO slotDAO = new SlotDAO(context);
@@ -63,12 +61,11 @@ abstract class IdentifiableDAO extends AbstractDAO {
 
             //Delete Slots
             slotDAO.deleteByParent();
-        }
-        else {
-            int i=0;
+        } else {
+            int i = 0;
         }
     }
-    
+
     /**
      * Insert the composed objects for the specified identifiable
      */
@@ -76,64 +73,61 @@ abstract class IdentifiableDAO extends AbstractDAO {
         super.insertComposedObjects(object);
 
         if (object instanceof IdentifiableType) {
-            IdentifiableType identifiable= (IdentifiableType)object;
+            IdentifiableType identifiable = (IdentifiableType) object;
             SlotDAO slotDAO = new SlotDAO(context);
             slotDAO.setParent(identifiable.getId());
 
             //Now insert Slots for this object
             List slots = identifiable.getSlot();
 
-            if (slots.size() > 0) {            
+            if (slots.size() > 0) {
                 slotDAO.insert(slots, true);
             }
-        }
-        else {
-            int i=0;
+        } else {
+            int i = 0;
         }
     }
-            
+
     /**
      * Returns the SQL fragment string needed by insert or update statements
      * within insert or update method of sub-classes. This is done to avoid code
      * duplication.
      */
     protected String getSQLStatementFragment(Object object)
-    throws RegistryException {
-        
-        IdentifiableType ident = (IdentifiableType)object;
-        
+            throws RegistryException {
+
+        IdentifiableType ident = (IdentifiableType) object;
+
         String stmtFragment = null;
-        
+
         String id = ident.getId();
         String home = ident.getHome();
-        
+
         if (home != null) {
             home = "'" + home + "'";
         }
-               
+
         if (action == DAO_ACTION_INSERT) {
             stmtFragment =
-            " VALUES('" + id + "', " + home + " ";
-        }
-        else if (action == DAO_ACTION_UPDATE) {
+                    " VALUES('" + id + "', " + home + " ";
+        } else if (action == DAO_ACTION_UPDATE) {
             stmtFragment = " id='" + id + "', home=" + home + " ";
-        }
-        else if (action == DAO_ACTION_DELETE) {
+        } else if (action == DAO_ACTION_DELETE) {
             stmtFragment = "DELETE from " + getTableName() +
-                " WHERE id = '" + id + "' ";
+                    " WHERE id = '" + id + "' ";
         }
-        
+
         return stmtFragment;
     }
-    
+
     protected List getIdentifiablesIds(List identifiables)
-    throws RegistryException {
+            throws RegistryException {
         List ids = new ArrayList();
-        
+
         try {
             //log.info("size: "  + identifiables.size());
             Iterator iter = identifiables.iterator();
-            
+
             while (iter.hasNext()) {
                 String id = BindingUtility.getInstance().getObjectId(iter.next());
                 ids.add(id);
@@ -141,25 +135,24 @@ abstract class IdentifiableDAO extends AbstractDAO {
         } catch (JAXRException e) {
             throw new RegistryException(e);
         }
-        
+
         return ids;
     }
-        
+
     /**
      * Return true if the Identifiable exist
      */
     public boolean identifiableExist(String id)
-    throws RegistryException {
+            throws RegistryException {
         return identifiableExist(id, "identifiable");
     }
-    
+
     /**
      * Check whether the object exists in the specified table.
      */
     public boolean identifiableExist(String id,
-    String tableName) throws RegistryException {
+            String tableName) throws RegistryException {
         PreparedStatement stmt = null;
-        
         try {
             String sql = "SELECT id FROM " + tableName + " WHERE id=?";
             stmt = context.getConnection().prepareStatement(sql);
@@ -167,11 +160,11 @@ abstract class IdentifiableDAO extends AbstractDAO {
             log.trace("SQL = " + sql);
             ResultSet rs = stmt.executeQuery();
             boolean result = false;
-            
+
             if (rs.next()) {
                 result = true;
             }
-            
+
             return result;
         } catch (SQLException e) {
             throw new RegistryException(e);
@@ -179,68 +172,70 @@ abstract class IdentifiableDAO extends AbstractDAO {
             closeStatement(stmt);
         }
     }
-    
+
     /**
      * Returns List of ids of non-existent Identifiable.
      */
+    /* HIEOS (REMOVED):
     public List identifiablesExist(List ids)
     throws RegistryException {
-        List notExistIdList = identifiablesExist(ids, "identifiable");
-                
-        return notExistIdList;
-    }
-    
+    List notExistIdList = identifiablesExist(ids, "identifiable");
+
+    return notExistIdList;
+    }*/
     /**
      * Returns List of ids of non-existent Identifiable.
-     */    
+     */
     public List identifiablesExist(List ids, String tableName)
-    throws RegistryException {
+            throws RegistryException {
         List notExistIdList = new ArrayList();
-        
         if (ids.size() == 0) {
             return notExistIdList;
         }
-        
+        /* HIEOS (PATCH) - Only RegistryPackage's (Folders) are subject to updates (lastUpdateT
+         *                 in XDS.b - so this change is to prevent excessive queries during
+         *                 normal SubmitObjectRequests (where Folders are not being updated).
+         */
+        if (!(this instanceof RegistryPackageDAO)) {
+            for (int i = 0; i < ids.size(); i++) {
+                String id = (String) ids.get(i);
+                notExistIdList.add(id);
+            }
+            return notExistIdList;
+        }
+        /* HIEOS (PATCH) - END. */
+
         Iterator iter = ids.iterator();
         Statement stmt = null;
-        
         try {
             stmt = context.getConnection().createStatement();
-            
             StringBuffer sql = new StringBuffer("SELECT id FROM " + tableName + " WHERE id IN (");
             List existingIdList = new ArrayList();
-            
+
             /* We need to count the number of item in "IN" list. We need to split the a single
             SQL Strings if it is too long. Some database such as Oracle, does not
             allow the IN list is too long*/
             int listCounter = 0;
-            
             while (iter.hasNext()) {
                 String id = (String) iter.next();
-                
                 if (iter.hasNext() && (listCounter < identifiableExistsBatchCount)) {
                     sql.append("'" + id + "',");
                 } else {
                     sql.append("'" + id + "')");
-                    
+
                     //log.info("!!!!!!!!!!!!!!!!!!!" + sql.toString());
                     log.trace("SQL = " + sql.toString());
                     ResultSet rs = stmt.executeQuery(sql.toString());
-                    
                     while (rs.next()) {
                         existingIdList.add(rs.getString("id"));
                     }
-                    
                     sql = new StringBuffer("SELECT id FROM " + tableName + " WHERE id IN (");
                     listCounter = 0;
                 }
-                
                 listCounter++;
             }
-            
             for (int i = 0; i < ids.size(); i++) {
                 String id = (String) ids.get(i);
-                
                 if (!existingIdList.contains(id)) {
                     notExistIdList.add(id);
                 }
@@ -250,35 +245,33 @@ abstract class IdentifiableDAO extends AbstractDAO {
         } finally {
             closeStatement(stmt);
         }
-        
         return notExistIdList;
     }
-    
-    
+
     protected void loadObject(Object obj, ResultSet rs)
-    throws RegistryException {
+            throws RegistryException {
         try {
             if (!(obj instanceof IdentifiableType)) {
                 throw new RegistryException(ServerResourceBundle.getInstance().getString("message.IdentifiableTypeExpected",
                         new Object[]{obj}));
             }
-            
+
             IdentifiableType ident = (IdentifiableType) obj;
-            
+
             SlotDAO slotDAO = new SlotDAO(context);
             slotDAO.setParent(ident);
-            
+
             String id = rs.getString("id");
             ident.setId(id);
-            
+
             String home = rs.getString("home");
             if (home != null) {
                 ident.setHome(home);
             }
-                        
-            
+
+
             boolean returnComposedObjects = context.getResponseOption().isReturnComposedObjects();
-            
+
             if (returnComposedObjects) {
                 List slots = slotDAO.getSlotsByParent(id);
                 ident.getSlot().addAll(slots);
@@ -288,6 +281,4 @@ abstract class IdentifiableDAO extends AbstractDAO {
             throw new RegistryException(e);
         }
     }
-    
-                                                                                                         
 }

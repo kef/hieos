@@ -33,12 +33,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.CommonResourceBundle;
-import org.freebxml.omar.common.exceptions.ReferencesExistException;
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.freebxml.omar.common.IterativeQueryParams;
-//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.oasis.ebxml.registry.bindings.query.ResponseOption;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
@@ -70,6 +68,9 @@ import org.oasis.ebxml.registry.bindings.rim.UserType;
  * TelephoneNumber
  * User
  */
+
+/* HIEOS (CHANGE): Removed redundant ConnectionPool scheme.
+ */
 /**
  * Class Declaration for SQLPersistenceManagerImpl.
  * @see
@@ -95,22 +96,11 @@ public class SQLPersistenceManagerImpl
      *
      * @associates <{org.freebxml.omar.server.persistence.rdb.ExtrinsicObjectDAO}>
      */
-    String databaseURL = null;
-    java.sql.DatabaseMetaData metaData = null;
-    private String driver;
-    private String user;
-    private String password;
-    private boolean useConnectionPool;
     private boolean dumpStackOnQuery;
-    private boolean skipReferenceCheckOnRemove;
-    private ConnectionPool connectionPool;
     private int transactionIsolation;
     private DataSource ds = null;
 
     private SQLPersistenceManagerImpl() {
-        loadUsernamePassword();
-        constructDatabaseURL();
-
         // define transaction isolation
         if ("TRANSACTION_READ_COMMITTED".equalsIgnoreCase(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.transactionIsolation"))) {
             transactionIsolation = Connection.TRANSACTION_READ_COMMITTED;
@@ -118,157 +108,68 @@ public class SQLPersistenceManagerImpl
             transactionIsolation = Connection.TRANSACTION_READ_UNCOMMITTED;
         }
 
-        useConnectionPool = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.useConnectionPooling", "true")).booleanValue();
-        skipReferenceCheckOnRemove = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.skipReferenceCheckOnRemove", "false")).booleanValue();
         dumpStackOnQuery = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.dumpStackOnQuery", "false")).booleanValue();
-        boolean debugConnectionPool = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.pool.debug", "false")).booleanValue();
 
         //Create JNDI context
-        if (useConnectionPool) {
-            if (!debugConnectionPool) {
-                // Use Container's connection pooling
-                String omarName = RegistryProperties.getInstance().getProperty("omar.name", "omar");
-                String envName = "java:comp/env";
-                String dataSourceName = "jdbc/" + omarName + "-registry";
-                Context ctx = null;
+        // Use Container's connection pooling
+        String omarName = RegistryProperties.getInstance().getProperty("omar.name", "omar");
+        String envName = "java:comp/env";
+        String dataSourceName = "jdbc/" + omarName + "-registry";
+        Context ctx = null;
 
-                try {
-                    ctx = new InitialContext();
-                    if (null == ctx) {
-                        log.info(ServerResourceBundle.getInstance().
-                                getString("message.UnableToGetInitialContext"));
-                    }
-                } catch (NamingException e) {
-                    log.info(ServerResourceBundle.getInstance().
-                            getString("message.UnableToGetInitialContext"), e);
-                    ctx = null;
-                }
-
-                /* HIEOS/BHT: DISABLED
-                if (null != ctx) {
-                try {
-                ctx = (Context)ctx.lookup(envName);
-                if (null == ctx) {
-                log.info(ServerResourceBundle.getInstance().
-                getString("message.UnableToGetJNDIContextForDataSource",
-                new Object[]{envName}));
-                }
-                } catch (NamingException e) {
-                log.info(ServerResourceBundle.getInstance().
-                getString("message.UnableToGetJNDIContextForDataSource",
-                new Object[]{envName}), e);
-                ctx = null;
-                }
-                }
-                 */
-
-                if (null != ctx) {
-                    try {
-                        ds = (DataSource) ctx.lookup(dataSourceName);
-                        if (null == ds) {
-                            log.info(ServerResourceBundle.getInstance().
-                                    getString("message.UnableToGetJNDIContextForDataSource",
-                                    new Object[]{envName + "/" + dataSourceName}));
-                        }
-                    } catch (NamingException e) {
-                        log.info(ServerResourceBundle.getInstance().
-                                getString("message.UnableToGetJNDIContextForDataSource",
-                                new Object[]{envName + "/" + dataSourceName}),
-                                e);
-                        ds = null;
-                    }
-                }
-
-                if (null != ds) {
-                    // Create a test connection to make sure all is well with DataSource
-                    Connection connection = null;
-                    try {
-                        connection = ds.getConnection();
-                    } catch (Exception e) {
-                        log.info(ServerResourceBundle.getInstance().
-                                getString("message.UnableToCreateTestConnectionForDataSource",
-                                new Object[]{envName + "/" + dataSourceName}), e);
-                        ds = null;
-                    } finally {
-                        if (connection != null) {
-                            try {
-                                connection.close();
-                            } catch (Exception e1) {
-                                //Do nothing.
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (ds == null) {
-                // No DataSource available so create our own ConnectionPool
-                loadDatabaseDriver();
-                createConnectionPool();
-            }
-        } else {
-            loadDatabaseDriver();
-        }
-    }
-
-    /** Look up the driver name and load the database driver */
-    private void loadDatabaseDriver() {
         try {
-            driver = RegistryProperties.getInstance().getProperty("omar.persistence.rdb.databaseDriver");
-            Class.forName(driver);
-
-            log.debug("Loaded jdbc driver: " + driver);
-        } catch (ClassNotFoundException e) {
-            log.error(e);
+            ctx = new InitialContext();
+            if (null == ctx) {
+                log.info(ServerResourceBundle.getInstance().
+                        getString("message.UnableToGetInitialContext"));
+            }
+        } catch (NamingException e) {
+            log.info(ServerResourceBundle.getInstance().
+                    getString("message.UnableToGetInitialContext"), e);
+            ctx = null;
         }
-    }
 
-    /** Lookup up the db URL fragments and form the complete URL */
-    private void constructDatabaseURL() {
-        databaseURL = RegistryProperties.getInstance().getProperty("omar.persistence.rdb.databaseURL");
-
-        //log.info(ServerResourceBundle.getInstance().getString("message.dbURLEquals", new Object[]{databaseURL}));
-    }
-
-    /**Load the username and password for database access*/
-    private void loadUsernamePassword() {
-        user = RegistryProperties.getInstance().getProperty("omar.persistence.rdb.databaseUser");
-        password = RegistryProperties.getInstance().getProperty("omar.persistence.rdb.databaseUserPassword");
-    }
-
-    private void createConnectionPool() {
-        try {
-            RegistryProperties registryProperties = RegistryProperties.getInstance();
-            String initialSize = registryProperties.getProperty(
-                    "omar.persistence.rdb.pool.initialSize");
-            int initConns = 1;
-
-            if (initialSize != null) {
-                initConns = Integer.parseInt(initialSize);
+        if (null != ctx) {
+            try {
+                ds = (DataSource) ctx.lookup(dataSourceName);
+                if (null == ds) {
+                    log.fatal(ServerResourceBundle.getInstance().
+                            getString("message.UnableToGetJNDIContextForDataSource",
+                            new Object[]{envName + "/" + dataSourceName}));
+                }
+            } catch (NamingException e) {
+                log.fatal(ServerResourceBundle.getInstance().
+                        getString("message.UnableToGetJNDIContextForDataSource",
+                        new Object[]{envName + "/" + dataSourceName}),
+                        e);
+                ds = null;
             }
+        }
 
-            String maxSize = registryProperties.getProperty(
-                    "omar.persistence.rdb.pool.maxSize");
-            int maxConns = 1;
-
-            if (maxSize != null) {
-                maxConns = Integer.parseInt(maxSize);
+        if (ds != null) {
+            // Create a test connection to make sure all is well with DataSource
+            Connection connection = null;
+            try {
+                connection = ds.getConnection();
+            } catch (Exception e) {
+                log.fatal(ServerResourceBundle.getInstance().
+                        getString("message.UnableToCreateTestConnectionForDataSource",
+                        new Object[]{envName + "/" + dataSourceName}), e);
+                ds = null;
+            } finally {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (Exception e1) {
+                        //Do nothing.
+                    }
+                }
             }
+        }
 
-            String connectionTimeOut = registryProperties.getProperty(
-                    "omar.persistence.rdb.pool.connectionTimeOut");
-            int timeOut = 0;
-
-            if (connectionTimeOut != null) {
-                timeOut = Integer.parseInt(connectionTimeOut);
-            }
-
-            connectionPool = new ConnectionPool("ConnectionPool", databaseURL,
-                    user, password, maxConns, initConns, timeOut, transactionIsolation);
-        } catch (java.lang.reflect.UndeclaredThrowableException t) {
-            log.error(ServerResourceBundle.getInstance().getString("message.FailedToCreateConnectionPool",
-                    new Object[]{t.getClass().getName(), t.getMessage()}), t);
-            throw t;
+        if (ds == null) {
+            String errorString = ServerResourceBundle.getInstance().getString("message.ErrorUnableToOpenDbConnectionForDataSource=", new Object[]{ds});
+            log.fatal(errorString);
         }
     }
 
@@ -283,38 +184,19 @@ public class SQLPersistenceManagerImpl
             numConnectionsOpen++;
         }
         try {
-            if (useConnectionPool) {
-                if (ds != null) {
-                    connection = ds.getConnection();
-                    if (connection == null) {
-                        log.info(ServerResourceBundle.getInstance().getString("message.ErrorUnableToOpenDbConnctionForDataSource=", new Object[]{ds}));
-                    }
-                }
-
+            if (ds != null) {
+                connection = ds.getConnection();
                 if (connection == null) {
-                    //Default to registry server ConnectionPool
-                    connection = connectionPool.getConnection(context.getId());
+                    String errorString = ServerResourceBundle.getInstance().getString("message.ErrorUnableToOpenDbConnectionForDataSource=", new Object[]{ds});
+                    log.fatal(errorString);
+                    throw new RegistryException(errorString);
                 }
-                connection.setTransactionIsolation(transactionIsolation);
-                connection.setAutoCommit(false);
-            } else {
-                // create connection directly
-                if ((user != null) && (user.length() > 0)) {
-                    connection = java.sql.DriverManager.getConnection(databaseURL,
-                            user, password);
-                } else {
-                    connection = java.sql.DriverManager.getConnection(databaseURL);
-                }
-                // Set Transaction Isolation and AutoComit
-                // WARNING: till present Oracle dirvers (9.2.0.5) do not accept
-                // setTransactionIsolation being called after setAutoCommit(false)
-                connection.setTransactionIsolation(transactionIsolation);
-                connection.setAutoCommit(false);
             }
+            connection.setTransactionIsolation(transactionIsolation);
+            connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RegistryException(ServerResourceBundle.getInstance().getString("message.connectToDatabaseFailed"), e);
         }
-
         return connection;
     }
 
@@ -331,12 +213,9 @@ public class SQLPersistenceManagerImpl
             log.debug("Number of connections open:" + numConnectionsOpen);
         }
         try {
-            if (connection != null) {
-                if (!connection.isClosed() && ((!useConnectionPool) || (ds != null))) {
-                    connection.close();
-                } else if (useConnectionPool) {
-                    connectionPool.freeConnection(connection);
-                }
+            if ((connection != null) &&
+                    (!connection.isClosed()) && (ds != null)) {
+                connection.close();
             }
         } catch (Exception e) {
             throw new RegistryException(e);
@@ -351,13 +230,12 @@ public class SQLPersistenceManagerImpl
         if (instance == null) {
             instance = new SQLPersistenceManagerImpl();
         }
-
         return instance;
     }
 
-    //Sort objects by their type.
+//Sort objects by their type.
     private void sortRegistryObjects(List registryObjects, List associations,
-            List classifications,List externalIds,
+            List classifications, List externalIds,
             List extrinsicObjects, List packages)
             throws RegistryException {
         associations.clear();
@@ -377,8 +255,7 @@ public class SQLPersistenceManagerImpl
                 classifications.add(obj);
             } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExternalIdentifierType) {
                 externalIds.add(obj);
-            }
-            else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType) {
+            } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType) {
                 extrinsicObjects.add(obj);
             } else if (obj instanceof org.oasis.ebxml.registry.bindings.rim.RegistryPackageType) {
                 packages.add(obj);
@@ -386,6 +263,7 @@ public class SQLPersistenceManagerImpl
                 throw new RegistryException(CommonResourceBundle.getInstance().getString("message.unexpectedObjectType",
                         new Object[]{obj.getClass().getName(), "org.oasis.ebxml.registry.bindings.rim.IdentifiableType"}));
             }
+
         }
     }
 
@@ -429,6 +307,7 @@ public class SQLPersistenceManagerImpl
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
             registryPackageDAO.insert(packages);
         }
+
     }
 
     /**
@@ -472,6 +351,7 @@ public class SQLPersistenceManagerImpl
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
             registryPackageDAO.update(packages);
         }
+
     }
 
     /**
@@ -485,8 +365,8 @@ public class SQLPersistenceManagerImpl
         try {
             //Make sure that status is a ref to a StatusType ClassificationNode
             /* HIEOS (REMOVED):
-             context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
-            */
+            context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
+             */
             ObjectRefListType orefList = bu.rimFac.createObjectRefList();
 
             List refs = bu.getObjectRefsFromRegistryObjectIds(registryObjectsIds);
@@ -501,11 +381,13 @@ public class SQLPersistenceManagerImpl
                 roDAO.updateStatus(ro, status);
                 orefList.getObjectRef().add(ref);
             }
+
         } catch (JAXBException e) {
             throw new RegistryException(e);
         } catch (JAXRException e) {
             throw new RegistryException(e);
         }
+
     }
 
     /**
@@ -530,12 +412,16 @@ public class SQLPersistenceManagerImpl
 
             //Find the constructor that takes RequestContext as its only arg
             Constructor con = null;
-            for (int i = 0; i < cons.length; i++) {
+            for (int i = 0; i <
+                    cons.length; i++) {
                 con = cons[i];
                 if ((con.getParameterTypes().length == 1) && (con.getParameterTypes()[0] == conParameterTypes[0])) {
                     dao = (OMARDAO) con.newInstance(conParameterValues);
                     break;
+
                 }
+
+
             }
 
         } catch (Exception e) {
@@ -575,8 +461,10 @@ public class SQLPersistenceManagerImpl
                 if (userAliases == null) {
                     userAliases = new ArrayList();
                 }
+
                 userAliases.add(((UserType) ro).getId());
             }
+
             OMARDAO dao = getDAOForObject(ro, context);
 
             //Now call delete method
@@ -590,8 +478,8 @@ public class SQLPersistenceManagerImpl
         ObjectRefDAO dao = new ObjectRefDAO(context);
         dao.delete(orefs);
          */
-        //Now, if any of the deleted ROs were of UserType, delete the credentials
-        //from the server keystore
+//Now, if any of the deleted ROs were of UserType, delete the credentials
+//from the server keystore
         if (userAliases != null) {
             Iterator aliasItr = userAliases.iterator();
             String alias = null;
@@ -603,6 +491,7 @@ public class SQLPersistenceManagerImpl
                     ServerResourceBundle.getInstance().getString("message.couldNotDeleteCredentials",
                             new Object[]{alias});
                 }
+
             }
         }
     }
@@ -610,12 +499,14 @@ public class SQLPersistenceManagerImpl
     /**
      * Executes an SQL Query with default values for IterativeQueryParamHolder.
      */
-    public List executeSQLQuery(ServerRequestContext context, String sqlQuery,
+    /* HIEOS (REMOVED):
+    public List executeSQLQuery(
+            ServerRequestContext context, String sqlQuery,
             ResponseOptionType responseOption, String tableName, List objectRefs)
             throws RegistryException {
         IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
         return executeSQLQuery(context, sqlQuery, responseOption, tableName, objectRefs, paramHolder);
-    }
+    }*/
 
     /**
      * Executes and SQL query using specified parameters.
@@ -623,28 +514,33 @@ public class SQLPersistenceManagerImpl
      *
      * @return An List of RegistryObjectType instances
      */
-    public List executeSQLQuery(ServerRequestContext context, String sqlQuery,
+    /* HIEOS (REMOVED):
+    public List executeSQLQuery(
+            ServerRequestContext context, String sqlQuery,
             ResponseOptionType responseOption, String tableName, List objectRefs,
             IterativeQueryParams paramHolder)
             throws RegistryException {
         return executeSQLQuery(context, sqlQuery, null, responseOption, tableName, objectRefs, paramHolder);
-    }
+    }*/
 
     /**
      * Executes an SQL Query.
      */
-    public List executeSQLQuery(ServerRequestContext context, String sqlQuery, List queryParams,
+    /* HIEOS (REMOVED):
+    public List executeSQLQuery(
+            ServerRequestContext context, String sqlQuery, List queryParams,
             ResponseOptionType responseOption, String tableName, List objectRefs)
             throws RegistryException {
         IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
         return executeSQLQuery(context, sqlQuery, queryParams, responseOption, tableName, objectRefs, paramHolder);
-    }
+    } */
 
     /**
      * Executes an SQL Query.
      */
     @SuppressWarnings("static-access")
-    public List executeSQLQuery(ServerRequestContext context, String sqlQuery, List queryParams,
+    public List executeSQLQuery(
+            ServerRequestContext context, String sqlQuery, List queryParams,
             ResponseOptionType responseOption, String tableName, List objectRefs,
             IterativeQueryParams paramHolder)
             throws RegistryException {
@@ -677,7 +573,6 @@ public class SQLPersistenceManagerImpl
                     stmt = connection.prepareStatement(sqlQuery, java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE, java.sql.ResultSet.CONCUR_READ_ONLY);
                 }
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("Executing query: '" + sqlQuery + "'");
                 if (dumpStackOnQuery) {
@@ -685,9 +580,7 @@ public class SQLPersistenceManagerImpl
                 }
             }
             log.trace("SQL = " + sqlQuery);  // HIEOS/BHT: (DEBUG)
-
             if (queryParams == null) {
-
                 rs = stmt.executeQuery(sqlQuery);
             } else {
                 Iterator iter = queryParams.iterator();
@@ -698,17 +591,18 @@ public class SQLPersistenceManagerImpl
                     // HIEOS/BHT (DEBUG):
                     log.trace("  -> param(" + new Integer(paramCount).toString() + "): " + (String) param);
                 }
+
                 rs = ((PreparedStatement) stmt).executeQuery();
             }
+
             if (maxResults >= 0) {
                 rs.last();
-                totalResultCount = rs.getRow();
+                totalResultCount =
+                        rs.getRow();
                 // Reset back to before first row so that DAO can correctly scroll
                 // through the result set
                 rs.beforeFirst();
             }
-            java.util.Iterator iter = null;
-
             if (returnType == ReturnType.OBJECT_REF) {
                 res = new java.util.ArrayList();
 
@@ -731,10 +625,10 @@ public class SQLPersistenceManagerImpl
                     String id = rs.getString(1);
                     or.setId(id);
                     res.add(or);
-
                     if (++cnt == maxResults) {
                         break;
                     }
+
                 }
                 // HIEOS/BHT (DEBUG):
                 log.trace(" -> cnt: " + totalResultCount);
@@ -754,7 +648,6 @@ public class SQLPersistenceManagerImpl
                 throw new RegistryException(ServerResourceBundle.getInstance().getString("message.invalidReturnType",
                         new Object[]{returnType}));
             }
-
         } catch (SQLException e) {
             throw new RegistryException(e);
         } catch (javax.xml.bind.JAXBException e) {
@@ -768,9 +661,7 @@ public class SQLPersistenceManagerImpl
                 log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
             }
         }
-
         paramHolder.totalResultCount = totalResultCount;
-
         return res;
     }
 
@@ -797,24 +688,28 @@ public class SQLPersistenceManagerImpl
 
         if (tableName.equalsIgnoreCase(AssociationDAO.getTableNameStatic())) {
             AssociationDAO associationDAO = new AssociationDAO(context);
-            res = associationDAO.getObjects(rs, startIndex, maxResults);
+            res =
+                    associationDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
                 ClassificationDAO.getTableNameStatic())) {
             ClassificationDAO classificationDAO = new ClassificationDAO(context);
-            res = classificationDAO.getObjects(rs, startIndex, maxResults);
+            res =
+                    classificationDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
                 ExternalIdentifierDAO.getTableNameStatic())) {
             ExternalIdentifierDAO externalIdentifierDAO = new ExternalIdentifierDAO(context);
-            res = externalIdentifierDAO.getObjects(rs, startIndex, maxResults);
-        }
-        else if (tableName.equalsIgnoreCase(
+            res =
+                    externalIdentifierDAO.getObjects(rs, startIndex, maxResults);
+        } else if (tableName.equalsIgnoreCase(
                 ExtrinsicObjectDAO.getTableNameStatic())) {
             ExtrinsicObjectDAO extrinsicObjectDAO = new ExtrinsicObjectDAO(context);
-            res = extrinsicObjectDAO.getObjects(rs, startIndex, maxResults);
+            res =
+                    extrinsicObjectDAO.getObjects(rs, startIndex, maxResults);
         } else if (tableName.equalsIgnoreCase(
                 RegistryPackageDAO.getTableNameStatic())) {
             RegistryPackageDAO registryPackageDAO = new RegistryPackageDAO(context);
-            res = registryPackageDAO.getObjects(rs, startIndex, maxResults);
+            res =
+                    registryPackageDAO.getObjects(rs, startIndex, maxResults);
         }
 
         return res;
@@ -824,7 +719,8 @@ public class SQLPersistenceManagerImpl
      * Gets the specified objects using specified query and className
      *
      */
-    public List getRegistryObjectsMatchingQuery(ServerRequestContext context, String query, List queryParams, String tableName)
+    public List getRegistryObjectsMatchingQuery(
+            ServerRequestContext context, String query, List queryParams, String tableName)
             throws RegistryException {
         List objects = null;
 
@@ -832,7 +728,8 @@ public class SQLPersistenceManagerImpl
             ResponseOption responseOption = bu.queryFac.createResponseOption();
             responseOption.setReturnType(ReturnType.LEAF_CLASS);
             responseOption.setReturnComposedObjects(true);
-            objects = getIdentifiablesMatchingQuery(context, query, queryParams, tableName, responseOption);
+            objects =
+                    getIdentifiablesMatchingQuery(context, query, queryParams, tableName, responseOption);
         } catch (javax.xml.bind.JAXBException e) {
             throw new RegistryException(e);
         }
@@ -844,13 +741,15 @@ public class SQLPersistenceManagerImpl
      * Gets the specified objects using specified query and className
      *
      */
-    public List getIdentifiablesMatchingQuery(ServerRequestContext context, String query, List queryParams, String tableName, ResponseOption responseOption)
+    public List getIdentifiablesMatchingQuery(
+            ServerRequestContext context, String query, List queryParams, String tableName, ResponseOption responseOption)
             throws RegistryException {
         List objects = null;
 
         List objectRefs = new java.util.ArrayList();
         IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
-        objects = executeSQLQuery(context, query, queryParams, responseOption, tableName,
+        objects =
+                executeSQLQuery(context, query, queryParams, responseOption, tableName,
                 objectRefs, paramHolder);
         return objects;
     }
@@ -860,7 +759,8 @@ public class SQLPersistenceManagerImpl
      * TODO: This is a dangerous query to use and it should eventually be
      *   eliminated.
      */
-    public RegistryObjectType getRegistryObjectMatchingQuery(ServerRequestContext context, String query, List queryParams, String tableName)
+    public RegistryObjectType getRegistryObjectMatchingQuery(
+            ServerRequestContext context, String query, List queryParams, String tableName)
             throws RegistryException {
         RegistryObjectType ro = null;
 
@@ -876,7 +776,8 @@ public class SQLPersistenceManagerImpl
      * Gets the specified object using specified id and className
      *
      */
-    public IdentifiableType getIdentifiableMatchingQuery(ServerRequestContext context, String query, List queryParams, String tableName, ResponseOption responseOption)
+    public IdentifiableType getIdentifiableMatchingQuery(
+            ServerRequestContext context, String query, List queryParams, String tableName, ResponseOption responseOption)
             throws RegistryException {
         IdentifiableType obj = null;
 
@@ -889,17 +790,18 @@ public class SQLPersistenceManagerImpl
         return obj;
     }
 
-    // HEIOS/AMS/BHT Added new method to optimize status update operations.
+// HEIOS/AMS/BHT Added new method to optimize status update operations.
     /**
      * Return a concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType)
      * depending on the "objectType" found in the "RegistryObject" table.
-     * 
+     *
      * @param context Holds the context for request processing.
      * @param ref Holds the object reference that we are interested in.
      * @return A concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType).
      * @throws javax.xml.registry.RegistryException
      */
-    public RegistryObjectType getRegistryObjectForStatusUpdate(ServerRequestContext context, ObjectRefType ref)
+    public RegistryObjectType getRegistryObjectForStatusUpdate(
+            ServerRequestContext context, ObjectRefType ref)
             throws RegistryException {
         Connection connection = context.getConnection();
         try {
@@ -914,6 +816,7 @@ public class SQLPersistenceManagerImpl
                     throw new RegistryException(
                             "Can not find ExtrinsicObject or RegistryPackage for id = " + ref.getId());
                 }
+
             }
             // Now instantiate the proper concrete registry object type:
             RegistryObjectType concreteRegistryObject = null;
@@ -922,6 +825,7 @@ public class SQLPersistenceManagerImpl
             } else {
                 concreteRegistryObject = bu.rimFac.createExtrinsicObject();
             }
+
             concreteRegistryObject.setId(ref.getId());  // Just to be in sync.
             return concreteRegistryObject;
         } catch (JAXBException e) {
@@ -947,7 +851,8 @@ public class SQLPersistenceManagerImpl
         PreparedStatement stmt = null;
         try {
             String sql = "SELECT objectType FROM " + tableName + " WHERE id = ?";
-            stmt = connection.prepareStatement(sql);
+            stmt =
+                    connection.prepareStatement(sql);
             stmt.setString(1, ref.getId());
             log.trace("SQL = " + sql.toString());
             ResultSet rs = stmt.executeQuery();
@@ -955,6 +860,7 @@ public class SQLPersistenceManagerImpl
             if (exists == true) {
                 objectType = rs.getString(1);
             }
+
         } catch (SQLException e) {
             throw new RegistryException(e);
         } finally {
@@ -964,6 +870,7 @@ public class SQLPersistenceManagerImpl
                 } catch (SQLException sqle) {
                     log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
                 }
+
             }
         }
         return objectType;
@@ -973,7 +880,8 @@ public class SQLPersistenceManagerImpl
      * Gets the specified object using specified id and className
      *
      */
-    public RegistryObjectType getRegistryObject(ServerRequestContext context, String id, String className)
+    public RegistryObjectType getRegistryObject(
+            ServerRequestContext context, String id, String className)
             throws RegistryException {
         RegistryObjectType ro = null;
 
@@ -981,7 +889,8 @@ public class SQLPersistenceManagerImpl
             ResponseOption responseOption = bu.queryFac.createResponseOption();
             responseOption.setReturnType(ReturnType.LEAF_CLASS);
             responseOption.setReturnComposedObjects(true);
-            ro = (RegistryObjectType) getIdentifiable(context, id, className, responseOption);
+            ro =
+                    (RegistryObjectType) getIdentifiable(context, id, className, responseOption);
         } catch (JAXBException e) {
             throw new RegistryException(e);
         }
@@ -993,7 +902,8 @@ public class SQLPersistenceManagerImpl
      * Gets the specified object using specified id and className
      *
      */
-    public IdentifiableType getIdentifiable(ServerRequestContext context, String id, String className, ResponseOption responseOption)
+    public IdentifiableType getIdentifiable(
+            ServerRequestContext context, String id, String className, ResponseOption responseOption)
             throws RegistryException {
         IdentifiableType obj = null;
 
@@ -1002,7 +912,8 @@ public class SQLPersistenceManagerImpl
         ArrayList queryParams = new ArrayList();
         queryParams.add(id);
 
-        obj = getIdentifiableMatchingQuery(context, sqlQuery, queryParams, tableName, responseOption);
+        obj =
+                getIdentifiableMatchingQuery(context, sqlQuery, queryParams, tableName, responseOption);
 
         return obj;
     }
@@ -1011,7 +922,8 @@ public class SQLPersistenceManagerImpl
      * Gets the specified object using specified ObjectRef
      *
      */
-    public RegistryObjectType getRegistryObject(ServerRequestContext context, ObjectRefType ref)
+    public RegistryObjectType getRegistryObject(
+            ServerRequestContext context, ObjectRefType ref)
             throws RegistryException {
 
         return getRegistryObject(context, ref.getId(), "RegistryObject");
@@ -1020,7 +932,8 @@ public class SQLPersistenceManagerImpl
     /**
      * Get a HashMap with registry object id as key and owner id as value
      */
-    public HashMap getOwnersMap(ServerRequestContext context, List ids) throws RegistryException {
+    public HashMap getOwnersMap(
+            ServerRequestContext context, List ids) throws RegistryException {
         RegistryObjectDAO roDAO = new RegistryObjectDAO(context);
 
         HashMap ownersMap = roDAO.getOwnersMap(ids);
@@ -1029,10 +942,11 @@ public class SQLPersistenceManagerImpl
     }
 
     /**
-     * Updates the idToLidMap in context entries with RegistryObject id as Key and RegistryObject lid as value 
+     * Updates the idToLidMap in context entries with RegistryObject id as Key and RegistryObject lid as value
      * for each object that matches specified id.
      *
      */
+    /* HIEOS (REMOVED):
     public void updateIdToLidMap(ServerRequestContext context, Set ids, String tableName) throws RegistryException {
         if ((ids != null) && (ids.size() >= 0)) {
 
@@ -1045,10 +959,10 @@ public class SQLPersistenceManagerImpl
                 StringBuffer sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
                 List existingIdList = new ArrayList();
 
-                /* We need to count the number of item in "IN" list. 
-                 * We need to split the a single SQL Strings if it is too long. Some database such as Oracle, 
-                 * does not allow the IN list is too long
-                 */
+                // We need to count the number of item in "IN" list.
+                // We need to split the a single SQL Strings if it is too long. Some database such as Oracle,
+                // does not allow the IN list is too long
+                //
                 int listCounter = 0;
 
                 while (iter.hasNext()) {
@@ -1070,11 +984,13 @@ public class SQLPersistenceManagerImpl
                         }
 
                         sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
-                        listCounter = 0;
+                        listCounter =
+                                0;
                     }
 
                     listCounter++;
                 }
+
             } catch (SQLException e) {
                 throw new RegistryException(e);
             } finally {
@@ -1082,12 +998,14 @@ public class SQLPersistenceManagerImpl
                     if (stmt != null) {
                         stmt.close();
                     }
+
                 } catch (SQLException sqle) {
                     log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
                 }
+
             }
         }
-    }
+    }*/
 
     /**
      * Checks each object being deleted to make sure that it does not have any currently existing references.
@@ -1096,6 +1014,7 @@ public class SQLPersistenceManagerImpl
      * @throws ReferencesExistException if references exist to any of the RegistryObject ids specified in roIds
      *
      */
+    /* HIEOS (REMOVED):
     public void checkIfReferencesExist(ServerRequestContext context, List roIds) throws RegistryException {
         if (skipReferenceCheckOnRemove) {
             return;
@@ -1155,11 +1074,13 @@ public class SQLPersistenceManagerImpl
                     if (!roIds.contains(referenceSourceId)) {
                         referenceSourceIds.add(referenceSourceId);
                     }
+
                 }
 
                 if (!referenceSourceIds.isEmpty()) {
                     idToReferenceSourceMap.put(id, referenceSourceIds);
                 }
+
             } catch (SQLException e) {
                 throw new RegistryException(e);
             } finally {
@@ -1167,18 +1088,21 @@ public class SQLPersistenceManagerImpl
                     if (stmt != null) {
                         stmt.close();
                     }
+
                 } catch (SQLException sqle) {
                     log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
                 }
+
             }
         }
 
         if (!idToReferenceSourceMap.isEmpty()) {
             //At least one ref exists to at least one object so throw exception
             String msg = ServerResourceBundle.getInstance().getString("message.referencesExist");
-            msg += "\n" + idToReferenceSourceMap.toString();
+            msg +=
+                    "\n" + idToReferenceSourceMap.toString();
 
             throw new ReferencesExistException(msg);
         }
-    }
+    }*/
 }

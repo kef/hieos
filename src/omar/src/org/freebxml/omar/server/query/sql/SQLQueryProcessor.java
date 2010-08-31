@@ -17,14 +17,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.common.IterativeQueryParams;
+import org.freebxml.omar.common.spi.RequestContext;
+import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectList;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
 
 /**
  * Processor for SQL queries. Used by the QueryManagerImpl.
@@ -64,7 +64,7 @@ public class SQLQueryProcessor {
      * @return
      * @throws RegistryException
      */
-    public RegistryObjectListType executeQuery(ServerRequestContext context, UserType user, String sqlQuery,
+    public RegistryObjectListType executeQuery(ServerRequestContext context, String sqlQuery,
             ResponseOptionType responseOption, IterativeQueryParams paramHolder) throws RegistryException {
         RegistryObjectList sqlResult = null;
         log.debug("unparsed query: " + sqlQuery + ";");
