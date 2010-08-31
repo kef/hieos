@@ -13,7 +13,6 @@ package org.freebxml.omar.server.common;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,7 +23,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Locale;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.registry.InvalidRequestException;
@@ -38,15 +36,10 @@ import org.freebxml.omar.common.spi.QueryManager;
 import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.common.ReferenceInfo;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.CommonResourceBundle;
-import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.common.spi.RequestContext;
-import org.freebxml.omar.server.cache.ServerCache;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
-import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
 import org.oasis.ebxml.registry.bindings.query.ResponseOption;
@@ -55,16 +48,14 @@ import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
 import org.oasis.ebxml.registry.bindings.rim.AdhocQueryType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryErrorListType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
 
 /*
- * HIEOS (CHANGE) - Removed use of interceptors, repository, replicas, versioning
- *                  and events.
+ * HIEOS (CHANGE) - Removed use of interceptors, repository, replicas, versioning,
+ *                  cache and events.
  */
 /**
  * Keeps track of the state and context for a client request
@@ -104,28 +95,13 @@ public class ServerRequestContext extends CommonRequestContext {
     private Map idMap = new HashMap();
     //Used only by QueryManagerImpl to pass results of a query for read access control check.
     private List queryResults = new ArrayList();
-    //Short lived memory used only in handling special queries related to cache based optimizations.
-    private List specialQueryResults = null;
     //Short lived memory used only in handling stored query invocation
     private List storedQueryParams = new ArrayList();
 
-    ;
     //The RegistryErrorList for this request
     private RegistryErrorListType errorList = null;
-    //Tracks those associations that are being confirmed
-    private Map confirmationAssociations = new HashMap();
-    private Locale localeOfCaller = Locale.getDefault();
     //Begin former DAOContext members
     private Connection connection = null;
-    private AuditableEventType createEvent;
-    private AuditableEventType updateEvent;
-    private AuditableEventType versionEvent;
-    private AuditableEventType setStatusEvent;
-    private AuditableEventType approveEvent;
-    private AuditableEventType deprecateEvent;
-    private AuditableEventType unDeprecateEvent;
-    private AuditableEventType deleteEvent;
-    private AuditableEventType relocateEvent;
     private ResponseOptionType responseOption;
     private ArrayList objectRefs;
     //Consolidation of events of all types above into a single List. This is initialized in saveAuditableEVents()
@@ -163,60 +139,7 @@ public class ServerRequestContext extends CommonRequestContext {
             throw new RegistryException(e);
         }
     }
-
-    /**
-     * Gets the RegistryObject associated with the specified id.
-     * First looks in submittedObjectsMap in case it is a new object being submitted.
-     * Next look in ServerCache in case it was previously fetched from registry.
-     * Finally looks in registry.
-     * @param id
-     * @param tableName
-     * @return
-     * @throws RegistryException
-     */
-    public RegistryObjectType getRegistryObject(String id, String tableName)
-            throws RegistryException {
-
-        return getRegistryObject(id, tableName, false);
-    }
-
-    /**
-     * Gets the RegistryObject associated with the specified id.
-     * First looks in submittedObjectsMap in case it is a new object being submitted.
-     * This is only done if requireExisting is false.
-     *
-     * Next look in ServerCache in case it was previously fetched from registry.
-     * ServerCache will look in registry if not found in cache.
-     * @param id 
-     * @param tableName 
-     * @param requireExisting
-     * @return
-     * @throws RegistryException
-     */
-    public RegistryObjectType getRegistryObject(String id, String tableName, boolean requireExisting)
-            throws RegistryException {
-
-        RegistryObjectType ro = null;
-
-        if (!requireExisting) {
-            //If request is submit or update then get ro from context
-            if ((this.getRegistryRequestStack().size() > 0) && ((this.getCurrentRegistryRequest() instanceof SubmitObjectsRequest) || (this.getCurrentRegistryRequest() instanceof UpdateObjectsRequest))) {
-                //First look in submitted objects.
-                ro = (RegistryObjectType) getSubmittedObjectsMap().get(id);
-            }
-        }
-        if (ro == null) {
-            //Next look in registry via the ObjectCache
-            ro = ServerCache.getInstance().getRegistryObject(this, id, tableName);
-
-            if (ro == null) {
-                throw new ObjectNotFoundException(id, tableName);
-            }
-        }
-
-        return ro;
-    }
-
+    
     /**
      *
      * Removes object matching specified id from all the various maps.
@@ -507,22 +430,9 @@ public class ServerRequestContext extends CommonRequestContext {
                     connection.commit();
                     pm.releaseConnection(this, connection);
                     connection = null;
-                    //New connection can be created in sendEventsToEventManager() which must be released
-                    try {
-                        updateCache();
-                    } catch (Exception e) {
-                        rollback();
-                        log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
-                    }
-                    if (connection != null) {
-                        connection.commit();
-                        pm.releaseConnection(this, connection);
-                        connection = null;
-                    }
                 } else {
                     rollback();
                 }
-
             } catch (RegistryException e) {
                 rollback();
                 throw e;
@@ -540,19 +450,6 @@ public class ServerRequestContext extends CommonRequestContext {
                 //Still causing infinite recursion and StackOverflow
                 //RequestInterceptorManager.getInstance().postProcessRequest(this);
             }
-        }
-    }
-
-    /**
-     *
-     */
-    private void updateCache() {
-        Iterator iter = auditableEvents.iterator();
-        while (iter.hasNext()) {
-            AuditableEventType ae = (AuditableEventType) iter.next();
-
-            //Update the cache for these objects.
-            ServerCache.getInstance().onEvent(this, ae);
         }
     }
 
@@ -688,14 +585,6 @@ public class ServerRequestContext extends CommonRequestContext {
 
     private void setErrorList(RegistryErrorListType errorList) {
         this.errorList = errorList;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Map getConfirmationAssociations() {
-        return confirmationAssociations;
     }
 
     /**
