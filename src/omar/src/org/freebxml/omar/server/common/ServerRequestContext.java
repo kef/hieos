@@ -54,8 +54,7 @@ import org.freebxml.omar.server.lcm.replication.ReplicationManager;
 import org.freebxml.omar.server.lcm.versioning.VersionProcessor;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.freebxml.omar.server.plugin.RequestInterceptorManager;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
@@ -67,9 +66,6 @@ import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
 import org.oasis.ebxml.registry.bindings.rim.AdhocQueryType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
-import org.oasis.ebxml.registry.bindings.rim.ClassificationNodeType;
-import org.oasis.ebxml.registry.bindings.rim.ClassificationSchemeType;
-import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
@@ -867,12 +863,13 @@ public class ServerRequestContext extends CommonRequestContext {
         }
     }
 
+    /* HIEOS (REMOVED):
     public void setUser(UserType user) throws RegistryException {
         if ((getUser() != user) || (createEvent == null)) {
             super.setUser(user);
             createEvents();
         }
-    }
+    } */
 
     public Map getTopLevelObjectsMap() {
         return topLevelObjectsMap;
@@ -1113,6 +1110,7 @@ public class ServerRequestContext extends CommonRequestContext {
         this.queryParamsMap = queryParamsMap;
     }
 
+    /* HIEOS (REMOVED):
     public boolean isRegistryAdministrator() throws RegistryException {
         if (isAdmin == null) {
             UserType user = getUser();
@@ -1122,5 +1120,5 @@ public class ServerRequestContext extends CommonRequestContext {
         }
 
         return isAdmin.booleanValue();
-    }
+    }*/
 }

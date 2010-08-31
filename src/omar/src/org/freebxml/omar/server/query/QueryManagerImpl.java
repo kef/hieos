@@ -11,93 +11,51 @@
 package org.freebxml.omar.server.query;
 
 import java.math.BigInteger;
-import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.xml.bind.JAXBException;
-import javax.xml.registry.JAXRException;
 import javax.xml.registry.UnsupportedCapabilityException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.CanonicalConstants;
 import org.freebxml.omar.common.CanonicalSchemes;
-import org.freebxml.omar.common.CommonResourceBundle;
-/* HIEOS/BHT - Removed:
-import org.freebxml.omar.common.RepositoryItem;
-*/
 import org.freebxml.omar.common.spi.QueryManager;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
-import org.freebxml.omar.common.spi.QueryPlugin;
 import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.cache.ServerCache;
 import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.common.IterativeQueryParams;
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.cms.CMSManager;
-import org.freebxml.omar.server.cms.CMSManagerImpl;
-*/
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.freebxml.omar.server.plugin.AbstractPluginManager;
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.query.federation.FederatedQueryManager;
-import org.freebxml.omar.server.repository.RepositoryManager;
-import org.freebxml.omar.server.repository.RepositoryManagerFactory;
-*/
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.security.authorization.AuthorizationResult;
-import org.freebxml.omar.server.security.authorization.AuthorizationServiceImpl;
- */
-import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
-import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponse;
-import org.oasis.ebxml.registry.bindings.query.FilterQueryType;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
-import org.oasis.ebxml.registry.bindings.rim.AdhocQueryType;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationNode;
 import org.oasis.ebxml.registry.bindings.rim.ClassificationScheme;
-import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
-import org.oasis.ebxml.registry.bindings.rim.IdentifiableType;
-import org.oasis.ebxml.registry.bindings.rim.InternationalStringType;
-import org.oasis.ebxml.registry.bindings.rim.LocalizedString;
 import org.oasis.ebxml.registry.bindings.rim.QueryExpressionType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackage;
-import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
-import org.oasis.ebxml.registry.bindings.rim.SlotListType;
-import org.oasis.ebxml.registry.bindings.rim.SlotType1;
 import org.oasis.ebxml.registry.bindings.rim.UserType;
-import org.oasis.ebxml.registry.bindings.rim.Value;
-
 
 /**
  * Implements the QueryManager interface for ebXML Registry as defined by ebRS spec.
  *
  * @author <a href="mailto:Farrukh.Najmi@Sun.COM">Farrukh S. Najmi</a>
  */
-public class QueryManagerImpl extends AbstractPluginManager implements QueryManager {
+public class QueryManagerImpl implements QueryManager {
 
     private static QueryManagerImpl instance = null;
-    
+    private org.freebxml.omar.common.BindingUtility bu = org.freebxml.omar.common.BindingUtility.getInstance();
+
     /* The logger */
     private static Log log = LogFactory.getLog(QueryManagerImpl.class.getName());
     
@@ -147,12 +105,14 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
     protected QueryManagerImpl() {
         bypassCMS = Boolean.valueOf(RegistryProperties.getInstance()
             .getProperty("org.freebxml.omar.server.query.bypassCMS", "true")).booleanValue();
-        
+
+        /* HIEOS (REMOVED):
         //Create and cache QueryPlugins
         getQueryPlugins();
         
         //Create and cache QueryFilterPlugins
         getQueryFilterPlugins();
+        */
     }
 
     public synchronized static QueryManagerImpl getInstance() {
@@ -184,11 +144,11 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             ahqr = null;
             
             //Process request for the case where it is a parameterized invocation of a stored query
-            processForParameterizedQuery((ServerRequestContext)context);    
+            //processForParameterizedQuery((ServerRequestContext)context);
             
             //TODO: May need a better way than checking getSpecialQueryResults() to know if specialQuery was called.
             if (((ServerRequestContext)context).getSpecialQueryResults() != null) {
-                ahqr = processForSpecialQueryResults((ServerRequestContext)context);
+                //ahqr = processForSpecialQueryResults((ServerRequestContext)context);
             } else {            
                 //Check if it is a federated query and process it using FederatedQueryManager if so.
                 /* HIEOS/BHT: REMOVED
@@ -289,19 +249,21 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         }
         
         removeObjectsDeniedAccess(((ServerRequestContext)context), ahqr.getRegistryObjectList().getIdentifiable());
-        
+
+        /* HIEOS (REMOVED):
         if (isQueryFilterRequestBeingMade((ServerRequestContext)context)) {
             // Handle filter query requests
             processForQueryFilterPlugins((ServerRequestContext)context);
             // Filter queries produce special query results
             ahqr = processForSpecialQueryResults((ServerRequestContext)context);
-        }
+        }*/
         
         ((ServerRequestContext)context).commit();
         ahqr.setRequestId(req.getId());        
         return ahqr;
     }
-    
+
+    /* HIEOS (REMOVED):
     private AdhocQueryResponse processForSpecialQueryResults(ServerRequestContext context) 
         throws RegistryException {
         AdhocQueryResponse ahqr = null;
@@ -320,8 +282,9 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             throw new RegistryException(t);
         }
         return ahqr;
-    }
-    
+    }*/
+
+    /* HIEOS (REMOVED):
     private boolean isQueryFilterRequestBeingMade(ServerRequestContext context) {
         boolean isQueryFilterRequestBeingMade = false;
         Map map = context.getQueryParamsMap();
@@ -332,11 +295,12 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             }
         }
         return isQueryFilterRequestBeingMade;
-    }
+    }*/
     
     /*
      * This method is used to process any configured QueryFilter plugins
      */
+    /* HIEOS (REMOVED):
     private void processForQueryFilterPlugins(ServerRequestContext context) 
         throws RegistryException {
         try {
@@ -367,7 +331,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         } catch (Throwable t) {
             throw new RegistryException(t);
         }
-    }
+    } */
     
     /**
      * Recursively fetches child objects of ClassificationSchemes, ClassificationNodes and RegistryPackages
@@ -546,20 +510,22 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
      */
     private void processDepthParameter(ServerRequestContext context) throws RegistryException {
     }
-    
+
+    /* HIEOS (REMOVED):
     private boolean isIterativeQuery(AdhocQueryRequestType req) {
         if (req.getMaxResults().intValue() == -1) {
             return false;
         } else {
             return true;
         }                   
-    }
+    }*/
         
     /** 
      * Extracts the queryId and parameters from request and stores it in the context for later use
      * by QueryPlugin.
      *
-     */ 
+     */
+    /* HIEOS (REMOVED):
     private void getQueryParameters(ServerRequestContext context) throws RegistryException {
         AdhocQueryRequestType newReq = (AdhocQueryRequestType)((ServerRequestContext)context).getCurrentRegistryRequest();
         
@@ -597,11 +563,12 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             
             context.setQueryParamsMap(queryParamsMap);
         }        
-    }
+    }*/
     
     /**
      * Creates and caches all QueryPlugins
      */
+    /* HIEOS (REMOVED):
     private void getQueryPlugins() {
         RegistryProperties props = RegistryProperties.getInstance();
         Iterator propsIter = props.getPropertyNamesStartingWith(QUERY_PLUGIN_PROPERTY_PREFIX);
@@ -623,11 +590,12 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             }
         }
         
-    }
+    } */
     
     /**
      * Creates and caches all QueryFilterPlugins
      */
+    /* HIEOS (REMOVED):
     private void getQueryFilterPlugins() {
         RegistryProperties props = RegistryProperties.getInstance();
         Iterator propsIter = props.getPropertyNamesStartingWith(QUERY_FILTER_PLUGIN_PROPERTY_PREFIX);
@@ -649,13 +617,14 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
             }
         }
         
-    }    
+    }*/
     
     /**
      * Gets the QueryPlugin that can process this query.
      *
      * @return the QueryPlugin if a match is found, otherwise return null 
      */
+    /* HIEOS (REMOVED):
     QueryPlugin getQueryPlugin(ServerRequestContext context) throws RegistryException {
         QueryPlugin plugin = null;
         
@@ -668,7 +637,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         }
         
         return plugin;
-    }
+    }*/
     
         
     /**
@@ -678,6 +647,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
      * If special parameterized query then invoke special query and set its results on context.getSpecialQueryResults().
      * If neither not a parameterized query at all then simply return the original request.
      */
+    /* HIEOS (REMOVED):
     private void processForParameterizedQuery(ServerRequestContext context) throws RegistryException {
         
         //First check if it is a 
@@ -723,7 +693,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
                 }                
             }            
         }        
-    }
+    }*/
         
     /**
      * Replaces named parameters in an SQLQuery with ?
@@ -733,6 +703,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
      * @param queryParamsMap the Map in which each entry is a query param name/value pair
      * @param positionalParamValues a List of param values for each positional parameter in the PrepareStatment for the query
      */
+    /* HIEOS (REMOVED):
     private AdhocQueryType plugQueryParameters(AdhocQueryType query, Map queryParamsMap, List positionalParamValues) throws JAXBException {        
         AdhocQueryType newQuery = query;
         positionalParamValues.clear();    //Start with empty list
@@ -818,7 +789,7 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         queryExp.getContent().add(newQueryStr);        
         
         return newQuery;
-    }
+    }*/
 
 
     /**
@@ -978,8 +949,9 @@ public class QueryManagerImpl extends AbstractPluginManager implements QueryMana
         return referencedObjects;
     }*/
 
+    /* HIEOS (REMOVED)
     public UserType getUser(X509Certificate cert) throws RegistryException {
         return AuthenticationServiceImpl.getInstance().getUserFromCertificate(cert);
-    }
+    } */
         
 }

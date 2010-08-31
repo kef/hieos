@@ -52,8 +52,8 @@ import org.freebxml.omar.server.lcm.relocation.RelocationProcessor;
 import org.freebxml.omar.server.repository.RepositoryItemKey;
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
- */
 import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+ */
 /* HIEOS/BHT (REMOVED):
 import org.freebxml.omar.server.security.authentication.CertificateAuthority;
 import org.freebxml.omar.server.security.authorization.AuthorizationResult;
@@ -101,7 +101,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
     /*# private LifeCycleManagerImpl _objectManagerImpl; */
     private static LifeCycleManagerImpl instance = null;
     private static BindingUtility bu = BindingUtility.getInstance();
-    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
+//    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
     /**
      *
      * @associates <{org.freebxml.omar.server.persistence.PersistenceManagerImpl}>
@@ -160,7 +160,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         RegistryResponse resp = null;
         try {
-            calculateEffectiveUser(((ServerRequestContext) context));
+            //calculateEffectiveUser(((ServerRequestContext) context));
             RegistryObjectListType objs = req.getRegistryObjectList();
 
             // insert member objects of RegistryPackages
@@ -378,6 +378,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * b) The request specifies the CANONICAL_SLOT_LCM_OWNER.
      *
      */
+    /* HIEOS (REMOVED):
     void calculateEffectiveUser(ServerRequestContext context) throws RegistryException {
         try {
             UserType caller = ((ServerRequestContext) context).getUser();
@@ -403,7 +404,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         } catch (InvalidRequestException e) {
             throw new RegistryException(e);
         }
-    }
+    }*/
 
     /**
      * Updates any RepositoryItems in ((ServerRequestContext)context).
@@ -540,10 +541,10 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         /* HIEOS/BHT - Removed:
         Map idToRepositoryMap = ((ServerRequestContext) context).getRepositoryItemsMap();
         */
-        UserType user = ((ServerRequestContext) context).getUser();
+        //UserType user = ((ServerRequestContext) context).getUser();
 
         try {
-            calculateEffectiveUser(((ServerRequestContext) context));
+            //calculateEffectiveUser(((ServerRequestContext) context));
 
             /* HIEOS/BHT - Removed:
             ((ServerRequestContext) context).setRepositoryItemsMap(idToRepositoryMap);

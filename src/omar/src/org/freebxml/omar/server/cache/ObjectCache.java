@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.CommonResourceBundle;
 import org.freebxml.omar.common.exceptions.ObjectNotFoundException;
 import org.freebxml.omar.server.common.ServerRequestContext;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
@@ -141,7 +141,7 @@ class ObjectCache extends AbstractCache {
     
     private void cachePredefinedUsers(ServerRequestContext context)
 	throws RegistryException {
-
+/*
         getRegistryObject(context,
 			  AuthenticationServiceImpl.ALIAS_REGISTRY_OPERATOR,
 			  "User_");
@@ -154,6 +154,7 @@ class ObjectCache extends AbstractCache {
         getRegistryObject(context,
 			  AuthenticationServiceImpl.ALIAS_NIKOLA,
 			  "User_");
+ */
     }
         
     void putRegistryObject(RegistryObjectType ro) throws RegistryException {

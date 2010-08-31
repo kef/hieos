@@ -42,11 +42,11 @@ import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.repository.RepositoryManager;
 import org.freebxml.omar.server.repository.RepositoryManagerFactory;
 */
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
-import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
+//import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.VersionInfoType;
 
@@ -61,8 +61,8 @@ public class VersionProcessor {
     public static BindingUtility bu = BindingUtility.getInstance();
     private static Log log = LogFactory.getLog(VersionProcessor.class);
     private QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
-    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
     /* HIEOS/BHT - Removed:
+    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
     private RepositoryManager rm = RepositoryManagerFactory.getInstance()
     .getRepositoryManager();
     */
@@ -377,7 +377,7 @@ public class VersionProcessor {
                 AdhocQueryRequest queryRequest    = bu.createAdhocQueryRequest( query );
                 queryContext    = new ServerRequestContext( "VersionProcessor.getAllRegistryObjectVersions", queryRequest );
                 
-                queryContext.setUser( ac.registryOperator );
+                //queryContext.setUser( ac.registryOperator );
                 
                 AdhocQueryResponseType queryResp       = qm.submitAdhocQuery( queryContext );
                 versions        = queryResp.getRegistryObjectList().getIdentifiable();

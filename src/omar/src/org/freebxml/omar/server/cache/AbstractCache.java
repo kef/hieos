@@ -27,7 +27,7 @@ import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.event.AuditableEventListener;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.oasis.ebxml.registry.bindings.query.ResponseOption;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
@@ -47,7 +47,7 @@ abstract class AbstractCache implements AuditableEventListener {
      * AuthenticationServiceImpl class is implemented as a singleton, need
      * only one for all AbstractCache (and sub class) instances.
      */
-    protected static AuthenticationServiceImpl ac = null;
+//    protected static AuthenticationServiceImpl ac = null;
     protected static BindingUtility bu = BindingUtility.getInstance();
 
     /**
@@ -93,6 +93,7 @@ abstract class AbstractCache implements AuditableEventListener {
 	    pm = PersistenceManagerFactory.getInstance().
 		getPersistenceManager();
 	}
+        /*
 	if (wantAC && null == ac) {
 	    try {
 		ac = AuthenticationServiceImpl.getInstance();
@@ -100,7 +101,7 @@ abstract class AbstractCache implements AuditableEventListener {
 		// AuthenticationServiceImpl likely was unable to load
 		// users prior to dB load, ignore exception
 	    }
-	}
+	}*/
     }
 
     protected static ServerRequestContext getCacheContext(String contextId)
@@ -110,9 +111,9 @@ abstract class AbstractCache implements AuditableEventListener {
 	    new ServerRequestContext(contextId, null);
 
 	initializeQueryVars(true);
-	if (null != ac) {
+/*	if (null != ac) {
 	    context.setUser(ac.registryOperator);
-	}
+	}*/
 	return context;
     }
 

@@ -21,7 +21,7 @@ import org.freebxml.omar.common.exceptions.AuthorizationException;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.lcm.RelocateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
@@ -46,7 +46,7 @@ public class RelocationProcessor {
     private static BindingUtility bu = BindingUtility.getInstance();
     private QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
     private org.freebxml.omar.server.common.Utility util = org.freebxml.omar.server.common.Utility.getInstance();
-    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
+//    private AuthenticationServiceImpl ac = AuthenticationServiceImpl.getInstance();
     private PersistenceManager pm = PersistenceManagerFactory.getInstance().getPersistenceManager();
     
     private ServerRequestContext context = null;
@@ -65,7 +65,7 @@ public class RelocationProcessor {
         try {
             this.context = context;
             RelocateObjectsRequest req = (RelocateObjectsRequest)context.getCurrentRegistryRequest();
-            isAdmin = ac.hasRegistryAdministratorRole(context.getUser());
+//            isAdmin = ac.hasRegistryAdministratorRole(context.getUser());
 
             resp = bu.rsFac.createRegistryResponse();
 
@@ -77,7 +77,7 @@ public class RelocationProcessor {
 
             resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
         }
-        catch (RegistryException e) {
+        /*catch (RegistryException e) {
             resp = util.createRegistryResponseFromThrowable(e,
                     "LifeCycleManagerImpl.relocateObjects", "Unknown");
 
@@ -85,11 +85,13 @@ public class RelocationProcessor {
             List errs = context.getErrorList().getRegistryError();
             RegistryErrorListType newEl = resp.getRegistryErrorList();
             newEl.getRegistryError().addAll(errs);
-        } catch (javax.xml.bind.JAXBException e) {
+        }*/
+        catch (javax.xml.bind.JAXBException e) {
             e.printStackTrace();
-        } catch (javax.xml.registry.JAXRException e) {
+        }
+        /*catch (javax.xml.registry.JAXRException e) {
             e.printStackTrace();
-        }    
+        } */
     }
         
     public RegistryResponse relocateObjects() {

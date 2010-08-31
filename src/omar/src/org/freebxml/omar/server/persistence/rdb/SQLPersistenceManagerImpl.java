@@ -38,7 +38,7 @@ import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.freebxml.omar.common.IterativeQueryParams;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 import org.oasis.ebxml.registry.bindings.query.ResponseOption;
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
@@ -606,7 +606,7 @@ public class SQLPersistenceManagerImpl
             while (aliasItr.hasNext()) {
                 try {
                     alias = (String) aliasItr.next();
-                    AuthenticationServiceImpl.getInstance().deleteUserCertificate(alias);
+//                    AuthenticationServiceImpl.getInstance().deleteUserCertificate(alias);
                 } catch (Throwable t) {
                     ServerResourceBundle.getInstance().getString("message.couldNotDeleteCredentials",
                             new Object[]{alias});
