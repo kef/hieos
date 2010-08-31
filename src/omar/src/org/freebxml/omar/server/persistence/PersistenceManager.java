@@ -133,7 +133,9 @@ public interface PersistenceManager {
     /**
      * Sets the owner on the specified objects based upon RequestContext.
      */
+    /* HIEOS (REMOVED):
     public void changeOwner(ServerRequestContext context, List objects) throws RegistryException;
+    */
     
     /**
      * Gets a JDBC Connection.

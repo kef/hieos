@@ -11,66 +11,30 @@
 package org.freebxml.omar.server.lcm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.activation.DataHandler;
 import javax.xml.bind.JAXBException;
-import javax.xml.registry.InvalidRequestException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import org.freebxml.omar.common.CanonicalSchemes;
-//import org.freebxml.omar.common.CommonProperties;
 import org.freebxml.omar.common.spi.LifeCycleManager;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.RegistryResponseHolder;
-/* HIEOS/BHT - Removed:
-import org.freebxml.omar.common.RepositoryItem;
- */
 import org.freebxml.omar.common.UUIDFactory;
 import org.freebxml.omar.common.exceptions.ObjectsNotFoundException;
-import org.freebxml.omar.common.exceptions.QuotaExceededException;
-import org.freebxml.omar.common.exceptions.UnauthorizedRequestException;
 import org.freebxml.omar.common.spi.RequestContext;
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.cms.CMSManager;
-import org.freebxml.omar.server.cms.CMSManagerImpl;
- */
-import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.lcm.quota.QuotaServiceImpl;
- */
-import org.freebxml.omar.server.lcm.relocation.RelocationProcessor;
-/* HIEOS/BHT - Removed:
-import org.freebxml.omar.server.repository.RepositoryItemKey;
-import org.freebxml.omar.server.repository.RepositoryManager;
-import org.freebxml.omar.server.repository.RepositoryManagerFactory;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
- */
-/* HIEOS/BHT (REMOVED):
-import org.freebxml.omar.server.security.authentication.CertificateAuthority;
-import org.freebxml.omar.server.security.authorization.AuthorizationResult;
-import org.freebxml.omar.server.security.authorization.AuthorizationServiceImpl;
- */
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.DeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.RelocateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.Association;
-import org.oasis.ebxml.registry.bindings.rim.AssociationType1;
-import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
@@ -164,8 +128,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //Split Identifiables by RegistryObjects and ObjectRefs
             bu.getObjectRefsAndRegistryObjects(objs, ((ServerRequestContext) context).getTopLevelObjectsMap(), ((ServerRequestContext) context).getObjectRefsMap());
 
-            processConfirmationAssociations(((ServerRequestContext) context));
-
             ((ServerRequestContext) context).checkObjects();
 
             /*
@@ -212,14 +174,11 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      */
     private void insertPackageMembers(RegistryObjectListType regObjs, RegistryPackageType regPkg) throws JAXBException {
         if (regPkg.getRegistryObjectList() != null && regPkg.getRegistryObjectList().getIdentifiable().size() > 0) {
-
             for (int j = 0; j < regPkg.getRegistryObjectList().getIdentifiable().size(); j++) {
                 Object obj = regPkg.getRegistryObjectList().getIdentifiable().get(j);
-
                 if (obj instanceof RegistryPackageType) {
                     insertPackageMembers(regObjs, (RegistryPackageType) obj);
                 }
-
                 if (obj instanceof RegistryObjectType) {
                     RegistryObjectType ro = (RegistryObjectType) obj;
                     String assId = org.freebxml.omar.common.Utility.getInstance().createId();
@@ -234,49 +193,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 }
             }
             regPkg.getRegistryObjectList().getIdentifiable().clear();
-        }
-    }
-
-    /**
-     * Processes Associations looking for Associations that already exist and are being
-     * submitted by source or target owner and are identical in state to existing
-     * Association in registry.    
-     *
-     * ebXML Registry 3.0 hasber discarded association confirmation in favour of 
-     * Role Based access control. However, freebXML Registry supports it in an 
-     * impl specific manner as this is required by JAXR 1.0 API.
-     * This SHOULD be removed once JAXR 2.0 no longer requires it for ebXML Registry
-     * in future.
-     *
-     * The processing updates the Association to add a special Impl specific slot to 
-     * remember the confirmation state change.
-     * 
-     * TODO: Need to do unconfirm when src or target owner removes an Association they had
-     * previously confirmed.
-     */
-    private void processConfirmationAssociations(ServerRequestContext context) throws RegistryException {
-
-        try {
-            //Make a copy to avoid ConcurrentModificationException
-            ArrayList topLevelObjects = new ArrayList(((ServerRequestContext) context).getTopLevelObjectsMap().values());
-            Iterator iter = topLevelObjects.iterator();
-            while (iter.hasNext()) {
-                Object obj = iter.next();
-                if (obj instanceof AssociationType1) {
-                    AssociationType1 ass = (AssociationType1) obj;
-                    HashMap slotsMap = bu.getSlotsFromRegistryObject(ass);
-                    String beingConfirmed = (String) slotsMap.remove(bu.IMPL_SLOT_ASSOCIATION_IS_BEING_CONFIRMED);
-                    if ((beingConfirmed != null) && (beingConfirmed.equalsIgnoreCase("true"))) {
-                        //Need to set slotMap again
-                        ass.getSlot().clear();
-                        bu.addSlotsToRegistryObject(ass, slotsMap);
-
-                        ((ServerRequestContext) context).getConfirmationAssociations().put(ass.getId(), ass);
-                    }
-                }
-            }
-        } catch (javax.xml.bind.JAXBException e) {
-            throw new RegistryException(e);
         }
     }
 
@@ -298,7 +214,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
 
             Iterator orefsIter = orefs.iterator();
-
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
                 idList.add(oref.getId());
@@ -320,7 +235,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             ((ServerRequestContext) context).rollback();
             throw new RegistryException(e);
         }
-
         ((ServerRequestContext) context).commit();
         return resp;
     }
@@ -384,7 +298,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
 
             Iterator orefsIter = orefs.iterator();
-
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
                 idList.add(oref.getId());
@@ -423,9 +336,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
             //Append those orefs specified via ad hoc query param
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
-
             Iterator orefsIter = orefs.iterator();
-
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
                 idList.add(oref.getId());
@@ -435,7 +346,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                     bu.CANONICAL_STATUS_TYPE_ID_Deprecated);
             resp = bu.rsFac.createRegistryResponse();
             resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
-
             if (((ServerRequestContext) context).getErrorList().getRegistryError().size() > 0) {
                 // warning exists
                 resp.setRegistryErrorList(((ServerRequestContext) context).getErrorList());
@@ -447,7 +357,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             ((ServerRequestContext) context).rollback();
             throw new RegistryException(e);
         }
-
         ((ServerRequestContext) context).commit();
         return resp;
     }
@@ -471,7 +380,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
 
             Iterator orefsIter = orefs.iterator();
-
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
                 idList.add(oref.getId());
@@ -592,45 +500,5 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         }
         ((ServerRequestContext) context).commit();
         return resp;
-    }
-
-    /**
-     * Checks that the user in the current context is authorized to do
-     * everything necessary to process the current request.
-     *
-     * @param context a <code>RequestContext</code> value
-     * @exception UnauthorizedRequestException if an error occurs
-     * @exception RegistryException if an error occurs
-     */
-    private void checkAuthorizedAll(ServerRequestContext context)
-            throws UnauthorizedRequestException, RegistryException {
-
-        /* HIEOS/BHT (NOOP):
-        boolean noRegRequired = Boolean.valueOf(CommonProperties.getInstance().getProperty("omar.common.noUserRegistrationRequired", "false")).booleanValue();
-
-        if (!noRegRequired) {
-        checkAuthorized(((ServerRequestContext) context),
-        AuthorizationResult.PERMIT_NONE | AuthorizationResult.PERMIT_SOME);
-        }
-         */
-    }
-
-    /**
-     * Checks that the user in the current context is authorized to do
-     * everything except the specified authorization levels.
-     *
-     * @param context a <code>RequestContext</code> value
-     * @param throwExceptionOn Flags specifying when to throw exceptions
-     * @exception UnauthorizedRequestException if an error occurs
-     * @exception RegistryException if an error occurs
-     */
-    private void checkAuthorized(ServerRequestContext context,
-            int throwExceptionOn)
-            throws UnauthorizedRequestException, RegistryException {
-        /* HIEOS/BHT (NOOP):
-        AuthorizationResult authRes =
-        AuthorizationServiceImpl.getInstance().checkAuthorization(((ServerRequestContext) context));
-        authRes.throwExceptionOn(throwExceptionOn);
-         */
     }
 }

@@ -78,6 +78,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
             versionName = versionInfo.getVersionName();
         }
 
+        /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
             //Careful not to include event as affected by itself            
             AuditableEventType ae = null;
@@ -89,31 +90,33 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 ae = context.getCreateEvent();
             }
             context.addAffectedObjectToAuditableEvent(ae, ro);
-        }
+        } */
     }
 
     protected void prepareToUpdate(Object object) throws RegistryException {
         super.prepareToUpdate(object);
         RegistryObjectType ro = (RegistryObjectType) object;
 
+        /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
             //Add to affectedObjects of updateEvent
             //But careful not to include event as affected by itself
             AuditableEventType ae = context.getUpdateEvent();
             context.addAffectedObjectToAuditableEvent(ae, ro);
-        }
+        } */
     }
 
     protected void prepareToDelete(Object object) throws RegistryException {
         super.prepareToDelete(object);
         RegistryObjectType ro = (RegistryObjectType) object;
 
+        /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
             //Add to affectedObjects of deleteEvent
             //Careful not to include event as affected by itself
             AuditableEventType ae = context.getDeleteEvent();
             context.addAffectedObjectToAuditableEvent(ae, ro);
-        }
+        }*/
     }
 
     /**

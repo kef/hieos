@@ -12,37 +12,18 @@ package org.freebxml.omar.server.query;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import javax.xml.bind.JAXBException;
 import javax.xml.registry.UnsupportedCapabilityException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
-import org.freebxml.omar.common.CanonicalConstants;
-import org.freebxml.omar.common.CanonicalSchemes;
 import org.freebxml.omar.common.spi.QueryManager;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.spi.RequestContext;
-import org.freebxml.omar.server.cache.ServerCache;
-import org.freebxml.omar.server.common.RegistryProperties;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.common.IterativeQueryParams;
-import org.freebxml.omar.server.persistence.PersistenceManager;
-import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
-import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
-import org.oasis.ebxml.registry.bindings.query.ReturnType;
-import org.oasis.ebxml.registry.bindings.rim.ClassificationNode;
-import org.oasis.ebxml.registry.bindings.rim.ClassificationScheme;
 import org.oasis.ebxml.registry.bindings.rim.QueryExpressionType;
-import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
-import org.oasis.ebxml.registry.bindings.rim.RegistryPackage;
 import org.oasis.ebxml.registry.bindings.rim.UserType;
 
 /*

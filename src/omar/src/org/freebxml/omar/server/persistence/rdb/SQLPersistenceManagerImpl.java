@@ -1039,21 +1039,6 @@ public class SQLPersistenceManagerImpl
     }
 
     /**
-     * Sets the owner on the specified objects based upon RequestContext.
-     */
-    public void changeOwner(ServerRequestContext context, List objects) throws RegistryException {
-        try {
-            ObjectRefListType orefList = bu.rimFac.createObjectRefList();
-            orefList.getObjectRef().addAll(bu.getObjectRefsFromRegistryObjects(objects));
-            context.getRelocateEvent().setAffectedObjects(orefList);
-        } catch (JAXBException e) {
-            throw new RegistryException(e);
-        } catch (JAXRException e) {
-            throw new RegistryException(e);
-        }
-    }
-
-    /**
      * Updates the idToLidMap in context entries with RegistryObject id as Key and RegistryObject lid as value 
      * for each object that matches specified id.
      *
