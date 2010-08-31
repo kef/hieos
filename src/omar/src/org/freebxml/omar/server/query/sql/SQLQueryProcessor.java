@@ -56,7 +56,7 @@ public class SQLQueryProcessor {
     }
 
     public RegistryObjectListType executeQuery(ServerRequestContext context, UserType user, String sqlQuery,
-            ResponseOptionType responseOption, IterativeQueryParams paramHolder, boolean bypassSQLParserForQuery) throws RegistryException {
+            ResponseOptionType responseOption, IterativeQueryParams paramHolder) throws RegistryException {
         RegistryObjectList sqlResult = null;
         log.debug("unparsed query: " + sqlQuery + ";");
         // System.out.println("unparsed query: " + sqlQuery + ";"); // HIEOS/BHT (DEBUG).

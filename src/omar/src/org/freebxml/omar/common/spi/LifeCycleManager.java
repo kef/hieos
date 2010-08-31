@@ -10,19 +10,7 @@
  */
 package org.freebxml.omar.common.spi;
 
-import java.util.HashMap;
 import javax.xml.registry.RegistryException;
-import org.freebxml.omar.common.RegistryResponseHolder;
-
-import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.DeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.RelocateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
-import org.oasis.ebxml.registry.bindings.rs.RegistryRequest;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponse;
 
 public interface LifeCycleManager {
@@ -53,9 +41,12 @@ public interface LifeCycleManager {
     public RegistryResponse removeObjects(RequestContext context) throws RegistryException;
     
     /** Approves one or more previously submitted objects */
+    /* HIEOS (REMOVED):
     public RegistryResponse relocateObjects(RequestContext context) throws RegistryException;
+    */
     
     /** Sends an impl specific protocol extension request. */
-    public RegistryResponseHolder extensionRequest(RequestContext context) throws RegistryException;
-    
+    /* HIEOS (REMOVED):
+     public RegistryResponseHolder extensionRequest(RequestContext context) throws RegistryException;
+    */
 }
