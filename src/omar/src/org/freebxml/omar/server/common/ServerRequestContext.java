@@ -682,37 +682,6 @@ public class ServerRequestContext extends CommonRequestContext {
 
     /**
      *
-     * @param nodeId
-     * @param expectedSchemeId
-     * @param attributeName
-     * @throws RegistryException
-     */
-    public void checkClassificationNodeRefConstraint(String nodeId, String expectedSchemeId, String attributeName) throws RegistryException {
-        /** HIEOS (DISABLED LOGIC -- checks happen at XDS.b level):
-        ClassificationSchemeType expectedScheme = null;
-        try {
-        //Check that objectType is the id of a ClassificationNode in ObjectType scheme
-        expectedScheme = (ClassificationSchemeType) ServerCache.getInstance().getRegistryObject(this, expectedSchemeId, "ClassScheme");
-
-        ClassificationNodeType node = (ClassificationNodeType) this.getRegistryObject(nodeId, "ClassificationNode");
-        String path = node.getPath();
-        String schemePath = "/" + expectedScheme.getId();
-
-        if ((path != null) && (path.length() > 0)) {
-        if (!path.startsWith(schemePath)) {
-        throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
-        new Object[]{attributeName, expectedScheme.getId(), nodeId}));
-        }
-        }
-        } catch (ObjectNotFoundException e) {
-        throw new RegistryException(ServerResourceBundle.getInstance().getString("message.notTheExpectedTypeOfNode",
-        new Object[]{attributeName, expectedScheme.getId(), nodeId}));
-
-        } */
-    }
-
-    /**
-     *
      * @return
      */
     public String getQueryId() {

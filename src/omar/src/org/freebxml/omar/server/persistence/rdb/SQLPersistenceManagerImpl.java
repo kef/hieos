@@ -123,7 +123,6 @@ public class SQLPersistenceManagerImpl
         dumpStackOnQuery = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.dumpStackOnQuery", "false")).booleanValue();
         boolean debugConnectionPool = Boolean.valueOf(RegistryProperties.getInstance().getProperty("omar.persistence.rdb.pool.debug", "false")).booleanValue();
 
-
         //Create JNDI context
         if (useConnectionPool) {
             if (!debugConnectionPool) {
@@ -319,6 +318,12 @@ public class SQLPersistenceManagerImpl
         return connection;
     }
 
+    /**
+     *
+     * @param context
+     * @param connection
+     * @throws RegistryException
+     */
     public void releaseConnection(ServerRequestContext context, Connection connection) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.debug("SQLPersistenceManagerImpl.releaseConnection");
@@ -338,6 +343,10 @@ public class SQLPersistenceManagerImpl
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public synchronized static SQLPersistenceManagerImpl getInstance() {
         if (instance == null) {
             instance = new SQLPersistenceManagerImpl();
@@ -475,8 +484,9 @@ public class SQLPersistenceManagerImpl
             throws RegistryException {
         try {
             //Make sure that status is a ref to a StatusType ClassificationNode
-            context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
-
+            /* HIEOS (REMOVED):
+             context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
+            */
             ObjectRefListType orefList = bu.rimFac.createObjectRefList();
 
             List refs = bu.getObjectRefsFromRegistryObjectIds(registryObjectsIds);
@@ -491,24 +501,6 @@ public class SQLPersistenceManagerImpl
                 roDAO.updateStatus(ro, status);
                 orefList.getObjectRef().add(ref);
             }
-
-            // repeat behaviour of DAO.prepareToXXX methdos for direct/indirect setStatus
-            /* HIEOS/DISABLED:
-            if (context.getCurrentRegistryRequest() instanceof ApproveObjectsRequest) {
-                context.getApproveEvent().setAffectedObjects(orefList);
-                context.addAffectedObjectsToAuditableEvent(context.getApproveEvent(), orefList);
-            } else if (context.getCurrentRegistryRequest() instanceof DeprecateObjectsRequest) {
-                context.getDeprecateEvent().setAffectedObjects(orefList);
-                context.addAffectedObjectsToAuditableEvent(context.getDeprecateEvent(), orefList);
-            } else if (context.getCurrentRegistryRequest() instanceof UndeprecateObjectsRequest) {
-                context.getUnDeprecateEvent().setAffectedObjects(orefList);
-                context.addAffectedObjectsToAuditableEvent(context.getUnDeprecateEvent(), orefList);
-            } else if (context.getCurrentRegistryRequest() instanceof SetStatusOnObjectsRequest) {
-                SetStatusOnObjectsRequest req = (SetStatusOnObjectsRequest) context.getCurrentRegistryRequest();
-                context.getSetStatusEvent().setAffectedObjects(orefList);
-                context.getSetStatusEvent().setEventType(req.getStatus());
-                context.addAffectedObjectsToAuditableEvent(context.getSetStatusEvent(), orefList);
-            }*/
         } catch (JAXBException e) {
             throw new RegistryException(e);
         } catch (JAXRException e) {
@@ -615,22 +607,12 @@ public class SQLPersistenceManagerImpl
         }
     }
 
-    private java.sql.DatabaseMetaData getMetaData(Connection connection)
-            throws SQLException {
-        if (metaData == null) {
-            metaData = connection.getMetaData();
-        }
-
-        return metaData;
-    }
-
     /**
      * Executes an SQL Query with default values for IterativeQueryParamHolder.
      */
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery,
             ResponseOptionType responseOption, String tableName, List objectRefs)
             throws RegistryException {
-
         IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
         return executeSQLQuery(context, sqlQuery, responseOption, tableName, objectRefs, paramHolder);
     }
@@ -645,7 +627,6 @@ public class SQLPersistenceManagerImpl
             ResponseOptionType responseOption, String tableName, List objectRefs,
             IterativeQueryParams paramHolder)
             throws RegistryException {
-
         return executeSQLQuery(context, sqlQuery, null, responseOption, tableName, objectRefs, paramHolder);
     }
 
@@ -655,8 +636,6 @@ public class SQLPersistenceManagerImpl
     public List executeSQLQuery(ServerRequestContext context, String sqlQuery, List queryParams,
             ResponseOptionType responseOption, String tableName, List objectRefs)
             throws RegistryException {
-
-
         IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
         return executeSQLQuery(context, sqlQuery, queryParams, responseOption, tableName, objectRefs, paramHolder);
     }
@@ -678,9 +657,7 @@ public class SQLPersistenceManagerImpl
 
         try {
             connection = context.getConnection();
-
             java.sql.ResultSet rs = null;
-
             tableName = org.freebxml.omar.common.Utility.getInstance().mapTableName(tableName);
 
             ReturnType returnType = responseOption.getReturnType();
@@ -797,6 +774,19 @@ public class SQLPersistenceManagerImpl
         return res;
     }
 
+    /**
+     *
+     * @param context
+     * @param connection
+     * @param rs
+     * @param tableName
+     * @param responseOption
+     * @param objectRefs
+     * @param startIndex
+     * @param maxResults
+     * @return
+     * @throws RegistryException
+     */
     private List getObjects(ServerRequestContext context, Connection connection, java.sql.ResultSet rs,
             String tableName, ResponseOptionType responseOption, List objectRefs,
             int startIndex, int maxResults)

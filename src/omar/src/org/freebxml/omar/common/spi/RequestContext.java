@@ -10,7 +10,6 @@
  */
 package org.freebxml.omar.common.spi;
 
-import java.util.Map;
 import java.util.Stack;
 import javax.xml.registry.RegistryException;
 import org.oasis.ebxml.registry.bindings.rim.UserType;

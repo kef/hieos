@@ -80,16 +80,16 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
         /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
-            //Careful not to include event as affected by itself            
-            AuditableEventType ae = null;
-            if ((versionName != null) && (!versionName.equals("1.1"))) {
-                //Add to affectedObjects of versionEvent
-                ae = context.getVersionEvent();
-            } else {
-                //Add to affectedObjects of createEvent
-                ae = context.getCreateEvent();
-            }
-            context.addAffectedObjectToAuditableEvent(ae, ro);
+        //Careful not to include event as affected by itself
+        AuditableEventType ae = null;
+        if ((versionName != null) && (!versionName.equals("1.1"))) {
+        //Add to affectedObjects of versionEvent
+        ae = context.getVersionEvent();
+        } else {
+        //Add to affectedObjects of createEvent
+        ae = context.getCreateEvent();
+        }
+        context.addAffectedObjectToAuditableEvent(ae, ro);
         } */
     }
 
@@ -99,10 +99,10 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
         /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
-            //Add to affectedObjects of updateEvent
-            //But careful not to include event as affected by itself
-            AuditableEventType ae = context.getUpdateEvent();
-            context.addAffectedObjectToAuditableEvent(ae, ro);
+        //Add to affectedObjects of updateEvent
+        //But careful not to include event as affected by itself
+        AuditableEventType ae = context.getUpdateEvent();
+        context.addAffectedObjectToAuditableEvent(ae, ro);
         } */
     }
 
@@ -112,10 +112,10 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
         /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
-            //Add to affectedObjects of deleteEvent
-            //Careful not to include event as affected by itself
-            AuditableEventType ae = context.getDeleteEvent();
-            context.addAffectedObjectToAuditableEvent(ae, ro);
+        //Add to affectedObjects of deleteEvent
+        //Careful not to include event as affected by itself
+        AuditableEventType ae = context.getDeleteEvent();
+        context.addAffectedObjectToAuditableEvent(ae, ro);
         }*/
     }
 
@@ -145,7 +145,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
             }
 
             //Make sure that objectType is a ref to a ObjectType ClassificationNode
+            /* HIEOS (REMOVED):
             context.checkClassificationNodeRefConstraint(objectType, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_ObjectType, "objectType");
+             */
         }
 
         return objectType;
@@ -963,12 +965,12 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS (REMOVED):
             if (auditableEventsIds.length() > 0) {
-                AuditableEventDAO aeDAO = new AuditableEventDAO(context);
-                sql = "SELECT * FROM " + aeDAO.getTableName() +
-                        " WHERE id IN (" + auditableEventsIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(aeDAO.getObjects(leafObjectsRs, 0, -1));
+            AuditableEventDAO aeDAO = new AuditableEventDAO(context);
+            sql = "SELECT * FROM " + aeDAO.getTableName() +
+            " WHERE id IN (" + auditableEventsIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(aeDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             if (classificationsIds.length() > 0) {
@@ -982,22 +984,22 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS (REMOVED):
             if (classificationNodesIds.length() > 0) {
-                ClassificationNodeDAO nodeDAO = new ClassificationNodeDAO(context);
-                sql = "SELECT * FROM " + nodeDAO.getTableName() +
-                        " WHERE id IN (" + classificationNodesIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(nodeDAO.getObjects(leafObjectsRs, 0, -1));
+            ClassificationNodeDAO nodeDAO = new ClassificationNodeDAO(context);
+            sql = "SELECT * FROM " + nodeDAO.getTableName() +
+            " WHERE id IN (" + classificationNodesIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(nodeDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (schemesIds.length() > 0) {
-                ClassificationSchemeDAO schemeDAO = new ClassificationSchemeDAO(context);
-                sql = "SELECT * FROM " + schemeDAO.getTableName() +
-                        " WHERE id IN (" + schemesIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(schemeDAO.getObjects(leafObjectsRs, 0, -1));
+            ClassificationSchemeDAO schemeDAO = new ClassificationSchemeDAO(context);
+            sql = "SELECT * FROM " + schemeDAO.getTableName() +
+            " WHERE id IN (" + schemesIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(schemeDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             if (externalIdsIds.length() > 0) {
@@ -1011,12 +1013,12 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS (REMOVED):
             if (externalLinksIds.length() > 0) {
-                ExternalLinkDAO externalLinkDAO = new ExternalLinkDAO(context);
-                sql = "SELECT * FROM " + externalLinkDAO.getTableName() +
-                        " WHERE id IN (" + externalLinksIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(externalLinkDAO.getObjects(leafObjectsRs, 0, -1));
+            ExternalLinkDAO externalLinkDAO = new ExternalLinkDAO(context);
+            sql = "SELECT * FROM " + externalLinkDAO.getTableName() +
+            " WHERE id IN (" + externalLinksIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(externalLinkDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             if (extrinsicObjectsIds.length() > 0) {
@@ -1030,44 +1032,44 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS (REMOVED):
             if (federationsIds.length() > 0) {
-                FederationDAO fedDAO = new FederationDAO(context);
-                sql = "SELECT * FROM " + fedDAO.getTableName() +
-                        " WHERE id IN (" + federationsIds + ")";
+            FederationDAO fedDAO = new FederationDAO(context);
+            sql = "SELECT * FROM " + fedDAO.getTableName() +
+            " WHERE id IN (" + federationsIds + ")";
 
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(fedDAO.getObjects(leafObjectsRs, 0, -1));
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(fedDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (organizationsIds.length() > 0) {
-                OrganizationDAO organizationDAO = new OrganizationDAO(context);
-                sql = "SELECT * FROM " + organizationDAO.getTableName() +
-                        " WHERE id IN (" + organizationsIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(organizationDAO.getObjects(leafObjectsRs, 0, -1));
+            OrganizationDAO organizationDAO = new OrganizationDAO(context);
+            sql = "SELECT * FROM " + organizationDAO.getTableName() +
+            " WHERE id IN (" + organizationsIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(organizationDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (personsIds.length() > 0) {
-                PersonDAO personDAO = new PersonDAO(context);
-                sql = "SELECT * FROM " + personDAO.getTableName() +
-                        " WHERE id IN (" + personsIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(personDAO.getObjects(leafObjectsRs, 0, -1));
+            PersonDAO personDAO = new PersonDAO(context);
+            sql = "SELECT * FROM " + personDAO.getTableName() +
+            " WHERE id IN (" + personsIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(personDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (registrysIds.length() > 0) {
-                RegistryDAO regDAO = new RegistryDAO(context);
-                sql = "SELECT * FROM " + regDAO.getTableName() +
-                        " WHERE id IN (" + registrysIds + ")";
+            RegistryDAO regDAO = new RegistryDAO(context);
+            sql = "SELECT * FROM " + regDAO.getTableName() +
+            " WHERE id IN (" + registrysIds + ")";
 
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(regDAO.getObjects(leafObjectsRs, 0, -1));
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(regDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             if (packagesIds.length() > 0) {
@@ -1081,53 +1083,53 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
             /* HIEOS (REMOVED):
             if (serviceBindingsIds.length() > 0) {
-                ServiceBindingDAO serviceBindingDAO = new ServiceBindingDAO(context);
-                sql = "SELECT * FROM " + serviceBindingDAO.getTableName() +
-                        " WHERE id IN (" + serviceBindingsIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(serviceBindingDAO.getObjects(leafObjectsRs, 0, -1));
+            ServiceBindingDAO serviceBindingDAO = new ServiceBindingDAO(context);
+            sql = "SELECT * FROM " + serviceBindingDAO.getTableName() +
+            " WHERE id IN (" + serviceBindingsIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(serviceBindingDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (servicesIds.length() > 0) {
-                ServiceDAO serviceDAO = new ServiceDAO(context);
-                sql = "SELECT * FROM " + serviceDAO.getTableName() +
-                        " WHERE id IN (" + servicesIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(serviceDAO.getObjects(leafObjectsRs, 0, -1));
+            ServiceDAO serviceDAO = new ServiceDAO(context);
+            sql = "SELECT * FROM " + serviceDAO.getTableName() +
+            " WHERE id IN (" + servicesIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(serviceDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (specificationLinksIds.length() > 0) {
-                SpecificationLinkDAO specLinkDAO = new SpecificationLinkDAO(context);
-                sql = "SELECT * FROM " + specLinkDAO.getTableName() +
-                        " WHERE id IN (" + specificationLinksIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(specLinkDAO.getObjects(leafObjectsRs, 0, -1));
+            SpecificationLinkDAO specLinkDAO = new SpecificationLinkDAO(context);
+            sql = "SELECT * FROM " + specLinkDAO.getTableName() +
+            " WHERE id IN (" + specificationLinksIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(specLinkDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (subscriptionsIds.length() > 0) {
-                SubscriptionDAO subDAO = new SubscriptionDAO(context);
-                sql = "SELECT * FROM " + subDAO.getTableName() +
-                        " WHERE id IN (" + subscriptionsIds + ")";
+            SubscriptionDAO subDAO = new SubscriptionDAO(context);
+            sql = "SELECT * FROM " + subDAO.getTableName() +
+            " WHERE id IN (" + subscriptionsIds + ")";
 
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(subDAO.getObjects(leafObjectsRs, 0, -1));
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(subDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
             /* HIEOS (REMOVED):
             if (usersIds.length() > 0) {
-                UserDAO userDAO = new UserDAO(context);
-                sql = "SELECT * FROM " + userDAO.getTableName() +
-                        " WHERE id IN (" + usersIds + ")";
-                log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
-                leafObjectsRs = stmt.executeQuery(sql);
-                res.addAll(userDAO.getObjects(leafObjectsRs, 0, -1));
+            UserDAO userDAO = new UserDAO(context);
+            sql = "SELECT * FROM " + userDAO.getTableName() +
+            " WHERE id IN (" + usersIds + ")";
+            log.trace("SQL = " + sql);  // HIEOS/BHT: (DEBUG)
+            leafObjectsRs = stmt.executeQuery(sql);
+            res.addAll(userDAO.getObjects(leafObjectsRs, 0, -1));
             }*/
 
         } catch (SQLException e) {
