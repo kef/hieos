@@ -22,7 +22,7 @@ import org.freebxml.omar.common.spi.QueryManager;
 import org.freebxml.omar.common.spi.QueryManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.freebxml.omar.server.common.ServerRequestContext;
-import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
+//import org.freebxml.omar.server.security.authentication.AuthenticationServiceImpl;
 
 //ebxml bindings imports
 import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequestType;
@@ -34,7 +34,7 @@ import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequestType;
 import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
+//import org.oasis.ebxml.registry.bindings.rim.UserType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 //axis 2 imports
@@ -54,7 +54,7 @@ public class OmarRegistry {
 
     //Instantiate required objects
     private org.freebxml.omar.common.BindingUtility bu = org.freebxml.omar.common.BindingUtility.getInstance();
-    private AuthenticationServiceImpl authc = AuthenticationServiceImpl.getInstance();
+    //private AuthenticationServiceImpl authc = AuthenticationServiceImpl.getInstance();
     private ServerRequestContext context = null;
     //This object is for adhocquery
     private QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
@@ -77,8 +77,8 @@ public class OmarRegistry {
             //instantiate User object with registryObject
             //registryObject has the authority to submit object requests as well as query the registry objects
             //In future this have to be changed to handle real user configured and created in in the omar DB
-            UserType user = authc.registryOperator;
-            context.setUser(user);
+            //UserType user = authc.registryOperator;
+            //context.setUser(user);
         } catch (Exception e) {
             // FIXME (BHT): Can not just eat exceptions.
             log.error("**OMAR EXCEPTION**", e);
