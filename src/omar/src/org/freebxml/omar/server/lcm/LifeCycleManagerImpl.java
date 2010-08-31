@@ -11,10 +11,8 @@
 package org.freebxml.omar.server.lcm;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,17 +21,12 @@ import org.freebxml.omar.common.CanonicalSchemes;
 import org.freebxml.omar.common.spi.LifeCycleManager;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.UUIDFactory;
-import org.freebxml.omar.common.exceptions.ObjectsNotFoundException;
 import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.DeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.RemoveObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UndeprecateObjectsRequest;
-import org.oasis.ebxml.registry.bindings.lcm.UpdateObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.Association;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
@@ -119,7 +112,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             int objsSize = objs.getIdentifiable().size();
             for (int i = 0; i < objsSize; i++) {
                 Object identObj = objs.getIdentifiable().get(i);
-
                 if (identObj instanceof RegistryPackage) {
                     insertPackageMembers(objs, (RegistryPackage) identObj);
                 }
@@ -127,7 +119,6 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
             //Split Identifiables by RegistryObjects and ObjectRefs
             bu.getObjectRefsAndRegistryObjects(objs, ((ServerRequestContext) context).getTopLevelObjectsMap(), ((ServerRequestContext) context).getObjectRefsMap());
-
             ((ServerRequestContext) context).checkObjects();
 
             /*
@@ -210,17 +201,17 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //Add explicitly specified oref params
             List orefs = bu.getObjectRefsFromObjectRefList(req.getObjectRefList());
 
+            /* HIEOS (REMOVED):
             //Append those orefs specified via ad hoc query param
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
-
+            */
+            
             Iterator orefsIter = orefs.iterator();
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
                 idList.add(oref.getId());
             }
-
-            pm.updateStatus(((ServerRequestContext) context), idList,
-                    bu.CANONICAL_STATUS_TYPE_ID_Approved);
+            pm.updateStatus(((ServerRequestContext) context), idList, bu.CANONICAL_STATUS_TYPE_ID_Approved);
             resp = bu.rsFac.createRegistryResponse();
             resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
 
@@ -245,6 +236,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * @return
      * @throws RegistryException
      */
+    /* HIEOS (REMOVED):
     public RegistryResponse updateObjects(RequestContext context) throws RegistryException {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
@@ -282,9 +274,10 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         ((ServerRequestContext) context).commit();
         return resp;
-    }
+    } */
 
     /** Sets the status of specified objects. This is an extension request that will be adde to ebRR 3.1?? */
+    /* HIEOS (REMOVED):
     public RegistryResponse setStatusOnObjects(RequestContext context) throws RegistryException {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
@@ -322,7 +315,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         ((ServerRequestContext) context).commit();
         return resp;
-    }
+    }*/
 
     /** Deprecates one or more previously submitted objects */
     public RegistryResponse deprecateObjects(RequestContext context) throws RegistryException {
@@ -334,8 +327,10 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //Add explicitly specified oref params
             List orefs = bu.getObjectRefsFromObjectRefList(req.getObjectRefList());
 
+            /* HIEOS (REMOVED):
             //Append those orefs specified via ad hoc query param
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
+             */
             Iterator orefsIter = orefs.iterator();
             while (orefsIter.hasNext()) {
                 ObjectRefType oref = (ObjectRefType) orefsIter.next();
@@ -367,6 +362,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * @return
      * @throws RegistryException
      */
+    /* HIEOS (REMOVED):
     public RegistryResponse unDeprecateObjects(RequestContext context) throws RegistryException {
         context = ServerRequestContext.convert(context);
         RegistryResponse resp = null;
@@ -404,7 +400,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
 
         ((ServerRequestContext) context).commit();
         return resp;
-    }
+    } */
 
     /**
      * Removes one or more previously submitted objects from the registry. If the
@@ -414,6 +410,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
      * or repository item. In both case, if the referenced object cannot be found,
      * RegistryResponse with errors list will be returned.
      */
+    /* HIEOS (REMOVED):
     public RegistryResponse removeObjects(RequestContext context) throws RegistryException {
         context = ServerRequestContext.convert(context);
         ServerRequestContext _context = (ServerRequestContext) context;
@@ -500,5 +497,5 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         }
         ((ServerRequestContext) context).commit();
         return resp;
-    }
+    }*/
 }

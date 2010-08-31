@@ -19,16 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.registry.InvalidRequestException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.freebxml.omar.common.BindingUtility;
 import javax.xml.registry.JAXRException;
 import org.freebxml.omar.common.CommonRequestContext;
@@ -40,15 +36,10 @@ import org.freebxml.omar.common.spi.RequestContext;
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
 import org.freebxml.omar.server.util.ServerResourceBundle;
-import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequest;
-import org.oasis.ebxml.registry.bindings.query.AdhocQueryResponseType;
-import org.oasis.ebxml.registry.bindings.query.ResponseOption;
 
 import org.oasis.ebxml.registry.bindings.query.ResponseOptionType;
 import org.oasis.ebxml.registry.bindings.query.ReturnType;
-import org.oasis.ebxml.registry.bindings.rim.AdhocQueryType;
 import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryErrorListType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
@@ -65,54 +56,53 @@ import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
  */
 public class ServerRequestContext extends CommonRequestContext {
 
-    private Log log = LogFactory.getLog(this.getClass());
     private static BindingUtility bu = BindingUtility.getInstance();
     private static PersistenceManager pm = PersistenceManagerFactory.getInstance().getPersistenceManager();
     private static QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
+
     //Map of top level Identifiable objects within the request with id keys and IdentifiableType values
     private Map topLevelObjectsMap = new HashMap();
+
     //Ids of subset of submittedObjects that are new and not pre-existing in registry
     private Set newSubmittedObjectIds = null;
+
     //New versions of RegistryObjects that are a subset of topLevelObjects that were created by Versioning feature
     private Map newROVersionMap = new HashMap();
-    //New versions of RepositoryItems that were created by Versioning feature
-    private Map newRIVersionMap = new HashMap();
-    //Map of composed RegistryObjects within the request with id keys and RegistryObjectType values
-    private Map composedObjectsMap = new HashMap();
+
     //Map of all submitted RegistryObjects objects within the request with id keys and IdentifiableType values
     //includes composedObjects
+
     //Set of all RegistryObject ids referenced from submitted (top level + composed) objects
     private Set referencedInfos = null;
+
     //Set of solved id references for this request
     private SortedSet checkedRefs = new TreeSet();
-    //Map of RegistryObject owners with RO id keys and ownerId string values
-    private SortedMap fetchedOwners = new TreeMap();
+
     //Map of submitted RegistryObjects with RO id keys and RegistryObjectType values
     private Map submittedObjectsMap = new HashMap();
+
     //Map of ObjectRefs within the request with id keys and ObjectRef values
     private Map objectRefsMap = new HashMap();
+
     //Maps temporary id key to permanent id value
     private Map idMap = new HashMap();
+
     //Used only by QueryManagerImpl to pass results of a query for read access control check.
     private List queryResults = new ArrayList();
+
     //Short lived memory used only in handling stored query invocation
     private List storedQueryParams = new ArrayList();
 
     //The RegistryErrorList for this request
     private RegistryErrorListType errorList = null;
+
     //Begin former DAOContext members
     private Connection connection = null;
     private ResponseOptionType responseOption;
     private ArrayList objectRefs;
-    //Consolidation of events of all types above into a single List. This is initialized in saveAuditableEVents()
-    private List auditableEvents = new ArrayList();
-    private Map affectedObjectsMap = new HashMap();
+
     //Map from id to lid for existing objects in registry that are either submitted or referenced in this request
     private Map idToLidMap = new HashMap();
-    //The queryId for a request that is a parameterized query invocation
-    private String queryId;
-    private Map queryParamsMap = null;
-    //true if user has RegistryAdministrator role
 
     /** Creates a new instance of RequestContext
      * @param contextId
@@ -121,46 +111,20 @@ public class ServerRequestContext extends CommonRequestContext {
      */
     public ServerRequestContext(String contextId, RegistryRequestType request) throws RegistryException {
         super(contextId, request);
-
-        //Call RequestInterceptors
-        //Only intercept top level requests.
-        /* HIEOS/BHT (REMOVED):
-        if (request != null) {
-        RequestInterceptorManager.getInstance().preProcessRequest(this);
-        }
-         */
-
         try {
             setErrorList(BindingUtility.getInstance().rsFac.createRegistryErrorList());
-
             objectRefs = new ArrayList();
-
         } catch (JAXBException e) {
             throw new RegistryException(e);
         }
     }
     
     /**
-     *
-     * Removes object matching specified id from all the various maps.
-     * @param id
-     */
-    public void remove(String id) {
-        getTopLevelObjectsMap().remove(id);
-        getSubmittedObjectsMap().remove(id);
-        getComposedObjectsMap().remove(id);
-        getIdMap().remove(id);
-    }
-
-    /**
      * Checks each object including composed objects.
      * @throws RegistryException
      */
     public void checkObjects() throws RegistryException {
         try {
-            //Process ObjectRefs and create local replicas of any remote ObjectRefs
-            //createReplicasOfRemoteObjectRefs();
-
             //Get all submitted objects including composed objects that are part of the submission
             //so that they can be used to resolve references
             getSubmittedObjectsMap().putAll(getTopLevelObjectsMap());
@@ -171,7 +135,6 @@ public class ServerRequestContext extends CommonRequestContext {
             // HIEOS(START CHANGE) - force objects into idmap (optimization):
             //pm.updateIdToLidMap(this, getSubmittedObjectsMap().keySet(), "RegistryObject");
             for (Object id : getSubmittedObjectsMap().keySet()) {
-                String idString = (String) id;
                 this.getIdToLidMap().put(id, id);
             }
             // HIEOS(END CHANGE)
@@ -202,10 +165,9 @@ public class ServerRequestContext extends CommonRequestContext {
                 referencedIds.add(refInfo.targetObject);
             }
 
-// HIEOS(START CHANGE) - force objects into idmap (optimization):
+            // HIEOS(START CHANGE) - force objects into idmap (optimization):
             //pm.updateIdToLidMap(this, referencedIds, "RegistryObject");
             for (Object id : referencedIds) {
-                String idString = (String) id;
                 this.getIdToLidMap().put(id, id);
             }
             // HIEOS(END CHANGE)
@@ -303,8 +265,6 @@ public class ServerRequestContext extends CommonRequestContext {
                     getCheckedRefs().add(refId);
                 }
 
-                ObjectRefType ref = (ObjectRefType) getObjectRefsMap().get(refId);
-
                 //Remote references already resolved by creating local replica by now
                 //First check if resolved within submittedIds
                 if (!(getSubmittedObjectsMap().containsKey(refId))) {
@@ -361,15 +321,14 @@ public class ServerRequestContext extends CommonRequestContext {
      * @throws RegistryException
      * @throws JAXBException
      */
+    /* HIEOS (REMOVED):
     public List getObjectsRefsFromQueryResults(AdhocQueryType query) throws RegistryException, JAXBException {
         List orefs = new ArrayList();
-
         try {
             if (query != null) {
                 AdhocQueryRequest req = bu.queryFac.createAdhocQueryRequest();
                 req.setId(org.freebxml.omar.common.Utility.getInstance().createId());
                 req.setAdhocQuery(query);
-
                 ResponseOption ro = bu.queryFac.createResponseOption();
                 ro.setReturnComposedObjects(false);
                 ro.setReturnType(ReturnType.OBJECT_REF);
@@ -383,9 +342,8 @@ public class ServerRequestContext extends CommonRequestContext {
                 this.popRegistryRequest();
             }
         }
-
         return orefs;
-    }
+    }*/
 
     /**
      *
@@ -499,7 +457,6 @@ public class ServerRequestContext extends CommonRequestContext {
      */
     public Set getIdsNotInRegistry(Set ids) {
         Set idsNotInRegistry = new HashSet();
-
         Iterator iter = ids.iterator();
         while (iter.hasNext()) {
             Object id = iter.next();
@@ -507,7 +464,6 @@ public class ServerRequestContext extends CommonRequestContext {
                 idsNotInRegistry.add(id);
             }
         }
-
         return idsNotInRegistry;
     }
 
@@ -523,32 +479,8 @@ public class ServerRequestContext extends CommonRequestContext {
      *
      * @return
      */
-    public Map getNewRIVersionMap() {
-        return newRIVersionMap;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Map getComposedObjectsMap() {
-        return composedObjectsMap;
-    }
-
-    /**
-     *
-     * @return
-     */
     public SortedSet getCheckedRefs() {
         return checkedRefs;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public SortedMap getFetchedOwners() {
-        return fetchedOwners;
     }
 
     /**
@@ -627,14 +559,6 @@ public class ServerRequestContext extends CommonRequestContext {
      *
      * @return
      */
-    public Map getAffectedObjectsMap() {
-        return affectedObjectsMap;
-    }
-
-    /**
-     *
-     * @return
-     */
     public List getStoredQueryParams() {
         return storedQueryParams;
     }
@@ -679,48 +603,4 @@ public class ServerRequestContext extends CommonRequestContext {
 
         return referencedInfos;
     }
-
-    /**
-     *
-     * @return
-     */
-    public String getQueryId() {
-        return queryId;
-    }
-
-    /**
-     *
-     * @param queryId
-     */
-    public void setQueryId(String queryId) {
-        this.queryId = queryId;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Map getQueryParamsMap() {
-        return queryParamsMap;
-    }
-
-    /**
-     *
-     * @param queryParamsMap
-     */
-    public void setQueryParamsMap(Map queryParamsMap) {
-        this.queryParamsMap = queryParamsMap;
-    }
-
-    /* HIEOS (REMOVED):
-    public boolean isRegistryAdministrator() throws RegistryException {
-        if (isAdmin == null) {
-            UserType user = getUser();
-            if (user != null) {
-                isAdmin = Boolean.valueOf(AuthenticationServiceImpl.getInstance().hasRegistryAdministratorRole(user));
-            }
-        }
-
-        return isAdmin.booleanValue();
-    }*/
 }
