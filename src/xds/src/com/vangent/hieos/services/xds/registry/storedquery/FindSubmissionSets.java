@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
@@ -25,6 +26,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.List;
 import org.apache.axiom.om.OMElement;
+import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 
 /**
  *
@@ -121,7 +123,9 @@ public class FindSubmissionSets extends StoredQuery {
         // patientID
         append("(obj.id = patId.registryobject AND	");
         newline();
-        append("  patId.identificationScheme='urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446' AND ");
+        append("  patId.identificationScheme='" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
+                + "' AND ");
         newline();
         append("  patId.value = '");
         append(patient_id);
@@ -133,7 +137,9 @@ public class FindSubmissionSets extends StoredQuery {
             newline();
             append("(obj.id = srcId.registryobject AND	");
             newline();
-            append("  srcId.identificationScheme='urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832' AND ");
+            append("  srcId.identificationScheme='" +
+                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid)
+                    + "' AND ");
             newline();
             append("  srcId.value IN ");
             append(source_id);
@@ -157,7 +163,7 @@ public class FindSubmissionSets extends StoredQuery {
         }
         this.addCode(content_type);
         append("AND obj.status IN ");
-        append(status);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
         return query();
     }
 }

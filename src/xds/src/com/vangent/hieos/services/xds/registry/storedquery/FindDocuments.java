@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
@@ -27,6 +28,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.List;
 import org.apache.axiom.om.OMElement;
+import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 
 /**
  * 
@@ -194,7 +196,9 @@ public class FindDocuments extends StoredQuery {
         // patientID
         append("(obj.id = patId.registryobject AND	");
         newline();
-        append(" patId.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND ");
+        append(" patId.identificationScheme='" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
+                + "' AND ");
         newline();
         append(" patId.value = '");
         append(patient_id);
@@ -231,7 +235,7 @@ public class FindDocuments extends StoredQuery {
             }
         }
         append("AND obj.status IN ");
-        append(status);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
         return query();
     }
 }

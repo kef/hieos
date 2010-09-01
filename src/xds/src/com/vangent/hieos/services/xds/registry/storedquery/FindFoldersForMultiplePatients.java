@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
@@ -27,6 +28,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.List;
 import org.apache.axiom.om.OMElement;
+import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 
 /**
  *
@@ -127,7 +129,9 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         if (patient_id != null && patient_id.size() > 0) {
             append("(obj.id = patId.registryobject AND	");
             newline();
-            append(" patId.identificationScheme='urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a' AND ");
+            append(" patId.identificationScheme='" +
+                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
+                    + "' AND ");
             newline();
             append(" patId.value IN ");
             append(patient_id);
@@ -139,7 +143,7 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
         and();
         append(" obj.status IN ");
-        append(status);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
         return query();
     }
 }

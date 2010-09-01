@@ -72,7 +72,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         String ss_uid = params.getStringParm("$XDSSubmissionSetUniqueId");
         if (ss_uuid != null) {
             // starting from uuid
-            OMElement x = this.getRegistryPackageByUUID(ss_uuid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+            OMElement x = this.getRegistryPackageByUUID(ss_uuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
             metadata = MetadataParser.parseNonSubmission(x);
             if (this.return_leaf_class && metadata.getSubmissionSets().size() != 1) {
                 return metadata;
@@ -82,7 +82,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
             }
         } else {
             // starting from uniqueid
-            OMElement x = this.getRegistryPackageByUID(ss_uid, "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8");
+            OMElement x = this.getRegistryPackageByUID(ss_uid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
             metadata = MetadataParser.parseNonSubmission(x);
             if (this.return_leaf_class && metadata.getSubmissionSets().size() != 1) {
                 return metadata;
