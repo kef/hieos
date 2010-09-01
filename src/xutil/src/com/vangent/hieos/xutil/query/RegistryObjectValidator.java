@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import java.util.List;
 import org.apache.axiom.om.OMElement;
+import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 
 /**
  * 
@@ -279,7 +280,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("WHERE");
         newline();
         append(" rp.status = '");
-        append(MetadataSupport.status_type_approved);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
         append("' AND");
         newline();
         append(" rp.id IN ");
@@ -288,7 +289,9 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
         append(" ei.registryObject = rp.id AND");
         newline();
-        append(" ei.identificationScheme = '" + MetadataSupport.XDSFolder_patientid_uuid + "'");
+        append(" ei.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
+                + "'");
         newline();
         br.setReason("Verify are Folders");
         List<String> results = this.queryForObjectRefs();
@@ -308,7 +311,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("WHERE");
         newline();
         append(" eo.status = '");
-        append(MetadataSupport.status_type_approved);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
         append("' AND");
         newline();
         append("  eo.id IN ");
@@ -321,7 +324,7 @@ public class RegistryObjectValidator extends StoredQuery {
         append("WHERE");
         newline();
         append(" eo.status = '");
-        append(MetadataSupport.status_type_approved);
+        append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
         append("' AND");
         newline();
         append(" eo.id IN ");
@@ -355,7 +358,9 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
         append(" pid.registryobject = eo.id AND");
         newline();
-        append(" pid.identificationScheme='urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427' AND");
+        append(" pid.identificationScheme='" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
+                + "' AND");
         newline();
         append(" pid.value = '");
         append(patient_id);
@@ -374,7 +379,11 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
         append(" pid.registryobject = eo.id AND");
         newline();
-        append(" pid.identificationScheme IN ('urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446','urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a') AND");
+        append(" pid.identificationScheme IN ('" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
+                + "','" +
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
+                + "') AND");
         newline();
         append(" pid.value = '");
         append(patient_id);
@@ -421,9 +430,9 @@ public class RegistryObjectValidator extends StoredQuery {
         append("WHERE");
         newline();
         append(" a.associationType IN ('");
-        append(MetadataSupport.xdsB_ihe_assoc_type_xfrm);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_xfrm));
         append("', '");
-        append(MetadataSupport.xdsB_ihe_assoc_type_apnd);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_apnd));
         append("') AND");
         newline();
         append(" a.targetObject IN ");
@@ -517,7 +526,9 @@ public class RegistryObjectValidator extends StoredQuery {
         append(" ei.registryobject = eo.id AND ");
         newline();
         append(" ei.identificationScheme = ");
-        append("'" + MetadataSupport.XDSDocumentEntry_uniqueid_uuid + "'");
+        append("'" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_uniqueid_uuid)
+                + "'");
         append(" AND");
         newline();
         append(" ei.value IN ");
@@ -566,7 +577,9 @@ public class RegistryObjectValidator extends StoredQuery {
         newline();
         append(" ei.registryObject = ss.id AND");
         newline();
-        append(" ei.identificationScheme = '" + identification_scheme + "' AND");
+        append(" ei.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                + "' AND");
         newline();
         append(" ei.value IN ");
         append(uids);

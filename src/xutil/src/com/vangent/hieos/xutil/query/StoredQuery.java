@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
+import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 
 /**
  *
@@ -387,7 +388,9 @@ public abstract class StoredQuery {
         newline();
         append(" ei.registryObject=eo.id AND");
         newline();
-        append(" ei.identificationScheme='urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab' AND");
+        append(" ei.identificationScheme='" 
+                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_uniqueid_uuid)
+                + "' AND");
         newline();
         append(" ei.value IN ");
         append(uids);
@@ -438,7 +441,7 @@ public abstract class StoredQuery {
         newline();
         if (assoc_types != null) {
             append(" AND a.associationType IN ");
-            append(assoc_types);
+            append(RegistryCodedValueMapper.convertAssocType_ValueToCode(assoc_types));
             newline();
         }
         return query();
@@ -467,7 +470,9 @@ public abstract class StoredQuery {
         append(" uniq.registryObject = ss.id");
         newline();
         if (identification_scheme != null) {
-            append(" AND uniq.identificationScheme = '" + identification_scheme + "' ");
+            append(" AND uniq.identificationScheme = '" + 
+                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                    + "' ");
             newline();
         }
         return query();
@@ -489,7 +494,9 @@ public abstract class StoredQuery {
         newline();
         append("  uniq.registryObject = ss.id AND");
         newline();
-        append("  uniq.identificationScheme = '" + identification_scheme + "' AND");
+        append("  uniq.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                + "' AND");
         newline();
         append("  uniq.value = '" + uid + "'");
         return query();
@@ -511,7 +518,9 @@ public abstract class StoredQuery {
         newline();
         append(" uniq.registryObject = ss.id AND");
         newline();
-        append(" uniq.identificationScheme = '" + identification_scheme + "' AND");
+        append(" uniq.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                + "' AND");
         newline();
         append(" uniq.value IN ");
         append(uids);
@@ -537,7 +546,9 @@ public abstract class StoredQuery {
         newline();
         append(" uniq.registryObject = ss.id AND");
         newline();
-        append(" uniq.identificationScheme = '" + identification_scheme + "' ");
+        append(" uniq.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                + "' ");
         newline();
         return query();
     }
@@ -563,7 +574,9 @@ public abstract class StoredQuery {
         newline();
         append(" uniq.registryObject = ss.id AND");
         newline();
-        append(" uniq.identificationScheme = '" + identification_scheme + "' ");
+        append(" uniq.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(identification_scheme)
+                + "' ");
         newline();
         return query();
     }
@@ -696,7 +709,7 @@ public abstract class StoredQuery {
         append(" a.sourceObject = '" + ss_uuid + "' AND");
         newline();
         append(" a.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" a.targetObject = obj.id ");
@@ -775,7 +788,7 @@ public abstract class StoredQuery {
         newline();
         if (assoc_types != null) {
             append(" AND a.associationType IN ");
-            append(assoc_types);
+            append(RegistryCodedValueMapper.convertAssocType_ValueToCode(assoc_types));
             newline();
         }
         return query();
@@ -797,7 +810,7 @@ public abstract class StoredQuery {
         newline();
         append("WHERE ");
         newline();
-        append(" a.associationType = '" + type + "' AND");
+        append(" a.associationType = '" + RegistryCodedValueMapper.convertAssocType_ValueToCode(type) + "' AND");
         newline();
         append(" a.sourceObject IN");
         append(froms);
@@ -863,7 +876,7 @@ public abstract class StoredQuery {
         append("WHERE");
         newline();
         append(" ass.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" ass.sourceObject IN (");
@@ -904,7 +917,7 @@ public abstract class StoredQuery {
         append("WHERE");
         newline();
         append(" ass.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" ass.sourceObject IN (");
@@ -935,7 +948,7 @@ public abstract class StoredQuery {
         append(" a.sourceObject = rp.id AND");
         newline();
         append(" a.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" a.targetObject IN ");
@@ -944,7 +957,9 @@ public abstract class StoredQuery {
         newline();
         append(" ei.registryObject = rp.id AND");
         newline();
-        append(" ei.identificationScheme = 'urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446'");
+        append(" ei.identificationScheme = '" +
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
+                + "'");
         newline();
         return query();
     }
@@ -963,7 +978,7 @@ public abstract class StoredQuery {
         append("WHERE");
         newline();
         append(" a.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" a.sourceObject = '" + ss_uuid + "' AND");
@@ -987,7 +1002,7 @@ public abstract class StoredQuery {
         append("WHERE");
         newline();
         append("   a.associationType = '");
-        append(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
         append("' AND");
         newline();
         append(" a.targetObject = '" + uuid + "' AND");
@@ -996,7 +1011,9 @@ public abstract class StoredQuery {
         newline();
         append(" uniq.registryObject = fol.id AND");
         newline();
-        append(" uniq.identificationScheme = '" + MetadataSupport.XDSFolder_uniqueid_uuid + "' ");
+        append(" uniq.identificationScheme = '" + 
+                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_uniqueid_uuid)
+                + "' ");
         return query();
     }
 
