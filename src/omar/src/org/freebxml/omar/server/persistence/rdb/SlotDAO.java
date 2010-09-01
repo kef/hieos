@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.common.exceptions.DuplicateSlotsException;
 import org.freebxml.omar.common.exceptions.SlotNotExistException;
-import org.freebxml.omar.common.exceptions.SlotsExistException;
 import org.freebxml.omar.common.exceptions.SlotsParentNotExistException;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.common.Utility;
@@ -34,6 +33,8 @@ import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.rim.Slot;
 import org.oasis.ebxml.registry.bindings.rim.Value;
 import org.oasis.ebxml.registry.bindings.rim.ValueList;
+
+/* HIEOS (CHANGE) - Removed slotType */
 
 
 class SlotDAO extends AbstractDAO {
@@ -91,16 +92,17 @@ class SlotDAO extends AbstractDAO {
             while (rs.next()) {
                 //int sequenceId = rs.getInt("sequenceId");
                 String name = rs.getString("name_");
-                String slotType = rs.getString("slotType");
+                //String slotType = rs.getString("slotType");
                 String value = rs.getString("value");
                 
                 if (!name.equals(lastName)) {
                     slot = bu.rimFac.createSlot();
                     slot.setName(name);
-                    
+
+                    /*
                     if (slotType != null) {
                         slot.setSlotType(slotType);
-                    }
+                    }*/
                     
                     valueList = bu.rimFac.createValueList();
                     slot.setValueList(valueList);
@@ -225,7 +227,7 @@ class SlotDAO extends AbstractDAO {
         
         try {
             String sql = "INSERT INTO " + getTableName() + " (sequenceId, " +
-            "name_, slotType, value, parent)" + " VALUES(?, ?, ?, ?, ?)";
+            "name_, value, parent)" + " VALUES(?, ?, ?, ?)";
             pstmt = context.getConnection().prepareStatement(sql);
             
             List duplicateSlotsNames = getDuplicateSlots(slots);
@@ -259,7 +261,7 @@ class SlotDAO extends AbstractDAO {
             while (iter.hasNext()) {
                 Slot slot = (Slot) iter.next();
                 String slotName = slot.getName();
-                String slotType = slot.getSlotType();
+                //String slotType = slot.getSlotType();
                 List values = slot.getValueList().getValue();
                 int size = values.size();
                 
@@ -267,9 +269,9 @@ class SlotDAO extends AbstractDAO {
                     String value = ((Value) values.get(j)).getValue();
                     pstmt.setInt(1, j);
                     pstmt.setString(2, slotName);
-                    pstmt.setString(3, slotType);
-                    pstmt.setString(4, value);
-                    pstmt.setString(5, parentId);
+                    //pstmt.setString(3, slotType);
+                    pstmt.setString(3, value);
+                    pstmt.setString(4, parentId);
                     log.trace("SQL = " + sql);   // HIEOS/BHT: DEBUG (fix)
                     pstmt.addBatch();
                 }

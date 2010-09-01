@@ -30,7 +30,6 @@ import org.freebxml.omar.common.CanonicalSchemes;
 import javax.xml.registry.RegistryException;
 import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
-import org.oasis.ebxml.registry.bindings.rim.AuditableEventType;
 import org.oasis.ebxml.registry.bindings.rim.Description;
 import org.oasis.ebxml.registry.bindings.rim.ExternalLinkType;
 import org.oasis.ebxml.registry.bindings.rim.ExtrinsicObjectType;
@@ -66,6 +65,8 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
     protected void prepareToInsert(Object object) throws RegistryException {
         super.prepareToInsert(object);
+
+        /* HIEOS (REMOVED):
         RegistryObjectType ro = (RegistryObjectType) object;
 
         //Need to distinguish between Created and Versioned events 
@@ -76,7 +77,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
         VersionInfoType versionInfo = ro.getVersionInfo();
         if (versionInfo != null) {
             versionName = versionInfo.getVersionName();
-        }
+        }*/
 
         /* HIEOS (REMOVED):
         if (!(ro instanceof AuditableEventType)) {
@@ -304,11 +305,13 @@ class RegistryObjectDAO extends IdentifiableDAO {
 
         VersionInfoType versionInfo = ro.getVersionInfo();
         String versionName = null;
-        String comment = null;
+        // HIEOS (REMOVED):
+        // String comment = null;
 
         if (versionInfo != null) {
             versionName = versionInfo.getVersionName();
-            comment = versionInfo.getComment();
+            // HIEOS (REMOVED):
+            // comment = versionInfo.getComment();
         }
 
         if ((versionName == null) || (versionName.length() == 0)) {
@@ -316,11 +319,12 @@ class RegistryObjectDAO extends IdentifiableDAO {
         }
         versionName = "'" + versionName + "'";
 
+        /* HIEOS (REMOVED):
         if ((comment != null) && (comment.length() > 0)) {
             comment = "'" + comment + "'";
         } else {
             comment = null;
-        }
+        }*/
 
         String objectType = null;
         if (action == DAO_ACTION_INSERT) {
@@ -330,9 +334,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
             ro.setStatus(BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted);
 
             stmtFragment +=
-                    ", '" + lid + "', '" + objectType +
-                    "', '" + BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted +
-                    "', " + versionName + ", " + comment;
+                    ", '" + lid + "', '" + RegistryCodedValueMapper.convertObjectType_ValueToCode(objectType) +
+                    "', '" + RegistryCodedValueMapper.convertStatus_ValueToCode(BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted) +
+                    "', " + versionName + " ";
         } else if (action == DAO_ACTION_UPDATE) {
             objectType = getObjectType(ro);
 
@@ -340,8 +344,8 @@ class RegistryObjectDAO extends IdentifiableDAO {
             // value which may have come from client -- updateStatus() will
             // change persisted status, not update()
             stmtFragment += ", lid='" + lid +
-                    "', objectType='" + objectType +
-                    "', versionName=" + versionName + ", comment_=" + comment + " ";
+                    "', objectType='" + RegistryCodedValueMapper.convertObjectType_ValueToCode(objectType) +
+                    "', versionName=" + versionName + " ";
         } else if (action == DAO_ACTION_DELETE) {
             // ??? Should this branch do something?
         }
@@ -355,6 +359,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
      * as values. For ExtrinsicObject, the objectType key is stored as "ExtrinsicObject"
      * rather than the objectType of the repository items.
      */
+    /* HIEOS (REMOVED):
     public HashMap sortIdsByObjectType(List registryObjectIds) throws RegistryException {
         HashMap map = new HashMap();
         Statement stmt = null;
@@ -534,7 +539,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
         }
 
         return map;
-    }
+    }*/
 
     /**
      * Return true if the RegistryObject exist
@@ -631,6 +636,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
             }
 
             String objectType = rs.getString("objectType");
+            objectType = RegistryCodedValueMapper.convertObjectType_CodeToValue(objectType);
             ro.setObjectType(objectType);
 
             Name name = nameDAO.getNameByParent(id);
@@ -640,6 +646,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
             ro.setDescription(desc);
 
             String status = rs.getString("status");
+            status = RegistryCodedValueMapper.convertStatus_CodeToValue(status);
             if (status.equals("null")) {
                 // Ignore earlier corruption of the database, losing whatever
                 // status was before that problem occurred
@@ -658,10 +665,11 @@ class RegistryObjectDAO extends IdentifiableDAO {
                 versionInfo.setVersionName(versionName);
             }
 
+            /* HIEOS (REMOVED):
             String comment = rs.getString("comment_");
             if (comment != null) {
                 versionInfo.setComment(comment);
-            }
+            }*/
             ro.setVersionInfo(versionInfo);
 
             boolean returnComposedObjects = context.getResponseOption().isReturnComposedObjects();
@@ -1255,6 +1263,7 @@ class RegistryObjectDAO extends IdentifiableDAO {
      * @return
      */
     private String getSQLStatementFragmentForStatusUpdate(String tableName, String status, String id) {
+        status = RegistryCodedValueMapper.convertStatus_ValueToCode(status);
         return "UPDATE " + tableName + " SET status = '" + status + "' WHERE id = '" + id + "'";
     }
 }

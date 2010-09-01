@@ -70,7 +70,7 @@ class ExternalIdentifierDAO extends RegistryObjectDAO {
         String  registryObject =  externalIdentifier.getRegistryObject();
 
         String identificationScheme =  externalIdentifier.getIdentificationScheme();
-
+        identificationScheme = RegistryCodedValueMapper.convertIdScheme_ValueToCode(identificationScheme);
         String value =  externalIdentifier.getValue();
         
         if (action == DAO_ACTION_INSERT) {
@@ -115,6 +115,7 @@ class ExternalIdentifierDAO extends RegistryObjectDAO {
             super.loadObject(obj, rs);
 
             String schemeId = rs.getString("identificationScheme");
+            schemeId = RegistryCodedValueMapper.convertIdScheme_CodeToValue(schemeId);
 
             if (schemeId != null) {
                 ObjectRef or = bu.rimFac.createObjectRef();

@@ -24,7 +24,6 @@ import org.oasis.ebxml.registry.bindings.rim.Association;
 import org.oasis.ebxml.registry.bindings.rim.AssociationType1;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRef;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
 
 
 class AssociationDAO extends RegistryObjectDAO {
@@ -64,6 +63,7 @@ class AssociationDAO extends RegistryObjectDAO {
         String targetId = ass.getTargetObject();
 
         String associationType = ass.getAssociationType();
+        associationType = RegistryCodedValueMapper.convertAssocType_ValueToCode(associationType);
 
         if (associationType != null) {
             associationType = "'" + associationType + "'";
@@ -114,6 +114,7 @@ class AssociationDAO extends RegistryObjectDAO {
             super.loadObject( ass, rs);
 
             String associationType = rs.getString("associationType");
+            associationType = RegistryCodedValueMapper.convertAssocType_CodeToValue(associationType);
             ass.setAssociationType(associationType);
 
             String sourceObjectId = rs.getString("sourceObject");

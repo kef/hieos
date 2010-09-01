@@ -12,9 +12,6 @@ package org.freebxml.omar.server.persistence.rdb;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -82,8 +79,10 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
             mimeType = "application/octet-stream";
         }
 
+        /* HIEOS (REMOVED):
         String contentVersionName = null;
         String contentVersionComment = null;
+        */
 
         /* HIEOS/BHT - Removed:
         //Set contentVersion only if RI submitted or if contentVersion
@@ -133,18 +132,13 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
             stmtFragment = "INSERT INTO ExtrinsicObject " +
                 super.getSQLStatementFragment(ro) +
                     ", " + isOpaque + 
-                    ", '" + mimeType + 
-                    "', " + contentVersionName + 
-                    ", " + contentVersionComment +
-                    " ) ";
+                    ", '" + mimeType + "' )";
         }
         else if (action == DAO_ACTION_UPDATE) {
             stmtFragment = "UPDATE ExtrinsicObject SET " +
                 super.getSQLStatementFragment(ro) +
                     ", isOpaque=" + isOpaque + 
-                    ", mimeType='" + mimeType + 
-                    "', contentVersionName=" + contentVersionName +
-                    ", contentVersionComment=" + contentVersionComment +
+                    ", mimeType='" + mimeType + "'" +
                     " WHERE id = '" + id + "' ";
         }
         else if (action == DAO_ACTION_DELETE) {
@@ -175,7 +169,8 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
 
             String mimeType = rs.getString("mimeType");
             eo.setMimeType(mimeType);
-            
+
+            /* HIEOS (REMOVED):
             //Now set contentVersionInfo if either contentComment and contentVersionName are non-null
             //Make sure to not set contentVersionInfo if both contentComment and contentVersionName are null
             VersionInfoType contentVersionInfo = BindingUtility.getInstance().rimFac.createVersionInfoType();
@@ -191,15 +186,17 @@ class ExtrinsicObjectDAO extends RegistryObjectDAO {
                     contentVersionInfo.setComment(contentComment);
                 }
                 eo.setContentVersionInfo(contentVersionInfo);
-            }
+            }*/
             
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
             throw new RegistryException(e);
-        } catch (javax.xml.bind.JAXBException e) {
+        }
+        /* HIEOS (REMOVED):
+         catch (javax.xml.bind.JAXBException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
             throw new RegistryException(e);
-        }
+        }*/
     }
 
     /**

@@ -101,17 +101,19 @@ abstract class IdentifiableDAO extends AbstractDAO {
         String stmtFragment = null;
 
         String id = ident.getId();
-        String home = ident.getHome();
 
+        /* HIEOS (REMOVED):
+        String home = ident.getHome();
         if (home != null) {
             home = "'" + home + "'";
-        }
+        }*/
 
         if (action == DAO_ACTION_INSERT) {
-            stmtFragment =
-                    " VALUES('" + id + "', " + home + " ";
+            stmtFragment = " VALUES('" + id + "' ";
+            //stmtFragment = " VALUES('" + id + "', " + home + " ";
         } else if (action == DAO_ACTION_UPDATE) {
-            stmtFragment = " id='" + id + "', home=" + home + " ";
+            stmtFragment = " id='" + id + "' ";
+            //stmtFragment = " id='" + id + "', home=" + home + " ";
         } else if (action == DAO_ACTION_DELETE) {
             stmtFragment = "DELETE from " + getTableName() +
                     " WHERE id = '" + id + "' ";
@@ -264,11 +266,11 @@ abstract class IdentifiableDAO extends AbstractDAO {
             String id = rs.getString("id");
             ident.setId(id);
 
+            /* HIEOS (REMOVED):
             String home = rs.getString("home");
             if (home != null) {
                 ident.setHome(home);
-            }
-
+            }*/
 
             boolean returnComposedObjects = context.getResponseOption().isReturnComposedObjects();
 

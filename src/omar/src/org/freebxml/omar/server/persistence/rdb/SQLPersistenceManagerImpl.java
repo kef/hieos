@@ -850,9 +850,8 @@ public class SQLPersistenceManagerImpl
         String objectType = null;
         PreparedStatement stmt = null;
         try {
-            String sql = "SELECT objectType FROM " + tableName + " WHERE id = ?";
-            stmt =
-                    connection.prepareStatement(sql);
+            String sql = "SELECT objecttype FROM " + tableName + " WHERE id = ?";
+            stmt = connection.prepareStatement(sql);
             stmt.setString(1, ref.getId());
             log.trace("SQL = " + sql.toString());
             ResultSet rs = stmt.executeQuery();
@@ -873,7 +872,7 @@ public class SQLPersistenceManagerImpl
 
             }
         }
-        return objectType;
+        return RegistryCodedValueMapper.convertObjectType_CodeToValue(objectType);
     }
 
     /**
@@ -889,8 +888,7 @@ public class SQLPersistenceManagerImpl
             ResponseOption responseOption = bu.queryFac.createResponseOption();
             responseOption.setReturnType(ReturnType.LEAF_CLASS);
             responseOption.setReturnComposedObjects(true);
-            ro =
-                    (RegistryObjectType) getIdentifiable(context, id, className, responseOption);
+            ro = (RegistryObjectType) getIdentifiable(context, id, className, responseOption);
         } catch (JAXBException e) {
             throw new RegistryException(e);
         }
