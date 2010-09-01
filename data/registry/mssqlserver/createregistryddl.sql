@@ -61,13 +61,11 @@ DROP TABLE user_;
 
 CREATE TABLE association (
     id VARCHAR(64) NOT NULL,
-    home VARCHAR(64),
     lid VARCHAR(64) NOT NULL,
-    objecttype VARCHAR(128),
-    status VARCHAR(128) NOT NULL,
+    objecttype CHAR(2),
+    status CHAR(1) NOT NULL,
     versionname VARCHAR(16),
-    comment_ VARCHAR(256),
-    associationtype VARCHAR(128) NOT NULL,
+    associationtype CHAR(2) NOT NULL,
     sourceobject VARCHAR(64) NOT NULL,
     targetobject VARCHAR(64) NOT NULL
   --  CONSTRAINT association_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association'::text))
@@ -81,12 +79,10 @@ CREATE TABLE association (
 
 CREATE TABLE classification (
     id VARCHAR(64) NOT NULL,
-    home VARCHAR(64),
     lid VARCHAR(64) NOT NULL,
-    objecttype VARCHAR(128),
-    status VARCHAR(128) NOT NULL,
+    objecttype CHAR(2),
+    status CHAR(1) NOT NULL,
     versionname VARCHAR(16),
-    comment_ VARCHAR(256),
     classificationnode VARCHAR(64),
     classificationscheme VARCHAR(64),
     classifiedobject VARCHAR(64) NOT NULL,
@@ -115,14 +111,12 @@ CREATE TABLE description (
 
 CREATE TABLE externalidentifier (
     id VARCHAR(64) NOT NULL,
-    home VARCHAR(64),
     lid VARCHAR(64) NOT NULL,
-    objecttype VARCHAR(128),
-    status VARCHAR(128) NOT NULL,
+    objecttype CHAR(2),
+    status CHAR(1) NOT NULL,
     versionname VARCHAR(16),
-    comment_ VARCHAR(256),
     registryobject VARCHAR(64) NOT NULL,
-    identificationscheme VARCHAR(64) NOT NULL,
+    identificationscheme CHAR(2) NOT NULL,
     value VARCHAR(128) NOT NULL
     --CONSTRAINT externalidentifier_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier'::text))
 );
@@ -135,16 +129,12 @@ CREATE TABLE externalidentifier (
 
 CREATE TABLE extrinsicobject (
     id VARCHAR(64) NOT NULL,
-    home VARCHAR(64),
     lid VARCHAR(64) NOT NULL,
-    objecttype VARCHAR(128),
-    status VARCHAR(128) NOT NULL,
+    objecttype CHAR(2),
+    status CHAR(1) NOT NULL,
     versionname VARCHAR(16),
-    comment_ VARCHAR(256),
     isopaque CHAR(1) NOT NULL,
-    mimetype VARCHAR(128),
-    contentversionname VARCHAR(16),
-    contentversioncomment VARCHAR(256)
+    mimetype VARCHAR(128)
 );
 
 --
@@ -155,12 +145,10 @@ CREATE TABLE extrinsicobject (
 
 CREATE TABLE registrypackage (
     id VARCHAR(64) NOT NULL,
-    home VARCHAR(64),
     lid VARCHAR(64) NOT NULL,
-    objecttype VARCHAR(128),
-    status VARCHAR(128) NOT NULL,
+    objecttype CHAR(2),
+    status CHAR(1) NOT NULL,
     versionname VARCHAR(16),
-    comment_ VARCHAR(256)
     --CONSTRAINT registrypackage_objecttype_check CHECK (((objecttype)::text = 'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage'::text))
 );
 
@@ -186,7 +174,6 @@ CREATE TABLE name_ (
 CREATE TABLE slot (
     sequenceid INT NOT NULL,
     name_ VARCHAR(128) NOT NULL,
-    slottype VARCHAR(128),
     value VARCHAR(128),
     parent VARCHAR(64) NOT NULL
 );
