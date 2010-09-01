@@ -67,9 +67,8 @@ public class OmarRegistry {
             Object requestObject = bu.getRequestObject(request.getLocalName(),
                     request.toString());
             // FIXME (BHT): Should use UUID as context ID.
-            String contextId = "Request." + requestObject.getClass().getName();
-            context = new ServerRequestContext(contextId,
-                    (RegistryRequestType) requestObject);
+            //String contextId = "Request." + requestObject.getClass().getName();
+            context = new ServerRequestContext((RegistryRequestType) requestObject);
 
             //instantiate User object with registryObject
             //registryObject has the authority to submit object requests as well as query the registry objects
