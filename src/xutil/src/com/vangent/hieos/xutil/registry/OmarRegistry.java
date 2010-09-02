@@ -94,7 +94,7 @@ public class OmarRegistry {
                 response = this.convertResponseToOMElement(rr);
                 done = true;
                 if (retries > 0) {
-                    log.info("++++ DEADLOCK RETRY #" + retries + " SUCCESS ++++");
+                    log.error("++++ DEADLOCK RETRY #" + retries + " SUCCESS!! ++++");
                 }
             } catch (RegistryDeadlockException e) {
                 log.error("++++ DEADLOCK DETECTED (# of retries so far = " + retries + ") ++++");
@@ -107,7 +107,7 @@ public class OmarRegistry {
                         ++retries;
                         // Now sleep for a little period (<= MAX_SLEEP_TIME_MILLIS.
                         int delay = rand.nextInt(MAX_SLEEP_TIME_MILLIS);
-                        log.info("++++ DEADLOCK RETRY #" + retries + "(sleeping " + delay + " msecs)");
+                        log.error("++++ DEADLOCK RETRY #" + retries + "(sleeping " + delay + " msecs)");
                         Thread.sleep(delay);
                     } catch (InterruptedException ex) {
                         // Do nothing here - just continue - still count as a retry.
