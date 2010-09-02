@@ -106,8 +106,8 @@ public class XDSbRegistry extends XAbstractService {
         if (startup_error != null) {
             return startup_error;
         }
-        logger.info("*** PID Feed: SIMPLE ***");
-        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        logger.debug("*** PID Feed: SIMPLE ***");
+        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run_Simple(patientFeedRequest);
         endTransaction(true /* success */);
@@ -149,8 +149,8 @@ public class XDSbRegistry extends XAbstractService {
             return endTransaction(PRPA_IN201301UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
         }
 
-        logger.info("*** PID Feed: Patient Registry Record Added ***");
-        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        logger.debug("*** PID Feed: Patient Registry Record Added ***");
+        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordAdded);
         this.forceAnonymousReply();  // BHT (FIXME)
@@ -179,8 +179,8 @@ public class XDSbRegistry extends XAbstractService {
             return endTransaction(PRPA_IN201302UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
         }
 
-        logger.info("*** PID Feed: Patient Registry Record Updated ***");
-        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        logger.debug("*** PID Feed: Patient Registry Record Updated ***");
+        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUpdated);
         this.forceAnonymousReply();  // BHT (FIXME)
@@ -209,8 +209,8 @@ public class XDSbRegistry extends XAbstractService {
             return endTransaction(PRPA_IN201304UV02_Message, e, XAbstractService.ActorType.REGISTRY, "");
         }
 
-        logger.info("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
-        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        logger.debug("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
+        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryDuplicatesResolved);
         this.forceAnonymousReply();  // BHT (FIXME)
@@ -239,8 +239,8 @@ public class XDSbRegistry extends XAbstractService {
             return endTransaction(PRPA_IN201304UV02UNMERGE_Message, e, XAbstractService.ActorType.REGISTRY, "");
         }
 
-        logger.info("*** PID Feed: Patient Registry Record Unmerged ***");
-        logger.info("*** XConfig Registry Name = " + this.getRegistryXConfigName());
+        logger.debug("*** PID Feed: Patient Registry Record Unmerged ***");
+        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
         this.forceAnonymousReply();  // BHT (FIXME)

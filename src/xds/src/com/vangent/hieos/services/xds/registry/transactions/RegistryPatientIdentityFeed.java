@@ -10,11 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
@@ -22,8 +17,6 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.adt.db.AdtRecordBean;
-import com.vangent.hieos.adt.db.Hl7Address;
-import com.vangent.hieos.adt.db.Hl7Name;
 import com.vangent.hieos.adt.db.AdtJdbcConnection;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
@@ -66,21 +59,22 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
     // Type type of message received.
     public enum MessageType {
-
         PatientRegistryRecordAdded,
         PatientRegistryRecordUpdated,
         PatientRegistryDuplicatesResolved,
         PatientRegistryRecordUnmerged
     };
+
     // XPath expressions:
     private final static String XPATH_PATIENT =
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
     private final static String XPATH_PRIOR_REGISTRATION_PATIENT_ID =
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id[1]";
-    //private Message log_message = null;
+
     private String xconfRegistryName = "localregistry";
     private boolean errorDetected = false;
     private String _patientId = "NOT ON REQUEST";
+    private AdtJdbcConnection _adtConn = null;
 
     /**
      *
@@ -103,6 +97,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         Exception ex = null;
         boolean updateMode = true;
         try {
+            _adtConn = this.adtGetDatabaseConnection();  // Get ADT connection.
             switch (messageType) {
                 case PatientRegistryRecordAdded:
                     updateMode = false;
@@ -126,6 +121,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         } catch (Exception e) {
             ex = e;
             this.logException(e.getMessage());  // Some lower level exception.
+        } finally {
+            if (_adtConn != null) {
+                _adtConn.closeConnection();
+            }
         }
 
         // Generate the response.
@@ -177,6 +176,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         }
         boolean updateMode = true;
         try {
+            _adtConn = this.adtGetDatabaseConnection();  // Get ADT connection.
             if (action.equals("ADD")) {
                 updateMode = false;
                 this.processPatientRegistryRecordAdded_Simple(patientFeedRequest);
@@ -192,6 +192,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         } catch (Exception e) {
             ex = e;
             this.logException(e.getMessage());  // Some lower level exception.
+        } finally {
+            if (_adtConn != null) {
+                _adtConn.closeConnection();
+            }
         }
         /* FIXME */
         result = patientFeedRequest;
@@ -285,7 +289,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
             // First see if the patient id exists and is active.
             if (this.adtDoesActivePatientExist(this._patientId)) {
-                this.adtUpdate(patientNode, this._patientId, true /* updateMode */);
+                // BHT - Turn into NO-OP (should not support UPDATE).
+                // this.adtUpdate(patientNode, this._patientId, true /* updateMode */);
             } else {
                 // Patient Id does not exist or is not active (ignore request).
                 throw this.logException("Patient ID " + this._patientId + " does not exist or is not active - skipping UPDATE!");
@@ -379,7 +384,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
         // First get a list of all external identifier ids that will be affected by the merge
         List externalIdentifierIds = regGetExternalIdentifierIDs(priorRegistrationPatientId);
-        logger.info("Number of Objects being merged: " + externalIdentifierIds.size());
+        logger.debug("Number of Objects being merged: " + externalIdentifierIds.size());
 
         // Take care of the registry by updating the patient id on the external identifiers.
         this.regUpdateExternalIdentifiers(survivingPatientId, priorRegistrationPatientId);
@@ -430,14 +435,14 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         // Also check that this is the most recent merge - only the most recent merge can be unmerged
         if (!this.adtCheckMergeHistory(survivingPatientId, unmergedPatientId)) {
             throw this.logException("Invalid UnMerge Request for Surviving Patient ID " + survivingPatientId +
-                     " and UnMerged Patient: " + unmergedPatientId + "  - skipping UNMERGE!");
+                    " and UnMerged Patient: " + unmergedPatientId + "  - skipping UNMERGE!");
         }
 
         // Patients IDs are valid, now perform the unmerge
 
         // Get a list of all external identifier ids that were affected by the merge
         List externalIdentifierIds = adtRetrieveMergedRecords(survivingPatientId, unmergedPatientId);
-		logger.info("Number of Objects being unmerged: " + externalIdentifierIds.size());
+        logger.debug("Number of Objects being unmerged: " + externalIdentifierIds.size());
 
         // Update the registry by updating the patient id on the external
         // identifiers involved in the previous merge.
@@ -475,14 +480,13 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         if (idNode == null) {
             return null;  // GUARD: Early exit.
         }
-
         String extension = idNode.getAttributeValue(new QName("extension"));
         String root = idNode.getAttributeValue(new QName("root"));
         String patientId = this.formattedPatientId(root, extension);
         // DEBUG (Start)
-        logger.info("  extension = " + extension);
-        logger.info("  root = " + root);
-        logger.info("*** Patient ID = " + patientId);
+        logger.debug("  extension = " + extension);
+        logger.debug("  root = " + root);
+        logger.debug("*** Patient ID = " + patientId);
         // DEBUG (Stop)
         return patientId;
     }
@@ -724,7 +728,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             xpath.addNamespace("ns", "urn:hl7-org:v3");
             resultNode = (OMElement) xpath.selectSingleNode(rootNode);
             if (resultNode != null) {
-                logger.info("*** Found node for XPATH: " + xpathExpression);
+                logger.debug("*** Found node for XPATH: " + xpathExpression);
             } else {
                 logger.error("*** Could not find node for XPATH: " + xpathExpression);
             }
@@ -800,34 +804,15 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     *
-     * @param patientId
-     */
-    private void adtDeletePatientId(String patientId) throws XdsInternalException {
-        String uuid = this.adtGetPatientUUID(patientId);
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
-        try {
-            conn.deleteAdtRecord(uuid);
-        } catch (SQLException e) {
-            throw this.logInternalException(e, "ADT EXCEPTION: Problem with deleting patient ID = " + patientId);
-        } finally {
-            conn.closeConnection();
-        }
-    }
-
-    /**
      * Diasables or Activates a Patient record
      * @param patientId
      */
     private void adtUpdatePatientStatus(String patientId, String status) throws XdsInternalException {
         String uuid = this.adtGetPatientUUID(patientId);
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         try {
-            conn.updateAdtRecordStatus(uuid, status);
+            _adtConn.updateAdtRecordStatus(uuid, status);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem updating status for patient ID = " + patientId);
-        } finally {
-            conn.closeConnection();
         }
     }
 
@@ -861,93 +846,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             // Just keep going since we do have a patient id.
         } else {
             // Update patient demographic data.
-            this.adtSetPatientBirthTime(patientPersonNode, arb);
-            this.adtSetPatientName(patientPersonNode, uuid, arb);
-            this.adtSetPatientAddress(patientPersonNode, uuid, arb);
+            // BHT: NO LONGER STORE DEMOGRAPHICS
         }
         // Store (which should have at least the patient id) to the database.
         this.adtSavePatientRecord(arb);
-    }
-
-    /**
-     *
-     * @param patientPersonNode
-     * @param arb
-     */
-    private void adtSetPatientName(OMElement patientPersonNode, String parentUUID, AdtRecordBean arb) {
-        OMElement nameNode = this.getFirstChildWithName(patientPersonNode, "name");
-        if (nameNode == null) {
-            this.logInfo("Note", "Request does not contain patient name");
-            return; // Early exit.
-        }
-        OMElement givenNameNode = this.getFirstChildWithName(nameNode, "given");
-        OMElement familyNameNode = this.getFirstChildWithName(nameNode, "family");
-        String familyName = (familyNameNode != null) ? familyNameNode.getText() : null;
-        String givenName = (givenNameNode != null) ? givenNameNode.getText() : null;
-        if ((familyName != null) || (givenName != null)) {
-            Hl7Name hl7Name = new Hl7Name(parentUUID);
-            hl7Name.setFamilyName(familyName);
-            hl7Name.setGivenName(givenName);
-            arb.setAddName(hl7Name);
-        } else {
-            this.logInfo("Note", "Request does not contain patient name");
-        }
-    }
-
-    /**
-     *
-     * @param patientPersonNode
-     * @param arb
-     */
-    private void adtSetPatientBirthTime(OMElement patientPersonNode, AdtRecordBean arb) {
-        OMElement birthDateNode = this.getFirstChildWithName(patientPersonNode, "birthTime");
-        if (birthDateNode == null) {
-            this.logInfo("Note", "Request does not contain birthTime");
-            return; // Early exit.
-        }
-        String birthTime = birthDateNode.getAttributeValue(new QName("value"));
-        if (birthTime != null) {
-            arb.setPatientBirthDateTime(birthTime);
-        } else {
-            this.logInfo("Note", "Request does not contain birthTime");
-        }
-    }
-
-    /**
-     *
-     * @param patientPersonNode
-     * @param arb
-     */
-    private void adtSetPatientAddress(OMElement patientPersonNode, String parentUUID, AdtRecordBean arb) {
-        OMElement addrNode = this.getFirstChildWithName(patientPersonNode, "addr");
-        if (addrNode == null) {
-            this.logInfo("Note", "Request does not contain patient address");
-            return;  // Early exit.
-        }
-        // Pull out address component parts:
-
-        OMElement streetAddressLineNode = this.getFirstChildWithName(addrNode, "streetAddressLine");
-        OMElement cityNode = this.getFirstChildWithName(addrNode, "city");
-        OMElement stateNode = this.getFirstChildWithName(addrNode, "state");
-        OMElement postalCodeNode = this.getFirstChildWithName(addrNode, "postalCode");
-
-        // Get address string values (guard against nodes not present):
-        String streetAddressLine = (streetAddressLineNode != null) ? streetAddressLineNode.getText() : null;
-        String city = (cityNode != null) ? cityNode.getText() : null;
-        String state = (stateNode != null) ? stateNode.getText() : null;
-        String postalCode = (postalCodeNode != null) ? postalCodeNode.getText() : null;
-
-        // Place into the ADT record:
-        if ((streetAddressLine != null) || (city != null) || (state != null) || (postalCode != null)) {
-            Hl7Address hl7Address = new Hl7Address(parentUUID);
-            hl7Address.setStreetAddress(streetAddressLine);
-            hl7Address.setCity(city);
-            hl7Address.setStateOrProvince(state);
-            hl7Address.setZipCode(postalCode);
-            arb.setAddAddress(hl7Address);
-        } else {
-            this.logInfo("Note", "Request does not contain patient address");
-        }
     }
 
     /**
@@ -970,14 +872,11 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private boolean adtPatientExists(String patientId) throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         boolean patientExists = false;
         try {
-            patientExists = conn.doesIdExist(patientId);
+            patientExists = _adtConn.doesIdExist(patientId);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem checking for patient ID existence = " + patientId);
-        } finally {
-            conn.closeConnection();
         }
         return patientExists;
     }
@@ -989,14 +888,11 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String adtGetPatientUUID(String patientId) throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         String uuid = null;
         try {
-            uuid = conn.getPatientUUID(patientId);
+            uuid = _adtConn.getPatientUUID(patientId);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem getting patient UUID for patient ID existence = " + patientId);
-        } finally {
-            conn.closeConnection();
         }
         return uuid;
     }
@@ -1008,14 +904,11 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private boolean adtDoesActivePatientExist(String patientId) throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         boolean patientActive = false;
         try {
-            patientActive = conn.doesActiveIdExist(patientId);
+            patientActive = _adtConn.doesActiveIdExist(patientId);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem checking if active patient exists = " + patientId);
-        } finally {
-            conn.closeConnection();
         }
         return patientActive;
     }
@@ -1027,14 +920,11 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String adtGetPatientStatus(String patientId) throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         String status = null;
         try {
-            status = conn.getPatientStatus(patientId);
+            status = _adtConn.getPatientStatus(patientId);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem getting Patient Status for patient ID existence = " + patientId);
-        } finally {
-            conn.closeConnection();
         }
         return status;
     }
@@ -1048,14 +938,11 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void adtCreateMergeHistory(String survivingPatientId, String priorRegistrationPatientId,
             String action, List externalIdentifierIds) throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         try {
-            conn.createMergeHistory(survivingPatientId, priorRegistrationPatientId, action, externalIdentifierIds);
+            _adtConn.createMergeHistory(survivingPatientId, priorRegistrationPatientId, action, externalIdentifierIds);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem creating merge history for Patient IDs = " +
-                survivingPatientId + " / " + priorRegistrationPatientId);
-        } finally {
-            conn.closeConnection();
+                    survivingPatientId + " / " + priorRegistrationPatientId);
         }
     }
 
@@ -1069,15 +956,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private List<String> adtRetrieveMergedRecords(String survivingPatientId, String priorRegistrationPatientId)
             throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         List<String> externalIdentifierIds = new ArrayList<String>();
         try {
-            externalIdentifierIds = conn.retrieveMergedRecords(survivingPatientId, priorRegistrationPatientId, "M");
+            externalIdentifierIds = _adtConn.retrieveMergedRecords(survivingPatientId, priorRegistrationPatientId, "M");
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem retrieving merge history for Patient IDs = " +
-                survivingPatientId + " / " + priorRegistrationPatientId);
-        } finally {
-            conn.closeConnection();
+                    survivingPatientId + " / " + priorRegistrationPatientId);
         }
         return externalIdentifierIds;
     }
@@ -1091,15 +975,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private boolean adtCheckMergeHistory(String survivingPatientId, String priorRegistrationPatientId)
             throws XdsInternalException {
-        AdtJdbcConnection conn = this.adtGetDatabaseConnection();
         boolean merge = false;
         try {
-            merge = conn.isPatientMerged(survivingPatientId, priorRegistrationPatientId);
+            merge = _adtConn.isPatientMerged(survivingPatientId, priorRegistrationPatientId);
         } catch (SQLException e) {
             throw this.logInternalException(e, "ADT EXCEPTION: Problem checking merge history for Patient IDs = " +
-                survivingPatientId + " / " + priorRegistrationPatientId);
-        } finally {
-            conn.closeConnection();
+                    survivingPatientId + " / " + priorRegistrationPatientId);
         }
         return merge;
     }
@@ -1132,10 +1013,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem with updating Registry external identifiers");
         } finally {
             try {
-                if (preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (conn != null){
+                if (conn != null) {
                     conn.close();
                 }
             } catch (SQLException e) {
@@ -1159,7 +1040,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = conn.prepareStatement("UPDATE EXTERNALIDENTIFIER SET VALUE = ? WHERE VALUE = ? AND ID = ?");
-            for (String id : externalIdentifierIds){
+            for (String id : externalIdentifierIds) {
                 preparedStatement.setString(1, newPatientId);
                 preparedStatement.setString(2, currentPatientId);
                 preparedStatement.setString(3, id);
@@ -1169,10 +1050,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem with updating Registry external identifiers for an unmerge");
         } finally {
             try {
-                if (preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                if (conn != null){
+                if (conn != null) {
                     conn.close();
                 }
             } catch (SQLException e) {
@@ -1201,41 +1082,27 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             preparedStatement = conn.prepareStatement("SELECT ID FROM EXTERNALIDENTIFIER WHERE VALUE = ?");
             preparedStatement.setString(1, priorRegistrationPatientId);
             rs = preparedStatement.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 externalIds.add(rs.getString(1));
-            }            
+            }
             return externalIds;
         } catch (SQLException e) {
             throw this.logInternalException(e, "REGISTRY EXCEPTION: Problem retrieving Registry external identifier ids");
         } finally {
             try {
-                if (rs != null){
+                if (rs != null) {
                     rs.close();
                 }
-                if (preparedStatement != null){
+                if (preparedStatement != null) {
                     preparedStatement.close();
                 }
-                conn.close();
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (SQLException e) {
                 logger.error("Could not close connection", e);
             }
         }
-    }
-
-    /**
-     *
-     * @return
-     */
-    private String getXConfigHomeCommunityProperty(String propertyName) {
-        String propertyValue = null;
-        try {
-            XConfig xconf = XConfig.getInstance();
-            propertyValue = xconf.getHomeCommunityProperty(propertyName);
-        } catch (XdsInternalException e) {
-            // FIXME? - not forwarding along exception.
-            this.logInternalException(e, "Unable to get XConfig property");
-        }
-        return propertyValue;
     }
 
     /**
@@ -1340,7 +1207,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private void logInfo(String logLabel, String infoString) {
         log_message.addOtherParam(logLabel, infoString);
-        logger.info(logLabel + " : " + infoString);
+        logger.debug(logLabel + " : " + infoString);
     }
 
     // Inner class
