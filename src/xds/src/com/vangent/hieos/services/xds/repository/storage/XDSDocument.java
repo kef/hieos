@@ -124,6 +124,7 @@ public class XDSDocument {
         this.mimeType = mimeType;
     }
 
+    // NOTE (BHT) - documentId is no longer used, but leaving for backward compatibility.
     /**
      * Get the value of documentId
      *

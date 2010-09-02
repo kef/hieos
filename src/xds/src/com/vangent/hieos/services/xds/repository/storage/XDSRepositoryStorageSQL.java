@@ -54,10 +54,17 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
             }
             connection.commit();
         } catch (SQLException ex) {
-            throw new XdsInternalException("Failure storing document in database [id = " + doc.getDocumentId() + "]: " + ex.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException ex1) {
+                // Do nothing (already had an exception).
+            }
+            throw new XdsInternalException("Failure storing document in database [id = " + doc.getUniqueId() + "]: " + ex.getMessage());
         } finally {
             try {
-                connection.close();
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
             } catch (Exception e) {
                 //Do nothing.
             }
@@ -104,16 +111,16 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      * @throws java.sql.SQLException
      */
     private void insertDocument(Connection connection, XDSDocument doc) throws SQLException {
-        String sql = "INSERT INTO document (uniqueid, documentid, repositoryid, hash, size_, mimetype, bytes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO document (uniqueid, repositoryid, hash, size_, mimetype, bytes) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, doc.getUniqueId());
-        stmt.setString(2, doc.getDocumentId());
-        stmt.setString(3, doc.getRepositoryId());
-        stmt.setString(4, doc.getHash());
-        stmt.setInt(5, doc.getLength());
-        stmt.setString(6, doc.getMimeType());
+        //stmt.setString(2, doc.getDocumentId());
+        stmt.setString(2, doc.getRepositoryId());
+        stmt.setString(3, doc.getHash());
+        stmt.setInt(4, doc.getLength());
+        stmt.setString(5, doc.getMimeType());
         // Store the blob.
-        stmt.setBinaryStream(7, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
+        stmt.setBinaryStream(6, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
         if (logger.isTraceEnabled()) {
             logger.trace("SQL(repo) = " + sql);
         }
@@ -129,17 +136,17 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
      * @throws java.sql.SQLException
      */
     private void updateDocument(Connection connection, XDSDocument doc) throws SQLException {
-        String sql = "UPDATE document SET documentid=?, repositoryid=?, hash=?, size_=?, mimetype=?, bytes=? WHERE uniqueid = ?";
+        String sql = "UPDATE document SET repositoryid=?, hash=?, size_=?, mimetype=?, bytes=? WHERE uniqueid = ?";
         PreparedStatement stmt = connection.prepareStatement(sql);
 
-        stmt.setString(1, doc.getDocumentId());
-        stmt.setString(2, doc.getRepositoryId());
-        stmt.setString(3, doc.getHash());
-        stmt.setInt(4, doc.getLength());
-        stmt.setString(5, doc.getMimeType());
+        //stmt.setString(1, doc.getDocumentId());
+        stmt.setString(1, doc.getRepositoryId());
+        stmt.setString(2, doc.getHash());
+        stmt.setInt(3, doc.getLength());
+        stmt.setString(4, doc.getMimeType());
         // Store the blob.
-        stmt.setBinaryStream(6, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
-        stmt.setString(7, doc.getUniqueId());
+        stmt.setBinaryStream(5, new ByteArrayInputStream(doc.getBytes()), doc.getLength());
+        stmt.setString(6, doc.getUniqueId());
 
         if (logger.isTraceEnabled()) {
             logger.trace("SQL(repo) = " + sql);
@@ -164,7 +171,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
         ResultSet rs = null;
         PreparedStatement stmt = null;
         try {
-            String sql = "SELECT documentid, repositoryid, hash, size_, mimetype, bytes FROM document WHERE uniqueid = ?";
+            String sql = "SELECT hash, size_, mimetype, bytes FROM document WHERE uniqueid = ?";
             stmt = connection.prepareStatement(sql);
             stmt.setString(1, doc.getUniqueId());
             if (logger.isTraceEnabled()) {
@@ -174,10 +181,10 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
             if (!rs.next()) {
                 throw new XDSDocumentUniqueIdError("No document found for uniqueid = " + doc.getUniqueId());
             } else {
-                doc.setDocumentId(rs.getString(1));
-                doc.setHash(rs.getString(3));
-                doc.setLength(rs.getInt(4));
-                doc.setMimeType(rs.getString(5));
+                //doc.setDocumentId(rs.getString(1));
+                doc.setHash(rs.getString(1));
+                doc.setLength(rs.getInt(2));
+                doc.setMimeType(rs.getString(3));
                 // Set blob result.
                 // AMS 06/04 - getBlob() was replaced
                 // with getBytes() - owing to issues with
@@ -185,7 +192,7 @@ public class XDSRepositoryStorageSQL extends XDSRepositoryStorage {
                 // Blob blob = rs.getBlob(6);
                 // InputStream is = blob.getBinaryStream();
                 // blob.getBytes(1, (int) blob.length());
-                byte[] bytes = rs.getBytes(6);
+                byte[] bytes = rs.getBytes(4);
                 doc.setBytes(bytes);
             }
         } catch (SQLException ex) {
