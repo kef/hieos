@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.uuid.UuidAllocator;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import org.apache.log4j.Logger;
@@ -41,13 +40,6 @@ public class AdtRecord {
     private String patientId = null;
     private String patientStatus = "A";
     private String timestamp = null;
-    private Collection patientNames = null;             // Collection of Hl7Name
-    private String patientBirthDateTime = null;
-    private String patientAdminSex = null;
-    private String patientAccountNumber = null;
-    private String patientBedId = null;
-    private Collection patientRace = null;              // Collection of Hl7Race
-    private Collection patientAddresses = null;         // Collection of Hl7Address
 
     /**
      * 
@@ -64,7 +56,6 @@ public class AdtRecord {
      */
     public AdtRecord(String patientId, Collection patientNames) {
         this.setPatientId(patientId);
-        this.setPatientNames(patientNames);
         this.generateAndSetNewUuid();
     }
 
@@ -76,33 +67,6 @@ public class AdtRecord {
      */
     public AdtRecord(String patientId) throws SQLException, XdsInternalException {
         this.setPatientId(patientId);
-        this.generateAndSetNewUuid();
-    }
-
-    /**
-     *
-     * @param patientId
-     * @param patientNames
-     * @param patientBirthDateTime
-     * @param patientAdminSex
-     * @param patientAddresses
-     * @param patientAccountNumber
-     * @param patientRace
-     * @param patientBedId
-     * @param patientStatus
-     */
-    public AdtRecord(String patientId, Collection patientNames, String patientBirthDateTime, String patientAdminSex,
-            Collection patientAddresses, String patientAccountNumber, Collection patientRace, String patientBedId, String patientStatus) {
-
-        this.setPatientId(patientId);
-        this.setPatientStatus(patientStatus);
-        this.setPatientNames(patientNames);
-        this.setPatientBirthDateTime(patientBirthDateTime);
-        this.setPatientAdminSex(patientAdminSex);
-        this.setPatientAddresses(patientAddresses);
-        this.setPatientRace(patientRace);
-        this.setPatientAccountNumber(patientAccountNumber);
-        this.setPatientBedId(patientBedId);
         this.generateAndSetNewUuid();
     }
 
@@ -120,153 +84,6 @@ public class AdtRecord {
      */
     public void setPatientId(java.lang.String patientId) {
         this.patientId = patientId;
-    }
-
-    /**
-     * Getter for property patientName.
-     * @return Value of property patientName.
-     */
-    public Collection getPatientNames() {
-        if (patientNames == null) {
-            patientNames = new ArrayList();
-        }
-
-        return patientNames;
-    }
-
-    /**
-     * Setter for property patientName.
-     * @param patientNames
-     */
-    public void setPatientNames(Collection patientNames) {
-        this.patientNames = patientNames;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getPatientBirthDateTime() {
-        return patientBirthDateTime;
-    }
-
-    /**
-     *
-     * @param patientBirthDateTime
-     */
-    public void setPatientBirthDateTime(String patientBirthDateTime) {
-        this.patientBirthDateTime = patientBirthDateTime;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getPatientAdminSex() {
-        return patientAdminSex;
-    }
-
-    /**
-     *
-     * @param patientAdminSex
-     */
-    public void setPatientAdminSex(String patientAdminSex) {
-        this.patientAdminSex = patientAdminSex;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Collection getPatientAddresses() {
-        if (patientAddresses == null) {
-            patientAddresses = new ArrayList();
-        }
-        return patientAddresses;
-    }
-
-    /**
-     *
-     * @param patientAddresses
-     */
-    public void setPatientAddresses(Collection patientAddresses) {
-        this.patientAddresses = patientAddresses;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getPatientAccountNumber() {
-        return patientAccountNumber;
-    }
-
-    /**
-     *
-     * @param patientAccountNumber
-     */
-    public void setPatientAccountNumber(String patientAccountNumber) {
-        this.patientAccountNumber = patientAccountNumber;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getPatientBedId() {
-        return patientBedId;
-    }
-
-    /**
-     *
-     * @param patientBedId
-     */
-    public void setPatientBedId(String patientBedId) {
-        this.patientBedId = patientBedId;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("Patient ID = " + this.getPatientId() + '\n');
-        //       sb.append("Patient Name = " + this.getFullName().getPrefix() + " " + this.getFullName().getGivenName() + " ");
-        //       sb.append(this.getFullName().getSecondAndFurtherName() + " " + this.getFullName().getFamilyName() + " ");
-        //       sb.append(this.getFullName().getSuffix() + " " + this.getFullName().getDegree() + '\n');
-        sb.append("Patient Birth Date/Time = " + this.getPatientBirthDateTime() + '\n');
-        sb.append("Patient Admin Sex = " + this.getPatientAdminSex() + '\n');
-        //       sb.append("Patient Address = " + this.getPatientAddress() + '\n');
-        sb.append("Patient Account Number = " + this.getPatientAccountNumber() + '\n');
-        sb.append("Patient Bed ID = " + this.getPatientBedId() + '\n');
-        for (int i = 0; i < this.getPatientRace().size(); i++) {
-            sb.append("Patient Race #" + (i + 1) + " = " + this.getPatientRace().toArray()[i] + '\n');
-        }
-        for (int i = 0; i < this.getPatientAddresses().size(); i++) {
-            Hl7Address address = (Hl7Address) this.getPatientAddresses().toArray()[i];
-            sb.append("Patient Address #" + (i + 1) + " = " + address.toString());
-        }
-        return sb.toString();
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Collection getPatientRace() {
-        if (patientRace == null) {
-            patientRace = new ArrayList();
-        }
-        return patientRace;
-    }
-
-    /**
-     *
-     * @param patientRace
-     */
-    public void setPatientRace(Collection patientRace) {
-        this.patientRace = patientRace;
     }
 
     /**

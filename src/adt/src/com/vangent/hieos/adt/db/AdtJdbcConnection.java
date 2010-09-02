@@ -55,18 +55,6 @@ public class AdtJdbcConnection {
     /**
      *
      */
-    public static String ADT_PATIENT_NAME_TABLE = "patientname";
-    /**
-     *
-     */
-    public static String ADT_PATIENT_ADDRESS_TABLE = "patientaddress";
-    /**
-     *
-     */
-    public static String ADT_PATIENT_RACE_TABLE = "patientrace";
-    /**
-     *
-     */
     public static String ADT_MAIN_UUID = "uuid";
     /**
      * Constant representing the patient ID column in the ADT database table.
@@ -75,95 +63,11 @@ public class AdtJdbcConnection {
     /**
      *
      */
-    public static String ADT_MAIN_BIRTHDATETIME = "birthdatetime";
-    /**
-     *
-     */
-    public static String ADT_MAIN_ADMIN_SEX = "adminsex";
-    /**
-     *
-     */
-    public static String ADT_MAIN_ACCOUNT_NUMBER = "accountnumber";
-    /**
-     *
-     */
-    public static String ADT_MAIN_BED_ID = "bedid";
-    /**
-     *
-     */
     public static String ADT_MAIN_STATUS = "status";
     /**
      *
      */
     public static String ADT_MAIN_ACTIVE_STATUS = "A";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_PARENT = "parent";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_FAMILY_NAME = "familyname";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_GIVEN_NAME = "givenname";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_SECOND_AND_FURTHER_NAME = "secondandfurthername";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_SUFFIX = "suffix";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_PREFIX = "prefix";
-    /**
-     *
-     */
-    public static String ADT_PATIENTNAME_DEGREE = "degree";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_PARENT = "parent";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_STREET_ADDRESS = "streetaddress";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_OTHER_DESIGNATION = "otherdesignation";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_CITY = "city";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_STATE_OR_PROVINCE = "stateorprovince";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_ZIPCODE = "zipcode";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_COUNTRY = "country";
-    /**
-     *
-     */
-    public static String ADT_PATIENTADDRESS_COUNTY_OR_PARISH = "countyorparish";
-    /**
-     *
-     */
-    public static String ADT_PATIENTRACE_PARENT = "parent";
-    /**
-     *
-     */
-    public static String ADT_PATIENTRACE_RACE = "race";
 
     /**
      * Creates a new instance of JdbcConnection
@@ -270,195 +174,34 @@ public class AdtJdbcConnection {
      * @throws java.sql.SQLException
      */
     public boolean addAdtRecord(AdtRecord record) throws SQLException {
-        // FIXME (BHT): This should really be fixed to enforce referential integrity.
-        // Right now, the subordinate tables are updated before the parent (Main).
-
-        // Store race data.
-        Collection races = record.getPatientRace();
-        Iterator itRace = races.iterator();
-        while (itRace.hasNext()) {
-            Hl7Race race = (Hl7Race) itRace.next();
-            this.addHl7Race(race);
-        }
-
-        // Store patient name data.
-        Collection names = record.getPatientNames();
-        Iterator itName = names.iterator();
-        while (itName.hasNext()) {
-            Hl7Name name = (Hl7Name) itName.next();
-            this.addHl7Name(name);
-        }
-
-        // Store address data.
-        Collection addresses = record.getPatientAddresses();
-        Iterator itAddress = addresses.iterator();
-        while (itAddress.hasNext()) {
-            Hl7Address address = (Hl7Address) itAddress.next();
-            this.addHl7Address(address);
-        }
 
         // First see if we are in INSERT or UPDATE mode.
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT uuid FROM ");
-        sb.append(this.ADT_MAIN_TABLE);
-        sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
-        //sb.append(";");
+        sb.append(ADT_MAIN_TABLE);
+        sb.append(" WHERE " + ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
         ResultSet resultSet = this.executeQuery(sb.toString());
         boolean updateMode = resultSet.first();
         sb = new StringBuffer();
         if (updateMode == false) {
             // Insert:
             sb.append("INSERT INTO ");
-            sb.append(this.ADT_MAIN_TABLE);
-            sb.append(" (" + this.ADT_MAIN_ACCOUNT_NUMBER + "," + this.ADT_MAIN_ADMIN_SEX + ",");
-            sb.append(this.ADT_MAIN_BED_ID + "," + this.ADT_MAIN_BIRTHDATETIME + ",");
-            sb.append(this.ADT_MAIN_PATIENTID + "," + this.ADT_MAIN_UUID + "," + this.ADT_MAIN_STATUS + "," + "timestamp" + ")");
+            sb.append(ADT_MAIN_TABLE);
+            sb.append(" (");
+            sb.append(ADT_MAIN_PATIENTID + "," + ADT_MAIN_UUID + "," + ADT_MAIN_STATUS + "," + "timestamp" + ")");
             sb.append(" VALUES ");
-            sb.append("('" + record.getPatientAccountNumber() + "','" + record.getPatientAdminSex() + "','");
-            sb.append(record.getPatientBedId() + "','" + record.getPatientBirthDateTime() + "','");
+            sb.append("('");
             sb.append(record.getPatientId() + "','" + record.getUuid() + "','" + record.getPatientStatus() + "','" + getDate() + "')");
-            logger.info("Patient ADD SQL: " + sb.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Patient ADD SQL: " + sb.toString());
+            }
         } else {
             // Update:
             sb.append("UPDATE ");
-            sb.append(this.ADT_MAIN_TABLE);
+            sb.append(ADT_MAIN_TABLE);
             sb.append(" SET ");
-            sb.append(this.ADT_MAIN_ACCOUNT_NUMBER + " = " + "'" + record.getPatientAccountNumber() + "'").append(",");
-            sb.append(this.ADT_MAIN_ADMIN_SEX + " = " + "'" + record.getPatientAdminSex() + "'").append(",");
-            sb.append(this.ADT_MAIN_BED_ID + " = " + "'" + record.getPatientBedId() + "'").append(",");
-            sb.append(this.ADT_MAIN_BIRTHDATETIME + " = " + "'" + record.getPatientBirthDateTime() + "'").append(",");
             sb.append("timestamp" + " = " + "'" + getDate() + "'");
-            sb.append(" WHERE " + this.ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
-        }
-        int rowsAffected = this.executeUpdate(sb.toString());
-        return rowsAffected > 0;
-    }
-
-    /**
-     *
-     * @param name
-     * @return
-     * @throws java.sql.SQLException
-     */
-    private boolean addHl7Name(Hl7Name name) throws java.sql.SQLException {
-        StringBuffer sb = new StringBuffer();
-
-        // First see if we are in INSERT or UPDATE mode.
-        sb.append("SELECT parent FROM ");
-        sb.append(this.ADT_PATIENT_NAME_TABLE);
-        sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'");
-        //sb.append(";");
-        ResultSet resultSet = this.executeQuery(sb.toString());
-        boolean updateMode = resultSet.first();
-        sb = new StringBuffer();
-        if (updateMode == false) {
-            // Insert:
-            sb.append("INSERT INTO ");
-            sb.append(this.ADT_PATIENT_NAME_TABLE);
-            sb.append(" (" + this.ADT_PATIENTNAME_DEGREE + "," + this.ADT_PATIENTNAME_FAMILY_NAME + ",");
-            sb.append(this.ADT_PATIENTNAME_GIVEN_NAME + "," + this.ADT_PATIENTNAME_PARENT + ",");
-            sb.append(this.ADT_PATIENTNAME_PREFIX + "," + this.ADT_PATIENTNAME_SECOND_AND_FURTHER_NAME + ",");
-            sb.append(this.ADT_PATIENTNAME_SUFFIX + ")");
-            sb.append(" VALUES ");
-            sb.append("('" + name.getDegree() + "','" + name.getFamilyName() + "','");
-            sb.append(name.getGivenName() + "','" + name.getParent() + "','");
-            sb.append(name.getPrefix() + "','" + name.getSecondAndFurtherName() + "','");
-            //sb.append(name.getSuffix() + "');");
-            sb.append(name.getSuffix() + "')");
-        } else {
-            // Update:
-            sb.append("UPDATE ");
-            sb.append(this.ADT_PATIENT_NAME_TABLE);
-            sb.append(" SET ");
-            sb.append(this.ADT_PATIENTNAME_DEGREE + " = " + "'" + name.getDegree() + "'").append(",");
-            sb.append(this.ADT_PATIENTNAME_FAMILY_NAME + " = " + "'" + name.getFamilyName() + "'").append(",");
-            sb.append(this.ADT_PATIENTNAME_GIVEN_NAME + " = " + "'" + name.getGivenName() + "'").append(",");
-            sb.append(this.ADT_PATIENTNAME_PREFIX + " = " + "'" + name.getPrefix() + "'").append(",");
-            sb.append(this.ADT_PATIENTNAME_SECOND_AND_FURTHER_NAME + " = " + "'" + name.getSecondAndFurtherName() + "'").append(",");
-            sb.append(this.ADT_PATIENTNAME_SUFFIX + " = " + "'" + name.getSuffix() + "'");
-            //sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'").append(";");
-            sb.append(" WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + name.getParent() + "'");
-        }
-        int rowsAffected = this.executeUpdate(sb.toString());
-        return rowsAffected > 0;
-    }
-
-    /**
-     *
-     * @param address
-     * @return
-     * @throws java.sql.SQLException
-     */
-    private boolean addHl7Address(Hl7Address address) throws java.sql.SQLException {
-        StringBuffer sb = new StringBuffer();
-
-        // First see if we are in INSERT or UPDATE mode.
-        sb.append("SELECT parent FROM ");
-        sb.append(this.ADT_PATIENT_ADDRESS_TABLE);
-        sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'");
-        //sb.append(";");
-        ResultSet resultSet = this.executeQuery(sb.toString());
-        boolean updateMode = resultSet.first();
-        sb = new StringBuffer();
-        if (updateMode == false) {
-            // Insert:
-            sb.append("INSERT INTO ");
-            sb.append(this.ADT_PATIENT_ADDRESS_TABLE);
-            sb.append(" (" + this.ADT_PATIENTADDRESS_CITY + "," + this.ADT_PATIENTADDRESS_COUNTRY + ",");
-            sb.append(this.ADT_PATIENTADDRESS_COUNTY_OR_PARISH + "," + this.ADT_PATIENTADDRESS_OTHER_DESIGNATION + ",");
-            sb.append(this.ADT_PATIENTADDRESS_PARENT + "," + this.ADT_PATIENTADDRESS_STATE_OR_PROVINCE + ",");
-            sb.append(this.ADT_PATIENTADDRESS_STREET_ADDRESS + "," + this.ADT_PATIENTADDRESS_ZIPCODE + ")");
-            sb.append(" VALUES ");
-            sb.append("('" + address.getCity() + "','" + address.getCountry() + "','");
-            sb.append(address.getCountyOrParish() + "','" + address.getOtherDesignation() + "','");
-            sb.append(address.getParent() + "','" + address.getStateOrProvince() + "','");
-            //sb.append(address.getStreetAddress() + "','" + address.getZipCode() + "');");
-            sb.append(address.getStreetAddress() + "','" + address.getZipCode() + "')");
-        } else {
-            // Update:
-            sb.append("UPDATE ");
-            sb.append(this.ADT_PATIENT_ADDRESS_TABLE);
-            sb.append(" SET ");
-            sb.append(this.ADT_PATIENTADDRESS_CITY + " = " + "'" + address.getCity() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_COUNTRY + " = " + "'" + address.getCountry() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_COUNTY_OR_PARISH + " = " + "'" + address.getCountyOrParish() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_OTHER_DESIGNATION + " = " + "'" + address.getOtherDesignation() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_STATE_OR_PROVINCE + " = " + "'" + address.getStateOrProvince() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_STREET_ADDRESS + " = " + "'" + address.getStreetAddress() + "'").append(",");
-            sb.append(this.ADT_PATIENTADDRESS_ZIPCODE + " = " + "'" + address.getZipCode() + "'");
-            //sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'").append(";");
-            sb.append(" WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + address.getParent() + "'");
-        }
-        int rowsAffected = this.executeUpdate(sb.toString());
-        return rowsAffected > 0;
-    }
-
-    /**
-     *
-     * @param race
-     * @return
-     * @throws java.sql.SQLException
-     */
-    private boolean addHl7Race(Hl7Race race) throws java.sql.SQLException {
-        StringBuffer sb = new StringBuffer();
-        // First see if we are in INSERT or UPDATE mode.
-        sb.append("SELECT parent FROM ");
-        sb.append(this.ADT_PATIENT_RACE_TABLE);
-        sb.append(" WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + race.getParent() + "'");
-        //sb.append(";");
-        ResultSet resultSet = this.executeQuery(sb.toString());
-        boolean updateMode = resultSet.first();
-        if (updateMode == false) {
-            // Insert:
-            sb.append("INSERT INTO ");
-            sb.append(this.ADT_PATIENT_RACE_TABLE);
-            sb.append(" (" + this.ADT_PATIENTRACE_PARENT + "," + this.ADT_PATIENTRACE_RACE + ")");
-            sb.append(" VALUES ");
-            //sb.append("('" + race.getParent() + "','" + race.getRace() + "');");
-            sb.append("('" + race.getParent() + "','" + race.getRace() + "')");
-        } else {
-            // Update:
-            // FIXME (BHT) -- do at some point.
+            sb.append(" WHERE " + ADT_MAIN_UUID + " = '" + record.getUuid() + "'");
         }
         int rowsAffected = this.executeUpdate(sb.toString());
         return rowsAffected > 0;
@@ -475,9 +218,9 @@ public class AdtJdbcConnection {
     public boolean doesIdExist(String id) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT id ");
-        sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
+        sb.append("FROM " + ADT_MAIN_TABLE + " ");
         //sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "';");
-        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + id + "'");
+        sb.append("WHERE " + ADT_MAIN_PATIENTID + " = '" + id + "'");
         ResultSet result = this.executeQuery(sb.toString());
         return result.next();
     }
@@ -508,95 +251,15 @@ public class AdtJdbcConnection {
     public String getPatientUUID(String patientId) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT UUID ");
-        sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
+        sb.append("FROM " + ADT_MAIN_TABLE + " ");
         //sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "';");
-        sb.append("WHERE " + this.ADT_MAIN_PATIENTID + " = '" + patientId + "'");
+        sb.append("WHERE " + ADT_MAIN_PATIENTID + " = '" + patientId + "'");
         ResultSet result = this.executeQuery(sb.toString());
         if (result.first() == false) {
             // not found.
             return null;  // Early exit.
         }
-        return result.getString(this.ADT_MAIN_UUID);
-    }
-
-    /**
-     *
-     * @param uuid
-     * @return
-     * @throws java.sql.SQLException
-     */
-    public Collection getPatientNames(String uuid) throws SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT * ");
-        sb.append("FROM " + this.ADT_PATIENT_NAME_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "'");
-        ResultSet result = this.executeQuery(sb.toString());
-        Collection names = new ArrayList();
-        while (result.next()) {
-            Hl7Name name = new Hl7Name();
-            name.setParent(result.getString(this.ADT_PATIENTNAME_PARENT));
-            name.setDegree(result.getString(this.ADT_PATIENTNAME_DEGREE));
-            name.setFamilyName(result.getString(this.ADT_PATIENTNAME_FAMILY_NAME));
-            name.setGivenName(result.getString(this.ADT_PATIENTNAME_GIVEN_NAME));
-            name.setPrefix(result.getString(this.ADT_PATIENTNAME_PREFIX));
-            name.setSecondAndFurtherName(result.getString(this.ADT_PATIENTNAME_SECOND_AND_FURTHER_NAME));
-            name.setSuffix(result.getString(this.ADT_PATIENTNAME_SUFFIX));
-            names.add(name);
-        }
-        return names;
-    }
-
-    /**
-     *
-     * @param uuid
-     * @return
-     * @throws java.sql.SQLException
-     */
-    public Collection getPatientRaces(String uuid) throws SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT * ");
-        sb.append("FROM " + this.ADT_PATIENT_RACE_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "'");
-        ResultSet result = this.executeQuery(sb.toString());
-        Collection races = new ArrayList();
-        while (result.next()) {
-            Hl7Race race = new Hl7Race();
-            race.setParent(result.getString(this.ADT_PATIENTRACE_PARENT));
-            race.setRace(result.getString(this.ADT_PATIENTRACE_RACE));
-            races.add(race);
-        }
-        return races;
-    }
-
-    /**
-     *
-     * @param uuid
-     * @return
-     * @throws java.sql.SQLException
-     */
-    public Collection getPatientAddresses(String uuid) throws SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT * ");
-        sb.append("FROM " + this.ADT_PATIENT_ADDRESS_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "'");
-        ResultSet result = this.executeQuery(sb.toString());
-        Collection addresses = new ArrayList();
-        while (result.next()) {
-            Hl7Address address = new Hl7Address();
-            address.setParent(result.getString(this.ADT_PATIENTADDRESS_PARENT));
-            address.setCity(result.getString(this.ADT_PATIENTADDRESS_CITY));
-            address.setCountry(result.getString(this.ADT_PATIENTADDRESS_COUNTRY));
-            address.setCountyOrParish(result.getString(this.ADT_PATIENTADDRESS_COUNTY_OR_PARISH));
-            address.setOtherDesignation(result.getString(this.ADT_PATIENTADDRESS_OTHER_DESIGNATION));
-            address.setStateOrProvince(result.getString(this.ADT_PATIENTADDRESS_STATE_OR_PROVINCE));
-            address.setStreetAddress(result.getString(this.ADT_PATIENTADDRESS_STREET_ADDRESS));
-            address.setZipCode(result.getString(this.ADT_PATIENTADDRESS_ZIPCODE));
-            addresses.add(address);
-        }
-        return addresses;
+        return result.getString(ADT_MAIN_UUID);
     }
 
     /**
@@ -609,9 +272,9 @@ public class AdtJdbcConnection {
     public AdtRecord getAdtRecord(String uuid) throws SQLException, XdsInternalException {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * ");
-        sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "'");
+        sb.append("FROM " + ADT_MAIN_TABLE + " ");
+        //sb.append("WHERE " + ADT_MAIN_UUID + " = '" + uuid + "';");
+        sb.append("WHERE " + ADT_MAIN_UUID + " = '" + uuid + "'");
         ResultSet result = this.executeQuery(sb.toString());
         try {
             result.next();
@@ -621,15 +284,8 @@ public class AdtJdbcConnection {
         }
         AdtRecord record = new AdtRecord();
         record.setUuid(uuid);
-        record.setPatientAccountNumber(result.getString(this.ADT_MAIN_ACCOUNT_NUMBER));
-        record.setPatientAdminSex(result.getString(this.ADT_MAIN_ADMIN_SEX));
-        record.setPatientBedId(result.getString(this.ADT_MAIN_BED_ID));
-        record.setPatientBirthDateTime(result.getString(this.ADT_MAIN_BIRTHDATETIME));
-        record.setPatientId(result.getString(this.ADT_MAIN_PATIENTID));
-        record.setPatientStatus(result.getString(this.ADT_MAIN_STATUS));
-        record.setPatientAddresses(this.getPatientAddresses(uuid));
-        record.setPatientNames(this.getPatientNames(uuid));
-        record.setPatientRace(this.getPatientRaces(uuid));
+        record.setPatientId(result.getString(ADT_MAIN_PATIENTID));
+        record.setPatientStatus(result.getString(ADT_MAIN_STATUS));
         return record;
     }
 
@@ -639,40 +295,13 @@ public class AdtJdbcConnection {
      * @throws SQLException
      */
     public void deleteAdtRecord(String uuid) throws SQLException {
-        StringBuffer sb;
-        int rowsAffected;
-
         // Delete the main table entries.
-        sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
         sb.append("DELETE ");
-        sb.append("FROM " + this.ADT_MAIN_TABLE + " ");
+        sb.append("FROM " + ADT_MAIN_TABLE + " ");
         //sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_MAIN_UUID + " = '" + uuid + "'");
-        rowsAffected = this.executeUpdate(sb.toString());
-
-        // Delete the address table entries.
-        sb = new StringBuffer();
-        sb.append("DELETE ");
-        sb.append("FROM " + this.ADT_PATIENT_ADDRESS_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTADDRESS_PARENT + " = '" + uuid + "'");
-        rowsAffected = this.executeUpdate(sb.toString());
-
-        // Delete the name table entries.
-        sb = new StringBuffer();
-        sb.append("DELETE ");
-        sb.append("FROM " + this.ADT_PATIENT_NAME_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTNAME_PARENT + " = '" + uuid + "'");
-        rowsAffected = this.executeUpdate(sb.toString());
-
-        // Delete the race table entries.
-        sb = new StringBuffer();
-        sb.append("DELETE ");
-        sb.append("FROM " + this.ADT_PATIENT_RACE_TABLE + " ");
-        //sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "';");
-        sb.append("WHERE " + this.ADT_PATIENTRACE_PARENT + " = '" + uuid + "'");
-        rowsAffected = this.executeUpdate(sb.toString());
+        sb.append("WHERE " + ADT_MAIN_UUID + " = '" + uuid + "'");
+        this.executeUpdate(sb.toString());
     }
 
     /**
@@ -711,7 +340,6 @@ public class AdtJdbcConnection {
         sb.append("SELECT status ");
         sb.append("FROM " + ADT_MAIN_TABLE + " ");
         sb.append("WHERE " + ADT_MAIN_PATIENTID + " = '" + id + "'");
-
         ResultSet result = this.executeQuery(sb.toString());
         if (result.next()) {
             return result.getString(1);
@@ -827,7 +455,7 @@ public class AdtJdbcConnection {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = con.prepareStatement("INSERT INTO MERGEDOBJECTS VALUES(?,?)");
-            for (String id : externalIdentifierIds){
+            for (String id : externalIdentifierIds) {
                 preparedStatement.setString(1, mergedHistoryId);
                 preparedStatement.setString(2, id);
                 preparedStatement.executeUpdate();
@@ -860,7 +488,7 @@ public class AdtJdbcConnection {
             // This means a merge or unmerge did not occur for these ids
             return null;
         }
-        logger.info("Merge History Id: " + mergeHistoryId);
+        logger.debug("Merge History Id: " + mergeHistoryId);
 
         // Get the list of identifiers involved in the merge
         PreparedStatement preparedStatement = null;
@@ -868,12 +496,12 @@ public class AdtJdbcConnection {
         List externalIdentifierIds = new ArrayList<String>();
         try {
             preparedStatement = con.prepareStatement("SELECT EXTERNALIDENTIFIERID " +
-                "FROM MERGEDOBJECTS WHERE PARENTID = ?");
+                    "FROM MERGEDOBJECTS WHERE PARENTID = ?");
             preparedStatement.setString(1, mergeHistoryId);
             rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 externalIdentifierIds.add(rs.getString(1));
-                logger.info("EXTERNALIDENTIFIERID: " + rs.getString(1));
+                logger.debug("EXTERNALIDENTIFIERID: " + rs.getString(1));
             }
         } catch (SQLException ex) {
             throw ex;
@@ -903,7 +531,6 @@ public class AdtJdbcConnection {
      */
     private String getMergeHistoryID(String survivingPatientId, String priorRegistrationPatientId,
             String action) throws SQLException {
-
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
         String historyId;
