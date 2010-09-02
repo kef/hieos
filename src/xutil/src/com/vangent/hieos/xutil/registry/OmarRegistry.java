@@ -16,6 +16,10 @@ package com.vangent.hieos.xutil.registry;
 import java.io.StringWriter;
 
 //freebxml imports (from omar)
+import java.util.logging.Level;
+import javax.xml.bind.JAXBException;
+import javax.xml.registry.RegistryException;
+import javax.xml.stream.XMLStreamException;
 import org.freebxml.omar.common.spi.LifeCycleManager;
 import org.freebxml.omar.common.spi.LifeCycleManagerFactory;
 import org.freebxml.omar.common.spi.QueryManager;
@@ -40,45 +44,31 @@ import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.log4j.Logger;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import java.util.Random;
 
 /**
  *
- * @author nistra
+ * @author nistra (Rewrote by Bernie Thuman)
  */
 public class OmarRegistry {
 
     private final static Logger log = Logger.getLogger(OmarRegistry.class);
-
     //Instantiate required objects
     private org.freebxml.omar.common.BindingUtility bu = org.freebxml.omar.common.BindingUtility.getInstance();
-    //private AuthenticationServiceImpl authc = AuthenticationServiceImpl.getInstance();
-    private ServerRequestContext context = null;
     //This object is for adhocquery
     private QueryManager qm = QueryManagerFactory.getInstance().getQueryManager();
     //This object is for submitobjectrequest
-    private LifeCycleManager lcm = LifeCycleManagerFactory.getInstance().
-            getLifeCycleManager();
-    public static final String ALIAS_REGISTRY_OPERATOR = "urn:freebxml:registry:predefinedusers:registryoperator";
+    private LifeCycleManager lcm = LifeCycleManagerFactory.getInstance().getLifeCycleManager();
+    private ServerRequestContext context = null;
+    private OMElement request = null;
 
+    /**
+     *
+     * @param request
+     */
     public OmarRegistry(OMElement request) {
-        try {
-            //Create Variables which are required to call to the Request class.
-            //creating the context object
-            Object requestObject = bu.getRequestObject(request.getLocalName(),
-                    request.toString());
-            // FIXME (BHT): Should use UUID as context ID.
-            //String contextId = "Request." + requestObject.getClass().getName();
-            context = new ServerRequestContext((RegistryRequestType) requestObject);
+        this.request = request;
 
-            //instantiate User object with registryObject
-            //registryObject has the authority to submit object requests as well as query the registry objects
-            //In future this have to be changed to handle real user configured and created in in the omar DB
-            //UserType user = authc.registryOperator;
-            //context.setUser(user);
-        } catch (Exception e) {
-            // FIXME (BHT): Can not just eat exceptions.
-            log.error("**OMAR EXCEPTION**", e);
-        }
     }
 
     /**
@@ -86,7 +76,67 @@ public class OmarRegistry {
      */
     public OMElement process()
             throws XdsInternalException {
+        OMElement response = null;  // The final response.
+
+        // Convert OMElement to String.
+        String requestAsString = request.toString();
+
+        boolean done = false;
+        int retries = 0;
+        int MAX_RETRIES = 5;
+        int MAX_SLEEP_TIME_MILLIS = 1000;  // 1 sec.
+        Random rand = new Random();
+        while (!done) {
+            try {
+                // Submit the request to the ebXML Registry.
+                RegistryResponseType rr = this.submitToEbXMLRegistry(requestAsString);
+                // Now convert the ebXML Registry response to an OMElement.
+                response = this.convertResponseToOMElement(rr);
+                done = true;
+                if (retries > 0) {
+                    log.info("++++ DEADLOCK RETRY #" + retries + " SUCCESS ++++");
+                }
+            } catch (RegistryDeadlockException e) {
+                log.error("++++ DEADLOCK DETECTED (# of retries so far = " + retries + ") ++++");
+                if (retries == MAX_RETRIES) {
+                    done = true;
+                    log.error("++++ ALL DEADLOCK RETRIES FAILED ++++");
+                    throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
+                } else {
+                    try {
+                        ++retries;
+                        // Now sleep for a little period (<= MAX_SLEEP_TIME_MILLIS.
+                        int delay = rand.nextInt(MAX_SLEEP_TIME_MILLIS);
+                        log.info("++++ DEADLOCK RETRY #" + retries + "(sleeping " + delay + " msecs)");
+                        Thread.sleep(delay);
+                    } catch (InterruptedException ex) {
+                        // Do nothing here - just continue - still count as a retry.
+                    }
+                }
+            }
+        }
+        return response;
+    }
+
+    /**
+     *
+     * @param requestAsString
+     * @throws XdsInternalException
+     */
+    private RegistryResponseType submitToEbXMLRegistry(String requestAsString) throws XdsInternalException, RegistryDeadlockException {
         RegistryResponseType rr = null;
+        try {
+            // Create the ebXML request object to submit to ebXML Registry (OMAR).
+            Object requestObject = bu.getRequestObject(request.getLocalName(), requestAsString);
+
+            // Create the ServerRequestContext to use.
+            context = new ServerRequestContext((RegistryRequestType) requestObject);
+        } catch (Exception e) {
+            log.error("**ebXML EXCEPTION**", e);
+            throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
+        }
+
+        // Now determine what ebXML Registry action to invoke.
         try {
             RegistryRequestType message = context.getCurrentRegistryRequest();
             long startTime = System.currentTimeMillis();
@@ -123,25 +173,63 @@ public class OmarRegistry {
             }
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);
-            throw new XdsInternalException("ebXML Internal Exception: " + e.getMessage());
+            if (e.getMessage().contains("deadlock")) {
+                System.out.println("+++++++++ DEADLOCK DETECTED ++++++++++++");
+                throw new RegistryDeadlockException(e.getMessage());
+            }
+            throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
         }
+        return rr;
+    }
+
+    /**
+     * Convert ebXML Registry response to OMElement.
+     *
+     * @param rr ebXML Registry response (RegistryResponseType)
+     * @return OMElement
+     * @throws XdsInternalException
+     */
+    private OMElement convertResponseToOMElement(RegistryResponseType rr) throws XdsInternalException {
         OMElement response = null;
         try {
             StringWriter sw = new StringWriter();
             javax.xml.bind.Marshaller marshaller = bu.rsFac.createMarshaller();
+            /* NOTE (BHT): SHOULD NOT NEED TO FORMAT
             marshaller.setProperty(
-                    javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT,
-                    Boolean.TRUE);
+            javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT,
+            Boolean.TRUE); */
             marshaller.marshal(rr, sw);
-
             //Now get the RegistryResponse as a String
             String respStr = sw.toString();
-            //convert the response to OMElement to send the response
+            // Convert the response to OMElement to send the response
             response = AXIOMUtil.stringToOM(respStr);
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);
             throw new XdsInternalException("ebXML Internal Exception: " + e.getMessage());
         }
         return response;
+    }
+
+    /**
+     * Used to signal a "deadlock" situation.
+     */
+    public class RegistryDeadlockException extends Exception {
+
+        /**
+         *
+         * @param msg
+         */
+        public RegistryDeadlockException(String msg) {
+            super(msg);
+        }
+
+        /**
+         *
+         * @param msg
+         * @param cause
+         */
+        public RegistryDeadlockException(String msg, Throwable cause) {
+            super(msg, cause);
+        }
     }
 }
