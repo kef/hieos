@@ -14,8 +14,6 @@ package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.services.xds.registry.storedquery.PatientIdentityFeedRegistryStoredQuerySupport;
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
-import com.vangent.hieos.xutil.exception.MetadataException;
-import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -33,7 +31,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
-import java.util.logging.Level;
 import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.apache.axiom.om.OMElement;
@@ -445,15 +442,6 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             this.doSplit(PRPA_IN201304UV02UNMERGE_Message, survivingPatientId, unmergedPatientId);
 
         } else {
-            // Treat as an "UNMERGE".
-            this.logInfo("UNMERGE", unmergedPatientId);
-
-            /*
-            // Check that the prior registration (to be unmerged) patient identifier is still inactive
-            String status = this.adtGetPatientStatus(unmergedPatientId);
-            if (status == null || status.equals("A")) {
-            throw this.logException("Patient ID to be unmerged " + unmergedPatientId + " is not disabled or is not known to registry - skipping UNMERGE!");
-             */
 
             // Check if there is a record of prior registration (to be unmerged) patient id being merged into the surviving patient id
             // Also check that this is the most recent merge - only the most recent merge can be unmerged
@@ -481,15 +469,17 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
+     * Perform a SPLIT operation.  All records designated in the PriorRegistration
+     * will be moved to the new patient id.
      *
-     * @param PRPA_IN201304UV02UNMERGE_Message
-     * @param activePatientId
-     * @param newPatientId
+     * @param PRPA_IN201304UV02UNMERGE_Message The received UNMERGE message.
+     * @param activePatientId The active patient identifier (fully qualified).
+     * @param newPatientId The new patient identifier (fully qualified).
      * @throws com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed.PatientIdentityFeedException
      * @throws XdsInternalException
      */
     private void doSplit(OMElement PRPA_IN201304UV02UNMERGE_Message, String activePatientId, String newPatientId) throws PatientIdentityFeedException, XdsInternalException {
-        this.logInfo("SPLIT", newPatientId);
+        this.logInfo("SPLIT (New Patient)", newPatientId);
 
         // Add new patient ID to ADT.
         this.adtAddPatientId(newPatientId);
@@ -517,8 +507,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                 if (!documentSourceIds.contains(documentSourceId)) {
                     documentSourceIds.add(documentSourceId);
                 }
-
             }
+            
             // Update the registry by updating the patient id on the external
             // identifiers involved in the split.
             if (documentSourceIds.size() > 0) {
@@ -535,18 +525,27 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         this.adtCreateMergeHistory(activePatientId, newPatientId, "S", externalIdentifierIds);
     }
 
+// Helper methods:
+
     /**
+     * Get all external identifier UUIDs related to the supplied "activePatientId"
+     * and list of document source identifiers.
      *
-     * @param activePatientId
-     * @param documentSourceIds
-     * @return
+     * @param activePatientId Fully qualified patient identifier.
+     * @param documentSourceIds  List of document source identifiers.
+     * @return List of UUIDs for ExternalIdentifiers found in Registry.
      */
-    private List<String> getExternalIdentifiersToSplitOut(String activePatientId, List documentSourceIds) {
+    private List<String> getExternalIdentifiersToSplitOut(String activePatientId, List documentSourceIds) throws PatientIdentityFeedException {
         PatientIdentityFeedRegistryStoredQuerySupport sq = new PatientIdentityFeedRegistryStoredQuerySupport(null, log_message);
-        return sq.getExternalIdentifiersToSplitOut(activePatientId, documentSourceIds);
+        List<String> externalIdentifierIds = new ArrayList<String>();
+        try {
+            externalIdentifierIds = sq.getExternalIdentifiersToSplitOut(activePatientId, documentSourceIds);
+        } catch (XdsInternalException ex) {
+            throw this.logException(ex.getMessage());
+        }
+        return externalIdentifierIds;
     }
 
-// Helper methods:
     /**
      *
      * @param patientFeedRequest
