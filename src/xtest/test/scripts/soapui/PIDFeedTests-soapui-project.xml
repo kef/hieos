@@ -606,7 +606,7 @@
                      <priorRegistration classCode="REG" moodCode="EVN">
                         <subject1 typeCode="SBJ">
                            <priorRegisteredRole classCode="PAT">
-                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_10"/>
+                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_12"/>
                            </priorRegisteredRole>
                         </subject1>
                      </priorRegistration>
@@ -644,7 +644,7 @@
                   <statusCode code="active"/>
                   <subject1 typeCode="SBJ">
                      <patient classCode="PAT">
-                        <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_10"/>
+                        <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_8"/>
                         <statusCode code="active"/>
                         <patientPerson>
                            <name>
@@ -666,8 +666,9 @@
                      <priorRegistration classCode="REG" moodCode="EVN">
                         <subject1 typeCode="SBJ">
                            <priorRegisteredRole classCode="PAT">
-                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_12"/>
+                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_13"/>
 			      <id root="1.3.6.1.4.1.21367.2009.1.2.182" extension="WHOCARES"/>
+    		      	      <id root="1.3.6.1.4.1.21367.2009.1.2.183" extension="WHOCARES"/>
                            </priorRegisteredRole>
                         </subject1>
                      </priorRegistration>
