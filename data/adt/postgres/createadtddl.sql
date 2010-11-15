@@ -21,13 +21,9 @@
 DROP TABLE IF EXISTS patient;
 
 CREATE TABLE patient (
-  uuid text NOT NULL,
-  id text NOT NULL,
-  "timestamp" text,
-  birthdatetime text,
-  adminsex text,
-  accountnumber text,
-  bedid text,
+  uuid character varying(64) NOT NULL,
+  id character varying(100) NOT NULL,
+  "timestamp" character varying(40),
   status char(1) NOT NULL DEFAULT 'A',
   CONSTRAINT patient_pkey PRIMARY KEY (id)
 )
@@ -44,61 +40,26 @@ CREATE INDEX patient_uuid_idx ON patient USING btree (uuid);
 
 DROP TABLE IF EXISTS patientaddress;
 
-CREATE TABLE patientaddress (
-  parent text NOT NULL,
-  streetaddress text NOT NULL,
-  otherdesignation text NOT NULL,
-  city text NOT NULL,
-  stateorprovince text NOT NULL,
-  zipcode text NOT NULL,
-  country text NOT NULL,
-  countyorparish text NOT NULL,
-  CONSTRAINT patientaddress_pkey PRIMARY KEY (parent)
-)
-WITH (OIDS=TRUE);
-ALTER TABLE patientaddress OWNER TO adt;
 
 -- Table: patientname
 
 DROP TABLE IF EXISTS patientname;
-
-CREATE TABLE patientname (
-  parent text NOT NULL,
-  familyname text NOT NULL,
-  givenname text NOT NULL,
-  secondandfurthername text NOT NULL,
-  suffix text NOT NULL,
-  prefix text NOT NULL,
-  degree text NOT NULL,
-  CONSTRAINT patientname_pkey PRIMARY KEY (parent)
-)
-WITH (OIDS=TRUE);
-ALTER TABLE patientname OWNER TO adt;
 
 
 -- Table: patientrace
 
 DROP TABLE IF EXISTS patientrace;
 
-CREATE TABLE patientrace (
-  parent text NOT NULL,
-  race text NOT NULL,
-  CONSTRAINT patientrace_pkey PRIMARY KEY (parent)
-)
-WITH (OIDS=TRUE);
-ALTER TABLE patientrace OWNER TO adt;
-
-
 
 --
 -- Definition of table mergehistory
 --
-DROP TABLE IF EXISTS mergehistory;
+DROP TABLE IF EXISTS mergehistory CASCADE;
 
 CREATE TABLE mergehistory (
   uniqueid character varying(64) NOT NULL,
-  survivingpatientid character varying(64) NOT NULL,
-  subsumedpatientid character varying(64) NOT NULL,
+  survivingpatientid character varying(100) NOT NULL,
+  subsumedpatientid character varying(100) NOT NULL,
   action char(1) NOT NULL,
   datetimeperformed timestamp without time zone NOT NULL,
   CONSTRAINT mh_pkey PRIMARY KEY (uniqueid)
