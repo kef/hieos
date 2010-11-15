@@ -43,10 +43,6 @@ CREATE TABLE `patient` (
   `uuid` varchar(64) NOT NULL,
   `id` text NOT NULL,
   `timestamp` text,
-  `birthdatetime` text,
-  `adminsex` text,
-  `accountnumber` text,
-  `bedid` text,
   `status` CHAR(1) NOT NULL DEFAULT 'A',
   PRIMARY KEY (`id`(100)),
   KEY `patient_uuid_idx` (`uuid`)
@@ -61,72 +57,9 @@ CREATE TABLE `patient` (
 /*!40000 ALTER TABLE `patient` ENABLE KEYS */;
 
 
---
--- Definition of table `patientaddress`
---
-
 DROP TABLE IF EXISTS `patientaddress`;
-CREATE TABLE `patientaddress` (
-  `parent` varchar(64) NOT NULL,
-  `streetaddress` varchar(100) NOT NULL,
-  `otherdesignation` varchar(64) NOT NULL,
-  `city` varchar(32) NOT NULL,
-  `stateorprovince` varchar(32) NOT NULL,
-  `zipcode` varchar(12) NOT NULL,
-  `country` varchar(32) NOT NULL,
-  `countyorparish` varchar(32) NOT NULL,
-  PRIMARY KEY (`parent`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `patientaddress`
---
-
-/*!40000 ALTER TABLE `patientaddress` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patientaddress` ENABLE KEYS */;
-
-
---
--- Definition of table `patientname`
---
-
 DROP TABLE IF EXISTS `patientname`;
-CREATE TABLE `patientname` (
-  `parent` varchar(64) NOT NULL,
-  `familyname` varchar(32) NOT NULL,
-  `givenname` varchar(32) NOT NULL,
-  `secondandfurthername` varchar(32) NOT NULL,
-  `suffix` varchar(12) NOT NULL,
-  `prefix` varchar(12) NOT NULL,
-  `degree` varchar(12) NOT NULL,
-  PRIMARY KEY (`parent`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `patientname`
---
-
-/*!40000 ALTER TABLE `patientname` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patientname` ENABLE KEYS */;
-
-
---
--- Definition of table `patientrace`
---
-
 DROP TABLE IF EXISTS `patientrace`;
-CREATE TABLE `patientrace` (
-  `parent` varchar(64) NOT NULL,
-  `race` varchar(64) NOT NULL,
-  PRIMARY KEY (`parent`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `patientrace`
---
-
-/*!40000 ALTER TABLE `patientrace` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patientrace` ENABLE KEYS */;
 
 
 --
@@ -137,8 +70,8 @@ DROP TABLE IF EXISTS `mergehistory`;
 
 CREATE TABLE `mergehistory` (
   `uniqueid` VARCHAR(64) NOT NULL,
-  `survivingpatientid` VARCHAR(64) NOT NULL,
-  `subsumedpatientid` VARCHAR(64) NOT NULL,
+  `survivingpatientid` VARCHAR(100) NOT NULL,
+  `subsumedpatientid` VARCHAR(100) NOT NULL,
   `action` CHAR(1) NOT NULL,
   `datetimeperformed` DATETIME NOT NULL,
   CONSTRAINT mh_pkey PRIMARY KEY (uniqueid)
