@@ -29,7 +29,6 @@ CREATE TABLE document (
   mimetype VARCHAR2(256) NOT NULL,
   repositoryid VARCHAR2(256) NOT NULL,
   bytes BLOB NOT NULL,
-  documentid VARCHAR2(256) NOT NULL,
   CONSTRAINT doc_pkey PRIMARY KEY (uniqueid)
 );
 
