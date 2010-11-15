@@ -32,7 +32,6 @@ CREATE TABLE document (
   mimetype varchar(256) NOT NULL,
   repositoryid varchar(256) NOT NULL,
   bytes byteA NOT NULL,
-  documentid varchar(256) NOT NULL,
   CONSTRAINT doc_pkey PRIMARY KEY (uniqueid)
 )WITH (OIDS=FALSE);
 
