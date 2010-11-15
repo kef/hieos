@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="XDSbRepositoryTests" resourceRoot="" soapui-version="3.6.1" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="xdsrepositorybSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.repository.xds.services.hieos.vangent.com}xdsrepositorybSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/axis2/services/xdsrepositoryb?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/axis2/services/xdsrepositoryb?wsdl"><con:part><con:url>http://localhost:8080/axis2/services/xdsrepositoryb?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.repository.xds.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.repository.xds.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsdl:documentation>xdsrepositoryb</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.repository.xds.services.hieos.vangent.com">
+      <xs:complexType name="Exception">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="SubmitObjectsRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="sor" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SubmitObjectsRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RetrieveDocumentSetRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="RetrieveDocumentSetRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RetrieveDocumentSetRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ProvideAndRegisterDocumentSetRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="ProvideAndRegisterDocumentSetRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ProvideAndRegisterDocumentSetRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="RetrieveDocumentSetRequestRequest">
+    <wsdl:part name="parameters" element="ns:RetrieveDocumentSetRequest"/>
+  </wsdl:message>
+  <wsdl:message name="RetrieveDocumentSetRequestResponse">
+    <wsdl:part name="parameters" element="ns:RetrieveDocumentSetRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ProvideAndRegisterDocumentSetRequestRequest">
+    <wsdl:part name="parameters" element="ns:ProvideAndRegisterDocumentSetRequest"/>
+  </wsdl:message>
+  <wsdl:message name="ProvideAndRegisterDocumentSetRequestResponse">
+    <wsdl:part name="parameters" element="ns:ProvideAndRegisterDocumentSetRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestRequest">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequest"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestResponse">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequestResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="xdsrepositorybPortType">
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <wsdl:input message="ns:RetrieveDocumentSetRequestRequest" wsaw:Action="urn:RetrieveDocumentSetRequest"/>
+      <wsdl:output message="ns:RetrieveDocumentSetRequestResponse" wsaw:Action="urn:RetrieveDocumentSetRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <wsdl:input message="ns:ProvideAndRegisterDocumentSetRequestRequest" wsaw:Action="urn:ProvideAndRegisterDocumentSetRequest"/>
+      <wsdl:output message="ns:ProvideAndRegisterDocumentSetRequestResponse" wsaw:Action="urn:ProvideAndRegisterDocumentSetRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <wsdl:input message="ns:SubmitObjectsRequestRequest" wsaw:Action="urn:SubmitObjectsRequest"/>
+      <wsdl:output message="ns:SubmitObjectsRequestResponse" wsaw:Action="urn:SubmitObjectsRequestResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="xdsrepositorybSoap11Binding" type="ns:xdsrepositorybPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <soap:operation soapAction="urn:RetrieveDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <soap:operation soapAction="urn:ProvideAndRegisterDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsrepositorybSoap12Binding" type="ns:xdsrepositorybPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <soap12:operation soapAction="urn:RetrieveDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <soap12:operation soapAction="urn:ProvideAndRegisterDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap12:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsrepositorybHttpBinding" type="ns:xdsrepositorybPortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <http:operation location="xdsrepositoryb/RetrieveDocumentSetRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="RetrieveDocumentSetRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="RetrieveDocumentSetRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <http:operation location="xdsrepositoryb/ProvideAndRegisterDocumentSetRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="ProvideAndRegisterDocumentSetRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="ProvideAndRegisterDocumentSetRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <http:operation location="xdsrepositoryb/SubmitObjectsRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="xdsrepositoryb">
+    <wsdl:port name="xdsrepositorybHttpsSoap11Endpoint" binding="ns:xdsrepositorybSoap11Binding">
+      <soap:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpSoap11Endpoint" binding="ns:xdsrepositorybSoap11Binding">
+      <soap:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpSoap12Endpoint" binding="ns:xdsrepositorybSoap12Binding">
+      <soap12:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpsSoap12Endpoint" binding="ns:xdsrepositorybSoap12Binding">
+      <soap12:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpsEndpoint" binding="ns:xdsrepositorybHttpBinding">
+      <http:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsEndpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpEndpoint" binding="ns:xdsrepositorybHttpBinding">
+      <http:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:endpoint>https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap12Endpoint/</con:endpoint><con:endpoint>http://localhost:8080/axis2/services/xdsrepositoryb</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:ProvideAndRegisterDocumentSetRequest" name="ProvideAndRegisterDocumentSetRequest" bindingOperationName="ProvideAndRegisterDocumentSetRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsrepositoryb</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xop='http://www.w3.org/2004/08/xop/include' xmlns:ser="http://serviceimpl.repository.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <xdsb:ProvideAndRegisterDocumentSetRequest xmlns:xdsb="urn:ihe:iti:xds-b:2007">
+         <lcm:SubmitObjectsRequest xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
+            <rim:RegistryObjectList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+               <ns1:ExtrinsicObject isOpaque="false" mimeType="text/xml" lid="" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" id="Document01" xmlns:ns1="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                  <ns1:Slot name="creationTime">
+                     <ns1:ValueList>
+                        <ns1:Value>20051224</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="languageCode">
+                     <ns1:ValueList>
+                        <ns1:Value>en-us</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="repositoryUniqueId">
+                     <ns1:ValueList>
+                        <ns1:Value>1.3.6.1.4.1.21367.2010.1.2.1040</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="serviceStartTime">
+                     <ns1:ValueList>
+                        <ns1:Value>200512240800</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="serviceStopTime">
+                     <ns1:ValueList>
+                        <ns1:Value>200512241100</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="sourcePatientId">
+                     <ns1:ValueList>
+                        <ns1:Value>89765a87b^^^&amp;3.4.5&amp;ISO</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Slot name="sourcePatientInfo">
+                     <ns1:ValueList>
+                        <ns1:Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</ns1:Value>
+                        <ns1:Value>PID-5|Doe^John^^^</ns1:Value>
+                        <ns1:Value>PID-7|19560527</ns1:Value>
+                        <ns1:Value>PID-8|M</ns1:Value>
+                        <ns1:Value>PID-11|100 Main St^^Metropolis^Il^44130^USA</ns1:Value>
+                     </ns1:ValueList>
+                  </ns1:Slot>
+                  <ns1:Name>
+                     <ns1:LocalizedString charset="UTF-8" value="Followup" xml:lang="en-us"/>
+                  </ns1:Name>
+                  <ns1:Description/>
+                  <ns1:VersionInfo versionName="1.1"/>
+                  <ns1:Classification classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="Document01" nodeRepresentation="Outpatient" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_01">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>Connect-a-thon healthcareFacilityTypeCodes</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="Outpatient" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="Document01" nodeRepresentation="1.3.6.1.4.1.21367.2006.7.104" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_02">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>Connect-a-thon confidentialityCodes</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="Clinical-Spouse" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="Document01" nodeRepresentation="Dialysis" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_03">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>Connect-a-thon practiceSettingCodes</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="General Medicine" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="Document01" nodeRepresentation="" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_04">
+                     <ns1:Slot name="authorInstitution">
+                        <ns1:ValueList>
+                           <ns1:Value>Cleveland Clinic</ns1:Value>
+                           <ns1:Value>Berea Community</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Slot name="authorPerson">
+                        <ns1:ValueList>
+                           <ns1:Value>^Dopplemeyer^Sherry^^^</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Slot name="authorRole">
+                        <ns1:ValueList>
+                           <ns1:Value>Primary Surgon</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Slot name="authorSpecialty">
+                        <ns1:ValueList>
+                           <ns1:Value>Orthopedic</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name/>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="Document01" nodeRepresentation="1.3.6.1.4.1.19376.1.5.3.1.1.2" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_05">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>Connect-a-thon formatCodes</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="XDS-MS" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="Document01" nodeRepresentation="34108-1" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_06">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>LOINC</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="Outpatient Evaluation And Management" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:Classification classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="Document01" nodeRepresentation="Consult" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_07">
+                     <ns1:Slot name="codingScheme">
+                        <ns1:ValueList>
+                           <ns1:Value>Connect-a-thon classCodes</ns1:Value>
+                        </ns1:ValueList>
+                     </ns1:Slot>
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="Consult" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:Classification>
+                  <ns1:ExternalIdentifier identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" registryObject="Document01" value="X_1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_08">
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="XDSDocumentEntry.patientId" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:ExternalIdentifier>
+                  <ns1:ExternalIdentifier identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" registryObject="Document01" value="129.6.58.92.4131255.5" lid="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted" id="id_09">
+                     <ns1:Name>
+                        <ns1:LocalizedString charset="UTF-8" value="XDSDocumentEntry.uniqueId" xml:lang="en-us"/>
+                     </ns1:Name>
+                     <ns1:Description/>
+                     <ns1:VersionInfo versionName="1.1"/>
+                  </ns1:ExternalIdentifier>
+               </ns1:ExtrinsicObject>
+               <rim:RegistryPackage objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" id="SubmissionSet01">
+                  <rim:Slot name="submissionTime">
+                     <rim:ValueList>
+                        <rim:Value>20100228123730</rim:Value>
+                     </rim:ValueList>
+                  </rim:Slot>
+                  <rim:Name>
+                     <rim:LocalizedString value="Cardiology Intervention"/>
+                  </rim:Name>
+                  <rim:Description/>
+                  <rim:VersionInfo versionName="1.1"/>
+                  <rim:Classification classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd" classifiedObject="SubmissionSet01" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_10">
+                     <rim:Name/>
+                     <rim:Description/>
+                     <rim:VersionInfo versionName="1.1"/>
+                  </rim:Classification>
+                  <rim:Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="SubmissionSet01" nodeRepresentation="Interventional Procedure" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_11">
+                     <rim:Slot name="codingScheme">
+                        <rim:ValueList>
+                           <rim:Value>Connect-a-thon contentTypeCodes</rim:Value>
+                        </rim:ValueList>
+                     </rim:Slot>
+                     <rim:Name>
+                        <rim:LocalizedString value="Interventional Procedure"/>
+                     </rim:Name>
+                  </rim:Classification>
+                  <rim:Classification classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="SubmissionSet01" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_12">
+                     <rim:Slot name="authorPerson">
+                        <rim:ValueList>
+                           <rim:Value>^Johnson^Laurel^^^</rim:Value>
+                        </rim:ValueList>
+                     </rim:Slot>
+                     <rim:Slot name="authorInstitution">
+                        <rim:ValueList>
+                           <rim:Value>Trilium Hospital</rim:Value>
+                           <rim:Value>Mississauga</rim:Value>
+                        </rim:ValueList>
+                     </rim:Slot>
+                     <rim:Slot name="authorRole">
+                        <rim:ValueList>
+                           <rim:Value>Triage Nurse</rim:Value>
+                        </rim:ValueList>
+                     </rim:Slot>
+                     <rim:Slot name="authorSpecialty">
+                        <rim:ValueList>
+                           <rim:Value>ER</rim:Value>
+                        </rim:ValueList>
+                     </rim:Slot>
+                  </rim:Classification>
+                  <rim:ExternalIdentifier id="id_13" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" registryObject="SubmissionSet01" value="X_1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier">
+                     <rim:Name>
+                        <rim:LocalizedString charset="UTF-8" value="XDSSubmissionSet.patientId" xml:lang="en-us"/>
+                     </rim:Name>
+                     <rim:Description/>
+                     <rim:VersionInfo versionName="1.1"/>
+                  </rim:ExternalIdentifier>
+                  <rim:ExternalIdentifier id="id_14" identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" registryObject="SubmissionSet01" value="1.3.6.1.4.1.21367.2009.1.2.182" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier">
+                     <rim:Name>
+                        <rim:LocalizedString charset="UTF-8" value="XDSSubmissionSet.sourceId" xml:lang="en-us"/>
+                     </rim:Name>
+                     <rim:Description/>
+                     <rim:VersionInfo versionName="1.1"/>
+                  </rim:ExternalIdentifier>
+                  <rim:ExternalIdentifier id="id_15" identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" registryObject="SubmissionSet01" value="129.6.58.92.4131273.6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier">
+                     <rim:Name>
+                        <rim:LocalizedString charset="UTF-8" value="XDSSubmissionSet.uniqueId" xml:lang="en-us"/>
+                     </rim:Name>
+                     <rim:Description/>
+                     <rim:VersionInfo versionName="1.1"/>
+                  </rim:ExternalIdentifier>
+               </rim:RegistryPackage>
+               <rim:Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="SubmissionSet01" targetObject="Document01" id="id_16" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+                  <rim:Slot name="SubmissionSetStatus">
+                     <rim:ValueList>
+                        <rim:Value>Original</rim:Value>
+                     </rim:ValueList>
+                  </rim:Slot>
+               </rim:Association>
+            </rim:RegistryObjectList>
+         </lcm:SubmitObjectsRequest>
+         <xdsb:Document id="Document01">><xop:Include href="cid:test_hitsp_c32.xml"/></xdsb:Document>
+      </xdsb:ProvideAndRegisterDocumentSetRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>test_hitsp_c32.xml</con:name><con:contentType>text/xml</con:contentType><con:contentId>test_hitsp_c32.xml</con:contentId><con:part xsi:nil="true"/><con:url>C:/dev/hieos-1.3.1/xtest/test/scripts/soapui/data/test_hitsp_c32.xml</con:url></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:RetrieveDocumentSetRequest" name="RetrieveDocumentSetRequest" bindingOperationName="RetrieveDocumentSetRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsrepositoryb</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+   <soapenv:Body>
+      <xds:RetrieveDocumentSetRequest xmlns:xds="urn:ihe:iti:xds-b:2007">
+         <xds:DocumentRequest>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.4131255.5</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+      </xds:RetrieveDocumentSetRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RetrieveDocumentSet" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="XCA Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+   <soapenv:Body>
+      <xds:RetrieveDocumentSetRequest xmlns:xds="urn:ihe:iti:xds-b:2007">
+         <xds:DocumentRequest>
+            <xds:HomeCommunityId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</xds:HomeCommunityId>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.4131255.5</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+      </xds:RetrieveDocumentSetRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RetrieveDocumentSet" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:SubmitObjectsRequest" name="SubmitObjectsRequest" bindingOperationName="SubmitObjectsRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.repository.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <ser:SubmitObjectsRequest>
+         <!--Optional:-->
+         <ser:sor>?</ser:sor>
+      </ser:SubmitObjectsRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:SubmitObjectsRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>

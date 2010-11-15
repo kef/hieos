@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="XDSbRegistryTests" resourceRoot="" soapui-version="3.6.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="xdsregistrybSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.registry.xds.services.hieos.vangent.com}xdsregistrybSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8091/axis2/services/xdsregistryb?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8091/axis2/services/xdsregistryb?wsdl"><con:part><con:url>http://localhost:8091/axis2/services/xdsregistryb?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.registry.xds.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.registry.xds.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsdl:documentation>xdsregistryb</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+      <xs:complexType name="Exception">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="SubmitObjectsRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="SubmitObjectsRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SubmitObjectsRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientFeedRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="PatientFeedRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientFeedRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="DocumentRegistry_PRPA_IN201304UV02UNMERGE" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201304UV02UNMERGEResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201304UV02">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="DocumentRegistry_PRPA_IN201304UV02" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201304UV02Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201302UV02">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="DocumentRegistry_PRPA_IN201302UV02" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201302UV02Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201301UV02">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="DocumentRegistry_PRPA_IN201301UV02" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DocumentRegistry_PRPA_IN201301UV02Response">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AdhocQueryRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="AdhocQueryRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AdhocQueryRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="PatientFeedRequestRequest">
+    <wsdl:part name="parameters" element="ns:PatientFeedRequest"/>
+  </wsdl:message>
+  <wsdl:message name="PatientFeedRequestResponse">
+    <wsdl:part name="parameters" element="ns:PatientFeedRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201304UV02UNMERGERequest">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201304UV02UNMERGE"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201304UV02UNMERGEResponse">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201304UV02UNMERGEResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201304UV02Request">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201304UV02"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201304UV02Response">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201304UV02Response"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201302UV02Request">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201302UV02"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201302UV02Response">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201302UV02Response"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestRequest">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequest"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestResponse">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201301UV02Request">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201301UV02"/>
+  </wsdl:message>
+  <wsdl:message name="DocumentRegistry_PRPA_IN201301UV02Response">
+    <wsdl:part name="parameters" element="ns:DocumentRegistry_PRPA_IN201301UV02Response"/>
+  </wsdl:message>
+  <wsdl:message name="AdhocQueryRequestRequest">
+    <wsdl:part name="parameters" element="ns:AdhocQueryRequest"/>
+  </wsdl:message>
+  <wsdl:message name="AdhocQueryRequestResponse">
+    <wsdl:part name="parameters" element="ns:AdhocQueryRequestResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="xdsregistrybPortType">
+    <wsdl:operation name="PatientFeedRequest">
+      <wsdl:input message="ns:PatientFeedRequestRequest" wsaw:Action="urn:PatientFeedRequest"/>
+      <wsdl:output message="ns:PatientFeedRequestResponse" wsaw:Action="urn:PatientFeedRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
+      <wsdl:input message="ns:DocumentRegistry_PRPA_IN201304UV02UNMERGERequest" wsaw:Action="urn:DocumentRegistry_PRPA_IN201304UV02UNMERGE"/>
+      <wsdl:output message="ns:DocumentRegistry_PRPA_IN201304UV02UNMERGEResponse" wsaw:Action="urn:DocumentRegistry_PRPA_IN201304UV02UNMERGEResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02">
+      <wsdl:input message="ns:DocumentRegistry_PRPA_IN201304UV02Request" wsaw:Action="urn:DocumentRegistry_PRPA_IN201304UV02"/>
+      <wsdl:output message="ns:DocumentRegistry_PRPA_IN201304UV02Response" wsaw:Action="urn:DocumentRegistry_PRPA_IN201304UV02Response"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201302UV02">
+      <wsdl:input message="ns:DocumentRegistry_PRPA_IN201302UV02Request" wsaw:Action="urn:DocumentRegistry_PRPA_IN201302UV02"/>
+      <wsdl:output message="ns:DocumentRegistry_PRPA_IN201302UV02Response" wsaw:Action="urn:DocumentRegistry_PRPA_IN201302UV02Response"/>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <wsdl:input message="ns:SubmitObjectsRequestRequest" wsaw:Action="urn:SubmitObjectsRequest"/>
+      <wsdl:output message="ns:SubmitObjectsRequestResponse" wsaw:Action="urn:SubmitObjectsRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201301UV02">
+      <wsdl:input message="ns:DocumentRegistry_PRPA_IN201301UV02Request" wsaw:Action="urn:DocumentRegistry_PRPA_IN201301UV02"/>
+      <wsdl:output message="ns:DocumentRegistry_PRPA_IN201301UV02Response" wsaw:Action="urn:DocumentRegistry_PRPA_IN201301UV02Response"/>
+    </wsdl:operation>
+    <wsdl:operation name="AdhocQueryRequest">
+      <wsdl:input message="ns:AdhocQueryRequestRequest" wsaw:Action="urn:AdhocQueryRequest"/>
+      <wsdl:output message="ns:AdhocQueryRequestResponse" wsaw:Action="urn:AdhocQueryRequestResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="xdsregistrybSoap11Binding" type="ns:xdsregistrybPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientFeedRequest">
+      <soap:operation soapAction="urn:PatientFeedRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
+      <soap:operation soapAction="urn:DocumentRegistry_PRPA_IN201304UV02UNMERGE" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02">
+      <soap:operation soapAction="urn:DocumentRegistry_PRPA_IN201304UV02" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201302UV02">
+      <soap:operation soapAction="urn:DocumentRegistry_PRPA_IN201302UV02" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201301UV02">
+      <soap:operation soapAction="urn:DocumentRegistry_PRPA_IN201301UV02" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AdhocQueryRequest">
+      <soap:operation soapAction="urn:AdhocQueryRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsregistrybSoap12Binding" type="ns:xdsregistrybPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientFeedRequest">
+      <soap12:operation soapAction="urn:PatientFeedRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
+      <soap12:operation soapAction="urn:DocumentRegistry_PRPA_IN201304UV02UNMERGE" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02">
+      <soap12:operation soapAction="urn:DocumentRegistry_PRPA_IN201304UV02" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201302UV02">
+      <soap12:operation soapAction="urn:DocumentRegistry_PRPA_IN201302UV02" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap12:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201301UV02">
+      <soap12:operation soapAction="urn:DocumentRegistry_PRPA_IN201301UV02" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AdhocQueryRequest">
+      <soap12:operation soapAction="urn:AdhocQueryRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsregistrybHttpBinding" type="ns:xdsregistrybPortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="PatientFeedRequest">
+      <http:operation location="xdsregistryb/PatientFeedRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="PatientFeedRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="PatientFeedRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
+      <http:operation location="xdsregistryb/DocumentRegistry_PRPA_IN201304UV02UNMERGE"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201304UV02UNMERGE"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201304UV02UNMERGE"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201304UV02">
+      <http:operation location="xdsregistryb/DocumentRegistry_PRPA_IN201304UV02"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201304UV02"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201304UV02"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201302UV02">
+      <http:operation location="xdsregistryb/DocumentRegistry_PRPA_IN201302UV02"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201302UV02"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201302UV02"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <http:operation location="xdsregistryb/SubmitObjectsRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DocumentRegistry_PRPA_IN201301UV02">
+      <http:operation location="xdsregistryb/DocumentRegistry_PRPA_IN201301UV02"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201301UV02"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="DocumentRegistry_PRPA_IN201301UV02"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AdhocQueryRequest">
+      <http:operation location="xdsregistryb/AdhocQueryRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="AdhocQueryRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="AdhocQueryRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="xdsregistryb">
+    <wsdl:port name="xdsregistrybHttpsSoap11Endpoint" binding="ns:xdsregistrybSoap11Binding">
+      <soap:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xdsregistryb.xdsregistrybHttpsSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsregistrybHttpSoap11Endpoint" binding="ns:xdsregistrybSoap11Binding">
+      <soap:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xdsregistryb.xdsregistrybHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsregistrybHttpSoap12Endpoint" binding="ns:xdsregistrybSoap12Binding">
+      <soap12:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xdsregistryb.xdsregistrybHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsregistrybHttpsSoap12Endpoint" binding="ns:xdsregistrybSoap12Binding">
+      <soap12:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xdsregistryb.xdsregistrybHttpsSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsregistrybHttpEndpoint" binding="ns:xdsregistrybHttpBinding">
+      <http:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xdsregistryb.xdsregistrybHttpEndpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsregistrybHttpsEndpoint" binding="ns:xdsregistrybHttpBinding">
+      <http:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xdsregistryb.xdsregistrybHttpsEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:endpoint>https://PGS6NY0MJ1LA:8443/axis2/services/xdsregistryb.xdsregistrybHttpsSoap12Endpoint/</con:endpoint><con:endpoint>http://192.168.1.110:8091/axis2/services/xdsregistryb</con:endpoint><con:endpoint>http://localhost:8080/axis2/services/xdsregistryb</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:AdhocQueryRequest" name="AdhocQueryRequest" bindingOperationName="AdhocQueryRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsregistryb</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+   <soap:Header/>
+   <soap:Body>
+      <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+         <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+         <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+            <Slot name="$XDSDocumentEntryPatientId">
+               <ValueList>
+                  <Value>'X_1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO'</Value>
+               </ValueList>
+            </Slot>
+            <Slot name="$XDSDocumentEntryStatus">
+               <ValueList>
+                  <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+               </ValueList>
+            </Slot>
+         </AdhocQuery>
+      </query:AdhocQueryRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RegistryStoredQuery" addDefaultAction="false" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="XCA Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+   <soap:Header/>
+   <soap:Body>
+      <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+         <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+         <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+            <Slot name="$XDSDocumentEntryPatientId">
+               <ValueList>
+                  <Value>'X_1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO'</Value>
+               </ValueList>
+            </Slot>
+            <Slot name="$XDSDocumentEntryStatus">
+               <ValueList>
+                  <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+               </ValueList>
+            </Slot>
+         </AdhocQuery>
+      </query:AdhocQueryRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RegistryStoredQuery" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:DocumentRegistry_PRPA_IN201301UV02" name="DocumentRegistry_PRPA_IN201301UV02" bindingOperationName="DocumentRegistry_PRPA_IN201301UV02" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201301UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
+         <id root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
+         <creationTime value="20070803130624"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201301UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="R"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PatientFeed"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99998.8734"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <subject typeCode="SUBJ">
+               <registrationEvent classCode="REG" moodCode="EVN">
+                  <id nullFlavor="NA"/>
+                  <statusCode code="active"/>
+                  <subject1 typeCode="SBJ">
+                     <patient classCode="PAT">
+                        <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_1"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                           <name>
+                              <given>Jimmy</given>
+                              <family>Dean</family>
+                           </name>
+                           <administrativeGenderCode code="M"/>
+                           <birthTime value="19570323"/>
+                           <addr>
+                              <streetAddressLine>3443 S Beach Ave</streetAddressLine>
+                              <city>Some City</city>
+                              <state>IL</state>
+                           </addr>
+                           <asOtherIDs classCode="PAT">
+                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="38273N237"/>
+                              <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <id root="1.2.840.114350.1.13.99997.2.3412"/>
+                              </scopingOrganization>
+                           </asOtherIDs>
+                        </patientPerson>
+                        <providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <id root="1.2.840.114350.1.13.99998.8734"/>
+                           <name>Good Health Clinic</name>
+                           <contactParty classCode="CON">
+                              <telecom value="tel:+1-342-555-8394"/>
+                           </contactParty>
+                        </providerOrganization>
+                     </patient>
+                  </subject1>
+                  <custodian typeCode="CST">
+                     <assignedEntity classCode="ASSIGNED">
+                        <id root="1.2.840.114350.1.13.99998.8734"/>
+                        <assignedOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                     </assignedEntity>
+                  </custodian>
+               </registrationEvent>
+            </subject>
+         </controlActProcess>
+      </PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200408" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:DocumentRegistry_PRPA_IN201302UV02" name="DocumentRegistry_PRPA_IN201302UV02" bindingOperationName="DocumentRegistry_PRPA_IN201302UV02" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201302UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201302UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
+         <id root="cdc0d3fa-4467-11dc-a6be-3603d6866807"/>
+         <creationTime value="20070806091603"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201302UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="T"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PatientFeed"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99998.8734"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <subject typeCode="SUBJ">
+               <registrationEvent classCode="REG" moodCode="EVN">
+                  <id nullFlavor="NA"/>
+                  <statusCode code="active"/>
+                  <subject1 typeCode="SBJ">
+                     <patient classCode="PAT">
+                        <id root="1.2.840.114350.1.13.99998.8734" extension="TEST_A"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                           <name>
+                              <given>James</given>
+                              <family>Dean</family>
+                           </name>
+                           <telecom value="tel:+1-299-555-4444;ext=2342" use="WP"/>
+                           <telecom value="tel:+1-399-555-2345" use="HP"/>
+                           <administrativeGenderCode code="M"/>
+                           <birthTime value="19570323"/>
+                           <addr>
+                              <streetAddressLine>3443 South Beach Avenue</streetAddressLine>
+                              <city>Some City</city>
+                              <state>IL</state>
+                           </addr>
+                           <asOtherIDs classCode="PAT">
+                              <id root="1.2.840.114350.1.13.99997.2.3412" extension="38273N237"/>
+                              <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <id root="1.2.840.114350.1.13.99997.2.3412"/>
+                              </scopingOrganization>
+                           </asOtherIDs>
+                           <asOtherIDs classCode="CIT">
+                              <id root="2.16.840.1.113883.4.1" extension="999-99-4452"/>
+                              <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <id root="2.16.840.1.113883.4.1"/>
+                              </scopingOrganization>
+                           </asOtherIDs>
+                        </patientPerson>
+                        <providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <id root="1.2.840.114350.1.13.99998.8734"/>
+                           <name>Good Health Clinic</name>
+                           <contactParty classCode="CON">
+                              <telecom value="tel:+1-342-555-8394"/>
+                           </contactParty>
+                        </providerOrganization>
+                     </patient>
+                  </subject1>
+                  <custodian typeCode="CST">
+                     <assignedEntity classCode="ASSIGNED">
+                        <id root="1.2.840.114350.1.13.99998.8734"/>
+                        <assignedOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                     </assignedEntity>
+                  </custodian>
+               </registrationEvent>
+            </subject>
+         </controlActProcess>
+      </PRPA_IN201302UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200408" action="urn:hl7-org:v3:PRPA_IN201302UV02" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:DocumentRegistry_PRPA_IN201304UV02" name="DocumentRegistry_PRPA_IN201304UV02" bindingOperationName="DocumentRegistry_PRPA_IN201304UV02" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201304UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201304UV02.xsd" ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <id root="43491212-4469-11dc-a6be-3603d6866807"/>
+         <creationTime value="20070803162915"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201304UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="R"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PatientFeed"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99998.8734"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <subject typeCode="SUBJ">
+               <registrationEvent classCode="REG" moodCode="EVN">
+                  <id nullFlavor="NA"/>
+                  <statusCode code="active"/>
+                  <subject1 typeCode="SBJ">
+                     <patient classCode="PAT">
+                        <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_8"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                           <name>
+                              <given>James</given>
+                              <family>Dean</family>
+                           </name>
+                        </patientPerson>
+                     </patient>
+                  </subject1>
+                  <custodian typeCode="CST">
+                     <assignedEntity classCode="ASSIGNED">
+                        <id root="1.2.840.114350.1.13.99998.8734"/>
+                        <assignedOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                     </assignedEntity>
+                  </custodian>
+                  <replacementOf typeCode="RPLC">
+                     <priorRegistration classCode="REG" moodCode="EVN">
+                        <subject1 typeCode="SBJ">
+                           <priorRegisteredRole classCode="PAT">
+                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_12"/>
+                           </priorRegisteredRole>
+                        </subject1>
+                     </priorRegistration>
+                  </replacementOf>
+               </registrationEvent>
+            </subject>
+         </controlActProcess>
+      </PRPA_IN201304UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200408" action="urn:hl7-org:v3:PRPA_IN201304UV02" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:DocumentRegistry_PRPA_IN201304UV02UNMERGE" name="DocumentRegistry_PRPA_IN201304UV02UNMERGE" bindingOperationName="DocumentRegistry_PRPA_IN201304UV02UNMERGE" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201304UV02_UNMERGE xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201304UV02.xsd" ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <id root="43491212-4469-11dc-a6be-3603d6866807"/>
+         <creationTime value="20070803162915"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201304UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="R"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PatientFeed"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99998.8734"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <subject typeCode="SUBJ">
+               <registrationEvent classCode="REG" moodCode="EVN">
+                  <id nullFlavor="NA"/>
+                  <statusCode code="active"/>
+                  <subject1 typeCode="SBJ">
+                     <patient classCode="PAT">
+                        <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_8"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                           <name>
+                              <given>James</given>
+                              <family>Dean</family>
+                           </name>
+                        </patientPerson>
+                     </patient>
+                  </subject1>
+                  <custodian typeCode="CST">
+                     <assignedEntity classCode="ASSIGNED">
+                        <id root="1.2.840.114350.1.13.99998.8734"/>
+                        <assignedOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                     </assignedEntity>
+                  </custodian>
+                  <replacementOf typeCode="RPLC">
+                     <priorRegistration classCode="REG" moodCode="EVN">
+                        <subject1 typeCode="SBJ">
+                           <priorRegisteredRole classCode="PAT">
+                              <id root="1.3.6.1.4.1.21367.2010.1.2.300" extension="X_13"/>
+			      <id root="1.3.6.1.4.1.21367.2009.1.2.182" extension="WHOCARES"/>
+    		      	      <id root="1.3.6.1.4.1.21367.2009.1.2.183" extension="WHOCARES"/>
+                           </priorRegisteredRole>
+                        </subject1>
+                     </priorRegistration>
+                  </replacementOf>
+               </registrationEvent>
+            </subject>
+         </controlActProcess>
+      </PRPA_IN201304UV02_UNMERGE>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200408" action="urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientFeedRequest" name="PatientFeedRequest" bindingOperationName="PatientFeedRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <ser:PatientFeedRequest>
+         <!--Optional:-->
+         <ser:PatientFeedRequest>?</ser:PatientFeedRequest>
+      </ser:PatientFeedRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:PatientFeedRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:SubmitObjectsRequest" name="SubmitObjectsRequest" bindingOperationName="SubmitObjectsRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.registry.xds.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <ser:SubmitObjectsRequest>
+         <!--Optional:-->
+         <ser:SubmitObjectsRequest>?</ser:SubmitObjectsRequest>
+      </ser:SubmitObjectsRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:SubmitObjectsRequest"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
