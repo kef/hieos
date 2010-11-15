@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS ip;
 CREATE TABLE ip (
   ip character varying(100) NOT NULL,
   company_name character varying(255) NOT NULL DEFAULT 'Unknown'::character varying,
-  email character varying,
+  email character varying(255),
   CONSTRAINT ip_pkey PRIMARY KEY (ip)
 )
 WITH (OIDS=FALSE);
