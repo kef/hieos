@@ -59,8 +59,8 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
-    String registry_endpoint = null;
-    MessageContext messageContext;
+    private String registryEndpoint = null;
+    //private MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
 
     /* BHT: Removed
@@ -75,7 +75,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      */
     public ProvideAndRegisterDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
-        this.messageContext = messageContext;
+        //this.messageContext = messageContext;
         try {
             init(new RegistryResponse(), messageContext);
         } catch (XdsInternalException e) {
@@ -92,7 +92,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     public OMElement provideAndRegisterDocumentSet(OMElement pnr) {
         try {
             pnr.build();
-            provide_and_register(pnr);
+            handleProvideAndRegisterRequest(pnr);
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XDSMissingDocumentException e) {
@@ -143,7 +143,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XDSMissingDocumentException
      * @throws com.vangent.hieos.xutil.exception.XDSMissingDocumentMetadataException
      */
-    private void validate_docs_and_metadata_b(OMElement pnr, Metadata m) throws XDSMissingDocumentException, XDSMissingDocumentMetadataException {
+    private void validatePNR(OMElement pnr, Metadata m) throws XDSMissingDocumentException, XDSMissingDocumentMetadataException {
         ArrayList<OMElement> docs = MetadataSupport.childrenWithLocalName(pnr, "Document");
         ArrayList<String> doc_ids = new ArrayList<String>();
 
@@ -181,7 +181,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsException
      * @throws java.io.IOException
      */
-    private void provide_and_register(OMElement pnr)
+    private void handleProvideAndRegisterRequest(OMElement pnr)
             throws MetadataValidationException, SchemaValidationException,
             XdsInternalException, MetadataException, XdsConfigurationException,
             XdsIOException, XdsException, IOException {
@@ -190,7 +190,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 pnr,
                 MetadataTypes.METADATA_TYPE_RET);
 
-        OMElement sor = find_sor(pnr);
+        OMElement sor = findSubjectObjectsRequest(pnr);
         Metadata m = new Metadata(sor);
 
         //AUDIT:POINT
@@ -207,7 +207,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
         log_message.addOtherParam("Structure", m.structure());
 
-        this.validate_docs_and_metadata_b(pnr, m);
+        this.validatePNR(pnr, m);
 
         int eo_count = m.getExtrinsicObjectIds().size();
         int doc_count = 0;
@@ -234,7 +234,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 } catch (IOException e) {
                     throw new XdsIOException("Error accessing document content from message");
                 }
-                this.store_document_swa_xop(m, doc, is);
+                this.storeXOPDocument(m, doc, is);
             } else {
                 String base64 = document.getText();
                 //String base64 = binaryNode.getText();
@@ -254,7 +254,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 BASE64Decoder d = new BASE64Decoder();
                 byte[] ba = d.decodeBuffer(base64);
                  */
-                store_document_mtom(m, doc, ba);
+                storeDocument(m, doc, ba);
             }
         }
 
@@ -265,14 +265,14 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
         setRepositoryUniqueId(m);
         OMElement register_transaction = m.getV3SubmitObjectsRequest();
-        String epr = registry_endpoint();
+        String epr = getRegistryEndpoint();
 
         log_message.addOtherParam("Register transaction endpoint", epr);
         log_message.addOtherParam("Register transaction", register_transaction);
         Soap soap = new Soap();
         boolean isAsyncTxn = Repository.isRegisterTransactionAsync();
-        String action = getAction();
-        String expectedReturnAction = getExpectedReturnAction();
+        String action = getRegistrySOAPAction();
+        String expectedReturnAction = getRegistryExpectedReturnSOAPAction();
         soap.setAsync(isAsyncTxn);
         try {
             OMElement result;
@@ -293,7 +293,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 return;  // Early exit!!
             }
             result = soap.getResult();
-            log_headers(soap);
+            logSOAPHeaders(soap);
             if (result == null) {
                 response.add_error(MetadataSupport.XDSRepositoryError, "Null response message from Registry", this.getClass().getName(), log_message);
                 log_message.addOtherParam("Register transaction response", "null");
@@ -325,8 +325,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private String registry_endpoint() throws XdsInternalException {
-        return (registry_endpoint == null) ? Repository.getRegisterTransactionEndpoint() : registry_endpoint;
+    private String getRegistryEndpoint() throws XdsInternalException {
+        return (registryEndpoint == null) ? Repository.getRegisterTransactionEndpoint() : registryEndpoint;
     }
 
     /**
@@ -334,11 +334,13 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @param soap
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private void log_headers(Soap soap) throws XdsInternalException {
-        OMElement in_hdr = soap.getInHeader();
-        OMElement out_hdr = soap.getOutHeader();
-        log_message.addSOAPParam("Header sent to Registry", (out_hdr == null) ? "Null" : out_hdr);
-        log_message.addSOAPParam("Header received from Registry", (in_hdr == null) ? "Null" : in_hdr);
+    private void logSOAPHeaders(Soap soap) throws XdsInternalException {
+        if (log_message.isLogEnabled()) {
+            OMElement in_hdr = soap.getInHeader();
+            OMElement out_hdr = soap.getOutHeader();
+            log_message.addSOAPParam("Header sent to Registry", (out_hdr == null) ? "Null" : out_hdr);
+            log_message.addSOAPParam("Header received from Registry", (in_hdr == null) ? "Null" : in_hdr);
+        }
     }
 
     /**
@@ -347,7 +349,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
      */
-    private OMElement find_sor(OMElement pnr) throws MetadataValidationException {
+    private OMElement findSubjectObjectsRequest(OMElement pnr) throws MetadataValidationException {
         OMElement sor;
         sor = pnr.getFirstElement();
         if (sor == null || !sor.getLocalName().equals("SubmitObjectsRequest")) {
@@ -355,14 +357,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                     pnr.getLocalName());
         }
         return sor;
-    }
-
-    /**
-     *
-     * @param endpoint
-     */
-    public void setRegistryEndPoint(String endpoint) {
-        this.registry_endpoint = endpoint;
     }
 
     /**
@@ -376,7 +370,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsConfigurationException
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
-    private void store_document_swa_xop(Metadata m, XDSDocument doc, InputStream is)
+    private void storeXOPDocument(Metadata m, XDSDocument doc, InputStream is)
             throws MetadataException, XdsIOException, XdsInternalException, XdsConfigurationException, XdsException {
         this.validateDocumentMetadata(doc, m); // Validate that all is present.
 
@@ -424,7 +418,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsConfigurationException
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
-    private void store_document_mtom(Metadata m, XDSDocument doc, byte[] bytes)
+    private void storeDocument(Metadata m, XDSDocument doc, byte[] bytes)
             throws MetadataException, XdsIOException, XdsInternalException, XdsConfigurationException, XdsException {
 
         // Validate metadata, set document vitals and store.
@@ -553,7 +547,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * 
      * @return
      */
-    private String getAction() {
+    private String getRegistrySOAPAction() {
         return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION;
     }
 
@@ -561,7 +555,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      *
      * @return
      */
-    private String getExpectedReturnAction() {
+    private String getRegistryExpectedReturnSOAPAction() {
         return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION_RESPONSE;
     }
 }
