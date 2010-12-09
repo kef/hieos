@@ -68,6 +68,8 @@
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">45000</Property> <!-- 45 seconds -->
         <Property name="SOAPAsyncTimeOutInMilliseconds">120000</Property> <!-- 120 seconds -->
+        <Property name="SOAPAsyncResponseHTTPPort">8080</Property> <!-- should be set to app server HTTP listener port -->
+
 
         <!-- Log file parameters -->
         <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
