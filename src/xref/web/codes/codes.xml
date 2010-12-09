@@ -114,8 +114,10 @@
 			display="History of MEdication Use" />
 		<Code code="44943-9" codingScheme="2.16.840.1.113883.6.1"
 			display="Self management:^Patient" />
-		
-		
+
+                <!-- Added to support NHIN / Patient Consent -->
+                <Code code="57017-6" codingScheme="2.16.840.1.113883.6.1"
+			display="NHIN Consent Class Code" />
 		
         <Code code="Consent" display="Consent" codingScheme="Connect-a-thon classCodes" />
         <Code code="Communication" display="Communication" codingScheme="Connect-a-thon classCodes" />
@@ -343,7 +345,7 @@
 		<Code code="urn:ihe:pcc:apr:lab:2008" display="Test embedded in CDA per XDS-SD profile" codingScheme="IHE-PCC" />
 		<Code code="2.16.840.1.113883.10.20.1" display="HL7 CCD Document" codingScheme="HITSP"/>
 		<Code code="1.3.6.1.4.1.19376.1.3.3" display="IHE XD-Lab Document" codingScheme="IHE-LAB"/>
-		
+		<Code code="urn:nhin:names:acp:XACML" display="NHIN XACML Document" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
         <Code code="ScanTEXT/IHE 1.x" display="ScanTEXT/IHE 1.x"
 			codingScheme="Connect-a-thon formatCodes" />
         <Code code="ScanPDF/IHE 1.x" display="ScanPDF/IHE 1.x"
@@ -668,7 +670,7 @@
 			codingScheme="2.16.840.1.113883.5.11" />
 		
 		<!-- End NHIN 2009 -->
-		
+		<Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
 		
 		
         <Code code="Home" display="Home"
@@ -719,6 +721,7 @@
 			codingScheme="2.16.840.1.113883.6.96" />
 		<Code code="410001006" display="Military Medicine"
 			codingScheme="2.16.840.1.113883.6.96" />
+                <Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
 		
 		
 		
@@ -1413,6 +1416,7 @@
 
 	-->
     <CodeType name="typeCode" classScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983">
+        <Code code="57017-6" display="NHIN Consent Type Code" codingScheme="2.16.840.1.113883.6.1"/>
         <Code code="34096-8" display="Nursing Home Comprehensive History and Physical Note"
 			codingScheme="LOINC" />
         <Code code="34121-4" display="Interventional Procedure Note"
