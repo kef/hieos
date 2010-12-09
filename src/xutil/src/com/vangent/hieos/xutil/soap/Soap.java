@@ -48,21 +48,17 @@ import org.apache.log4j.Logger;
 public class Soap {
 
     private final static Logger logger = Logger.getLogger(Soap.class);
-    
     // Default values (if XConfig is not available).
     private static final long DEFAULT_ASYNC_TIMEOUT_MSEC = 120000;  // 120 secs.
     private static final long DEFAULT_SYNC_TIMEOUT_MSEC = 45000;    // 45 secs.
     private static final String DEFAULT_ASYNC_RESPONSE_PORT = "8080";
-
     // XConfig propertie names.
     private static final String XCONFIG_PARAM_ASYNC_TIMEOUT_MSEC = "SOAPAsyncTimeOutInMilliseconds";
     private static final String XCONFIG_PARAM_SYNC_TIMEOUT_MSEC = "SOAPtimeOutInMilliseconds";
     private static final String XCONFIG_PARAM_ASYNC_RESPONSE_PORT = "SOAPAsyncResponseHTTPPort";
-
     // Axis2 property names.
     private static final String AXIS2_PARAM_RUNNING_PORT = "RUNNING_PORT";
     private static final String XUA_OUT_PHASE_NAME = "XUAOutPhase";
-
     // Private variables:
     private XUAObject xuaObject = null;             // Only used if XUA is enabled (null if not used).
     private ServiceClient serviceClient = null;     // Cached Axis2 ServiceClient.
@@ -298,26 +294,19 @@ public class Soap {
      * port being used by the application server.
      */
     private void setAsyncResponsePort() {
+        // Get default in case configuration is not set.
+        String responsePort = Soap.DEFAULT_ASYNC_RESPONSE_PORT;
 
-        // Now, see if we are in the middle of responding to a web service request.
-        MessageContext currentContext = MessageContext.getCurrentMessageContext();
-        if (currentContext != null) {
-            // We must be in "server-mode"
-
-            // Get default in case configuration is not set.
-            String responsePort = Soap.DEFAULT_ASYNC_RESPONSE_PORT;
-
-            // Now, set the proper listening port.
-            ConfigurationContext ctx = this.serviceClient.getServiceContext().getConfigurationContext();
-            if (ctx.getProperty(Soap.AXIS2_PARAM_RUNNING_PORT) == null) {
-                try {
-                    XConfig cfg = XConfig.getInstance();
-                    responsePort = cfg.getHomeCommunityProperty(Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT);
-                } catch (Exception e) {
-                    logger.warn("Unable to get " + Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT + " from XConfig -- using default");
-                }
-                ctx.setProperty(Soap.AXIS2_PARAM_RUNNING_PORT, responsePort);
+        // Now, set the proper listening port.
+        ConfigurationContext ctx = this.serviceClient.getServiceContext().getConfigurationContext();
+        if (ctx.getProperty(Soap.AXIS2_PARAM_RUNNING_PORT) == null) {
+            try {
+                XConfig cfg = XConfig.getInstance();
+                responsePort = cfg.getHomeCommunityProperty(Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT);
+            } catch (Exception e) {
+                logger.warn("Unable to get " + Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT + " from XConfig -- using default");
             }
+            ctx.setProperty(Soap.AXIS2_PARAM_RUNNING_PORT, responsePort);
         }
     }
 
