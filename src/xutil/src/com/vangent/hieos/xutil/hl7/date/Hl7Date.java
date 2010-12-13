@@ -12,10 +12,13 @@
  */
 package com.vangent.hieos.xutil.hl7.date;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Class to produce dates in HL7 format.
@@ -68,4 +71,24 @@ public class Hl7Date {
                 c.get(Calendar.SECOND));
         return sb.toString();
     }
+
+    /**
+     * Convert a Java date to HL7 format.
+     *
+     * @param date Java date.
+     * @return String In HL7 format.
+     */
+    static public String toHL7format(Date date) {
+        String hl7DateFormat = "yyyyMMdd";
+        SimpleDateFormat formatter = new SimpleDateFormat(hl7DateFormat);
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        formatter.setTimeZone(timeZone);
+
+        String hl7formattedDate = formatter.format(date);
+        hl7formattedDate.replaceAll("UTC","Z");
+        return hl7formattedDate;
+    }
+
 }
