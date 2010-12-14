@@ -65,7 +65,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     public enum ActorType {
 
-        REGISTRY, REPOSITORY
+        REGISTRY, REPOSITORY, PIXMGR, PDS
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
@@ -468,9 +468,23 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         if (log_message != null) {
             log_message.addErrorParam("SOAPError", msg);
             log_message.addOtherParam("Response", "SOAPFault: " + msg);
-            endTransaction(false);
         }
+        endTransaction(false);
         throw new XdsWSException(msg);
+    }
+
+    /**
+     *
+     * @param ex
+     * @return
+     */
+    public AxisFault getAxisFault(Exception ex) {
+        if (log_message != null) {
+            log_message.addErrorParam("EXCEPTION", ex.getMessage());
+            log_message.setPass(false);
+        }
+        endTransaction(false);
+        return new AxisFault(ex.getMessage());
     }
 
     /**
