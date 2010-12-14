@@ -44,8 +44,8 @@ public class XMLInOutMessageReceiver extends RawXMLINOutMessageReceiver {
     @Override
     public void invokeBusinessLogic(MessageContext messageContext, MessageContext responseMessageContext)
             throws AxisFault {
-        this.setResponseAction(messageContext, responseMessageContext);
         super.invokeBusinessLogic(messageContext, responseMessageContext);
+        this.setResponseAction(messageContext, responseMessageContext);
     }
 
     /**
