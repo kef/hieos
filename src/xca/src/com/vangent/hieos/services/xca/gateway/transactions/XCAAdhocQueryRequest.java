@@ -20,10 +20,10 @@ import com.vangent.hieos.xutil.response.XCAAdhocQueryResponse;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import com.vangent.hieos.xutil.metadata.structure.SqParams;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
 import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
@@ -33,19 +33,17 @@ import com.vangent.hieos.services.xca.gateway.controller.XCAQueryRequest;
 
 // XConfig
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigGateway;
-import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
-import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
-import com.vangent.hieos.xutil.xconfig.XConfigEntity;
-import com.vangent.hieos.xutil.xconfig.XConfigAssigningAuthority;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
+
 
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
-import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
@@ -180,7 +178,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
 
         if (this.getGatewayType() == GatewayType.RespondingGateway) {  // RespondingGateway
             // Just go local.
-            XConfigRegistry registry = this.getLocalRegistry();
+            XConfigActor registry = this.getLocalRegistry();
             this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
 
         } else { // InitiatingGateway
@@ -199,7 +197,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
                 } else {
                     XConfig xconfig = XConfig.getInstance();
                     // Get the configuration for the assigning authority.
-                    XConfigAssigningAuthority aa = xconfig.getAssigningAuthority(assigningAuthority);
+                    XConfigObject aa = xconfig.getAssigningAuthorityConfigById(assigningAuthority);
                     if (aa == null) {
                         /* --- Go silent here according to XCA spec --- */
                         this.logError("[* Not notifying client *]: Could not find assigning authority configuration for patient id = " + patientId);
@@ -207,15 +205,15 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
                         // Ok.  Now we should hopefully be good to go.
 
                         // Add all remote gateways that can resolve patients within the assigning authority.
-                        ArrayList<XConfigGateway> gateways = aa.getGateways();
-                        for (XConfigGateway gateway : gateways) {
-                            this.addRequest(queryRequest, responseOption, gateway.getHomeCommunityId(), gateway, false);
+                        List<XConfigActor> gateways = xconfig.getRespondingGatewayConfigsForAssigningAuthorityId(assigningAuthority);
+                        for (XConfigActor gateway : gateways) {
+                            this.addRequest(queryRequest, responseOption, gateway.getUniqueId(), gateway, false);
                         }
 
                         // Now, we may also need to go to a local registry.
 
                         // Does the assigning authority configuration include a local registry?
-                        XConfigRegistry registry = aa.getLocalRegistry();
+                        XConfigActor registry = xconfig.getRegistryConfigForAssigningAuthorityId(assigningAuthority);
                         if (registry != null) {
                             //String homeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
                             // Just use the registry name as the key (to avoid conflict with
@@ -308,7 +306,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
             this.logInfo("Note", "Going local for homeCommunityId: " + homeCommunityId);
 
             // XDSAffinityDomain option - get the local registry.
-            XConfigRegistry localRegistry = this.getLocalRegistry();
+            XConfigActor localRegistry = this.getLocalRegistry();
             if (localRegistry != null) {
                 // Add the local request.
                 // Just use the registry name as the key (to avoid conflict with
@@ -318,7 +316,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         } else if (this.getGatewayType() == GatewayType.InitiatingGateway) {  // Going remote.
             this.logInfo("Note", "Going remote for homeCommunityId: " + homeCommunityId);
             // See if we know about a remote gateway that can respond.
-            XConfigGateway gatewayConfig = XConfig.getInstance().getGateway(homeCommunityId);
+            XConfigActor gatewayConfig = XConfig.getInstance().getRespondingGatewayConfigForHomeCommunityId(homeCommunityId);
             if (gatewayConfig == null) {
                 response.add_error(MetadataSupport.XDSUnknownCommunity,
                         "Do not understand homeCommunityId " + homeCommunityId,
@@ -339,21 +337,21 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private XConfigRegistry getLocalRegistry() throws XdsInternalException {
+    private XConfigActor getLocalRegistry() throws XdsInternalException {
         // Get the gateway configuration.
         XConfig xconfig = XConfig.getInstance();
-        XConfigHomeCommunity homeCommunity = xconfig.getHomeCommunity();
+        XConfigObject homeCommunity = xconfig.getHomeCommunityConfig();
 
         // Return the proper registry configuration based upon the gateway configuration.
-        XConfigGateway gateway;
+        XConfigActor gateway;
         if (this.getGatewayType() == GatewayType.InitiatingGateway) {
-            gateway = homeCommunity.getInitiatingGateway();
+            gateway = (XConfigActor)homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
         } else {
-            gateway = homeCommunity.getRespondingGateway();
+            gateway = (XConfigActor)homeCommunity.getXConfigObjectWithName("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
         }
 
         // Get the gateway's local registry.
-        XConfigRegistry registry = gateway.getLocalRegistry();
+        XConfigActor registry = (XConfigActor)gateway.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         if (registry == null) {
             response.add_error(MetadataSupport.XDSRegistryNotAvailable,
                     "Can not find local registry endpoint",
@@ -417,16 +415,16 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param queryRequest
      * @param responseOption
      * @param uniqueId
-     * @param configEntity
+     * @param configActor
      * @param isLocalRequest
      * @return
      */
-    private XCAQueryRequest addRequest(OMElement queryRequest, OMElement responseOption, String uniqueId, XConfigEntity configEntity, boolean isLocalRequest) {
+    private XCAQueryRequest addRequest(OMElement queryRequest, OMElement responseOption, String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
         XCARequestController requestController = this.getRequestController();
         // FIXME: Logic is a bit problematic -- need to find another way.
         XCAAbstractRequestCollection requestCollection = requestController.getRequestCollection(uniqueId);
         if (requestCollection == null) {
-            requestCollection = new XCAQueryRequestCollection(uniqueId, configEntity, isLocalRequest);
+            requestCollection = new XCAQueryRequestCollection(uniqueId, configActor, isLocalRequest);
             requestController.setRequestCollection(requestCollection);
         }
 

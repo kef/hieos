@@ -92,7 +92,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
         String localHomeCommunityId = null;
         try {
             XConfig xconfig = XConfig.getInstance();
-            localHomeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
+            localHomeCommunityId = xconfig.getHomeCommunityConfig().getUniqueId();
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             log_message.addErrorParam("Internal Error", "Could not find local homeCommunityId in XConfig");

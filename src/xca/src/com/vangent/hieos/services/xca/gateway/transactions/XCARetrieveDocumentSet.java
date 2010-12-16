@@ -31,10 +31,8 @@ import com.vangent.hieos.services.xca.gateway.controller.XCARequest;
 
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
-import com.vangent.hieos.xutil.xconfig.XConfigGateway;
-import com.vangent.hieos.xutil.xconfig.XConfigRepository;
-import com.vangent.hieos.xutil.xconfig.XConfigEntity;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
@@ -155,11 +153,11 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
                     // Now determine if we know about this home community
 
                     // Is this request targeted for the local community?
-                    XConfigHomeCommunity homeCommunityConfig = XConfig.getInstance().getHomeCommunity();
+                    XConfigObject homeCommunityConfig = XConfig.getInstance().getHomeCommunityConfig();
 
-                    if (homeCommunityConfig.getHomeCommunityId().equals(homeCommunityId)) {
+                    if (homeCommunityConfig.getUniqueId().equals(homeCommunityId)) {
                         // This is destined for the local community.
-                        XConfigRepository repositoryConfig = this.getRepositoryConfigBasedOnDocRequest(docRequest);
+                        XConfigActor repositoryConfig = this.getRepositoryConfigBasedOnDocRequest(docRequest);
                         if (repositoryConfig != null) {
                             // This request is good (targeted for local community repository).
                             this.addRequest(docRequest, repositoryConfig.getUniqueId(), repositoryConfig, true);
@@ -167,7 +165,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
 
                     } else if (this.getGatewayType() == GatewayType.InitiatingGateway) {
                         // See if we know about a remote gateway that can respond.
-                        XConfigGateway gatewayConfig = XConfig.getInstance().getGateway(homeCommunityId);
+                        XConfigActor gatewayConfig = XConfig.getInstance().getRespondingGatewayConfigForHomeCommunityId(homeCommunityId);
                         if (gatewayConfig == null) {
                             response.add_error(MetadataSupport.XDSUnknownCommunity,
                                     "Do not understand homeCommunityId " + homeCommunityId,
@@ -185,16 +183,16 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
     /**
      *
      * @param uniqueId
-     * @param configEntity
+     * @param configActor
      * @param isLocalRequest
      */
-    private void addRequest(OMElement queryRequest, String uniqueId, XConfigEntity configEntity, boolean isLocalRequest) {
+    private void addRequest(OMElement queryRequest, String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
         XCARequestController requestController = this.getRequestController();
 
         // FIXME: Logic is a bit problematic -- need to find another way.
         XCAAbstractRequestCollection requestCollection = requestController.getRequestCollection(uniqueId);
         if (requestCollection == null) {
-            requestCollection = new XCARetrieveRequestCollection(uniqueId, configEntity, isLocalRequest);
+            requestCollection = new XCARetrieveRequestCollection(uniqueId, configActor, isLocalRequest);
             requestController.setRequestCollection(requestCollection);
         }
         XCARequest xcaRequest = new XCARequest(queryRequest);
@@ -207,8 +205,8 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    private XConfigRepository getRepositoryConfigBasedOnDocRequest(OMElement docRequestNode) throws XdsInternalException {
-        XConfigRepository repositoryConfig = null;
+    private XConfigActor getRepositoryConfigBasedOnDocRequest(OMElement docRequestNode) throws XdsInternalException {
+        XConfigActor repositoryConfig = null;
         OMElement repositoryIdNode = MetadataSupport.firstChildWithLocalName(docRequestNode, "RepositoryUniqueId");
         if (repositoryIdNode == null) {
             response.add_error(MetadataSupport.XDSUnknownRepositoryId,
@@ -223,7 +221,7 @@ public class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         } else {
             // Now see if we know anyting about this repository id within our local community.
             XConfig xconf = XConfig.getInstance();
-            repositoryConfig = xconf.getRepository(repositoryUniqueId);
+            repositoryConfig = xconf.getRepositoryConfigById(repositoryUniqueId);
             if (repositoryConfig == null) {
                 response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                         "RepositoryUniqueId " + repositoryUniqueId + " not known by local community",

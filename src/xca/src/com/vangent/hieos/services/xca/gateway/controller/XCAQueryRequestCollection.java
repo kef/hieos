@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.soap.Soap;
+import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.metadata.structure.HomeAttribute;
 
 // Exceptions.
@@ -25,15 +26,14 @@ import com.vangent.hieos.xutil.exception.XdsWSException;
 
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigEntity;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
-import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
-import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -49,11 +49,11 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
     /**
      *
      * @param uniqueId
-     * @param configEntity
-     * @param isLocalRequestString uniqueId, XConfigEntity configEntity, boolean isLocalRequest
+     * @param configActor
+     * @param isLocalRequest
      */
-    public XCAQueryRequestCollection(String uniqueId, XConfigEntity configEntity, boolean isLocalRequest) {
-        super(uniqueId, configEntity, isLocalRequest);
+    public XCAQueryRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
+        super(uniqueId, configActor, isLocalRequest);
     }
 
     /**
@@ -84,8 +84,6 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
         // Get Transaction configuration
         XConfigTransaction xconfigTxn = getXConfigTransaction();
         // Now send the requests out.
-        //System.out.println("rootRequest->");
-        //System.out.println(rootRequest);
         OMElement result = this.sendTransaction(rootRequest, xconfigTxn);
         this.setResult(result);
         if (result != null) { // to be safe.
@@ -109,8 +107,8 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
             }
 
             if ((result != null) && this.isLocalRequest()) {
-                XConfigHomeCommunity homeCommunity = XConfig.getInstance().getHomeCommunity();
-                this.setHomeAttributeOnResult(result, homeCommunity.getHomeCommunityId());
+                XConfigObject homeCommunity = XConfig.getInstance().getHomeCommunityConfig();
+                this.setHomeAttributeOnResult(result, homeCommunity.getUniqueId());
             }
         }
         return result;
@@ -189,7 +187,7 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
      */
     private XConfigTransaction getXConfigTransaction() {
         String txnName = this.isLocalRequest() ? "RegistryStoredQuery" : "CrossGatewayQuery";
-        XConfigTransaction txn = this.getConfigEntity().getTransaction(txnName);
+        XConfigTransaction txn = this.getXConfigActor().getTransaction(txnName);
         return txn;
     }
 

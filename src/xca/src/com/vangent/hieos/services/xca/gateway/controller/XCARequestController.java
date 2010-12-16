@@ -25,22 +25,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.axiom.om.OMElement;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class XCARequestController {
+    private final static Logger logger = Logger.getLogger(XCARequestController.class);
 
     private Response response;
     private XLogMessage logMessage;
@@ -134,7 +132,7 @@ public class XCARequestController {
             multiThreadMode = true;
             futures = new ArrayList<Future<XCAAbstractRequestCollection>>();
         }
-        System.out.println("*** multiThreadMode = " + multiThreadMode + " ***");
+        logger.debug("*** multiThreadMode = " + multiThreadMode + " ***");
 
         // Submit work to be conducted in parallel (if required):
         for (Iterator it = allRequests.iterator(); it.hasNext();) {
@@ -151,7 +149,7 @@ public class XCARequestController {
                     requestCollection = outboundRequest.call();
                     this.processOutboundRequestResult(requestCollection, results);
                 } catch (Exception ex) {
-                    Logger.getLogger(XCARequestController.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("XCA EXCEPTION ... continuing", ex);
                 }
             }
         }
@@ -161,12 +159,12 @@ public class XCARequestController {
             for (Future<XCAAbstractRequestCollection> future : futures) {
                 try {
                     XCAAbstractRequestCollection requestCollection = future.get();  // Will block until ready.
-                    System.out.println("*** FINISHED THREAD - " + requestCollection.getUniqueId());
+                    logger.debug("*** FINISHED THREAD - " + requestCollection.getUniqueId());
                     this.processOutboundRequestResult(requestCollection, results);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(XCARequestController.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("XCA EXCEPTION ... continuing", ex);
                 } catch (ExecutionException ex) {
-                    Logger.getLogger(XCARequestController.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error("XCA EXCEPTION ... continuing", ex);
                 }
             }
         }
@@ -201,9 +199,9 @@ public class XCARequestController {
     }
 
     /**
-     *
+     * 
      */
-    public class GatewayOutboundRequest implements Callable {
+    public class GatewayOutboundRequest implements Callable<XCAAbstractRequestCollection> {
 
         private XCAAbstractRequestCollection requestCollection;
 
@@ -222,27 +220,27 @@ public class XCARequestController {
          */
         public XCAAbstractRequestCollection call() throws Exception {
             try {
-                System.out.println("*** IN CALLABLE - " + requestCollection.getUniqueId());
+                logger.debug("*** IN CALLABLE - " + requestCollection.getUniqueId());
                 OMElement result = requestCollection.sendRequests();
                 // Do nothing with result as it is cached in the RequestCollection.
 
                 // BHT (FIXUP) -- need to find proper exceptions to return.
             } catch (XdsException e) {
-                System.out.println("+++ EXCEPTION = " + e.getMessage());
+                logger.error("+++ EXCEPTION = " + e.getMessage());
                 XCAErrorMessage errorMessage = new XCAErrorMessage(
                         MetadataSupport.XDSUnavailableCommunity,
                         "Failure contacting community or repository = " + requestCollection.getUniqueId(),
                         requestCollection.getUniqueId());
                 requestCollection.addErrorMessage(errorMessage);
             } catch (XdsWSException e) {
-                System.out.println("+++ EXCEPTION = " + e.getMessage());
+                logger.error("+++ EXCEPTION = " + e.getMessage());
                 XCAErrorMessage errorMessage = new XCAErrorMessage(
                         MetadataSupport.XDSUnavailableCommunity,
                         "Failure contacting community or repository = " + requestCollection.getUniqueId(),
                         requestCollection.getUniqueId());
                 requestCollection.addErrorMessage(errorMessage);
             } finally {
-                System.out.println("*** FINISHED CALLABLE - " + requestCollection.getUniqueId());
+                logger.debug("*** FINISHED CALLABLE - " + requestCollection.getUniqueId());
             }
             return requestCollection;
         }

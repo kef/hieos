@@ -24,8 +24,6 @@ import com.vangent.hieos.xutil.exception.XdsWSException;
 
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
-import com.vangent.hieos.xutil.xconfig.XConfigEntity;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 // XATNA.
@@ -33,6 +31,8 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import javax.xml.namespace.QName;
@@ -49,11 +49,11 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
     /**
      *
      * @param uniqueId
-     * @param configEntity
+     * @param configActor
      * @param isLocalRequest
      */
-    public XCARetrieveRequestCollection(String uniqueId, XConfigEntity configEntity, boolean isLocalRequest) {
-        super(uniqueId, configEntity, isLocalRequest);
+    public XCARetrieveRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
+        super(uniqueId, configActor, isLocalRequest);
     }
 
    /**
@@ -101,8 +101,8 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
             }
 
             if ((result != null) && this.isLocalRequest()) {
-                XConfigHomeCommunity homeCommunity = XConfig.getInstance().getHomeCommunity();
-                setHomeAttributeOnResult(result, homeCommunity.getHomeCommunityId());
+                XConfigObject homeCommunity = XConfig.getInstance().getHomeCommunityConfig();
+                setHomeAttributeOnResult(result, homeCommunity.getUniqueId());
             }
         }
         return result;
@@ -213,7 +213,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      */
     private XConfigTransaction getXConfigTransaction() {
         String txnName = this.isLocalRequest() ? "RetrieveDocumentSet" : "CrossGatewayRetrieve";
-        XConfigTransaction txn = this.getConfigEntity().getTransaction(txnName);
+        XConfigTransaction txn = this.getXConfigActor().getTransaction(txnName);
         return txn;
     }
 

@@ -13,8 +13,8 @@
 
 package com.vangent.hieos.services.xca.gateway.controller;
 
-import com.vangent.hieos.xutil.xconfig.XConfigEntity;
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 // Third party.
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ abstract public class XCAAbstractRequestCollection {
     private String uniqueId = null;             // Target entity id (homeCommunityId, repositoryId, registryName.
     private boolean isLocalRequest = false;     // True if going to a local entity (e.g. registry/repository).
     private ArrayList<XCARequest> requests = new ArrayList<XCARequest>();   // Request nodes destined for a community.
-    private XConfigEntity configEntity = null;  // Configuration for the target entity (e.g XConfigGateway or XConfigRepository).
+    private XConfigActor configActor = null;  // Configuration for the target entity (e.g XConfigGateway or XConfigRepository).
     private OMElement result = null;
     private ArrayList<XCAErrorMessage> errors = new ArrayList<XCAErrorMessage>();
 
@@ -54,9 +54,9 @@ abstract public class XCAAbstractRequestCollection {
      * @param uniqueId
      * @param request
      */
-    public XCAAbstractRequestCollection(String uniqueId, XConfigEntity configEntity, boolean isLocalRequest) {
+    public XCAAbstractRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
         this.uniqueId = uniqueId;
-        this.configEntity = configEntity;
+        this.configActor = configActor;
         this.isLocalRequest = isLocalRequest;
     }
 
@@ -96,8 +96,8 @@ abstract public class XCAAbstractRequestCollection {
      *
      * @return
      */
-    public XConfigEntity getConfigEntity() {
-        return this.configEntity;
+    public XConfigActor getXConfigActor() {
+        return this.configActor;
     }
 
     /**
