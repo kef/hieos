@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.axiom.om.OMElement;
 
@@ -116,7 +115,7 @@ public class RetrieveB extends OmLogger {
     }
 
     public OMElement run()
-            throws XdsInternalException, FactoryConfigurationError,
+            throws XdsInternalException,
             XdsException, XdsIOException, MetadataException,
             XdsConfigurationException, MetadataValidationException, XdsWSException {
 
