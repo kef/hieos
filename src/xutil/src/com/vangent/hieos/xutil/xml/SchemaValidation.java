@@ -16,18 +16,11 @@
  */
 package com.vangent.hieos.xutil.xml;
 
+import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.exception.ExceptionUtil;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.StringReader;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.xerces.parsers.DOMParser;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 public class SchemaValidation implements MetadataTypes {
 
@@ -42,25 +35,18 @@ public class SchemaValidation implements MetadataTypes {
     // port 80 does not exist for requests on-machine (on the server). only requests coming in from
     // off-machine go through the firewall where the port translation happens.
     // even though this says validate_local, it is used by all requests
-    public static String validate_local(OMElement ele, int metadataType) throws XdsInternalException {
-        String msg;
+    public static void validate_local(OMElement ele, int metadataType) throws XdsInternalException {
 
         // This should cover all use cases except xdstest2 running on a users desktop
-        msg = SchemaValidation.run(ele.toString(), metadataType, "localhost", "8080");
-        if (msg.indexOf("Failed to read schema document") == -1) {
-            return msg;
-        }
+        SchemaValidation.run(ele.toString(), metadataType, "localhost", "8080");
 
         // Xdstest2 needs to reference the public register server
         // port 80 makes it easier when strict firewalls are in place
-        msg = SchemaValidation.run(ele.toString(), metadataType, "129.6.24.109", "80");
-        return msg;
+        // SchemaValidation.run(ele.toString(), metadataType, "129.6.24.109", "80");
     }
 
     // empty string as result means no errors
-    static private String run(String metadata, int metadataType, String host, String portString) throws XdsInternalException {
-        MyErrorHandler errors = null;
-        DOMParser p = null;
+    static private void run(String metadata, int metadataType, String host, String portString) throws XdsInternalException {
         //String portString = "9080";
         String localSchema = System.getenv("HIEOSxSchemaDir");
 
@@ -71,21 +57,6 @@ public class SchemaValidation implements MetadataTypes {
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/lcm.xsd" : localSchema + "/v3/lcm.xsd");
                 break;
-            /* XDS.a
-            case METADATA_TYPE_PR:
-            case METADATA_TYPE_R:
-            schemaLocation = "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
-            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
-            break;
-            case METADATA_TYPE_Q:
-            schemaLocation =
-            "urn:oasis:names:tc:ebxml-regrep:query:xsd:2.1 " +
-            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/query.xsd " : localSchema + "/v2/query.xsd ") +
-            "urn:oasis:names:tc:ebxml-regrep:registry:xsd:2.1 " +
-            ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v2/rs.xsd" : localSchema + "/v2/rs.xsd");
-
-            break;
-             */
             case METADATA_TYPE_SQ:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0 " +
                         ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/query.xsd " : localSchema + "/v3/query.xsd ") +
@@ -101,57 +72,14 @@ public class SchemaValidation implements MetadataTypes {
             default:
                 throw new XdsInternalException("SchemaValidation: invalid metadata type = " + metadataType);
         }
-/*
-        schemaLocation += " urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0 " +
-                ((localSchema == null) ? "http://" + host + ":" + portString + "/xdsref/schema/v3/rim.xsd" : localSchema + "/v3/rim.xsd");
 
-        schemaLocation += " http://schemas.xmlsoap.org/soap/envelope/ " +
-                ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/soap.xsd" : localSchema + "/v3/soap.xsd");
-*/
-        // build parse to do schema validation
         try {
-            p = new DOMParser();
-        } catch (Exception e) {
-            throw new XdsInternalException("DOMParser failed: " + e.getMessage());
-        }
-        try {
-            p.setFeature("http://xml.org/sax/features/validation", true);
-            p.setFeature("http://apache.org/xml/features/validation/schema", true);
-            p.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation",
-                    schemaLocation);
-            errors = new MyErrorHandler();
-            errors.setSchemaFile(schemaLocation);
-            p.setErrorHandler(errors);
-        } catch (SAXException e) {
-            throw new XdsInternalException("SchemaValidation: error in setting up parser property: SAXException thrown with message: " + e.getMessage());
-        }
-
-        // run parser and collect parser and schema errors
-        try {
-            // translate urn:uuid: to urn_uuid_ since the colons really screw up schema stuff
+            XMLSchemaValidator validator = new XMLSchemaValidator(schemaLocation);
+            // Not sure if this next line really needs to stay (old NIST code).
             String metadata2 = metadata.replaceAll("urn:uuid:", "urn_uuid_");
-            InputSource is = new InputSource(new StringReader(metadata2));
-            p.parse(is);
-        } catch (Exception e) {
-            throw new XdsInternalException("SchemaValidation: XML parser/Schema validation error: " +
-                    ExceptionUtil.exception_details(e));
+            validator.validate(metadata2);
+        } catch (XMLSchemaValidatorException ex) {
+            throw new XdsInternalException(ex.getMessage());
         }
-        String errs = errors.getErrors();
-//		if (errs.length() != 0) {
-//		errs = errs + "\n" + metadata.substring(1,500);
-//		}
-        return errs;
-
     }
-
-    /*
-    protected static String exception_details(Exception e) {
-    if (e == null) {
-    return "No stack trace available";
-    }
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(baos);
-    e.printStackTrace(ps);
-    return "Exception thrown: " + e.getClass().getName() + "\n" + e.getMessage() + "\n" + new String(baos.toByteArray());
-    } */
 }
