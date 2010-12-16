@@ -2,7 +2,7 @@
 
 <!--
     Document   : xconfig.xml
-    Created on : January 14, 2009, 4:52 PM
+    Created on : January 14, 2009, 4:52 PM (reworked structure on December 14, 2010).
     Author     : Bernie Thuman
     Description:
         Master configuration file for XDS.b / XCA profiles
@@ -12,10 +12,17 @@
 
 <Config>
 
-    <HomeCommunity name="home">
-        <Property name="HomeCommunityId">urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</Property>
-        <Property name="InitiatingGateway">localig</Property>
-        <Property name="RespondingGateway">localrg</Property>
+    <Object name="home" type="HomeCommunityType">
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId>
+        <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
+        <ObjectReference name="rg" refname="localrg" reftype="RespondingGatewayType"/>
+
+       <!-- This is used to configure the local repository. In the future, we may need to find
+        a better way to allow the same instance to support more than one repository ID.  This is really
+        only used for the "Provide and Register" transaction.  The Gateway's lookup the proper repository
+        by using the "repositoryId" in the associated "Retrieve" requests. -->
+        <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
+
         <Property name="ValidatePatientId">true</Property>
         <!-- Set this property to false to disable XML schema validation for all input messages
              recieved by HIEOS. -->
@@ -28,12 +35,6 @@
 
              -->
         <Property name="CodesLocation">http://localhost:8080/xref/codes/codes.xml</Property>
-
-        <!-- This is used to configure the local repository. In the future, we may need to find
-        a better way to allow the same instance to support more than one repository ID.  This is really
-        only used for the "Provide and Register" transaction.  The Gateway's lookup the proper repository
-        by using the "repositoryId" in the associated "Retrieve" requests. -->
-        <Property name="LocalRepository">localrepository</Property>
 
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
@@ -52,24 +53,11 @@
 	<!--NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
         <Property name="ATNAsyslogHost">129.6.24.109</Property>
         <Property name="ATNAsyslogPort">8087</Property>
-        
-        <!-- spirit0 -->
-        <!--
-        <Property name="ATNAsyslogHost">10.243.0.59</Property>
-        <Property name="ATNAsyslogPort">5555</Property>
-        -->
-
-        <!-- ibm1 -->
-        <!--
-        <Property name="ATNAsyslogHost">10.243.0.139</Property>
-        <Property name="ATNAsyslogPort">514</Property>
-        -->
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">45000</Property> <!-- 45 seconds -->
         <Property name="SOAPAsyncTimeOutInMilliseconds">120000</Property> <!-- 120 seconds -->
-        <Property name="SOAPAsyncResponseHTTPPort">8080</Property> <!-- should be set to app server HTTP listener port -->
-
+        <Property name="SOAPAsyncResponseHTTPPort">8080</Property>
 
         <!-- Log file parameters -->
         <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
@@ -78,9 +66,9 @@
         <Property name="RepoStorageClassImpl">com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorageSQL</Property>
 
         <!-- Other global properties will go here. -->
-    </HomeCommunity>
+    </Object>
 
-    <XUA name="XUAProperties">
+    <Object name="XUAProperties" type="XUAPropertiesType">
         <Property name="XUAEnabled">false</Property>
         <Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>
         <!--<Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
@@ -95,49 +83,35 @@
              only ones subject to SAML validation. Separate IPs with a semicolon. An empty
              property or a value set to ALL will constrain all IP addresses. -->
         <Property name="ConstrainedIPAddresses">ALL</Property>
-    </XUA>
+    </Object>
 
    <!-- List of assigning authorities (tells the Initiating Gateway where to go when it receives
         a registry query by patient id). Each patient id has an associated assigning authority.  This
         is temporary until PIX integration is complete.  -->
 
     <!-- "xdstest" default assigning authority when generating patient ids. -->
-    <AssigningAuthority name = "xdstest">
+    <Object name="xdstest" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</UniqueId>
-        <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
-        <Gateway>nistrg</Gateway>
-        <!--
-        <Gateway>EHR_SPIRIT_rg</Gateway>
-        <Gateway>EHR_ITH-ICOSERVE_rg</Gateway>-->
-    </AssigningAuthority>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
 
     <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
-    <AssigningAuthority name = "IHENA">
+    <Object name="IHENA" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</UniqueId>
-        <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
-        <Gateway>nistrg</Gateway>
-        <!--
-        <Gateway>OTHER_ICW_rg</Gateway>
-        <Gateway>XDS_REG_IBM_rg</Gateway>
-        <Gateway>XDSb_REP_AXOLOTL_rg</Gateway>
-        <Gateway>GATEWAY_INTERSYSTEMS_rg</Gateway>-->
-        <!--<Gateway>localrg</Gateway>-->
-    </AssigningAuthority>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
 
     <!-- HIMSS Registration System. -->
-    <AssigningAuthority name = "PAMX">
+    <Object name = "PAMX" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
-        <Registry>localregistry</Registry>  <!-- should only have one registry designated (for now). -->
-        <Gateway>nistrg</Gateway>
-        <!--
-        <Gateway>OTHER_ICW_rg</Gateway>
-        <Gateway>XDSb_REG_MISYS_rg</Gateway>
-        <Gateway>EHR_SPIRIT_rg</Gateway>
-        <Gateway>EHR_ITH-ICOSERVE_rg</Gateway>-->
-    </AssigningAuthority>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
 
    <!-- List of Registries -->
-    <Registry name="localregistry">
+    <Actor name="localregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
         <Transaction name="RegisterDocumentSet-b" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
@@ -153,257 +127,17 @@
         </Transaction>
         
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
-        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.2010.1.3.4.610</Property>
+        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="ReceiverDeviceName">GATEWAY_VANGENT_XDSbRegistry</Property>
         <Property name="MaxLeafObjectsAllowedFromQuery">25</Property>
-    </Registry>
+    </Actor>
 
-    <Registry name="OTHER_ALERT_registry">
+    <Actor name="nistregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://alert5:8080/XDSRegistry/services/xdsb</Endpoint>
-            <Endpoint secure="true"  async="false">http://alert5:8443/XDSRegistry/services/xdsb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://alert5:8080/XDSRegistry/services/xdsb</Endpoint>
-            <Endpoint secure="true"  async="false">http://alert5:8443/XDSRegistry/services/xdsb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="GATEWAY_CAREEVOLUTION_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://careevolution1:8090/Registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://careevolution1:8091/Registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://careevolution1:8090/Registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://careevolution1:8091/Registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="PAT_IDENTITY_X_REF_MGR_AXOLOTL_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://axolotl1:80/xds/DocumentRegistry_Service</Endpoint>
-            <Endpoint secure="true"  async="false">https://axolotl1:443/xds/DocumentRegistry_Service</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://axolotl1:80/xds/DocumentRegistry_Service</Endpoint>
-            <Endpoint secure="true"  async="false">https://axolotl1:443/xds/DocumentRegistry_Service</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REG_CAREFX_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://carefx1:86/axis2/services/DocumentRegistryService</Endpoint>
-            <Endpoint secure="true"  async="false">https://carefx1:84/axis2/services/DocumentRegistryService</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://carefx1:86/axis2/services/DocumentRegistryService</Endpoint>
-            <Endpoint secure="true"  async="false">https://carefx1:84/axis2/services/DocumentRegistryService</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REG_DBMOTION_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://dbmotion1:51100/xds/registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://dbmotion1:51101/xds/registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://dbmotion1:51100/xds/registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://dbmotion1:51101/xds/registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REP_EBMTECH_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ebmtech2:80/xds/xdsServerDllB.dll/register</Endpoint>
-            <Endpoint secure="true"  async="false">https://ebmtech2:443/xds/xdsServerDllB.dll/register</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ebmtech2:80/xds/xdsServerDllB.dll/query</Endpoint>
-            <Endpoint secure="true"  async="false">https://ebmtech2:443/xds/xdsServerDllB.dll/query</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REG_EMC_IHE_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://emc-ihe1:9092/mosaix-iti42</Endpoint>
-            <Endpoint secure="true"  async="false">https://emc-ihe1:9091/mosaix-iti42</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://emc-ihe1:9092/mosaix-iti18</Endpoint>
-            <Endpoint secure="true"  async="false">https://emc-ihe1:9091/mosaix-iti18</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="OTHER_GE_EHEALTH_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/xdsb-registerdocuments</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/xdsb-registerdocuments</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/rev6/xdsb-storedquery</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/rev6/xdsb-storedquery</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDS_REG_IBM_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="true">
-            <Endpoint secure="false" async="false">http://ibm1:9085/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://ibm1:9448/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="false" async="true">http://ibm1:9085/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="true"  async="true">https://ibm1:9448/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="true">
-            <Endpoint secure="false" async="false">http://ibm1:9085/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="true"  async="false">https://ibm1:9448/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="false" async="true">http://ibm1:9085/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-            <Endpoint secure="true"  async="true">https://ibm1:9448/IBMXDSRegistry/XDSb/SOAP12/Registry</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="OTHER_ICW_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/xdsb-registerdocuments</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/xdsb-registerdocuments</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/rev6/xdsb-storedquery</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/rev6/xdsb-storedquery</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="PAT_IDENTITY_X_REF_MGR_INITIATE_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://initiate1:8080/Initiate-IHE/services/XDS_b_DocumentRegistry</Endpoint>
-            <Endpoint secure="true"  async="false">https://initiate1:8443/Initiate-IHE/services/XDS_b_DocumentRegistry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://initiate1:8080/Initiate-IHE/services/XDS_b_DocumentRegistry</Endpoint>
-            <Endpoint secure="true"  async="false">https://initiate1:8443/Initiate-IHE/services/XDS_b_DocumentRegistry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="EHR_INTERSYSTEMS_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://intersystems1:80/csp/registry/EnsLib.IHE.XDSb.Registry.Services.cls</Endpoint>
-            <Endpoint secure="true"  async="false">https://intersystems1:443/registry/EnsLib.IHE.XDSb.Registry.Services.cls</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://intersystems1:80/csp/registry/EnsLib.IHE.XDSb.Registry.Services.cls</Endpoint>
-            <Endpoint secure="true"  async="false">https://intersystems1:443/registry/EnsLib.IHE.XDSb.Registry.Services.cls</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REG_MICROSOFT_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://microsoft2:1025/xdsservice/xdsregistry</Endpoint>
-            <Endpoint secure="true"  async="false">https://microsoft2:9080/xdsservice/xdsregistry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://microsoft2:1025/xdsservice/xdsregistry</Endpoint>
-            <Endpoint secure="true"  async="false">https://microsoft2:9080/xdsservice/xdsregistry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="XDSb_REG_MISYS_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8010/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8011/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8010/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8011/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="EHR_SPIRIT_registry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit6:8443/XDS3/registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit6:8443/XDS3/registry</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Registry>
-
-    <Registry name="nistregistry">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="false" async="false">
+        <Transaction name="RegisterDocumentSet-b" secure="false" async="true">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsregistryb</Endpoint>
             <Endpoint secure="true"  async="false">https://</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/xdsregistrybas</Endpoint>
             <Endpoint secure="true"  async="true">https://</Endpoint>
         </Transaction>
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
@@ -412,11 +146,11 @@
             <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsregistrybas</Endpoint>
             <Endpoint secure="true"  async="true">https://</Endpoint>
         </Transaction>
-    </Registry>
+    </Actor>
 
    <!-- List of Repositories -->
-    <Repository name="localrepository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</UniqueId>
+    <Actor name="localrepository" type="DocumentRepositoryType">
+        <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
@@ -431,293 +165,11 @@
         </Transaction>
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
-        <Registry>localregistry</Registry>
-        <!--
-        <Registry>XDSb_REG_EMC_IHE_registry</Registry>-->
-        <!--
-        <Registry>localregistry</Registry>-->
-        <!--
-        <Registry>XDSb_REG_MICROSOFT_registry</Registry>-->
-        <!--
-        <Registry>EHR_INTERSYSTEMS_registry</Registry>-->
-        <!--
-        <Registry>XDS_REG_IBM_registry</Registry>-->
+        <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
 
-    </Repository>
-
-    <Repository name="PACS_AGFA_2_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1060</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://agfa3:8080/dcm4chee-xdsb-repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://agfa3:8443/dcm4chee-xdsb-repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://agfa3:8080/dcm4chee-xdsb-repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://agfa3:8443/dcm4chee-xdsb-repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="OTHER_ALERT_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1045</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://alert7:8080/XDSRepository/services/xdsb</Endpoint>
-            <Endpoint secure="true"  async="false">https://alert7:8443/XDSRepository/services/xdsb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://alert7:8080/XDSRepository/services/xdsb</Endpoint>
-            <Endpoint secure="true"  async="false">https://alert7:8443/XDSRepository/services/xdsb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="PAT_IDENTITY_X_REF_MGR_AXOLOTL_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1095</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://axolotl1:80/xds/DocumentRepository_Service</Endpoint>
-            <Endpoint secure="true"  async="false">https://axolotl1:443/xds/DocumentRepository_Service</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://axolotl1:80/xds/DocumentRepository_Service</Endpoint>
-            <Endpoint secure="true"  async="false">https://axolotl1:443/xds/DocumentRepository_Service</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REG_CAREFX_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1110</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://carefx1:8083/axis2/DocumentRepositoryService</Endpoint>
-            <Endpoint secure="true"  async="false">https://carefx1:8090/axis2/DocumentRepositoryService</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://carefx1:8083/axis2/DocumentRepositoryService</Endpoint>
-            <Endpoint secure="true"  async="false">https://carefx1:8090/axis2/DocumentRepositoryService</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REG_DBMOTION_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1115</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://dbmotion1:52100/xds/repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://dbmotion1:52101/xds/repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://dbmotion1:52100/xds/repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://dbmotion1:52101/xds/repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REP_EBMTECH_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1135</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ebmtech2:80/xds/xdsServerDllB.dll/RetrieveB</Endpoint>
-            <Endpoint secure="true"  async="false">https://ebmtech2:443/xds/xdsServerDllB.dll/RetrieveB</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ebmtech2:80/xds/xdsServerDllB.dll/submit</Endpoint>
-            <Endpoint secure="true"  async="false">https://ebmtech2:443/xds/xdsServerDllB.dll/submit</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REG_EMC_IHE_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1120</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://emc_ihe2:9092/mosaix-iti43</Endpoint>
-            <Endpoint secure="true"  async="false">https://emc_ihe2:9091/mosaix-iti43</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://emc_ihe2:9092/mosaix-iti41</Endpoint>
-            <Endpoint secure="true"  async="false">https://emc_ihe2:9091/mosaix-iti41</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="OTHER_GE_EHEALTH_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1050</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://gehc15:8080/ehealth/webservices/xdsb-retrievedocuments</Endpoint>
-            <Endpoint secure="true"  async="false">https://gehc15:8443/ehealth/webservices/xdsb-retrievedocuments</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://gehc15:8080/ehealth/webservices/rev6/xdsb-provideandregister</Endpoint>
-            <Endpoint secure="true"  async="false">https://gehc15:8443/ehealth/webservices/rev6/xdsb-provideandregister</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="PACS_GE_EA_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1070</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://gehc16:8084/XdsService/XdsRepository</Endpoint>
-            <Endpoint secure="true"  async="false">https://gehc16:8085/XdsService/XdsRepository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://gehc16:8084/XdsService/XdsRepository</Endpoint>
-            <Endpoint secure="true"  async="false">https://gehc16:8085/XdsService/XdsRepository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDS_REP_HSI_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1160</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://hsi1:80/XdsService/XdsRepository.svc</Endpoint>
-            <Endpoint secure="true"  async="false">https://hsi1:443/XdsService/XdsRepository.svc</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://hsi1:80/XdsService/XdsRepository.svc</Endpoint>
-            <Endpoint secure="true"  async="false">https://hsi1:443/XdsService/XdsRepository.svc</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDS_REG_IBM_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1155</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ibm1:9085/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://ibm1:9448/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ibm1:9085/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
-            <Endpoint secure="true"  async="false">https://ibm1:9448/IBMXDSRepository/XDSb/SOAP12/Repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="OTHER_ICW_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1055</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/xdsb-retrievedocuments</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/xdsb-retrievedocuments</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/rev6/xdsb-provideandregister</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/rev6/xdsb-provideandregister</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="EHR_INTERSYSTEMS_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1025</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://intersystems1:80/csp/repository/EnsLib.IHE.XDSb.Repository.Services.cls</Endpoint>
-            <Endpoint secure="true"  async="false">https://intersystems1:443/repository/EnsLib.IHE.XDSb.Repository.Services.cls</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://intersystems1:80/csp/repository/EnsLib.IHE.XDSb.Repository.Services.cls</Endpoint>
-            <Endpoint secure="true"  async="false">https://intersystems1:443/repository/EnsLib.IHE.XDSb.Repository.Services.cls</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REP_MICROSOFT_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1140</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://microsoft3:1025/xdsservice/xdsrepository</Endpoint>
-            <Endpoint secure="true"  async="false">https://microsoft3:9081/xdsservice/xdsrepository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://microsoft3:1025/xdsservice/xdsrepository</Endpoint>
-            <Endpoint secure="true"  async="false">https://microsoft3:9081/xdsservice/xdsrepository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="XDSb_REG_MISYS_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1125</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8020/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8021/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8020/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8021/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
+    </Actor>
     
-    <Repository name="XDSb_REP_ORACLE_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1145</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://oracle2:7777/XDS/xdsrepositoryb_Soap12</Endpoint>
-            <Endpoint secure="true"  async="false">https://oracle2:4444/XDS/xdsrepositoryb_Soap12</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://oracle2:7777/XDS/xdsrepositoryb/iti41</Endpoint>
-            <Endpoint secure="true"  async="false">https://oracle2:4444/XDS/xdsrepositoryb/iti41</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="EHR_SPIRIT_repository">
-        <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1030</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit1:8443/XDS3/repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit1:8443/XDS3/repository</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Repository>
-
-    <Repository name="nistrepository">
+    <Actor name="nistrepository" type="DocumentRepositoryType">
         <UniqueId>1.19.6.24.109.42.1.5</UniqueId>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb</Endpoint>
@@ -731,12 +183,12 @@
             <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsrepositorybas</Endpoint>
             <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsrepositorybas</Endpoint>
         </Transaction>
-    </Repository>
+    </Actor>
 
    <!-- List of Gateways -->   
 
-    <Gateway name="localig"> <!-- Local Initiating Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId> <!-- Home Community ID -->
+    <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
@@ -752,11 +204,15 @@
 
         <!-- In support of XDS Affinity Domain Option -->
         <!-- placed here so the gateway knows where to direct local registry requests. -->
-        <Registry>localregistry</Registry>
-    </Gateway>
+        <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
 
-    <Gateway name="localrg"> <!-- Local Responding Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId>  <!-- Home Community ID -->
+        <!-- To support outbound PDQ requests -->
+        <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
+
+    </Actor>
+
+    <Actor name="localrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId>  <!-- Home Community ID -->
         <Transaction name="CrossGatewayQuery" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcarg</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcarg</Endpoint>
@@ -769,108 +225,80 @@
             <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcargas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcargas</Endpoint>
         </Transaction>
+        <Transaction name="CrossGatewayPatientDiscovery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcpdrgas</Endpoint>
+        </Transaction>
+        <Transaction name="PatientLocationQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcpdrgas</Endpoint>
+        </Transaction>
 
-      <!-- In support of XDS Affinity Domain Option -->
+        <!-- In support of XDS Affinity Domain Option -->
         <!-- placed here so the gateway knows where to direct local registry requests. -->
-        <Registry>localregistry</Registry>
-    </Gateway>
+        <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
 
-    <Gateway name="OTHER_ICW_rg">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2040</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/respondinggateway/query</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/respondinggateway/query</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://icw2:8080/ehealth/webservices/respondinggateway/retrieve</Endpoint>
-            <Endpoint secure="true"  async="false">https://icw2:8443/ehealth/webservices/respondinggateway/retrieve</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Gateway>
+        <!-- To support outbound PDQ requests -->
+        <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
-    <Gateway name="XDS_REG_IBM_rg">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2050</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ibm1:9085/XGatewayWS/RespondingGatewayQuery</Endpoint>
-            <Endpoint secure="true"  async="false">https://ibm1:9448/XGatewayWS/RespondingGatewayQuery</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://ibm1:9085/XGatewayWS/RespondingGatewayRetrieve</Endpoint>
-            <Endpoint secure="true"  async="false">http://ibm1:9448/XGatewayWS/RespondingGatewayRetrieve</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Gateway>
+    </Actor>
 
-    <Gateway name="XDSb_REG_MISYS_rg">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2045</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8040/axis2/services/rg</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8041/axis2/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
-            <Endpoint secure="false" async="false">http://misys3:8040/axis2/services/rg</Endpoint>
-            <Endpoint secure="true"  async="false">https://misys3:8041/axis2/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Gateway>
-
-    <Gateway name="EHR_SPIRIT_rg">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2010</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit7:8443/XCA/responding</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">https://spirit7:8443/XCA/responding</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Gateway>
-
-<!--
-    <Gateway name="TEMPLATE_rg">
-        <UniqueId>XXXX</UniqueId>
-        <Transaction name="CrossGatewayQuery" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">XXX</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="true" async="false">
-            <Endpoint secure="false" async="false">XXX</Endpoint>
-            <Endpoint secure="true"  async="false">XXX</Endpoint>
-            <Endpoint secure="false" async="true">XXX</Endpoint>
-            <Endpoint secure="true"  async="true">XXX</Endpoint>
-        </Transaction>
-    </Gateway>-->
-
-    <Gateway name="nistrg"> <!-- NIST Responding Gateway -->
+    <Actor name="nistrg" type="RespondingGatewayType"> <!-- NIST Responding Gateway -->
         <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+        <Transaction name="CrossGatewayQuery" secure="false" async="true">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
             <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/rgas</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/rgas</Endpoint>
             <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
         </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="true">
             <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
             <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/rgas</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/rgas</Endpoint>
             <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
         </Transaction>
-    </Gateway>
+    </Actor>
 
+    <Actor name="localpix" type="PIXManagerType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryRecordAdded" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryRecordRevised" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryDuplicatesResolved" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryGetIdentifiersQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+    </Actor>
+
+    <Actor name="localpds" type="PDSType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pds</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+    </Actor>
 
 </Config>
