@@ -29,7 +29,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.sql.SQLException;
@@ -208,7 +208,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
         } catch (XdsInternalException ex) {
             return defaultMaxLeafObjectsAllowedFromQuery;
         }
-        XConfigRegistry registry = xconfig.getRegistryByName(this.xconfRegistryName);
+        XConfigActor registry = xconfig.getRegistryConfigByName(this.xconfRegistryName);
         String propValue = registry.getProperty("MaxLeafObjectsAllowedFromQuery");
         long maxLeafObjectsAllowedFromQuery = defaultMaxLeafObjectsAllowedFromQuery;
         if (propValue != null) {

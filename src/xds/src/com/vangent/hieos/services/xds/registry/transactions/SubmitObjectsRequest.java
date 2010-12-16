@@ -347,7 +347,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
     private void validatePatientId(String patientId) throws SQLException,
             XdsException, XdsInternalException {
         //if (Properties.loader().getBoolean("validate_patient_id")) {
-        if (XConfig.getInstance().getHomeCommunityPropertyAsBoolean("validatePatientId")) {
+        if (XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("validatePatientId")) {
             Verify v = new Verify();
             boolean isValidPatientId = v.isValid(patientId);
             if (!isValidPatientId) {

@@ -16,9 +16,8 @@ package com.vangent.hieos.services.xds.repository.support;
 // This code was based on original NIST code full of static methods.
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigHomeCommunity;
-import com.vangent.hieos.xutil.xconfig.XConfigRepository;
-import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 public class Repository {
@@ -47,20 +46,20 @@ public class Repository {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     static public String getRepositoryUniqueId() throws XdsInternalException {
-        XConfigRepository repository = Repository.getRepositoryConfig();
+        XConfigActor repository = Repository.getRepositoryConfig();
         return repository.getUniqueId();
     }
 
     /**
      * This private utility method returns the local repository.
-     * @return XConfigRepository.
+     * @return XConfigActor.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    static private XConfigRepository getRepositoryConfig() throws XdsInternalException {
+    static private XConfigActor getRepositoryConfig() throws XdsInternalException {
         try {
             XConfig xconf = XConfig.getInstance();
-            XConfigHomeCommunity homeCommunity = xconf.getHomeCommunity();
-            XConfigRepository repository = homeCommunity.getLocalRepository();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            XConfigActor repository = (XConfigActor)homeCommunity.getXConfigObjectWithName("repo", XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
             return repository;
         } catch (Exception e) {
             throw new XdsInternalException("Unable to get Repository configuration + " + e.getMessage());
@@ -74,8 +73,8 @@ public class Repository {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     static private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
-        XConfigRepository repository = Repository.getRepositoryConfig();
-        XConfigRegistry localRegistry = repository.getLocalRegistry();
+        XConfigActor repo = Repository.getRepositoryConfig();
+        XConfigActor localRegistry = (XConfigActor)repo.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
         return txn;
     }

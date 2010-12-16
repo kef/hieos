@@ -21,20 +21,18 @@ import com.vangent.hieos.adt.db.AdtRecordBean;
 import com.vangent.hieos.adt.db.AdtJdbcConnection;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
-import com.vangent.hieos.xutil.uuid.UuidAllocator;
 
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigRegistry;
 
 // ATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
+import com.vangent.hieos.xutil.exception.XPathHelperException;
 import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
@@ -43,11 +41,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import org.jaxen.JaxenException;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.sql.SQLException;
 
 /**
@@ -508,7 +508,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                     documentSourceIds.add(documentSourceId);
                 }
             }
-            
+
             // Update the registry by updating the patient id on the external
             // identifiers involved in the split.
             if (documentSourceIds.size() > 0) {
@@ -526,7 +526,6 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
 // Helper methods:
-
     /**
      * Get all external identifier UUIDs related to the supplied "activePatientId"
      * and list of document source identifiers.
@@ -823,16 +822,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     private OMElement selectSingleNode(OMElement rootNode, String xpathExpression) {
         OMElement resultNode = null;
         try {
-            AXIOMXPath xpath = new AXIOMXPath(xpathExpression);
-            xpath.addNamespace("ns", "urn:hl7-org:v3");
-            resultNode = (OMElement) xpath.selectSingleNode(rootNode);
-            if (resultNode != null) {
-                logger.debug("*** Found node for XPATH: " + xpathExpression);
-            } else {
-                logger.error("*** Could not find node for XPATH: " + xpathExpression);
-            }
-            return resultNode;
-        } catch (JaxenException e) {
+            resultNode = XPathHelper.selectSingleNode(rootNode, xpathExpression, "urn:hl7-org:v3");
+        } catch (XPathHelperException e) {
             this.logInternalException(e, "Problem with xpathExpression: " + xpathExpression);
         }
         return resultNode;
@@ -845,18 +836,10 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @return
      */
     private List selectNodes(OMElement rootNode, String xpathExpression) {
-        List resultNodes = null;
+        List<OMElement> resultNodes = null;
         try {
-            AXIOMXPath xpath = new AXIOMXPath(xpathExpression);
-            xpath.addNamespace("ns", "urn:hl7-org:v3");
-            resultNodes = xpath.selectNodes(rootNode);
-            if (resultNodes != null) {
-                logger.debug("*** Found nodes for XPATH: " + xpathExpression);
-            } else {
-                logger.error("*** Could not find nodes for XPATH: " + xpathExpression);
-            }
-            return resultNodes;
-        } catch (JaxenException e) {
+            resultNodes = XPathHelper.selectNodes(rootNode, xpathExpression, "urn:hl7-org:v3");
+        } catch (XPathHelperException e) {
             this.logInternalException(e, "Problem with xpathExpression: " + xpathExpression);
         }
         return resultNodes;
@@ -903,7 +886,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @return The UUID as a String.
      */
     private String getUUID() {
-        return UuidAllocator.allocate();
+        return UUID.randomUUID().toString();
+        //return UuidAllocator.allocate();
         /*
         UUIDFactory factory = UUIDFactory.getInstance();
         UUID uuid = factory.newUUID();
@@ -1233,7 +1217,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         try {
             // Get the registry's configuration (registry name came from axis2 "services.xml").
             XConfig xconf = XConfig.getInstance();
-            XConfigRegistry registry = xconf.getRegistryByName(this.xconfRegistryName);
+            XConfigActor registry = xconf.getRegistryConfigByName(this.xconfRegistryName);
             if (registry != null) {
                 propertyValue = registry.getProperty(propertyName);
             }

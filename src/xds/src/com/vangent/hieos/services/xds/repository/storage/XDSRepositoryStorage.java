@@ -54,7 +54,7 @@ abstract public class XDSRepositoryStorage {
         // Get name of XDSRepositoryStorage subclass from configuration file.
         XConfig xconf;
         xconf = XConfig.getInstance();
-        String repoClassImpl = xconf.getHomeCommunityProperty("RepoStorageClassImpl");
+        String repoClassImpl = xconf.getHomeCommunityConfigProperty("RepoStorageClassImpl");
 
         // Dynamically load XDSRepositoryStorage class.
         Class repoStorageClass;
