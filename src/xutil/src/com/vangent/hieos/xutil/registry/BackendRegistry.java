@@ -21,9 +21,9 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.xml.Parse;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -33,8 +33,6 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  *
@@ -175,8 +173,7 @@ public class BackendRegistry {
                 "</rim:AdhocQuery>\n" +
                 "</query:AdhocQueryRequest>\n";
 
-        OMElement query = Parse.parse_xml_string(queryString);
-
+        OMElement query = XMLParser.stringToOM(queryString);
         //AMS 04/26/2009 - FIXME - Handle the condition that there might be no children with name AdhocQuery.
         // Or does validation already account for that?? ---- RESEARCH
         OMElement query_request = MetadataSupport.firstChildWithLocalName(query, "AdhocQuery");//.get(0);

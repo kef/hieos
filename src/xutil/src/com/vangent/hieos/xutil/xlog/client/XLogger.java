@@ -140,7 +140,7 @@ public class XLogger {
      */
     private void setLogEnabled() {
         try {
-            this.logEnabled = XConfig.getInstance().getHomeCommunityPropertyAsBoolean("LogEnabled");
+            this.logEnabled = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("LogEnabled");
         } catch (XdsInternalException ex) {
             Logger.getLogger(XLogger.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -13,6 +13,8 @@
 package com.vangent.hieos.xutil.metadata.validation;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
+import com.vangent.hieos.xutil.exception.XConfigException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.http.HttpClient;
 import com.vangent.hieos.xutil.iosupport.Io;
@@ -22,9 +24,10 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigAssigningAuthority;
 
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -32,6 +35,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 
@@ -243,6 +249,7 @@ public class CodeValidation {
      * moved from the CodeValidation class.
      */
     public class Codes {
+
         OMElement codes;
         ArrayList<String> assigning_authorities;
         HashMap<String, String> mime_map;  // mime => ext
@@ -256,7 +263,7 @@ public class CodeValidation {
             String fileCodesLocation = System.getenv("HIEOSxCodesFile");
             XConfig xconf = XConfig.getInstance();
             //String localCodesLocation = "http://localhost:8080/xref/codes/codes.xml";
-            String localCodesLocation = xconf.getHomeCommunityProperty("CodesLocation");
+            String localCodesLocation = xconf.getHomeCommunityConfigProperty("CodesLocation");
             //String globalCodesLocation = "http://ihexds.nist.gov:9080/xdsref/codes/codes.xml";
             String codes_string = null;
             String from = null;
@@ -283,17 +290,21 @@ public class CodeValidation {
             if (codes_string.equals("")) {
                 throw new XdsInternalException("CodeValidation.init(): GET codes.xml returned enpty from " + from);
             }
-
-            codes = Util.parse_xml(codes_string);
-            if (codes == null) {
-                throw new XdsInternalException("CodeValidation: cannot parse code configuration file from " + from);
+            try {
+                codes = XMLParser.stringToOM(codes_string);
+                if (codes == null) {
+                    throw new XdsInternalException(
+                            "CodeValidation: cannot parse code configuration file from " + from);
+                }
+            } catch (XMLParserException ex) {
+                throw new XdsInternalException(
+                        "CodeValidation: cannot parse code configuration file from " + from + " (Exception: " + ex.getMessage() + " )");
             }
 
             // Pull assigning authorities from XConfig here (instead of codes.xml).
-            ArrayList<XConfigAssigningAuthority> assigningAuthoritiesConfig = xconf.getAssigningAuthorities();
+            List<XConfigObject> assigningAuthoritiesConfig = xconf.getAssigningAuthorityConfigs();
             this.assigning_authorities = new ArrayList<String>();
-            for (Iterator it = assigningAuthoritiesConfig.iterator(); it.hasNext();) {
-                XConfigAssigningAuthority aa = (XConfigAssigningAuthority) it.next();
+            for (XConfigObject aa : assigningAuthoritiesConfig) {
                 //System.out.println("Assigning Authority: " + aa.getUniqueId());
                 this.assigning_authorities.add(aa.getUniqueId());
             }

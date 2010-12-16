@@ -11,14 +11,9 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.xutil.xconfig;
 
-//import java.lang.StringBuffer;
-import java.util.ArrayList;
+import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 
@@ -115,7 +110,7 @@ public class XConfigTransaction {
      * @param rootNode, an OMElement, representing the transaction.
      */
     private void parseEndpoints(OMElement rootNode) {
-        ArrayList<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Endpoint");
+        List<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Endpoint");
         for (OMElement currentNode : list) {
             XConfigTransactionEndpoint txnEP = new XConfigTransactionEndpoint();
             txnEP.parse(currentNode);

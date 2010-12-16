@@ -12,16 +12,16 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.axiom.om.util.ElementHelper;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -65,8 +65,8 @@ public class XServiceUser {
         }
         OMElement requestBodyElement = null;
         try {
-            requestBodyElement = AXIOMUtil.stringToOM(bodyContent);
-        } catch (XMLStreamException ex) {
+            requestBodyElement = XMLParser.stringToOM(bodyContent);
+        } catch (XMLParserException ex) {
             throw new XdsException("XUA:Exception: Error creating Ws-Trust request body - " + ex.getMessage());
         }
         return requestBodyElement;
@@ -97,8 +97,8 @@ public class XServiceUser {
 
         OMElement reqHeaderElement;
         try {
-            reqHeaderElement = AXIOMUtil.stringToOM(reqHeaderContent);
-        } catch (XMLStreamException ex) {
+            reqHeaderElement = XMLParser.stringToOM(reqHeaderContent);
+        } catch (XMLParserException ex) {
             throw new XdsException("XUA:Exception: Error creating Ws-Trust request header - " + ex.getMessage());
         }
         return reqHeaderElement;

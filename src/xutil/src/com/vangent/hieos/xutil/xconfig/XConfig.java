@@ -19,21 +19,20 @@
  */
 package com.vangent.hieos.xutil.xconfig;
 
-// Leveraging common2 library (quickest way to get there).
+import com.vangent.hieos.xutil.exception.XMLParserException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.http.HttpClient;
-import com.vangent.hieos.xutil.xml.Util;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.iosupport.Io;
 
 // Third-party.
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
-import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
-import java.util.Collection;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -47,22 +46,32 @@ public class XConfig {
     private final static Logger logger = Logger.getLogger(XConfig.class);
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private String _configURL = "http://localhost:8080/xref/config/xconfig.xml";
-    static XConfig _instance = null;  // Singleton instance.
+    static private XConfig _instance = null;  // Singleton instance.
     // Internal data structure starts here.
-    private XConfigHomeCommunity homeCommunity = null;
-    private HashMap respondingGateways = new HashMap();     // Key = homeCommunityId, Value = XConfigGateway
-    private HashMap registries = new HashMap();             // Key = registry name, Value = XConfigRegistry
-    private HashMap repositories = new HashMap();           // Key = repository unique id, XConfigRepository
-    private HashMap assigningAuthorities = new HashMap();   // Key = AA unique ID, XConfigAssigningAuthority
-    private XConfigXUAProperties xuaProperties = null;
+    private List<XConfigObject> objects = new ArrayList<XConfigObject>();
+    private HashMap<String, XConfigObject> objectByNameMap = new HashMap<String, XConfigObject>();
+    private HashMap<String, XConfigObject> objectByIdMap = new HashMap<String, XConfigObject>();
+    private List<XConfigObject> assigningAuthorities = new ArrayList<XConfigObject>();
+
+    // Kept as strings versus enum to allow extension without XConfig code modification.
+    static final public String HOME_COMMUNITY_TYPE = "HomeCommunityType";
+    static final public String XDSB_DOCUMENT_REGISTRY_TYPE = "DocumentRegistryType";
+    static final public String XDSB_DOCUMENT_REPOSITORY_TYPE = "DocumentRepositoryType";
+    static final public String XCA_INITIATING_GATEWAY_TYPE = "InitiatingGatewayType";
+    static final public String XCA_RESPONDING_GATEWAY_TYPE = "RespondingGatewayType";
+    static final public String XUA_PROPERTIES_TYPE = "XUAPropertiesType";
+    static final public String ASSIGNING_AUTHORITY_TYPE = "AssigningAuthorityType";
+    static final public String PDS_TYPE = "PDSType";
+    static final public String PIX_MANAGER_TYPE = "PIXManagerType";
+    static final public String XDR_DOCUMENT_RECIPIENT_TYPE = "DocumentRecipientType";
 
     /**
      * Returns Singleton instance of XConfig.
      *
      * @return Singleton instance of XConfig
-     * @throws XdsInternalException
+     * @throws XConfigException
      */
-    static public synchronized XConfig getInstance() throws XdsInternalException {
+    static public synchronized XConfig getInstance() throws XConfigException {
         if (_instance == null) {
             _instance = new XConfig();
         }
@@ -72,180 +81,239 @@ public class XConfig {
     /**
      * Private constructor responsible for loading configuration file into memory.
      */
-    private XConfig() throws XdsInternalException {
+    private XConfig() throws XConfigException {
         loadConfiguration();
     }
 
     /**
-     * 
-     * @return
+     * Returns the global configuration for the Home Community.
+     *
+     * @return XConfigObject
      */
-    public XConfigHomeCommunity getHomeCommunity() {
-        return homeCommunity;
+    public XConfigObject getHomeCommunityConfig() {
+        String key = this.getKey("home", XConfig.HOME_COMMUNITY_TYPE);
+        return this.objectByNameMap.get(key);
     }
 
     /**
-     * Returns an instance of XConfigGateway based on a homeCommunityId.
+     * Returns an XConfigActor (RespondingGatewayType) based on a homeCommunityId.
      *
      * @param homeCommunityId
-     * @return An instance of XConfigGateway or null (if not found).
+     * @return An instance of XConfigActor or null (if not found).
      */
-    public XConfigGateway getGateway(String homeCommunityId) {
-        XConfigGateway gateway = null;
-        if (this.respondingGateways.containsKey(homeCommunityId)) {
-            gateway = (XConfigGateway) this.respondingGateways.get(homeCommunityId);
-        }
-        return gateway;
+    public XConfigActor getRespondingGatewayConfigForHomeCommunityId(String homeCommunityId) {
+        return this.getXConfigActorById(homeCommunityId, XConfig.XCA_RESPONDING_GATEWAY_TYPE);
     }
 
     /**
-     * 
-     * @param gatewayName
-     * @return
+     * Return an XConfigActor (RespondingGatewayType) given a gateway name.
+     *
+     * @param gatewayName Name of responding gateway.
+     * @return XConfigActor
      */
-    protected XConfigGateway getGatewayByName(String gatewayName) {
-        XConfigGateway gateway = null;
-        Collection gatewayList = this.respondingGateways.values();
-        for (Iterator it = gatewayList.iterator(); (gateway == null) && it.hasNext();) {
-            XConfigGateway currentGateway = (XConfigGateway) it.next();
-            if (currentGateway.getName().equals(gatewayName)) {
-                // Match found.
-                gateway = currentGateway;
-            }
-        }
-        return gateway;
+    protected XConfigActor getRespondingGatewayConfigByName(String gatewayName) {
+        return this.getXConfigActorByName(gatewayName, XConfig.XCA_RESPONDING_GATEWAY_TYPE);
     }
 
     /**
-     * 
+     * Return an XConfigActor (RepositoryType) given a repository id.
+     *
      * @param repositoryId
-     * @return
+     * @return XConfigActor
      */
-    public XConfigRepository getRepository(String repositoryId) {
-        XConfigRepository repository = null;
-        if (this.repositories.containsKey(repositoryId)) {
-            repository = (XConfigRepository) this.repositories.get(repositoryId);
-        }
-        return repository;
+    public XConfigActor getRepositoryConfigById(String repositoryId) {
+        return this.getXConfigActorById(repositoryId, XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
     }
 
     /**
+     * Returns an XConfigObject for a given "name" and "type".
+     *
+     * @param name Name of the object.
+     * @param type Type of the object.
+     * @return XConfigObject
+     */
+    public XConfigObject getXConfigObjectByName(String name, String type) {
+        XConfigObject configObject = null;
+        String key = this.getKey(name, type);
+        if (this.objectByNameMap.containsKey(key)) {
+            configObject = this.objectByNameMap.get(key);
+        }
+        return configObject;
+    }
+
+    /**
+     * Returns an XConfigObject for a given "id" and "type".
+     * 
+     * @param id Identifier for the object.
+     * @param type Type of the object.
+     * @return XConfigObject
+     */
+    public XConfigObject getXConfigObjectById(String id, String type) {
+        XConfigObject configObject = null;
+        String key = this.getKey(id, type);
+        if (this.objectByIdMap.containsKey(key)) {
+            configObject = this.objectByIdMap.get(key);
+        }
+        return configObject;
+    }
+
+    /**
+     * Returns an XConfigActor for a give "name" and "type".
+     *
+     * @param name Name of the Actor.
+     * @param type Type of the Actor.
+     * @return XConfigActor.
+     */
+    public XConfigActor getXConfigActorByName(String name, String type) {
+        return (XConfigActor) this.getXConfigObjectByName(name, type);
+    }
+
+    /**
+     * Returns an XConfigActor for a give "id" and "type".
+     *
+     * @param id Identifier of the Actor.
+     * @param type Type of the Actor.
+     * @return XConfigActor.
+     */
+    public XConfigActor getXConfigActorById(String id, String type) {
+        return (XConfigActor) this.getXConfigObjectById(id, type);
+    }
+
+    /**
+     * Returns an XConfigActor (RepositoryType) for a given repository "name".
      *
      * @param repositoryName
-     * @return
+     * @return XConfigActor
      */
-    public XConfigRepository getRepositoryByName(String repositoryName) {
-        XConfigRepository repository = null;
-        Collection<XConfigRepository> values = this.repositories.values();
-        for (Iterator it = values.iterator(); (repository == null) && it.hasNext();) {
-            XConfigRepository repo = (XConfigRepository) it.next();
-            if (repo.getName().equals(repositoryName)) {
-                repository = repo;
-            }
-        }
-        return repository;
+    public XConfigActor getRepositoryConfigByName(String repositoryName) {
+        return this.getXConfigActorByName(repositoryName, XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
     }
 
     /**
+     * Returns an XConfigActor (RegistryType) for a given registry "name".
      *
      * @param registryName
-     * @return
+     * @return XConfigActor
      */
-    public XConfigRegistry getRegistryByName(String registryName) {
-        XConfigRegistry registry = null;
-        if (this.registries.containsKey(registryName)) {
-            registry = (XConfigRegistry) this.registries.get(registryName);
+    public XConfigActor getRegistryConfigByName(String registryName) {
+        return this.getXConfigActorByName(registryName, XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+    }
+
+    /**
+     * Returns list of available assigning authority configurations.
+     *
+     * @return List<XConfigObject> List of assigning authority configurations.
+     */
+    public List<XConfigObject> getAssigningAuthorityConfigs() {
+        return this.assigningAuthorities;
+    }
+
+    /**
+     * Returns an XConfigObject (AssigningAuthorityType) for a given "unique id".
+     *
+     * @param uniqueId
+     * @return XConfigObject
+     */
+    public XConfigObject getAssigningAuthorityConfigById(String uniqueId) {
+        return this.getXConfigObjectById(uniqueId, XConfig.ASSIGNING_AUTHORITY_TYPE);
+    }
+
+    /**
+     * Returns list of XConfigActors (of RespondingGatewayType) for a given assigning authority.
+     *
+     * @param uniqueId
+     * @return List<XConfigActor>
+     */
+    public List<XConfigActor> getRespondingGatewayConfigsForAssigningAuthorityId(String uniqueId) {
+        XConfigObject aa = this.getAssigningAuthorityConfigById(uniqueId);
+        List<XConfigActor> gateways = new ArrayList<XConfigActor>();
+        if (aa != null) {
+            List<XConfigObject> configObjects = aa.getXConfigObjectsWithType(XConfig.XCA_RESPONDING_GATEWAY_TYPE);
+            for (XConfigObject configObject : configObjects) {
+                gateways.add((XConfigActor) configObject);
+            }
+        }
+        return gateways;
+    }
+
+    /**
+     * Returns XConfigActor (RegistryType) for a given assigning authority.
+     *
+     * @param uniqueId
+     * @return XConfigActor
+     */
+    public XConfigActor getRegistryConfigForAssigningAuthorityId(String uniqueId) {
+        XConfigObject aa = this.getAssigningAuthorityConfigById(uniqueId);
+        XConfigActor registry = null;
+        if (aa != null) {
+            List<XConfigObject> configObjects = aa.getXConfigObjectsWithType(XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+            if (configObjects.size() > 0) {
+                registry = (XConfigActor) configObjects.get(0);  // Should only have one.
+            }
         }
         return registry;
     }
 
     /**
+     * Return property value given a property key (scoped to home community).
      *
-     * @return
+     * @param propKey Property key.
+     * @return String Property value.
      */
-    public ArrayList<XConfigGateway> getRespondingGateways() {
-        ArrayList<XConfigGateway> gateways = new ArrayList<XConfigGateway>();
-        Collection<XConfigGateway> values = this.respondingGateways.values();
-        gateways.addAll(values);
-        return gateways;
+    public String getHomeCommunityConfigProperty(String propKey) {
+        XConfigObject homeCommunityConfig = this.getHomeCommunityConfig();
+        return homeCommunityConfig.getProperty(propKey);
     }
 
     /**
+     * Return boolean property value given a property key (scoped to home community).
      *
-     * @return
+     * @param propKey Property key.
+     * @return String Property value.
      */
-    public ArrayList<XConfigAssigningAuthority> getAssigningAuthorities() {
-        ArrayList<XConfigAssigningAuthority> assigningAuthorities = new ArrayList<XConfigAssigningAuthority>();
-        Collection<XConfigAssigningAuthority> values = this.assigningAuthorities.values();
-        assigningAuthorities.addAll(values);
-        return assigningAuthorities;
+    public boolean getHomeCommunityConfigPropertyAsBoolean(String propKey) {
+        XConfigObject homeCommunityConfig = this.getHomeCommunityConfig();
+        return homeCommunityConfig.getPropertyAsBoolean(propKey);
     }
 
     /**
+     * Return boolean property value given a property key (scoped to home community).
      *
-     * @param uniqueId
-     * @return
+     * @param propKey Property key.
+     * @param defaultValue Returned as value if "propKey" does not exist.
+     * @return String Property value.
      */
-    public XConfigAssigningAuthority getAssigningAuthority(String uniqueId) {
-        XConfigAssigningAuthority assigningAuthority = null;
-        if (this.assigningAuthorities.containsKey(uniqueId)) {
-            assigningAuthority = (XConfigAssigningAuthority) this.assigningAuthorities.get(uniqueId);
-        }
-        return assigningAuthority;
+    public boolean getHomeCommunityConfigPropertyAsBoolean(String propKey, boolean defaultValue) {
+        XConfigObject homeCommunityConfig = this.getHomeCommunityConfig();
+        return homeCommunityConfig.getPropertyAsBoolean(propKey, defaultValue);
     }
 
     /**
+     * Return "long" property value given a property key (scoped to home community).
      *
-     * @param propKey
-     * @return
+     * @param propKey Property key.
+     * @return long Property value.
      */
-    public String getHomeCommunityProperty(String propKey) {
-        return _instance.homeCommunity.getProperty(propKey);
-    }
-
-    /**
-     *
-     * @param propKey
-     * @return
-     */
-    public boolean getHomeCommunityPropertyAsBoolean(String propKey) {
-        return _instance.homeCommunity.getPropertyAsBoolean(propKey);
-    }
-
-    /**
-     * 
-     * @param propKey
-     * @param defaultValue
-     * @return
-     */
-    public boolean getHomeCommunityPropertyAsBoolean(String propKey, boolean defaultValue) {
-        return _instance.homeCommunity.getPropertyAsBoolean(propKey, defaultValue);
-    }
-
-    /**
-     * 
-     * @param propKey
-     * @return
-     */
-    public long getHomeCommunityPropertyAsLong(String propKey) {
-        String longVal = _instance.getHomeCommunityProperty(propKey);
+    public long getHomeCommunityConfigPropertyAsLong(String propKey) {
+        String longVal = this.getHomeCommunityConfigProperty(propKey);
         return (new Long(longVal)).longValue();
     }
 
     /**
+     * Return true if property "key" exists in home community configuration.
      *
-     * @param propKey
-     * @return
+     * @param propKey Property key.
+     * @return boolean True if exists.  False, otherwise.
      */
-    public boolean containsHomeCommunityProperty(String propKey)
-    {
-        return _instance.homeCommunity.containsProperty(propKey);
+    public boolean containsHomeCommunityConfigProperty(String propKey) {
+        XConfigObject homeCommunityConfig = this.getHomeCommunityConfig();
+        return homeCommunityConfig.containsProperty(propKey);
     }
 
     /**
      * Retrieves XML configuration file, parses and places into an easily accessible data structure.
      */
-    private void loadConfiguration() throws XdsInternalException {
+    private void loadConfiguration() throws XConfigException {
 
         // First see if a system property is set.
         String configLocation = System.getProperty("com.vangent.hieos.xconfig");
@@ -260,7 +328,7 @@ public class XConfig {
                 // Get the configuration file from the file system.
                 configXML = Io.getStringFromInputStream(new FileInputStream(new File(configLocation)));
             } catch (Exception e) {
-                throw new XdsInternalException(
+                throw new XConfigException(
                         "XConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
             }
         } else {
@@ -270,161 +338,179 @@ public class XConfig {
             try {
                 configXML = HttpClient.httpGet(configLocation);
             } catch (Exception e) {
-                throw new XdsInternalException(
+                throw new XConfigException(
                         "XConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
             }
         }
         // Parse the XML file.
-        OMElement configXMLRoot = Util.parse_xml(configXML);
+        OMElement configXMLRoot;
+        try {
+            configXMLRoot = XMLParser.stringToOM(configXML);
+        } catch (XMLParserException ex) {
+            throw new XConfigException(ex.getMessage());
+        }
         if (configXMLRoot == null) {
-            throw new XdsInternalException(
+            throw new XConfigException(
                     "XConfig: Could not parse configuration from " + configLocation);
         }
         buildInternalStructure(configXMLRoot);
     }
 
     /**
+     * Builds internal data structures for quick access.
      *
-     * @param configXML Holds XML string of configuration file.
+     * @param rootNode Holds root node of parsed configuration file.
      */
     private void buildInternalStructure(OMElement rootNode) {
-        // Keep in this order!
-        parseHomeCommunity(rootNode);
-        parseRegistries(rootNode);
-        parseRepositories(rootNode);
-        parseGateways(rootNode);
-        parseAssigningAuthorities(rootNode);
-        parseXUAProperties(rootNode);
+        parseObjects(rootNode);
+        parseActors(rootNode);
+        resolveObjectReferences();
     }
 
     /**
+     * Parses all "Object" XML nodes.
      *
-     * @param rootNode
+     * @param rootNode Starting point.
      */
-    private void parseHomeCommunity(OMElement rootNode) {
-        OMElement currentNode = rootNode.getFirstChildWithName(new QName("HomeCommunity"));
-        this.homeCommunity = new XConfigHomeCommunity();
-        this.homeCommunity.parse(currentNode);
-    }
-
-    /**
-     *
-     * @param rootNode
-     */
-    private void parseRegistries(OMElement rootNode) {
-        ArrayList<OMElement> list = this.parseLevelOneNode(rootNode, "Registry");
-        for (OMElement currentNode : list) {
-            XConfigRegistry registry = new XConfigRegistry();
-            registry.parse(currentNode, this);
-            this.registries.put(registry.getName(), registry);
+    private void parseObjects(OMElement rootNode) {
+        List<OMElement> nodes = XConfig.parseLevelOneNode(rootNode, "Object");
+        for (OMElement currentNode : nodes) {
+            XConfigObject configObject = new XConfigObject();
+            configObject.parse(currentNode, this);
+            this.addConfigObjectToMaps(configObject);
         }
     }
 
     /**
+     * Parses all "Actor" XML nodes.
      *
-     * @param rootNode
+     * @param rootNode Starting point.
      */
-    private void parseRepositories(OMElement rootNode) {
-        ArrayList<OMElement> list = this.parseLevelOneNode(rootNode, "Repository");
-        for (OMElement currentNode : list) {
-            XConfigRepository repository = new XConfigRepository();
-            repository.parse(currentNode, this);
-            //System.out.println("*** Adding Repository ID = " + repository.getUniqueId());
-            this.repositories.put(repository.getUniqueId(), repository);
-
-            String repoName = repository.getName();
-            if (repoName.equals(this.homeCommunity.getLocalRepositoryName())) {
-                this.homeCommunity.setLocalRepository(repository);
-            }
+    private void parseActors(OMElement rootNode) {
+        List<OMElement> nodes = XConfig.parseLevelOneNode(rootNode, "Actor");
+        for (OMElement currentNode : nodes) {
+            XConfigActor configObject = new XConfigActor();
+            configObject.parse(currentNode, this);
+            this.addConfigObjectToMaps(configObject);
         }
     }
 
     /**
-     * 
-     * @param rootNode
+     * Add XConfigObject to internal data structures.
+     *
+     * @param configObject XConfigObject
      */
-    private void parseGateways(OMElement rootNode) {
-        ArrayList<OMElement> list = this.parseLevelOneNode(rootNode, "Gateway");
-        for (OMElement currentNode : list) {
-            XConfigGateway gateway = new XConfigGateway();
-            gateway.parse(currentNode, this);
-            String gatewayName = gateway.getName();
-            if (gatewayName.equals(this.homeCommunity.getInitiatingGatewayName())) {
-                this.homeCommunity.setInitiatingGateway(gateway);
-            } else {
-                if (gatewayName.equals(this.homeCommunity.getRespondingGatewayName())) {
-                    this.homeCommunity.setRespondingGateway(gateway);
+    private void addConfigObjectToMaps(XConfigObject configObject) {
+        if (configObject.getType().equals(XConfig.ASSIGNING_AUTHORITY_TYPE)) {
+            this.assigningAuthorities.add(configObject);
+        }
+        this.objectByNameMap.put(this.getNameKey(configObject), configObject);
+        if (configObject.getUniqueId() != null) {
+            this.objectByIdMap.put(this.getIdKey(configObject), configObject);
+        }
+        this.objects.add(configObject);
+    }
+
+    /**
+     * Formulate a "name based" key to use for lookups.
+     *
+     * @param configObject
+     * @return String Formatted key.
+     */
+    private String getNameKey(XConfigObject configObject) {
+        return configObject.getName() + ":" + configObject.getType();
+    }
+
+    /**
+     * Formulate a key to use for lookups.
+     *
+     * @param name
+     * @param key
+     * @return String Formatted key.
+     */
+    private String getKey(String name, String type) {
+        return name + ":" + type;
+    }
+
+    /**
+     * Formulate a "name based" key to use for lookups.
+     *
+     * @param configObjectRef
+     * @return String Formatted key.
+     */
+    private String getNameKey(XConfigObjectRef configObjectRef) {
+        return configObjectRef.getRefName() + ":" + configObjectRef.getRefType();
+    }
+
+    /**
+     * Formulate an "id based" key to use for lookups.
+     *
+     * @param configObject
+     * @return String Formatted key.
+     */
+    private String getIdKey(XConfigObject configObject) {
+        return configObject.getUniqueId() + ":" + configObject.getType();
+    }
+
+    /**
+     * Go through list of objects and resolve references to each other.
+     */
+    private void resolveObjectReferences() {
+        for (XConfigObject configObject : this.objects) {
+            for (XConfigObjectRef objRef : configObject.getObjectRefs()) {
+                // See if already resolved.
+                if (objRef.getXConfigObject() == null) {
+
+                    // Find reference (by refname).
+                    String refKey = this.getNameKey(objRef);
+                    if (this.objectByNameMap.containsKey(refKey) == true) {
+                        XConfigObject referencedObject = objectByNameMap.get(refKey);
+                        objRef.setXConfigObject(referencedObject);
+                    }
                 }
-
-                // Only place responding gateways in this list (even the local one).
-                this.respondingGateways.put(gateway.getHomeCommunityId(), gateway);
-            }
-            // Now hookup the local registry instance.
-            String localRegistryName = gateway.getLocalRegistryName();
-            if (localRegistryName != null) {
-                // Get the local registry config (already parsed) and set in gateway.
-                XConfigRegistry registry = this.getRegistryByName(localRegistryName);
-                gateway.setLocalRegistry(registry);
             }
         }
     }
 
     /**
+     * Return property value for XUA configuration.
      *
-     * @param rootNode
+     * @param propKey Property key.
+     * @return String Property value.
      */
-    private void parseAssigningAuthorities(OMElement rootNode) {
-        ArrayList<OMElement> list = this.parseLevelOneNode(rootNode, "AssigningAuthority");
-        for (OMElement currentNode : list) {
-            XConfigAssigningAuthority assigningAuthority = new XConfigAssigningAuthority();
-            assigningAuthority.parse(currentNode, this);
-            this.assigningAuthorities.put(assigningAuthority.getUniqueId(), assigningAuthority);
-        }
+    public String getXUAConfigProperty(String propKey) {
+        XConfigObject configObject = this.getXUAConfigProperties();
+        return configObject.getProperty(propKey);
     }
 
     /**
+     * Return boolean property value for XUA configuration.
      *
-     * @param rootNode
+     * @param propKey Property key.
+     * @return String Property value.
      */
-    private void parseXUAProperties(OMElement rootNode) {
-        OMElement currentNode = rootNode.getFirstChildWithName(new QName("XUA"));
-        this.xuaProperties = new XConfigXUAProperties();
-        this.xuaProperties.parse(currentNode);
+    public boolean getXUAConfigPropertyAsBoolean(String propKey) {
+        XConfigObject configObject = this.getXUAConfigProperties();
+        return configObject.getPropertyAsBoolean(propKey);
     }
 
     /**
+     * Return "XUAProperties" object.
      *
-     * @param propKey
-     * @return
+     * @return XConfigObject
      */
-    public String getXUAProperty(String propKey) {
-        return this.xuaProperties.getProperty(propKey);
+    public XConfigObject getXUAConfigProperties() {
+        return this.getXConfigObjectByName("XUAProperties", XConfig.XUA_PROPERTIES_TYPE);
     }
 
     /**
+     * Helper method to find all AXIOM nodes given a "root node" and "local name".
      *
-     * @param propKey
-     * @return
+     * @param rootNode  Starting point.
+     * @param localName Local name to find.
+     * @return List<OMElement>
      */
-    public boolean getXUAPropertyAsBoolean(String propKey) {
-        return this.xuaProperties.getPropertyAsBoolean(propKey);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public XConfigXUAProperties getXUAConfigProperties() {
-        return this.xuaProperties;
-    }
-
-    /**
-     * 
-     * @param rootNode 
-     * @param localName
-     * @return
-     */
-    protected static ArrayList<OMElement> parseLevelOneNode(OMElement rootNode, String localName) {
+    protected static List<OMElement> parseLevelOneNode(OMElement rootNode, String localName) {
         ArrayList<OMElement> al = new ArrayList<OMElement>();
         for (Iterator it = rootNode.getChildElements(); it.hasNext();) {
             OMElement child = (OMElement) it.next();

@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigXUAProperties;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xua.utils.XUAConfig;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 
 import java.net.URISyntaxException;
@@ -24,9 +26,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
@@ -72,7 +72,7 @@ public class XServiceProvider {
         XConfig xconfig = this.getXConfig();
 
         // Check to see if XUA is enabled
-        boolean xuaEnabled = xconfig.getXUAPropertyAsBoolean(XUAConstants.XUAENABLED_PROPERTY);
+        boolean xuaEnabled = xconfig.getXUAConfigPropertyAsBoolean(XUAConstants.XUAENABLED_PROPERTY);
         if (!xuaEnabled) {
             // XUA not enabled, just continue.
             return Status.CONTINUE;
@@ -81,8 +81,8 @@ public class XServiceProvider {
         logMessage.addSOAPParam("XUA:Note", "XUA is enabled!");
 
         // Check to see if the received soap action is an XUA constrained action or not
-        XConfigXUAProperties xuaProperties = xconfig.getXUAConfigProperties();
-        boolean xuaConstrainedSOAPAction = xuaProperties.containsSOAPAction(mc.getSoapAction());
+        XUAConfig xuaConfig = XUAConfig.getInstance();
+        boolean xuaConstrainedSOAPAction = xuaConfig.containsSOAPAction(mc.getSoapAction());
         if (!xuaConstrainedSOAPAction) {
             // We are not constraining this SOAP action using XUA, just continue.
             logMessage.addSOAPParam("XUA:Note", "Skipping this SOAP Action - " + mc.getSoapAction());
@@ -109,8 +109,8 @@ public class XServiceProvider {
             logMessage.addSOAPParam("XUA:SAMLAssertion", assertion.toString());
         }
         // Now validate the SAML token for validatity against the STS:
-        String stsUrl = xconfig.getXUAProperty(XUAConstants.STSURL_PROPERTY);
-        String serviceUri = xconfig.getXUAProperty(XUAConstants.SERVICEURI_PROPERTY);
+        String stsUrl = xconfig.getXUAConfigProperty(XUAConstants.STSURL_PROPERTY);
+        String serviceUri = xconfig.getXUAConfigProperty(XUAConstants.SERVICEURI_PROPERTY);
 
         // send the assertion for validation to STS
         boolean validationStatus = this.validateSAMLAssertion(stsUrl, serviceUri, assertion);
@@ -174,16 +174,14 @@ public class XServiceProvider {
      * @throws XdsException
      */
     private boolean IPAddressIsConstrained(MessageContext messageContext) throws XdsException {
-        XConfig xconfig = this.getXConfig();
-        XConfigXUAProperties xuaProperties = xconfig.getXUAConfigProperties();
+        XUAConfig xuaConfig = XUAConfig.getInstance();
         String sourceIPAddress = this.getSourceIPAddress(messageContext);
-        if (sourceIPAddress == null)
-        {
+        if (sourceIPAddress == null) {
             // If for some reason, we can not get the source IP address - constrain anyway.
             return true;
         }
         // Now see if we should constrain the IP address (based on the configuration).
-        return xuaProperties.IPAddressIsConstrained(sourceIPAddress);
+        return xuaConfig.IPAddressIsConstrained(sourceIPAddress);
     }
 
     /**
@@ -333,8 +331,8 @@ public class XServiceProvider {
         //construct axis OMElement using request
         OMElement bodyOMElement;
         try {
-            bodyOMElement = AXIOMUtil.stringToOM(request);
-        } catch (XMLStreamException ex) {
+            bodyOMElement = XMLParser.stringToOM(request);
+        } catch (XMLParserException ex) {
             throw new XdsException(
                     "XUA:Exception: Could not convert STS request - " + ex.getMessage());
         }

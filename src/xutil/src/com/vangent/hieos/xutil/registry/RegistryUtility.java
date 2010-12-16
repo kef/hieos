@@ -44,7 +44,7 @@ public class RegistryUtility {
             throws XdsInternalException, SchemaValidationException {
         // Only do schema validation if required per configuration.
         XConfig xconfig = XConfig.getInstance();
-        boolean XMLSchemaValidationEnabled = xconfig.getHomeCommunityPropertyAsBoolean(
+        boolean XMLSchemaValidationEnabled = xconfig.getHomeCommunityConfigPropertyAsBoolean(
                 "XMLSchemaValidationEnabled", false /* default (off) */);
         if (XMLSchemaValidationEnabled == false) {
             if (logger.isDebugEnabled()) {
@@ -55,14 +55,10 @@ public class RegistryUtility {
         if (logger.isDebugEnabled()) {
             logger.debug("**** HIEOS - XML Schema Validation ENABLED ****");
         }
-        String schema_messages = null;
         try {
-            schema_messages = SchemaValidation.validate_local(ahqr, metadata_type);
+            SchemaValidation.validate_local(ahqr, metadata_type);
         } catch (Exception e) {
-            throw new XdsInternalException("Schema Validation threw internal error: " + e.getMessage());
-        }
-        if (schema_messages != null && schema_messages.length() > 0) {
-            throw new SchemaValidationException("Input did not validate against schema:" + schema_messages);
+            throw new XdsInternalException("Schema Validation Failed: " + e.getMessage());
         }
     }
 

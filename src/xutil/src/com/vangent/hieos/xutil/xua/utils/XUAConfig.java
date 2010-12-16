@@ -10,28 +10,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.xutil.xconfig;
+package com.vangent.hieos.xutil.xua.utils;
 
+import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
-import org.apache.axiom.om.OMElement;
+import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class XConfigXUAProperties {
+public class XUAConfig {
 
-    private XConfigProperties properties = new XConfigProperties();
-    ArrayList soapActionsList = null;
-    ArrayList constrainedIPList = null;
+    private final static Logger logger = Logger.getLogger(XUAConfig.class);
+    static XUAConfig _instance = null;
+    XConfigObject configObject = null;
+    List<String> soapActionsList = new ArrayList<String>();
+    List<String> constrainedIPList = new ArrayList<String>();
+
+    /**
+     * 
+     * @return
+     */
+    static public synchronized XUAConfig getInstance() {
+        if (_instance == null) {
+            _instance = new XUAConfig();
+        }
+        return _instance;
+    }
 
     /**
      *
+     * @param config
+     */
+    private XUAConfig() {
+        try {
+            XConfig xconf = XConfig.getInstance();
+            this.configObject = xconf.getXUAConfigProperties();
+            init();
+        } catch (XdsInternalException ex) {
+            logger.fatal("UNABLE TO GET XConfig (for XUA): ", ex);
+        }
+    }
+
+    /**
      * @param propKey
      * @return
      */
     public String getProperty(String propKey) {
-        return (String) properties.getProperty(propKey);
+        return configObject.getProperty(propKey);
     }
 
     /**
@@ -40,7 +70,7 @@ public class XConfigXUAProperties {
      * @return
      */
     public boolean getPropertyAsBoolean(String propKey) {
-        return properties.getPropertyAsBoolean(propKey);
+        return configObject.getPropertyAsBoolean(propKey);
     }
 
     /**
@@ -73,15 +103,11 @@ public class XConfigXUAProperties {
 
     /**
      *
-     * @param rootNode
      */
-    protected void parse(OMElement rootNode) {
-        properties.parse(rootNode);
+    private void init() {
         // Load SOAP actions to control.
-        this.soapActionsList = new ArrayList();
         this.parseList("SOAPActions", this.soapActionsList);
         // Load IP addresses to control.
-        this.constrainedIPList = new ArrayList();
         this.parseList("ConstrainedIPAddresses", this.constrainedIPList);
     }
 
@@ -90,7 +116,7 @@ public class XConfigXUAProperties {
      * @param propKey
      * @param targetList
      */
-    private void parseList(String propKey, ArrayList targetList) {
+    private void parseList(String propKey, List targetList) {
         // Load IP addresses to control.
         String listUnParsed = this.getProperty(propKey);
         String[] listParsed = listUnParsed.split(";");

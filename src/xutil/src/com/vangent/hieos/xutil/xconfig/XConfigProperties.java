@@ -18,7 +18,7 @@
 package com.vangent.hieos.xutil.xconfig;
 
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMAttribute;
 import javax.xml.namespace.QName;
@@ -74,11 +74,12 @@ public class XConfigProperties {
     }
 
     /**
+     * Fills in the instance from a given AXIOM node.
      *
-     * @param rootNode
+     * @param rootNode Starting point.
      */
     public void parse(OMElement rootNode) {
-        ArrayList<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Property");
+        List<OMElement> list = XConfig.parseLevelOneNode(rootNode, "Property");
         for (OMElement currentNode : list) {
             OMAttribute attribute = currentNode.getAttribute(new QName("name"));
             String propKey = attribute.getAttributeValue();

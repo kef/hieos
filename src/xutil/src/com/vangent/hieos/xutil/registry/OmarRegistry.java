@@ -16,10 +16,6 @@ package com.vangent.hieos.xutil.registry;
 import java.io.StringWriter;
 
 //freebxml imports (from omar)
-import java.util.logging.Level;
-import javax.xml.bind.JAXBException;
-import javax.xml.registry.RegistryException;
-import javax.xml.stream.XMLStreamException;
 import org.freebxml.omar.common.spi.LifeCycleManager;
 import org.freebxml.omar.common.spi.LifeCycleManagerFactory;
 import org.freebxml.omar.common.spi.QueryManager;
@@ -40,10 +36,10 @@ import org.oasis.ebxml.registry.bindings.query.AdhocQueryRequestType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryRequestType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponseType;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.log4j.Logger;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.Random;
 
 /**
@@ -202,7 +198,7 @@ public class OmarRegistry {
             //Now get the RegistryResponse as a String
             String respStr = sw.toString();
             // Convert the response to OMElement to send the response
-            response = AXIOMUtil.stringToOM(respStr);
+            response = XMLParser.stringToOM(respStr);
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);
             throw new XdsInternalException("ebXML Internal Exception: " + e.getMessage());

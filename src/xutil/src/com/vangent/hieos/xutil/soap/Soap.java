@@ -241,9 +241,9 @@ public class Soap {
         try {
             XConfig cfg = XConfig.getInstance();
             if (this.async) {
-                timeOut = cfg.getHomeCommunityPropertyAsLong(Soap.XCONFIG_PARAM_ASYNC_TIMEOUT_MSEC);
+                timeOut = cfg.getHomeCommunityConfigPropertyAsLong(Soap.XCONFIG_PARAM_ASYNC_TIMEOUT_MSEC);
             } else {
-                timeOut = cfg.getHomeCommunityPropertyAsLong(Soap.XCONFIG_PARAM_SYNC_TIMEOUT_MSEC);
+                timeOut = cfg.getHomeCommunityConfigPropertyAsLong(Soap.XCONFIG_PARAM_SYNC_TIMEOUT_MSEC);
             }
         } catch (Exception e) {
             logger.warn("Unable to get SOAP timeout from XConfig -- using default");
@@ -302,7 +302,7 @@ public class Soap {
         if (ctx.getProperty(Soap.AXIS2_PARAM_RUNNING_PORT) == null) {
             try {
                 XConfig cfg = XConfig.getInstance();
-                responsePort = cfg.getHomeCommunityProperty(Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT);
+                responsePort = cfg.getHomeCommunityConfigProperty(Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT);
             } catch (Exception e) {
                 logger.warn("Unable to get " + Soap.XCONFIG_PARAM_ASYNC_RESPONSE_PORT + " from XConfig -- using default");
             }

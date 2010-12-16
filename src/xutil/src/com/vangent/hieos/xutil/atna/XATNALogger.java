@@ -117,7 +117,7 @@ public class XATNALogger {
     public XATNALogger(String transactionId, ActorType actorType) throws Exception {
         this.transactionId = transactionId;
         this.actorType = actorType;
-        this.performAudit = XConfig.getInstance().getHomeCommunityPropertyAsBoolean("ATNAperformAudit");
+        this.performAudit = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("ATNAperformAudit");
     }
 
     /**

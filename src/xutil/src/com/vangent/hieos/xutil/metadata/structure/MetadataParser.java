@@ -10,61 +10,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.metadata.structure;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.xml.Util;
 
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 
 import org.apache.axiom.om.OMElement;
 
 public class MetadataParser {
 
-	public MetadataParser() {
-	}
+    public MetadataParser() {
+    }
 
-	static public Metadata parseNonSubmission(OMElement e) throws MetadataException, MetadataValidationException {
-		Metadata m = new Metadata();
+    static public Metadata parseNonSubmission(OMElement e) throws MetadataException, MetadataValidationException {
+        Metadata m = new Metadata();
 
-		m.setGrokMetadata(false);
+        m.setGrokMetadata(false);
 
-		if (e != null) {
-			m.setMetadata(e);
+        if (e != null) {
+            m.setMetadata(e);
 
-			m.runParser();
-		}
+            m.runParser();
+        }
 
-		return m;
-	}
+        return m;
+    }
 
+    static public Metadata parseNonSubmission(File metadata_file) throws MetadataException, MetadataValidationException, XdsInternalException {
+        OMElement rootNode = XMLParser.fileToOM(metadata_file);
+        return parseNonSubmission(rootNode);
+    }
 
-	static public Metadata parseNonSubmission(File metadata_file) throws MetadataException, MetadataValidationException, XdsInternalException {
+    static public Metadata noParse(OMElement e) {
+        Metadata m = new Metadata();
 
-		return parseNonSubmission(Util.parse_xml(metadata_file));
+        m.setGrokMetadata(false);
 
-	}
-	
-	static public Metadata noParse(OMElement e) {
-		Metadata m = new Metadata();
+        if (e != null) {
+            m.setMetadata(e);
 
-		m.setGrokMetadata(false);
+        }
+        return m;
+    }
 
-		if (e != null) {
-			m.setMetadata(e);
+    static public Metadata noParse(File metadata_file) throws MetadataException, XdsInternalException {
+        OMElement rootNode = XMLParser.fileToOM(metadata_file);
+        return noParse(rootNode);
+    }
 
-		}
-		return m;
-	}
-
-	static public Metadata noParse(File metadata_file) throws MetadataException,XdsInternalException  {
-		return noParse(Util.parse_xml(metadata_file));
-	}
-	
-	static public Metadata parse(OMElement e)  throws MetadataException,XdsInternalException, MetadataValidationException {
-		return new Metadata(e);
-	}
+    static public Metadata parse(OMElement e) throws MetadataException, XdsInternalException, MetadataValidationException {
+        return new Metadata(e);
+    }
 }

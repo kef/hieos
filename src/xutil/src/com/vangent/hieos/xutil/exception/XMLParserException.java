@@ -14,9 +14,9 @@ package com.vangent.hieos.xutil.exception;
 
 /**
  *
- * @author thumbe
+ * @author Bernie Thuman
  */
-public class XMLParserException extends XdsException {
+public class XMLParserException extends XdsInternalException {
 
     /**
      *

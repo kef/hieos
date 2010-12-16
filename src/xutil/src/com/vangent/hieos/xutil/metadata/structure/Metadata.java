@@ -16,11 +16,13 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoMetadataException;
 import com.vangent.hieos.xutil.exception.NoSubmissionSetException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,7 +106,7 @@ public class Metadata {
      * @throws MetadataValidationException
      */
     public Metadata(File metadata_file, boolean parse) throws XdsInternalException, MetadataException, MetadataValidationException {
-        metadata = Util.parse_xml(metadata_file);
+        metadata = XMLParser.fileToOM(metadata_file);
         wrapper = null;
         wrappers = new ArrayList();
         if (parse) {

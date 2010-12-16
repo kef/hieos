@@ -47,9 +47,9 @@ public class AuditMessageBuilder {
 
     static {
         try {
-            syslogHost = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
-            syslogPort = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogPort")).intValue();
-            syslogProtocol = XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogProtocol");
+            syslogHost = XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
+            syslogPort = new Integer(XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogPort")).intValue();
+            syslogProtocol = XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogProtocol");
             logger.info("XATNALogger: using syslogHost=" +
                     syslogHost + ", port=" + syslogPort + ", protocol=" + syslogProtocol);
         } catch (Exception e) {
