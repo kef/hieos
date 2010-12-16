@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.xtest.transactions.xds;
 
-import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.StepContext;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
@@ -29,8 +28,11 @@ import com.vangent.hieos.xclient.xds.repository.RetContext;
 import com.vangent.hieos.xclient.xds.repository.RetInfo;
 import com.vangent.hieos.xtest.framework.Linkage;
 import com.vangent.hieos.xtest.framework.TestConfig;
+import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.Util;
 
+import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
@@ -39,9 +41,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.log4j.Logger;
-import org.jaxen.JaxenException;
 
 public class RetrieveTransaction extends BasicTransaction {
 
@@ -111,7 +111,7 @@ public class RetrieveTransaction extends BasicTransaction {
         if (metadata != null) {
             metadata_ele = metadata;
         } else {
-            metadata_ele = Util.parse_xml(new File(metadata_filename));
+            metadata_ele = XMLParser.fileToOM(metadata_filename);
         }
 
 
@@ -139,21 +139,19 @@ public class RetrieveTransaction extends BasicTransaction {
             String homeXPath = "//*[local-name()='RetrieveDocumentSetRequest']/*[local-name()='DocumentRequest'][1]/*[local-name()='HomeCommunityId']";
             String home = null;
             try {
-                AXIOMXPath xpathExpression = new AXIOMXPath(homeXPath);
-                home = xpathExpression.stringValueOf(metadata_ele);
-            } catch (JaxenException e) {
+                home = XPathHelper.stringValueOf(metadata_ele, homeXPath, null);
+            } catch (XPathHelperException e) {
                 fatal("XGR: " + ExceptionUtil.exception_details(e));
             }
 
             parseRespondingGatewayEndpoint(home, "CrossGatewayRetrieve");  // BHT (FIX) -- removed 'false' hardwire
             if (removeHomeFromRequest) {
                 try {
-                    AXIOMXPath xpathExpression = new AXIOMXPath(homeXPath);
-                    List<?> nodes = xpathExpression.selectNodes(metadata_ele);
-                    for (OMElement node : (List<OMElement>) nodes) {
+                    List<OMElement> nodes = XPathHelper.selectNodes(metadata_ele, homeXPath, null);
+                    for (OMElement node : nodes) {
                         node.detach();
                     }
-                } catch (JaxenException e) {
+                } catch (XPathHelperException e) {
                     fatal("XGR: " + ExceptionUtil.exception_details(e));
                 }
             }
@@ -164,10 +162,9 @@ public class RetrieveTransaction extends BasicTransaction {
             if (repositoryUniqueId == null) {
                 String xpath = "//*[local-name()='RetrieveDocumentSetRequest']/*[local-name()='DocumentRequest']/*[local-name()='RepositoryUniqueId']/text()";
                 try {
-                    AXIOMXPath xpathExpression = new AXIOMXPath(xpath);
-                    String result = xpathExpression.stringValueOf(metadata_ele);
+                    String result = XPathHelper.stringValueOf(metadata_ele, xpath, null);
                     repositoryUniqueId = result.trim();
-                } catch (JaxenException e) {
+                } catch (XPathHelperException e) {
                     fatal("RetrieveTransaction: run(): XPATH error extracting repositoryUniqueId");
                 }
 

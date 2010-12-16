@@ -14,11 +14,12 @@ package com.vangent.hieos.xtest.validator;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.MetadataException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class TestValidator {
     }
 
     public TestValidator(File test_assertion_file, String subset_name) throws XdsInternalException {
-        test_assertions = Util.parse_xml(test_assertion_file);
+        test_assertions = XMLParser.fileToOM(test_assertion_file);
         if (subset_name != null) {
             test_assertions = MetadataSupport.firstChildWithLocalName(test_assertions, subset_name);
             if (test_assertions == null) {
@@ -837,7 +838,7 @@ public class TestValidator {
             TestValidator v;
 
             v = new TestValidator(new File(assertion_filename), assertion_set_name);
-            OMElement input = Util.parse_xml(new File(filename));
+            OMElement input = XMLParser.fileToOM(filename);
             if (test_step == null) {
                 ArrayList<String> path = new ArrayList<String>();
                 path.add("TestStep");

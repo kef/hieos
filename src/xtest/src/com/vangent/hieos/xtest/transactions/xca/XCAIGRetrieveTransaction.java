@@ -30,6 +30,9 @@ import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.StepContext;
 import com.vangent.hieos.xtest.transactions.xds.RetrieveTransaction;
 
+import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
@@ -38,9 +41,7 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.log4j.Logger;
-import org.jaxen.JaxenException;
 
 public class XCAIGRetrieveTransaction extends BasicTransaction {
 
@@ -103,7 +104,7 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
         if (metadata != null) {
             metadata_ele = metadata;
         } else {
-            metadata_ele = Util.parse_xml(new File(metadata_filename));
+            metadata_ele = XMLParser.fileToOM(metadata_filename);
         }
 
         // this looks useless, metadata here is the Retrieve request
@@ -129,10 +130,9 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
         String homeXPath = "//*[local-name()='RetrieveDocumentSetRequest']/*[local-name()='DocumentRequest'][1]/*[local-name()='HomeCommunityId']";
         String expectedHomeCommunityId = null;
         try {
-            AXIOMXPath xpathExpression = new AXIOMXPath(homeXPath);
-            expectedHomeCommunityId = xpathExpression.stringValueOf(metadata_ele);
+            expectedHomeCommunityId = XPathHelper.stringValueOf(metadata_ele, homeXPath, null);
             //System.out.println("*** HOME = " + expectedHomeCommunityId + " ***");
-        } catch (JaxenException e) {
+        } catch (XPathHelperException e) {
             fatal("XCA IG Retrieve: " + ExceptionUtil.exception_details(e));
         }
         //parseInitiatingGatewayEndpoint(expectedHomeCommunityId, "RetrieveDocumentSet");

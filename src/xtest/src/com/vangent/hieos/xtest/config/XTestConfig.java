@@ -17,9 +17,12 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.iosupport.Io;
 
 import com.vangent.hieos.xutil.xconfig.XConfigProperties;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.logging.Level;
+import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,8 +80,7 @@ public class XTestConfig {
      * @param property Name of the property to find.
      * @return The value of the property for the given site.
      */
-    public String getSiteProperty(String siteName, String property)
-    {
+    public String getSiteProperty(String siteName, String property) {
         return this.getSiteByName(siteName).getProperty(property);
     }
 
@@ -315,7 +317,7 @@ public class XTestConfig {
         }
 
         // Parse the XML file.
-        OMElement configXMLRoot = Util.parse_xml(configXML);
+        OMElement configXMLRoot = XMLParser.stringToOM(configXML);
         if (configXMLRoot == null) {
             throw new XdsInternalException(
                     "XTestConfig: Could not parse configuration from " + configLocation);

@@ -25,10 +25,8 @@ import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xml.Util;
 
-import java.io.File;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.Iterator;
-
-import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
@@ -74,10 +72,9 @@ public class StoredQueryTransaction extends QueryTransaction {
      *
      * @return
      * @throws XdsInternalException
-     * @throws FactoryConfigurationError
      * @throws XdsException
      */
-    protected OMElement runSQ() throws XdsInternalException, FactoryConfigurationError,
+    protected OMElement runSQ() throws XdsInternalException,
             XdsException {
         OMElement result = null;
 
@@ -163,11 +160,10 @@ public class StoredQueryTransaction extends QueryTransaction {
     }
 
     /**
-     *
-     * @throws FactoryConfigurationError
+     * 
      * @throws XdsInternalException
      */
-    protected void parseMetadata() throws FactoryConfigurationError,
+    protected void parseMetadata() throws
             XdsInternalException {
         // input file is read twice. Adding to log and then sending through Axis2 results in
         // no output in the log. Axiom does not seem to have a recursive cloner available.
@@ -176,7 +172,7 @@ public class StoredQueryTransaction extends QueryTransaction {
             return;
         }
         if (metadata_filename != null && !metadata_filename.equals("")) {
-            metadata_ele = Util.parse_xml(new File(metadata_filename));
+            metadata_ele = XMLParser.fileToOM(metadata_filename);
         }
         metadata = MetadataParser.noParse(metadata_ele);
     }

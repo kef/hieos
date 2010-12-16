@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoMetadataException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
@@ -31,6 +32,7 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
 import java.io.File;
@@ -39,7 +41,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -648,7 +649,7 @@ public abstract class BasicTransaction extends OmLogger {
     };
 
     protected DocDetails getDocDetailsFromLogfile(OMElement uri_ref)
-            throws FactoryConfigurationError, XdsInternalException, XdsException,
+            throws XdsInternalException, XdsException,
             MetadataException, MetadataValidationException {
         DocDetails dd = new DocDetails();
         String log_file = uri_ref.getAttributeValue(new QName("log_file"));
@@ -656,7 +657,7 @@ public abstract class BasicTransaction extends OmLogger {
         String transaction_type = uri_ref.getAttributeValue(new QName("trans_type"));
 
         Linkage l = new Linkage();
-        OMElement log = Util.parse_xml(new File(TestConfig.log_dir + File.separator + log_file));
+        OMElement log = XMLParser.fileToOM(TestConfig.log_dir + File.separator + log_file);
         OMElement res = null;
         try {
             res = l.find_instruction_output(log, step_id, transaction_type);

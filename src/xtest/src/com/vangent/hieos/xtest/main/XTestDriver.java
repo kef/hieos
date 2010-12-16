@@ -14,21 +14,19 @@ package com.vangent.hieos.xtest.main;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xtest.framework.StringSub;
 import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.PlanContext;
-import com.vangent.hieos.xutil.xml.Util;
 
+import com.vangent.hieos.xutil.exception.XMLParserException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.FactoryConfigurationError;
 import org.apache.axiom.om.OMElement;
 
 public class XTestDriver {
@@ -132,8 +130,8 @@ public class XTestDriver {
     static void parse_log_status(String logname) {
         OMElement log = null;
         try {
-            log = Util.parse_xml(new File(logname));
-        } catch (XdsInternalException e) {
+            log = XMLParser.fileToOM(logname);
+        } catch (XMLParserException e) {
             System.out.println("Cannot open or parse " + logname);
             System.exit(-1);
         }
@@ -144,7 +142,7 @@ public class XTestDriver {
         System.exit(-1);
     }
 
-    private static void validate() throws FactoryConfigurationError {
+    private static void validate() {
 //		if (xds_a == false && xds_b == false) {
 //			System.out.println("--xdsa or --xdsb must be specified");
 //			usage();
@@ -168,7 +166,7 @@ public class XTestDriver {
         }
 
         try {
-            actor_config = Util.parse_xml(new File(actor_config_file));
+            actor_config = XMLParser.fileToOM(actor_config_file);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             usage();
