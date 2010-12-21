@@ -30,6 +30,7 @@ import com.vangent.hieos.xutil.xml.XmlFormatter;
 import com.vangent.hieos.xclient.xds.registry.Sq;
 
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -105,7 +106,7 @@ public class QueryControl {
         this.query_contents = new ArrayList<QueryContents>();
         OMElement ele = null;
         try {
-            ele = Util.parse_xml(file_contents);
+            ele = XMLParser.stringToOM(file_contents);
         } catch (Exception e) {
             QueryContents qc = new BasicQueryContents();
             qc.setQueryType("BadResults");
