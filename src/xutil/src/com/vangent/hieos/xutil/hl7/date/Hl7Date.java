@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.xutil.hl7.date;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,7 +30,8 @@ public class Hl7Date {
     /**
      * Do not allow instances to be created.
      */
-    private Hl7Date() {}
+    private Hl7Date() {
+    }
 
     /**
      * Return current time in HL7 format as: YYYYMMDDHHMMSS.
@@ -87,8 +89,39 @@ public class Hl7Date {
         formatter.setTimeZone(timeZone);
 
         String hl7formattedDate = formatter.format(date);
-        hl7formattedDate.replaceAll("UTC","Z");
+        hl7formattedDate.replaceAll("UTC", "Z");
         return hl7formattedDate;
     }
 
+    /**
+     * Return a Java Date instance given an HL7 formatted date string.
+     *
+     * @param hl7date HL7 formatted date.
+     * @return A Java Date.
+     */
+    public static Date getDateFromHL7Format(String hl7date) {
+        // TBD: FIXUP/MOVE CODE
+        Date date = null;
+        if (hl7date != null) {
+            String formatString = "yyyyMMdd";
+            int len = hl7date.length();
+            if (len > 12) {
+                hl7date = hl7date.substring(0, 12);
+                formatString = "yyyyMMddhhmm";
+            } else if (len > 8) {
+                hl7date.substring(0, 8);
+            } else if (len < 8) {
+                hl7date = "00000101"; // FIXME: HACK TO STAND OUT
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(formatString);
+            try {
+                date = sdf.parse(hl7date);
+            } catch (ParseException ex) {
+                // Do nothing.
+            }
+        } else {
+            // TBD: EMIT WARNING OF SOME SORT.
+        }
+        return date;
+    }
 }
