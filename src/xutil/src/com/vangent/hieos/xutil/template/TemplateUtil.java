@@ -44,8 +44,9 @@ public class TemplateUtil {
      * Return a string with template variables replaced.
      *
      * @param text The template with template variables to replace.
-     * @param replacements Map of values by template key.  For example, "PID" would be the name
-     *        of a template variable in the map.  In the string, it would be represented as [PID].
+     * @param replacements Map of values by template key.  For example, "HOME_COMMUNITY_ID" would be
+     *        the name of a template variable in the map.  In the template string, it would be
+     *        represented as "{HOME_COMMUNITY_ID}".
      * @return The result (a String) of the template substitution.
      */
     public static String replaceTemplateVariables(
@@ -78,11 +79,12 @@ public class TemplateUtil {
     }
 
     /**
-     * Return a string (in this case, an XML file) with template variables replaced.
+     * Return an OMElement (in this case, from an XML string) with template variables replaced.
      *
      * @param text The template with template variables to replace.
-     * @param replacements Map of values by template key.  For example, "PID" would be the name
-     *        of a template variable in the map.  In the string, it would be represented as [PID].
+     * @param replacements Map of values by template key.  For example, "HOME_COMMUNITY_ID" would be
+     *        the name of a template variable in the map.  In the template string, it would be
+     *        represented as "{HOME_COMMUNITY_ID}".
      * @return The result (an OMElement) of the template substitution.
      */
     public static OMElement getOMElementFromTemplate(String template,
