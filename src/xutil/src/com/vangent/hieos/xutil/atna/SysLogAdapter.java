@@ -51,7 +51,7 @@ public class SysLogAdapter {
         initialize(syslogHost, syslogPort, syslogProtocol);
     }
 
-     /**
+    /**
      * Initialize the SysLogAdaptor with the target host, port and protocl (now only "udp").
      *
      * @param syslogHost Target syslog host.
@@ -116,8 +116,9 @@ public class SysLogAdapter {
             // PROCID
             // MSGID
             String syslogMsg = "<85>1 " + currentDateTime + " " + this.localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
-            //System.out.println("xxx: Syslog msg=[" + syslogMsg + "]");
-
+            if (logger.isDebugEnabled()) {
+                logger.debug("ATNA: Syslog msg=[" + syslogMsg + "]");
+            }
             byte[] bytes = syslogMsg.getBytes();
             // syslog packets must be less than 1024 bytes (Ignore for now).
             int bytesLength = bytes.length;
