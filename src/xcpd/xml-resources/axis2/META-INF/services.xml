@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <!-- XCPD Initiating Gateway Actor -->
+    <service name="xcpdig" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGateway">
+        <description>XCPD Initiating Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGateway</parameter>
+        <parameter name="ActorName">InitiatingGateway</parameter>
+        <operation name="CrossGatewayPatientDiscovery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
+        </operation>
+        <operation name="PatientRegistryRecordAdded">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
+        </operation>
+        <operation name="PatientLocationQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2009:PatientLocationQuery</actionMapping>
+        </operation>
+    </service>
+
+    <!-- XCPD Responding Gateway Actor -->
+    <service name="xcpdrg" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGateway">
+        <description>XCPD Responding Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGateway</parameter>
+        <parameter name="ActorName">RespondingGateway</parameter>
+        <operation name="CrossGatewayPatientDiscovery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
+        </operation>
+
+        <operation name="PatientLocationQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2009:PatientLocationQuery</actionMapping>
+        </operation>
+    </service>
+
+    <!-- Async XCPD Initiating Gateway Actor -->
+    <service name="xcpdigas" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGatewayAsync">
+        <description>Async XCPD Initiating Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGatewayAsync</parameter>
+        <parameter name="ActorName">InitiatingGateway</parameter>
+        <!-- Set to true if a new thread should be created for the async request -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <operation name="CrossGatewayPatientDiscovery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
+        </operation>
+        <operation name="PatientRegistryRecordAdded">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
+        </operation>
+        <operation name="PatientLocationQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2009:PatientLocationQuery</actionMapping>
+        </operation>
+    </service>
+
+    <!-- Async XCPD Responding Gateway Actor -->
+    <service name="xcpdrgas" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGatewayAsync">
+        <description>Async XCPD Responding Gateway Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGatewayAsync</parameter>
+        <parameter name="ActorName">RespondingGateway</parameter>
+         <!-- Set to true if a new thread should be created for the async request -->
+        <parameter name="SpawnNewAsyncThread">true</parameter>
+        <operation name="CrossGatewayPatientDiscovery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
+        </operation>
+        <operation name="PatientLocationQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2009:PatientLocationQuery</actionMapping>
+        </operation>
+    </service>
+
+</serviceGroup>

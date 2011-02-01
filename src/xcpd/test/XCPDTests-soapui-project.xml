@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="XCPDTests" resourceRoot="" soapui-version="3.5.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="xcpdrgSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.gateway.xcpd.services.hieos.vangent.com}xcpdrgSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8091/axis2/services/xcpdrg?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8091/axis2/services/xcpdrg?wsdl"><con:part><con:url>http://localhost:8091/axis2/services/xcpdrg?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.gateway.xcpd.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.gateway.xcpd.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsdl:documentation>xcpdrg</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.gateway.xcpd.services.hieos.vangent.com">
+      <xs:element name="PatientLocationQuery">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="PatientLocationQuery" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientLocationQueryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CrossGatewayPatientDiscovery">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="CrossGatewayPatientDiscovery" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="CrossGatewayPatientDiscoveryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="PatientLocationQueryRequest">
+    <wsdl:part name="parameters" element="ns:PatientLocationQuery"/>
+  </wsdl:message>
+  <wsdl:message name="PatientLocationQueryResponse">
+    <wsdl:part name="parameters" element="ns:PatientLocationQueryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="CrossGatewayPatientDiscoveryRequest">
+    <wsdl:part name="parameters" element="ns:CrossGatewayPatientDiscovery"/>
+  </wsdl:message>
+  <wsdl:message name="CrossGatewayPatientDiscoveryResponse">
+    <wsdl:part name="parameters" element="ns:CrossGatewayPatientDiscoveryResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="xcpdrgPortType">
+    <wsdl:operation name="PatientLocationQuery">
+      <wsdl:input message="ns:PatientLocationQueryRequest" wsaw:Action="urn:PatientLocationQuery"/>
+      <wsdl:output message="ns:PatientLocationQueryResponse" wsaw:Action="urn:PatientLocationQueryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="CrossGatewayPatientDiscovery">
+      <wsdl:input message="ns:CrossGatewayPatientDiscoveryRequest" wsaw:Action="urn:CrossGatewayPatientDiscovery"/>
+      <wsdl:output message="ns:CrossGatewayPatientDiscoveryResponse" wsaw:Action="urn:CrossGatewayPatientDiscoveryResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="xcpdrgSoap11Binding" type="ns:xcpdrgPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientLocationQuery">
+      <soap:operation soapAction="urn:PatientLocationQuery" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CrossGatewayPatientDiscovery">
+      <soap:operation soapAction="urn:CrossGatewayPatientDiscovery" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xcpdrgSoap12Binding" type="ns:xcpdrgPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientLocationQuery">
+      <soap12:operation soapAction="urn:PatientLocationQuery" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CrossGatewayPatientDiscovery">
+      <soap12:operation soapAction="urn:CrossGatewayPatientDiscovery" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xcpdrgHttpBinding" type="ns:xcpdrgPortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="PatientLocationQuery">
+      <http:operation location="xcpdrg/PatientLocationQuery"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="PatientLocationQuery"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="PatientLocationQuery"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CrossGatewayPatientDiscovery">
+      <http:operation location="xcpdrg/CrossGatewayPatientDiscovery"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="CrossGatewayPatientDiscovery"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="CrossGatewayPatientDiscovery"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="xcpdrg">
+    <wsdl:port name="xcpdrgHttpSoap11Endpoint" binding="ns:xcpdrgSoap11Binding">
+      <soap:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xcpdrg.xcpdrgHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xcpdrgHttpsSoap11Endpoint" binding="ns:xcpdrgSoap11Binding">
+      <soap:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xcpdrg.xcpdrgHttpsSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xcpdrgHttpSoap12Endpoint" binding="ns:xcpdrgSoap12Binding">
+      <soap12:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xcpdrg.xcpdrgHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xcpdrgHttpsSoap12Endpoint" binding="ns:xcpdrgSoap12Binding">
+      <soap12:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xcpdrg.xcpdrgHttpsSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xcpdrgHttpsEndpoint" binding="ns:xcpdrgHttpBinding">
+      <http:address location="https://PGS6NY0MJ1LA:8443/axis2/services/xcpdrg.xcpdrgHttpsEndpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xcpdrgHttpEndpoint" binding="ns:xcpdrgHttpBinding">
+      <http:address location="http://PGS6NY0MJ1LA:8091/axis2/services/xcpdrg.xcpdrgHttpEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8091/axis2/services/xcpdig</con:endpoint><con:endpoint>https://PGS6NY0MJ1LA:8443/axis2/services/xcpdrg.xcpdrgHttpsSoap12Endpoint/</con:endpoint><con:endpoint>http://localhost:8091/axis2/services/xcpdrg</con:endpoint><con:endpoint>http://tiani-cisco5:8080/HL7V3/XCPDGateway</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:CrossGatewayPatientDiscovery" name="CrossGatewayPatientDiscovery" bindingOperationName="CrossGatewayPatientDiscovery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1 (RG)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8091/axis2/services/xcpdrg</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:hl7-org:v3">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201305UV02 ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3">
+         <id root="8eff7f79-af4e-4906-9d30-481569218807"/>
+         <creationTime value="20110118122740"/>
+         <interactionId extension="PRPA_IN201305UV02" root="2.16.840.1.113883.1.6"/>
+         <processingCode code="T"/>
+         <processingModeCode code="I"/>
+         <acceptAckCode code="NE"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.3.6.4.1.21367.13.10.417"/>
+               <asAgent classCode="AGNT">
+                  <representedOrganization classCode="ORG" determinerCode="INSTANCE">
+                     <id root="1.3.6.1.4.1.21367.13.3065"/>
+                  </representedOrganization>
+               </asAgent>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.3.6.1.4.1.21367.13.10.417"/>
+               <name>GATEWAY_VANGENT_XCAIG</name>
+               <asAgent classCode="AGNT">
+                  <representedOrganization classCode="ORG" determinerCode="INSTANCE">
+                     <id root="1.3.6.1.4.1.21367.13.3070"/>
+                  </representedOrganization>
+               </asAgent>
+            </device>
+         </sender>
+         <controlActProcess moodCode="EVN" classCode="CACT">
+            <code code="PRPA_TE201305UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <authorOrPerformer typeCode="AUT">
+               <assignedDevice classCode="ASSIGNED">
+                  <id root="1.3.6.1.4.1.21367.13.20.2000"/>
+               </assignedDevice>
+            </authorOrPerformer>
+            <queryByParameter>
+               <queryId root="1.2.840.114350.1.13.28.1.18.5.999" extension="18204"/>
+               <statusCode code="new"/>
+               <responsePriorityCode code="I"/>
+               <parameterList>
+                  <livingSubjectAdministrativeGender>
+                     <value code="F"/>
+                     <semanticsText>LivingSubject.administrativeGender</semanticsText>
+                  </livingSubjectAdministrativeGender>
+                  <livingSubjectBirthTime>
+                     <value value="19660606"/>
+                     <semanticsText>LivingSubject.birthTime</semanticsText>
+                  </livingSubjectBirthTime>
+                  <livingSubjectId>
+                     <value root="1.3.6.1.4.1.21367.13.20.2000" extension="NA5430"/>
+                     <semanticsText>LivingSubject.id</semanticsText>
+                  </livingSubjectId>
+                  <livingSubjectName>
+                     <value>
+                        <given>Pat</given>
+                        <family>Xcpd</family>
+                     </value>
+                     <semanticsText>LivingSubject.name</semanticsText>
+                  </livingSubjectName>
+               </parameterList>
+            </queryByParameter>
+         </controlActProcess>
+      </PRPA_IN201305UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery" addDefaultAction="false" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 2 (IG)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8091/axis2/services/xcpdig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:hl7-org:v3">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201305UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
+         <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="35423"/>
+         <creationTime value="20090417150301"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201305UV02"/>
+         <processingCode code="T"/>
+         <processingModeCode code="I"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.999.234"/>
+               <telecom value="http://servicelocation/QDQuery"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.999.567"/>
+               <!--Used to carry the homeCommunityId-->
+               <asAgent classCode="AGNT">
+                  <representedOrganization classCode="ORG" determinerCode="INSTANCE">
+                     <!--homeCommunityId=urn:oid:1.2.3.928.955-->
+                     <id root="1.2.3.928.955"/>
+                  </representedOrganization>
+               </asAgent>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <code code="PRPA_TE201305UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <!--Identifies one of LivingSubjectID for use by responder in XCA Query 
+        	  - provisioning the opposite direction-->
+            <!--<authorOrPerformer typeCode="AUT">
+               <assignedDevice classCode="ASSIGNED">
+                  <id root="1.3.6.1.4.1.21367.13.20.2000"/>
+               </assignedDevice>
+            </authorOrPerformer> -->
+            <queryByParameter>
+               <queryId root="1.2.840.114350.1.13.28.1.18.5.999" extension="18204"/>
+               <statusCode code="new"/>
+ 	       <responseModalityCode code="R"/>             
+               <responsePriorityCode code="I"/>
+               <matchCriterionList>
+                  <minimumDegreeMatch>
+                     <value xsi:type="INT" value="75"/>
+                     <semanticsText>Degree of match requested</semanticsText>
+                  </minimumDegreeMatch>
+               </matchCriterionList>
+               <parameterList>
+                  <livingSubjectAdministrativeGender>
+                     <value code="M"/>
+                     <semanticsText>LivingSubject.administrativeGender</semanticsText>
+                   </livingSubjectAdministrativeGender>
+                   <livingSubjectBirthTime>
+                     <value value="19770707"/>
+                     <semanticsText>LivingSubject.birthTime</semanticsText>
+                  </livingSubjectBirthTime>
+                  <livingSubjectId>
+                     <value root="1.3.6.1.4.1.21367.13.20.2000" extension="NA5430"/>
+                     <semanticsText>LivingSubject.id</semanticsText>
+                  </livingSubjectId>
+                  <livingSubjectName>
+                     <value>
+                        <given>Pat</given>
+                        <family>Xcpd</family>
+                     </value>
+                     <semanticsText>LivingSubject.name</semanticsText>
+                  </livingSubjectName>
+               </parameterList>
+            </queryByParameter>
+         </controlActProcess>
+      </PRPA_IN201305UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Copy of Request 2 (IG)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8091/axis2/services/xcpdrg</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns3="urn:hl7-org:v3">
+   <soap:Header/>
+   <soap:Body>
+      <ns3:PRPA_IN201305UV02 ITSVersion="XML_1.0">
+         <ns3:id extension="12b18488:12b90bf9b73:-7f98" root="1.3.6.1.4.1.21367.2010.1.2.2025"/>
+         <ns3:creationTime value="2010109121251"/>
+         <ns3:interactionId extension="PRPA_IN201305UV" root="2.16.840.1.113883.1.6"/>
+         <ns3:processingCode code="P"/>
+         <ns3:processingModeCode code="R"/>
+         <ns3:acceptAckCode code="AL"/>
+         <ns3:receiver typeCode="RCV">
+            <ns3:device determinerCode="INSTANCE" classCode="DEV">
+               <ns3:id root="1.2.345.678.999"/>
+               <ns3:asAgent classCode="AGNT">
+                  <ns3:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <ns3:id root="1.3.6.1.4.1.21367.2010.1.2.2025"/>
+                  </ns3:representedOrganization>
+               </ns3:asAgent>
+            </ns3:device>
+         </ns3:receiver>
+         <ns3:sender typeCode="SND">
+            <ns3:device determinerCode="INSTANCE" classCode="DEV">
+               <ns3:id root="1.2.345.678.999"/>
+               <ns3:asAgent classCode="AGNT">
+                  <ns3:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <ns3:id root="1.3.6.1.4.1.21367.2010.1.2.300"/>
+                  </ns3:representedOrganization>
+               </ns3:asAgent>
+            </ns3:device>
+         </ns3:sender>
+         <ns3:controlActProcess moodCode="EVN" classCode="CACT">
+            <ns3:code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201305UV"/>
+            <ns3:authorOrPerformer typeCode="AUT">
+               <ns3:assignedDevice classCode="ASSIGNED">
+                  <ns3:id root="1.3.6.1.4.1.21367.2010.1.2.300"/>
+               </ns3:assignedDevice>
+            </ns3:authorOrPerformer>
+            <ns3:queryByParameter>
+               <ns3:queryId extension="12b18488:12b90bf9b73:-7f97" root="1.3.6.1.4.1.21367.2010.1.2.2025"/>
+               <ns3:statusCode code="new"/>
+               <ns3:parameterList>
+                  <!--<ns3:livingSubjectAdministrativeGender>
+                     <ns3:value code="M"/>
+                     <ns3:semanticsText/>
+                  </ns3:livingSubjectAdministrativeGender>-->
+                  <!--<ns3:livingSubjectBirthTime>
+                     <ns3:value value="19640610"/>
+                     <ns3:semanticsText/>
+                  </ns3:livingSubjectBirthTime>-->
+                  <ns3:livingSubjectId>
+                     <ns3:value extension="RED_GLOBAL_12" root="1.3.6.1.4.1.21367.13.20.2000"/>
+                     <ns3:semanticsText/>
+                  </ns3:livingSubjectId>
+                  <ns3:livingSubjectName>
+                     <ns3:value>
+                        <ns3:family partType="FAM">Thuman</ns3:family>
+                        <ns3:given partType="GIV">Bernie</ns3:given>
+                     </ns3:value>
+                     <ns3:semanticsText/>
+                  </ns3:livingSubjectName>
+               </ns3:parameterList>
+            </ns3:queryByParameter>
+         </ns3:controlActProcess>
+      </ns3:PRPA_IN201305UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientLocationQuery" name="PatientLocationQuery" bindingOperationName="PatientLocationQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8091/axis2/services/xcpdig</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.gateway.xcpd.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <xcpd:PatientLocationQueryRequest xsi:schemaLocation="urn:ihe:iti:xcpd:2009" xmlns:xcpd="urn:ihe:iti:xcpd:2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <xcpd:RequestedPatientId root="1.2.840.114350.1.13.99997.2.3412" extension="38273N237"/>
+      </xcpd:PatientLocationQueryRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2009:PatientLocationQuery" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
