@@ -63,7 +63,8 @@ public class XUAOutPhaseHandler extends AbstractHandler {
      * @throws AxisFault throws AxisFault
      */
     public InvocationResponse invoke(MessageContext messageContext) throws AxisFault {
-        // check to see the received soap action is the XUA supported action or not
+        logger.debug("XUA: XUAOutPhaseHandler::invoke");
+        // check tSystem.outo see the received soap action is the XUA supported action or not
         // Condition check is required since the OutPhaseHandler will be invoked even for XUAServiceUser soap actions.
         // i.e IssueToken
         // check to see the received soap action is the XUA supported action or not
@@ -78,7 +79,7 @@ public class XUAOutPhaseHandler extends AbstractHandler {
         }
         // also skip the SOAP call to STS if token already exists in the request.
         if (this.assertionExistsInRequest(messageContext)) {
-            System.out.println("Assertion already exists on the request!!!");
+            logger.debug("Assertion already exists on the request!!!");
             return InvocationResponse.CONTINUE;
         }
 
@@ -89,10 +90,21 @@ public class XUAOutPhaseHandler extends AbstractHandler {
             String serviceUri = this.xuaObject.getSTSUri();
             String userName = this.xuaObject.getUserName();
             String password = this.xuaObject.getPassword();
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - stsUrl: " + stsUrl);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - serviceUri: " + serviceUri);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - userName: " + userName);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - password: " + password);
+
 
             // Get the SAML assertion from the STS provider (for the given user):
             SOAPEnvelope responseEnvelope = xServiceUser.getSOAPResponseFromSts(stsUrl, serviceUri, userName, password);
+            if (logger.isDebugEnabled()) {
+                logger.debug("XUA: XUAOutPhaseHandler::invoke - STS Response: " + responseEnvelope.toString());
+            }
             OMElement samlTokenEle = xServiceUser.getTokenFromResSOAPEnvelope(responseEnvelope);
+            if (logger.isDebugEnabled()) {
+                logger.debug("XUA: XUAOutPhaseHandler::invoke - SAML Token: " + samlTokenEle.toString());
+            }
 
             // Get the SOAP envelope from the message context
             SOAPEnvelope requestEnvelope = messageContext.getEnvelope();
