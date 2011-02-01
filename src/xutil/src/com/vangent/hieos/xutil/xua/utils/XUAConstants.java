@@ -31,7 +31,9 @@ public interface XUAConstants {
     /**
      * SOAPAction to get the token
      */
-     public static final String SOAP_ACTION_ISSUE_TOKEN = "IssueToken";
+     //public static final String SOAP_ACTION_ISSUE_TOKEN = "IssueToken";
+
+     public static final String SOAP_ACTION_ISSUE_TOKEN ="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue";
 
     /**
      * WS-Security base element name
@@ -47,6 +49,8 @@ public interface XUAConstants {
       * SOAPAction to validate the token
       */
      public static final String SOAP_ACTION_VALIDATE_TOKEN = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate";
+
+
 
      /**
      * WS-Trust Token Request body template
@@ -70,8 +74,16 @@ public interface XUAConstants {
      /**
       * WS-Trust Token Request header template
       */
+//<wsu:Timestamp xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="Timestamp-2">
+// <wsu:Created>2011-01-20T17:23:33.011Z</wsu:Created>
+// <wsu:Expires>2011-01-20T17:54:33.011Z</wsu:Expires>
+//</wsu:Timestamp>
      public static final String WS_TRUST_TOKEN_REQUEST_HEADER =
         "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"+
+        "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">" +
+        "<wsu:Created>__CREATEDTIME__</wsu:Created>" +
+        "<wsu:Expires>__EXPIREDTIME__</wsu:Expires>" +
+        "</wsu:Timestamp>" +
         "<wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"+
         "<wsse:Username>__USERNAME__</wsse:Username>"+
         "<wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">__PASSWORD__</wsse:Password>"+
@@ -81,6 +93,14 @@ public interface XUAConstants {
         //"<wsa:To>__SERVICE__</wsa:To>"+
         //"<wsa:MessageID>urn:uuid:ECC30223BD5F378D231254838390566</wsa:MessageID>"+
         //"<wsa:Action>\"http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue\"</wsa:Action>";
+
+      public static final String WS_TRUST_TOKEN_VALIDATE_HEADER =
+        "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"+
+        "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">" +
+        "<wsu:Created>__CREATEDTIME__</wsu:Created>" +
+        "<wsu:Expires>__EXPIREDTIME__</wsu:Expires>" +
+        "</wsu:Timestamp>" +
+        "</wsse:Security>";
 
      /**
       * WS-Trust Token Validate Request body template
