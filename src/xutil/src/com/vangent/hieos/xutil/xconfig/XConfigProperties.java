@@ -47,7 +47,7 @@ public class XConfigProperties {
      * @return true if property key is found, false otherwise.
      */
     public boolean containsProperty(String propKey) {
-        return properties.containsKey(propKey);
+        return properties.containsKey(propKey.toLowerCase());
     }
 
     /**
