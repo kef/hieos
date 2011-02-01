@@ -15,8 +15,16 @@ package com.vangent.hieos.xutil.xua.client;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
+import com.vangent.hieos.xutil.xua.utils.XUAConfig;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -39,6 +47,7 @@ import org.apache.log4j.Logger;
 public class XServiceUser {
 
     private final static Logger logger = Logger.getLogger(XServiceUser.class);
+    //private final static String DATE_FORMAT = "yyyy-MM-ddTHH:mm:ss.SSSZ";
 
     /**
      * Constructor
@@ -95,6 +104,10 @@ public class XServiceUser {
             reqHeaderContent = this.substituteVariables("__SERVICE__", serviceUri, reqHeaderContent);
         }
 
+        // Deal with CreatedTime and ExpiredTime.
+        reqHeaderContent = this.substituteVariables("__CREATEDTIME__", XUAConfig.getCreatedTime(), reqHeaderContent);
+        reqHeaderContent = this.substituteVariables("__EXPIREDTIME__", XUAConfig.getExpireTime(), reqHeaderContent);
+
         OMElement reqHeaderElement;
         try {
             reqHeaderElement = XMLParser.stringToOM(reqHeaderContent);
@@ -118,7 +131,8 @@ public class XServiceUser {
             throw new XdsException(
                     "XUA:Exception: You must specify a username, password, and service URI to use XUA.");
         }
-        logger.info("---Getting the response Token from the STS---");
+        //logger.info("---Getting the response Token from the STS---");
+        logger.debug("---Getting the response Token from the STS---");
 
         SOAPEnvelope response = null;
         OMElement elementBody, elementHeader;
@@ -143,20 +157,39 @@ public class XServiceUser {
         if (responseBody == null) {
             throw new XdsException("XUA:Exception: Response body should not be null");
         }
+        OMElement resElement = XPathHelper.selectSingleNode(responseBody, "./ns:RequestSecurityTokenResponseCollection/ns:RequestSecurityTokenResponse/ns:RequestedSecurityToken[1]", "http://docs.oasis-open.org/ws-sx/ws-trust/200512");
+        OMElement assertionEle = null;
+        if (resElement != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("XUA: RequestedSecurityToken = " + resElement.toString());
+            }
+            assertionEle = resElement.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
+            if (assertionEle != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("XUA: SAML Assertion = " + assertionEle.toString());
+                }
+            } else {
+                logger.error("XUA: SAML Assertion = NULL!!!!");
+            }
+        } else {
+            logger.debug("XUA: RequestedSecurityToken = NULL!!!!");
+        }
+        /*
         // Get Response Element
         OMElement responseOMElement = envelope.getBody().getFirstElement();
         if (responseOMElement == null) {
-            throw new XdsException("XUA:Exception: Response element should not be null");
+        throw new XdsException("XUA:Exception: Response element should not be null");
         }
         OMElement assertionEle = null;
         do {
-            OMElement resElement = responseOMElement.getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
-                    "RequestedSecurityToken"));
-            if (resElement == null) {
-                break;
-            }
-            assertionEle = resElement.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
+        OMElement resElement = responseOMElement.getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
+        "RequestedSecurityToken"));
+        if (resElement == null) {
+        break;
+        }
+        assertionEle = resElement.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
         } while (false);
+         */
         if (assertionEle == null) {
             throw new XdsException("XUA:Exception: Could not get assertion.");
         }
