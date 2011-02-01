@@ -88,3 +88,35 @@ CREATE TABLE mergedobjects (
 )
 WITH (OIDS=FALSE);
 ALTER TABLE mergedobjects OWNER TO adt;
+
+-- ****************************************************************************
+--
+-- Tables to support XCPD ... will likely want to move to another DB (note: BHT).
+--
+-- Table: patientcorrelation
+-- 
+-- remotepatientid can be NULL (if a remotepatientid was not found).
+-- lastupdatetime, expirationtime can be NULL (for now just to support Connectathon testing).
+--
+-- *** FIXME: NEED TO LOOK AT OTHER INDICES
+
+DROP TABLE IF EXISTS patientcorrelation;
+
+CREATE TABLE patientcorrelation (
+  id character varying(64) NOT NULL,
+  localhome character varying(100) NOT NULL,
+  localpatientid character varying(100) NOT NULL,
+  remotehome character varying(100) NOT NULL,
+  remotepatientid character varying(100),
+  status char(1) NOT NULL DEFAULT 'A',
+  lastupdatetime timestamp without time zone,
+  expirationtime timestamp without time zone
+)
+WITH (OIDS=TRUE);
+ALTER TABLE patientcorrelation OWNER TO adt;
+
+ALTER TABLE ONLY patientcorrelation
+    ADD CONSTRAINT patientcorrelation_pkey PRIMARY KEY (id);
+    
+CREATE INDEX pc_localpatientid_idx ON patientcorrelation USING btree (localpatientid);
+
