@@ -18,6 +18,7 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.xutil.xua.utils.XUAConfig;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 
@@ -26,10 +27,13 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
+import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.ElementHelper;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
+import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -266,11 +270,50 @@ public class XServiceProvider {
         }
         String requestContent = XUAConstants.WS_TRUST_TOKEN_VALIDATE_REQUEST_BODY;
         content = this.substituteVariables("__TOKEN__", assertionAsString, requestContent);
-        SOAPEnvelope response = this.send(stsUrl, content, action);
+        OMElement elementHeader = this.constructWsTrustRequestHeader(null /*????*/);
+
+        SOAPEnvelope response = this.send(stsUrl, content, elementHeader, action);
         if (logger.isInfoEnabled()) {
             logger.info("---- Received validation status ---");
         }
         return this.getSAMLValidationStatus(response);
+    }
+
+    /**
+     * Construct Ws-Trust request header element
+     *
+     * @param userName user Name
+     * @param password password
+     * @param serviceUri STS service uri
+     * @return reqHeaderElement, converted DOM element
+     * @throws Exception, handling the exceptions
+     */
+    private OMElement constructWsTrustRequestHeader(String serviceUri) throws XdsException {
+        String headerContent = XUAConstants.WS_TRUST_TOKEN_VALIDATE_HEADER;
+        String reqHeaderContent = headerContent;
+        /*
+        if (userName != null) {
+        reqHeaderContent = this.substituteVariables("__USERNAME__", userName, reqHeaderContent);
+        }
+        if (password != null) {
+        reqHeaderContent = this.substituteVariables("__PASSWORD__", password, reqHeaderContent);
+        }
+
+        if (serviceUri != null) {
+        reqHeaderContent = this.substituteVariables("__SERVICE__", serviceUri, reqHeaderContent);
+        }*/
+
+        // Deal with CreatedTime and ExpiredTime.
+        reqHeaderContent = this.substituteVariables("__CREATEDTIME__", XUAConfig.getCreatedTime(), reqHeaderContent);
+        reqHeaderContent = this.substituteVariables("__EXPIREDTIME__", XUAConfig.getExpireTime(), reqHeaderContent);
+
+        OMElement reqHeaderElement;
+        try {
+            reqHeaderElement = XMLParser.stringToOM(reqHeaderContent);
+        } catch (XMLParserException ex) {
+            throw new XdsException("XUA:Exception: Error creating Ws-Trust request header - " + ex.getMessage());
+        }
+        return reqHeaderElement;
     }
 
     /**
@@ -288,22 +331,31 @@ public class XServiceProvider {
             throw new XdsException("XUA:Exception: Response body should not be null.");
         }
         String validateStr = null;
-        do {
-            OMElement resElement = envelope.getBody().getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
-                    "RequestSecurityTokenResponse"));
-            if (resElement == null) {
-                break;
-            }
-            Iterator iterator = resElement.getChildElements();
-            while (iterator.hasNext()) {
-                OMElement statusEle = (OMElement) iterator.next();
-                if (statusEle.getLocalName().equalsIgnoreCase("Status")) {
-                    OMElement codeEle = statusEle.getFirstElement();
-                    validateStr = codeEle.getText();
-                    break;
-                }
-            }
+        /*do {
+        OMElement resElement = envelope.getBody().getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
+        "RequestSecurityTokenResponse"));
+        if (resElement == null) {
+        break;
+        } */
+        OMElement codeEle = XPathHelper.selectSingleNode(responseBody, "./ns:RequestSecurityTokenResponseCollection/ns:RequestSecurityTokenResponse/ns:Status/ns:Code[1]", "http://docs.oasis-open.org/ws-sx/ws-trust/200512");
+        if (codeEle != null) {
+            validateStr = codeEle.getText();
+            logger.debug("*** XUA: SAML Validation Response Found = validateStr" + validateStr);
+        } else {
+            logger.error("*** XUA: SAML Validation Response = NULL");
+        }
+        /*
+        Iterator iterator = resElement.getChildElements();
+        while (iterator.hasNext()) {
+        OMElement statusEle = (OMElement) iterator.next();
+        if (statusEle.getLocalName().equalsIgnoreCase("Status")) {
+        OMElement codeEle = statusEle.getFirstElement();
+        validateStr = codeEle.getText();
+        break;
+        }
+        }
         } while (false);
+         */
 
         if (validateStr != null) {
             if (validateStr.equalsIgnoreCase("http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/valid")) {
@@ -320,14 +372,15 @@ public class XServiceProvider {
      * request body, SAML assertion and with releavent SOAP action i.e
      * http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate, and it sends the
      * constructed SOAP message to specified STS endpoint URL for validation.
-     * 
+     *
      * @param stsUrl STS endpoint URL
      * @param requestBody , constructed WS-Trust Request
+     * @param requestHeader
      * @param action SOAPAction
      * @throws Exception, handling the exceptions
      * @return responseSOAPEnvelope, responseSOAPEnvelope contains validation status
      */
-    private SOAPEnvelope send(String stsUrl, String request, String action) throws XdsException {
+    private SOAPEnvelope send(String stsUrl, String request, OMElement requestHeader, String action) throws XdsException {
         //construct axis OMElement using request
         OMElement bodyOMElement;
         try {
@@ -345,6 +398,14 @@ public class XServiceProvider {
         SOAPBody requestSOAPBody = requestSOAPEnvelope.getBody();
         // Add bodyOMElement to SOAP Body as a child
         requestSOAPBody.addChild(bodyOMElement);
+
+        SOAPHeaderBlock b;
+        try {
+            b = ElementHelper.toSOAPHeaderBlock(requestHeader, OMAbstractFactory.getSOAP12Factory());
+        } catch (Exception ex) {
+            throw new XdsException("XUA:Exception: Error creating header block" + ex.getMessage());
+        }
+        requestSOAPEnvelope.getHeader().addChild(b);
 
         // Send SOAP envelope using SOAP sender for validation of the token
         // and get the response SOAP Envelope from STS
