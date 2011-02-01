@@ -16,7 +16,13 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 /**
@@ -125,5 +131,73 @@ public class XUAConfig {
                 targetList.add(listParsed[i].toLowerCase());
             }
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    // FIXME: Rewrite / move to proper class
+    static public String getCreatedTime() {
+        return XUAConfig.getTimeUTCFormat(0);
+        /*
+        StringBuilder sb = new StringBuilder();
+        // Send all output to the Appendable object sb
+        Formatter formatter = new Formatter(sb, Locale.US);
+        Calendar c = new GregorianCalendar();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        //"2011-01-20T17:23:33.011Z";
+        formatter.format("%s-%02d-%02dT%02d:%02d:%02d.%03dZ",
+        c.get(Calendar.YEAR),
+        c.get(Calendar.MONTH) + 1,
+        c.get(Calendar.DAY_OF_MONTH),
+        c.get(Calendar.HOUR_OF_DAY),
+        c.get(Calendar.MINUTE),
+        c.get(Calendar.SECOND),
+        c.get(Calendar.MILLISECOND));
+        String formattedTime = sb.toString();
+        System.out.println("created time = " + formattedTime);
+        return formattedTime;*/
+    }
+
+    /**
+     *
+     * @return
+     */
+    // FIXME: Rewrite / move to proper class
+    static public String getExpireTime() {
+        return XUAConfig.getTimeUTCFormat(1);
+    }
+
+    // FIXME: Move to reusable code location / consider rework.
+    /**
+     *
+     * @param daysOffset
+     * @return
+     */
+    // FIXME: Rewrite / move to proper class
+    static public String getTimeUTCFormat(int daysOffset) {
+        StringBuilder sb = new StringBuilder();
+        Calendar c = new GregorianCalendar();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTime(new Date());  // Now.
+        c.add(Calendar.DATE, daysOffset);
+
+        // Send all output to the Appendable object sb
+        Formatter formatter = new Formatter(sb, Locale.US);
+
+        //"2011-01-20T17:23:33.011Z";
+        formatter.format("%s-%02d-%02dT%02d:%02d:%02d.%03dZ",
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH) + 1,
+                c.get(Calendar.DAY_OF_MONTH),
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                c.get(Calendar.SECOND),
+                c.get(Calendar.MILLISECOND));
+        String formattedTime = sb.toString();
+        System.out.println("time = " + formattedTime);
+        return formattedTime;
     }
 }
