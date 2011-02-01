@@ -59,8 +59,7 @@ public class SOAPSenderImpl {
             mSoapFactory = OMAbstractFactory.getSOAP12Factory();
         } catch (AxisFault ex) {
             throw new XdsException(
-                    "XUA:Exception: Failure initializing SOAP/STS client - "
-                    + ex.getMessage());
+                    "XUA:Exception: Failure initializing SOAP/STS client - " + ex.getMessage());
         }
     }
 
@@ -75,6 +74,9 @@ public class SOAPSenderImpl {
      * @throws XdsException, handling exception.
      */
     public SOAPEnvelope send(URI endpointURI, SOAPEnvelope message, String action) throws XdsException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("SOAP Envelope: " + message.toString());
+        }
         try {
             // To send the SOAPEnvelope message to target Service endpoint
             // 1. Create message context, 2. send the message context
@@ -85,8 +87,18 @@ public class SOAPSenderImpl {
 
             // get response SOAP Envelope from the response MC
             SOAPEnvelope responseEnvelope = resMessageContext.getEnvelope();
+            if (responseEnvelope != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SOAP Response: " + responseEnvelope.toString());
+                }
+            } else {
+                logger.info("No SOAP Response!!!!!");
+            }
+
             return responseEnvelope;
         } catch (Exception ex) {
+            ex.printStackTrace();
+            logger.error("XUA EXCEPTION: " + ex.getMessage());
             throw new XdsException("XUA:Exception: Failure contacting STS - " + ex.getMessage());
         }
     }
