@@ -54,6 +54,7 @@ public class XATNALogger {
     public static final String TXN_ITI42 = "ITI-42";
     public static final String TXN_ITI43 = "ITI-43";
     public static final String TXN_ITI44 = "ITI-44";
+    public static final String TXN_ITI55 = "ITI-55";
     public static final String TXN_START = "START";
     public static final String TXN_STOP = "STOP";
 
@@ -80,8 +81,9 @@ public class XATNALogger {
     private static final String REG_STOR_QRY = "Registry Stored Query";
     private static final String REG_DOC_SET = "Register Document Set-b";
     private static final String CRS_GTWY_QRY = "Cross Gateway Query";
+    private static final String CRS_GTWY_PATIENT_DISCOVERY = "Cross Gateway Patient Discovery";
     private static final String IHE_TX = "IHE Transactions";
-    private static final String RTV_DOC = "Retrieve Document";
+    //private static final String RTV_DOC = "Retrieve Document";
     private static final String RTV_DOC_SET = "Retrieve Document Set";
     private static final String CRS_GTWY_RTV = "Cross Gateway Retrieve";
     private static final String PROVD_N_REG_DOC_SET_B = "Provide and Register Document Set b";
@@ -91,7 +93,7 @@ public class XATNALogger {
     private static final String APL_STRT = "Application Start";
     private static final String APL_ACTV = "Application Activity";
     private static final String APL_STP = "Application Stop";
-    private static final String UNDEF = "UNKNOWN";
+    //private static final String UNDEF = "UNKNOWN";
     private static final String AUDIT_SRC_SUFFIX = "VANGENT_HIEOS";
     private ActorType actorType = ActorType.UNKNOWN;
     private String transactionId;
@@ -206,6 +208,182 @@ public class XATNALogger {
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
                 this.hostAddress);  /* networkAccessPointId  */
+    }
+
+    /**
+     * 
+     * @param patientId
+     * @param homeCommunityId
+     * @param queryId
+     * @param queryByParameter
+     * @param targetEndpoint
+     * @param outcome
+     * @throws Exception
+     */
+    public void performAuditCrossGatewayPatientDiscovery(
+            String patientId, String homeCommunityId,
+            String queryId, String queryByParameter,
+            String targetEndpoint, OutcomeIndicator outcome) throws Exception {
+        if (!this.performAudit) {
+            this.logWarning();
+            return;  // Early exit.
+        }
+
+        // Prep for audit.
+        this.outcome = outcome;
+        this.setContextVariables(targetEndpoint);
+
+        if (this.actorType == ActorType.INITIATING_GATEWAY) {
+            this.performAuditCGPD_InitiatingGatewaySend(patientId, homeCommunityId, queryId, queryByParameter);
+        } else {
+            this.performAuditCGPD_RespondingGatewayReceive(patientId, homeCommunityId, queryId, queryByParameter);
+        }
+
+        // Persist the message.
+        if (amb != null) {
+            amb.setAuditSource(this.getAuditSourceId(), null, null);
+            amb.persistMessage();
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
+     */
+    private void performAuditCGPD_RespondingGatewayReceive(
+            String patientId, String homeCommunityId,
+            String queryId, String queryByParameter) throws UnsupportedEncodingException {
+        // Event ID and Event Type:
+        CodedValueType eventId = this.getCodedValueType("110112", "DCM", "Query");
+        CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, CRS_GTWY_PATIENT_DISCOVERY);
+        amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", this.outcome.toString());
+
+        // Source (Initiating Gateway):
+        CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
+        amb.setActiveParticipant(
+                this.replyTo, /* userId  */
+                null, /* alternateUserId */
+                this.userName, /* userName */
+                "true", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.fromAddress); /* networkAccessPointId */
+
+        // Destination (Responding Gateway):
+        roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
+        amb.setActiveParticipant(
+                this.endpoint, /* userId  */
+                this.pid, /* alternateUserId */
+                null, /* userName */
+                "false", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.hostAddress); /* networkAccessPointId */
+
+
+        // Patient ID:
+        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
+        amb.setParticipantObject(
+                "1", /* participantObjectTypeCode */
+                "1", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                patientId, /* participantObjectId */
+                null, /* participantObjectName */
+                null, /* participantObjectQuery */
+                null, /* participantObjectDetailName */
+                null); /* participantObjectDetailValue */
+
+        byte[] queryBase64Bytes = Base64.encodeBase64(queryByParameter.getBytes());
+        // Stored Query ID:
+        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, CRS_GTWY_PATIENT_DISCOVERY);
+        amb.setParticipantObject(
+                "2", /* participantObjectTypeCode */
+                "24", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                queryId, /* participantObjectId */
+                homeCommunityId, /* participantObjectName */
+                queryBase64Bytes, /* participantObjectQuery */
+                null, /* participantObjectDetailName */
+                null); /* participantObjectDetailValue */
+    }
+
+    /**
+     * 
+     * @param patientId
+     * @param homeCommunityId
+     * @param queryId
+     * @param queryByParameter
+     * @throws UnsupportedEncodingException
+     * @throws MalformedURLException
+     */
+    private void performAuditCGPD_InitiatingGatewaySend(
+            String patientId, String homeCommunityId,
+            String queryId, String queryByParameter) throws UnsupportedEncodingException, MalformedURLException {
+        // Event ID and Event Type:
+        CodedValueType eventId = this.getCodedValueType("110112", "DCM", "Query");
+        String displayName = CRS_GTWY_PATIENT_DISCOVERY;
+        
+        CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, displayName);
+        amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", this.outcome.toString());
+
+        // Source (Document Consumer / Gateway):
+        CodedValueType roleIdCode = this.getCodedValueType("110153", "DCM", "Source");
+        amb.setActiveParticipant(
+                this.endpoint, /* userId  */
+                this.pid, /* alternateUserId */
+                this.userName, /* userName */
+                "true", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                this.hostAddress); /* networkAccessPointId */
+
+        // Destination (Registry / Gateway):
+        roleIdCode = this.getCodedValueType("110152", "DCM", "Destination");
+        URL url = new URL(this.targetEndpoint);
+        amb.setActiveParticipant(
+                this.targetEndpoint, /* userId  */
+                null, /* alternateUserId */
+                null, /* userName */
+                "false", /* userIsRequestor */
+                roleIdCode, /* roleIdCode */
+                "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
+                url.getHost()); /* networkAccessPointId */
+       
+        byte[] queryBase64Bytes = Base64.encodeBase64(queryByParameter.getBytes());
+
+        // Patient ID:
+        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
+        amb.setParticipantObject(
+                "1", /* participantObjectTypeCode */
+                "1", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                patientId, /* participantObjectId */
+                null, /* participantObjectName */
+                null, /* participantObjectQuery */
+                null, /* participantObjectDetailName */
+                null); /* participantObjectDetailValue */
+
+        // Stored Query ID:
+        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, displayName);
+        amb.setParticipantObject(
+                "2", /* participantObjectTypeCode */
+                "24", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                queryId, /* participantObjectId */
+                homeCommunityId, /* participantObjectName */
+                queryBase64Bytes, /* participantObjectQuery */
+                null, /* participantObjectDetailName */
+                null); /* participantObjectDetailValue */
     }
 
     /**
@@ -731,7 +909,7 @@ public class XATNALogger {
      * @param sourceIdentity
      * @param sourceIP
      */
-    public void auditPatientIdentityFeedToRegistry(String patientId, 
+    public void auditPatientIdentityFeedToRegistry(String patientId,
             String messageId, boolean updateMode, OutcomeIndicator outcome,
             String sourceIdentity, String sourceIP) {
         if (!this.performAudit) {
