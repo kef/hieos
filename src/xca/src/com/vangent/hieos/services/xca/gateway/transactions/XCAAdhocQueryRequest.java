@@ -10,9 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.patientcorrelation.exception.PatientCorrelationException;
+import com.vangent.hieos.patientcorrelation.model.PatientCorrelation;
+import com.vangent.hieos.patientcorrelation.service.PatientCorrelationService;
+import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
@@ -40,6 +43,9 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
+import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -83,11 +89,11 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         // Validate SOAP format.
         /*
         try {
-            mustBeSimpleSoap();
+        mustBeSimpleSoap();
         } catch (XdsFormatException e) {
-            response.add_error(MetadataSupport.XDSRegistryError,
-                    "SOAP Format Error: " + e.getMessage(),
-                    this.getLocalHomeCommunityId(), log_message);
+        response.add_error(MetadataSupport.XDSRegistryError,
+        "SOAP Format Error: " + e.getMessage(),
+        this.getLocalHomeCommunityId(), log_message);
         }*/
 
         // Validate namespace.
@@ -175,57 +181,208 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param responseOption
      */
     private void processRequestWithPatientId(OMElement request, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
-
-        if (this.getGatewayType() == GatewayType.RespondingGateway) {  // RespondingGateway
+        if (this.getGatewayType() == GatewayType.RespondingGateway) {
+            // RespondingGateway steps ...
             // Just go local.
             XConfigActor registry = this.getLocalRegistry();
             this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
+            return;  // Early exit!
+        }
 
-        } else { // InitiatingGateway
-            // At this point, we know the following:
-            //   We need to extract the patientId.
-            //   A homeCommunityId is not present.
-            // Send requests based upon patient identifier.
-            String patientId = this.getPatientId(request, queryRequest);
-            if (patientId != null) {
-                this.logInfo("Patient ID", patientId);
-                // Now get the Assigning Authority within the patient ID.
-                String assigningAuthority = this.getAssigningAuthority(patientId);
-                if (assigningAuthority == null) {
-                    /* --- Go silent here according to XCA spec --- */
-                    this.logError("[* Not notifying client *]: Could not parse assigning authority from patient id = " + patientId);
-                } else {
-                    XConfig xconfig = XConfig.getInstance();
-                    // Get the configuration for the assigning authority.
-                    XConfigObject aa = xconfig.getAssigningAuthorityConfigById(assigningAuthority);
-                    if (aa == null) {
-                        /* --- Go silent here according to XCA spec --- */
-                        this.logError("[* Not notifying client *]: Could not find assigning authority configuration for patient id = " + patientId);
+        // InitiatingGateway steps ...
+
+        // At this point, we know the following:
+        //   We need to extract the patientId.
+        //   A homeCommunityId is not present.
+        // Send requests based upon patient identifier.
+        String patientId = this.getPatientId(request, queryRequest);
+        if (patientId != null) {
+            this.logInfo("Patient ID", patientId);
+            // FIXME (OPTION): 
+            // this.processRequestWithPatientId(patientId, queryRequest, responseOption);
+            this.processRequestWithPatientIdUsingCorrelations(patientId, queryRequest, responseOption);
+        } else {
+            /* --- Go silent here according to XCA spec --- */
+            this.logError("[* Not notifying client *]: Can not find Patient ID on request");
+        }
+    }
+
+    /**
+     * 
+     * @param patientId
+     * @param queryRequest
+     * @param responseOption
+     * @throws XdsInternalException
+     */
+    private void processRequestWithPatientIdUsingCorrelations(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+        List<XCAGatewayConfig> gatewayConfigs = this.getRespondingGatewaysForPatientId(patientId);
+        for (XCAGatewayConfig gatewayConfig : gatewayConfigs) {
+            OMElement gatewayQueryRequest = this.getTargetGatewayQueryRequest(queryRequest, gatewayConfig.getPatientId());
+            this.addRequest(gatewayQueryRequest,
+                    responseOption,
+                    gatewayConfig.getHomeCommunityId(),
+                    gatewayConfig.getConfig(),
+                    false);
+        }
+        // FIXME: Should we always go local in this case?
+        XConfigActor registry = this.getLocalRegistry();
+        this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
+
+    }
+
+    /**
+     *
+     * @param patientId
+     * @param queryRequest
+     * @param responseOption
+     * @throws XdsInternalException
+     */
+    private void processRequestWithPatientId(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+        // Now get the Assigning Authority within the patient ID.
+        String assigningAuthority = this.getAssigningAuthority(patientId);
+        if (assigningAuthority == null) {
+            /* --- Go silent here according to XCA spec --- */
+            this.logError("[* Not notifying client *]: Could not parse assigning authority from patient id = " + patientId);
+            return;  // Early exit!
+        }
+        XConfig xconfig = XConfig.getInstance();
+        // Get the configuration for the assigning authority.
+        XConfigObject aa = xconfig.getAssigningAuthorityConfigById(assigningAuthority);
+        if (aa == null) {
+            /* --- Go silent here according to XCA spec --- */
+            this.logError("[* Not notifying client *]: Could not find assigning authority configuration for patient id = " + patientId);
+        } else {
+            // Ok.  Now we should hopefully be good to go.
+
+            // Add all remote gateways that can resolve patients within the assigning authority.
+            List<XConfigActor> gateways = xconfig.getRespondingGatewayConfigsForAssigningAuthorityId(assigningAuthority);
+            for (XConfigActor gateway : gateways) {
+                this.addRequest(queryRequest, responseOption, gateway.getUniqueId(), gateway, false);
+            }
+
+            // Now, we may also need to go to a local registry.
+
+            // Does the assigning authority configuration include a local registry?
+            XConfigActor registry = xconfig.getRegistryConfigForAssigningAuthorityId(assigningAuthority);
+            if (registry != null) {
+                //String homeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
+                // Just use the registry name as the key (to avoid conflict with
+                // local homeCommunityId testing).
+                this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param patientId
+     * @return
+     * @throws XdsInternalException
+     */
+    private List<XCAGatewayConfig> getRespondingGatewaysForPatientId(String patientId) throws XdsInternalException {
+        XConfig xconf = XConfig.getInstance();
+        List<XCAGatewayConfig> gatewayConfigs = new ArrayList<XCAGatewayConfig>();
+        // First extract correlations.
+        PatientCorrelationService patientCorrelationService = new PatientCorrelationService();
+        try {
+            String localHomeCommunityId = this.getLocalHomeCommunityId();
+            List<PatientCorrelation> patientCorrelations = patientCorrelationService.lookup(patientId, localHomeCommunityId);
+            for (PatientCorrelation patientCorrelation : patientCorrelations) {
+                String remoteHomeCommunityId = patientCorrelation.getRemoteHomeCommunityId();
+                String remotePatientId = patientCorrelation.getRemotePatientId();
+                XConfigActor config = xconf.getXConfigActorById(remoteHomeCommunityId, XConfig.XCA_RESPONDING_GATEWAY_TYPE);
+                XCAGatewayConfig gatewayConfig = new XCAGatewayConfig(config);
+                gatewayConfig.setPatientId(remotePatientId);
+                gatewayConfigs.add(gatewayConfig);
+            }
+        } catch (PatientCorrelationException ex) {
+            // Do something
+            logger.error("Could not get correlations", ex);
+        }
+        return gatewayConfigs;
+    }
+
+    /**
+     *
+     * @param queryRequest
+     * @param patientId
+     * @return
+     */
+    private OMElement getTargetGatewayQueryRequest(OMElement queryRequest, String patientId) {
+        // Assumes that this is a request that requires a patient id.
+
+        // Clone request first.
+        OMElement newQueryRequest = queryRequest.cloneOMElement();
+
+        // Locate "AdhocQuery" on request.
+        /*OMElement adhocQuery;
+        try {
+        adhocQuery = XPathHelper.selectSingleNode(
+        newQueryRequest, "./ns:AdhocQueryRequest/ns:AdhocQuery",
+        "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0");
+        if (adhocQuery == null) {
+        // FIXME: DO something.
+        return newQueryRequest;  // Early exit!
+        }
+        } catch (XPathHelperException ex) {
+        // FIXME: Do something.
+        return newQueryRequest;  // Early exit!
+        }*/
+
+        // Get queryId.
+        String queryId = this.getStoredQueryId(newQueryRequest);
+        if (queryId == null) {
+            return null;  // Early exit (FIXME).
+        }
+
+        // Look for slot to replace.
+        String slotName = null;
+        if (queryId.equals(MetadataSupport.SQ_FindDocuments)) {
+            slotName = "$XDSDocumentEntryPatientId";
+        } else if (queryId.equals(MetadataSupport.SQ_FindFolders)) {
+            slotName = "$XDSFolderPatientId";
+        } else if (queryId.equals(MetadataSupport.SQ_FindSubmissionSets)) {
+            slotName = "$XDSSubmissionSetPatientId";
+        } else if (queryId.equals(MetadataSupport.SQ_GetAll)) {
+            // FIXME: NOT IMPLEMENTED [NEED TO FIGURE OUT WHAT TO PULL OUT HERE.
+        }
+        if (slotName != null) {
+            // Replace the patientId slot value.
+            //Metadata m = MetadataParser.parseNonSubmission(newQueryRequest);
+            this.setSlotValue(newQueryRequest, slotName, 0, "'" + patientId + "'");
+        } else {
+            // FIXME: Do something.
+        }
+        return newQueryRequest;
+    }
+
+    /**
+     * FIXME (BHT): This does not belong here .... but was unable to work with Metadata class to
+     * get this done ... Also, could use XPathHelper to streamline ...
+     *
+     * @param obj
+     * @param slotName
+     * @param valueIndex
+     * @param value
+     */
+    private void setSlotValue(OMElement obj, String slotName, int valueIndex, String value) {
+        for (OMElement slot : MetadataSupport.childrenWithLocalName(obj, "Slot")) {
+            String name = slot.getAttributeValue(MetadataSupport.slot_name_qname);
+            if (name.equals(slotName)) {
+                OMElement valueListNode = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
+                if (valueListNode == null) {
+                    // FIXME ... should not happen.
+                    break;
+                }
+                int valueCount = 0;
+                for (OMElement valueNode : MetadataSupport.childrenWithLocalName(valueListNode, "Value")) {
+                    if (valueCount == valueIndex) {
+                        valueNode.setText(value);
+                        return;  // Early exit: Get out now!
                     } else {
-                        // Ok.  Now we should hopefully be good to go.
-
-                        // Add all remote gateways that can resolve patients within the assigning authority.
-                        List<XConfigActor> gateways = xconfig.getRespondingGatewayConfigsForAssigningAuthorityId(assigningAuthority);
-                        for (XConfigActor gateway : gateways) {
-                            this.addRequest(queryRequest, responseOption, gateway.getUniqueId(), gateway, false);
-                        }
-
-                        // Now, we may also need to go to a local registry.
-
-                        // Does the assigning authority configuration include a local registry?
-                        XConfigActor registry = xconfig.getRegistryConfigForAssigningAuthorityId(assigningAuthority);
-                        if (registry != null) {
-                            //String homeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
-                            // Just use the registry name as the key (to avoid conflict with
-                            // local homeCommunityId testing).
-                            this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
-                        }
+                        ++valueCount;
                     }
                 }
-
-            } else {
-                /* --- Go silent here according to XCA spec --- */
-                this.logError("[* Not notifying client *]: Can not find Patient ID on request");
             }
         }
     }
@@ -345,13 +502,13 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         // Return the proper registry configuration based upon the gateway configuration.
         XConfigActor gateway;
         if (this.getGatewayType() == GatewayType.InitiatingGateway) {
-            gateway = (XConfigActor)homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
+            gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
         } else {
-            gateway = (XConfigActor)homeCommunity.getXConfigObjectWithName("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
+            gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
         }
 
         // Get the gateway's local registry.
-        XConfigActor registry = (XConfigActor)gateway.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+        XConfigActor registry = (XConfigActor) gateway.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         if (registry == null) {
             response.add_error(MetadataSupport.XDSRegistryNotAvailable,
                     "Can not find local registry endpoint",
