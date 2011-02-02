@@ -10,11 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.xutil.xml;
+package com.vangent.hieos.hl7v3util.xml;
 
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xml.XMLSchemaValidator;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
