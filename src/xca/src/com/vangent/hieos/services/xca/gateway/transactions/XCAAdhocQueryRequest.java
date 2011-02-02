@@ -15,7 +15,6 @@ package com.vangent.hieos.services.xca.gateway.transactions;
 import com.vangent.hieos.patientcorrelation.exception.PatientCorrelationException;
 import com.vangent.hieos.patientcorrelation.model.PatientCorrelation;
 import com.vangent.hieos.patientcorrelation.service.PatientCorrelationService;
-import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;

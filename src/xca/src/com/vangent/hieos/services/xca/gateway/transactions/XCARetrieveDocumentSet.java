@@ -21,7 +21,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
 import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;

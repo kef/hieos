@@ -32,7 +32,6 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import java.util.logging.Level;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
