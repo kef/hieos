@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xca.gateway.transactions;
 import com.vangent.hieos.patientcorrelation.exception.PatientCorrelationException;
 import com.vangent.hieos.patientcorrelation.model.PatientCorrelation;
 import com.vangent.hieos.patientcorrelation.service.PatientCorrelationService;
+import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
@@ -42,9 +43,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 // XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
-import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
-import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -63,6 +61,12 @@ import org.apache.log4j.Logger;
 public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
 
     private final static Logger logger = Logger.getLogger(XCAAdhocQueryRequest.class);
+
+    public enum InitiatingGatewayMode {
+
+        PassThrough, CorrelationCache
+    };
+    private InitiatingGatewayMode initiatingGatewayMode = InitiatingGatewayMode.PassThrough;  // Default.
 
     /**
      * 
@@ -197,13 +201,54 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         String patientId = this.getPatientId(request, queryRequest);
         if (patientId != null) {
             this.logInfo("Patient ID", patientId);
-            // FIXME (OPTION): 
+            InitiatingGatewayMode mode = this.getInitiatingGatewayMode();
+            switch (mode) {
+                case CorrelationCache:
+                    this.logInfo("PatientMappingMode", "CorrelationCache");
+                    this.processRequestWithPatientIdUsingCorrelationCacheMode(patientId, queryRequest, responseOption);
+                    break;
+                case PassThrough:
+                default:
+                    this.logInfo("PatientMappingMode", "PassThrough");
+                    this.processRequestWithPatientIdUsingPathThroughMode(patientId, queryRequest, responseOption);
+                    break;
+            }
             // this.processRequestWithPatientId(patientId, queryRequest, responseOption);
-            this.processRequestWithPatientIdUsingCorrelations(patientId, queryRequest, responseOption);
+            // this.processRequestWithPatientIdUsingCorrelationCacheMode(patientId, queryRequest, responseOption);
         } else {
             /* --- Go silent here according to XCA spec --- */
             this.logError("[* Not notifying client *]: Can not find Patient ID on request");
         }
+    }
+
+    /**
+     * 
+     * @return
+     * @throws XdsInternalException
+     */
+    private InitiatingGatewayMode getInitiatingGatewayMode() throws XdsInternalException {
+        InitiatingGatewayMode mode = InitiatingGatewayMode.PassThrough; // Default.
+
+        // Get the gateway configuration.
+        XConfig xconfig = XConfig.getInstance();
+        XConfigObject homeCommunity = xconfig.getHomeCommunityConfig();
+
+        // Return the proper registry configuration based upon the gateway configuration.
+        XConfigActor gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
+
+        String XCAInitiatingGatewayPatientMappingMode = gateway.getProperty("XCAInitiatingGatewayPatientMappingMode");
+        if (XCAInitiatingGatewayPatientMappingMode == null) {
+            logger.warn("XCA Initiating Gateway - using default 'passthrough' mode");
+        } else {
+            if (XCAInitiatingGatewayPatientMappingMode.equalsIgnoreCase("passthrough")) {
+                mode = InitiatingGatewayMode.PassThrough;
+            } else if (XCAInitiatingGatewayPatientMappingMode.equalsIgnoreCase("correlationcache")) {
+                mode = InitiatingGatewayMode.CorrelationCache;
+            } else {
+                logger.warn("XCA Initiating Gateway - using default 'passthrough' mode");
+            }
+        }
+        return mode;
     }
 
     /**
@@ -213,7 +258,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param responseOption
      * @throws XdsInternalException
      */
-    private void processRequestWithPatientIdUsingCorrelations(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+    private void processRequestWithPatientIdUsingCorrelationCacheMode(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
         List<XCAGatewayConfig> gatewayConfigs = this.getRespondingGatewaysForPatientId(patientId);
         for (XCAGatewayConfig gatewayConfig : gatewayConfigs) {
             OMElement gatewayQueryRequest = this.getTargetGatewayQueryRequest(queryRequest, gatewayConfig.getPatientId());
@@ -226,7 +271,6 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         // FIXME: Should we always go local in this case?
         XConfigActor registry = this.getLocalRegistry();
         this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
-
     }
 
     /**
@@ -236,7 +280,7 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param responseOption
      * @throws XdsInternalException
      */
-    private void processRequestWithPatientId(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+    private void processRequestWithPatientIdUsingPathThroughMode(String patientId, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
         // Now get the Assigning Authority within the patient ID.
         String assigningAuthority = this.getAssigningAuthority(patientId);
         if (assigningAuthority == null) {
