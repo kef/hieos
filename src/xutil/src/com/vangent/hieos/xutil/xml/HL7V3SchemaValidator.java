@@ -29,8 +29,7 @@ public class HL7V3SchemaValidator {
     /**
      * 
      */
-    private HL7V3SchemaValidator()
-    {
+    private HL7V3SchemaValidator() {
         // Can't be instantiated.
     }
 
@@ -53,8 +52,15 @@ public class HL7V3SchemaValidator {
         }
         boolean validate = config.getHomeCommunityConfigPropertyAsBoolean("XMLSchemaHL7V3ValidationEnabled", false);
         if (validate == true) {
-            String schemaDirectory = config.getHomeCommunityConfigProperty("XMLSchemaHL7V3Directory");
             //String schemaDirectory = "C:\\dev\\ihe-materials\\ITI\\schema\\HL7V3\\NE2008\\multicacheschemas\\";
+            //String schemaDirectory = config.getHomeCommunityConfigProperty("XMLSchemaHL7V3Directory");
+            String schemaDirectory = System.getenv("HIEOSxSchemaDir");
+            if (schemaDirectory == null) {
+                logger.warn("Unable to get HIEOSxSchemaDir to enable/disable XMLSchemaHL73Validation");
+                return;
+            } else {
+                schemaDirectory = schemaDirectory + "/HL7V3/NE2008/multicacheschemas/";
+            }
             String fileName = messageName + ".xsd";
             String schemaLocation = namespace + " " + schemaDirectory + fileName;
             try {
