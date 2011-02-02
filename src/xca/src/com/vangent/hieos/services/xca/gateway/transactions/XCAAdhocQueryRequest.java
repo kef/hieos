@@ -330,17 +330,28 @@ public class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         try {
             String localHomeCommunityId = this.getLocalHomeCommunityId();
             List<PatientCorrelation> patientCorrelations = patientCorrelationService.lookup(patientId, localHomeCommunityId);
+            if (patientCorrelations.size() == 0) {
+                 this.logInfo("Patient Correlation",
+                        "No correlations found for: " +
+                        "localHomeCommunityId=" + localHomeCommunityId +
+                        ", localPatientId=" + patientId);
+            }
             for (PatientCorrelation patientCorrelation : patientCorrelations) {
                 String remoteHomeCommunityId = patientCorrelation.getRemoteHomeCommunityId();
                 String remotePatientId = patientCorrelation.getRemotePatientId();
+                this.logInfo("Patient Correlation",
+                        "localHomeCommunityId=" + localHomeCommunityId +
+                        ", localPatientId=" + patientId +
+                        ", remoteHomeCommunityId=" + remoteHomeCommunityId +
+                        ", remotePatientId=" + remotePatientId);
                 XConfigActor config = xconf.getXConfigActorById(remoteHomeCommunityId, XConfig.XCA_RESPONDING_GATEWAY_TYPE);
                 XCAGatewayConfig gatewayConfig = new XCAGatewayConfig(config);
                 gatewayConfig.setPatientId(remotePatientId);
                 gatewayConfigs.add(gatewayConfig);
             }
         } catch (PatientCorrelationException ex) {
-            // Do something
-            logger.error("Could not get correlations", ex);
+            // FIXME: Do something
+            this.logError("Could not get correlations: " + ex.getMessage());
         }
         return gatewayConfigs;
     }
