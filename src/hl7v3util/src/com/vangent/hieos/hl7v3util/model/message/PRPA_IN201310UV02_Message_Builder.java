@@ -45,7 +45,7 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * @param errorText [may be null]
      * @return PRPA_IN201310UV02_Message
      */
-    public PRPA_IN201310UV02_Message buildPRPA_IN201310UV02_MessageFromSubjects(
+    public PRPA_IN201310UV02_Message buildPRPA_IN201310UV02_Message(
             PRPA_IN201309UV02_Message request,
             List<Subject> subjects,
             String errorText) {

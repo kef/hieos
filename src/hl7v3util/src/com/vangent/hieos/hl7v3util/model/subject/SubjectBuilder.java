@@ -58,7 +58,7 @@ public class SubjectBuilder extends BuilderHelper {
      * @param PRPA_IN201301UV02_Message
      * @return
      */
-    public Subject buildSubjectFromPRPA_IN201301UV02_Message(PRPA_IN201301UV02_Message message) throws ModelBuilderException {
+    public Subject buildSubject(PRPA_IN201301UV02_Message message) throws ModelBuilderException {
 
         // Get the patient.
         OMElement patientNode = null;
@@ -84,7 +84,7 @@ public class SubjectBuilder extends BuilderHelper {
      * @return
      * @throws ModelBuilderException
      */
-    public List<Subject> buildSubjectsFromPRPA_IN201306UV02_Message(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
+    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
 
         // Get the patient.
         List<OMElement> patientNodes = null;
@@ -104,7 +104,9 @@ public class SubjectBuilder extends BuilderHelper {
             subjects.add(subject);
         }
         //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-        return subjects;
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        subjectSearchResponse.setSubjects(subjects);
+        return subjectSearchResponse;
     }
 
     /**
@@ -113,6 +115,7 @@ public class SubjectBuilder extends BuilderHelper {
      * @return
      * @throws ModelBuilderException
      */
+    /*
     public List<Subject> buildSubjectsFromPRPA_IN201306UV02_MessageNEW(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
 
         // Get the patient.
@@ -142,7 +145,7 @@ public class SubjectBuilder extends BuilderHelper {
         }
         //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
         return subjects;
-    }
+    } */
 
     /**
      *

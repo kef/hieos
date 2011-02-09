@@ -58,7 +58,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
      * @param PRPA_IN201305UV02_Message
      * @return
      */
-    public SubjectSearchCriteria buildSubjectSearchCriteriaFromPRPA_IN201305UV02_Message(PRPA_IN201305UV02_Message message) throws ModelBuilderException {
+    public SubjectSearchCriteria buildSubjectSearchCriteria(PRPA_IN201305UV02_Message message) throws ModelBuilderException {
         OMElement parameterListNode;
         try {
             // Get ParameterList.
@@ -90,7 +90,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
      * @param PRPA_IN201309UV02_Message
      * @return
      */
-    public SubjectSearchCriteria buildSubjectSearchCriteriaFromPRPA_IN201309UV02_Message(PRPA_IN201309UV02_Message message) throws ModelBuilderException {
+    public SubjectSearchCriteria buildSubjectSearchCriteria(PRPA_IN201309UV02_Message message) throws ModelBuilderException {
         OMElement patientIdNode;
         try {
             // Get ParameterList.
