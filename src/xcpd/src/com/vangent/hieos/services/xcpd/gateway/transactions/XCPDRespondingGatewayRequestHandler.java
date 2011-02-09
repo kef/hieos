@@ -24,6 +24,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Custodian;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -90,7 +91,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // First convert the request.
             SubjectSearchCriteriaBuilder criteriaBuilder = new SubjectSearchCriteriaBuilder();
             SubjectSearchCriteria subjectSearchCriteria =
-                    criteriaBuilder.buildSubjectSearchCriteriaFromPRPA_IN201305UV02_Message(request);
+                    criteriaBuilder.buildSubjectSearchCriteria(request);
 
             this.performATNAAudit(request, subjectSearchCriteria, null /* endpoint */);
 
@@ -121,9 +122,10 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
             // Convert PDQ response.
             SubjectBuilder subjectBuilder = new SubjectBuilder();
-            List<Subject> subjects = subjectBuilder.buildSubjectsFromPRPA_IN201306UV02_Message(pdqResponse);
+            SubjectSearchResponse subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(pdqResponse);
 
             // Go through all subjects and add custodian
+            List<Subject> subjects = subjectSearchResponse.getSubjects();
             for (Subject subject : subjects) {
                 Custodian custodian = new Custodian();
                 String homeCommunityId = this.getGatewayConfig().getUniqueId();
@@ -134,7 +136,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             }
 
             // Now prepare the XCPD response.
-            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, subjects, null);
+            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, subjectSearchResponse, null);
         } catch (Exception ex) {
             log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
@@ -174,15 +176,16 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
     /**
      *
      * @param PRPA_IN201305UV02_Message
-     * @param subjects
+     * @param subjectSearchResponse
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, List<Subject> subjects, String errorText) {
+    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, 
+            SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder = new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201306UV02_MessageFromSubjects(request, subjects, errorText);
+        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
     }
 
     /**

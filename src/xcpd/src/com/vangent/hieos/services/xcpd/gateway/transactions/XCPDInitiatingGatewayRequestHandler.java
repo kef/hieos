@@ -30,6 +30,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -133,7 +134,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         String errorText = null;
         try {
             SubjectBuilder builder = new SubjectBuilder();
-            Subject subject = builder.buildSubjectFromPRPA_IN201301UV02_Message(request);
+            Subject subject = builder.buildSubject(request);
             if (subject.getSubjectIdentifiers().size() == 0) {
                 errorText = "1 subject identifier must be specified";
             } else if (subject.getSubjectIdentifiers().size() > 1) {
@@ -170,7 +171,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
         SubjectSearchCriteria subjectSearchCriteria;
         try {
-            subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPRPA_IN201305UV02_Message(request);
+            subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
             String communityPatientIdAssigningAuthority = this.getGatewayConfigProperty("CommunityPatientIdAssigningAuthority");
             subjectSearchCriteria.setCommunityPatientIdAssigningAuthority(communityPatientIdAssigningAuthority);
 
@@ -258,12 +259,13 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, List<Subject> subjects, String errorText) {
+    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, 
+            SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201306UV02_MessageFromSubjects(request, subjects, errorText);
+        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
     }
 
     /**
@@ -385,17 +387,21 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      */
     private PRPA_IN201306UV02_Message processResponses(PRPA_IN201305UV02_Message request, List<GatewayResponse> responses) {
-        List<Subject> subjects = new ArrayList<Subject>();
+        //List<Subject> subjects = new ArrayList<Subject>();
 
-        // Go through reach response.
+        // Get ready to aggregate all responses.
+        SubjectSearchResponse aggregatedSubjectSearchResponse = new SubjectSearchResponse();
+        List<Subject> aggregatedSubjects = aggregatedSubjectSearchResponse.getSubjects();
+
+        // Go through each response.
         for (GatewayResponse gatewayResponse : responses) {
-            List<Subject> gatewayResponseSubjects = this.processResponse(gatewayResponse);
-            if (gatewayResponseSubjects.size() > 0) {
-                subjects.addAll(gatewayResponseSubjects);
+            SubjectSearchResponse subjectSearchResponse = this.processResponse(gatewayResponse);
+            List<Subject> subjects = subjectSearchResponse.getSubjects();
+            if (subjects.size() > 0) {
+                aggregatedSubjects.addAll(subjects);
             }
         }
-
-        PRPA_IN201306UV02_Message aggregatedResponse = this.getCrossGatewayPatientDiscoveryResponse(request, subjects, null /* erroText */);
+        PRPA_IN201306UV02_Message aggregatedResponse = this.getCrossGatewayPatientDiscoveryResponse(request, aggregatedSubjectSearchResponse, null /* errorText */);
         return aggregatedResponse;
     }
 
@@ -403,8 +409,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * 
      * @param gatewayResponse
      */
-    private List<Subject> processResponse(GatewayResponse gatewayResponse) {
-        List<Subject> subjects = new ArrayList<Subject>();
+    private SubjectSearchResponse processResponse(GatewayResponse gatewayResponse) {
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        //List<Subject> subjects = new ArrayList<Subject>();
         PRPA_IN201306UV02_Message cgpdResponse = gatewayResponse.getResponse();
         try {
             this.validateHL7V3Message(cgpdResponse);
@@ -412,16 +419,16 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // TBD ...
             log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
             logger.error("CGPD Response did not validate against XML schema: " + ex.getMessage());
-            return subjects;
+            return subjectSearchResponse;
         }
         try {
             SubjectBuilder subjectBuilder = new SubjectBuilder();
-            subjects = subjectBuilder.buildSubjectsFromPRPA_IN201306UV02_Message(cgpdResponse);
+            subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(cgpdResponse);
 
         } catch (ModelBuilderException ex) {
             // TBD ....
         }
-        return subjects;
+        return subjectSearchResponse;
     }
 
     /**
