@@ -47,12 +47,12 @@ public class XConfig {
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private String _configURL = "http://localhost:8080/xref/config/xconfig.xml";
     static private XConfig _instance = null;  // Singleton instance.
+    static private String _configLocation = null;  // Location of xconfig.xml file
     // Internal data structure starts here.
     private List<XConfigObject> objects = new ArrayList<XConfigObject>();
     private HashMap<String, XConfigObject> objectByNameMap = new HashMap<String, XConfigObject>();
     private HashMap<String, XConfigObject> objectByIdMap = new HashMap<String, XConfigObject>();
     private List<XConfigObject> assigningAuthorities = new ArrayList<XConfigObject>();
-
     // Kept as strings versus enum to allow extension without XConfig code modification.
     static final public String HOME_COMMUNITY_TYPE = "HomeCommunityType";
     static final public String XDSB_DOCUMENT_REGISTRY_TYPE = "DocumentRegistryType";
@@ -64,6 +64,14 @@ public class XConfig {
     static final public String PDS_TYPE = "PDSType";
     static final public String PIX_MANAGER_TYPE = "PIXManagerType";
     static final public String XDR_DOCUMENT_RECIPIENT_TYPE = "DocumentRecipientType";
+
+    /**
+     * 
+     * @param configLocation
+     */
+    static public synchronized void setConfigLocation(String configLocation) {
+        _configLocation = configLocation;
+    }
 
     /**
      * Returns Singleton instance of XConfig.
@@ -314,9 +322,11 @@ public class XConfig {
      * Retrieves XML configuration file, parses and places into an easily accessible data structure.
      */
     private void loadConfiguration() throws XConfigException {
-
-        // First see if a system property is set.
-        String configLocation = System.getProperty("com.vangent.hieos.xconfig");
+        String configLocation = _configLocation;  // May be set.
+        if (configLocation == null) {
+            // See if a system property is set.
+            configLocation = System.getProperty("com.vangent.hieos.xconfig");
+        }
         if (configLocation == null) {
             // Look in environment variable next.
             configLocation = System.getenv("HIEOSxConfigFile");
