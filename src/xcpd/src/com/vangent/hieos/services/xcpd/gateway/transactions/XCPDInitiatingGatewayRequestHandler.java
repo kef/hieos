@@ -25,6 +25,9 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -81,6 +84,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             case CrossGatewayPatientDiscovery:
                 result = this.processCrossGatewayPatientDiscovery(new PRPA_IN201305UV02_Message(request));
                 break;
+            case PatientRegistryGetIdentifiersQuery:
+                result = this.processPatientRegistryGetIdentifiersQuery(new PRPA_IN201309UV02_Message(request));
+                break;
             case PatientRegistryRecordAdded:
                 result = this.processPatientRegistryRecordAdded(new PRPA_IN201301UV02_Message(request));
                 break;
@@ -103,13 +109,14 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         String errorText = null;
         try {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
-            this.validateRequest(subjectSearchCriteria);
+            this.validateCGPDRequest(subjectSearchCriteria);
 
             // TBD: Should we see if we know about this patient first?
             //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
 
             // TBD: Supplement subjectSearchCriteria with this gateway's specifics.
-            result = this.performCrossGatewayPatientDiscovery(request, subjectSearchCriteria);
+            SubjectSearchResponse subjectSearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
+            result = this.getCrossGatewayPatientDiscoveryResponse(request, subjectSearchResponse, null);
 
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
@@ -118,6 +125,75 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         }
         if (errorText != null) {
             result = this.getCrossGatewayPatientDiscoveryResponse(request, null /* subjects */, errorText);
+        }
+        this.validateHL7V3Message(result);
+        return result;
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     * @throws AxisFault
+     */
+    private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws AxisFault {
+        this.validateHL7V3Message(request);
+        PRPA_IN201310UV02_Message result = null;
+        String errorText = null;
+
+        try {
+            // Get SubjectSearchCriteria instance from PIX Query.
+            SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
+
+            // Validate that PIX Query has what is required.
+            this.validatePIXQueryRequest(subjectSearchCriteria);
+
+            // Now issue a PDQ to PDS for the given patient id.
+            DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+            SubjectSearchResponse pdqSubjectSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
+
+            // See if we only have one match (from PDS) for the patient.
+            List<Subject> subjects = pdqSubjectSearchResponse.getSubjects();
+            if (subjects.size() != 1) {
+                // FIXME: Send a negative response.
+            } else {
+                // Get the first subject from the list.
+                Subject subject = subjects.get(0);
+
+                // Get ready to send CGPD request.
+                SubjectSearchCriteria cgpdSubjectSearchCriteria = new SubjectSearchCriteria();
+                cgpdSubjectSearchCriteria.setSubject(subject);
+
+          // FIXME: Should strip out all ids except for the one that matches the
+          // communityAssigningAuthority
+                SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
+                cgpdSubjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+
+                // Fan out CGPD requests.
+                SubjectSearchResponse cgpdSubjectSearchResponse = this.performCrossGatewayPatientDiscovery(cgpdSubjectSearchCriteria);
+
+                // TBD:
+                // Now need to look at matches, and make sure they would match our patient
+                // using PDQ ...
+                // For matches, need to add HCID for remote communities
+
+                result = this.getCrossGatewayPatientDiscoveryResponse(request, cgpdSubjectSearchResponse, null);
+            }
+            // Check to see if we match on this patient.
+
+            // TBD: Should we see if we know about this patient first?
+            //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
+
+            // TBD: Supplement subjectSearchCriteria with this gateway's specifics.
+            //result = this.performCrossGatewayPatientDiscovery(request, subjectSearchCriteria);
+
+        } catch (XCPDException ex) {
+            errorText = ex.getMessage();
+            log_message.setPass(false);
+            log_message.addErrorParam("EXCEPTION", errorText);
+        }
+        if (errorText != null) {
+            result = this.getCrossGatewayPatientDiscoveryResponse(request, null, errorText);
         }
         this.validateHL7V3Message(result);
         return result;
@@ -172,9 +248,30 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         SubjectSearchCriteria subjectSearchCriteria;
         try {
             subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
-            String communityPatientIdAssigningAuthority = this.getGatewayConfigProperty("CommunityPatientIdAssigningAuthority");
-            subjectSearchCriteria.setCommunityPatientIdAssigningAuthority(communityPatientIdAssigningAuthority);
+            SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
+            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
 
+        } catch (ModelBuilderException ex) {
+            throw new XCPDException(ex.getMessage());
+        }
+        return subjectSearchCriteria;
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     * @throws XCPDException
+     */
+    private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201309UV02_Message request) throws XCPDException {
+        // First build search criteria from inbound request.
+        SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
+        SubjectSearchCriteria subjectSearchCriteria;
+        try {
+            subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
+            SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
+            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+            subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
         } catch (ModelBuilderException ex) {
             throw new XCPDException(ex.getMessage());
         }
@@ -186,28 +283,28 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param subjectSearchCriteria
      * @throws XCPDException
      */
-    private void validateRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
-        String communityPatientIdAssigningAuthority = subjectSearchCriteria.getCommunityPatientIdAssigningAuthority();
+    private void validateCGPDRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
+        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
 
         // Validate request:
         Subject subject = subjectSearchCriteria.getSubject();
 
         // Make sure that at least one subject identifier is for the
-        // designated "CommunityPatientIdAssigningAuthority"
-        boolean foundCommunityPatientIdAssigningAuthority = false;
+        // designated "CommunityAssigningAuthority"
+        boolean foundCommunityAssigningAuthority = false;
         for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
             SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-            if (subjectIdentifierDomain.getUniversalId().equals(communityPatientIdAssigningAuthority)) {
-                foundCommunityPatientIdAssigningAuthority = true;
+            if (subjectIdentifierDomain.getUniversalId().equals(communityAssigningAuthority.getUniversalId())) {
+                foundCommunityAssigningAuthority = true;
                 break;
             }
         }
 
-        if (foundCommunityPatientIdAssigningAuthority == false) {
+        if (foundCommunityAssigningAuthority == false) {
             // Did not find an appropriate patient on the request.
             throw new XCPDException(
                     "You must specify at least one LivingSubjectId for the " +
-                    communityPatientIdAssigningAuthority + " assigning authority");
+                    communityAssigningAuthority + " assigning authority");
         }
 
         // Check required fields (Subject + BirthTime).
@@ -221,12 +318,50 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
+     *
+     * @param subjectSearchCriteria
+     * @throws XCPDException
+     */
+    private void validatePIXQueryRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
+        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
+
+        // Validate request:
+        Subject subject = subjectSearchCriteria.getSubject();
+
+        // Make sure we have an identifier.
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        if (subjectIdentifiers == null) {
+            throw new XCPDException(
+                    "You must specify one LivingSubjectId for the " +
+                    communityAssigningAuthority + " assigning authority");
+        }
+
+        // Make sure we only have one identifier.
+        if (subjectIdentifiers.size() > 1) {
+            throw new XCPDException(
+                    "You must specify only one LivingSubjectId for the " +
+                    communityAssigningAuthority + " assigning authority");
+        }
+
+        // Make sure that the specified subject identifier is for the
+        // designated "CommunityAssigningAuthority"
+        SubjectIdentifier subjectIdentifier = subject.getSubjectIdentifiers().get(0);
+        SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+        if (!subjectIdentifierDomain.getUniversalId().equals(communityAssigningAuthority.getUniversalId())) {
+            // Did not find an appropriate identifier on the request.
+            throw new XCPDException(
+                    "You must specify one LivingSubjectId for the " +
+                    communityAssigningAuthority + " assigning authority");
+        }
+    }
+
+    /**
      * 
      * @param request
      * @param subjectSearchCriteria
      * @return
      */
-    private PRPA_IN201306UV02_Message performCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request, SubjectSearchCriteria subjectSearchCriteria) {
+    private SubjectSearchResponse performCrossGatewayPatientDiscovery(SubjectSearchCriteria subjectSearchCriteria) {
         // Prepare gateway requests.
         List<GatewayRequest> gatewayRequests = this.getGatewayRequests(subjectSearchCriteria);
 
@@ -234,8 +369,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         List<GatewayResponse> gatewayResponses = this.sendGatewayRequests(gatewayRequests);
 
         // Process responses.
-        PRPA_IN201306UV02_Message result = this.processResponses(request, gatewayResponses);
-        return result;
+        return this.processResponses(gatewayResponses);
     }
 
     /**
@@ -259,13 +393,28 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, 
+    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
+    }
+
+    /**
+     *
+     * @param PRPA_IN201305UV02_Message
+     * @param subjects
+     * @param errorText
+     * @return
+     */
+    private PRPA_IN201310UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201309UV02_Message request,
+            SubjectSearchResponse subjectSearchResponse, String errorText) {
+        DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+        DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
+        PRPA_IN201310UV02_Message_Builder builder = new PRPA_IN201310UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
+        return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorText);
     }
 
     /**
@@ -290,12 +439,11 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             DeviceInfo receiverDeviceInfo = this.getReceiverDeviceInfo(rgConfig);
             // See if the target RespondingGateway can handle receipt of our community's
             // patientid as a LivingSubjectId parameter.
-            boolean sendCommunityPatientId = rgConfig.getPropertyAsBoolean("SendCommunityPatientId", true);
+            // boolean sendCommunityPatientId = rgConfig.getPropertyAsBoolean("SendCommunityPatientId", true);
 
             PRPA_IN201305UV02_Message_Builder builder =
                     new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-            PRPA_IN201305UV02_Message cgpdRequest = builder.getPRPA_IN201305UV02_Message(
-                    subjectSearchCriteria, sendCommunityPatientId);
+            PRPA_IN201305UV02_Message cgpdRequest = builder.getPRPA_IN201305UV02_Message(subjectSearchCriteria);
 
             gatewayRequest.setRequest(cgpdRequest);
             requests.add(gatewayRequest);
@@ -386,7 +534,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param responses
      * @return
      */
-    private PRPA_IN201306UV02_Message processResponses(PRPA_IN201305UV02_Message request, List<GatewayResponse> responses) {
+    private SubjectSearchResponse processResponses(List<GatewayResponse> responses) {
         //List<Subject> subjects = new ArrayList<Subject>();
 
         // Get ready to aggregate all responses.
@@ -401,8 +549,11 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 aggregatedSubjects.addAll(subjects);
             }
         }
-        PRPA_IN201306UV02_Message aggregatedResponse = this.getCrossGatewayPatientDiscoveryResponse(request, aggregatedSubjectSearchResponse, null /* errorText */);
-        return aggregatedResponse;
+        return aggregatedSubjectSearchResponse;
+
+        /*
+        PRPA_IN201306UV02_Message aggregatedResponse = this.getCrossGatewayPatientDiscoveryResponse(request, aggregatedSubjectSearchResponse, null);
+        return aggregatedResponse;*/
     }
 
     /**
@@ -478,6 +629,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      * @throws AxisFault
      */
+    // FIXME: NOT USED
     private synchronized XConfigActor getPIXConfig() throws AxisFault {
         if (_pixConfig != null) {
             return _pixConfig;
@@ -487,7 +639,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         // Now get the "PDS" object (and cache it away).
         _pixConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
         return _pixConfig;
-
     }
 
     /**
@@ -651,10 +802,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 gatewayResponse.setRequest(this.request);
                 gatewayResponse.setResponse(queryResponse);
             } catch (Exception ex) {
-                 logger.error("XCPD EXCEPTION ... continuing " + request.getVitals(), ex);
-                 log_message.addErrorParam("EXCEPTION " + request.getVitals(), ex.getMessage());
-                 // ***** Rethrow is needed otherwise Axis2 gets confused with Async.
-                 throw ex;  // Rethrow.
+                logger.error("XCPD EXCEPTION ... continuing " + request.getVitals(), ex);
+                log_message.addErrorParam("EXCEPTION " + request.getVitals(), ex.getMessage());
+                // ***** Rethrow is needed otherwise Axis2 gets confused with Async.
+                throw ex;  // Rethrow.
                 //java.util.logging.Logger.getLogger(XCPDInitiatingGatewayRequestHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
             return gatewayResponse;

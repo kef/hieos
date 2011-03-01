@@ -13,14 +13,18 @@
 package com.vangent.hieos.services.xcpd.gateway.transactions;
 
 import com.vangent.hieos.hl7v3util.client.PDSClient;
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
@@ -55,6 +59,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     public enum MessageType {
 
         CrossGatewayPatientDiscovery,
+        PatientRegistryGetIdentifiersQuery,
         PatientLocationQuery,
         PatientRegistryRecordAdded
     };
@@ -121,11 +126,57 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
 
     /**
      *
+     * @return
+     */
+    protected SubjectIdentifierDomain getCommunityAssigningAuthority() {
+        String communityAssigningAuthority = this.getGatewayConfigProperty("CommunityAssigningAuthority");
+        SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+        identifierDomain.setUniversalId(communityAssigningAuthority);
+        identifierDomain.setUniversalIdType("ISO");
+        return identifierDomain;
+    }
+
+    /**
+     *
+     * @param senderDeviceInfo
+     * @param subjectSearchCriteria
+     * @return
+     * @throws AxisFault
+     */
+    protected SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
+        DeviceInfo receiverDeviceInfo = new DeviceInfo();
+        receiverDeviceInfo.setId("TBD");  // FIXME (Receiver is PDS) ...
+
+        // Get builder for PDQ request.
+        PRPA_IN201305UV02_Message_Builder pdqQueryBuilder =
+                new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
+
+        // Build PDQ request.
+        PRPA_IN201305UV02_Message pdqQuery =
+                pdqQueryBuilder.getPRPA_IN201305UV02_Message(
+                subjectSearchCriteria);
+
+        // Issue PDQ request and return response.
+        PRPA_IN201306UV02_Message pdqResponse = this.findCandidatesQuery(pdqQuery);
+
+        // Convert PDQ response into SubjectSearchResponse.
+        SubjectBuilder subjectBuilder = new SubjectBuilder();
+        try {
+            SubjectSearchResponse subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(pdqResponse);
+            return subjectSearchResponse;
+        } catch (ModelBuilderException e) {
+            // Rethrow.
+            throw new AxisFault(e.getMessage());
+        }
+    }
+
+    /**
+     *
      * @param PRPA_IN201305UV02_Message
      * @return
      * @throws AxisFault
      */
-    protected PRPA_IN201306UV02_Message findCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
+    private PRPA_IN201306UV02_Message findCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
         XConfigActor pdsConfig = this.getPDSConfig();
         PDSClient pdsClient = new PDSClient(pdsConfig);
         PRPA_IN201306UV02_Message queryResponse = pdsClient.findCandidatesQuery(request);

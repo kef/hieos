@@ -56,6 +56,35 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         }
     }
 
+        /**
+     *
+     * @param PRPA_IN201309UV02_Message
+     * @return
+     */
+    public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
+          try {
+            OMElement startup_error = beginTransaction(
+                    this.getTransactionName("GetIdentifiers (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.REGISTRY);
+            if (startup_error != null) {
+                // TBD: FIXUP (XUA should be returning a SOAP fault!)
+                return startup_error;
+            }
+            validateWS();
+            validateNoMTOM();
+            XCPDInitiatingGatewayRequestHandler handler =
+                    new XCPDInitiatingGatewayRequestHandler(
+                    this.log_message,
+                    XCPDGatewayRequestHandler.GatewayType.InitiatingGateway);
+            OMElement result = handler.run(
+                    PRPA_IN201309UV02_Message,
+                    XCPDGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+            endTransaction(true);
+            return result;
+        } catch (Exception ex) {
+            throw getAxisFault(ex);
+        }
+    }
+
     /**
      *
      * @param PRPA_IN201301UV02_Message

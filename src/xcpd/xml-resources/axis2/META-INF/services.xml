@@ -9,6 +9,10 @@
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
         </operation>
+        <operation name="PatientRegistryGetIdentifiersQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201309UV02</actionMapping>
+        </operation>
         <operation name="PatientRegistryRecordAdded">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>

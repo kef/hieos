@@ -15,14 +15,14 @@ package com.vangent.hieos.services.xcpd.gateway.transactions;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
-import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message_Builder;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.Custodian;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
@@ -30,6 +30,7 @@ import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
@@ -98,34 +99,25 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Validate against XCPD rules.
             this.validateRequest(subjectSearchCriteria);
 
-            // Need to allow subjectIdentifier [e.g. reverse query]
-            // Clear out any subject identifiers in the request since this could
-            // cause problems with PDQ.
-            //Subject subject = subjectSearchCriteria.getSubject();
-            //if (subject.getSubjectIdentifiers().size() > 0)
-            //{
-            //    subject.setSubjectIdentifiers(new ArrayList<SubjectIdentifier>());
-            //}
-
             // Now, make PDQ query to MPI.
             DeviceInfo senderDeviceInfo = this.getDeviceInfo();
-            DeviceInfo receiverDeviceInfo = new DeviceInfo();
-            receiverDeviceInfo.setId("TBD");  // FIXME (Receiver is PDS) ...
-            PRPA_IN201305UV02_Message_Builder pdqQueryBuilder =
-                    new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-            PRPA_IN201305UV02_Message pdqQuery =
-                    pdqQueryBuilder.getPRPA_IN201305UV02_Message(
-                    subjectSearchCriteria, false);
-            PRPA_IN201306UV02_Message pdqResponse = this.findCandidatesQuery(pdqQuery);
 
-            // FIXME: Should really check for errors from PDQ ....
+            // To be safe, strip any identifiers that may be in the search request ...
+            Subject searchSubject = subjectSearchCriteria.getSubject();
+            if (searchSubject != null) {
+                searchSubject.setSubjectIdentifiers(new ArrayList<SubjectIdentifier>());
+            }
 
-            // Convert PDQ response.
-            SubjectBuilder subjectBuilder = new SubjectBuilder();
-            SubjectSearchResponse subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(pdqResponse);
+            // Make sure that only matches for the CommunityAssigningAuthority are returned.
+            SubjectIdentifierDomain identifierDomain = this.getCommunityAssigningAuthority();
+            subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);
+            subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+
+            // Issue PDQ to PDS.
+            SubjectSearchResponse pdqSubjectSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
 
             // Go through all subjects and add custodian
-            List<Subject> subjects = subjectSearchResponse.getSubjects();
+            List<Subject> subjects = pdqSubjectSearchResponse.getSubjects();
             for (Subject subject : subjects) {
                 Custodian custodian = new Custodian();
                 String homeCommunityId = this.getGatewayConfig().getUniqueId();
@@ -136,7 +128,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             }
 
             // Now prepare the XCPD response.
-            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, subjectSearchResponse, null);
+            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, pdqSubjectSearchResponse, null);
         } catch (Exception ex) {
             log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
@@ -180,7 +172,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request, 
+    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);

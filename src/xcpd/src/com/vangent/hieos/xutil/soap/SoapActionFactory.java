@@ -23,6 +23,8 @@ public class SoapActionFactory {
     public final static String XCPD_GATEWAY_PLQ_ACTION_RESPONSE = "urn:ihe:iti:2009:PatientLocationQueryResponse";
     public final static String XCPD_GATEWAY_PIXV3PIDFEED_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
     public final static String XCPD_GATEWAY_PIXV3PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    public final static String XCPD_GATEWAY_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
+    public final static String XCPD_GATEWAY_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
     private static final Map<String, String> actions =
             new HashMap<String, String>() {
 
@@ -30,6 +32,7 @@ public class SoapActionFactory {
                     put(XCPD_GATEWAY_CGPD_ACTION, XCPD_GATEWAY_CGPD_ACTION_RESPONSE);
                     put(XCPD_GATEWAY_PLQ_ACTION, XCPD_GATEWAY_PLQ_ACTION_RESPONSE);
                     put(XCPD_GATEWAY_PIXV3PIDFEED_ACTION, XCPD_GATEWAY_PIXV3PIDFEED_ACTION_RESPONSE);
+                    put(XCPD_GATEWAY_PIXV3QUERY_ACTION, XCPD_GATEWAY_PIXV3QUERY_ACTION_RESPONSE);
                 }
             };
 
