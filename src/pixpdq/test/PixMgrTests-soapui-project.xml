@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="PIXMgrTests" resourceRoot="" soapui-version="3.5.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="pixmgrSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.pixpdq.services.hieos.vangent.com}pixmgrSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8091/axis2/services/pixmgr?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8091/axis2/services/pixmgr?wsdl"><con:part><con:url>http://localhost:8091/axis2/services/pixmgr?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsdl:documentation>pixmgr</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+      <xs:element name="PatientRegistryRecordAdded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="PatientRegistryRecordAdded" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientRegistryRecordAddedResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientRegistryGetIdentifiersQuery">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="PatientRegistryGetIdentifiersQuery" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PatientRegistryGetIdentifiersQueryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="PatientRegistryGetIdentifiersQueryRequest">
+    <wsdl:part name="parameters" element="ns:PatientRegistryGetIdentifiersQuery"/>
+  </wsdl:message>
+  <wsdl:message name="PatientRegistryGetIdentifiersQueryResponse">
+    <wsdl:part name="parameters" element="ns:PatientRegistryGetIdentifiersQueryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="PatientRegistryRecordAddedRequest">
+    <wsdl:part name="parameters" element="ns:PatientRegistryRecordAdded"/>
+  </wsdl:message>
+  <wsdl:message name="PatientRegistryRecordAddedResponse">
+    <wsdl:part name="parameters" element="ns:PatientRegistryRecordAddedResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="pixmgrPortType">
+    <wsdl:operation name="PatientRegistryGetIdentifiersQuery">
+      <wsdl:input message="ns:PatientRegistryGetIdentifiersQueryRequest" wsaw:Action="urn:PatientRegistryGetIdentifiersQuery"/>
+      <wsdl:output message="ns:PatientRegistryGetIdentifiersQueryResponse" wsaw:Action="urn:PatientRegistryGetIdentifiersQueryResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="PatientRegistryRecordAdded">
+      <wsdl:input message="ns:PatientRegistryRecordAddedRequest" wsaw:Action="urn:PatientRegistryRecordAdded"/>
+      <wsdl:output message="ns:PatientRegistryRecordAddedResponse" wsaw:Action="urn:PatientRegistryRecordAddedResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="pixmgrSoap11Binding" type="ns:pixmgrPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientRegistryGetIdentifiersQuery">
+      <soap:operation soapAction="urn:PatientRegistryGetIdentifiersQuery" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PatientRegistryRecordAdded">
+      <soap:operation soapAction="urn:PatientRegistryRecordAdded" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="pixmgrSoap12Binding" type="ns:pixmgrPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="PatientRegistryGetIdentifiersQuery">
+      <soap12:operation soapAction="urn:PatientRegistryGetIdentifiersQuery" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PatientRegistryRecordAdded">
+      <soap12:operation soapAction="urn:PatientRegistryRecordAdded" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="pixmgrHttpBinding" type="ns:pixmgrPortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="PatientRegistryGetIdentifiersQuery">
+      <http:operation location="pixmgr/PatientRegistryGetIdentifiersQuery"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="PatientRegistryGetIdentifiersQuery"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="PatientRegistryGetIdentifiersQuery"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PatientRegistryRecordAdded">
+      <http:operation location="pixmgr/PatientRegistryRecordAdded"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="PatientRegistryRecordAdded"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="PatientRegistryRecordAdded"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="pixmgr">
+    <wsdl:port name="pixmgrHttpsSoap11Endpoint" binding="ns:pixmgrSoap11Binding">
+      <soap:address location="https://PGS6NY0MJ1LA:8443/axis2/services/pixmgr.pixmgrHttpsSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="pixmgrHttpSoap11Endpoint" binding="ns:pixmgrSoap11Binding">
+      <soap:address location="http://PGS6NY0MJ1LA:8091/axis2/services/pixmgr.pixmgrHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="pixmgrHttpsSoap12Endpoint" binding="ns:pixmgrSoap12Binding">
+      <soap12:address location="https://PGS6NY0MJ1LA:8443/axis2/services/pixmgr.pixmgrHttpsSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="pixmgrHttpSoap12Endpoint" binding="ns:pixmgrSoap12Binding">
+      <soap12:address location="http://PGS6NY0MJ1LA:8091/axis2/services/pixmgr.pixmgrHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="pixmgrHttpEndpoint" binding="ns:pixmgrHttpBinding">
+      <http:address location="http://PGS6NY0MJ1LA:8091/axis2/services/pixmgr.pixmgrHttpEndpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="pixmgrHttpsEndpoint" binding="ns:pixmgrHttpBinding">
+      <http:address location="https://PGS6NY0MJ1LA:8443/axis2/services/pixmgr.pixmgrHttpsEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8126/axis2/services/pixmgr</con:endpoint><con:endpoint>http://PGS6NY0MJ1LA:8091/axis2/services/pixmgr.pixmgrHttpSoap12Endpoint/</con:endpoint><con:endpoint>http://localhost:8091/axis2/services/xdsregistryb</con:endpoint><con:endpoint>http://178.188.229.38:8081/HL7V3/PIXManager</con:endpoint><con:endpoint>http://198.160.211.53:8080/openpixpdq/services/PIXManager</con:endpoint><con:endpoint>http://204.246.139.204:2001/pix</con:endpoint><con:endpoint>http://24.205.75.156:8080/PIXManager_Service/PIXManager</con:endpoint><con:endpoint>http://dev-is.axolotl.com/pixv3manager-himss/services/PIXManager_Service</con:endpoint><con:endpoint>http://67.202.46.146:8080/PIXManager_Service/MatchMetrixMpiPixWS</con:endpoint><con:endpoint>http://eightfingers89.dyndns-web.com:9158/</con:endpoint><con:endpoint>http://icwconnectathon.dyndns.org:8484/msb/ws/iti45Service</con:endpoint><con:endpoint>http://70.114.204.223:8080/Initiate-IHE/services/PIXManager</con:endpoint><con:endpoint>http://gsiconnect.gsihealth.com:8080/PIXManager_Service/PIXManagerService</con:endpoint><con:endpoint>http:/129.6.24.143:9090</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:PatientRegistryGetIdentifiersQuery" name="PatientRegistryGetIdentifiersQuery" bindingOperationName="PatientRegistryGetIdentifiersQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8126/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201309UV02 ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
+         <id root="2220c1c4-87ef-11dc-b865-3603d6866807"/>
+         <creationTime value="20070810140900"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201309UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="T"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PIXQuery"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99997.2.7788"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <code code="PRPA_TE201309UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <authorOrPerformer typeCode="AUT">
+               <assignedPerson classCode="ASSIGNED">
+                  <id root="1.2.840.114350.1.13.99997.2.7766" extension="USR5568"/>
+               </assignedPerson>
+            </authorOrPerformer>
+            <queryByParameter>
+               <queryId root="1.2.840.114350.1.13.99999.4567.34" extension="33452"/>
+               <statusCode code="new"/>
+               <responsePriorityCode code="I"/>
+               <parameterList>
+                  <patientIdentifier>
+		     <!--<value root="1.3.6.1.4.1.21367.3000.1.6" extension="GREEN_LOCAL_05"/>-->
+                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_100"/>
+                     <semanticsText>Patient.Id</semanticsText>
+                  </patientIdentifier>
+               </parameterList>
+            </queryByParameter>
+         </controlActProcess>
+      </PRPA_IN201309UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201309UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordAdded" name="PatientRegistryRecordAdded" bindingOperationName="PatientRegistryRecordAdded" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8126/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <PRPA_IN201301UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
+         <id root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
+         <creationTime value="20070803130624"/>
+         <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201301UV02"/>
+         <processingCode code="P"/>
+         <processingModeCode code="R"/>
+         <acceptAckCode code="AL"/>
+         <receiver typeCode="RCV">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <telecom value="https://example.org/PatientFeed"/>
+            </device>
+         </receiver>
+         <sender typeCode="SND">
+            <device classCode="DEV" determinerCode="INSTANCE">
+               <id root="1.2.840.114350.1.13.99998.8734"/>
+	       <name>FOOBAR</name>
+	       <telecom value="https://www.foo.com"/>
+            </device>
+         </sender>
+         <controlActProcess classCode="CACT" moodCode="EVN">
+            <subject typeCode="SUBJ">
+               <registrationEvent classCode="REG" moodCode="EVN">
+                  <id nullFlavor="NA"/>
+                  <statusCode code="active"/>
+                  <subject1 typeCode="SBJ">
+                     <patient classCode="PAT">
+                        <id root="1.3.6.1.4.1.21367.13.20.2000" extension="TESTME2000_100"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                           <name>
+                              <given>Jake</given>
+                              <!--<given>Henry</given>-->
+                              <family>Smith</family>
+                           </name>
+                           <administrativeGenderCode code="M"/>
+                           <birthTime value="19640610"/>
+                           <addr>
+                              <streetAddressLine>321 RIVER ROAD</streetAddressLine>
+                              <city>CLEVELAND</city>
+                              <state>OH</state>
+			      <postalCode>44102</postalCode>
+                           </addr>
+                           <!--<asOtherIDs classCode="PAT">
+                              <id root="1.3.6.1.4.1.21367.3000.1.6" extension="GREEN_LOCAL_0003"/>
+                              <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <id root="1.3.6.1.4.1.21367.3000.1.6"/>
+                              </scopingOrganization>
+                           </asOtherIDs>-->
+                        </patientPerson>
+                        <providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <id root="1.2.840.114350.1.13.99998.8734"/>
+                           <name>Good Health Clinic</name>
+                           <contactParty classCode="CON">
+                              <telecom value="tel:+1-342-555-8394"/>
+                           </contactParty>
+                        </providerOrganization>
+                     </patient>
+                  </subject1>
+                  <custodian typeCode="CST">
+                     <assignedEntity classCode="ASSIGNED">
+                        <id root="1.2.840.114350.1.13.99998.8734"/>
+                        <assignedOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                     </assignedEntity>
+                  </custodian>
+               </registrationEvent>
+            </subject>
+         </controlActProcess>
+      </PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 2 (NIST)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8126/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id extension="JW-824-v3z" assigningAuthorityName="NIST2010" root="2.16.840.1.113883.3.72.5.9.1"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>WILMA</urn:given>
+                              <urn:family>JOYNER</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:610-220-4354"/>
+                           <urn:administrativeGenderCode code="F"/>
+                           <urn:birthTime value="19640610"/>
+                           <urn:addr>
+                              <urn:streetAddressLine>1710 Tree Top Lane</urn:streetAddressLine>
+                              <urn:city>PLYMOUTH MEETING</urn:city>
+                              <urn:state>PA</urn:state>
+                              <urn:postalCode>19462</urn:postalCode>
+                           </urn:addr>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="197-18-9761"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:family>PALMER</urn:family>
+                                 </urn:name>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 3 (NIST)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8126/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id extension="JW26957-v3" assigningAuthorityName="NIST2010-2" root="2.16.840.1.113883.3.72.5.9.2"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>WILMA</urn:given>
+                              <urn:family>JOYNER</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:610-220-4354"/>
+                           <urn:administrativeGenderCode code="F"/>
+                           <urn:birthTime value="19350102"/>
+                           <urn:addr>
+                              <urn:streetAddressLine>1710 Tree Top Lane</urn:streetAddressLine>
+                              <urn:city>PLYMOUTH MEETING</urn:city>
+                              <urn:state>PA</urn:state>
+                              <urn:postalCode>19462</urn:postalCode>
+                           </urn:addr>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="197-18-9761"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:family>PALMER</urn:family>
+                                 </urn:name>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
