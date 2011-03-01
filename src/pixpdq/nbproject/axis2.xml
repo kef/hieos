@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axis2 xmlns="http://www.netbeans.org/ns/axis2/1">
+    <service name="pixmgr">
+        <service-class>com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager</service-class>
+    </service>
+    <service name="pds">
+        <service-class>com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier</service-class>
+    </service>
+</axis2>
+

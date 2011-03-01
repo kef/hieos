@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:axis2="http://www.netbeans.org/ns/axis2/1" xmlns:xalan="http://xml.apache.org/xslt" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3">
+    <!--
+                ===================
+                JAX-WS WSIMPORT SECTION
+                ===================
+            -->
+    <target name="axis2-aar" depends="compile">
+        <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
+        <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="true">
+            <resources>
+                <file file="${file.reference.xutil.jar}"/>
+                <file file="${file.reference.hl7v3util.jar}"/>
+                <file file="${file.reference.openempi-core-2.1.0.jar}"/>
+                <file file="${file.reference.spring-aop-2.5.4.jar}"/>
+                <file file="${file.reference.spring-aspects-2.5.4.jar}"/>
+                <file file="${file.reference.spring-beans-2.5.4.jar}"/>
+                <file file="${file.reference.spring-context-2.5.4.jar}"/>
+                <file file="${file.reference.spring-context-support-2.5.4.jar}"/>
+                <file file="${file.reference.spring-core-2.5.4.jar}"/>
+                <file file="${file.reference.spring-jdbc-2.5.4.jar}"/>
+                <file file="${file.reference.spring-orm-2.5.4.jar}"/>
+                <file file="${file.reference.spring-security-core-2.0.1.jar}"/>
+                <file file="${file.reference.spring-security-core-tiger-2.0.1.jar}"/>
+                <file file="${file.reference.spring-tx-2.5.4.jar}"/>
+                <file file="${file.reference.spring-web-2.5.4.jar}"/>
+                <file file="${file.reference.spring-webmvc-2.5.4.jar}"/>
+                <file file="${file.reference.aspectjweaver-1.6.0.jar}"/>
+                <file file="${file.reference.aspectjrt-1.6.0.jar}"/>
+                <file file="${file.reference.aopalliance-1.0.jar}"/>
+                <file file="${file.reference.commons-dbcp-1.2.1.jar}"/>
+                <file file="${file.reference.hibernate-3.2.6.ga.jar}"/>
+                <file file="${file.reference.hibernate-annotations-3.3.0.ga.jar}"/>
+                <file file="${file.reference.hibernate-commons-annotations-3.3.0.ga.jar}"/>
+                <file file="${file.reference.hibernate-search-3.0.0.GA.jar}"/>
+                <file file="${file.reference.hibernate-validator-3.0.0.ga.jar}"/>
+                <file file="${file.reference.commons-pool-1.2.jar}"/>
+                <file file="${file.reference.commons-collections-3.2.jar}"/>
+                <file file="${file.reference.ehcache-1.4.1.jar}"/>
+                <file file="${file.reference.lucene-core-2.2.0.jar}"/>
+                <file file="${file.reference.cglib-2.1_3.jar}"/>
+                <file file="${file.reference.commons-lang-2.3.jar}"/>
+                <file file="${file.reference.simmetrics-1.6.2.jar}"/>
+                <file file="${file.reference.commons-beanutils-1.8.0.jar}"/>
+                <file file="${file.reference.uuid-3.1.jar}"/>
+            </resources>
+        </copy>
+        <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
+            <fileset excludes="**/Test.class" dir="${build.dir}/classes"/>
+            <fileset dir="${basedir}/xml-resources/axis2">
+                <include name="**/*.wsdl"/>
+                <include name="**/*.xsd"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.jar"/>
+            </fileset>
+        </jar>
+    </target>
+    <target name="axis2-deploy-dir-check" depends="axis2-aar">
+        <condition property="axis2-deploy-dir-required">
+            <isset property="axis2.deploy.dir"/>
+        </condition>
+    </target>
+    <target name="axis2-deploy-dir" depends="axis2-deploy-dir-check" if="axis2-deploy-dir-required">
+        <copy toDir="${axis2.deploy.dir}/WEB-INF/services">
+            <fileset dir="${build.dir}/axis2/WEB-INF/services">
+                <include name="*.aar"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="axis2-deploy-war-check" depends="axis2-aar">
+        <condition property="axis2-deploy-war-required">
+            <isset property="axis2.deploy.war"/>
+        </condition>
+    </target>
+    <target name="axis2-deploy-war" depends="axis2-deploy-war-check" if="axis2-deploy-war-required">
+        <jar destfile="${axis2.deploy.war}" update="true">
+            <fileset dir="${build.dir}/axis2">
+                <include name="**/*.aar"/>
+            </fileset>
+        </jar>
+    </target>
+    <target name="axis2-deploy" depends="axis2-deploy-dir, axis2-deploy-war"/>
+</project>
