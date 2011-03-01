@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <!-- Spring Initialization Service -->
+    <service name="SpringInitService" class="com.vangent.hieos.services.pixpdq.serviceimpl.SpringInitService">
+        <description>
+         Spring initialization service.
+        </description>
+    <!-- need the TCCL param when using spring inside the AAR -->
+        <parameter name="ServiceTCCL">composite</parameter>
+        <!--<parameter name="ServiceObjectSupplier">org.apache.axis2.extensions.spring.receivers.SpringAppContextAwareObjectSupplier</parameter>
+        <parameter name="SpringBeanName">springAwareService</parameter>-->
+        <operation name="getValue">
+            <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+        </operation>
+    </service>
+
+    <!-- Patient Identifier Cross Reference Manager Actor -->
+    <service name="pixmgr" class="com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager">
+        <description>Patient Identifier Cross Reference Manager Interface</description>
+        <parameter name="ServiceTCCL">composite</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager</parameter>
+        <parameter name="ActorName">PatientIdentifierCrossReferenceManager</parameter>
+        <operation name="PatientRegistryGetIdentifiersQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201309UV02</actionMapping>
+        </operation>
+        <operation name="PatientRegistryRecordAdded">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
+        </operation>
+    </service>
+
+    <!-- Patient Demographics Supplier Actor -->
+    <service name="pds" class="com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier">
+        <description>Patient Demographics Supplier Interface</description>
+        <parameter name="ServiceTCCL">composite</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier</parameter>
+        <parameter name="ActorName">PatientDemographicsSupplier</parameter>
+        <operation name="PatientRegistryFindCandidatesQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02</actionMapping>
+        </operation>
+    </service>
+
+</serviceGroup>
