@@ -408,7 +408,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
             } else {
                 // Use default value...
-                this.addCustodianId(assignedEntityNode, this.getReceiverDeviceInfo().getId());
+                this.addCustodianId(assignedEntityNode, this.getSenderDeviceInfo().getId());
             }
             // Deal with health data locator option.
             String healthDataLocatorCodeValue = "NotHealthDataLocator";
@@ -419,7 +419,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
             this.setAttribute(codeNode, "codeSystem", "1.3.6.1.4.1.19376.1.2.27.2");
         } else {
             // Use default value ...
-            this.addCustodianId(assignedEntityNode, this.getReceiverDeviceInfo().getId());
+            this.addCustodianId(assignedEntityNode, this.getSenderDeviceInfo().getId());
         }
     }
 

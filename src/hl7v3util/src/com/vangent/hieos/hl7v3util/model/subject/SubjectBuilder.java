@@ -34,10 +34,10 @@ import org.apache.log4j.Logger;
 public class SubjectBuilder extends BuilderHelper {
 
     private final static Logger logger = Logger.getLogger(SubjectBuilder.class);
-    private final static String XPATH_PATIENT =
+    private final static String XPATH_PATIENT_ADD =
             "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
-    private final static String XPATH_PATIENTS =
-            "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient";
+    //private final static String XPATH_PATIENTS =
+    //        "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient";
     private final static String XPATH_PATIENT_ADDRESSES =
             "./ns:patientPerson/ns:addr";
     private final static String XPATH_PATIENT_NAMES =
@@ -48,10 +48,12 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:patientPerson/ns:birthTime[1]";
     private final static String XPATH_PATIENT_AS_OTHER_IDS =
             "./ns:patientPerson/ns:asOtherIDs";
-    private final static String XPATH_PATIENT_REGISTRATION_EVENTS =
-            "./ns:controlActProcess/ns:subject/ns:registrationEvent";
-    private final static String XPATH_PATIENT_REGISTRATION_PATIENT =
-            "./ns:subject1/ns:patient";
+    private final static String XPATH_SUBJECTS =
+            "./ns:controlActProcess/ns:subject";
+    private final static String XPATH_SUBJECT_REGISTRATION_EVENT =
+            "./ns:registrationEvent[1]";
+    private final static String XPATH_PATIENT =
+            "./ns:registrationEvent/ns:subject1/ns:patient[1]";
 
     /**
      *
@@ -63,7 +65,7 @@ public class SubjectBuilder extends BuilderHelper {
         // Get the patient.
         OMElement patientNode = null;
         try {
-            patientNode = this.selectSingleNode(message.getMessageNode(), XPATH_PATIENT);
+            patientNode = this.selectSingleNode(message.getMessageNode(), XPATH_PATIENT_ADD);
         } catch (XPathHelperException e) {
             throw new ModelBuilderException("Patient not found on request: " + e.getMessage());
         }
@@ -74,7 +76,6 @@ public class SubjectBuilder extends BuilderHelper {
         // Set component parts.
         Subject subject = this.getSubject(patientNode, null);
 
-        //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
         return subject;
     }
 
@@ -87,23 +88,28 @@ public class SubjectBuilder extends BuilderHelper {
     public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
 
         // Get the patient.
-        List<OMElement> patientNodes = null;
+        List<OMElement> subjectNodes = null;
         try {
-            patientNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENTS);
+            subjectNodes = this.selectNodes(message.getMessageNode(), XPATH_SUBJECTS);
         } catch (XPathHelperException e) {
-            throw new ModelBuilderException("Patient not found on request: " + e.getMessage());
+            throw new ModelBuilderException("No subjects found on request: " + e.getMessage());
         }
-        if (patientNodes == null) {
-            throw new ModelBuilderException("Patient not found on request");
+        if (subjectNodes == null) {
+            throw new ModelBuilderException("No subjects found on request");
         }
 
         // Set component parts.
         List<Subject> subjects = new ArrayList<Subject>();
-        for (OMElement patientNode : patientNodes) {
-            Subject subject = this.getSubject(patientNode, null);
-            subjects.add(subject);
+        for (OMElement subjectNode : subjectNodes) {
+            try {
+                OMElement registrationEventNode = this.selectSingleNode(subjectNode, XPATH_SUBJECT_REGISTRATION_EVENT);
+                OMElement patientNode = this.selectSingleNode(subjectNode, XPATH_PATIENT);
+                Subject subject = this.getSubject(patientNode, registrationEventNode);
+                subjects.add(subject);
+            } catch (XPathHelperException e) {
+                throw new ModelBuilderException("./controlActProcess/subject(s) is malformed: " + e.getMessage());
+            }
         }
-        //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         subjectSearchResponse.setSubjects(subjects);
         return subjectSearchResponse;
@@ -116,37 +122,67 @@ public class SubjectBuilder extends BuilderHelper {
      * @throws ModelBuilderException
      */
     /*
+    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
+
+    // Get the patient.
+    List<OMElement> patientNodes = null;
+    try {
+    patientNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENTS);
+    } catch (XPathHelperException e) {
+    throw new ModelBuilderException("Patient not found on request: " + e.getMessage());
+    }
+    if (patientNodes == null) {
+    throw new ModelBuilderException("Patient not found on request");
+    }
+
+    // Set component parts.
+    List<Subject> subjects = new ArrayList<Subject>();
+    for (OMElement patientNode : patientNodes) {
+    Subject subject = this.getSubject(patientNode, null);
+    subjects.add(subject);
+    }
+    //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
+    SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+    subjectSearchResponse.setSubjects(subjects);
+    return subjectSearchResponse;
+    }*/
+    /**
+     *
+     * @param PRPA_IN201306UV02_Message
+     * @return
+     * @throws ModelBuilderException
+     */
+    /*
     public List<Subject> buildSubjectsFromPRPA_IN201306UV02_MessageNEW(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
 
-        // Get the patient.
-        List<OMElement> registrationEventNodes = null;
-        try {
-            registrationEventNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENT_REGISTRATION_EVENTS);
-        } catch (XPathHelperException e) {
-            throw new ModelBuilderException("No RegistrationEvents found on request: " + e.getMessage());
-        }
-        if (registrationEventNodes == null) {
-            throw new ModelBuilderException("No RegistrationEvents found on request");
-        }
+    // Get the patient.
+    List<OMElement> registrationEventNodes = null;
+    try {
+    registrationEventNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENT_REGISTRATION_EVENTS);
+    } catch (XPathHelperException e) {
+    throw new ModelBuilderException("No RegistrationEvents found on request: " + e.getMessage());
+    }
+    if (registrationEventNodes == null) {
+    throw new ModelBuilderException("No RegistrationEvents found on request");
+    }
 
-        // Set component parts.
-        List<Subject> subjects = new ArrayList<Subject>();
-        for (OMElement registrationEventNode : registrationEventNodes) {
-            try {
-                OMElement patientNode = this.selectSingleNode(registrationEventNode,
-                        XPATH_PATIENT_REGISTRATION_PATIENT);
-                Subject subject = this.getSubject(patientNode, registrationEventNode);
-                subjects.add(subject);
-            } catch (XPathHelperException ex) {
-                // FIXME: Do something.
-                logger.error("XPATH ERROR: ", ex);
-            }
+    // Set component parts.
+    List<Subject> subjects = new ArrayList<Subject>();
+    for (OMElement registrationEventNode : registrationEventNodes) {
+    try {
+    OMElement patientNode = this.selectSingleNode(registrationEventNode,
+    XPATH_PATIENT_REGISTRATION_PATIENT);
+    Subject subject = this.getSubject(patientNode, registrationEventNode);
+    subjects.add(subject);
+    } catch (XPathHelperException ex) {
+    // FIXME: Do something.
+    logger.error("XPATH ERROR: ", ex);
+    }
 
-        }
-        //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-        return subjects;
+    }
+    //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
+    return subjects;
     } */
-
     /**
      *
      * @param patientNode
@@ -365,32 +401,30 @@ public class SubjectBuilder extends BuilderHelper {
         // </custodian>
         if (registrationEventNode != null) {
             try {
-                OMElement codeNode = this.selectSingleNode(registrationEventNode,
-                        "./ns:custodian/ns:assignedEntity/ns:code[1]");
-                Custodian custodian = new Custodian();
-                boolean foundCustodianInfo = false;
-                if (codeNode != null) {
-                    String healthLocatorCodeValue = codeNode.getAttributeValue(new QName("code"));
-                    if (healthLocatorCodeValue != null) {
-                        foundCustodianInfo = true;
-                        if (healthLocatorCodeValue.equalsIgnoreCase("SupportsHealthDataLocator")) {
-                            custodian.setSupportsHealthDataLocator(true);
-                        } else {
-                            custodian.setSupportsHealthDataLocator(false);
-                        }
-                    }
-                }
+                Custodian custodian = null;
                 OMElement idNode = this.selectSingleNode(registrationEventNode,
                         "./ns:custodian/ns:assignedEntity/ns:id[1]");
                 if (idNode != null) {
                     String custodianId = idNode.getAttributeValue(new QName("root"));
                     if (custodianId != null) {
-                        foundCustodianInfo = true;
+                        custodian = new Custodian();
                         custodian.setCustodianId(custodianId);
+                        subject.setCustodian(custodian);
                     }
                 }
-                if (foundCustodianInfo == true) {
-                    subject.setCustodian(custodian);
+                if (custodian != null) {
+                    OMElement codeNode = this.selectSingleNode(registrationEventNode,
+                            "./ns:custodian/ns:assignedEntity/ns:code[1]");
+                    if (codeNode != null) {
+                        String healthLocatorCodeValue = codeNode.getAttributeValue(new QName("code"));
+                        if (healthLocatorCodeValue != null) {
+                            if (healthLocatorCodeValue.equalsIgnoreCase("SupportsHealthDataLocator")) {
+                                custodian.setSupportsHealthDataLocator(true);
+                            } else {
+                                custodian.setSupportsHealthDataLocator(false);
+                            }
+                        }
+                    }
                 }
             } catch (XPathHelperException ex) {
                 // TBD: ? Just eat ?
@@ -405,8 +439,8 @@ public class SubjectBuilder extends BuilderHelper {
      */
     public SubjectIdentifier buildSubjectIdentifier(OMElement node) {
         SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-        String root = node.getAttributeValue(new QName("root")); // PID - required.
-        String extension = node.getAttributeValue(new QName("extension")); // Assigning Authority - required.
+        String root = node.getAttributeValue(new QName("root")); // Assigning Authority - required.
+        String extension = node.getAttributeValue(new QName("extension")); // PID - required.
         // TBD: Validate root/extension exist!
         String assigningAuthorityName = node.getAttributeValue(new QName("assigningAuthorityName")); // Optional.
         subjectIdentifier.setIdentifier(extension);

@@ -14,6 +14,7 @@ package com.vangent.hieos.hl7v3util.model.message;
 
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -41,13 +42,13 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
     /**
      *
      * @param PRPA_IN201309UV02_Message The request.
-     * @param subjects [may be null]
+     * @param subjectSearchResponse [may be null]
      * @param errorText [may be null]
      * @return PRPA_IN201310UV02_Message
      */
     public PRPA_IN201310UV02_Message buildPRPA_IN201310UV02_Message(
             PRPA_IN201309UV02_Message request,
-            List<Subject> subjects,
+            SubjectSearchResponse subjectSearchResponse,
             String errorText) {
         OMElement requestNode = request.getMessageNode();
         String messageName = "PRPA_IN201310UV02";
@@ -88,6 +89,9 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // PRPA_IN201306UV02/controlActProcess/code
         OMElement codeNode = this.addCode(controlActProcessNode, "code", "PRPA_TE201310UV02");
         this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
+
+        List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
+
 
         // PRPA_IN201306UV02/controlActProcess/subject
         this.addSubjects(controlActProcessNode, subjects);

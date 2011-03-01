@@ -79,9 +79,10 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
         this.setNames(subject, parameterListNode);
         this.setAddresses(subject, parameterListNode);
         this.setIdentifiers(subject, parameterListNode);
+        this.setScopingAssigningAuthorities(crit, parameterListNode);
 
         // Get community patient id assigning authority.
-        this.setCommunityPatientIdAssigningAuthority(crit, message.getMessageNode());
+        this.setCommunityAssigningAuthority(crit, message.getMessageNode());
         return crit;
     }
 
@@ -217,7 +218,38 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
      * @param subjectSearchCriteria
      * @param message
      */
-    private void setCommunityPatientIdAssigningAuthority(
+    private void setScopingAssigningAuthorities(
+            SubjectSearchCriteria subjectSearchCriteria,
+            OMElement message) {
+        try {
+            List<OMElement> otherIDsScopingOrganizationNodes =
+                    this.selectNodes(message, XPATH_OTHER_IDS_SCOPING_ORGANIZATIONS);
+            for (OMElement otherIDsScopingOrganizationNode : otherIDsScopingOrganizationNodes) {
+                OMElement valueNode = this.getFirstChildNodeWithName(otherIDsScopingOrganizationNode, "value");
+                if (valueNode != null) {
+                    // Pull out assigning authority.
+                    String root = valueNode.getAttributeValue(new QName("root")); // Assigning Authority - required.
+                    if (root != null) {
+                        SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+                        identifierDomain.setUniversalId(root);
+                        //identifierDomain.setNamespaceId(assigningAuthorityName);
+                        identifierDomain.setUniversalIdType("ISO"); // FIXME: FIXED VALUE?
+                        subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+                    }
+                }
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param message
+     */
+    private void setCommunityAssigningAuthority(
             SubjectSearchCriteria subjectSearchCriteria,
             OMElement message) {
         try {
@@ -229,7 +261,10 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
             OMElement idNode = this.selectSingleNode(message, XPATH_COMMUNITY_PATIENT_ID_ASSIGNING_AUTHORITY);
             if (idNode != null) {
                 String assigningAuthority = idNode.getAttributeValue(new QName("root"));
-                subjectSearchCriteria.setCommunityPatientIdAssigningAuthority(assigningAuthority);
+                SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+                identifierDomain.setUniversalId(assigningAuthority);
+                identifierDomain.setUniversalIdType("ISO");
+                subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);
             }
         } catch (XPathHelperException ex) {
             // TBD: Do something.

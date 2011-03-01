@@ -16,6 +16,7 @@ import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
@@ -50,7 +51,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * @return
      */
     public PRPA_IN201305UV02_Message getPRPA_IN201305UV02_Message(
-            SubjectSearchCriteria subjectSearchCriteria, boolean sendCommunityPatientId) {
+            SubjectSearchCriteria subjectSearchCriteria) {
 
         String messageName = "PRPA_IN201305UV02";
 
@@ -91,14 +92,14 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //          <id root="1.2.840.114350.1.13.99997.2.3412"/>
         //       </assignedDevice>
         // </authorOrPerformer>
-        if ((sendCommunityPatientId == true) &&
-                (subjectSearchCriteria.getCommunityPatientIdAssigningAuthority() != null)) {
+        if (subjectSearchCriteria.getCommunityAssigningAuthority() != null) {
             OMElement authorOrPerformerNode = this.addChildOMElement(controlActProcessNode, "authorOrPerformer");
             this.setAttribute(authorOrPerformerNode, "typeCode", "AUT");
             OMElement assignedDeviceNode = this.addChildOMElement(authorOrPerformerNode, "assignedDevice");
             this.setAttribute(assignedDeviceNode, "classCode", "ASSIGNED");
             OMElement idNode = this.addChildOMElement(assignedDeviceNode, "id");
-            this.setAttribute(idNode, "root", subjectSearchCriteria.getCommunityPatientIdAssigningAuthority());
+            SubjectIdentifierDomain identifierDomain = subjectSearchCriteria.getCommunityAssigningAuthority();
+            this.setAttribute(idNode, "root", identifierDomain.getUniversalId());
         }
 
         // PRPA_IN201305UV02/controlActProcess/queryAck
@@ -107,9 +108,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // PRPA_IN201305UV02/controlActProcess/queryByParameter
         OMElement queryByParameterNode =
                 this.addQueryByParameter(controlActProcessNode,
-                subjectSearchCriteria,
-                sendCommunityPatientId,
-                subjectSearchCriteria.getCommunityPatientIdAssigningAuthority());
+                subjectSearchCriteria);
 
         // TBD ... queryByParameter ... this was on the request .... not valid in this case.
         // PRPA_IN201305UV02/controlActProcess/queryByParameter
@@ -122,15 +121,12 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * 
      * @param controlActProcessNode
      * @param subjectSearchCriteria
-     * @param sendCommunityPatientId
-     * @param communityPatientIdAssigningAuthority
      * @return
      */
     private OMElement addQueryByParameter(
             OMElement controlActProcessNode,
-            SubjectSearchCriteria subjectSearchCriteria,
-            boolean sendCommunityPatientId,
-            String communityPatientIdAssigningAuthority) {
+            SubjectSearchCriteria subjectSearchCriteria) {
+
         // PRPA_IN201305UV02/controlActProcess/queryByParameter
         OMElement queryByParameterNode = this.addChildOMElement(controlActProcessNode, "queryByParameter");
 
@@ -158,10 +154,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // </matchCriterionList>
 
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList
-        this.addParameterList(queryByParameterNode,
-                subjectSearchCriteria,
-                sendCommunityPatientId,
-                communityPatientIdAssigningAuthority);
+        this.addParameterList(queryByParameterNode, subjectSearchCriteria);
 
         return queryByParameterNode;
     }
@@ -174,9 +167,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
      */
     private OMElement addParameterList(
             OMElement rootNode,
-            SubjectSearchCriteria subjectSearchCriteria,
-            boolean sendCommunityPatientId,
-            String communityPatientIdAssigningAuthority) {
+            SubjectSearchCriteria subjectSearchCriteria) {
         Subject searchSubject = subjectSearchCriteria.getSubject();
 
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList
@@ -212,18 +203,17 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //   <value root="1.3.6.1.4.1.21367.13.20.2000" extension="GREEN_GLOBAL_05"/>
         //   <semanticsText>LivingSubject.id</semanticsText>
         // </livingSubjectId>
-
+        //String communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
         for (SubjectIdentifier subjectIdentifier : searchSubject.getSubjectIdentifiers()) {
-            String assigningAuthority = subjectIdentifier.getIdentifierDomain().getUniversalId();
-            if (sendCommunityPatientId == true ||
-                    !assigningAuthority.equals(communityPatientIdAssigningAuthority)) {
-                OMElement subjectIdNode = this.addChildOMElement(parameterListNode, "livingSubjectId");
-                OMElement valueNode = this.addChildOMElement(subjectIdNode, "value");
-                this.addSubjectIdentifier(valueNode, subjectIdentifier);
-                this.addChildOMElementWithValue(subjectIdNode, "semanticsText", "LivingSubject.id");
-            }
+            //String assigningAuthority = subjectIdentifier.getIdentifierDomain().getUniversalId();
+            //if (sendCommunityPatientId == true ||
+            //        !assigningAuthority.equals(communityAssigningAuthority)) {
+            OMElement subjectIdNode = this.addChildOMElement(parameterListNode, "livingSubjectId");
+            OMElement valueNode = this.addChildOMElement(subjectIdNode, "value");
+            this.addSubjectIdentifier(valueNode, subjectIdentifier);
+            this.addChildOMElementWithValue(subjectIdNode, "semanticsText", "LivingSubject.id");
+            //}
         }
-
 
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList/livingSubjectName
         // <livingSubjectName>
@@ -240,7 +230,20 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
             this.addChildOMElementWithValue(subjectNameNode, "semanticsText", "LivingSubject.name");
         }
 
-        // TBD: How about addresses and other parameters????
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList/otherIDsScopingOrganization
+        // <otherIDsScopingOrganization>
+        //    <value root="1.2.840.114350.1.13.99997.2.3412"/>
+        //    <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
+        // </otherIDsScopingOrganization>
+        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+            String assigningAuthority = subjectIdentifierDomain.getUniversalId();
+            OMElement otherIDsScopingOrganizationNode = this.addChildOMElement(parameterListNode, "otherIDsScopingOrganization");
+            OMElement valueNode = this.addChildOMElement(otherIDsScopingOrganizationNode, "value");
+            this.setAttribute(valueNode, "root", assigningAuthority);
+            this.addChildOMElementWithValue(otherIDsScopingOrganizationNode, "semanticsText", "OtherIDs.scopingOrganization.id");
+        }
+
+        // FIXME: How about addresses and other parameters????
         return parameterListNode;
     }
 }

@@ -12,6 +12,9 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Bernie Thuman
@@ -19,7 +22,8 @@ package com.vangent.hieos.hl7v3util.model.subject;
 public class SubjectSearchCriteria {
 
     private Subject subject = null;
-    private String communityPatientIdAssigningAuthority;
+    private SubjectIdentifierDomain communityAssigningAuthority = null;
+    private List<SubjectIdentifierDomain> scopingAssigningAuthorities = new ArrayList<SubjectIdentifierDomain>();
 
     /**
      *
@@ -38,18 +42,75 @@ public class SubjectSearchCriteria {
     }
 
     /**
-     *
+     * 
      * @return
      */
-    public String getCommunityPatientIdAssigningAuthority() {
-        return communityPatientIdAssigningAuthority;
+    public boolean hasSubjectDemographics() {
+        if (subject == null) {
+            return false;
+        }
+        return (subject.getGender() != null) ||
+                (subject.getBirthTime() != null) ||
+                (subject.getSubjectNames().size() > 0) ||
+                (subject.getAddresses().size() > 0);
     }
 
     /**
      *
-     * @param communityPatientIdAssigningAuthority
+     * @return
      */
-    public void setCommunityPatientIdAssigningAuthority(String communityPatientIdAssigningAuthority) {
-        this.communityPatientIdAssigningAuthority = communityPatientIdAssigningAuthority;
+    public boolean hasSubjectIdentifiers() {
+        if (subject == null) {
+            return false;
+        }
+        return subject.getSubjectIdentifiers().size() > 0;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasScopingAssigningAuthorities() {
+        return scopingAssigningAuthorities.size() > 0;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public SubjectIdentifierDomain getCommunityAssigningAuthority() {
+        return communityAssigningAuthority;
+    }
+
+    /**
+     * 
+     * @param communityAssigningAuthority
+     */
+    public void setCommunityAssigningAuthority(SubjectIdentifierDomain communityAssigningAuthority) {
+        this.communityAssigningAuthority = communityAssigningAuthority;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<SubjectIdentifierDomain> getScopingAssigningAuthorities() {
+        return scopingAssigningAuthorities;
+    }
+
+    /**
+     * 
+     * @param assigningAuthority
+     */
+    public void addScopingAssigningAuthority(SubjectIdentifierDomain assigningAuthority) {
+        scopingAssigningAuthorities.add(assigningAuthority);
+    }
+
+    /**
+     *
+     * @param scopingAssigningAuthorities
+     */
+    public void setScopingAssigningAuthorities(List<SubjectIdentifierDomain> scopingAssigningAuthorities) {
+        this.scopingAssigningAuthorities = scopingAssigningAuthorities;
     }
 }

@@ -17,7 +17,6 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
@@ -25,8 +24,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -98,8 +95,7 @@ public class PDSClient extends Client {
 
 // FIXME: Can not simply pass in "false"....
         PRPA_IN201305UV02_Message request =
-                pdqQueryBuilder.getPRPA_IN201305UV02_Message(subjectSearchCriteria,
-                false);
+                pdqQueryBuilder.getPRPA_IN201305UV02_Message(subjectSearchCriteria);
         try {
             PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
             if (queryResponse != null) {
