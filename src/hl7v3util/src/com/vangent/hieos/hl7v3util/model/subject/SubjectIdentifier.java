@@ -36,4 +36,8 @@ public class SubjectIdentifier {
     public void setIdentifierDomain(SubjectIdentifierDomain identifierDomain) {
         this.identifierDomain = identifierDomain;
     }
+
+    public String getCXFormatted() {
+        return identifier + "^^^&" + identifierDomain.getUniversalId() + "&" + identifierDomain.getUniversalIdType();
+    }
 }
