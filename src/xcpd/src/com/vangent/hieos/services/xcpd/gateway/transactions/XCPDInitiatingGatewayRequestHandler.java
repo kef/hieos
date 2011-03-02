@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -333,19 +334,18 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     /**
      * 
-     * @param request
-     * @param subjectSearchCriteria
+     * @param patientDiscoverySearchCriteria
      * @return
      */
-    private SubjectSearchResponse performCrossGatewayPatientDiscovery(SubjectSearchCriteria subjectSearchCriteria) {
+    private SubjectSearchResponse performCrossGatewayPatientDiscovery(SubjectSearchCriteria patientDiscoverySearchCriteria) {
         // Prepare gateway requests.
-        List<GatewayRequest> gatewayRequests = this.getGatewayRequests(subjectSearchCriteria);
+        List<GatewayRequest> gatewayRequests = this.getGatewayRequests(patientDiscoverySearchCriteria);
 
         // Issue XCPD CrossGatewayPatientDiscovery requests to targeted gateways (in parallel).
         List<GatewayResponse> gatewayResponses = this.sendGatewayRequests(gatewayRequests);
 
         // Process responses.
-        return this.processResponses(gatewayResponses);
+        return this.processResponses(gatewayResponses, patientDiscoverySearchCriteria);
     }
 
     /**
@@ -395,11 +395,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     /**
      *
-     * @param subjectSearchCriteria
+     * @param patientDiscoverySearchCriteria
      * @return
-     * @throws AxisFault
      */
-    private List<GatewayRequest> getGatewayRequests(SubjectSearchCriteria subjectSearchCriteria) {
+    private List<GatewayRequest> getGatewayRequests(SubjectSearchCriteria patientDiscoverySearchCriteria) {
         List<GatewayRequest> requests = new ArrayList<GatewayRequest>();
         // First get list of target XCPD Responding Gateways.
         List<XConfigActor> rgConfigs = this.getXCPDRespondingGateways();
@@ -409,7 +408,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Prepare Gateway request.
             GatewayRequest gatewayRequest = new GatewayRequest();
             gatewayRequest.setRGConfig(rgConfig);
-            gatewayRequest.setSubjectSearchCriteria(subjectSearchCriteria);
+            gatewayRequest.setSubjectSearchCriteria(patientDiscoverySearchCriteria);
 
             DeviceInfo senderDeviceInfo = this.getDeviceInfo();
             DeviceInfo receiverDeviceInfo = this.getReceiverDeviceInfo(rgConfig);
@@ -419,7 +418,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
             PRPA_IN201305UV02_Message_Builder builder =
                     new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-            PRPA_IN201305UV02_Message cgpdRequest = builder.getPRPA_IN201305UV02_Message(subjectSearchCriteria);
+            PRPA_IN201305UV02_Message cgpdRequest = builder.getPRPA_IN201305UV02_Message(patientDiscoverySearchCriteria);
 
             gatewayRequest.setRequest(cgpdRequest);
             requests.add(gatewayRequest);
@@ -505,43 +504,117 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     *
-     * @param request
+     * 
      * @param responses
+     * @param patientDiscoverySearchCriteria
      * @return
      */
-    private SubjectSearchResponse processResponses(List<GatewayResponse> responses) {
+    private SubjectSearchResponse processResponses(List<GatewayResponse> responses, SubjectSearchCriteria patientDiscoverySearchCriteria) {
         // Get ready to aggregate all responses.
         SubjectSearchResponse aggregatedSubjectSearchResponse = new SubjectSearchResponse();
         List<Subject> aggregatedSubjects = aggregatedSubjectSearchResponse.getSubjects();
 
+        // Get subject identifier for the search subject (as it is known in this community).
+        SubjectIdentifier communitySubjectIdentifier = this.getSubjectIdentifier(patientDiscoverySearchCriteria);
+
+        // FIXME: May want to do all of this in parallel ...
+
         // Go through each response.
         for (GatewayResponse gatewayResponse : responses) {
-            SubjectSearchResponse subjectSearchResponse = this.processResponse(gatewayResponse);
-            List<Subject> subjects = subjectSearchResponse.getSubjects();
-            // FIXME: This is where we can check to make sure that the returned PIDs match
-            // the search patient.
+            List<Subject> subjects = this.processResponse(gatewayResponse, communitySubjectIdentifier);
             if (subjects.size() > 0) {
                 aggregatedSubjects.addAll(subjects);
             }
         }
         return aggregatedSubjectSearchResponse;
+    }
 
-        /*
-        PRPA_IN201306UV02_Message aggregatedResponse = this.getCrossGatewayPatientDiscoveryResponse(request, aggregatedSubjectSearchResponse, null);
-        return aggregatedResponse;*/
+    /**
+     *
+     * @param gatewayResponse
+     * @param communitySubjectIdentifier
+     * @return
+     */
+    private List<Subject> processResponse(GatewayResponse gatewayResponse, SubjectIdentifier communitySubjectIdentifier) {
+        List<Subject> resultSubjects = new ArrayList<Subject>();
+
+        SubjectSearchResponse subjectSearchResponse = this.getSubjectSearchResponse(gatewayResponse);
+ 
+        // Now validate that each remote subject matches our local subject.
+        for (Subject remoteSubject : subjectSearchResponse.getSubjects()) {
+
+            // Save (then clear) remote SubjectIdentifiers (we don't want them in our local PDQ query).
+            List<SubjectIdentifier> remoteSubjectIdentifiers = remoteSubject.getSubjectIdentifiers();
+            remoteSubject.setSubjectIdentifiers(new ArrayList<SubjectIdentifier>());
+
+            // Prepare PDQ search criteria.
+            SubjectSearchCriteria pdqSubjectSearchCriteria = new SubjectSearchCriteria();
+            pdqSubjectSearchCriteria.setSubject(remoteSubject);
+
+            // Scope PDQ request to local community assigning authority only.
+            SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
+            pdqSubjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+            pdqSubjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+
+            try {
+                // Issue PDQ using demographics supplied by remote community.
+                DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+                SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, pdqSubjectSearchCriteria);
+
+                // Restore identifiers in remote Subject.
+                remoteSubject.setSubjectIdentifiers(remoteSubjectIdentifiers);
+
+                // Now see if we can confirm a match.
+                // See if we find our subject's identifier in the PDQ response.
+                List<Subject> localSubjects = pdqSearchResponse.getSubjects();
+                for (Subject localSubject : localSubjects) {
+                    if (localSubject.hasSubjectIdentifier(communitySubjectIdentifier)) {
+                        // Match!!! ... add the remote subject to aggregated result.
+                        resultSubjects.add(remoteSubject);
+                    }
+                }
+            } catch (AxisFault ex) {
+                logger.error("XCPD EXCEPTION ... continuing", ex);
+                // Continue loop.
+            }
+        }
+        if (log_message.isLogEnabled()) {
+            if (resultSubjects.size() == 0) {
+                log_message.setPass(false);
+                log_message.addErrorParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                        "REMOTE SUBJECT NOT CONFIRMED");
+            } else {
+                log_message.addOtherParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                        resultSubjects.size() + " REMOTE SUBJECTS CONFIRMED!!!");
+            }
+        }
+        return resultSubjects;
+    }
+
+    /**
+     * Return SubjectIdentifier in the CommunityAssigningAuthority using the Subject search
+     * template in the given SubjectSearchCriteria.  Return null if not found (should not be
+     * the case here based on prior validations).
+     *
+     * @param patientDiscoverySearchCriteria
+     * @return
+     */
+    private SubjectIdentifier getSubjectIdentifier(SubjectSearchCriteria patientDiscoverySearchCriteria) {
+        SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
+        return patientDiscoverySearchCriteria.getSubjectIdentifier(communityAssigningAuthority);
     }
 
     /**
      * 
      * @param gatewayResponse
      */
-    private SubjectSearchResponse processResponse(GatewayResponse gatewayResponse) {
+    private SubjectSearchResponse getSubjectSearchResponse(GatewayResponse gatewayResponse) {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         PRPA_IN201306UV02_Message cgpdResponse = gatewayResponse.getResponse();
         try {
             this.validateHL7V3Message(cgpdResponse);
         } catch (AxisFault ex) {
+            log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
             logger.error("CGPD Response did not validate against XML schema: " + ex.getMessage());
             return subjectSearchResponse;
