@@ -46,8 +46,7 @@ public class Subject {
         this.addresses = addresses;
     }
 
-    public void addAddress(Address address)
-    {
+    public void addAddress(Address address) {
         this.addresses.add(address);
     }
 
@@ -59,8 +58,7 @@ public class Subject {
         this.subjectIdentifiers = subjectIdentifiers;
     }
 
-     public void addSubjectIdentifier(SubjectIdentifier subjectIdentifier)
-    {
+    public void addSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
         this.subjectIdentifiers.add(subjectIdentifier);
     }
 
@@ -68,8 +66,7 @@ public class Subject {
         return subjectNames;
     }
 
-    public void addSubjectName(SubjectName subjectName)
-    {
+    public void addSubjectName(SubjectName subjectName) {
         this.subjectNames.add(subjectName);
     }
 
@@ -101,5 +98,37 @@ public class Subject {
         this.custodian = custodian;
     }
 
-    
+    /**
+     * Return SubjectIdentifier in the given SubjectIdentifierDomain.  Return null if not found.
+     *
+     * @param identifierDomain
+     * @return
+     */
+    public SubjectIdentifier getSubjectIdentifier(SubjectIdentifierDomain identifierDomain) {
+        for (SubjectIdentifier subjectIdentifier : this.subjectIdentifiers) {
+            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+            if (subjectIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId())) {
+                return subjectIdentifier;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @param identifier
+     * @return
+     */
+    public boolean hasSubjectIdentifier(SubjectIdentifier identifier) {
+        SubjectIdentifierDomain identifierDomain = identifier.getIdentifierDomain();
+        // See if we find our subject identifier.
+        for (SubjectIdentifier subjectIdentifier : this.getSubjectIdentifiers()) {
+            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+            if (subjectIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId()) 
+                    && subjectIdentifier.getIdentifier().equals(identifier.getIdentifier())) {
+                return true;  // Match.
+            }
+        }
+        return false;  // No match.
+    }
 }

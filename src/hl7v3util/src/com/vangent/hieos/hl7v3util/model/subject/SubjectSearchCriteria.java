@@ -42,6 +42,16 @@ public class SubjectSearchCriteria {
     }
 
     /**
+     * Return SubjectIdentifier in the given SubjectIdentifierDomain.  Return null if not found.
+     *
+     * @param identifierDomain
+     * @return
+     */
+    public SubjectIdentifier getSubjectIdentifier(SubjectIdentifierDomain identifierDomain) {
+        return subject.getSubjectIdentifier(identifierDomain);
+    }
+
+    /**
      * 
      * @return
      */
