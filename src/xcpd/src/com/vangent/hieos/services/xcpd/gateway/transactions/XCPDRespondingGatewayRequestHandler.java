@@ -62,6 +62,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
         HL7V3Message result = null;
+        log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
             case CrossGatewayPatientDiscovery:
                 result = this.processCrossGatewayPatientDiscovery(new PRPA_IN201305UV02_Message(request));
@@ -69,12 +70,10 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             case PatientLocationQuery:
                 //result = this.processPatientLocationQuery(request);
                 break;
-
         }
         if (result != null) {
             log_message.addOtherParam("Response", result.getMessageNode());
         }
-        log_message.setPass(true);  // PASS!
         return (result != null) ? result.getMessageNode() : null;
     }
 
@@ -84,6 +83,8 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      */
     private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
+        String errorText = null;
+
         // Validate request against XML schema.
         this.validateHL7V3Message(request);
 
@@ -130,12 +131,11 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Now prepare the XCPD response.
             queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, pdqSubjectSearchResponse, null);
         } catch (Exception ex) {
-            log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", ex.getMessage());
+            errorText = ex.getMessage();
             queryResponse = this.getCrossGatewayPatientDiscoveryResponse(
                     request, null /* subjects */, ex.getMessage());
-            return queryResponse; // Early exit!
         }
+        this.log(errorText);
         this.validateHL7V3Message(queryResponse);
         return queryResponse;
 
@@ -195,6 +195,5 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
         // Now get the "PDS" object (and cache it away).
         _pdsConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pds", XConfig.PDS_TYPE);
         return _pdsConfig;
-
     }
 }

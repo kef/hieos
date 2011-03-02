@@ -240,6 +240,19 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         return deviceInfo;
     }
 
+     /**
+     *
+     * @param errorText
+     */
+    protected void log(String errorText) {
+        if (errorText == null) {
+            log_message.setPass(true);
+        } else {
+            log_message.setPass(false);
+            log_message.addErrorParam("EXCEPTION", errorText);
+        }
+    }
+
     // FIXME: Rewrite
     /**
      * 

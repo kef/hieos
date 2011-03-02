@@ -80,6 +80,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
         HL7V3Message result = null;
+        log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
             case CrossGatewayPatientDiscovery:
                 result = this.processCrossGatewayPatientDiscovery(new PRPA_IN201305UV02_Message(request));
@@ -94,7 +95,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         if (result != null) {
             log_message.addOtherParam("Response", result.getMessageNode());
         }
-        log_message.setPass(true);  // PASS!
         return (result != null) ? result.getMessageNode() : null;
     }
 
@@ -106,32 +106,29 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
         this.validateHL7V3Message(request);
         PRPA_IN201306UV02_Message result = null;
-        String errorText = null;
+        SubjectSearchResponse patientDiscoverySearchResponse = null;
+        String errorText = null;  // Hope for the best.
         try {
-            SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
-            this.validateCGPDRequest(subjectSearchCriteria);
+            SubjectSearchCriteria patientDiscoverySearchCriteria = this.getSubjectSearchCriteria(request);
+            this.validateCGPDRequest(patientDiscoverySearchCriteria);
 
             // TBD: Should we see if we know about this patient first?
             //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
 
             // TBD: Supplement subjectSearchCriteria with this gateway's specifics.
-            SubjectSearchResponse subjectSearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
-            result = this.getCrossGatewayPatientDiscoveryResponse(request, subjectSearchResponse, null);
+            patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
 
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
         }
-        if (errorText != null) {
-            result = this.getCrossGatewayPatientDiscoveryResponse(request, null /* subjects */, errorText);
-        }
+        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
+        this.log(errorText);
         this.validateHL7V3Message(result);
         return result;
     }
 
     /**
-     *
+     * 
      * @param request
      * @return
      * @throws AxisFault
@@ -139,8 +136,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws AxisFault {
         this.validateHL7V3Message(request);
         PRPA_IN201310UV02_Message result = null;
-        String errorText = null;
-
+        SubjectSearchResponse patientDiscoverySearchResponse = null;
+        String errorText = null;  // Hope for the best.
         try {
             // Get SubjectSearchCriteria instance from PIX Query.
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
@@ -148,53 +145,43 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Validate that PIX Query has what is required.
             this.validatePIXQueryRequest(subjectSearchCriteria);
 
-            // Now issue a PDQ to PDS for the given patient id.
+            // Now issue a PDQ to PDS for the supplied patient id (on PIX query).
             DeviceInfo senderDeviceInfo = this.getDeviceInfo();
-            SubjectSearchResponse pdqSubjectSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
+            SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
 
             // See if we only have one match (from PDS) for the patient.
-            List<Subject> subjects = pdqSubjectSearchResponse.getSubjects();
-            if (subjects.size() != 1) {
-                // FIXME: Send a negative response.
+            List<Subject> subjects = pdqSearchResponse.getSubjects();
+            if (subjects.size() == 0) {
+                errorText = "0 local subjects found for PIX query request";
+            } else if (subjects.size() > 1) {
+                // Should not be feasible, but check anyway.
+                errorText = "> 1 local subjects found for PIX query request";
             } else {
                 // Get the first subject from the list.
                 Subject subject = subjects.get(0);
 
                 // Get ready to send CGPD request.
-                SubjectSearchCriteria cgpdSubjectSearchCriteria = new SubjectSearchCriteria();
-                cgpdSubjectSearchCriteria.setSubject(subject);
+                SubjectSearchCriteria patientDiscoverySearchCriteria = new SubjectSearchCriteria();
+                patientDiscoverySearchCriteria.setSubject(subject);
 
-          // FIXME: Should strip out all ids except for the one that matches the
-          // communityAssigningAuthority
+                // FIXME: Should strip out all ids except for the one that matches the
+                // communityAssigningAuthority
                 SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
-                cgpdSubjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+                patientDiscoverySearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
 
-                // Fan out CGPD requests.
-                SubjectSearchResponse cgpdSubjectSearchResponse = this.performCrossGatewayPatientDiscovery(cgpdSubjectSearchCriteria);
+                // Fan out CGPD requests and get collective response.
+                patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
 
                 // TBD:
                 // Now need to look at matches, and make sure they would match our patient
                 // using PDQ ...
-                // For matches, need to add HCID for remote communities
-
-                result = this.getCrossGatewayPatientDiscoveryResponse(request, cgpdSubjectSearchResponse, null);
+                // For matches, need to add HCID for remote communitie
             }
-            // Check to see if we match on this patient.
-
-            // TBD: Should we see if we know about this patient first?
-            //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
-
-            // TBD: Supplement subjectSearchCriteria with this gateway's specifics.
-            //result = this.performCrossGatewayPatientDiscovery(request, subjectSearchCriteria);
-
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
         }
-        if (errorText != null) {
-            result = this.getCrossGatewayPatientDiscoveryResponse(request, null, errorText);
-        }
+        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
+        this.log(errorText);
         this.validateHL7V3Message(result);
         return result;
     }
@@ -225,14 +212,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             //Subject subjectAdded = adapter.addSubject(subject);
         } catch (Exception ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
+        this.log(errorText);
         this.validateHL7V3Message(ackResponse);
-        if (errorText != null) {
-            log_message.setPass(true);
-        }
         return ackResponse;
     }
 
@@ -535,8 +518,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      */
     private SubjectSearchResponse processResponses(List<GatewayResponse> responses) {
-        //List<Subject> subjects = new ArrayList<Subject>();
-
         // Get ready to aggregate all responses.
         SubjectSearchResponse aggregatedSubjectSearchResponse = new SubjectSearchResponse();
         List<Subject> aggregatedSubjects = aggregatedSubjectSearchResponse.getSubjects();
@@ -545,6 +526,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         for (GatewayResponse gatewayResponse : responses) {
             SubjectSearchResponse subjectSearchResponse = this.processResponse(gatewayResponse);
             List<Subject> subjects = subjectSearchResponse.getSubjects();
+            // FIXME: This is where we can check to make sure that the returned PIDs match
+            // the search patient.
             if (subjects.size() > 0) {
                 aggregatedSubjects.addAll(subjects);
             }
@@ -562,12 +545,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private SubjectSearchResponse processResponse(GatewayResponse gatewayResponse) {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        //List<Subject> subjects = new ArrayList<Subject>();
         PRPA_IN201306UV02_Message cgpdResponse = gatewayResponse.getResponse();
         try {
             this.validateHL7V3Message(cgpdResponse);
         } catch (AxisFault ex) {
-            // TBD ...
             log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
             logger.error("CGPD Response did not validate against XML schema: " + ex.getMessage());
             return subjectSearchResponse;

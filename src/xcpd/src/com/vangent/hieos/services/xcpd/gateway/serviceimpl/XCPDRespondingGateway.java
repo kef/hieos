@@ -45,7 +45,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
             XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(
                     this.log_message, XCPDGatewayRequestHandler.GatewayType.RespondingGateway);
             OMElement result = handler.run(PRPA_IN201305UV02_Message, XCPDGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
@@ -72,7 +72,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
             OMElement result =
                     handler.run(plq,
                     XCPDGatewayRequestHandler.MessageType.PatientLocationQuery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

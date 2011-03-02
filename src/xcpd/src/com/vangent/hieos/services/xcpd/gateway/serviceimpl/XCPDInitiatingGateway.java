@@ -49,20 +49,20 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201305UV02_Message,
                     XCPDGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
         }
     }
 
-        /**
+    /**
      *
      * @param PRPA_IN201309UV02_Message
      * @return
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
-          try {
+        try {
             OMElement startup_error = beginTransaction(
                     this.getTransactionName("GetIdentifiers (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
@@ -78,7 +78,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201309UV02_Message,
                     XCPDGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
@@ -106,7 +106,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201301UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
