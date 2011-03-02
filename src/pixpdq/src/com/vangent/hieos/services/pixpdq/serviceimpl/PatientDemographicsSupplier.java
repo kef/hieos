@@ -45,7 +45,7 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
             OMElement result =
                     handler.run(request,
                     PIXPDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

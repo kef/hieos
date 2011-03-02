@@ -86,9 +86,6 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
         }
         PRPA_IN201306UV02_Message queryResponse = this.getPatientRegistryFindCandidatesQueryResponse(request, subjectSearchResponse, errorText);
         this.validateHL7V3Message(queryResponse);
-        if (errorText != null) {
-            log_message.setPass(true);
-        }
         return queryResponse;
     }
 

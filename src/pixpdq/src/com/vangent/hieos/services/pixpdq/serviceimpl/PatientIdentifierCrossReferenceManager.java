@@ -43,7 +43,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             OMElement result = handler.run(request, PIXPDSRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (XdsFormatException ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
@@ -70,7 +70,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXPDSRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(true);
+            endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

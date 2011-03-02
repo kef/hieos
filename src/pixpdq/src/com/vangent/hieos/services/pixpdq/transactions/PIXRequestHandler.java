@@ -98,9 +98,6 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
         this.validateHL7V3Message(ackResponse);
-        if (errorText != null) {
-            log_message.setPass(true);
-        }
         return ackResponse;
     }
 
@@ -136,21 +133,10 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorText);
         }
-        /*
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        List<Subject> subjects = subjectSearchResponse.getSubjects();
-        if (subject != null) {
-            subjects.add(subject);
-        }*/
-
         PRPA_IN201310UV02_Message pixResponse =
                 this.getPatientRegistryGetIdentifiersQueryResponse(
                 request, subjectSearchResponse, errorText);
-
         this.validateHL7V3Message(pixResponse);
-        if (errorText == null) {
-            log_message.setPass(true);
-        }
         return pixResponse;
     }
 
@@ -160,7 +146,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      * @return
      * @throws EMPIException
      */
-    protected SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         EMPIAdapter adapter = EMPIFactory.getInstance();
         // Pull the first identifier.
         Subject searchSubject = subjectSearchCriteria.getSubject();
