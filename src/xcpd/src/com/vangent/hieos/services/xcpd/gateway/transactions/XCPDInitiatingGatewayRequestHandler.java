@@ -537,9 +537,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private List<Subject> processResponse(GatewayResponse gatewayResponse, SubjectIdentifier communitySubjectIdentifier) {
         List<Subject> resultSubjects = new ArrayList<Subject>();
-
+        List<Subject> noMatchSubjects = new ArrayList<Subject>();
         SubjectSearchResponse subjectSearchResponse = this.getSubjectSearchResponse(gatewayResponse);
- 
+
         // Now validate that each remote subject matches our local subject.
         for (Subject remoteSubject : subjectSearchResponse.getSubjects()) {
 
@@ -567,11 +567,19 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 // Now see if we can confirm a match.
                 // See if we find our subject's identifier in the PDQ response.
                 List<Subject> localSubjects = pdqSearchResponse.getSubjects();
+                boolean remoteSubjectMatch = false;
                 for (Subject localSubject : localSubjects) {
                     if (localSubject.hasSubjectIdentifier(communitySubjectIdentifier)) {
-                        // Match!!! ... add the remote subject to aggregated result.
-                        resultSubjects.add(remoteSubject);
+                        remoteSubjectMatch = true;
+                        break;  // No need to look further.
                     }
+                }
+                if (remoteSubjectMatch == true) {
+                    // Match!!! ... add the remote subject to aggregated result.
+                    resultSubjects.add(remoteSubject);
+                } else {
+                    // No match ... keep track for logging purposes.
+                    noMatchSubjects.add(remoteSubject);
                 }
             } catch (AxisFault ex) {
                 logger.error("XCPD EXCEPTION ... continuing", ex);
@@ -579,16 +587,49 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             }
         }
         if (log_message.isLogEnabled()) {
-            if (resultSubjects.size() == 0) {
-                log_message.setPass(false);
-                log_message.addErrorParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
-                        "REMOTE SUBJECT NOT CONFIRMED");
-            } else {
-                log_message.addOtherParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
-                        resultSubjects.size() + " REMOTE SUBJECTS CONFIRMED!!!");
-            }
+            this.log(gatewayResponse, resultSubjects, noMatchSubjects);
         }
         return resultSubjects;
+    }
+
+    /**
+     * 
+     * @param gatewayResponse
+     * @param matches
+     * @param noMatches
+     */
+    private void log(GatewayResponse gatewayResponse, List<Subject> matches, List<Subject> noMatches) {
+        if (matches.size() > 0) {
+            String logText = this.getLogText(matches);
+            log_message.addOtherParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                    "CONFIRMED MATCH (count=" + matches.size() + "): " + logText);
+        }
+        if (noMatches.size() > 0) {
+            String logText = this.getLogText(noMatches);
+            log_message.setPass(false);
+            log_message.addErrorParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                    "NO CONFIRMED MATCH (count=" + noMatches.size() + "): " + logText);
+        }
+    }
+
+    /**
+     *
+     * @param subjects
+     * @return
+     */
+    private String getLogText(List<Subject> subjects) {
+        String logText = new String();
+        int count = 0;
+        for (Subject subject : subjects) {
+            for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
+                if (count > 0) {
+                    logText = logText + ", ";
+                }
+                ++count;
+                logText = logText + subjectIdentifier.getCXFormatted();
+            }
+        }
+        return logText;
     }
 
     /**
