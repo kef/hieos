@@ -84,11 +84,12 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
         String errorText = null;
+        SubjectSearchResponse patientDiscoverySearchResponse = null;
 
         // Validate request against XML schema.
         this.validateHL7V3Message(request);
 
-        PRPA_IN201306UV02_Message queryResponse = null;
+        PRPA_IN201306UV02_Message result = null;
         try {
             // First convert the request.
             SubjectSearchCriteriaBuilder criteriaBuilder = new SubjectSearchCriteriaBuilder();
@@ -115,10 +116,10 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
 
             // Issue PDQ to PDS.
-            SubjectSearchResponse pdqSubjectSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
+            patientDiscoverySearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
 
-            // Go through all subjects and add custodian
-            List<Subject> subjects = pdqSubjectSearchResponse.getSubjects();
+            // Go through all subjects and add custodian (the home community id for this gateway).
+            List<Subject> subjects = patientDiscoverySearchResponse.getSubjects();
             for (Subject subject : subjects) {
                 Custodian custodian = new Custodian();
                 String homeCommunityId = this.getGatewayConfig().getUniqueId();
@@ -127,17 +128,14 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 custodian.setSupportsHealthDataLocator(false);
                 subject.setCustodian(custodian);
             }
-
-            // Now prepare the XCPD response.
-            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(request, pdqSubjectSearchResponse, null);
         } catch (Exception ex) {
             errorText = ex.getMessage();
-            queryResponse = this.getCrossGatewayPatientDiscoveryResponse(
-                    request, null /* subjects */, ex.getMessage());
         }
+        // Now prepare the XCPD response.
+        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
         this.log(errorText);
-        this.validateHL7V3Message(queryResponse);
-        return queryResponse;
+        this.validateHL7V3Message(result);
+        return result;
 
     }
 
@@ -150,6 +148,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
         // Validate XCPD rules:
         Subject subject = subjectSearchCriteria.getSubject();
 
+        // FIXME: ???
         // First see if any identifiers exist.
         if (subject.getSubjectIdentifiers().size() > 0) {
             return;  // All else are optional.

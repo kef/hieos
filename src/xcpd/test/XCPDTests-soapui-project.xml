@@ -632,10 +632,10 @@
                      <ns3:value value="19640610"/>
                      <ns3:semanticsText/>
                   </ns3:livingSubjectBirthTime>
-                  <!--<ns3:livingSubjectId>
+                  <ns3:livingSubjectId>
                      <ns3:value extension="TESTME1000_100" root="1.3.6.1.4.1.21367.13.20.1000"/>
                      <ns3:semanticsText/>
-                  </ns3:livingSubjectId>-->
+                  </ns3:livingSubjectId>
                   <ns3:livingSubjectName>
                      <ns3:value>
                         <ns3:family partType="FAM">Smith</ns3:family>

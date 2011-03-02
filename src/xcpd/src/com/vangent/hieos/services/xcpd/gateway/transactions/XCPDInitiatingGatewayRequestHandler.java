@@ -64,7 +64,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     private static ExecutorService _executor = null;  // Only one of these shared across all web requests.
 
     /**
-     *
+     * 
      * @param log_message
      * @param gatewayType
      */
@@ -77,6 +77,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param request
      * @param messageType
      * @return
+     * @throws AxisFault
      */
     public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
         HL7V3Message result = null;
@@ -99,9 +100,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     *
-     * @param PRPA_IN201305UV02_Message
+     * 
+     * @param request
      * @return
+     * @throws AxisFault
      */
     private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
         this.validateHL7V3Message(request);
@@ -111,13 +113,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         try {
             SubjectSearchCriteria patientDiscoverySearchCriteria = this.getSubjectSearchCriteria(request);
             this.validateCGPDRequest(patientDiscoverySearchCriteria);
-
             // TBD: Should we see if we know about this patient first?
             //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
-
-            // TBD: Supplement subjectSearchCriteria with this gateway's specifics.
             patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
-
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
         }
@@ -171,11 +169,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
                 // Fan out CGPD requests and get collective response.
                 patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
-
-                // TBD:
-                // Now need to look at matches, and make sure they would match our patient
-                // using PDQ ...
-                // For matches, need to add HCID for remote communitie
             }
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
@@ -287,7 +280,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Did not find an appropriate patient on the request.
             throw new XCPDException(
                     "You must specify at least one LivingSubjectId for the " +
-                    communityAssigningAuthority + " assigning authority");
+                    communityAssigningAuthority.getUniversalId() + " assigning authority");
         }
 
         // Check required fields (Subject + BirthTime).
@@ -316,14 +309,14 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         if (subjectIdentifiers == null) {
             throw new XCPDException(
                     "You must specify one LivingSubjectId for the " +
-                    communityAssigningAuthority + " assigning authority");
+                    communityAssigningAuthority.getUniversalId() + " assigning authority");
         }
 
         // Make sure we only have one identifier.
         if (subjectIdentifiers.size() > 1) {
             throw new XCPDException(
                     "You must specify only one LivingSubjectId for the " +
-                    communityAssigningAuthority + " assigning authority");
+                    communityAssigningAuthority.getUniversalId() + " assigning authority");
         }
 
         // Make sure that the specified subject identifier is for the
@@ -334,7 +327,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Did not find an appropriate identifier on the request.
             throw new XCPDException(
                     "You must specify one LivingSubjectId for the " +
-                    communityAssigningAuthority + " assigning authority");
+                    communityAssigningAuthority.getUniversalId() + " assigning authority");
         }
     }
 
