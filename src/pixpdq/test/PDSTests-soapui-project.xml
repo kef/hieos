@@ -153,10 +153,10 @@
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
-                  <otherIDsScopingOrganization>
+                  <!--<otherIDsScopingOrganization>
                      <value root="1.3.6.1.4.1.21367.13.20.1000"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
-                  </otherIDsScopingOrganization>
+                  </otherIDsScopingOrganization>-->
                   <!--<otherIDsScopingOrganization>
                      <value root="2.16.840.1.113883.4.1"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
