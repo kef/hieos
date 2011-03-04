@@ -35,7 +35,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
         try {
-            OMElement startup_error = beginTransaction("GetIdentifiers (PIXV3)", request, XAbstractService.ActorType.PIXMGR);
+            OMElement startup_error = beginTransaction("GetIdentifiersQuery (PIXV3)", request, XAbstractService.ActorType.PIXMGR);
             if (startup_error != null) {
                 return startup_error;
             }
@@ -43,11 +43,11 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (XdsFormatException ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            log_message.setPass(false);
+            //log_message.setPass(false);
             endTransaction(false);
             throw new AxisFault(ex.getMessage());
         } catch (Exception ex) {
@@ -70,7 +70,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

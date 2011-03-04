@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
-import com.vangent.hieos.services.pixpdq.transactions.PIXPDSRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
@@ -45,7 +44,7 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
             OMElement result =
                     handler.run(request,
                     PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

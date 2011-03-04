@@ -87,7 +87,7 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
             subjectSearchResponse = this.findSubjects(subjectSearchCriteria);
         } catch (Exception ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
+            //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorText);
         }
         PRPA_IN201306UV02_Message queryResponse = this.getPatientRegistryFindCandidatesQueryResponse(request, subjectSearchResponse, errorText);

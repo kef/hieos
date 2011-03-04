@@ -101,7 +101,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             Subject subjectAdded = adapter.addSubject(subject);
         } catch (Exception ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
+            //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorText);
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
@@ -138,7 +138,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
         } catch (Exception ex) {
             errorText = ex.getMessage();
-            log_message.setPass(false);
+            //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorText);
         }
         PRPA_IN201310UV02_Message pixResponse =

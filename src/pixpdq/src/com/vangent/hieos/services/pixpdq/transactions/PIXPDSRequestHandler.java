@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 public abstract class PIXPDSRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PIXPDSRequestHandler.class);
-
+    private boolean status = true;
 
     /**
      *
@@ -55,6 +55,16 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
     }
 
     /**
+     *
+     * @return
+     */
+    @Override
+    public boolean getStatus()
+    {
+        return log_message.isPass();
+    }
+
+    /**
      * 
      * @return
      */
@@ -69,7 +79,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
         try {
             HL7V3SchemaValidator.validate(message.getMessageNode(), message.getType());
         } catch (XMLSchemaValidatorException ex) {
-            log_message.setPass(false);
+            //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             throw new AxisFault(ex.getMessage());
         }
