@@ -7,6 +7,7 @@
             -->
     <target name="axis2-aar" depends="compile">
         <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
+        <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
         <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
                 <file file="${file.reference.xutil.jar}"/>
@@ -22,6 +23,7 @@
                 <include name="**/*.jar"/>
             </fileset>
         </jar>
+        <delete dir="${basedir}/xml-resources/axis2/lib"/>
     </target>
     <target name="axis2-deploy-dir-check" depends="axis2-aar">
         <condition property="axis2-deploy-dir-required">
