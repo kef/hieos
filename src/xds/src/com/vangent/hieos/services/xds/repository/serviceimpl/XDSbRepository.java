@@ -117,23 +117,7 @@ public class XDSbRepository extends XAbstractService {
             return endTransaction(rdsr, e, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
-
-    /**
-     *
-     * @param endpoint
-     */
-    /*
-    private void setAlternateRegistryEndpoint(String endpoint) {
-    alternateRegistryEndpoint = endpoint;
-    }*/
-    /**
-     *
-     * @param opt
-     */
-    /*
-    public void optimize_retrieve(boolean opt) {
-    optimize_retrieve = opt;
-    }*/
+    
     protected String getPnRTransactionName() {
         return "PnR.b";
     }

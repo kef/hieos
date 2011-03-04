@@ -110,7 +110,7 @@ public class XDSbRegistry extends XAbstractService {
         logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run_Simple(patientFeedRequest);
-        endTransaction(true /* success */);
+        endTransaction(rpif.getStatus());
         return result;
     }
 
@@ -154,7 +154,7 @@ public class XDSbRegistry extends XAbstractService {
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordAdded);
         this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(true /* success */);
+        endTransaction(rpif.getStatus());
         return result;
     }
 
@@ -184,7 +184,7 @@ public class XDSbRegistry extends XAbstractService {
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUpdated);
         this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(true /* success */);
+        endTransaction(rpif.getStatus());
         return result;
     }
 
@@ -214,7 +214,7 @@ public class XDSbRegistry extends XAbstractService {
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryDuplicatesResolved);
         this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(true /* success */);
+        endTransaction(rpif.getStatus());
         return result;
     }
 
@@ -244,7 +244,7 @@ public class XDSbRegistry extends XAbstractService {
         RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
         OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
         this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(true /* success */);
+        endTransaction(rpif.getStatus());
         return result;
     }
 

@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.Structure;
 import com.vangent.hieos.xutil.metadata.validation.Validator;
 import com.vangent.hieos.services.xds.registry.storedquery.SQFactory;
+import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.sql.SQLException;
@@ -256,7 +257,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                             !m.getFolderIds().contains(sourceId)) {
                         // Assoc src not part of the submission
                         logger.info("Adding to Folder (1)" + sourceId);
-                        if (new Structure(new Metadata(), false).isFolder(sourceId)) {
+                        if (this.isFolder(sourceId)) {
                             logger.info("Adding to Folder (2)" + sourceId);
 
                             OMElement res = backendRegistry.basicQuery("SELECT * from RegistryPackage rp WHERE rp.id='" + sourceId + "'",
@@ -363,6 +364,30 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      */
     public void setSubmitRaw(boolean val) {
         submit_raw = val;
+    }
+
+      /**
+     *
+     * @param id
+     * @return
+     * @throws XdsException
+     */
+    public boolean isFolder(String id) throws XdsException {
+        //if (m.getFolderIds().contains(id)) {
+        //    return true;
+        //}
+        if (!id.startsWith("urn:uuid:")) {
+            return false;
+        }
+        RegistryErrorList rel = new RegistryErrorList(false /* log */);
+        RegistryObjectValidator rov = new RegistryObjectValidator(rel, log_message);
+        ArrayList<String> ids = new ArrayList<String>();
+        ids.add(id);
+        List<String> missing = rov.validateAreFolders(ids);
+        if (missing != null && missing.contains(id)) {
+            return false;
+        }
+        return true;
     }
 
     /* AMS 04/21/2009 - Added new method. */

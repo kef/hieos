@@ -1312,6 +1312,15 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         logger.debug(logLabel + " : " + infoString);
     }
 
+    /**
+     *
+     * @return
+     */
+    @Override
+    public boolean getStatus() {
+        return !this.errorDetected;
+    }
+
     // Inner class
     public class PatientIdentityFeedException extends Exception {
 
