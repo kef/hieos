@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +36,6 @@ public class SubjectBuilder extends BuilderHelper {
     private final static Logger logger = Logger.getLogger(SubjectBuilder.class);
     private final static String XPATH_PATIENT_ADD =
             "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
-    //private final static String XPATH_PATIENTS =
-    //        "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient";
     private final static String XPATH_PATIENT_ADDRESSES =
             "./ns:patientPerson/ns:addr";
     private final static String XPATH_PATIENT_NAMES =
@@ -115,74 +113,6 @@ public class SubjectBuilder extends BuilderHelper {
         return subjectSearchResponse;
     }
 
-    /**
-     *
-     * @param PRPA_IN201306UV02_Message
-     * @return
-     * @throws ModelBuilderException
-     */
-    /*
-    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
-
-    // Get the patient.
-    List<OMElement> patientNodes = null;
-    try {
-    patientNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENTS);
-    } catch (XPathHelperException e) {
-    throw new ModelBuilderException("Patient not found on request: " + e.getMessage());
-    }
-    if (patientNodes == null) {
-    throw new ModelBuilderException("Patient not found on request");
-    }
-
-    // Set component parts.
-    List<Subject> subjects = new ArrayList<Subject>();
-    for (OMElement patientNode : patientNodes) {
-    Subject subject = this.getSubject(patientNode, null);
-    subjects.add(subject);
-    }
-    //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-    SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-    subjectSearchResponse.setSubjects(subjects);
-    return subjectSearchResponse;
-    }*/
-    /**
-     *
-     * @param PRPA_IN201306UV02_Message
-     * @return
-     * @throws ModelBuilderException
-     */
-    /*
-    public List<Subject> buildSubjectsFromPRPA_IN201306UV02_MessageNEW(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
-
-    // Get the patient.
-    List<OMElement> registrationEventNodes = null;
-    try {
-    registrationEventNodes = this.selectNodes(message.getMessageNode(), XPATH_PATIENT_REGISTRATION_EVENTS);
-    } catch (XPathHelperException e) {
-    throw new ModelBuilderException("No RegistrationEvents found on request: " + e.getMessage());
-    }
-    if (registrationEventNodes == null) {
-    throw new ModelBuilderException("No RegistrationEvents found on request");
-    }
-
-    // Set component parts.
-    List<Subject> subjects = new ArrayList<Subject>();
-    for (OMElement registrationEventNode : registrationEventNodes) {
-    try {
-    OMElement patientNode = this.selectSingleNode(registrationEventNode,
-    XPATH_PATIENT_REGISTRATION_PATIENT);
-    Subject subject = this.getSubject(patientNode, registrationEventNode);
-    subjects.add(subject);
-    } catch (XPathHelperException ex) {
-    // FIXME: Do something.
-    logger.error("XPATH ERROR: ", ex);
-    }
-
-    }
-    //SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-    return subjects;
-    } */
     /**
      *
      * @param patientNode

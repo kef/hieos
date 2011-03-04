@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,12 +28,6 @@ import org.apache.log4j.Logger;
 public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
 
     private final static Logger logger = Logger.getLogger(SubjectSearchCriteriaBuilder.class);
-    //private final static String XPATH_PATIENT =
-    //        "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
-    //private final static String XPATH_PRIOR_REGISTRATION_PATIENT_ID =
-    //        "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id[1]";
-    //private final static String XPATH_PRIOR_REGISTRATION_PATIENT_ALL_IDS =
-    //        "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id";
     private final static String XPATH_PARAMETER_LIST =
             "./ns:controlActProcess/ns:queryByParameter/ns:parameterList[1]";
     private final static String XPATH_PARAMETER_ADDRESSES =
