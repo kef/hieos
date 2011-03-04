@@ -36,7 +36,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     public OMElement PatientRegistryFindCandidatesQuery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("CGPD (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -47,7 +47,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201305UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
@@ -63,7 +63,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("GetIdentifiers (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.REGISTRY);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -74,7 +74,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201309UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
@@ -100,7 +100,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             OMElement result = handler.run(
                     PRPA_IN201301UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);

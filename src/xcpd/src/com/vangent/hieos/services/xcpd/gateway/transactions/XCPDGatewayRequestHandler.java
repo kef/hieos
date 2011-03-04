@@ -54,7 +54,6 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         RespondingGateway,
         Unknown
     };
-
     private GatewayType gatewayType = GatewayType.Unknown;
 
     /**
@@ -184,7 +183,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         try {
             HL7V3SchemaValidator.validate(message.getMessageNode(), message.getType());
         } catch (XMLSchemaValidatorException ex) {
-            log_message.setPass(false);
+            //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             throw new AxisFault(ex.getMessage());
         }
@@ -232,17 +231,26 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         return deviceInfo;
     }
 
-     /**
+    /**
      *
      * @param errorText
      */
     protected void log(String errorText) {
-        if (errorText == null) {
-            log_message.setPass(true);
-        } else {
+        if (errorText != null) {
             log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
+            if (log_message.isLogEnabled()) {
+                log_message.addErrorParam("EXCEPTION", errorText);
+            }
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public boolean getStatus() {
+        return log_message.isPass();
     }
 
     // FIXME: Rewrite

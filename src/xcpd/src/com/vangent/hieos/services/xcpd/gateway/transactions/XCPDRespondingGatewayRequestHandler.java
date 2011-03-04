@@ -116,6 +116,9 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 searchSubject.setSubjectIdentifiers(new ArrayList<SubjectIdentifier>());
             }
 
+            // Again to be safe, remove any existing scoping assigning authorities.
+            subjectSearchCriteria.setScopingAssigningAuthorities(new ArrayList<SubjectIdentifierDomain>());
+
             // Make sure that only matches for the CommunityAssigningAuthority are returned.
             SubjectIdentifierDomain identifierDomain = this.getCommunityAssigningAuthority();
             subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);

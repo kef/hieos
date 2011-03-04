@@ -61,11 +61,11 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     // Type type of message received.
     public enum MessageType {
+
         PatientRegistryGetIdentifiersQuery,
         PatientRegistryRecordAdded,
         PatientRegistryFindCandidatesQuery
     };
-
     private final static Logger logger = Logger.getLogger(XCPDInitiatingGatewayRequestHandler.class);
     private static XConfigActor _pdsConfig = null;
     //private static XConfigActor _pixConfig = null;
@@ -103,7 +103,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 break;
         }
         if (result != null) {
-            log_message.addOtherParam("Response", result.getMessageNode());
+            if (log_message.isLogEnabled()) {
+                log_message.addOtherParam("Response", result.getMessageNode());
+            }
         }
         return (result != null) ? result.getMessageNode() : null;
     }
@@ -120,15 +122,18 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         SubjectSearchResponse patientDiscoverySearchResponse = null;
         String errorText = null;  // Hope for the best.
         try {
-            SubjectSearchCriteria patientDiscoverySearchCriteria = this.getSubjectSearchCriteria(request);
-            this.validatePDQRequest(patientDiscoverySearchCriteria);
+            SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
+            this.validateSearchCriteriaRequest(subjectSearchCriteria);
             // TBD: Should we see if we know about this patient first?
-            //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
-            patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
+            // DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+            // SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
+
+            // Assume that PDQ request has valid patient id and demographics (skip PDQ validation).
+            patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
         }
-        result = this.getprocessPatientRegistryFindCandidatesQueryResponse(request, patientDiscoverySearchResponse, errorText);
+        result = this.getPatientRegistryFindCandidatesQueryResponse(request, patientDiscoverySearchResponse, errorText);
         this.log(errorText);
         this.validateHL7V3Message(result);
         return result;
@@ -150,7 +155,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
 
             // Validate that PIX Query has what is required.
-            this.validatePIXQueryRequest(subjectSearchCriteria);
+            this.validateSearchCriteriaPIXRequest(subjectSearchCriteria);
 
             // Now issue a PDQ to PDS for the supplied patient id (on PIX query).
             DeviceInfo senderDeviceInfo = this.getDeviceInfo();
@@ -188,25 +193,31 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         return result;
     }
 
-   /**
-    *
-    * @param request
-    * @return
-    * @throws AxisFault
-    */
+    /**
+     *
+     * @param request
+     * @return
+     * @throws AxisFault
+     */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws AxisFault {
-        // FIXME: This is really not implemented yet!
         this.validateHL7V3Message(request);
-        String errorText = null;
+        SubjectSearchResponse patientDiscoverySearchResponse = null;
+        String errorText = null;  // Hope for the best.
         try {
-            SubjectBuilder builder = new SubjectBuilder();
-            Subject subject = builder.buildSubject(request);
-            if (subject.getSubjectIdentifiers().size() == 0) {
-                errorText = "1 subject identifier must be specified";
-            } else if (subject.getSubjectIdentifiers().size() > 1) {
-                errorText = "Only 1 subject identifier must be specified";
-            }
-        } catch (Exception ex) {
+            // Get SubjectSearchCriteria instance from PID Feed.
+            SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
+            this.validateSearchCriteriaRequest(subjectSearchCriteria);
+
+            // TBD: Should we see if we know about this patient first?
+            // DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+            // SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
+
+            // Assume that PID Feed request has valid patient id and demographics (skip PDQ validation).
+            patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
+
+            // Nothing more to do here ...
+
+        } catch (XCPDException ex) {
             errorText = ex.getMessage();
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
@@ -259,10 +270,32 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     /**
      *
+     * @param request
+     * @return
+     * @throws XCPDException
+     */
+    private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201301UV02_Message request) throws XCPDException {
+        // First build search criteria from inbound request.
+        SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
+        try {
+            SubjectBuilder builder = new SubjectBuilder();
+            Subject searchSubject = builder.buildSubject(request);
+            subjectSearchCriteria.setSubject(searchSubject);
+            SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
+            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+            //subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+        } catch (ModelBuilderException ex) {
+            throw new XCPDException(ex.getMessage());
+        }
+        return subjectSearchCriteria;
+    }
+
+    /**
+     *
      * @param subjectSearchCriteria
      * @throws XCPDException
      */
-    private void validatePDQRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
+    private void validateSearchCriteriaRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
         SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
 
         // Validate request:
@@ -301,7 +334,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param subjectSearchCriteria
      * @throws XCPDException
      */
-    private void validatePIXQueryRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
+    private void validateSearchCriteriaPIXRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
         SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
 
         // Validate request:
@@ -366,12 +399,12 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     /**
      *
-     * @param PRPA_IN201305UV02_Message
-     * @param subjects
+     * @param request
+     * @param subjectSearchResponse
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getprocessPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
+    private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
@@ -381,9 +414,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     *
-     * @param PRPA_IN201305UV02_Message
-     * @param subjects
+     * 
+     * @param request
+     * @param subjectSearchResponse
      * @param errorText
      * @return
      */
@@ -602,15 +635,19 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private void log(GatewayResponse gatewayResponse, List<Subject> matches, List<Subject> noMatches) {
         if (matches.size() > 0) {
-            String logText = this.getLogText(matches);
-            log_message.addOtherParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
-                    "CONFIRMED MATCH (count=" + matches.size() + "): " + logText);
+            if (log_message.isLogEnabled()) {
+                String logText = this.getLogText(matches);
+                log_message.addOtherParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                        "CONFIRMED MATCH (count=" + matches.size() + "): " + logText);
+            }
         }
         if (noMatches.size() > 0) {
-            String logText = this.getLogText(noMatches);
             log_message.setPass(false);
-            log_message.addErrorParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
-                    "NO CONFIRMED MATCH (count=" + noMatches.size() + "): " + logText);
+            if (log_message.isLogEnabled()) {
+                String logText = this.getLogText(noMatches);
+                log_message.addErrorParam("CGPD RESPONSE " + gatewayResponse.request.getVitals(),
+                        "NO CONFIRMED MATCH (count=" + noMatches.size() + "): " + logText);
+            }
         }
     }
 
@@ -658,7 +695,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             this.validateHL7V3Message(cgpdResponse);
         } catch (AxisFault ex) {
             log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
+            if (log_message.isLogEnabled()) {
+                log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
+            }
             logger.error("CGPD Response did not validate against XML schema: " + ex.getMessage());
             return subjectSearchResponse;
         }
@@ -711,26 +750,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         // Now get the "PDS" object (and cache it away).
         _pdsConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pds", XConfig.PDS_TYPE);
         return _pdsConfig;
-
     }
-
-    /**
-     *
-     * @return
-     * @throws AxisFault
-     */
-    // FIXME: NOT USED
-    /*
-    private synchronized XConfigActor getPIXConfig() throws AxisFault {
-        if (_pixConfig != null) {
-            return _pixConfig;
-        }
-        XConfigObject gatewayConfig = this.getGatewayConfig();
-
-        // Now get the "PDS" object (and cache it away).
-        _pixConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
-        return _pixConfig;
-    }*/
 
     /**
      * 
@@ -817,7 +837,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     *
+     * 
      */
     public class GatewayResponse {
 
@@ -897,16 +917,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 log_message.addErrorParam("EXCEPTION " + request.getVitals(), ex.getMessage());
                 // ***** Rethrow is needed otherwise Axis2 gets confused with Async.
                 throw ex;  // Rethrow.
-                //java.util.logging.Logger.getLogger(XCPDInitiatingGatewayRequestHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
             return gatewayResponse;
         }
-        /**
-         * 
-         * @return
-         */
-        //public String getTargetGatewayVitals() {
-        //    return "(community: " + request.getRGConfig().getUniqueId() + ", endpoint: " + request.getEndpoint() + ")";
-        //}
     }
 }

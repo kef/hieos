@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
-import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDGatewayRequestHandler;
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDRespondingGatewayRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import org.apache.axiom.om.OMElement;
@@ -46,7 +45,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
             XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
             OMElement result = handler.run(PRPA_IN201305UV02_Message, 
                     XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
@@ -72,7 +71,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
             OMElement result =
                     handler.run(plq,
                     XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
-            endTransaction(this.log_message.isPass());
+            endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
