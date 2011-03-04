@@ -14,16 +14,16 @@
 package com.vangent.hieos.xwebtools.servlets.xviewer;
 
 import com.vangent.hieos.xwebtools.servlets.framework.HttpUtils;
-import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
+//import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.RegistryErrorList;
+//import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
-import com.vangent.hieos.xutil.metadata.validation.Validator;
-import com.vangent.hieos.xutil.xml.SchemaValidation;
+//import com.vangent.hieos.xutil.metadata.validation.Validator;
+//import com.vangent.hieos.xutil.xml.SchemaValidation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -127,7 +127,7 @@ public abstract class QueryContents {
 		errors.addAll(errs);
 		try {
 			this.m = MetadataParser.parseNonSubmission(ele);
-			validate();
+			//validate();
 		}
 		catch (MetadataValidationException e) {
 			parse_exception(e);
@@ -254,6 +254,7 @@ public abstract class QueryContents {
 		displayStructureHeader(cntl, xv);
 	}
 
+        /*
 	void validate() {
 		if (result_xml == null) {
 			this.addError("No XML loaded to validate");
@@ -261,24 +262,26 @@ public abstract class QueryContents {
 		}
 		run_schema();
 		run_validator();
-	}
+	}*/
 
+        /*
 	void run_schema() {
 		try {
 			SchemaValidation.validate_local(result_xml, MetadataTypes.METADATA_TYPE_SQ);
 		} catch (Exception e) {
 			this.addException(e);
 		}
-	}
+	}*/
 
+        /*
 	void run_validator() {
 		try {
 			RegistryErrorList registryErrorList = new RegistryErrorList();
 
 			Validator val = new Validator(	m, 
 					registryErrorList, 
-					false /* issubmit */, 
-					null /* logger */);
+					false, 
+					null);
 			val.run();
 			String errors_and_warnings = registryErrorList.getErrorsAndWarnings();
 			if (errors_and_warnings != null && !errors_and_warnings.equals("")) {
@@ -287,7 +290,7 @@ public abstract class QueryContents {
 		} catch (Exception e) {
 			this.addException(e);
 		}
-	}
+	}*/
 
 	protected String document_actions(QueryControl q_cntl, Metadata m, XView xv,
 			String id) throws MetadataException {
