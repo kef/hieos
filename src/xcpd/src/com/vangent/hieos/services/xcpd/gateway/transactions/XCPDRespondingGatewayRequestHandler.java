@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,21 +37,27 @@ import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
+ * Class to handle all requests to XCPD Responding Gateway (RG).
  *
  * @author Bernie Thuman
  */
 public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandler {
 
+    // Type type of message received.
+    public enum MessageType {
+        CrossGatewayPatientDiscovery,
+        PatientLocationQuery
+     };
     private final static Logger logger = Logger.getLogger(XCPDRespondingGatewayRequestHandler.class);
     private static XConfigActor _pdsConfig = null;
 
     /**
-     * 
-     * @param log_message
-     * @param gatewayType
+     * Constructor for handling requests to XCPD Responding Gateway.
+     *
+     * @param log_message  Place to put internal log messages.
      */
-    public XCPDRespondingGatewayRequestHandler(XLogMessage log_message, XCPDGatewayRequestHandler.GatewayType gatewayType) {
-        super(log_message, gatewayType);
+    public XCPDRespondingGatewayRequestHandler(XLogMessage log_message) {
+        super(log_message, XCPDInitiatingGatewayRequestHandler.GatewayType.RespondingGateway);
     }
 
     /**

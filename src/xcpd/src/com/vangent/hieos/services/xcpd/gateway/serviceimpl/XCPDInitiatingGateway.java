@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
-import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDGatewayRequestHandler;
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDInitiatingGatewayRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import org.apache.axiom.om.OMElement;
@@ -20,6 +19,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
+ * Class to handle all web service requests to XCPD Initiating Gateway (IG).
  *
  * @author Bernie Thuman
  */
@@ -30,9 +30,10 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     /**
      *
      * @param PRPA_IN201305UV02_Message
-     * @return
+     * @return OMElement PRPA_IN201306UV02_Message
+     * @throws AxisFault
      */
-    public OMElement CrossGatewayPatientDiscovery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
+    public OMElement PatientRegistryFindCandidatesQuery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
                     this.getTransactionName("CGPD (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.REGISTRY);
@@ -42,13 +43,10 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             }
             validateWS();
             validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler =
-                    new XCPDInitiatingGatewayRequestHandler(
-                    this.log_message,
-                    XCPDGatewayRequestHandler.GatewayType.InitiatingGateway);
+            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             OMElement result = handler.run(
                     PRPA_IN201305UV02_Message,
-                    XCPDGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
+                    XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
@@ -59,7 +57,8 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     /**
      *
      * @param PRPA_IN201309UV02_Message
-     * @return
+     * @return OMElement PRPA_IN201310UV02_Message
+     * @throws AxisFault
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
         try {
@@ -71,13 +70,10 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             }
             validateWS();
             validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler =
-                    new XCPDInitiatingGatewayRequestHandler(
-                    this.log_message,
-                    XCPDGatewayRequestHandler.GatewayType.InitiatingGateway);
+            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             OMElement result = handler.run(
                     PRPA_IN201309UV02_Message,
-                    XCPDGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+                    XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
@@ -88,7 +84,8 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     /**
      *
      * @param PRPA_IN201301UV02_Message
-     * @return
+     * @return OMElement MCCI_IN000002UV01_Message
+     * @throws AxisFault
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
         try {
@@ -99,10 +96,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
             }
             validateWS();
             validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler =
-                    new XCPDInitiatingGatewayRequestHandler(
-                    this.log_message,
-                    XCPDInitiatingGatewayRequestHandler.GatewayType.InitiatingGateway);
+            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             OMElement result = handler.run(
                     PRPA_IN201301UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);

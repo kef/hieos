@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,6 +40,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -47,30 +48,37 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
+ * Class to handle all requests to XCPD Initiating Gateway (IG).
  *
  * @author Bernie Thuman
  */
 public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandler {
 
+    // Type type of message received.
+    public enum MessageType {
+        PatientRegistryGetIdentifiersQuery,
+        PatientRegistryRecordAdded,
+        PatientRegistryFindCandidatesQuery
+    };
+
     private final static Logger logger = Logger.getLogger(XCPDInitiatingGatewayRequestHandler.class);
     private static XConfigActor _pdsConfig = null;
-    private static XConfigActor _pixConfig = null;
+    //private static XConfigActor _pixConfig = null;
     private static List<XConfigActor> _xcpdRespondingGateways = null;
     private static ExecutorService _executor = null;  // Only one of these shared across all web requests.
 
     /**
-     * 
-     * @param log_message
-     * @param gatewayType
+     * Constructor for handling requests to XCPD Initiating Gateway.
+     *
+     * @param log_message  Place to put internal log messages.
      */
-    public XCPDInitiatingGatewayRequestHandler(XLogMessage log_message, XCPDGatewayRequestHandler.GatewayType gatewayType) {
-        super(log_message, gatewayType);
+    public XCPDInitiatingGatewayRequestHandler(XLogMessage log_message) {
+        super(log_message, XCPDInitiatingGatewayRequestHandler.GatewayType.InitiatingGateway);
     }
 
     /**
@@ -84,8 +92,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         HL7V3Message result = null;
         log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
-            case CrossGatewayPatientDiscovery:
-                result = this.processCrossGatewayPatientDiscovery(new PRPA_IN201305UV02_Message(request));
+            case PatientRegistryFindCandidatesQuery:
+                result = this.processPatientRegistryFindCandidatesQuery(new PRPA_IN201305UV02_Message(request));
                 break;
             case PatientRegistryGetIdentifiersQuery:
                 result = this.processPatientRegistryGetIdentifiersQuery(new PRPA_IN201309UV02_Message(request));
@@ -106,21 +114,21 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      * @throws AxisFault
      */
-    private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
+    private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
         this.validateHL7V3Message(request);
         PRPA_IN201306UV02_Message result = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
         String errorText = null;  // Hope for the best.
         try {
             SubjectSearchCriteria patientDiscoverySearchCriteria = this.getSubjectSearchCriteria(request);
-            this.validateCGPDRequest(patientDiscoverySearchCriteria);
+            this.validatePDQRequest(patientDiscoverySearchCriteria);
             // TBD: Should we see if we know about this patient first?
             //PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
             patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
         } catch (XCPDException ex) {
             errorText = ex.getMessage();
         }
-        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
+        result = this.getprocessPatientRegistryFindCandidatesQueryResponse(request, patientDiscoverySearchResponse, errorText);
         this.log(errorText);
         this.validateHL7V3Message(result);
         return result;
@@ -180,11 +188,12 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         return result;
     }
 
-    /**
-     *
-     * @param PRPA_IN201301UV02_Message
-     * @return
-     */
+   /**
+    *
+    * @param request
+    * @return
+    * @throws AxisFault
+    */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws AxisFault {
         // FIXME: This is really not implemented yet!
         this.validateHL7V3Message(request);
@@ -197,13 +206,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             } else if (subject.getSubjectIdentifiers().size() > 1) {
                 errorText = "Only 1 subject identifier must be specified";
             }
-            // Create
-            /*if (errorText == null) {
-            PIXManagerClient pixClient = new PIXManagerClient(this.getPIXConfig());
-            OMElement PRPA_IN201310UV02_Message = pixClient.getIdentifiersQuery(PRPA_IN201309UV02_Message);
-            }*/
-            //EMPIAdapter adapter = EMPIFactory.getInstance();
-            //Subject subjectAdded = adapter.addSubject(subject);
         } catch (Exception ex) {
             errorText = ex.getMessage();
         }
@@ -260,7 +262,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param subjectSearchCriteria
      * @throws XCPDException
      */
-    private void validateCGPDRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
+    private void validatePDQRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
         SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
 
         // Validate request:
@@ -369,7 +371,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request,
+    private PRPA_IN201306UV02_Message getprocessPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
@@ -718,6 +720,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @throws AxisFault
      */
     // FIXME: NOT USED
+    /*
     private synchronized XConfigActor getPIXConfig() throws AxisFault {
         if (_pixConfig != null) {
             return _pixConfig;
@@ -727,7 +730,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         // Now get the "PDS" object (and cache it away).
         _pixConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
         return _pixConfig;
-    }
+    }*/
 
     /**
      * 

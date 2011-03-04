@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.apache.axis2.description.AxisService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 /**
+ * Common base class for all XCPD Gateway web service handlers.
  *
  * @author Bernie Thuman
  */
@@ -61,9 +62,10 @@ public class XCPDGateway extends XAbstractService {
     }
 
     /**
-     * 
-     * @param name
-     * @return
+     * Returns the name of the current transaction for logging purposes.
+     *
+     * @param name Name of transaction.
+     * @return Name to use in log.
      */
     protected String getTransactionName(String name)
     {

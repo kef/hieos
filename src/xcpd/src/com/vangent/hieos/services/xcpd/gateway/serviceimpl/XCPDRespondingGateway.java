@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
+ * Class to handle all web service requests to XCPD Responding Gateway (RG).
  *
  * @author Bernie Thuman
  */
@@ -42,9 +43,9 @@ public class XCPDRespondingGateway extends XCPDGateway {
             }
             validateWS();
             validateNoMTOM();
-            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(
-                    this.log_message, XCPDGatewayRequestHandler.GatewayType.RespondingGateway);
-            OMElement result = handler.run(PRPA_IN201305UV02_Message, XCPDGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
+            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+            OMElement result = handler.run(PRPA_IN201305UV02_Message, 
+                    XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
@@ -67,11 +68,10 @@ public class XCPDRespondingGateway extends XCPDGateway {
             }
             validateWS();
             validateNoMTOM();
-            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(
-                    this.log_message, XCPDGatewayRequestHandler.GatewayType.RespondingGateway);
+            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
             OMElement result =
                     handler.run(plq,
-                    XCPDGatewayRequestHandler.MessageType.PatientLocationQuery);
+                    XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {
