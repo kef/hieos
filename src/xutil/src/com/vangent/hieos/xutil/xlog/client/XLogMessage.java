@@ -30,7 +30,7 @@ public class XLogMessage implements Serializable {
     private String messageID;   // Message identifier.
     private String ipAddress;   // Source of message.
     private String testMessage; // Transaction being logged.
-    private boolean pass;    // Transaction failed or completed.
+    private boolean pass = true;    // Transaction failed or completed.
     private boolean secureConnection;   // True if secure transaction.
     private long timeStamp;     // Time when message was created (current time in milliseconds).
     private XLogger xlogger;    // Reference back to creator.
@@ -181,6 +181,7 @@ public class XLogMessage implements Serializable {
      * @param value
      */
     public void addErrorParam(String name, String value) {
+        this.setPass(false);
         if (xlogger.isLogEnabled()) {
             this.addParam("error", name, value);
         }

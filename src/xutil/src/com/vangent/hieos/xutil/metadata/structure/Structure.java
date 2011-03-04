@@ -17,12 +17,12 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
-import com.vangent.hieos.xutil.query.RegistryObjectValidator;
+//import com.vangent.hieos.xutil.query.RegistryObjectValidator;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
 
-import java.util.List;
+//import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -44,12 +44,13 @@ public class Structure {
      * @param is_submit
      * @throws XdsInternalException
      */
+    /*
     public Structure(Metadata m, boolean is_submit) throws XdsInternalException {
         this.m = m;
-        rel = new RegistryErrorList(false /* log */);
+        rel = new RegistryErrorList(false);
         this.is_submit = is_submit;
         log_message = null;
-    }
+    }*/
 
     /**
      *
@@ -242,10 +243,14 @@ public class Structure {
      * @return
      * @throws XdsException
      */
+    
     public boolean isFolder(String id) throws XdsException {
         if (m.getFolderIds().contains(id)) {
             return true;
+        } else {
+            return false;
         }
+        /*
         if (!id.startsWith("urn:uuid:")) {
             return false;
         }
@@ -256,7 +261,7 @@ public class Structure {
         if (missing != null && missing.contains(id)) {
             return false;
         }
-        return true;
+        return true;*/
     }
 
     // Folder Assocs must be linked to SS by a secondary Assoc

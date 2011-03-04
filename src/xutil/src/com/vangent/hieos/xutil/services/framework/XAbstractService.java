@@ -481,7 +481,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     public AxisFault getAxisFault(Exception ex) {
         if (log_message != null) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            log_message.setPass(false);
+            //log_message.setPass(false);
         }
         endTransaction(false);
         return new AxisFault(ex.getMessage());

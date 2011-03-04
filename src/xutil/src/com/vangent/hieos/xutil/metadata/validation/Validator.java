@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.axiom.om.OMAttribute;

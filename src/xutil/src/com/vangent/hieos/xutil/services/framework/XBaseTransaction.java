@@ -82,13 +82,16 @@ public class XBaseTransaction {
      *
      */
     protected void log_response() {
+        if (response.has_errors()) {
+            log_message.setPass(false);
+        }
         if (log_message.isLogEnabled()) {
             if (response.has_errors()) {
-                log_message.setPass(false);
+                //log_message.setPass(false);
                 log_message.addErrorParam("Errors", response.getErrorsAndWarnings());
-            } else {
+            } /*else {
                 log_message.setPass(true);
-            }
+            }*/
             try {
                 OMElement rsp = response.getResponse();
                 log_message.addOtherParam("Response", rsp);
