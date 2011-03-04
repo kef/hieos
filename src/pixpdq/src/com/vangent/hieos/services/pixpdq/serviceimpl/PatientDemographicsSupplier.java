@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,7 +44,7 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
             PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
             OMElement result =
                     handler.run(request,
-                    PIXPDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+                    PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {

@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,6 +36,12 @@ import org.apache.log4j.Logger;
 public class PDSRequestHandler extends PIXPDSRequestHandler {
 
     private final static Logger logger = Logger.getLogger(PDSRequestHandler.class);
+
+    // Type type of message received.
+    public enum MessageType {
+
+        PatientRegistryFindCandidatesQuery
+    };
 
     /**
      *
@@ -76,7 +82,7 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
         SubjectSearchResponse subjectSearchResponse = null;
         String errorText = null;
         try {
-     // FIXME: Validate minimum fields required!!!!
+            // FIXME: Validate minimum fields required!!!!
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjects(subjectSearchCriteria);
         } catch (Exception ex) {
@@ -108,7 +114,7 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
      * @param errorText
      * @return
      */
-    private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request, 
+    private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);

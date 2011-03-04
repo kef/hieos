@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateWS();
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-            OMElement result = handler.run(request, PIXPDSRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+            OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (XdsFormatException ex) {
@@ -69,7 +69,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
             validateWS();
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-            OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXPDSRequestHandler.MessageType.PatientRegistryRecordAdded);
+            OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
             endTransaction(this.log_message.isPass());
             return result;
         } catch (Exception ex) {

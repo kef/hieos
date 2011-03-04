@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@ import com.vangent.hieos.services.pixpdq.adapter.mpi.EMPIFactory;
 import com.vangent.hieos.services.pixpdq.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
@@ -28,7 +27,6 @@ import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
-import java.util.List;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
@@ -40,13 +38,6 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PIXPDSRequestHandler.class);
 
-    // Type type of message received.
-    public enum MessageType {
-
-        PatientRegistryGetIdentifiersQuery,
-        PatientRegistryFindCandidatesQuery,
-        PatientRegistryRecordAdded
-    };
 
     /**
      *
