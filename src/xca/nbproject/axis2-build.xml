@@ -23,6 +23,7 @@
                 <include name="**/*.jar"/>
             </fileset>
         </jar>
+        <delete dir="${basedir}/xml-resources/axis2/lib"/>
     </target>
     <target name="axis2-deploy-dir-check" depends="axis2-aar">
         <condition property="axis2-deploy-dir-required">
