@@ -759,7 +759,7 @@
                <parameterList>
                   <patientIdentifier>
 		     <!--<value root="1.3.6.1.4.1.21367.3000.1.6" extension="GREEN_LOCAL_05"/>-->
-                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_100"/>
+                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_101"/>
                      <semanticsText>Patient.Id</semanticsText>
                   </patientIdentifier>
                </parameterList>
