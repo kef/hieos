@@ -211,13 +211,13 @@
                   <statusCode code="active"/>
                   <subject1 typeCode="SBJ">
                      <patient classCode="PAT">
-                        <id root="1.3.6.1.4.1.21367.13.20.2000" extension="TESTME2000_100"/>
+                        <id root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_102"/>
                         <statusCode code="active"/>
                         <patientPerson>
                            <name>
                               <given>Jake</given>
                               <!--<given>Henry</given>-->
-                              <family>Smith</family>
+                              <family>SmithX</family>
                            </name>
                            <administrativeGenderCode code="M"/>
                            <birthTime value="19640610"/>
