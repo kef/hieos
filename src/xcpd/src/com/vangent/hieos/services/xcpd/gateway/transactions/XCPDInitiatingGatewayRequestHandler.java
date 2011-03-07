@@ -621,9 +621,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 // Continue loop.
             }
         }
-        if (log_message.isLogEnabled()) {
-            this.log(gatewayResponse, resultSubjects, noMatchSubjects);
-        }
+        this.log(gatewayResponse, resultSubjects, noMatchSubjects);
         return resultSubjects;
     }
 

@@ -36,7 +36,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     public OMElement PatientRegistryFindCandidatesQuery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.XCPD_GW);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -63,7 +63,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.XCPD_GW);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -90,7 +90,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("PIDFEED.Add (IG)"), PRPA_IN201301UV02_Message, XAbstractService.ActorType.PIXMGR);
+                    this.getTransactionName("PIDFEED.Add (IG)"), PRPA_IN201301UV02_Message, XAbstractService.ActorType.XCPD_GW);
             if (startup_error != null) {
                 return startup_error;
             }

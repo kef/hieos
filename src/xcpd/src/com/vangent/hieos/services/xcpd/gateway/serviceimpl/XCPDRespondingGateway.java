@@ -35,7 +35,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
     public OMElement CrossGatewayPatientDiscovery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.XCPD_GW);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -60,7 +60,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
     public OMElement PatientLocationQuery(OMElement plq) throws AxisFault {
         try {
             OMElement startup_error = beginTransaction(
-                    this.getTransactionName("PLQ (RG)"), plq, XAbstractService.ActorType.REGISTRY);
+                    this.getTransactionName("PLQ (RG)"), plq, XAbstractService.ActorType.XCPD_GW);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
