@@ -65,7 +65,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     public enum ActorType {
 
-        REGISTRY, REPOSITORY, PIXMGR, PDS
+        REGISTRY, REPOSITORY, PIXMGR, PDS, XCPD_GW
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
