@@ -42,17 +42,17 @@
         <parameter name="ActorName">InitiatingGateway</parameter>
         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
-        <operation name="CrossGatewayPatientDiscovery">
+        <operation name="PatientRegistryFindCandidatesQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
-            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02</actionMapping>
+        </operation>
+        <operation name="PatientRegistryGetIdentifiersQuery">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hl7-org:v3:PRPA_IN201309UV02</actionMapping>
         </operation>
         <operation name="PatientRegistryRecordAdded">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
-        </operation>
-        <operation name="PatientLocationQuery">
-            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
-            <actionMapping>urn:ihe:iti:2009:PatientLocationQuery</actionMapping>
         </operation>
     </service>
 
