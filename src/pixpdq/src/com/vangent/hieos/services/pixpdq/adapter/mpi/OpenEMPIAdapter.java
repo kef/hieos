@@ -187,7 +187,8 @@ public class OpenEMPIAdapter implements EMPIAdapter {
 
             MatchingService matchingService = Context.getMatchingService();
             this.authenticate();
-            Set<RecordPair> matches = matchingService.match(record);
+            // Conduct the matching ... do not count null search fields as a negative.
+            Set<RecordPair> matches = matchingService.match(record, false);
             // FIXME: Deal with links from PERSON (also, need to avoid dups).
             for (RecordPair matchedRecordPair : matches) {
                 // RightRecord should be the matching record.
