@@ -12,7 +12,7 @@
             <resources>
                 <file file="${file.reference.xutil.jar}"/>
                 <file file="${file.reference.hl7v3util.jar}"/>
-                <file file="${file.reference.openempi-core-2.1.0.jar}"/>
+                <file file="${file.reference.openempi-core-2.1.2.jar}"/>
                 <file file="${file.reference.spring-aop-2.5.4.jar}"/>
                 <file file="${file.reference.spring-aspects-2.5.4.jar}"/>
                 <file file="${file.reference.spring-beans-2.5.4.jar}"/>

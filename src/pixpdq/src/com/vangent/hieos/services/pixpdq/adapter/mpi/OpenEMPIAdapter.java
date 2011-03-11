@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.openhie.openempi.context.Context;
+import org.openhie.openempi.matching.MatchingService;
 import org.openhie.openempi.model.PersonIdentifier;
 import org.openhie.openempi.model.IdentifierDomain;
 import org.openhie.openempi.model.Person;
+import org.openhie.openempi.model.Record;
+import org.openhie.openempi.model.RecordPair;
 
 /**
  *
@@ -47,17 +50,15 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         //
         ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
-        System.out.println("Starting OpenEMPI init");
+        logger.info("Starting OpenEMPI init");
         Context.startup();  // Startup OpenEMPI.
-        // HACK -- startup does not properly initialize the matching service.
-        Context.getMatchingService().init();
-        //Context.getMatchingService().linkRecords();
-
-        // HACK (END)
         Thread.currentThread().setContextClassLoader(currentClassLoader);  // Restore.
-        System.out.println("OpenEMPI loaded");
+        logger.info("OpenEMPI loaded");
     }
 
+    /**
+     *
+     */
     public OpenEMPIAdapter() {
         // Do nothing.
     }
@@ -106,7 +107,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             // Conduct the search ...
             List<Subject> matchedSubjects = new ArrayList<Subject>();
             if (subjectSearchCriteria.hasSubjectIdentifiers()) {
-                System.out.println("Searching based on identifiers ...");
+                logger.trace("Searching based on identifiers ...");
                 // Have to do this differently, otherwise OpenEMPI returns the entire DB matching
                 // the assigning authority specified.
                 Subject matchedSubject = this.findSubjectByIdentifier(personSearchTemplate);
@@ -114,10 +115,10 @@ public class OpenEMPIAdapter implements EMPIAdapter {
                     matchedSubjects.add(matchedSubject);
                 }
             } else if (subjectSearchCriteria.hasSubjectDemographics()) {
-                System.out.println("Searching based on demographics ...");
+                logger.trace("Searching based on demographics ...");
                 matchedSubjects = this.findSubjectsByAttributes(personSearchTemplate);
             } else {
-                System.out.println("Not searching at all!!");
+                logger.trace("Not searching at all!!");
                 // Do nothing ...
             }
             if (subjectSearchCriteria.hasScopingAssigningAuthorities()) {
@@ -165,60 +166,45 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      *
      * @param person
      */
-    private List<Subject> findSubjectsByAttributes(Person personSearchTemplate) {
+    private List<Subject> findSubjectsByAttributes(Person personSearchTemplate) throws EMPIException {
         List<Subject> subjects = new ArrayList<Subject>();
         OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
+
+// WORKS
+        /*
         List<Person> persons = Context.getPersonQueryService().findPersonsByAttributes(personSearchTemplate);
         for (Person matchedPerson : persons) {
-            Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-            this.print(loadedPerson);
-            // TBD?: NEED TO DEAL WITH LINKS!!
-            Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100.0);
-            subjects.add(subject);
+        Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
+        this.print(loadedPerson);
+        // TBD?: NEED TO DEAL WITH LINKS!!
+        Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100.0);
+        subjects.add(subject);
+        }*/
+
+        try {
+            Record record = new Record(personSearchTemplate);
+            record.setRecordId(Long.MAX_VALUE);  // FIXME: HACK
+
+            MatchingService matchingService = Context.getMatchingService();
+            this.authenticate();
+            Set<RecordPair> matches = matchingService.match(record);
+            // FIXME: Deal with links from PERSON (also, need to avoid dups).
+            for (RecordPair matchedRecordPair : matches) {
+                // RightRecord should be the matching record.
+                Double matchWeight = matchedRecordPair.getWeight();
+                Record rightRecord = matchedRecordPair.getRightRecord();
+                Person rightPerson = (Person) rightRecord.getObject();
+                
+                // Need to expand the record.
+                Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
+                this.print(matchedPerson);
+                Subject subject = builder.buildSubjectFromPerson(matchedPerson, matchWeight);
+                subjects.add(subject);
+            }
+        } catch (Exception ex) {
+            throw new EMPIException("EMPI EXCEPTION: when looking for Subjects: " + ex.getMessage());
         }
         return subjects;
-        /*
-        try {
-        OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-        Subject searchSubject = subjectSearchCriteria.getSubject();
-        Person person = builder.buildPersonFromSubject(searchSubject);
-        Record record = new Record(person);
-        record.setRecordId(Long.MAX_VALUE);  // FIXME: HACK
-
-        MatchingService matchingService = Context.getMatchingService();
-        this.authenticate();
-        Set<RecordPair> links = matchingService.match(record);
-        // FIXME: Deal with links from PERSON (also, need to avoid dups).
-        for (RecordPair recordPair : links) {
-        // RightRecord should be the matching record.
-        Double matchWeight = recordPair.getWeight();
-        Record rightRecord = recordPair.getRightRecord();
-        Person rightPerson = (Person) rightRecord.getObject();
-        Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
-        System.out.println("Matched Person: ");
-        System.out.println("  weight = " + matchWeight);
-        System.out.println("  gender = " + matchedPerson.getGender().getGenderCode());
-        System.out.println("  givenName = " + matchedPerson.getGivenName());
-        System.out.println("  familyName = " + matchedPerson.getFamilyName());
-        System.out.println("  dateOfBirth = " + matchedPerson.getDateOfBirth());
-        // Person identifiers.
-        Set<PersonIdentifier> personIdentifiers = matchedPerson.getPersonIdentifiers();
-        if (personIdentifiers != null) {
-        for (PersonIdentifier personIdentifier : personIdentifiers) {
-        IdentifierDomain identifierDomain = personIdentifier.getIdentifierDomain();
-        System.out.println("  ... pid = " + personIdentifier.getIdentifier());
-        System.out.println("      ... universalID = " + identifierDomain.getUniversalIdentifier());
-        System.out.println("      ... universalIDNameSpace = " + identifierDomain.getNamespaceIdentifier());
-        System.out.println("      ... universalIDTypeCode = " + identifierDomain.getUniversalIdentifierTypeCode());
-        }
-        }
-        Subject subject = builder.buildSubjectFromPerson(matchedPerson, matchWeight);
-        subjects.add(subject);
-        }
-        } catch (Exception ex) {
-        // TBD: Do something.
-        System.out.println("EMPI EXCEPTION: when looking for Subjects: " + ex.getMessage());
-        }*/
     }
 
     /**
@@ -226,7 +212,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      * @param person
      * @return
      */
-    private Subject findSubjectByIdentifier(Person personSearchTemplate) {
+    public Subject findSubjectByIdentifier(Person personSearchTemplate) {
         OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
         List<PersonIdentifier> personIdentifiers = new ArrayList<PersonIdentifier>();
         personIdentifiers.addAll(personSearchTemplate.getPersonIdentifiers());
@@ -276,21 +262,21 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      * @param person
      */
     private void print(Person person) {
-        System.out.println("Matched Person: ");
-        System.out.println("  gender = " + person.getGender().getGenderCode());
-        System.out.println("  givenName = " + person.getGivenName());
-        System.out.println("  familyName = " + person.getFamilyName());
-        System.out.println("  dateOfBirth = " + person.getDateOfBirth());
+        logger.trace("Matched Person: ");
+        logger.trace("  gender = " + person.getGender().getGenderCode());
+        logger.trace("  givenName = " + person.getGivenName());
+        logger.trace("  familyName = " + person.getFamilyName());
+        logger.trace("  dateOfBirth = " + person.getDateOfBirth());
 
         // Person identifiers.
         Set<PersonIdentifier> personIdentifiers = person.getPersonIdentifiers();
         if (personIdentifiers != null) {
             for (PersonIdentifier personIdentifier : personIdentifiers) {
                 IdentifierDomain identifierDomain = personIdentifier.getIdentifierDomain();
-                System.out.println("  ... pid = " + personIdentifier.getIdentifier());
-                System.out.println("      ... universalID = " + identifierDomain.getUniversalIdentifier());
-                System.out.println("      ... universalIDNameSpace = " + identifierDomain.getNamespaceIdentifier());
-                System.out.println("      ... universalIDTypeCode = " + identifierDomain.getUniversalIdentifierTypeCode());
+                logger.trace("  ... pid = " + personIdentifier.getIdentifier());
+                logger.trace("      ... universalID = " + identifierDomain.getUniversalIdentifier());
+                logger.trace("      ... universalIDNameSpace = " + identifierDomain.getNamespaceIdentifier());
+                logger.trace("      ... universalIDTypeCode = " + identifierDomain.getUniversalIdentifierTypeCode());
             }
         }
     }
