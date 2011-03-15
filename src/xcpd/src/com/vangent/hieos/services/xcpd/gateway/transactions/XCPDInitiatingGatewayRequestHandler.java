@@ -67,6 +67,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         PatientRegistryFindCandidatesQuery
     };
     private final static Logger logger = Logger.getLogger(XCPDInitiatingGatewayRequestHandler.class);
+    private final static int DEFAULT_MINIMUM_DEGREE_MATCH_PERCENTAGE = 90;
     private static XConfigActor _pdsConfig = null;
     //private static XConfigActor _pixConfig = null;
     private static List<XConfigActor> _xcpdRespondingGateways = null;
@@ -175,6 +176,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 // Get ready to send CGPD request.
                 SubjectSearchCriteria patientDiscoverySearchCriteria = new SubjectSearchCriteria();
                 patientDiscoverySearchCriteria.setSubject(subject);
+                patientDiscoverySearchCriteria.setMinimumDegreeMatchPercentage(subjectSearchCriteria.getMinimumDegreeMatchPercentage());
 
                 // FIXME: Should strip out all ids except for the one that matches the
                 // communityAssigningAuthority
@@ -201,7 +203,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws AxisFault {
         this.validateHL7V3Message(request);
-        SubjectSearchResponse patientDiscoverySearchResponse = null;
         String errorText = null;  // Hope for the best.
         try {
             // Get SubjectSearchCriteria instance from PID Feed.
@@ -213,7 +214,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
 
             // Assume that PID Feed request has valid patient id and demographics (skip PDQ validation).
-            patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
+            SubjectSearchResponse patientDiscoverySearchResponse = this.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
 
             // Nothing more to do here ...
 
@@ -227,67 +228,84 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     * 
-     * @param request
-     * @return
+     * Convert PDQ query to SubjectSearchCriteria.
+     *
+     * @param request PDQ query.
+     * @return SubjectSearchCriteria
      * @throws XCPDException
      */
     private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201305UV02_Message request) throws XCPDException {
-        // First build search criteria from inbound request.
-        SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
-        SubjectSearchCriteria subjectSearchCriteria;
         try {
-            subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
+            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
+            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
             subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
-
+            this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
+            return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
             throw new XCPDException(ex.getMessage());
         }
-        return subjectSearchCriteria;
     }
 
     /**
+     * Convert PIX query to SubjectSearchCriteria.
      *
-     * @param request
-     * @return
+     * @param request PIX query.
+     * @return SubjectSearchCriteria
      * @throws XCPDException
      */
     private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201309UV02_Message request) throws XCPDException {
-        // First build search criteria from inbound request.
-        SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
-        SubjectSearchCriteria subjectSearchCriteria;
         try {
-            subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
+            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
+            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
             subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
             subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+            this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
+            return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
             throw new XCPDException(ex.getMessage());
         }
-        return subjectSearchCriteria;
     }
 
     /**
+     * Convert PID Feed (Add) to SubjectSearchCriteria.
      *
-     * @param request
-     * @return
+     * @param request PID Feed (Add).
+     * @return SubjectSearchCriteria
      * @throws XCPDException
      */
     private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201301UV02_Message request) throws XCPDException {
-        // First build search criteria from inbound request.
-        SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject searchSubject = builder.buildSubject(request);
+            SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
             subjectSearchCriteria.setSubject(searchSubject);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
             subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
             //subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+            this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
+            return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
             throw new XCPDException(ex.getMessage());
         }
-        return subjectSearchCriteria;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     */
+    private void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria) {
+        if (subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage() == false) {
+            logger.info("Setting MinimumDegreeMatchPercentage from xconfig");
+            String minimumDegreeMatchPercentageText = this.getGatewayConfigProperty("MinimumDegreeMatchPercentage");
+            int minimumDegreeMatchPercentage = XCPDInitiatingGatewayRequestHandler.DEFAULT_MINIMUM_DEGREE_MATCH_PERCENTAGE;
+            if (minimumDegreeMatchPercentageText != null) {
+                minimumDegreeMatchPercentage = new Integer(minimumDegreeMatchPercentageText);
+            }
+            subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(true);
+            subjectSearchCriteria.setMinimumDegreeMatchPercentage(new Integer(minimumDegreeMatchPercentage));
+        }
     }
 
     /**
@@ -585,6 +603,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Prepare PDQ search criteria.
             SubjectSearchCriteria pdqSubjectSearchCriteria = new SubjectSearchCriteria();
             pdqSubjectSearchCriteria.setSubject(remoteSubject);
+            
+            // FIXME: ? Not sure if necessary ?
+            this.setMinimumDegreeMatchPercentage(pdqSubjectSearchCriteria);
 
             // Scope PDQ request to local community assigning authority only.
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
