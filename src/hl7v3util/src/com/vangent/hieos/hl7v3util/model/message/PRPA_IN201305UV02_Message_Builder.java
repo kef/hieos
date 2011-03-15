@@ -22,6 +22,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import java.util.Date;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNamespace;
 
 /**
  *
@@ -50,7 +51,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * @param sendCommunityPatientId
      * @return
      */
-    public PRPA_IN201305UV02_Message getPRPA_IN201305UV02_Message(
+    public PRPA_IN201305UV02_Message buildPRPA_IN201305UV02_Message(
             SubjectSearchCriteria subjectSearchCriteria) {
 
         String messageName = "PRPA_IN201305UV02";
@@ -144,8 +145,24 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/responsePriorityCode
         this.addCode(queryByParameterNode, "responsePriorityCode", "I");
 
-        // FIXME (Pull from subjectSearchCriteria) ....
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList     
+        this.addMatchCriterionList(queryByParameterNode, subjectSearchCriteria);
+
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList
+        this.addParameterList(queryByParameterNode, subjectSearchCriteria);
+
+        return queryByParameterNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param subjectSearchCriteria
+     * @return
+     */
+    private OMElement addMatchCriterionList(
+            OMElement rootNode,
+            SubjectSearchCriteria subjectSearchCriteria) {
         // <matchCriterionList>
         //   <minimumDegreeMatch>
         //     <value xsi:type="INT" value="75"/>
@@ -153,10 +170,22 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //   </minimumDegreeMatch>
         // </matchCriterionList>
 
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList
-        this.addParameterList(queryByParameterNode, subjectSearchCriteria);
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList
+        OMElement matchCriterionListNode = this.addChildOMElement(rootNode, "matchCriterionList");
+        
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch
+        OMElement minimumDegreeMatchNode = this.addChildOMElement(matchCriterionListNode, "minimumDegreeMatch");
 
-        return queryByParameterNode;
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/value
+        OMElement valueNode = this.addChildOMElement(minimumDegreeMatchNode, "value");
+        OMNamespace xsiNS = this.createOMNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
+        valueNode.addAttribute("type", "INT", xsiNS);
+        this.setAttribute(valueNode, "value", new Integer(subjectSearchCriteria.getMinimumDegreeMatchPercentage()).toString());
+
+        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/semanticsText
+        OMElement semanticsTextNode = this.addChildOMElementWithValue(minimumDegreeMatchNode, "semanticsText", "Degree of match requested");
+
+        return matchCriterionListNode;
     }
 
     /**

@@ -375,9 +375,9 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         OMElement valueNode = this.addChildOMElement(queryMatchObservationNode, "value");
         OMNamespace xsiNS = this.createOMNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
         valueNode.addAttribute("type", "INT", xsiNS);
-        this.setAttribute(valueNode, "value", "100"); // TBD FIXME: Degree of match ????????????????????????
+        this.setAttribute(valueNode, "value", new Integer(subject.getMatchConfidencePercentage()).toString());
     }
-
+    
     /**
      *
      * @param rootNode

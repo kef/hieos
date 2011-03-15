@@ -94,7 +94,7 @@ public class PDSClient extends Client {
                 new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
 
         PRPA_IN201305UV02_Message request =
-                pdqQueryBuilder.getPRPA_IN201305UV02_Message(subjectSearchCriteria);
+                pdqQueryBuilder.buildPRPA_IN201305UV02_Message(subjectSearchCriteria);
         try {
             PRPA_IN201306UV02_Message queryResponse = this.findCandidatesQuery(request);
             if (queryResponse != null) {

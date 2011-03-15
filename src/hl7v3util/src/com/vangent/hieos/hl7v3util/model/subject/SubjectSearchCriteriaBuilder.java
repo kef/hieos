@@ -46,6 +46,8 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
             "./ns:controlActProcess/ns:queryByParameter/ns:parameterList/ns:patientIdentifier[1]";
     private final static String XPATH_COMMUNITY_PATIENT_ID_ASSIGNING_AUTHORITY =
             "./ns:controlActProcess/ns:authorOrPerformer/ns:assignedDevice/ns:id[1]";
+    private final static String XPATH_PARAMETER_MIN_DEGREE_MATCH_VALUE =
+            "./ns:controlActProcess/ns:queryByParameter/ns:matchCriterionList/ns:minimumDegreeMatch/ns:value[1]";
 
     /**
      *
@@ -74,6 +76,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
         this.setAddresses(subject, parameterListNode);
         this.setIdentifiers(subject, parameterListNode);
         this.setScopingAssigningAuthorities(crit, parameterListNode);
+        this.setMinimumDegreeMatchPercentage(crit, message.getMessageNode());
 
         // Get community patient id assigning authority.
         this.setCommunityAssigningAuthority(crit, message.getMessageNode());
@@ -259,6 +262,25 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
                 identifierDomain.setUniversalId(assigningAuthority);
                 identifierDomain.setUniversalIdType("ISO");
                 subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+    }
+
+    /**
+     * 
+     * @param subjectSearchCriteria
+     * @param message
+     */
+    private void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria, OMElement message) {
+        try {
+            OMElement valueNode = this.selectSingleNode(message, XPATH_PARAMETER_MIN_DEGREE_MATCH_VALUE);
+            if (valueNode != null) {
+                String value = valueNode.getAttributeValue(new QName("value"));
+                if (value != null) {
+                    subjectSearchCriteria.setMinimumDegreeMatchPercentage(new Integer(value));
+                }
             }
         } catch (XPathHelperException ex) {
             // TBD: Do something.

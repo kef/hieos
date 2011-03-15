@@ -28,14 +28,14 @@ public class Subject {
     private SubjectGender gender = null;
     private Custodian custodian = null;
     private Date birthTime = null;
-    private Double matchWeight = 0.0;
+    private int matchConfidencePercentage = 0;
 
-    public Double getMatchWeight() {
-        return matchWeight;
+    public int getMatchConfidencePercentage() {
+        return matchConfidencePercentage;
     }
 
-    public void setMatchWeight(Double matchWeight) {
-        this.matchWeight = matchWeight;
+    public void setMatchConfidencePercentage(int matchConfidencePercentage) {
+        this.matchConfidencePercentage = matchConfidencePercentage;
     }
 
     public List<Address> getAddresses() {

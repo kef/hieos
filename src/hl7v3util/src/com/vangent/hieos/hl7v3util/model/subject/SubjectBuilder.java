@@ -128,6 +128,7 @@ public class SubjectBuilder extends BuilderHelper {
         this.setIdentifiers(subject, patientNode);
         this.setOtherIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
+        this.setMatchConfidencePercentage(subject, patientNode);
         return subject;
     }
 
@@ -359,6 +360,32 @@ public class SubjectBuilder extends BuilderHelper {
             } catch (XPathHelperException ex) {
                 // TBD: ? Just eat ?
             }
+        }
+    }
+
+    /**
+     * 
+     * @param subject
+     * @param patientNode
+     */
+    private void setMatchConfidencePercentage(Subject subject, OMElement patientNode) {
+        // <subjectOf1>
+        //   <queryMatchObservation classCode="COND" moodCode="EVN">
+        //     <code code="IHE_PDQ"/>
+        //     <value xsi:type="INT" value="92" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        //   </queryMatchObservation>
+        // </subjectOf1>
+        try {
+            OMElement valueNode = this.selectSingleNode(patientNode,
+                    "./ns:subjectOf1/ns:queryMatchObservation/ns:value[1]");
+            if (valueNode != null) {
+                String value = valueNode.getAttributeValue(new QName("value"));
+                if (value != null) {
+                    subject.setMatchConfidencePercentage(new Integer(value));
+                }
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: ? Just eat ?
         }
     }
 
