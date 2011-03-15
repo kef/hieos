@@ -22,6 +22,7 @@ import java.util.List;
 public class SubjectSearchCriteria {
     private Subject subject = null;
     private int minimumDegreeMatchPercentage = 100;  // Default.
+    private boolean specifiedMinimumDegreeMatchPercentage = false;
     private SubjectIdentifierDomain communityAssigningAuthority = null;
     private List<SubjectIdentifierDomain> scopingAssigningAuthorities = new ArrayList<SubjectIdentifierDomain>();
 
@@ -138,6 +139,22 @@ public class SubjectSearchCriteria {
      */
     public void setMinimumDegreeMatchPercentage(int minimumDegreeMatchPercentage) {
         this.minimumDegreeMatchPercentage = minimumDegreeMatchPercentage;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasSpecifiedMinimumDegreeMatchPercentage() {
+        return specifiedMinimumDegreeMatchPercentage;
+    }
+
+    /**
+     *
+     * @param specifiedMinimumDegreeMatchPercentage
+     */
+    public void setSpecifiedMinimumDegreeMatchPercentage(boolean specifiedMinimumDegreeMatchPercentage) {
+        this.specifiedMinimumDegreeMatchPercentage = specifiedMinimumDegreeMatchPercentage;
     }
 
 

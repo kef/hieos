@@ -279,11 +279,14 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
             if (valueNode != null) {
                 String value = valueNode.getAttributeValue(new QName("value"));
                 if (value != null) {
+                    subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(true);
                     subjectSearchCriteria.setMinimumDegreeMatchPercentage(new Integer(value));
+                } else {
+                    subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(false);
                 }
             }
         } catch (XPathHelperException ex) {
-            // TBD: Do something.
+            subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(false);
         }
     }
 }
