@@ -18,6 +18,7 @@ import com.vangent.hieos.services.pixpdq.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -76,7 +77,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             Person person = builder.buildPersonFromSubject(subject);
             this.authenticate();
             Person personAdded = Context.getPersonManagerService().addPerson(person);
-            subjectAdded = builder.buildSubjectFromPerson(personAdded, 1.0);
+            subjectAdded = builder.buildSubjectFromPerson(personAdded, 100 /* matchConfidencePercentage */);
         } catch (Exception ex) {
             throw new EMPIException("EMPI EXCEPTION: when adding new Subject: " + ex.getMessage());
         }
@@ -177,7 +178,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
         this.print(loadedPerson);
         // TBD?: NEED TO DEAL WITH LINKS!!
-        Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100.0);
+        Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100);
         subjects.add(subject);
         }*/
 
@@ -192,20 +193,32 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             // FIXME: Deal with links from PERSON (also, need to avoid dups).
             for (RecordPair matchedRecordPair : matches) {
                 // RightRecord should be the matching record.
-                Double matchWeight = matchedRecordPair.getWeight();
+                //Double matchWeight = matchedRecordPair.getWeight();
                 Record rightRecord = matchedRecordPair.getRightRecord();
                 Person rightPerson = (Person) rightRecord.getObject();
-                
+
                 // Need to expand the record.
                 Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
                 this.print(matchedPerson);
-                Subject subject = builder.buildSubjectFromPerson(matchedPerson, matchWeight);
+
+                Subject subject = builder.buildSubjectFromPerson(matchedPerson, this.getMatchConfidencePercentage(matchedRecordPair));
                 subjects.add(subject);
             }
         } catch (Exception ex) {
             throw new EMPIException("EMPI EXCEPTION: when looking for Subjects: " + ex.getMessage());
         }
         return subjects;
+    }
+
+    /**
+     *
+     * @param recordPair
+     * @return
+     */
+    private int getMatchConfidencePercentage(RecordPair recordPair) {
+        BigDecimal bd = new BigDecimal(recordPair.getWeight() * 100);
+        bd = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
+        return bd.intValue();
     }
 
     /**
@@ -225,7 +238,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             this.print(loadedPerson);
 
             // TBD?: NEED TO DEAL WITH LINKS!!
-            Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100.0);
+            Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100 /* matchConfidencePercentage */);
             return subject;
         } else {
             return null;
@@ -248,7 +261,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
             this.print(loadedPerson);
             // FIXME: NEED TO DEAL WITH LINKS!!
-            subject = builder.buildSubjectFromPerson(loadedPerson, 100.0 /* FIXME */);
+            subject = builder.buildSubjectFromPerson(loadedPerson, 100 /* matchConfidencePercentage */);
         }
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         if (subject != null) {

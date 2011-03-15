@@ -88,9 +88,9 @@ public class OpenEMPIModelBuilder {
         personIdentifier.setIdentifier(subjectIdentifier.getIdentifier());
         IdentifierDomain identifierDomain = new IdentifierDomain();
         identifierDomain.setUniversalIdentifier(subjectIdentifierDomain.getUniversalId());
-  // FIXME?
-  // seems to cause a bit of an issue with OpenEMPI so just set these manually in DB.
-  // identifierDomain.setNamespaceIdentifier(subjectIdentifierDomain.getNamespaceId());
+        // FIXME?
+        // seems to cause a bit of an issue with OpenEMPI so just set these manually in DB.
+        // identifierDomain.setNamespaceIdentifier(subjectIdentifierDomain.getNamespaceId());
         identifierDomain.setUniversalIdentifierTypeCode(subjectIdentifierDomain.getUniversalIdType());
         personIdentifier.setIdentifierDomain(identifierDomain);
         return personIdentifier;
@@ -99,12 +99,12 @@ public class OpenEMPIModelBuilder {
     /**
      *
      * @param person
-     * @param matchWeight
+     * @param matchConfidencePercentage
      * @return
      */
-    public Subject buildSubjectFromPerson(Person person, Double matchWeight) {
+    public Subject buildSubjectFromPerson(Person person, int matchConfidencePercentage) {
         Subject subject = new Subject();
-        subject.setMatchWeight(matchWeight);
+        subject.setMatchConfidencePercentage(matchConfidencePercentage);
 
         // BirthTime:
         subject.setBirthTime(person.getDateOfBirth());
