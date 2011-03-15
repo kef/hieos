@@ -144,7 +144,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
 
         // Build PDQ request.
         PRPA_IN201305UV02_Message pdqQuery =
-                pdqQueryBuilder.getPRPA_IN201305UV02_Message(
+                pdqQueryBuilder.buildPRPA_IN201305UV02_Message(
                 subjectSearchCriteria);
 
         // Issue PDQ request and return response.

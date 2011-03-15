@@ -453,7 +453,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
             PRPA_IN201305UV02_Message_Builder builder =
                     new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-            PRPA_IN201305UV02_Message cgpdRequest = builder.getPRPA_IN201305UV02_Message(patientDiscoverySearchCriteria);
+            PRPA_IN201305UV02_Message cgpdRequest = builder.buildPRPA_IN201305UV02_Message(patientDiscoverySearchCriteria);
 
             gatewayRequest.setRequest(cgpdRequest);
             requests.add(gatewayRequest);
