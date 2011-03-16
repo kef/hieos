@@ -5,7 +5,7 @@
     Created on : January 14, 2009, 4:52 PM (reworked structure on December 14, 2010).
     Author     : Bernie Thuman
     Description:
-        Master configuration file for XDS.b / XCA profiles
+        Master configuration file for HIEOS supported IHE profiles
 
         This file is referenced via the URL: http://localhost:8080/xref/config/xconfig.xml
 -->
@@ -58,15 +58,16 @@
         <Property name="ATNAsyslogPort">8087</Property>-->
 
         <!-- HIEOS ATNA log -->
-        <!--<Property name="ATNAsyslogHost">localhost</Property>
+        <!--<Property name="ATNAsyslogHost">vangent1</Property>
         <Property name="ATNAsyslogPort">3110</Property>-->	<!-- UDP Port 3110; TCP Port 3100-->
 
-       
+        <Property name="ATNAsyslogHost">10.242.17.125</Property>
+        <Property name="ATNAsyslogPort">3110</Property>
 
         <!-- SOAP configuration parameters. -->
-        <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 10 seconds -->
-        <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 10 seconds -->
-        <Property name="SOAPAsyncResponseHTTPPort">8091</Property>
+        <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
+        <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 120(10-connectathon) seconds -->
+        <Property name="SOAPAsyncResponseHTTPPort">8080</Property>
 
         <!-- Log file parameters -->
         <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
@@ -84,6 +85,7 @@
     <Object name="XUAProperties" type="XUAPropertiesType">
         <Property name="XUAEnabled">false</Property>
         <!--<Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
+        <!--<Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
         <Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>
         <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
         <!--
@@ -106,24 +108,48 @@
     <Object name="xdstest" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
     <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
-    <Object name="IHENA" type="AssigningAuthorityType">
-        <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.2000&amp;ISO</UniqueId>
+    <Object name="IHENA1" type="AssigningAuthorityType">
+        <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
+    <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
+    <Object name="IHENA2" type="AssigningAuthorityType">
+        <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.2000&amp;ISO</UniqueId>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
+    
+    <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
+    <Object name="IHENA3" type="AssigningAuthorityType">
+        <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.3000&amp;ISO</UniqueId>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
+
+    <!-- The master assigning authority used in all Connectathon and HIMSS Affinity Domains. -->
+    <Object name="XCPD_Test" type="AssigningAuthorityType">
+        <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1300&amp;ISO</UniqueId>
+        <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
+    </Object>
+    
     <!-- HIMSS Registration System. -->
     <Object name = "PAMX" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
    <!-- List of Registries -->
@@ -148,32 +174,16 @@
         <Property name="MaxLeafObjectsAllowedFromQuery">25</Property>
     </Actor>
 
-    <Actor name="nistregistry" type="DocumentRegistryType">
-        <UniqueId>NA</UniqueId>
-        <Transaction name="RegisterDocumentSet-b" secure="false" async="true">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/xdsregistrybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://</Endpoint>
-        </Transaction>
-        <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsregistrybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://</Endpoint>
-        </Transaction>
-    </Actor>
-
    <!-- List of Repositories -->
     <Actor name="localrepository" type="DocumentRepositoryType">
         <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
-        <Transaction name="RetrieveDocumentSet" secure="true" async="false">
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
-        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="true" async="false">
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
@@ -182,29 +192,23 @@
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
-        <!--<ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>-->
-        <!--<ObjectReference name="registry" refname="XDSab_REG_Forcare_registry" reftype="DocumentRegistryType"/>-->
-        <!--<ObjectReference name="registry" refname="XDSab_REG_IBM_0_registry" reftype="DocumentRegistryType"/>-->
-        <!--<ObjectReference name="registry" refname="EHR_ISC_HEALTHSHARE_registry" reftype="DocumentRegistryType"/>-->
-        <!--<ObjectReference name="registry" refname="XDSb_REG_MOSS_registry" reftype="DocumentRegistryType"/>-->
     </Actor>
 
-    <Actor name="nistrepository" type="DocumentRepositoryType">
-        <UniqueId>1.19.6.24.109.42.1.5</UniqueId>
+    <Actor name="vangent-repository-2" type="DocumentRepositoryType">
+        <UniqueId>1.3.6.1.4.1.21367.13.1186</UniqueId>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsrepositorybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://ihexds.nist.gov:9080/tf6/services/xdsrepositorybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
     </Actor>
-    
 
    <!-- List of Gateways -->   
 
@@ -222,6 +226,12 @@
             <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
         </Transaction>
+        <Transaction name="PatientRegistryGetIdentifiersQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdig</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
 
         <!-- In support of XDS Affinity Domain Option -->
         <!-- placed here so the gateway knows where to direct local registry requests. -->
@@ -230,15 +240,17 @@
         <!-- To support outbound PDQ requests -->
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
-        <!-- To support outbound PIX requests -->
-        <ObjectReference name="pix" refname="localpix" reftype="PIXManagerType"/>
-
         <!-- The configuration to use to determine which XCPD Responding Gateways to connect to for CrossGatewayPatientDiscovery requests. -->
         <ObjectReference name="xcpd_rgs" refname="XCPDRespondingGateways" reftype="XCPDRespondingGatewaysType"/>
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCAIG</Property>
-        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.2000</Property>
+        
+        <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.1000</Property>
+
+        <!-- This will be used to pass along to XCPD Responding Gateway's if not supplied in
+             a request to the XCPD Initiating Gateway (e.g. PDQ). -->
+        <Property name="MinimumDegreeMatchPercentage">90</Property>
         
         <!-- determine how XCA Initiating Gateway will process queries -->
         <!-- XCAInitiatingGatewayPatientMappingMode options include:
@@ -246,26 +258,20 @@
                 to determine which responding gateways to send requests to).  Will use
                 AssigningAuthorityType's defined in this file to find RespondingGateway/Registry
                 mappings.
-             2) correlationcache - Use the patientcorrelation table to determine where to go.
-                In this case, the patient identifier in the request is looked up in the
-                patientcorrelation table to determine targeted communities (the RespondingGateways).
-             3) xcpd? - TBD / requests will be directed to an XCPD IG to determine where to go.
-             4) pix? - TBD / requests will be directed to a PIXManager to determine where to go.
+             2) xcpd - A PIX query will be directed to an XCPD IG to determine where to go.
+             3) pix? - TBD / requests will be directed to a PIXManager to determine where to go.
         -->
-        <Property name="XCAInitiatingGatewayPatientMappingMode">passthrough</Property>
+        <Property name="XCAInitiatingGatewayPatientMappingMode">xcpd</Property>
 
+         <!-- To support outbound XCPD Initiating Gateway PIX requests when in "xcpd" mode. -->
+         <!-- OK to self reference here. -->
+        <ObjectReference name="xcpdig" refname="localig" reftype="InitiatingGatewayType"/>
     </Actor>
 
     <!-- Lists the XCPD Responding Gateways to connect to for CrossGatewayPatientDiscovery requests. -->
     <Object name="XCPDRespondingGateways" type="XCPDRespondingGatewaysType">
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>  <!-- just to test ... -->
-        <!--<ObjectReference refname="EHR_Tiani-Cisco_0_rg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="EHR_ISC_HEALTHSHARE_rg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="ICW_rg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="OTHER_CareEvolution_rg" reftype="RespondingGatewayType"/>-->
-        <!-- add more object references here .. -->
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>  <!-- just for testing .... -->
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
     </Object>
 
     <Actor name="localrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
@@ -304,23 +310,8 @@
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
+        <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.1000</Property>
 
-    </Actor>
-
-    <Actor name="nistrg" type="RespondingGatewayType"> <!-- NIST Responding Gateway -->
-        <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
-        <Transaction name="CrossGatewayQuery" secure="false" async="true">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
-            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/rgas</Endpoint>
-            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
-        </Transaction>
-        <Transaction name="CrossGatewayRetrieve" secure="false" async="true">
-            <Endpoint secure="false" async="false">http://ihexds.nist.gov:9080/tf6/services/rg</Endpoint>
-            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:9085/tf6/services/rg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8280/tf6/services/rgas</Endpoint>
-            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:9085/tf6/services/rgas</Endpoint>
-        </Transaction>
     </Actor>
 
     <Actor name="localpix" type="PIXManagerType">
