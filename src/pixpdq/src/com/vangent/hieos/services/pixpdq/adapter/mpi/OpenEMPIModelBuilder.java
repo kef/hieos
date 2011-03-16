@@ -18,6 +18,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
+import java.util.List;
 import org.openhie.openempi.model.Gender;
 import org.openhie.openempi.model.IdentifierDomain;
 import org.openhie.openempi.model.Person;
@@ -34,7 +35,7 @@ public class OpenEMPIModelBuilder {
      * @param subject
      * @return
      */
-    public Person buildPersonFromSubject(Subject subject) {
+    public Person buildPerson(Subject subject) {
         Person person = new Person();
 
         // BirthTime:
@@ -71,7 +72,7 @@ public class OpenEMPIModelBuilder {
 
         // Identifiers.
         for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
-            PersonIdentifier personIdentifier = buildPersonIdentifierFromSubjectIdentifier(subjectIdentifier);
+            PersonIdentifier personIdentifier = buildPersonIdentifier(subjectIdentifier);
             person.addPersonIdentifier(personIdentifier);
         }
         return person;
@@ -82,7 +83,7 @@ public class OpenEMPIModelBuilder {
      * @param subjectIdentifier
      * @return
      */
-    public PersonIdentifier buildPersonIdentifierFromSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
+    public PersonIdentifier buildPersonIdentifier(SubjectIdentifier subjectIdentifier) {
         SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
         PersonIdentifier personIdentifier = new PersonIdentifier();
         personIdentifier.setIdentifier(subjectIdentifier.getIdentifier());
@@ -102,7 +103,7 @@ public class OpenEMPIModelBuilder {
      * @param matchConfidencePercentage
      * @return
      */
-    public Subject buildSubjectFromPerson(Person person, int matchConfidencePercentage) {
+    public Subject buildSubject(Person person, int matchConfidencePercentage) {
         Subject subject = new Subject();
         subject.setMatchConfidencePercentage(matchConfidencePercentage);
 
@@ -135,17 +136,37 @@ public class OpenEMPIModelBuilder {
         subject.addAddress(address);
 
         // Identifiers.
+        this.addIdentifiersToSubject(subject, person);
+       
+        return subject;
+    }
+
+    /**
+     *
+     * @param subject
+     * @param person
+     */
+    public void addIdentifiersToSubject(Subject subject, Person person) {
         for (PersonIdentifier personIdentifier : person.getPersonIdentifiers()) {
-            IdentifierDomain identifierDomain = personIdentifier.getIdentifierDomain();
-            SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-            subjectIdentifier.setIdentifier(personIdentifier.getIdentifier());
-            SubjectIdentifierDomain subjectIdentifierDomain = new SubjectIdentifierDomain();
-            subjectIdentifierDomain.setUniversalId(identifierDomain.getUniversalIdentifier());
-            subjectIdentifierDomain.setNamespaceId(identifierDomain.getNamespaceIdentifier());
-            subjectIdentifierDomain.setUniversalIdType(identifierDomain.getUniversalIdentifierTypeCode());
-            subjectIdentifier.setIdentifierDomain(subjectIdentifierDomain);
+            SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(personIdentifier);
             subject.addSubjectIdentifier(subjectIdentifier);
         }
-        return subject;
+    }
+
+    /**
+     * 
+     * @param personIdentifier
+     * @return
+     */
+    public SubjectIdentifier buildSubjectIdentifier(PersonIdentifier personIdentifier) {
+        IdentifierDomain identifierDomain = personIdentifier.getIdentifierDomain();
+        SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
+        subjectIdentifier.setIdentifier(personIdentifier.getIdentifier());
+        SubjectIdentifierDomain subjectIdentifierDomain = new SubjectIdentifierDomain();
+        subjectIdentifierDomain.setUniversalId(identifierDomain.getUniversalIdentifier());
+        subjectIdentifierDomain.setNamespaceId(identifierDomain.getNamespaceIdentifier());
+        subjectIdentifierDomain.setUniversalIdType(identifierDomain.getUniversalIdentifierTypeCode());
+        subjectIdentifier.setIdentifierDomain(subjectIdentifierDomain);
+        return subjectIdentifier;
     }
 }

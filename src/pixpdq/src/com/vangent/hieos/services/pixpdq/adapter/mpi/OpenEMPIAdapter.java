@@ -74,10 +74,10 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         Subject subjectAdded = null;
         try {
             OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-            Person person = builder.buildPersonFromSubject(subject);
+            Person person = builder.buildPerson(subject);
             this.authenticate();
             Person personAdded = Context.getPersonManagerService().addPerson(person);
-            subjectAdded = builder.buildSubjectFromPerson(personAdded, 100 /* matchConfidencePercentage */);
+            subjectAdded = builder.buildSubject(personAdded, 100 /* matchConfidencePercentage */);
         } catch (Exception ex) {
             throw new EMPIException("EMPI EXCEPTION: when adding new Subject: " + ex.getMessage());
         }
@@ -99,7 +99,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             // First convert the HIEOS  search Subject into an OpenEMPI Person instance.
             Subject searchSubject = subjectSearchCriteria.getSubject();
             OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-            Person personSearchTemplate = builder.buildPersonFromSubject(searchSubject);
+            Person personSearchTemplate = builder.buildPerson(searchSubject);
             // HACK ... Have to use custom field to house gender code for simple compare
             if (personSearchTemplate.getGender() != null) {
                 personSearchTemplate.setCustom3(personSearchTemplate.getGender().getGenderCode());
@@ -199,9 +199,9 @@ public class OpenEMPIAdapter implements EMPIAdapter {
 
                 // Need to expand the record.
                 Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
-                this.print(matchedPerson);
+                this.print("MATCHED PERSON", matchedPerson);
 
-                Subject subject = builder.buildSubjectFromPerson(matchedPerson, this.getMatchConfidencePercentage(matchedRecordPair));
+                Subject subject = builder.buildSubject(matchedPerson, this.getMatchConfidencePercentage(matchedRecordPair));
                 subjects.add(subject);
             }
         } catch (Exception ex) {
@@ -235,10 +235,10 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         Person matchedPerson = Context.getPersonManagerService().getPerson(personIdentifiers);
         if (matchedPerson != null) {
             Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-            this.print(loadedPerson);
+            this.print("MATCHED PERSON", loadedPerson);
 
             // TBD?: NEED TO DEAL WITH LINKS!!
-            Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100 /* matchConfidencePercentage */);
+            Subject subject = builder.buildSubject(loadedPerson, 100 /* matchConfidencePercentage */);
             return subject;
         } else {
             return null;
@@ -255,13 +255,29 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         Subject subject = null;
         OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
         PersonIdentifier personIdentifier =
-                builder.buildPersonIdentifierFromSubjectIdentifier(subjectIdentifier);
+                builder.buildPersonIdentifier(subjectIdentifier);
+
+        // Look for a match based on the subject identifier.
         Person matchedPerson = Context.getPersonQueryService().findPersonById(personIdentifier);
         if (matchedPerson != null) {
+
+            // Load the full person.
             Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-            this.print(loadedPerson);
-            // FIXME: NEED TO DEAL WITH LINKS!!
-            subject = builder.buildSubjectFromPerson(loadedPerson, 100 /* matchConfidencePercentage */);
+            this.print("MATCHED PERSON", loadedPerson);
+
+            // Convert Person into a HIEOS Subject.
+            subject = builder.buildSubject(loadedPerson, 100 /* matchConfidencePercentage */);
+
+            // Get any links to this person.
+            List<Person> linkedPersons = Context.getPersonQueryService().findLinkedPersons(personIdentifier);
+            for (Person linkedPerson : linkedPersons) {
+                // Load the full linked Person.
+                Person loadedLinkedPerson = Context.getPersonQueryService().loadPerson(linkedPerson.getPersonId());
+                this.print("LINKED PERSON", loadedLinkedPerson);
+                
+                // Add linked identifiers to the subject.
+                builder.addIdentifiersToSubject(subject, loadedLinkedPerson);
+            }
         }
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         if (subject != null) {
@@ -275,8 +291,8 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      *
      * @param person
      */
-    private void print(Person person) {
-        logger.trace("Matched Person: ");
+    private void print(String text, Person person) {
+        logger.trace(text);
         logger.trace("  gender = " + person.getGender().getGenderCode());
         logger.trace("  givenName = " + person.getGivenName());
         logger.trace("  familyName = " + person.getFamilyName());
