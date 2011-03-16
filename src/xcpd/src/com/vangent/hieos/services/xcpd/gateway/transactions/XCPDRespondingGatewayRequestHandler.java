@@ -108,7 +108,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             this.validateRequest(subjectSearchCriteria);
 
             // Now, make PDQ query to MPI.
-            DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+            DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
 
             // To be safe, strip any identifiers that may be in the search request ...
             Subject searchSubject = subjectSearchCriteria.getSubject();
@@ -182,7 +182,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
-        DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder = new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);

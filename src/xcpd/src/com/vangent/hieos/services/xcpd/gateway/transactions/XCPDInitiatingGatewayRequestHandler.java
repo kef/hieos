@@ -159,7 +159,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             this.validateSearchCriteriaPIXRequest(subjectSearchCriteria);
 
             // Now issue a PDQ to PDS for the supplied patient id (on PIX query).
-            DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+            DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
             SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
 
             // See if we only have one match (from PDS) for the patient.
@@ -408,7 +408,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      */
     private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, String errorText) {
-        DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         MCCI_IN000002UV01_Message_Builder ackBuilder = new MCCI_IN000002UV01_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         MCCI_IN000002UV01_Message ackResponse = ackBuilder.buildMCCI_IN000002UV01(request, errorText);
@@ -424,7 +424,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
-        DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
@@ -440,7 +440,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private PRPA_IN201310UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201309UV02_Message request,
             SubjectSearchResponse subjectSearchResponse, String errorText) {
-        DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201310UV02_Message_Builder builder = new PRPA_IN201310UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorText);
@@ -463,8 +463,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             gatewayRequest.setRGConfig(rgConfig);
             gatewayRequest.setSubjectSearchCriteria(patientDiscoverySearchCriteria);
 
-            DeviceInfo senderDeviceInfo = this.getDeviceInfo();
-            DeviceInfo receiverDeviceInfo = this.getReceiverDeviceInfo(rgConfig);
+            DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
+            DeviceInfo receiverDeviceInfo = this.getDeviceInfo(rgConfig);
             // See if the target RespondingGateway can handle receipt of our community's
             // patientid as a LivingSubjectId parameter.
             // boolean sendCommunityPatientId = rgConfig.getPropertyAsBoolean("SendCommunityPatientId", true);
@@ -477,22 +477,6 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             requests.add(gatewayRequest);
         }
         return requests;
-    }
-
-    /**
-     *
-     * @param rgConfig
-     * @return
-     */
-    private DeviceInfo getReceiverDeviceInfo(XConfigActor rgConfig) {
-        String deviceId = rgConfig.getProperty("DeviceId");
-        String deviceName = rgConfig.getProperty("DeviceName");
-        String homeCommunityId = rgConfig.getUniqueId();
-        DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.setId(deviceId);
-        deviceInfo.setName(deviceName);
-        deviceInfo.setHomeCommunityId(homeCommunityId);
-        return deviceInfo;
     }
 
     /**
@@ -614,7 +598,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
             try {
                 // Issue PDQ using demographics supplied by remote community.
-                DeviceInfo senderDeviceInfo = this.getDeviceInfo();
+                DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
                 SubjectSearchResponse pdqSearchResponse = this.findCandidatesQuery(senderDeviceInfo, pdqSubjectSearchCriteria);
 
                 // Restore identifiers in remote Subject.

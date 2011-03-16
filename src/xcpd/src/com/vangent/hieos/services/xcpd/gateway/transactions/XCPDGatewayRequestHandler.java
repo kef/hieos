@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -110,7 +111,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
             propertyValue = gatewayConfig.getProperty(propertyKey);
         } catch (AxisFault ex) {
             // TBD: Do something.
-            logger.error("Unable to load XConfig for XCPD Gateway", ex);
+            logger.fatal("XCPD EXCEPTION: Unable to load XConfig for XCPD Gateway", ex);
         }
         return propertyValue;
     }
@@ -135,43 +136,11 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @throws AxisFault
      */
     protected SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
-        DeviceInfo receiverDeviceInfo = new DeviceInfo();
-        receiverDeviceInfo.setId("TBD");  // FIXME (Receiver is PDS) ...
-
-        // Get builder for PDQ request.
-        PRPA_IN201305UV02_Message_Builder pdqQueryBuilder =
-                new PRPA_IN201305UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-
-        // Build PDQ request.
-        PRPA_IN201305UV02_Message pdqQuery =
-                pdqQueryBuilder.buildPRPA_IN201305UV02_Message(
-                subjectSearchCriteria);
-
-        // Issue PDQ request and return response.
-        PRPA_IN201306UV02_Message pdqResponse = this.findCandidatesQuery(pdqQuery);
-
-        // Convert PDQ response into SubjectSearchResponse.
-        SubjectBuilder subjectBuilder = new SubjectBuilder();
-        try {
-            SubjectSearchResponse subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(pdqResponse);
-            return subjectSearchResponse;
-        } catch (ModelBuilderException e) {
-            // Rethrow.
-            throw new AxisFault(e.getMessage());
-        }
-    }
-
-    /**
-     *
-     * @param PRPA_IN201305UV02_Message
-     * @return
-     * @throws AxisFault
-     */
-    private PRPA_IN201306UV02_Message findCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
+        DeviceInfo receiverDeviceInfo = this.getDeviceInfo(this.getPDSConfig());
         XConfigActor pdsConfig = this.getPDSConfig();
         PDSClient pdsClient = new PDSClient(pdsConfig);
-        PRPA_IN201306UV02_Message queryResponse = pdsClient.findCandidatesQuery(request);
-        return queryResponse;
+        SubjectSearchResponse subjectSearchResponse = pdsClient.findCandidatesQuery(senderDeviceInfo, receiverDeviceInfo, subjectSearchCriteria);
+        return subjectSearchResponse;
     }
 
     /**
@@ -214,20 +183,26 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      *
      * @return
      */
-    protected DeviceInfo getDeviceInfo() {
-        DeviceInfo deviceInfo = new DeviceInfo();
+    protected DeviceInfo getSenderDeviceInfo() {
         try {
-            XConfigObject gatewayConfig = this.getGatewayConfig();
-            String deviceId = gatewayConfig.getProperty("DeviceId");
-            String deviceName = gatewayConfig.getProperty("DeviceName");
-            String homeCommunityId = gatewayConfig.getUniqueId();
-            deviceInfo.setId(deviceId);
-            deviceInfo.setName(deviceName);
-            deviceInfo.setHomeCommunityId(homeCommunityId);
+            XConfigActor gatewayConfig = this.getGatewayConfig();
+            return this.getDeviceInfo(gatewayConfig);
         } catch (AxisFault ex) {
-            // TBD: Do something ...
+            logger.error("XCPD EXCEPTION: Can not get sender device info", ex);
+            DeviceInfo deviceInfo = new DeviceInfo();
+            deviceInfo.setId("UNKNOWN");
+            deviceInfo.setName("UNKNOWN");
+            return deviceInfo;
         }
+    }
 
+    /**
+     *
+     * @param actorConfig
+     * @return
+     */
+    protected DeviceInfo getDeviceInfo(XConfigActor actorConfig) {
+        DeviceInfo deviceInfo = new DeviceInfo(actorConfig);
         return deviceInfo;
     }
 
@@ -291,8 +266,8 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
                     this.getQueryByParameter(request),
                     endpoint,
                     XATNALogger.OutcomeIndicator.SUCCESS);
-        } catch (Exception e) {
-            logger.error("Could not perform ATNA audit", e);
+        } catch (Exception ex) {
+            logger.error("XCPD EXCEPTION: Could not perform ATNA audit", ex);
         }
     }
 
