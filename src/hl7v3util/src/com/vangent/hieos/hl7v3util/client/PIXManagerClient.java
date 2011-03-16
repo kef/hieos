@@ -12,8 +12,14 @@
  */
 package com.vangent.hieos.hl7v3util.client;
 
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -64,5 +70,38 @@ public class PIXManagerClient extends Client {
             throw new AxisFault(ex.getMessage());
         }
         return response;
+    }
+
+   /**
+    *
+    * @param senderDeviceInfo
+    * @param receiverDeviceInfo
+    * @param subjectSearchCriteria
+    * @return
+    * @throws AxisFault
+    */
+    public SubjectSearchResponse getIdentifiersQuery(
+            DeviceInfo senderDeviceInfo,
+            DeviceInfo receiverDeviceInfo,
+            SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+
+        // Build the HL7v3 message.
+        PRPA_IN201309UV02_Message_Builder pixQueryBuilder =
+                new PRPA_IN201309UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
+
+        PRPA_IN201309UV02_Message request =
+                pixQueryBuilder.buildPRPA_IN201309UV02_Message(subjectSearchCriteria);
+        try {
+            PRPA_IN201310UV02_Message pixQueryResponse = this.getIdentifiersQuery(request);
+            if (pixQueryResponse != null) {
+                SubjectBuilder subjectBuilder = new SubjectBuilder();
+                subjectSearchResponse = subjectBuilder.buildSubjectSearchResponse(pixQueryResponse);
+            }
+
+        } catch (ModelBuilderException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
+        return subjectSearchResponse;
     }
 }

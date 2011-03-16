@@ -21,23 +21,94 @@ public class SubjectIdentifier {
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
 
+    /**
+     * 
+     */
+    public SubjectIdentifier() {
+    }
+
+    /**
+     * 
+     * @param pidCXFormatted
+     */
+    public SubjectIdentifier(String pidCXFormatted) {
+        this.buildFromPIDCXFormatted(pidCXFormatted);
+    }
+
+    /**
+     *
+     * @param pidCXFormatted
+     */
+    private void buildFromPIDCXFormatted(String pidCXFormatted) {
+        // 5cfe5f4f31604fa^^^&1.3.6.1.4.1.21367.2005.3.7&ISO
+        String parts[] = pidCXFormatted.split("\\^");
+        if (parts.length == 4) {
+            // Get patient id.
+            this.identifier = parts[0];
+
+            // Assigning authority.
+            String aa[] = parts[3].split("\\&");
+            if (aa.length == 3) {
+                this.identifierDomain = new SubjectIdentifierDomain();
+                // Get universal id (a.k.a. assigning authority).
+                identifierDomain.setUniversalId(aa[1]);
+
+                // Get universal id type (e.g. ISO).
+                identifierDomain.setUniversalIdType(aa[2]);
+            }
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
     public String getIdentifier() {
         return identifier;
     }
 
+    /**
+     *
+     * @param identifier
+     */
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
 
+    /**
+     *
+     * @return
+     */
     public SubjectIdentifierDomain getIdentifierDomain() {
         return identifierDomain;
     }
 
+    /**
+     *
+     * @param identifierDomain
+     */
     public void setIdentifierDomain(SubjectIdentifierDomain identifierDomain) {
         this.identifierDomain = identifierDomain;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCXFormatted() {
         return identifier + "^^^&" + identifierDomain.getUniversalId() + "&" + identifierDomain.getUniversalIdType();
+    }
+
+    /**
+     * 
+     * @param subjectIdentifier
+     * @return
+     */
+    public boolean equals(SubjectIdentifier subjectIdentifier)
+    {
+        SubjectIdentifierDomain compareIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+        return subjectIdentifier.getIdentifier().equals(identifier)
+                && compareIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId())
+                && compareIdentifierDomain.getUniversalIdType().equals(identifierDomain.getUniversalIdType());
     }
 }

@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+
 /**
  *
  * @author Bernie Thuman
@@ -20,14 +22,27 @@ public class DeviceInfo {
 
     private String id;
     private String name;
-    private String homeCommunityId;
+    private String representedOrganizationId;
     private String telecom;
 
     public DeviceInfo() {
         this.id = null;
         this.name = null;
-        this.homeCommunityId = null;
+        this.representedOrganizationId = null;
         this.telecom = null;
+    }
+
+    /**
+     * 
+     * @param actorConfig
+     */
+    public DeviceInfo(XConfigActor actorConfig) {
+        this.id = actorConfig.getProperty("DeviceId");
+        this.name = actorConfig.getProperty("DeviceName");
+        if (actorConfig.getType().endsWith("GatewayType")) {
+            String homeCommunityId = actorConfig.getUniqueId();
+            this.representedOrganizationId = homeCommunityId;
+        }
     }
 
     public String getId() {
@@ -46,12 +61,12 @@ public class DeviceInfo {
         this.name = name;
     }
 
-    public String getHomeCommunityId() {
-        return homeCommunityId;
+    public String getRepresentedOrganizationId() {
+        return representedOrganizationId;
     }
 
-    public void setHomeCommunityId(String homeCommunityId) {
-        this.homeCommunityId = homeCommunityId;
+    public void setRepresentedOrganizationId(String representedOrganizationId) {
+        this.representedOrganizationId = representedOrganizationId;
     }
 
     public String getTelecom() {

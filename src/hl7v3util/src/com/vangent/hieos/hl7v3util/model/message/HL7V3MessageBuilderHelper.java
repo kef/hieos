@@ -110,12 +110,12 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
             String id = this.getNodeAttributeValue(deviceNode, "./ns:id[1]", "root");
             String name = this.getNodeText(deviceNode, "./ns:name[1]");
             String telecom = this.getNodeAttributeValue(deviceNode, "./ns:telecom[1]", "value");
-            String homeCommunityId = this.getNodeAttributeValue(deviceNode,
+            String representedOrganizationId = this.getNodeAttributeValue(deviceNode,
                     "./ns:asAgent/ns:representedOrganization/ns:id[1]", "root");
             deviceInfo.setId(id);
             deviceInfo.setName(name);
             deviceInfo.setTelecom(telecom);
-            deviceInfo.setHomeCommunityId(homeCommunityId);
+            deviceInfo.setRepresentedOrganizationId(representedOrganizationId);
         }
         return deviceInfo;
     }
@@ -204,7 +204,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         }
 
         // Now, see if there is a home community id.
-        if (deviceInfo.getHomeCommunityId() != null) {
+        if (deviceInfo.getRepresentedOrganizationId() != null) {
             // TBD ....
             //<!--Used to carry the homeCommunityId-->
             //<asAgent classCode="AGNT">
@@ -222,7 +222,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
             OMElement homeCommunityIdNode = this.addChildOMElement(representedOrganizationNode, "id");
             this.setAttribute(homeCommunityIdNode,
-                    "root", this.getHomeCommunityIdWithStrippedPrefix(deviceInfo.getHomeCommunityId()));
+                    "root", this.getHomeCommunityIdWithStrippedPrefix(deviceInfo.getRepresentedOrganizationId()));
         }
         return deviceNode;
     }

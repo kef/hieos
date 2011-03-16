@@ -30,70 +30,147 @@ public class Subject {
     private Date birthTime = null;
     private int matchConfidencePercentage = 0;
 
+    /**
+     *
+     * @return
+     */
     public int getMatchConfidencePercentage() {
         return matchConfidencePercentage;
     }
 
+    /**
+     *
+     * @param matchConfidencePercentage
+     */
     public void setMatchConfidencePercentage(int matchConfidencePercentage) {
         this.matchConfidencePercentage = matchConfidencePercentage;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Address> getAddresses() {
         return addresses;
     }
 
+    /**
+     *
+     * @param addresses
+     */
     public void setAddresses(List<Address> addresses) {
         this.addresses = addresses;
     }
 
+    /**
+     *
+     * @param address
+     */
     public void addAddress(Address address) {
         this.addresses.add(address);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<SubjectIdentifier> getSubjectIdentifiers() {
         return subjectIdentifiers;
     }
 
+    /**
+     *
+     * @param subjectIdentifiers
+     */
     public void setSubjectIdentifiers(List<SubjectIdentifier> subjectIdentifiers) {
         this.subjectIdentifiers = subjectIdentifiers;
     }
 
+    /**
+     * Add subject identifier to the list of identifiers for the subject, but only if
+     * the identifier is not already on the list.
+     *
+     * @param subjectIdentifier
+     */
     public void addSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
+        // First make sure that the subject identifier does not already exist in the list.
+        for (SubjectIdentifier id : this.subjectIdentifiers) {
+            if (subjectIdentifier.equals(id)) {
+                // Already exists.
+                return;  // EARLY EXIT!!
+            }
+        }
         this.subjectIdentifiers.add(subjectIdentifier);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<SubjectName> getSubjectNames() {
         return subjectNames;
     }
 
+    /**
+     *
+     * @param subjectName
+     */
     public void addSubjectName(SubjectName subjectName) {
         this.subjectNames.add(subjectName);
     }
 
+    /**
+     *
+     * @param subjectNames
+     */
     public void setSubjectNames(List<SubjectName> subjectNames) {
         this.subjectNames = subjectNames;
     }
 
+    /**
+     *
+     * @return
+     */
     public SubjectGender getGender() {
         return gender;
     }
 
+    /**
+     *
+     * @param gender
+     */
     public void setGender(SubjectGender gender) {
         this.gender = gender;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getBirthTime() {
         return birthTime;
     }
 
+    /**
+     *
+     * @param birthTime
+     */
     public void setBirthTime(Date birthTime) {
         this.birthTime = birthTime;
     }
 
+    /**
+     *
+     * @return
+     */
     public Custodian getCustodian() {
         return custodian;
     }
 
+    /**
+     *
+     * @param custodian
+     */
     public void setCustodian(Custodian custodian) {
         this.custodian = custodian;
     }
@@ -124,8 +201,7 @@ public class Subject {
         // See if we find our subject identifier.
         for (SubjectIdentifier subjectIdentifier : this.getSubjectIdentifiers()) {
             SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-            if (subjectIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId()) 
-                    && subjectIdentifier.getIdentifier().equals(identifier.getIdentifier())) {
+            if (subjectIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId()) && subjectIdentifier.getIdentifier().equals(identifier.getIdentifier())) {
                 return true;  // Match.
             }
         }

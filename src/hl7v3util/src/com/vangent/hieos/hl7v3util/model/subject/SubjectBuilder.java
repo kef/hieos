@@ -15,7 +15,9 @@ package com.vangent.hieos.hl7v3util.model.subject;
 import com.vangent.hieos.hl7v3util.model.builder.*;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,10 +86,31 @@ public class SubjectBuilder extends BuilderHelper {
      * @throws ModelBuilderException
      */
     public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectSearchResponse(message, true);
 
-        // Get the patient.
+    }
+
+    /**
+     *
+     * @param PRPA_IN201310UV02_Message
+     * @return
+     * @throws ModelBuilderException
+     */
+    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201310UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectSearchResponse(message, false);
+    }
+
+    /**
+     * 
+     * @param message
+     * @param getCompleteSubjects
+     * @return
+     * @throws ModelBuilderException
+     */
+    private SubjectSearchResponse buildSubjectSearchResponse(HL7V3Message message, boolean getCompleteSubjects) throws ModelBuilderException {
         List<OMElement> subjectNodes = null;
         try {
+            // Get the list of subjects.
             subjectNodes = this.selectNodes(message.getMessageNode(), XPATH_SUBJECTS);
         } catch (XPathHelperException e) {
             throw new ModelBuilderException("No subjects found on request: " + e.getMessage());
@@ -102,7 +125,12 @@ public class SubjectBuilder extends BuilderHelper {
             try {
                 OMElement registrationEventNode = this.selectSingleNode(subjectNode, XPATH_SUBJECT_REGISTRATION_EVENT);
                 OMElement patientNode = this.selectSingleNode(subjectNode, XPATH_PATIENT);
-                Subject subject = this.getSubject(patientNode, registrationEventNode);
+                Subject subject;
+                if (getCompleteSubjects == true) {
+                    subject = this.getSubject(patientNode, registrationEventNode);
+                } else {
+                    subject = this.getSubjectWithIdentifiersOnly(patientNode, registrationEventNode);
+                }
                 subjects.add(subject);
             } catch (XPathHelperException e) {
                 throw new ModelBuilderException("./controlActProcess/subject(s) is malformed: " + e.getMessage());
@@ -129,6 +157,20 @@ public class SubjectBuilder extends BuilderHelper {
         this.setOtherIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
         this.setMatchConfidencePercentage(subject, patientNode);
+        return subject;
+    }
+
+    /**
+     *
+     * @param patientNode
+     * @param registrationEventNode
+     * @return
+     */
+    private Subject getSubjectWithIdentifiersOnly(OMElement patientNode, OMElement registrationEventNode) {
+        Subject subject = new Subject();
+        this.setIdentifiers(subject, patientNode);
+        this.setOtherIdentifiers(subject, patientNode);
+        this.setCustodian(subject, registrationEventNode);
         return subject;
     }
 
