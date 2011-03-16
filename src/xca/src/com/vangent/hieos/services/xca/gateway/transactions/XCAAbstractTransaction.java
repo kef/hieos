@@ -17,6 +17,7 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -32,10 +33,13 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
 import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 
 /**
  *
@@ -146,6 +150,58 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
             // This implies that we were able to successfully make at least one request.
             response.forcePartialSuccessStatus();
         }
+    }
+
+    /**
+     *
+     * @return
+     * @throws AxisFault
+     */
+    protected XConfigActor getGatewayConfig() throws XdsInternalException {
+        try {
+            XConfig xconf = XConfig.getInstance();
+            // Get the home community config.
+            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
+            String gatewayConfigName = "ig";  // default.
+            String gatewayConfigType = XConfig.XCA_INITIATING_GATEWAY_TYPE;
+            if (this.gatewayType == GatewayType.RespondingGateway) {
+                gatewayConfigName = "rg";
+                gatewayConfigType = XConfig.XCA_RESPONDING_GATEWAY_TYPE;
+            }
+            XConfigObject gatewayConfig = homeCommunityConfig.getXConfigObjectWithName(
+                    gatewayConfigName, gatewayConfigType);
+            return (XConfigActor) gatewayConfig;
+        } catch (XdsInternalException ex) {
+            logger.fatal("Unable to load XConfig for XCA Gateway", ex);
+            throw ex;  // Rethrow.
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected DeviceInfo getSenderDeviceInfo() {
+        try {
+            XConfigActor gatewayConfig = this.getGatewayConfig();
+            return this.getDeviceInfo(gatewayConfig);
+        } catch (XdsInternalException ex) {
+            logger.error("XCA EXCEPTION: Can not get sender device info", ex);
+            DeviceInfo deviceInfo = new DeviceInfo();
+            deviceInfo.setId("UNKNOWN");
+            deviceInfo.setName("UNKNOWN");
+            return deviceInfo;
+        }
+    }
+
+    /**
+     *
+     * @param actorConfig
+     * @return
+     */
+    protected DeviceInfo getDeviceInfo(XConfigActor actorConfig) {
+        DeviceInfo deviceInfo = new DeviceInfo(actorConfig);
+        return deviceInfo;
     }
 
     /**
