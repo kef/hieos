@@ -104,11 +104,8 @@ public class SubjectIdentifier {
      * @param subjectIdentifier
      * @return
      */
-    public boolean equals(SubjectIdentifier subjectIdentifier)
-    {
-        SubjectIdentifierDomain compareIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-        return subjectIdentifier.getIdentifier().equals(identifier)
-                && compareIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId())
-                && compareIdentifierDomain.getUniversalIdType().equals(identifierDomain.getUniversalIdType());
+    public boolean equals(SubjectIdentifier subjectIdentifier) {
+        return subjectIdentifier.getIdentifier().equals(this.identifier) &&
+                subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
     }
 }

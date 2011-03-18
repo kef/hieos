@@ -45,4 +45,16 @@ public class SubjectIdentifierDomain {
     public void setUniversalIdType(String universalIdType) {
         this.universalIdType = universalIdType;
     }
+
+     /**
+     *
+     * @param subjectIdentifierDomain
+     * @return
+     */
+    public boolean equals(SubjectIdentifierDomain subjectIdentifierDomain)
+    {
+        // FIXME?: Only looks at ID & Type since namespaceId could be problematic ...
+        return subjectIdentifierDomain.getUniversalId().equals(this.universalId)
+                && subjectIdentifierDomain.getUniversalIdType().equals(this.universalIdType);
+    }
 }
