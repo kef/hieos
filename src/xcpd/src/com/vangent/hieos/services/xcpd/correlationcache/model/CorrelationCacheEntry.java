@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.patientcorrelation.model;
+package com.vangent.hieos.services.xcpd.correlationcache.model;
 
 import java.util.Date;
 
@@ -18,7 +18,7 @@ import java.util.Date;
  *
  * @author Bernie Thuman
  */
-public class PatientCorrelation {
+public class CorrelationCacheEntry {
 
     String id;
     String localPatientId;

@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -10,11 +10,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.patientcorrelation.dao;
+package com.vangent.hieos.services.xcpd.correlationcache.dao;
 
-import com.vangent.hieos.patientcorrelation.exception.PatientCorrelationException;
-import com.vangent.hieos.patientcorrelation.model.PatientCorrelation;
+import com.vangent.hieos.services.xcpd.correlationcache.exception.CorrelationCacheException;
+import com.vangent.hieos.services.xcpd.correlationcache.model.CorrelationCacheEntry;
+
 import com.vangent.hieos.xutil.uuid.UuidAllocator;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,12 +31,12 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PatientCorrelationDAO {
+public class CorrelationCacheDAO {
 
-    private final static Logger logger = Logger.getLogger(PatientCorrelationDAO.class);
+    private final static Logger logger = Logger.getLogger(CorrelationCacheDAO.class);
     private final Connection connection;
 
-    private PatientCorrelationDAO() {
+    private CorrelationCacheDAO() {
         // Do nothing.
         this.connection = null;
     }
@@ -43,53 +45,54 @@ public class PatientCorrelationDAO {
      * 
      * @param connection
      */
-    public PatientCorrelationDAO(Connection connection) {
+    public CorrelationCacheDAO(Connection connection) {
         this.connection = connection;
     }
 
     /**
-     *
-     * @param patientCorrelation
+     * 
+     * @param correlationCacheEntry
+     * @throws CorrelationCacheException
      */
-    public void store(PatientCorrelation patientCorrelation) throws PatientCorrelationException {
+    public void store(CorrelationCacheEntry correlationCacheEntry) throws CorrelationCacheException {
         // Update times.
-        this.setTimes(patientCorrelation);
+        this.setTimes(correlationCacheEntry);
 
         // First see if the correlation already exists.
-        PatientCorrelation foundPatientCorrelation = this.lookup(patientCorrelation);
-        if (foundPatientCorrelation == null) {
-            patientCorrelation.setId(UuidAllocator.allocate());
-            logger.debug("Inserting correlation: " + patientCorrelation.getVitals());
-            this.insert(patientCorrelation);
+        CorrelationCacheEntry foundCorrelationCacheEntry = this.lookup(correlationCacheEntry);
+        if (foundCorrelationCacheEntry == null) {
+            correlationCacheEntry.setId(UuidAllocator.allocate());
+            logger.debug("Inserting correlation: " + correlationCacheEntry.getVitals());
+            this.insert(correlationCacheEntry);
         } else {
-            logger.debug("Updating correlation: " + foundPatientCorrelation.getVitals());
-            patientCorrelation.setId(foundPatientCorrelation.getId());
-            logger.debug(" .... to correlation: " + patientCorrelation.getVitals());
-            this.update(patientCorrelation);
+            logger.debug("Updating correlation: " + foundCorrelationCacheEntry.getVitals());
+            correlationCacheEntry.setId(foundCorrelationCacheEntry.getId());
+            logger.debug(" .... to correlation: " + correlationCacheEntry.getVitals());
+            this.update(correlationCacheEntry);
         }
     }
 
     /**
-     *
-     * @param patientCorrelations
-     * @throws PatientCorrelationException
+     * 
+     * @param correlationCacheEntries
+     * @throws CorrelationCacheException
      */
-    public void store(List<PatientCorrelation> patientCorrelations) throws PatientCorrelationException {
-        for (PatientCorrelation patientCorrelation : patientCorrelations) {
-            this.store(patientCorrelation);
+    public void store(List<CorrelationCacheEntry> correlationCacheEntries) throws CorrelationCacheException {
+        for (CorrelationCacheEntry correlationCacheEntry : correlationCacheEntries) {
+            this.store(correlationCacheEntry);
         }
     }
 
     /**
-     *
+     * 
      * @param localPatientId
      * @param localHomeCommunityId
      * @return
-     * @throws PatientCorrelationException
+     * @throws CorrelationCacheException
      */
-    public List<PatientCorrelation> lookup(String localPatientId, String localHomeCommunityId) throws PatientCorrelationException {
+    public List<CorrelationCacheEntry> lookup(String localPatientId, String localHomeCommunityId) throws CorrelationCacheException {
         String sql = "SELECT id,localhome,localpatientid,remotehome,remotepatientid,status,lastupdatetime,expirationtime FROM patientcorrelation WHERE localpatientid = ? AND localhome = ?";
-        List<PatientCorrelation> patientCorrelations = new ArrayList<PatientCorrelation>();
+        List<CorrelationCacheEntry> correlationCacheEntries = new ArrayList<CorrelationCacheEntry>();
         ResultSet rs = null;
         PreparedStatement stmt = null;
         try {
@@ -97,24 +100,24 @@ public class PatientCorrelationDAO {
             stmt.setString(1, localPatientId);
             stmt.setString(2, localHomeCommunityId);
             if (logger.isTraceEnabled()) {
-                logger.trace("SQL(PatientCorrelation) = " + sql);
+                logger.trace("SQL(CorrelationCacheEntry) = " + sql);
             }
             rs = stmt.executeQuery();
             while (rs.next()) {
-                PatientCorrelation patientCorrelation = new PatientCorrelation();
-                patientCorrelation.setId(rs.getString(1));
-                patientCorrelation.setLocalHomeCommunityId(rs.getString(2));
-                patientCorrelation.setLocalPatientId(rs.getString(3));
-                patientCorrelation.setRemoteHomeCommunityId(rs.getString(4));
-                patientCorrelation.setRemotePatientId(rs.getString(5));
+                CorrelationCacheEntry correlationCacheEntry = new CorrelationCacheEntry();
+                correlationCacheEntry.setId(rs.getString(1));
+                correlationCacheEntry.setLocalHomeCommunityId(rs.getString(2));
+                correlationCacheEntry.setLocalPatientId(rs.getString(3));
+                correlationCacheEntry.setRemoteHomeCommunityId(rs.getString(4));
+                correlationCacheEntry.setRemotePatientId(rs.getString(5));
                 // FIXME ....
-                //patientCorrelation.setStatus(rs.getString(6).charAt(0));
-                //patientCorrelation.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
-                //patientCorrelation.setExpirationTime(this.getDate(rs.getTimestamp(8)));
-                patientCorrelations.add(patientCorrelation);
+                //correlationCacheEntry.setStatus(rs.getString(6).charAt(0));
+                //correlationCacheEntry.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
+                //correlationCacheEntry.setExpirationTime(this.getDate(rs.getTimestamp(8)));
+                correlationCacheEntries.add(correlationCacheEntry);
             }
         } catch (SQLException ex) {
-            throw new PatientCorrelationException("Failure reading Patient Correlations from database" + ex.getMessage());
+            throw new CorrelationCacheException("Failure reading Correlations from database" + ex.getMessage());
         } finally {
             try {
                 if (stmt != null) {
@@ -128,35 +131,35 @@ public class PatientCorrelationDAO {
                 //Do nothing.
             }
         }
-        return patientCorrelations;
+        return correlationCacheEntries;
     }
 
     /**
      *
-     * @param patientCorrelation
-     * @throws PatientCorrelationException
+     * @param correlationCacheEntry
+     * @throws CorrelationCacheException
      */
-    private void insert(PatientCorrelation patientCorrelation) throws PatientCorrelationException {
+    private void insert(CorrelationCacheEntry correlationCacheEntry) throws CorrelationCacheException {
         String sql = "INSERT INTO patientcorrelation (id,localhome,localpatientid,remotehome,remotepatientid,status,lastupdatetime,expirationtime) values (?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = null;
         try {
             stmt = connection.prepareStatement(sql);
-            stmt.setString(1, patientCorrelation.getId());
-            stmt.setString(2, patientCorrelation.getLocalHomeCommunityId());
-            stmt.setString(3, patientCorrelation.getLocalPatientId());
-            stmt.setString(4, patientCorrelation.getRemoteHomeCommunityId());
-            stmt.setString(5, patientCorrelation.getRemotePatientId());
+            stmt.setString(1, correlationCacheEntry.getId());
+            stmt.setString(2, correlationCacheEntry.getLocalHomeCommunityId());
+            stmt.setString(3, correlationCacheEntry.getLocalPatientId());
+            stmt.setString(4, correlationCacheEntry.getRemoteHomeCommunityId());
+            stmt.setString(5, correlationCacheEntry.getRemotePatientId());
             // FIXME ?? ....
-            stmt.setString(6, Character.toString(patientCorrelation.getStatus()));
-            stmt.setTimestamp(7, this.getTimestamp(patientCorrelation.getLastUpdatedTime()));
-            stmt.setTimestamp(8, this.getTimestamp(patientCorrelation.getExpirationTime()));
+            stmt.setString(6, Character.toString(correlationCacheEntry.getStatus()));
+            stmt.setTimestamp(7, this.getTimestamp(correlationCacheEntry.getLastUpdatedTime()));
+            stmt.setTimestamp(8, this.getTimestamp(correlationCacheEntry.getExpirationTime()));
             if (logger.isTraceEnabled()) {
-                logger.trace("SQL(PatientCorrelation) = " + sql);
+                logger.trace("SQL(CorrelationCacheEntry) = " + sql);
             }
             stmt.execute();
         } catch (SQLException ex) {
-            logger.error("Failure inserting Patient Correlation", ex);
-            throw new PatientCorrelationException(ex.getMessage());
+            logger.error("Failure inserting CorrelationCacheEntry", ex);
+            throw new CorrelationCacheException(ex.getMessage());
         } finally {
             if (stmt != null) {
                 try {
@@ -170,30 +173,30 @@ public class PatientCorrelationDAO {
 
     /**
      * 
-     * @param patientCorrelation
-     * @throws PatientCorrelationException
+     * @param correlationCacheEntry
+     * @throws CorrelationCacheException
      */
-    private void update(PatientCorrelation patientCorrelation) throws PatientCorrelationException {
+    private void update(CorrelationCacheEntry correlationCacheEntry) throws CorrelationCacheException {
         String sql = "UPDATE patientcorrelation SET localhome=?, localpatientid=?, remotehome=?, remotepatientid=?, status=?, lastupdatetime=?, expirationtime=? WHERE id = ?";
         PreparedStatement stmt = null;
         try {
             stmt = connection.prepareStatement(sql);
-            stmt.setString(1, patientCorrelation.getLocalHomeCommunityId());
-            stmt.setString(2, patientCorrelation.getLocalPatientId());
-            stmt.setString(3, patientCorrelation.getRemoteHomeCommunityId());
-            stmt.setString(4, patientCorrelation.getRemotePatientId());
+            stmt.setString(1, correlationCacheEntry.getLocalHomeCommunityId());
+            stmt.setString(2, correlationCacheEntry.getLocalPatientId());
+            stmt.setString(3, correlationCacheEntry.getRemoteHomeCommunityId());
+            stmt.setString(4, correlationCacheEntry.getRemotePatientId());
             // FIXME? ....
-            stmt.setString(5, Character.toString(patientCorrelation.getStatus()));
-            stmt.setTimestamp(6, this.getTimestamp(patientCorrelation.getLastUpdatedTime()));
-            stmt.setTimestamp(7, this.getTimestamp(patientCorrelation.getExpirationTime()));
-            stmt.setString(8, patientCorrelation.getId());
+            stmt.setString(5, Character.toString(correlationCacheEntry.getStatus()));
+            stmt.setTimestamp(6, this.getTimestamp(correlationCacheEntry.getLastUpdatedTime()));
+            stmt.setTimestamp(7, this.getTimestamp(correlationCacheEntry.getExpirationTime()));
+            stmt.setString(8, correlationCacheEntry.getId());
             if (logger.isTraceEnabled()) {
-                logger.trace("SQL(PatientCorrelation) = " + sql);
+                logger.trace("SQL(CorrelationCacheEntry) = " + sql);
             }
             stmt.executeUpdate(sql);
         } catch (SQLException ex) {
-            logger.error("Failure updating Patient Correlation", ex);
-            throw new PatientCorrelationException(ex.getMessage());
+            logger.error("Failure updating CorrelationCacheEntry", ex);
+            throw new CorrelationCacheException(ex.getMessage());
         } finally {
             if (stmt != null) {
                 try {
@@ -207,39 +210,39 @@ public class PatientCorrelationDAO {
 
     /**
      * 
-     * @param patientCorrelation
+     * @param correlationCacheEntry
      * @return
-     * @throws PatientCorrelationException
+     * @throws CorrelationCacheException
      */
-    private PatientCorrelation lookup(PatientCorrelation patientCorrelation) throws PatientCorrelationException {
+    private CorrelationCacheEntry lookup(CorrelationCacheEntry correlationCacheEntry) throws CorrelationCacheException {
         String sql = "SELECT id,localhome,localpatientid,remotehome,remotepatientid,status,lastupdatetime,expirationtime FROM patientcorrelation WHERE localpatientid = ? AND localhome = ? AND remotehome = ?";
-        PatientCorrelation foundPatientCorrelation = null;
+        CorrelationCacheEntry foundCorrelationCacheEntry = null;
         ResultSet rs = null;
         PreparedStatement stmt = null;
         try {
             stmt = connection.prepareStatement(sql);
-            stmt.setString(1, patientCorrelation.getLocalPatientId());
-            stmt.setString(2, patientCorrelation.getLocalHomeCommunityId());
-            stmt.setString(3, patientCorrelation.getRemoteHomeCommunityId());
+            stmt.setString(1, correlationCacheEntry.getLocalPatientId());
+            stmt.setString(2, correlationCacheEntry.getLocalHomeCommunityId());
+            stmt.setString(3, correlationCacheEntry.getRemoteHomeCommunityId());
             if (logger.isTraceEnabled()) {
-                logger.trace("SQL(PatientCorrelation) = " + sql);
+                logger.trace("SQL(CorrelationCache) = " + sql);
             }
             rs = stmt.executeQuery();
             if (!rs.next()) {
                 // OK ... none found
             } else {
-                foundPatientCorrelation = new PatientCorrelation();
-                foundPatientCorrelation.setId(rs.getString(1));
-                foundPatientCorrelation.setLocalHomeCommunityId(rs.getString(2));
-                foundPatientCorrelation.setLocalPatientId(rs.getString(3));
-                foundPatientCorrelation.setRemoteHomeCommunityId(rs.getString(4));
-                foundPatientCorrelation.setRemotePatientId(rs.getString(5));
-                foundPatientCorrelation.setStatus(rs.getString(6).charAt(0));
-                foundPatientCorrelation.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
-                foundPatientCorrelation.setExpirationTime(this.getDate(rs.getTimestamp(8)));
+                foundCorrelationCacheEntry = new CorrelationCacheEntry();
+                foundCorrelationCacheEntry.setId(rs.getString(1));
+                foundCorrelationCacheEntry.setLocalHomeCommunityId(rs.getString(2));
+                foundCorrelationCacheEntry.setLocalPatientId(rs.getString(3));
+                foundCorrelationCacheEntry.setRemoteHomeCommunityId(rs.getString(4));
+                foundCorrelationCacheEntry.setRemotePatientId(rs.getString(5));
+                foundCorrelationCacheEntry.setStatus(rs.getString(6).charAt(0));
+                foundCorrelationCacheEntry.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
+                foundCorrelationCacheEntry.setExpirationTime(this.getDate(rs.getTimestamp(8)));
             }
         } catch (SQLException ex) {
-            throw new PatientCorrelationException("Failure reading Patient Correlations from database" + ex.getMessage());
+            throw new CorrelationCacheException("Failure reading Correlations from database" + ex.getMessage());
         } finally {
             try {
                 if (stmt != null) {
@@ -253,7 +256,7 @@ public class PatientCorrelationDAO {
                 //Do nothing.
             }
         }
-        return foundPatientCorrelation;
+        return foundCorrelationCacheEntry;
     }
 
     /**
@@ -275,14 +278,14 @@ public class PatientCorrelationDAO {
     }
 
     /**
-     *
-     * @param patientCorrelation
+     * 
+     * @param correlationCacheEntry
      */
-    private void setTimes(PatientCorrelation patientCorrelation) {
+    private void setTimes(CorrelationCacheEntry correlationCacheEntry) {
         Date currentDate = new Date();
-        patientCorrelation.setLastUpdatedTime(currentDate);
+        correlationCacheEntry.setLastUpdatedTime(currentDate);
 
         // FIXME ... need to set a proper expiration time
-        patientCorrelation.setExpirationTime(currentDate);
+        correlationCacheEntry.setExpirationTime(currentDate);
     }
 }

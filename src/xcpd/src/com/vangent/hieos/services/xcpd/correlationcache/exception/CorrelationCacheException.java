@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -10,19 +10,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.patientcorrelation.exception;
+package com.vangent.hieos.services.xcpd.correlationcache.exception;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class PatientCorrelationException extends Exception {
+public class CorrelationCacheException extends Exception {
 
     /**
      *
      * @param msg
      */
-    public PatientCorrelationException(String msg) {
+    public CorrelationCacheException(String msg) {
         super(msg);
     }
 
@@ -31,7 +31,7 @@ public class PatientCorrelationException extends Exception {
      * @param msg
      * @param cause
      */
-    public PatientCorrelationException(String msg, Throwable cause) {
+    public CorrelationCacheException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }
