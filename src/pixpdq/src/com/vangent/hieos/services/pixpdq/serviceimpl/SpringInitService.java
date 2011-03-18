@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.adapter.mpi.EMPIAdapter;
-import com.vangent.hieos.services.pixpdq.adapter.mpi.EMPIFactory;
+import com.vangent.hieos.services.pixpdq.adapter.mpi.factory.EMPIFactory;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.engine.ServiceLifeCycle;

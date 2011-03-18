@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.pixpdq.transactions;
 
 import com.vangent.hieos.services.pixpdq.adapter.mpi.EMPIAdapter;
-import com.vangent.hieos.services.pixpdq.adapter.mpi.EMPIFactory;
+import com.vangent.hieos.services.pixpdq.adapter.mpi.factory.EMPIFactory;
 import com.vangent.hieos.services.pixpdq.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
