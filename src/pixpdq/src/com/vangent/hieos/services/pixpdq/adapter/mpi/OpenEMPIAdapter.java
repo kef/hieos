@@ -138,7 +138,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
 
                         // Now see if we should return the identifier or not.
                         for (SubjectIdentifierDomain aaDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
-                            if (identifierDomain.getUniversalId().equals(aaDomain.getUniversalId()) && identifierDomain.getUniversalIdType().equals(aaDomain.getUniversalIdType())) {
+                            if (identifierDomain.equals(aaDomain)) {
                                 retainedAtLeastOneSubjectId = true;  // Kept at least one.
                             } else {
                                 // Not a match ... disregard id (should not return id).
@@ -199,7 +199,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
 
                 // Need to expand the record.
                 Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
-                this.print("MATCHED PERSON", matchedPerson);
+                this.print("MATCHED PERSON (weight: " + matchedRecordPair.getWeight() + "):", matchedPerson);
 
                 Subject subject = builder.buildSubject(matchedPerson, this.getMatchConfidencePercentage(matchedRecordPair));
                 subjects.add(subject);
