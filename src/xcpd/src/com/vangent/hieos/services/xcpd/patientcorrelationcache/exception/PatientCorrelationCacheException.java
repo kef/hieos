@@ -10,19 +10,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xcpd.correlationcache.exception;
+package com.vangent.hieos.services.xcpd.patientcorrelationcache.exception;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class CorrelationCacheException extends Exception {
+public class PatientCorrelationCacheException extends Exception {
 
     /**
      *
      * @param msg
      */
-    public CorrelationCacheException(String msg) {
+    public PatientCorrelationCacheException(String msg) {
         super(msg);
     }
 
@@ -31,7 +31,7 @@ public class CorrelationCacheException extends Exception {
      * @param msg
      * @param cause
      */
-    public CorrelationCacheException(String msg, Throwable cause) {
+    public PatientCorrelationCacheException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }

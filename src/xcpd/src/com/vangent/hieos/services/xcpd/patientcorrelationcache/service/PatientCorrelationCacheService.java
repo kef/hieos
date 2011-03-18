@@ -10,11 +10,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xcpd.correlationcache.service;
+package com.vangent.hieos.services.xcpd.patientcorrelationcache.service;
 
-import com.vangent.hieos.services.xcpd.correlationcache.dao.CorrelationCacheDAO;
-import com.vangent.hieos.services.xcpd.correlationcache.exception.CorrelationCacheException;
-import com.vangent.hieos.services.xcpd.correlationcache.model.CorrelationCacheEntry;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.dao.PatientCorrelationCacheDAO;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.exception.PatientCorrelationCacheException;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.model.PatientCorrelationCacheEntry;
 
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -28,21 +28,21 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class CorrelationCacheService {
+public class PatientCorrelationCacheService {
 
-    private final static Logger logger = Logger.getLogger(CorrelationCacheService.class);
+    private final static Logger logger = Logger.getLogger(PatientCorrelationCacheService.class);
 
     /**
-     * 
-     * @param correlationCacheEntry
-     * @throws CorrelationCacheException
+     *
+     * @param patientCorrelationCacheEntry
+     * @throws PatientCorrelationCacheException
      */
-    public void store(CorrelationCacheEntry correlationCacheEntry) throws CorrelationCacheException {
+    public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            CorrelationCacheDAO dao = new CorrelationCacheDAO(connection);
-            dao.store(correlationCacheEntry);
-        } catch (CorrelationCacheException ex) {
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            dao.store(patientCorrelationCacheEntry);
+        } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow.
         } finally {
             try {
@@ -55,16 +55,16 @@ public class CorrelationCacheService {
     }
 
     /**
-     * 
-     * @param correlationCacheEntries
-     * @throws CorrelationCacheException
+     *
+     * @param patientCorrelationCacheEntries
+     * @throws PatientCorrelationCacheException
      */
-    public void store(List<CorrelationCacheEntry> correlationCacheEntries) throws CorrelationCacheException {
+    public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            CorrelationCacheDAO dao = new CorrelationCacheDAO(connection);
-            dao.store(correlationCacheEntries);
-        } catch (CorrelationCacheException ex) {
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            dao.store(patientCorrelationCacheEntries);
+        } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow
         } finally {
             try {
@@ -81,15 +81,15 @@ public class CorrelationCacheService {
      * @param localPatientId
      * @param localHomeCommunityId
      * @return
-     * @throws CorrelationCacheException
+     * @throws PatientCorrelationCacheException
      */
-    public List<CorrelationCacheEntry> lookup(String localPatientId, String localHomeCommunityId) throws CorrelationCacheException {
+    public List<PatientCorrelationCacheEntry> lookup(String localPatientId, String localHomeCommunityId) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            CorrelationCacheDAO dao = new CorrelationCacheDAO(connection);
-            List<CorrelationCacheEntry> correlationCacheEntries = dao.lookup(localPatientId, localHomeCommunityId);
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            List<PatientCorrelationCacheEntry> correlationCacheEntries = dao.lookup(localPatientId, localHomeCommunityId);
             return correlationCacheEntries;
-        } catch (CorrelationCacheException ex) {
+        } catch (PatientCorrelationCacheException ex) {
             throw ex; // rethrow
         } finally {
             try {
@@ -105,15 +105,15 @@ public class CorrelationCacheService {
      * Get ADT (for now) JDBC connection instance from connection pool.
      *
      * @return Database connection instance from pool.
-     * @throws CorrelationCacheException
+     * @throws PatientCorrelationCacheException
      */
-    private Connection getConnection() throws CorrelationCacheException {
+    private Connection getConnection() throws PatientCorrelationCacheException {
         try {
             Connection connection = new SQLConnectionWrapper().getConnection(SQLConnectionWrapper.adtJNDIResourceName);
             return connection;
         } catch (XdsInternalException ex) {
-            logger.error("Could not open connection to support PatientCorrelation", ex);
-            throw new CorrelationCacheException(ex.getMessage());
+            logger.error("Could not open connection to support Patient Correlation", ex);
+            throw new PatientCorrelationCacheException(ex.getMessage());
         }
     }
 }
