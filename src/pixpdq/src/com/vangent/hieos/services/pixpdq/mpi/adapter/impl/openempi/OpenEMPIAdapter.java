@@ -10,8 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.adapter.mpi;
+package com.vangent.hieos.services.pixpdq.mpi.adapter.impl.openempi;
 
+import com.vangent.hieos.services.pixpdq.mpi.adapter.api.EMPIAdapter;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.services.pixpdq.exception.EMPIException;

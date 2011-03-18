@@ -10,7 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.adapter.mpi.factory;
+package com.vangent.hieos.services.pixpdq.mpi.adapter.factory;
+
+import com.vangent.hieos.services.pixpdq.mpi.adapter.api.EMPIAdapter;
+
+// FIXME: Replace by Spring loaded or from xconfig file.
+import com.vangent.hieos.services.pixpdq.mpi.adapter.impl.openempi.OpenEMPIAdapter;
 
 /**
  *
@@ -23,7 +28,7 @@ public class EMPIFactory {
      * @return
      */
     static public EMPIAdapter getInstance() {
-        // FIXME: Replace by Spring loaded.
+        // FIXME: Replace by Spring loaded or from xconfig file.
         return new OpenEMPIAdapter();
     }
 }

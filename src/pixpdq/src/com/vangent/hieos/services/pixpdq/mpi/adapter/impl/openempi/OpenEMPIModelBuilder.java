@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.adapter.mpi;
+package com.vangent.hieos.services.pixpdq.mpi.adapter.impl.openempi;
 
 import com.vangent.hieos.hl7v3util.model.subject.Address;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
@@ -18,7 +18,6 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
-import java.util.List;
 import org.openhie.openempi.model.Gender;
 import org.openhie.openempi.model.IdentifierDomain;
 import org.openhie.openempi.model.Person;
