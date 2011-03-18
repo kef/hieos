@@ -10,20 +10,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.mpi.adapter.impl.openempi;
+package com.vangent.hieos.services.pixpdq.empi.impl.openempi;
 
-import com.vangent.hieos.services.pixpdq.mpi.adapter.api.EMPIAdapter;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
+import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.services.pixpdq.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
+
 import org.openhie.openempi.context.Context;
 import org.openhie.openempi.matching.MatchingService;
 import org.openhie.openempi.model.PersonIdentifier;

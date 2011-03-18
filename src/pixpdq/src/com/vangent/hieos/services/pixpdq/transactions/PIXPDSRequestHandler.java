@@ -12,14 +12,16 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
-import com.vangent.hieos.services.pixpdq.mpi.adapter.api.EMPIAdapter;
-import com.vangent.hieos.services.pixpdq.mpi.adapter.factory.EMPIFactory;
-import com.vangent.hieos.services.pixpdq.exception.EMPIException;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
+import com.vangent.hieos.services.pixpdq.empi.factory.EMPIFactory;
+import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
+
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -27,6 +29,7 @@ import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
+
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
