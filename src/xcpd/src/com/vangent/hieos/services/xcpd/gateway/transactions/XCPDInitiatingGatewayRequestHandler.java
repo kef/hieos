@@ -35,6 +35,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.exception.PatientCorrelationCacheException;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.model.PatientCorrelationCacheEntry;
+import com.vangent.hieos.services.xcpd.patientcorrelationcache.service.PatientCorrelationCacheService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -48,6 +51,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -562,6 +566,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             if (subjects.size() > 0) {
                 aggregatedSubjects.addAll(subjects);
             }
+            // Always update the cache ... we will keep track of non-responses also so we don't
+            // search again until the cache is flushed for the remote community.
+            this.updatePatientCorrelationCache(gatewayResponse, communitySubjectIdentifier, subjects);
         }
         return aggregatedSubjectSearchResponse;
     }
@@ -587,7 +594,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Prepare PDQ search criteria.
             SubjectSearchCriteria pdqSubjectSearchCriteria = new SubjectSearchCriteria();
             pdqSubjectSearchCriteria.setSubject(remoteSubject);
-            
+
             // FIXME: ? Not sure if necessary ?
             this.setMinimumDegreeMatchPercentage(pdqSubjectSearchCriteria);
 
@@ -628,6 +635,82 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         }
         this.log(gatewayResponse, resultSubjects, noMatchSubjects);
         return resultSubjects;
+    }
+
+    /**
+     *
+     * @param gatewayResponse
+     * @param communitySubjectIdentifier
+     * @param subjects
+     */
+    private void updatePatientCorrelationCache(
+            GatewayResponse gatewayResponse, SubjectIdentifier communitySubjectIdentifier, List<Subject> subjects) {
+
+        String localPatientId = communitySubjectIdentifier.getCXFormatted();
+        String localHomeCommunityId;
+        String remoteHomeCommunityId = gatewayResponse.getRequest().getRGConfig().getUniqueId();
+        try {
+            localHomeCommunityId = this.getGatewayConfig().getUniqueId();
+        } catch (Exception ex) {
+            log_message.setPass(false);
+            if (log_message.isLogEnabled()) {
+                log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
+            }
+            return;
+        }
+        List<PatientCorrelationCacheEntry> cacheEntries = new ArrayList<PatientCorrelationCacheEntry>();
+        if (subjects.size() == 0) {
+            // Just note the fact that we did a search for this patient for the community with
+            // no success (so we don't search again until the cache is flushed).
+            PatientCorrelationCacheEntry cacheEntry =
+                    this.getPatientCorrelationCacheEntry(localPatientId, localHomeCommunityId, null, remoteHomeCommunityId);
+            cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_NOTFOUND);
+            cacheEntries.add(cacheEntry);  // Add to the list.
+        } else {
+            for (Subject subject : subjects) {
+                // FIXME!!!!!
+                // FIXME: for now store all patient identifiers from community.
+                // FIXME: should only store those for configured assigning authority.
+                for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
+                    String remotePatientId = subjectIdentifier.getCXFormatted();
+                    PatientCorrelationCacheEntry cacheEntry =
+                            this.getPatientCorrelationCacheEntry(localPatientId, localHomeCommunityId, remotePatientId, remoteHomeCommunityId);
+                    cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_ACTIVE);
+
+                    // Add to the list to store.
+                    cacheEntries.add(cacheEntry);
+                }
+            }
+        }
+
+        // Store patient correlations in cache ...
+        try {
+            PatientCorrelationCacheService cacheService = new PatientCorrelationCacheService();
+            cacheService.store(cacheEntries);
+        } catch (PatientCorrelationCacheException ex) {
+            log_message.setPass(false);
+            if (log_message.isLogEnabled()) {
+                log_message.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
+            }
+        }
+    }
+
+    /**
+     *
+     * @param localPatientId
+     * @param localHomeCommunityId
+     * @param remotePatientId
+     * @param remoteHomeCommunityId
+     * @return
+     */
+    private PatientCorrelationCacheEntry getPatientCorrelationCacheEntry(
+            String localPatientId, String localHomeCommunityId, String remotePatientId, String remoteHomeCommunityId) {
+        PatientCorrelationCacheEntry cacheEntry = new PatientCorrelationCacheEntry();
+        cacheEntry.setLocalPatientId(localPatientId);
+        cacheEntry.setLocalHomeCommunityId(localHomeCommunityId);
+        cacheEntry.setRemotePatientId(remotePatientId);
+        cacheEntry.setRemoteHomeCommunityId(remoteHomeCommunityId);
+        return cacheEntry;
     }
 
     /**

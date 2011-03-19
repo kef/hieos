@@ -13,14 +13,10 @@
 package com.vangent.hieos.services.xcpd.gateway.transactions;
 
 import com.vangent.hieos.hl7v3util.client.PDSClient;
-import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
-import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
-import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
@@ -36,7 +32,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;

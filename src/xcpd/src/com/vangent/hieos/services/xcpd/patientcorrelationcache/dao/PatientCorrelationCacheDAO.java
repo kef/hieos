@@ -196,7 +196,7 @@ public class PatientCorrelationCacheDAO {
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL(PatientCorrelationCacheEntry) = " + sql);
             }
-            stmt.executeUpdate(sql);
+            stmt.executeUpdate();
         } catch (SQLException ex) {
             logger.error("Failure updating CorrelationCacheEntry", ex);
             throw new PatientCorrelationCacheException(ex.getMessage());
