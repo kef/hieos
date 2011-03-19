@@ -264,13 +264,13 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @return
      * @throws XdsInternalException
      */
-    protected XConfigActor getLocalRegistry(String gatewayName) throws XdsInternalException {
+    protected XConfigActor getLocalRegistry(String gatewayName, String gatewayType) throws XdsInternalException {
         // Get the gateway configuration.
         XConfig xconfig = XConfig.getInstance();
         XConfigObject homeCommunity = xconfig.getHomeCommunityConfig();
 
         // Return the proper registry configuration based upon the gateway configuration.
-        XConfigActor gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName(gatewayName, XConfig.XCA_INITIATING_GATEWAY_TYPE);
+        XConfigActor gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName(gatewayName, gatewayType);
 
         // Get the gateway's local registry.
         XConfigActor registry = (XConfigActor) gateway.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);

@@ -415,7 +415,7 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @throws XdsInternalException
      */
     protected XConfigActor getLocalRegistry() throws XdsInternalException {
-        return this.getLocalRegistry("ig");
+        return this.getLocalRegistry("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
     }
 
     /**

@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xca.gateway.transactions;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -87,6 +88,6 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     protected XConfigActor getLocalRegistry() throws XdsInternalException {
-        return this.getLocalRegistry("rg");
+        return this.getLocalRegistry("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
     }
 }
