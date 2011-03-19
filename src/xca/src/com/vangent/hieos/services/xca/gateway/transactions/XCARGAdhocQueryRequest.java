@@ -14,9 +14,9 @@ package com.vangent.hieos.services.xca.gateway.transactions;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -57,43 +57,28 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
     }
 
     /**
-     *
+     * 
+     * @param request
      * @param queryRequest
      * @param responseOption
+     * @throws XdsInternalException
      */
     protected void processRequestWithPatientId(OMElement request, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+        // Just simply look at local registry.
         XConfigActor registry = this.getLocalRegistry();
         this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
     }
 
     /**
-     * 
+     *
      * @param queryRequest
      * @param responseOption
      * @param homeCommunityId
+     * @param gatewayConfig
      * @throws XdsInternalException
      */
-    protected void processTargetedHomeRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId) throws XdsInternalException {
-        this.logInfo("HomeCommunityId", homeCommunityId);
-        // See if this is for the local community.
-        String localHomeCommunityId = this.getLocalHomeCommunityId();
-        if (homeCommunityId.equals(localHomeCommunityId)) {  // Destined for the local home.
-            this.logInfo("Note", "Going local for homeCommunityId: " + homeCommunityId);
-
-            // XDSAffinityDomain option - get the local registry.
-            XConfigActor localRegistry = this.getLocalRegistry();
-            if (localRegistry != null) {
-                // Add the local request.
-                // Just use the registry name as the key (to avoid conflict with
-                // local homeCommunityId testing).
-                this.addRequest(queryRequest, responseOption, localRegistry.getName(), localRegistry, true);
-            }
-
-        } else {
-            response.add_error(MetadataSupport.XDSUnknownCommunity,
-                    "Do not understand homeCommunityId " + homeCommunityId,
-                    this.getLocalHomeCommunityId(), log_message);
-        }
+    protected void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
+        // NOOP: for now ... could do chaining of gateways here.
     }
 
     /**

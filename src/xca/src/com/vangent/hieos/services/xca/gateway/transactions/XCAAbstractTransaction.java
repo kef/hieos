@@ -13,22 +13,21 @@
 
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
+
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
 import com.vangent.hieos.xutil.atna.XATNALogger;
-
-// Exceptions.
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
-// Third-party.
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;

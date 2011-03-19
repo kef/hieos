@@ -12,6 +12,11 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
+import com.vangent.hieos.services.xca.gateway.controller.XCAAbstractRequestCollection;
+import com.vangent.hieos.services.xca.gateway.controller.XCAQueryRequestCollection;
+import com.vangent.hieos.services.xca.gateway.controller.XCAQueryRequest;
+
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
@@ -20,25 +25,17 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
-
-// Exceptions.
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-
-import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
-import com.vangent.hieos.services.xca.gateway.controller.XCAAbstractRequestCollection;
-import com.vangent.hieos.services.xca.gateway.controller.XCAQueryRequestCollection;
-import com.vangent.hieos.services.xca.gateway.controller.XCAQueryRequest;
-
-// XConfig
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
-import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+
+import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMNamespace;
@@ -51,6 +48,30 @@ import org.apache.log4j.Logger;
 public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
 
     private final static Logger logger = Logger.getLogger(XCAAdhocQueryRequest.class);
+
+    /**
+     *
+     * @param queryRequest
+     * @param responseOption
+     */
+    abstract void processRequestWithPatientId(OMElement request, OMElement queryRequest, OMElement responseOption) throws XdsInternalException;
+
+    /**
+     * 
+     * @param queryRequest
+     * @param responseOption
+     * @param homeCommunityId
+     * @param gatewayConfig
+     * @throws XdsInternalException
+     */
+    abstract void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException;
+
+    /**
+     *
+     * @return
+     * @throws XdsInternalException
+     */
+    abstract XConfigActor getLocalRegistry() throws XdsInternalException;
 
     /**
      * 
@@ -139,21 +160,42 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         }
     }
 
-    /**
-     *
-     * @param queryRequest
-     * @param responseOption
-     */
-    abstract void processRequestWithPatientId(OMElement request, OMElement queryRequest, OMElement responseOption) throws XdsInternalException;
-
-    /**
+     /**
      *
      * @param queryRequest
      * @param responseOption
      * @param homeCommunityId
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    abstract void processTargetedHomeRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId) throws XdsInternalException;
+    protected void processTargetedHomeRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId) throws XdsInternalException {
+        this.logInfo("HomeCommunityId", homeCommunityId);
+        // See if this is for the local community.
+        String localHomeCommunityId = this.getLocalHomeCommunityId();
+        if (homeCommunityId.equals(localHomeCommunityId)) {  // Destined for the local home.
+            this.logInfo("Note", "Going local for homeCommunityId: " + homeCommunityId);
+
+            // XDSAffinityDomain option - get the local registry.
+            XConfigActor localRegistry = this.getLocalRegistry();
+            if (localRegistry != null) {
+                // Add the local request.
+                // Just use the registry name as the key (to avoid conflict with
+                // local homeCommunityId testing).
+                this.addRequest(queryRequest, responseOption, localRegistry.getName(), localRegistry, true);
+            }
+        } else { // Going remote.
+            this.logInfo("Note", "Going remote for homeCommunityId: " + homeCommunityId);
+            // See if we know about a remote gateway that can respond.
+            XConfigActor gatewayConfig = XConfig.getInstance().getRespondingGatewayConfigForHomeCommunityId(homeCommunityId);
+            if (gatewayConfig == null) {
+                response.add_error(MetadataSupport.XDSUnknownCommunity,
+                        "Do not understand homeCommunityId " + homeCommunityId,
+                        this.getLocalHomeCommunityId(), log_message);
+            } else {
+                // This request is good (targeted for a remote community.
+                this.processRemoteCommunityRequest(queryRequest, responseOption, homeCommunityId, gatewayConfig);
+            }
+        }
+    }
 
     /**
      *
@@ -215,13 +257,6 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         }
         return pidCXFormatted;
     }
-
-    /**
-     *
-     * @return
-     * @throws XdsInternalException
-     */
-    abstract XConfigActor getLocalRegistry() throws XdsInternalException;
 
     /**
      * 

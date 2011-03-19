@@ -19,6 +19,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -30,6 +31,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
@@ -111,36 +113,11 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @param queryRequest
      * @param responseOption
      * @param homeCommunityId
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @param gatewayConfig
+     * @throws XdsInternalException
      */
-    protected void processTargetedHomeRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId) throws XdsInternalException {
-        this.logInfo("HomeCommunityId", homeCommunityId);
-        // See if this is for the local community.
-        String localHomeCommunityId = this.getLocalHomeCommunityId();
-        if (homeCommunityId.equals(localHomeCommunityId)) {  // Destined for the local home.
-            this.logInfo("Note", "Going local for homeCommunityId: " + homeCommunityId);
-
-            // XDSAffinityDomain option - get the local registry.
-            XConfigActor localRegistry = this.getLocalRegistry();
-            if (localRegistry != null) {
-                // Add the local request.
-                // Just use the registry name as the key (to avoid conflict with
-                // local homeCommunityId testing).
-                this.addRequest(queryRequest, responseOption, localRegistry.getName(), localRegistry, true);
-            }
-        } else { // Going remote.
-            this.logInfo("Note", "Going remote for homeCommunityId: " + homeCommunityId);
-            // See if we know about a remote gateway that can respond.
-            XConfigActor gatewayConfig = XConfig.getInstance().getRespondingGatewayConfigForHomeCommunityId(homeCommunityId);
-            if (gatewayConfig == null) {
-                response.add_error(MetadataSupport.XDSUnknownCommunity,
-                        "Do not understand homeCommunityId " + homeCommunityId,
-                        this.getLocalHomeCommunityId(), log_message);
-            } else {
-                // This request is good (targeted for a remote community.
-                this.addRequest(queryRequest, responseOption, homeCommunityId, gatewayConfig, false);
-            }
-        }
+    protected void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
+        this.addRequest(queryRequest, responseOption, homeCommunityId, gatewayConfig, false);
     }
 
     /**
@@ -178,28 +155,6 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @param responseOption
      * @throws XdsInternalException
      */
-    private void processRequestWithPatientIdUsingXCPDMode(String pidCXFormatted, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
-        List<XCAGatewayConfig> gatewayConfigs = this.getRespondingGatewaysForPatientIdUsingXCPDMode(pidCXFormatted);
-        for (XCAGatewayConfig gatewayConfig : gatewayConfigs) {
-            OMElement gatewayQueryRequest = this.getTargetGatewayQueryRequest(queryRequest, gatewayConfig.getPatientId());
-            this.addRequest(gatewayQueryRequest,
-                    responseOption,
-                    gatewayConfig.getHomeCommunityId(),
-                    gatewayConfig.getConfig(),
-                    false);
-        }
-        // FIXME: Should we always go local in this case?
-        XConfigActor registry = this.getLocalRegistry();
-        this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
-    }
-
-    /**
-     *
-     * @param pidCXFormatted
-     * @param queryRequest
-     * @param responseOption
-     * @throws XdsInternalException
-     */
     private void processRequestWithPatientIdUsingPathThroughMode(String pidCXFormatted, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
         // Now get the Assigning Authority within the patient ID.
         String assigningAuthority = this.getAssigningAuthority(pidCXFormatted);
@@ -228,12 +183,33 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
             // Does the assigning authority configuration include a local registry?
             XConfigActor registry = xconfig.getRegistryConfigForAssigningAuthorityId(assigningAuthority);
             if (registry != null) {
-                //String homeCommunityId = xconfig.getHomeCommunity().getHomeCommunityId();
                 // Just use the registry name as the key (to avoid conflict with
                 // local homeCommunityId testing).
                 this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
             }
         }
+    }
+
+    /**
+     *
+     * @param pidCXFormatted
+     * @param queryRequest
+     * @param responseOption
+     * @throws XdsInternalException
+     */
+    private void processRequestWithPatientIdUsingXCPDMode(String pidCXFormatted, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+        List<XCAGatewayConfig> gatewayConfigs = this.getRespondingGatewaysForPatientIdUsingXCPDMode(pidCXFormatted);
+        for (XCAGatewayConfig gatewayConfig : gatewayConfigs) {
+            OMElement gatewayQueryRequest = this.getTargetGatewayQueryRequest(queryRequest, gatewayConfig.getPatientId());
+            this.addRequest(gatewayQueryRequest,
+                    responseOption,
+                    gatewayConfig.getHomeCommunityId(),
+                    gatewayConfig.getConfig(),
+                    false);
+        }
+        // FIXME: Should we always go local in this case?
+        XConfigActor registry = this.getLocalRegistry();
+        this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
     }
 
     /**
@@ -256,7 +232,7 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
         subject.addSubjectIdentifier(subjectIdentifier);
         subjectSearchCriteria.setSubject(subject);
 
-        HashSet remoteHomeCommunityIds = new HashSet<String>();
+        HashSet<String> remoteHomeCommunityIds = new HashSet<String>();
         try {
             // Get sender / receiver device info.
             DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();

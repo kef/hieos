@@ -12,23 +12,12 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-
-// Exceptions.
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-
-// XConfig.
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
-
-// XATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
-// Third party.
 import org.apache.axis2.context.MessageContext;
-import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -69,49 +58,13 @@ public class XCARGRetrieveDocumentSet extends XCARetrieveDocumentSet {
     }
 
     /**
-     * 
-     * @param request
+     *
+     * @param docRequest
+     * @param homeCommunityId
+     * @param gatewayConfig
      * @throws XdsInternalException
      */
-    protected void prepareValidRequests(OMElement request) throws XdsInternalException {
-
-        // Loop through each DocumentRequest
-        ArrayList<OMElement> docRequests = MetadataSupport.decendentsWithLocalName(request, "DocumentRequest");
-        for (OMElement docRequest : docRequests) {
-
-            // Get the home community in the request.
-            OMElement homeCommunityNode = MetadataSupport.firstChildWithLocalName(docRequest, "HomeCommunityId");
-            if (homeCommunityNode == null) {
-
-                // home community id is missing in this doc request.
-                response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
-                        "homeCommunityId missing or empty",
-                        this.getLocalHomeCommunityId(), log_message);
-            } else {
-                // Now retrieve the home community id from the node.
-                String homeCommunityId = homeCommunityNode.getText();
-                if (homeCommunityId == null || homeCommunityId.equals("")) {
-
-                    // No home community id found.
-                    response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
-                            "homeCommunityId missing or empty",
-                            this.getLocalHomeCommunityId(), log_message);
-                } else {
-                    // Now determine if we know about this home community
-
-                    // Is this request targeted for the local community?
-                    XConfigObject homeCommunityConfig = XConfig.getInstance().getHomeCommunityConfig();
-
-                    if (homeCommunityConfig.getUniqueId().equals(homeCommunityId)) {
-                        // This is destined for the local community.
-                        XConfigActor repositoryConfig = this.getRepositoryConfigBasedOnDocRequest(docRequest);
-                        if (repositoryConfig != null) {
-                            // This request is good (targeted for local community repository).
-                            this.addRequest(docRequest, repositoryConfig.getUniqueId(), repositoryConfig, true);
-                        }
-                    }
-                }
-            }
-        }
+    protected void processRemoteCommunityRequest(OMElement docRequest, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
+        // NOOP: for now ... could do chaining of gateways here.
     }
 }

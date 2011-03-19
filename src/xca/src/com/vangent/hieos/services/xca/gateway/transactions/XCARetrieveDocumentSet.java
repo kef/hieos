@@ -12,28 +12,25 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
-import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.registry.RegistryUtility;
-import com.vangent.hieos.xutil.response.RetrieveMultipleResponse;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-
-// Exceptions.
-import com.vangent.hieos.xutil.exception.SchemaValidationException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
-
 import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
 import com.vangent.hieos.services.xca.gateway.controller.XCAAbstractRequestCollection;
 import com.vangent.hieos.services.xca.gateway.controller.XCARetrieveRequestCollection;
 import com.vangent.hieos.services.xca.gateway.controller.XCARequest;
 
-// XConfig.
+import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.registry.RegistryUtility;
+import com.vangent.hieos.xutil.response.RetrieveMultipleResponse;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
-// Third party.
-import org.apache.axis2.context.MessageContext;
 import java.util.ArrayList;
+
+import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.log4j.Logger;
@@ -45,6 +42,15 @@ import org.apache.log4j.Logger;
 public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
 
     private final static Logger logger = Logger.getLogger(XCARetrieveDocumentSet.class);
+
+    /**
+     * 
+     * @param docRequest
+     * @param homeCommunityId
+     * @param gatewayConfig
+     * @throws XdsInternalException
+     */
+    abstract void processRemoteCommunityRequest(OMElement docRequest, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException;
 
     /**
      *
@@ -64,9 +70,8 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
     }
 
     /**
-     * Make sure that the xdsb namespace is in order.
-     *
-     * @param request  The root of the XML request.
+     * 
+     * @param request
      */
     protected void validateRequest(OMElement request) {
 
@@ -90,6 +95,65 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
             response.add_error(MetadataSupport.XDSRepositoryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
                     this.getLocalHomeCommunityId(), log_message);
+        }
+    }
+
+    /**
+     *
+     * @param request
+     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     */
+    protected void prepareValidRequests(OMElement request) throws XdsInternalException {
+
+        // Loop through each DocumentRequest
+        ArrayList<OMElement> docRequests = MetadataSupport.decendentsWithLocalName(request, "DocumentRequest");
+        for (OMElement docRequest : docRequests) {
+
+            // Get the home community in the request.
+            OMElement homeCommunityNode = MetadataSupport.firstChildWithLocalName(docRequest, "HomeCommunityId");
+            if (homeCommunityNode == null) {
+
+                // home community id is missing in this doc request.
+                response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
+                        "homeCommunityId missing or empty",
+                        this.getLocalHomeCommunityId(), log_message);
+            } else {
+                // Now retrieve the home community id from the node.
+                String homeCommunityId = homeCommunityNode.getText();
+                if (homeCommunityId == null || homeCommunityId.equals("")) {
+
+                    // No home community id found.
+                    response.add_error(MetadataSupport.XDSMissingHomeCommunityId,
+                            "homeCommunityId missing or empty",
+                            this.getLocalHomeCommunityId(), log_message);
+                } else {
+                    // Now determine if we know about this home community
+
+                    // Is this request targeted for the local community?
+                    XConfigObject homeCommunityConfig = XConfig.getInstance().getHomeCommunityConfig();
+
+                    if (homeCommunityConfig.getUniqueId().equals(homeCommunityId)) {
+                        // This is destined for the local community.
+                        XConfigActor repositoryConfig = this.getRepositoryConfigBasedOnDocRequest(docRequest);
+                        if (repositoryConfig != null) {
+                            // This request is good (targeted for local community repository).
+                            this.addRequest(docRequest, repositoryConfig.getUniqueId(), repositoryConfig, true);
+                        }
+
+                    } else {
+                        // See if we know about a remote gateway that can respond.
+                        XConfigActor gatewayConfig = XConfig.getInstance().getRespondingGatewayConfigForHomeCommunityId(homeCommunityId);
+                        if (gatewayConfig == null) {
+                            response.add_error(MetadataSupport.XDSUnknownCommunity,
+                                    "Do not understand homeCommunityId " + homeCommunityId,
+                                    this.getLocalHomeCommunityId(), log_message);
+                        } else {
+                            // This request is good (targeted for a remote community.
+                            this.processRemoteCommunityRequest(docRequest, homeCommunityId, gatewayConfig);
+                        }
+                    }
+                }
+            }
         }
     }
 
