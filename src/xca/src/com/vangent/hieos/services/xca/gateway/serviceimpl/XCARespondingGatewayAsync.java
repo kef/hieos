@@ -10,20 +10,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
-import org.apache.axiom.om.OMElement;
 
 /**
- * XCAGatewayAsync is a simple class that overrides a few methods in
+ * XCARespondingGatewayAsync is a simple class that overrides a few methods in
  * its superclass, to provide certain asynchronous behaviors.
  *
  * @author Anand Sastry
  */
-public class XCAGatewayAsync extends XCAGateway {
+public class XCARespondingGatewayAsync extends XCARespondingGateway {
 
     /**
      * This method ensures that an asynchronous request has been sent. It evaluates the message
@@ -37,21 +34,12 @@ public class XCAGatewayAsync extends XCAGateway {
     }
 
     /**
-     * This method returns local registry Transaction names supported by the Async Initiating Gateway.
-     * @return a String value representing a PnR transaction name.
-     */
-    @Override
-    protected String getRTransactionName(OMElement ahqr) {
-         return super.getRTransactionName(ahqr)+ " ASync";
-    }
-
-    /**
      * This method returns the Query Transaction name for the Async Gateway.
      * @return a String value representing a PnR transaction name.
      */
     @Override
     protected String getQueryTransactionName() {
-         return super.getQueryTransactionName()+ " ASync";
+        return super.getQueryTransactionName() + " ASync";
     }
 
     /**
@@ -60,7 +48,6 @@ public class XCAGatewayAsync extends XCAGateway {
      */
     @Override
     protected String getRetTransactionName() {
-        return super.getRetTransactionName()+ " ASync";
+        return super.getRetTransactionName() + " ASync";
     }
-
 }

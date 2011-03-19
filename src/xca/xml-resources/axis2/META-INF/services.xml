@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
     <!-- XCA Initiating Gateway Actor -->
-    <service name="xcaig" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway">
+    <service name="xcaig" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAInitiatingGateway">
         <description>XCA Initiating Gateway Interface</description>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
-        <parameter name="ActorName">InitiatingGateway</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAInitiatingGateway</parameter>
         <operation name="AdhocQueryRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
@@ -17,10 +16,9 @@
     </service>
 
     <!-- XCA Responding Gateway Actor -->
-    <service name="xcarg" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway">
+    <service name="xcarg" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCARespondingGateway">
         <description>XCA Responding Gateway Interface</description>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGateway</parameter>
-        <parameter name="ActorName">RespondingGateway</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCARespondingGateway</parameter>
         <operation name="AdhocQueryRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:CrossGatewayQuery</actionMapping>
@@ -33,10 +31,9 @@
     </service>
 
     <!-- Async XCA Initiating Gateway Actor -->
-    <service name="xcaigas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync">
+    <service name="xcaigas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAInitiatingGatewayAsync">
         <description>Async XCA Initiating Gateway Interface</description>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
-        <parameter name="ActorName">InitiatingGateway</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAInitiatingGatewayAsync</parameter>
         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="AdhocQueryRequest">
@@ -51,10 +48,9 @@
     </service>
 
     <!-- Async XCA Responding Gateway Actor -->
-    <service name="xcargas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync">
+    <service name="xcargas" class="com.vangent.hieos.services.xca.gateway.serviceimpl.XCARespondingGatewayAsync">
         <description>Async XCA Responding Gateway Interface</description>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCAGatewayAsync</parameter>
-        <parameter name="ActorName">RespondingGateway</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xca.gateway.serviceimpl.XCARespondingGatewayAsync</parameter>
          <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="AdhocQueryRequest">
