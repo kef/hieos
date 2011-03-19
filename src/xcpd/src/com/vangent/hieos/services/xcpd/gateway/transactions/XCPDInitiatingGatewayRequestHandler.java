@@ -458,7 +458,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     private List<GatewayRequest> getGatewayRequests(SubjectSearchCriteria patientDiscoverySearchCriteria) {
         List<GatewayRequest> requests = new ArrayList<GatewayRequest>();
         // First get list of target XCPD Responding Gateways.
-        List<XConfigActor> rgConfigs = this.getXCPDRespondingGateways();
+        List<XConfigActor> rgConfigs = this.getXCPDRespondingGateways(patientDiscoverySearchCriteria);
 
         // Now prepare gateway requests.
         for (XConfigActor rgConfig : rgConfigs) {
@@ -481,6 +481,49 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             requests.add(gatewayRequest);
         }
         return requests;
+    }
+
+    /**
+     *
+     * @param patientDiscoverySearchCriteria
+     * @return
+     */
+    private List<XConfigActor> getXCPDRespondingGateways(SubjectSearchCriteria patientDiscoverySearchCriteria) {
+        List<XConfigActor> targetGateways = new ArrayList<XConfigActor>();
+
+        // First get list of possible target XCPD Responding Gateways.
+        List<XConfigActor> possibleTargetGateways = this.getXCPDRespondingGateways();
+
+        // Get subject identifier for the search subject (as it is known in this community).
+        SubjectIdentifier communitySubjectIdentifier = this.getSubjectIdentifier(patientDiscoverySearchCriteria);
+
+        try {
+            // Now consult the cache.
+            PatientCorrelationCacheService cacheService = new PatientCorrelationCacheService();
+            String localPatientId = communitySubjectIdentifier.getCXFormatted();
+            String localHomeCommunityId = this.getGatewayConfig().getUniqueId();
+            List<PatientCorrelationCacheEntry> cacheEntries = cacheService.lookup(localPatientId, localHomeCommunityId);
+            for (XConfigActor possibleTargetGateway : possibleTargetGateways) {
+                boolean foundInCache = false;
+                for (PatientCorrelationCacheEntry cacheEntry : cacheEntries) {
+                    if (possibleTargetGateway.getUniqueId().equalsIgnoreCase(cacheEntry.getRemoteHomeCommunityId())) {
+                        foundInCache = true;
+                        break;
+                    }
+                }
+                if (!foundInCache) {
+                    targetGateways.add(possibleTargetGateway);
+                }
+            }
+
+        } catch (Exception ex) {
+            log_message.setPass(false);
+            if (log_message.isLogEnabled()) {
+                log_message.addErrorParam("XCPD EXCEPTION", ex.getMessage());
+            }
+        }
+
+        return targetGateways;
     }
 
     /**
