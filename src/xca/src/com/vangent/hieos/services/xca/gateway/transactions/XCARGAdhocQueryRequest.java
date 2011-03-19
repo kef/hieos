@@ -58,6 +58,19 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
     }
 
     /**
+     *
+     * @param queryRequest
+     * @return
+     */
+    @Override
+    protected boolean requiresHomeCommunityId(OMElement queryRequest) {
+        // The responding gateway does not require a home community id on
+        // query requests.
+        return false;
+    }
+
+
+    /**
      * 
      * @param request
      * @param queryRequest
