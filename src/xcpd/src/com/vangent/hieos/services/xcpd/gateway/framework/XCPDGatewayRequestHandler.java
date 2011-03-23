@@ -104,7 +104,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param propertyKey
      * @return
      */
-    protected String getGatewayConfigProperty(String propertyKey) {
+    public String getGatewayConfigProperty(String propertyKey) {
         String propertyValue = "";
         try {
             XConfigActor gatewayConfig = this.getGatewayConfig();

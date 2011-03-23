@@ -39,6 +39,8 @@ public class PatientCorrelationCacheDAO {
 
     private final static Logger logger = Logger.getLogger(PatientCorrelationCacheDAO.class);
     private final Connection connection;
+    private int matchExpirationDays;
+    private int noMatchExpirationDays;
 
     /**
      *
@@ -52,19 +54,53 @@ public class PatientCorrelationCacheDAO {
      * 
      * @param connection
      */
-    public PatientCorrelationCacheDAO(Connection connection) {
+    public PatientCorrelationCacheDAO(Connection connection, int matchExpirationDays, int noMatchExpirationDays) {
         this.connection = connection;
+        this.matchExpirationDays = matchExpirationDays;
+        this.noMatchExpirationDays = noMatchExpirationDays;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getMatchExpirationDays() {
+        return matchExpirationDays;
+    }
+
+    /**
+     *
+     * @param matchExpirationDays
+     */
+    public void setMatchExpirationDays(int matchExpirationDays) {
+        this.matchExpirationDays = matchExpirationDays;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getNoMatchExpirationDays() {
+        return noMatchExpirationDays;
+    }
+
+    /**
+     *
+     * @param noMatchExpirationDays
+     */
+    public void setNoMatchExpirationDays(int noMatchExpirationDays) {
+        this.noMatchExpirationDays = noMatchExpirationDays;
     }
 
     /**
      *
      * @param patientCorrelationCacheEntry
-     * @param expirationDays
+     * @param matchExpirationDays
      * @throws PatientCorrelationCacheException
      */
-    public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry, int expirationDays) throws PatientCorrelationCacheException {
+    public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry) throws PatientCorrelationCacheException {
         // Update times.
-        this.setTimes(patientCorrelationCacheEntry, expirationDays);
+        this.setTimes(patientCorrelationCacheEntry);
 
         // First see if the correlation already exists.
         PatientCorrelationCacheEntry foundPatientCorrelationCacheEntry = this.lookup(patientCorrelationCacheEntry);
@@ -83,12 +119,12 @@ public class PatientCorrelationCacheDAO {
     /**
      * 
      * @param patientCorrelationCacheEntries
-     * @param expirationDays
+     * @param matchExpirationDays
      * @throws PatientCorrelationCacheException
      */
-    public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries, int expirationDays) throws PatientCorrelationCacheException {
+    public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries) throws PatientCorrelationCacheException {
         for (PatientCorrelationCacheEntry patientCorrelationCacheEntry : patientCorrelationCacheEntries) {
-            this.store(patientCorrelationCacheEntry, expirationDays);
+            this.store(patientCorrelationCacheEntry);
         }
     }
 
@@ -332,13 +368,18 @@ public class PatientCorrelationCacheDAO {
     /**
      *
      * @param patientCorrelationCacheEntry
-     * @param expirationDays
+     * @param matchExpirationDays
      */
-    private void setTimes(PatientCorrelationCacheEntry patientCorrelationCacheEntry, int expirationDays) {
+    private void setTimes(PatientCorrelationCacheEntry patientCorrelationCacheEntry) {
         Date now = new Date();
         patientCorrelationCacheEntry.setLastUpdatedTime(now);
 
-        // FIXME ... need to set a proper expiration time
+        int expirationDays = 0;
+        if (patientCorrelationCacheEntry.getStatus() == PatientCorrelationCacheEntry.STATUS_MATCH) {
+            expirationDays = this.getMatchExpirationDays();
+        } else {
+            expirationDays = this.getNoMatchExpirationDays();
+        }
         Date expirationTime = this.addDaysToDate(now, expirationDays);
         patientCorrelationCacheEntry.setExpirationTime(expirationTime);
     }

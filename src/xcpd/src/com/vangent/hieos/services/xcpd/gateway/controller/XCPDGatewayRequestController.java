@@ -68,7 +68,7 @@ public class XCPDGatewayRequestController {
     private XLogMessage logMessage;
     private XCPDGatewayRequestHandler requestHandler;
     private SubjectIdentifier communitySubjectIdentifier = null;
-    private PatientCorrelationCacheService cacheService = new PatientCorrelationCacheService();
+    private PatientCorrelationCacheService cacheService = null;
     private List<XConfigActor> targetRespondingGateways = new ArrayList<XConfigActor>();
     private List<PatientCorrelationCacheEntry> activeCacheEntries = new ArrayList<PatientCorrelationCacheEntry>();
 
@@ -80,6 +80,29 @@ public class XCPDGatewayRequestController {
         this.searchResultMode = searchResultMode;
         this.requestHandler = requestHandler;
         this.logMessage = logMessage;
+        this.initCacheService();
+    }
+
+    /**
+     *
+     */
+    private void initCacheService() {
+
+        // Get configuration.
+        logger.info("Setting MatchCacheExpirationDays from xconfig");
+        String matchCacheExpirationDaysText = requestHandler.getGatewayConfigProperty("MatchCacheExpirationDays");
+        int matchCacheExpirationDays = PatientCorrelationCacheService.DEFAULT_MATCH_EXPIRATION_DAYS;
+        if (matchCacheExpirationDaysText != null) {
+            matchCacheExpirationDays = new Integer(matchCacheExpirationDaysText);
+        }
+        logger.info("Setting MoMatchCacheExpirationDays from xconfig");
+        String noMatchCacheExpirationDaysText = requestHandler.getGatewayConfigProperty("NoMatchCacheExpirationDays");
+        int noMatchCacheExpirationDays = PatientCorrelationCacheService.DEFAULT_NO_MATCH_EXPIRATION_DAYS;
+        if (noMatchCacheExpirationDaysText != null) {
+            matchCacheExpirationDays = new Integer(noMatchCacheExpirationDaysText);
+        }
+        // Create cache service instance.
+        this.cacheService = new PatientCorrelationCacheService(matchCacheExpirationDays, noMatchCacheExpirationDays);
     }
 
     /**
@@ -131,7 +154,7 @@ public class XCPDGatewayRequestController {
                 }
                 // Now, create list of active cache entries (for later).
                 for (PatientCorrelationCacheEntry cacheEntry : cacheEntries) {
-                    if (cacheEntry.getStatus() == PatientCorrelationCacheEntry.STATUS_ACTIVE) {
+                    if (cacheEntry.getStatus() == PatientCorrelationCacheEntry.STATUS_MATCH) {
                         this.activeCacheEntries.add(cacheEntry);
                     }
                 }
@@ -334,7 +357,7 @@ public class XCPDGatewayRequestController {
         SubjectSearchResponse aggregatedSubjectSearchResponse = new SubjectSearchResponse();
 
         // FIXME: May want to do all of this in parallel ...
-        
+
         if (searchResultMode == SearchResultMode.Demographics) {
             List<Subject> aggregatedSubjects = aggregatedSubjectSearchResponse.getSubjects();
             for (GatewayResponse gatewayResponse : responses) {
@@ -501,7 +524,7 @@ public class XCPDGatewayRequestController {
             // FIXME: SHOULD USE A DIFFERENT EXPIRATION TIME HERE ...
             PatientCorrelationCacheEntry cacheEntry =
                     this.getPatientCorrelationCacheEntry(localPatientId, localHomeCommunityId, null, remoteHomeCommunityId);
-            cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_NOTFOUND);
+            cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_NO_MATCH);
             cacheEntries.add(cacheEntry);  // Add to the list.
         } else {
             for (Subject subject : subjects) {
@@ -513,7 +536,7 @@ public class XCPDGatewayRequestController {
                     PatientCorrelationCacheEntry cacheEntry =
                             this.getPatientCorrelationCacheEntry(localPatientId, localHomeCommunityId, remotePatientId, remoteHomeCommunityId);
 
-                    cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_ACTIVE);
+                    cacheEntry.setStatus(PatientCorrelationCacheEntry.STATUS_MATCH);
 
                     // Add to the list to store.
                     cacheEntries.add(cacheEntry);

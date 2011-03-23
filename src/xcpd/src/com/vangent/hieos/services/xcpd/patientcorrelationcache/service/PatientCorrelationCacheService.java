@@ -33,23 +33,60 @@ import org.apache.log4j.Logger;
 public class PatientCorrelationCacheService {
 
     private final static Logger logger = Logger.getLogger(PatientCorrelationCacheService.class);
-    private final static int DEFAULT_EXPIRATION_DAYS = 2;
-    private int expirationDays = DEFAULT_EXPIRATION_DAYS;
+    
+    public final static int DEFAULT_MATCH_EXPIRATION_DAYS = 5;
+    public final static int DEFAULT_NO_MATCH_EXPIRATION_DAYS = 5;
+
+    private int matchExpirationDays = DEFAULT_MATCH_EXPIRATION_DAYS;
+    private int noMatchExpirationDays = DEFAULT_NO_MATCH_EXPIRATION_DAYS;
+
+    /**
+     *
+     */
+    private PatientCorrelationCacheService() {
+        // Do nothing.
+    }
+
+    /**
+     *
+     * @param matchExpirationDays
+     * @param noMatchExpirationDays
+     */
+    public PatientCorrelationCacheService(int matchExpirationDays, int noMatchExpirationDays) {
+        this.matchExpirationDays = matchExpirationDays;
+        this.noMatchExpirationDays = noMatchExpirationDays;
+    }
 
     /**
      * 
-     * @param expirationDays
+     * @param matchExpirationDays
      */
-    public void setExpirationDays(int expirationDays) {
-        this.expirationDays = expirationDays;
+    public void setMatchExpirationDays(int matchExpirationDays) {
+        this.matchExpirationDays = matchExpirationDays;
     }
 
     /**
      *
      * @return
      */
-    public int getExpirationDays() {
-        return this.expirationDays;
+    public int getMatchExpirationDays() {
+        return this.matchExpirationDays;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getNoMatchExpirationDays() {
+        return noMatchExpirationDays;
+    }
+
+    /**
+     *
+     * @param noMatchExpirationDays
+     */
+    public void setNoMatchExpirationDays(int noMatchExpirationDays) {
+        this.noMatchExpirationDays = noMatchExpirationDays;
     }
 
     /**
@@ -60,8 +97,8 @@ public class PatientCorrelationCacheService {
     public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
-            dao.store(patientCorrelationCacheEntry, this.getExpirationDays());
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection, this.matchExpirationDays, this.noMatchExpirationDays);
+            dao.store(patientCorrelationCacheEntry);
         } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow.
         } finally {
@@ -82,8 +119,8 @@ public class PatientCorrelationCacheService {
     public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
-            dao.store(patientCorrelationCacheEntries, this.getExpirationDays());
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection, this.matchExpirationDays, this.noMatchExpirationDays);
+            dao.store(patientCorrelationCacheEntries);
         } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow
         } finally {
@@ -106,7 +143,7 @@ public class PatientCorrelationCacheService {
     public List<PatientCorrelationCacheEntry> lookup(String localPatientId, String localHomeCommunityId) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection, this.matchExpirationDays, this.noMatchExpirationDays);
             List<PatientCorrelationCacheEntry> correlationCacheEntries = dao.lookup(localPatientId, localHomeCommunityId);
             return correlationCacheEntries;
         } catch (PatientCorrelationCacheException ex) {
@@ -130,7 +167,7 @@ public class PatientCorrelationCacheService {
     public void deleteExpired(String localPatientId, String localHomeCommunityId) throws PatientCorrelationCacheException {
         Connection connection = this.getConnection();
         try {
-            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection, this.matchExpirationDays, this.noMatchExpirationDays);
             dao.deleteExpired(localPatientId, localHomeCommunityId);
         } catch (PatientCorrelationCacheException ex) {
             throw ex; // rethrow

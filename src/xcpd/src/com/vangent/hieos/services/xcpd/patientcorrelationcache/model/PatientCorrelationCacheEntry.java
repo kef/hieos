@@ -20,8 +20,8 @@ import java.util.Date;
  */
 public class PatientCorrelationCacheEntry {
 
-    public static final char STATUS_ACTIVE = 'A';
-    public static final char STATUS_NOTFOUND = 'N';
+    public static final char STATUS_MATCH = 'M';
+    public static final char STATUS_NO_MATCH = 'N';
     
     private String id;
     private String localPatientId;
@@ -30,7 +30,7 @@ public class PatientCorrelationCacheEntry {
     private String remoteHomeCommunityId;
     private Date lastUpdatedTime;
     private Date expirationTime;
-    private char status = PatientCorrelationCacheEntry.STATUS_ACTIVE;
+    private char status = PatientCorrelationCacheEntry.STATUS_MATCH;
 
     /**
      *
