@@ -252,6 +252,12 @@
              a request to the XCPD Initiating Gateway (e.g. PDQ). -->
         <Property name="MinimumDegreeMatchPercentage">90</Property>
         
+        <!-- Set the amount of days to cache a correlation when a MATCH is found. -->
+	<Property name="MatchCacheExpirationDays">5</Property>
+	
+	<!-- Set the amount of days to cache a correlation when NO MATCH is found. -->
+        <Property name="NoMatchCacheExpirationDays">5</Property>
+        
         <!-- determine how XCA Initiating Gateway will process queries -->
         <!-- XCAInitiatingGatewayPatientMappingMode options include:
              1) passthrough - Do not translate patient identifiers (use assigning authority
@@ -261,7 +267,7 @@
              2) xcpd - A PIX query will be directed to an XCPD IG to determine where to go.
              3) pix? - TBD / requests will be directed to a PIXManager to determine where to go.
         -->
-        <Property name="XCAInitiatingGatewayPatientMappingMode">xcpd</Property>
+        <Property name="XCAInitiatingGatewayPatientMappingMode">passthrough</Property>
 
          <!-- To support outbound XCPD Initiating Gateway PIX requests when in "xcpd" mode. -->
          <!-- OK to self reference here. -->
