@@ -23,7 +23,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -53,13 +55,14 @@ public class PatientCorrelationCacheDAO {
     }
 
     /**
-     * 
+     *
      * @param patientCorrelationCacheEntry
+     * @param expirationDays
      * @throws PatientCorrelationCacheException
      */
-    public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry) throws PatientCorrelationCacheException {
+    public void store(PatientCorrelationCacheEntry patientCorrelationCacheEntry, int expirationDays) throws PatientCorrelationCacheException {
         // Update times.
-        this.setTimes(patientCorrelationCacheEntry);
+        this.setTimes(patientCorrelationCacheEntry, expirationDays);
 
         // First see if the correlation already exists.
         PatientCorrelationCacheEntry foundPatientCorrelationCacheEntry = this.lookup(patientCorrelationCacheEntry);
@@ -76,13 +79,14 @@ public class PatientCorrelationCacheDAO {
     }
 
     /**
-     *
+     * 
      * @param patientCorrelationCacheEntries
+     * @param expirationDays
      * @throws PatientCorrelationCacheException
      */
-    public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries) throws PatientCorrelationCacheException {
+    public void store(List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries, int expirationDays) throws PatientCorrelationCacheException {
         for (PatientCorrelationCacheEntry patientCorrelationCacheEntry : patientCorrelationCacheEntries) {
-            this.store(patientCorrelationCacheEntry);
+            this.store(patientCorrelationCacheEntry, expirationDays);
         }
     }
 
@@ -113,10 +117,9 @@ public class PatientCorrelationCacheDAO {
                 patientCorrelationCacheEntry.setLocalPatientId(rs.getString(3));
                 patientCorrelationCacheEntry.setRemoteHomeCommunityId(rs.getString(4));
                 patientCorrelationCacheEntry.setRemotePatientId(rs.getString(5));
-                // FIXME ....
-                //patientCorrelationCacheEntry.setStatus(rs.getString(6).charAt(0));
-                //patientCorrelationCacheEntry.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
-                //patientCorrelationCacheEntry.setExpirationTime(this.getDate(rs.getTimestamp(8)));
+                patientCorrelationCacheEntry.setStatus(rs.getString(6).charAt(0));
+                patientCorrelationCacheEntry.setLastUpdatedTime(this.getDate(rs.getTimestamp(7)));
+                patientCorrelationCacheEntry.setExpirationTime(this.getDate(rs.getTimestamp(8)));
                 patientCorrelationCacheEntries.add(patientCorrelationCacheEntry);
             }
         } catch (SQLException ex) {
@@ -139,6 +142,52 @@ public class PatientCorrelationCacheDAO {
 
     /**
      *
+     * @param localPatientId
+     * @param localHomeCommunityId
+     * @throws PatientCorrelationCacheException
+     */
+    public void deleteExpired(String localPatientId, String localHomeCommunityId) throws PatientCorrelationCacheException {
+        List<PatientCorrelationCacheEntry> patientCorrelationCacheEntries = this.lookup(localPatientId, localHomeCommunityId);
+        for (PatientCorrelationCacheEntry patientCorrelationCacheEntry : patientCorrelationCacheEntries) {
+            // Check the time.
+            Date now = new Date();
+            if (patientCorrelationCacheEntry.getExpirationTime().before(now)) {
+                this.delete(patientCorrelationCacheEntry);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param patientCorrelationCacheEntry
+     * @throws PatientCorrelationCacheException
+     */
+    private void delete(PatientCorrelationCacheEntry patientCorrelationCacheEntry) throws PatientCorrelationCacheException {
+        String sql = "DELETE FROM patientcorrelation WHERE id = ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, patientCorrelationCacheEntry.getId());
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL(PatientCorrelationCacheEntry) = " + sql);
+            }
+            stmt.execute();
+        } catch (SQLException ex) {
+            logger.error("Failure deleting PatientCorrelationCacheEntry", ex);
+            throw new PatientCorrelationCacheException(ex.getMessage());
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    // FIXME: ? Just eat this one.
+                }
+            }
+        }
+    }
+
+    /**
+     *
      * @param patientCorrelationCacheEntry
      * @throws PatientCorrelationCacheException
      */
@@ -152,7 +201,6 @@ public class PatientCorrelationCacheDAO {
             stmt.setString(3, patientCorrelationCacheEntry.getLocalPatientId());
             stmt.setString(4, patientCorrelationCacheEntry.getRemoteHomeCommunityId());
             stmt.setString(5, patientCorrelationCacheEntry.getRemotePatientId());
-            // FIXME ?? ....
             stmt.setString(6, Character.toString(patientCorrelationCacheEntry.getStatus()));
             stmt.setTimestamp(7, this.getTimestamp(patientCorrelationCacheEntry.getLastUpdatedTime()));
             stmt.setTimestamp(8, this.getTimestamp(patientCorrelationCacheEntry.getExpirationTime()));
@@ -188,7 +236,6 @@ public class PatientCorrelationCacheDAO {
             stmt.setString(2, patientCorrelationCacheEntry.getLocalPatientId());
             stmt.setString(3, patientCorrelationCacheEntry.getRemoteHomeCommunityId());
             stmt.setString(4, patientCorrelationCacheEntry.getRemotePatientId());
-            // FIXME? ....
             stmt.setString(5, Character.toString(patientCorrelationCacheEntry.getStatus()));
             stmt.setTimestamp(6, this.getTimestamp(patientCorrelationCacheEntry.getLastUpdatedTime()));
             stmt.setTimestamp(7, this.getTimestamp(patientCorrelationCacheEntry.getExpirationTime()));
@@ -281,14 +328,31 @@ public class PatientCorrelationCacheDAO {
     }
 
     /**
-     * 
+     *
      * @param patientCorrelationCacheEntry
+     * @param expirationDays
      */
-    private void setTimes(PatientCorrelationCacheEntry patientCorrelationCacheEntry) {
-        Date currentDate = new Date();
-        patientCorrelationCacheEntry.setLastUpdatedTime(currentDate);
+    private void setTimes(PatientCorrelationCacheEntry patientCorrelationCacheEntry, int expirationDays) {
+        Date now = new Date();
+        patientCorrelationCacheEntry.setLastUpdatedTime(now);
 
         // FIXME ... need to set a proper expiration time
-        patientCorrelationCacheEntry.setExpirationTime(currentDate);
+        Date expirationTime = this.addDaysToDate(now, expirationDays);
+        patientCorrelationCacheEntry.setExpirationTime(expirationTime);
+    }
+
+    /**
+     * 
+     * @param date
+     * @param daysOffset
+     * @return
+     */
+    private Date addDaysToDate(Date date, int daysOffset) {
+        Calendar c = new GregorianCalendar();
+        // FIXME: ? should we use UTC for all dates?
+        //c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTime(date);
+        c.add(Calendar.DATE, daysOffset);
+        return c.getTime();
     }
 }

@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(XCPDGatewayRequestHandler.class);
+    private final static int DEFAULT_MINIMUM_DEGREE_MATCH_PERCENTAGE = 90;
 
     public enum GatewayType {
 
@@ -109,6 +110,23 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
             logger.fatal("XCPD EXCEPTION: Unable to load XConfig for XCPD Gateway", ex);
         }
         return propertyValue;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     */
+    protected void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria) {
+        if (subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage() == false) {
+            logger.info("Setting MinimumDegreeMatchPercentage from xconfig");
+            String minimumDegreeMatchPercentageText = this.getGatewayConfigProperty("MinimumDegreeMatchPercentage");
+            int minimumDegreeMatchPercentage = XCPDGatewayRequestHandler.DEFAULT_MINIMUM_DEGREE_MATCH_PERCENTAGE;
+            if (minimumDegreeMatchPercentageText != null) {
+                minimumDegreeMatchPercentage = new Integer(minimumDegreeMatchPercentageText);
+            }
+            subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(true);
+            subjectSearchCriteria.setMinimumDegreeMatchPercentage(new Integer(minimumDegreeMatchPercentage));
+        }
     }
 
     /**
@@ -219,7 +237,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @return
      */
     @Override
-    public boolean getStatus() {
+    protected boolean getStatus() {
         return log_message.isPass();
     }
 

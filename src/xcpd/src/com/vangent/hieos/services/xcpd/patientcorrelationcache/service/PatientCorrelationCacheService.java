@@ -31,6 +31,24 @@ import org.apache.log4j.Logger;
 public class PatientCorrelationCacheService {
 
     private final static Logger logger = Logger.getLogger(PatientCorrelationCacheService.class);
+    private final static int DEFAULT_EXPIRATION_DAYS = 2;
+    private int expirationDays = DEFAULT_EXPIRATION_DAYS;
+
+    /**
+     * 
+     * @param expirationDays
+     */
+    public void setExpirationDays(int expirationDays) {
+        this.expirationDays = expirationDays;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getExpirationDays() {
+        return this.expirationDays;
+    }
 
     /**
      *
@@ -41,7 +59,7 @@ public class PatientCorrelationCacheService {
         Connection connection = this.getConnection();
         try {
             PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
-            dao.store(patientCorrelationCacheEntry);
+            dao.store(patientCorrelationCacheEntry, this.getExpirationDays());
         } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow.
         } finally {
@@ -63,7 +81,7 @@ public class PatientCorrelationCacheService {
         Connection connection = this.getConnection();
         try {
             PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
-            dao.store(patientCorrelationCacheEntries);
+            dao.store(patientCorrelationCacheEntries, this.getExpirationDays());
         } catch (PatientCorrelationCacheException ex) {
             throw ex;  // rethrow
         } finally {
@@ -89,6 +107,29 @@ public class PatientCorrelationCacheService {
             PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
             List<PatientCorrelationCacheEntry> correlationCacheEntries = dao.lookup(localPatientId, localHomeCommunityId);
             return correlationCacheEntries;
+        } catch (PatientCorrelationCacheException ex) {
+            throw ex; // rethrow
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                // Just let processing continue ....
+                logger.error("Could not close Patient Correlation connection", ex);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param localPatientId
+     * @param localHomeCommunityId
+     * @throws PatientCorrelationCacheException
+     */
+    public void deleteExpired(String localPatientId, String localHomeCommunityId) throws PatientCorrelationCacheException {
+        Connection connection = this.getConnection();
+        try {
+            PatientCorrelationCacheDAO dao = new PatientCorrelationCacheDAO(connection);
+            dao.deleteExpired(localPatientId, localHomeCommunityId);
         } catch (PatientCorrelationCacheException ex) {
             throw ex; // rethrow
         } finally {

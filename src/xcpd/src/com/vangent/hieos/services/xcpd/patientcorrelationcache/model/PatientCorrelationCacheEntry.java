@@ -23,14 +23,14 @@ public class PatientCorrelationCacheEntry {
     public static final char STATUS_ACTIVE = 'A';
     public static final char STATUS_NOTFOUND = 'N';
     
-    String id;
-    String localPatientId;
-    String localHomeCommunityId;
-    String remotePatientId;
-    String remoteHomeCommunityId;
-    Date lastUpdatedTime;
-    Date expirationTime;
-    char status = PatientCorrelationCacheEntry.STATUS_ACTIVE;
+    private String id;
+    private String localPatientId;
+    private String localHomeCommunityId;
+    private String remotePatientId;
+    private String remoteHomeCommunityId;
+    private Date lastUpdatedTime;
+    private Date expirationTime;
+    private char status = PatientCorrelationCacheEntry.STATUS_ACTIVE;
 
     /**
      *
