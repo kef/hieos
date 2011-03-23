@@ -99,7 +99,7 @@ public class XCPDGatewayRequestController {
         String noMatchCacheExpirationDaysText = requestHandler.getGatewayConfigProperty("NoMatchCacheExpirationDays");
         int noMatchCacheExpirationDays = PatientCorrelationCacheService.DEFAULT_NO_MATCH_EXPIRATION_DAYS;
         if (noMatchCacheExpirationDaysText != null) {
-            matchCacheExpirationDays = new Integer(noMatchCacheExpirationDaysText);
+            noMatchCacheExpirationDays = new Integer(noMatchCacheExpirationDaysText);
         }
         // Create cache service instance.
         this.cacheService = new PatientCorrelationCacheService(matchCacheExpirationDays, noMatchCacheExpirationDays);
