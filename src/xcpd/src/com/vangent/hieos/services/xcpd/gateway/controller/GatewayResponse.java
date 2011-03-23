@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.controller;
 
-import com.vangent.hieos.services.xcpd.gateway.controller.GatewayRequest;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 
 /**

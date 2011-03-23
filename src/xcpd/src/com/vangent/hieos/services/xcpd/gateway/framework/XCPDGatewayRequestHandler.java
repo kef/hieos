@@ -10,9 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xcpd.gateway.transactions;
+package com.vangent.hieos.services.xcpd.gateway.framework;
 
 import com.vangent.hieos.hl7v3util.client.PDSClient;
+
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
@@ -21,7 +22,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
+
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
@@ -32,6 +35,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -75,7 +79,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @return
      * @throws AxisFault
      */
-    protected XConfigActor getGatewayConfig() throws AxisFault {
+    public XConfigActor getGatewayConfig() throws AxisFault {
         try {
             XConfig xconf = XConfig.getInstance();
             // Get the home community config.
@@ -116,7 +120,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      *
      * @param subjectSearchCriteria
      */
-    protected void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria) {
+    public void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria) {
         if (subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage() == false) {
             logger.info("Setting MinimumDegreeMatchPercentage from xconfig");
             String minimumDegreeMatchPercentageText = this.getGatewayConfigProperty("MinimumDegreeMatchPercentage");
@@ -133,7 +137,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      *
      * @return
      */
-    protected SubjectIdentifierDomain getCommunityAssigningAuthority() {
+    public SubjectIdentifierDomain getCommunityAssigningAuthority() {
         String communityAssigningAuthority = this.getGatewayConfigProperty("CommunityAssigningAuthority");
         SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
         identifierDomain.setUniversalId(communityAssigningAuthority);
@@ -148,7 +152,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @return
      * @throws AxisFault
      */
-    protected SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
+    public SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
         DeviceInfo receiverDeviceInfo = this.getDeviceInfo(this.getPDSConfig());
         XConfigActor pdsConfig = this.getPDSConfig();
         PDSClient pdsClient = new PDSClient(pdsConfig);
@@ -161,7 +165,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param message
      * @throws AxisFault
      */
-    protected void validateHL7V3Message(HL7V3Message message) throws AxisFault {
+    public void validateHL7V3Message(HL7V3Message message) throws AxisFault {
         try {
             HL7V3SchemaValidator.validate(message.getMessageNode(), message.getType());
         } catch (XMLSchemaValidatorException ex) {
@@ -196,7 +200,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      *
      * @return
      */
-    protected DeviceInfo getSenderDeviceInfo() {
+    public DeviceInfo getSenderDeviceInfo() {
         try {
             XConfigActor gatewayConfig = this.getGatewayConfig();
             return this.getDeviceInfo(gatewayConfig);
@@ -214,7 +218,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param actorConfig
      * @return
      */
-    protected DeviceInfo getDeviceInfo(XConfigActor actorConfig) {
+    public DeviceInfo getDeviceInfo(XConfigActor actorConfig) {
         DeviceInfo deviceInfo = new DeviceInfo(actorConfig);
         return deviceInfo;
     }
@@ -237,7 +241,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @return
      */
     @Override
-    protected boolean getStatus() {
+    public boolean getStatus() {
         return log_message.isPass();
     }
 
@@ -248,7 +252,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param subjectSearchCriteria
      * @param endpoint
      */
-    protected void performATNAAudit(PRPA_IN201305UV02_Message request,
+    public void performATNAAudit(PRPA_IN201305UV02_Message request,
             SubjectSearchCriteria subjectSearchCriteria, String endpoint) {
         try {
             //Instantiate the audit class

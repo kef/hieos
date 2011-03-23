@@ -12,11 +12,6 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.controller;
 
-import com.vangent.hieos.services.xcpd.gateway.transactions.*;
-import com.vangent.hieos.services.xcpd.gateway.controller.GatewayResponse;
-import com.vangent.hieos.services.xcpd.gateway.controller.GatewayRequest;
-import com.vangent.hieos.services.xcpd.gateway.controller.GatewayCallable;
-import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
@@ -28,15 +23,17 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 
+import com.vangent.hieos.services.xcpd.gateway.framework.XCPDGatewayRequestHandler;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
+
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.exception.PatientCorrelationCacheException;
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.model.PatientCorrelationCacheEntry;
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.service.PatientCorrelationCacheService;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 

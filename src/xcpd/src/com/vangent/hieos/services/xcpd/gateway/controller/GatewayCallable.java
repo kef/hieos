@@ -12,12 +12,16 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.controller;
 
-import com.vangent.hieos.services.xcpd.gateway.transactions.*;
 import com.vangent.hieos.hl7v3util.client.XCPDGatewayClient;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
+
+import com.vangent.hieos.services.xcpd.gateway.framework.XCPDGatewayRequestHandler;
+
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import java.util.concurrent.Callable;
+
 import org.apache.log4j.Logger;
 
 /**
