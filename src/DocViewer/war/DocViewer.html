@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+		   <!--CSS for loading message at application Startup-->
+		    <style type="text/css">
+		        body { overflow:hidden }
+		        #loading {
+		            border: 1px solid #ccc;
+		            position: absolute;
+		            left: 45%;
+		            top: 40%;
+		            padding: 2px;
+		            z-index: 20001;
+		            height: auto;
+		        }
+
+		        #loading a {
+		            color: #225588;
+		        }
+
+		        #loading .loadingIndicator {
+		            background: white;
+		            font: bold 13px tahoma, arial, helvetica;
+		            padding: 10px;
+		            margin: 0;
+		            height: auto;
+		            color: #444;
+		        }
+
+		        #loadingMsg {
+		            font: normal 10px arial, tahoma, sans-serif;
+		        }
+		    </style>
+
+
+		<!--                                                               -->
+		<!-- Consider inlining CSS to reduce the number of requested files -->
+		<!--                                                               -->
+		<link type="text/css" rel="stylesheet" href="DocViewer.css">
+		<!--<link rel="stylesheet" href="com.vangent.hieos.DocViewer.DocViewer/sc/skins/Enterprise/skin_styles.css">-->
+
+		<!--                                           -->
+		<!-- Any title is fine                         -->
+		<!--                                           -->
+		<title>HIEOS DocViewer</title>
+
+	</head>
+
+	<!--                                           -->
+	<!-- The body can have arbitrary html, or      -->
+	<!-- we leave the body empty because we want   -->
+	<!-- to create a completely dynamic ui         -->
+	<!--                                           -->
+	<body>
+
+		<!-- OPTIONAL: include this if you want history support -->
+		<iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
+
+		<!--add loading indicator while the app is being loaded-->
+		<div id="loadingWrapper">
+		<div id="loading">
+		    <div class="loadingIndicator">
+		        <img src="com.vangent.hieos.DocViewer.DocViewer/sc/skins/Enterprise/images/loadingSmall.gif" width="16" height="16" style="margin-right:8px;float:left;vertical-align:top;"/>HIEOS DocViewer<br/>
+		        <span id="loadingMsg">Loading...</span></div>
+		</div>
+		</div>
+
+		<!--                                           -->
+		<!-- This script loads your compiled module.   -->
+		<!-- If you add any GWT meta tags, they must   -->
+		<!-- be added before this line.                -->
+		<!--                                           -->
+		<script> var isomorphicDir = "com.vangent.hieos.DocViewer.DocViewer/sc/"; </script>
+
+		<script language="javascript" src="com.vangent.hieos.DocViewer.DocViewer/com.vangent.hieos.DocViewer.DocViewer.nocache.js"></script>
+		<!--<script type="text/javascript">document.getElementById('loadingMsg').innerHTML = 'Loading skin...';</script>-->
+
+
+
+	</body>
+</html>

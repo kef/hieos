@@ -1,0 +1,313 @@
+#searchBox
+{
+	position:absolute;
+	right:0; 
+	top:0px;
+	padding:2px 4px;
+	color:#8c897d;
+	margin:0 20px 0 0;
+}
+a:link
+{
+	color: #15317E; 
+	text-decoration: none;
+}
+a:hover
+{
+	color: #FF8040;
+}
+a:visited
+{
+	background-color: white;
+}
+
+table 
+{
+	border-collapse: collapse;
+	width: auto;
+	margin: 15px;
+	font-size: 0.9em;
+}
+th 
+{
+	background: #3e83c9;
+	color: #fff;
+	font-weight: bold;
+	padding: 2px 11px;
+	text-align: left;
+	line-height: 1.2;
+	white-space: normal; 
+}
+td 
+{
+	padding: 6px 11px;
+	border-bottom: 1px solid #95bce2;
+	vertical-align: top;
+	text-overflow: inherit;
+}
+tr.odd {
+  background: #ecf6fc;
+  color: black;
+}
+/* zebra stripes that jon wanted start here */
+tr.alt td 
+{
+	background: #ecf6fc;
+}
+tr.over td 
+{
+	background: #bcd4ec;
+}
+/* zebra stripes that jon wanted end here */
+td * 
+{
+	padding: 6px 11px;
+}
+#zero
+{
+	color: #BDBDBD; 
+	padding-bottom: 7px;
+}
+#nonzero
+{
+	color: red; 
+	padding-bottom:7px;
+}
+#tableContentsLabel
+{
+	color:#15317E;
+	padding-left: 15px; 	
+	text-align: left;
+	font-size: 14px; 
+	font-weight: bold;
+	border-bottom: 1px solid #95bce2;
+}
+#geninfo
+{
+	border-bottom:solid 1px gray;
+	height: 125px;
+	overflow: auto;
+	text-align: left;
+	padding:  1px 0 3px 15px;	
+}
+#leftScroll
+{
+
+	text-align: left;
+	padding:  1px 0 3px 15px;	
+}
+#provenance
+{
+	text-align: left;
+	padding-left: 15px; 
+	padding-top: 3px; 
+	border-top: 1px solid gray;
+}
+#dataTitleStyle
+{	
+	font-size:"4";
+	font-weight:bold;
+	color:#15317E;
+	border-bottom: 1px solid #95bce2;
+	text-align: left;
+}
+#sidenav h2
+{
+	text-indent: -99999px;
+	height:41px;
+	padding: 0; 
+	margin:15px 0 5px;
+}	
+#sidenav ul 
+{
+	margin: 0; 
+	padding: 0px;
+	list-style: none;
+}
+#sidenav ul li 
+{
+	margin: 0; 
+	padding:  0px;
+	display: inline;
+}
+/* Main css style section for the contents menu */
+#sidenav ul li a 
+{
+	display:block;
+	margin: 0; 
+	text-decoration: none;
+	color:#15317E;
+}
+/* This controls the Mirth TOC */
+#sidenav ul li a:hover 
+{
+	color: #FF8040;
+}
+#sidenav ul li a:visited	
+{
+	background-color:white;
+}
+#content 
+{
+	height: 100%;
+	width: 100%; 
+	text-align: left;
+	padding: 0 0 20px;
+	white-space: nowrap; 
+}
+
+
+
+
+/*
+EVERYTHING BELOW IS THE YUI LIBRARY CSS
+
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.com/yui/license.html
+version: 2.8.1
+*/
+.yui-layout-loading {
+    visibility: hidden;
+}
+
+body.yui-layout {
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    font: normal 12px Verdana, sans-serif;
+	color: #444;    
+}
+.yui-layout-doc {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.yui-layout-unit {
+    height: 50px;
+    width: 50px;
+    padding: 0;
+    margin: 0;
+    float: none;
+    z-index: 0;
+    /*overflow: hidden;*/
+}
+
+.yui-layout-unit-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+  	background-color:#3e83c9;
+	font: normal 12px Verdana, sans-serif;
+	color: #fff;
+}
+
+.yui-layout-unit-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.yui-layout-unit-center {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    
+}
+.yui-layout div.yui-layout-hd {
+    position: absolute;
+    top: 0;
+    left: 0;
+    zoom: 1;
+    width: 100%;
+    /*overflow: hidden;*/
+}
+.yui-layout div.yui-layout-bd {
+    position: absolute;
+    top: 0;
+    left: 0;
+    zoom: 1;
+    width: 100%;
+    /*overflow: hidden;*/
+}
+.yui-layout .yui-layout-noscroll div.yui-layout-bd {
+    overflow: hidden;
+}
+.yui-layout .yui-layout-scroll div.yui-layout-bd {
+    overflow: auto;
+}
+.yui-layout div.yui-layout-ft {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    zoom: 1;
+    /*overflow: hidden;*/
+}
+
+.yui-layout .yui-layout-unit div.yui-layout-hd h2 {
+    text-align: left;
+}
+
+.yui-layout .yui-layout-unit div.yui-layout-hd .collapse {
+    cursor: pointer;
+    height: 13px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 17px;
+    font-size: 0;
+}
+
+.yui-layout .yui-layout-unit div.yui-layout-hd .close {
+    cursor: pointer;
+    height: 13px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 17px;
+    font-size: 12px;
+}
+.yui-layout .yui-layout-unit div.yui-layout-hd .collapse-close {
+    right: 25px;
+}
+
+
+.yui-layout .yui-layout-clip {
+    position: absolute;
+    height: 20px;
+    background-color: #c0c0c0;
+    display: none;
+}
+
+.yui-layout .yui-layout-clip .collapse {
+    cursor: pointer;
+    height: 13px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 17px;
+    font-size: 0px;
+}
+
+.yui-layout .yui-layout-wrap {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+}
+
+/*
+.yui-layout .yui-layout-unit .yui-content {
+    overflow: hidden;
+}
+.yui-layout .yui-layout-unit .yui-layout-scroll {
+    overflow: auto;
+}
+*/
+
+.yui-skin-sam .yui-layout-unit .yui-resize-handle-r .yui-layout-resize-knob,.yui-skin-sam .yui-layout-unit .yui-resize-handle-l .yui-layout-resize-knob{position:absolute;height:16px;width:6px;top:45%;left:0;display:block;background:transparent url(layout_sprite.png) no-repeat 0 -5px;}.yui-skin-sam .yui-layout-unit .yui-resize-handle-t .yui-layout-resize-knob,.yui-skin-sam .yui-layout-unit .yui-resize-handle-b .yui-layout-resize-knob{position:absolute;height:6px;width:16px;left:45%;background:transparent url(layout_sprite.png) no-repeat -20px 0;zoom:1;}
+

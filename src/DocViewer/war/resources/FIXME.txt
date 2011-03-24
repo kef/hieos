@@ -1,0 +1,2 @@
+MOVE UNDER WEB-INF ... otherwise, this directory and its contents are open to the world.  May be able to keep
+some elements under here, but not all.   Note -- Bernie

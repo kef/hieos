@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+     Author: Bernie Thuman
+     Purpose: DocViewer xconfig file 
+  -->
+
+<Config>
+
+    <!-- Global properties used by underlying xutil library -->
+    <Object name="home" type="HomeCommunityType">
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId>
+
+        <!-- ATNA configuration parameters. --> 
+        <Property name="ATNAPerformAudit">false</Property>
+        <Property name="ATNAsyslogProtocol">udp</Property>
+	
+        <!-- HIEOS ATNA log -->
+        <!--<Property name="ATNAsyslogHost">vangent1</Property>
+        <Property name="ATNAsyslogPort">3110</Property>-->	<!-- UDP Port 3110; TCP Port 3100-->
+
+        <!-- SOAP configuration parameters. -->
+        <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
+        <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 120(10-connectathon) seconds -->
+        <Property name="SOAPAsyncResponseHTTPPort">8091</Property>
+
+        <!-- Log file parameters -->
+        <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
+
+        <!-- Other global properties will go here. -->
+    </Object>
+
+    <!-- Main DocViewer configuration (and pointers to other entities) -->
+    <Object name="DocViewerProperties" type="DocViewerPropertiesType">
+        <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
+        <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
+        <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
+        <Property name="ContentURL">http://localhost:8091/DocViewer/docview</Property>
+        <!--<Property name="ContentURL">http://localhost:8888/docview</Property>-->
+        <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
+        <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
+        <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
+        <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.2000</Property>
+    </Object>
+
+    <!-- Left here since this may be used in the future for XUA client usage -->
+    <Object name="XUAProperties" type="XUAPropertiesType">
+        <Property name="XUAEnabled">false</Property>
+        <!--<Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
+        <!--<Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
+        <Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>
+        <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
+        <!--
+        <Property name="SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
+        -->
+        <Property name="SOAPActions">urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:CrossGatewayQuery</Property>
+        <!-- List of IP addresses to control - this is really here to support XUA testing
+             at Connectathon; this allows other non-XUA testing (for other IP addresses) to
+             continue on the same instance. The list of IP addresses below will be the
+             only ones subject to SAML validation. Separate IPs with a semicolon. An empty
+             property or a value set to ALL will constrain all IP addresses. -->
+        <Property name="ConstrainedIPAddresses">ALL</Property>
+    </Object>
+
+    <!-- For direct HIEOS XCA query/retrieves -->
+    <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
+        <Transaction name="RegistryStoredQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
+        </Transaction>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
+        </Transaction>
+
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_XCAIG</Property>
+        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.2000</Property>
+        
+    </Actor>
+    
+    <!-- For NHIN CONNECT XCA query/retrieves -->
+    <!-- NOTE: Had to introduce a different type since XCONFIG requires uniqueness within a type. -->
+    <!-- NOTE: This is temporary anyway until HIEOS is fully compatible with NHIN Exchange ... -->
+    <Actor name="localnhinig" type="NHINExchangeInitiatingGatewayType"> <!-- Local Initiating Gateway -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
+        <Transaction name="RegistryStoredQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/CONNECTGateway/EntityService/EntityDocQueryUnsecured</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXX</Endpoint>
+        </Transaction>
+        <Transaction name="RetrieveDocumentSet" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/CONNECTGateway/EntityService/EntityDocRetrieve</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXX</Endpoint>
+        </Transaction>
+    </Actor>
+
+    <!-- Not currently used here, but may be later. -->
+    <Actor name="localpix" type="PIXManagerType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryRecordAdded" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryRecordRevised" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryDuplicatesResolved" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Transaction name="PatientRegistryGetIdentifiersQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
+    </Actor>
+
+    <!-- To support PDQ request from DocViewer -->
+    <Actor name="localpds" type="PDSType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pds</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_PDS</Property>
+    </Actor>
+
+</Config>

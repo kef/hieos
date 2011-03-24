@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<display-name>HIEOS DocViewer</display-name>
+	<servlet>
+		<servlet-name>PDSRemoteService</servlet-name>
+		<servlet-class>com.vangent.hieos.DocViewer.server.PDSRemoteServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PDSRemoteService</servlet-name>
+		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/PDSRemoteService</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>DocumentRemoteService</servlet-name>
+		<servlet-class>com.vangent.hieos.DocViewer.server.DocumentRemoteServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DocumentRemoteService</servlet-name>
+		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/DocumentRemoteService</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>DocViewServlet</servlet-name>
+		<servlet-class>com.vangent.hieos.DocViewer.server.DocViewServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DocViewServlet</servlet-name>
+		<url-pattern>/docview</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>DocViewer.html</welcome-file>
+	</welcome-file-list>
+</web-app>

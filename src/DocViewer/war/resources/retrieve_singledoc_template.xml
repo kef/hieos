@@ -1,0 +1,7 @@
+<RetrieveDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
+    <DocumentRequest>
+        <HomeCommunityId>{HOME_COMMUNITY_ID}</HomeCommunityId>
+        <RepositoryUniqueId>{REPOSITORY_UNIQUE_ID}</RepositoryUniqueId>
+        <DocumentUniqueId>{DOCUMENT_UNIQUE_ID}</DocumentUniqueId>
+    </DocumentRequest>
+</RetrieveDocumentSetRequest>

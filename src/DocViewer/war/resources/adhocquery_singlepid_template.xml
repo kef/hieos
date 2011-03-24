@@ -1,0 +1,15 @@
+<query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+    <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+        <Slot name="$XDSDocumentEntryPatientId">
+            <ValueList>
+                <Value>'{PID}'</Value>
+            </ValueList>
+        </Slot>
+        <Slot name="$XDSDocumentEntryStatus">
+            <ValueList>
+                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+            </ValueList>
+        </Slot>
+    </AdhocQuery>
+</query:AdhocQueryRequest>
