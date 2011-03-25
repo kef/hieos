@@ -28,6 +28,11 @@ import com.smartgwt.client.widgets.events.ClickEvent;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class PatientSearch extends Canvas implements ClickHandler {
 	private DocViewerController controller;
 	private final DynamicForm searchForm;

@@ -43,6 +43,11 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientBanner;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentViewContainer extends Canvas {
 	private final DocViewerController controller;
 	private final DocumentList documentList;

@@ -14,6 +14,11 @@ package com.vangent.hieos.DocViewer.client.model.document;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentAuthorMetadata implements IsSerializable {
 	private String name;
 	private String institution;

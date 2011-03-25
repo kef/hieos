@@ -17,6 +17,11 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentMetadata implements IsSerializable {
 	private String source;
 	private String mimeType;

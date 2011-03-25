@@ -19,6 +19,11 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.SubmitItem;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class Login extends Composite {
 
 	public Login() {

@@ -18,6 +18,11 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public interface DocumentRemoteServiceAsync {
 	public void findDocuments(DocumentSearchCriteria criteria, AsyncCallback<List<DocumentMetadata>> callback);
 }

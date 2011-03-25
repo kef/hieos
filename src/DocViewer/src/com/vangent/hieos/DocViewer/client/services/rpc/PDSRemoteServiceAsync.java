@@ -18,6 +18,11 @@ import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public interface PDSRemoteServiceAsync {
 	public void getPatients(PatientSearchCriteria criteria, AsyncCallback<List<Patient>> callback);
 }

@@ -16,6 +16,11 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class Patient implements IsSerializable {
 	private String familyName;
 	private String givenName;

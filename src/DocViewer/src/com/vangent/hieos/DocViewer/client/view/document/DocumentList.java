@@ -31,6 +31,11 @@ import com.smartgwt.client.widgets.events.DoubleClickHandler;
 import com.smartgwt.client.widgets.events.DoubleClickEvent;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentList extends Canvas {
 	private final ListGrid documentListGrid;
 	private final DocumentViewContainer parentContainer;

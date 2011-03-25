@@ -15,6 +15,11 @@ package com.vangent.hieos.DocViewer.client.model.document;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentSearchCriteria implements IsSerializable {
 	private Patient patient;
 	private String searchMode;

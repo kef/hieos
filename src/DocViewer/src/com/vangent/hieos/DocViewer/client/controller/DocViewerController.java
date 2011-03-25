@@ -32,6 +32,11 @@ import com.vangent.hieos.DocViewer.client.view.patient.PatientViewContainer;
 
 //import com.vangent.hieos.DocViewer.client.services.PDSRemoteService.Util;
 
+/**
+ * 
+ * @author Bernie Thuman
+ * 
+ */
 public class DocViewerController {
 	private Canvas mainCanvas;
 	private PatientViewContainer patientViewContainer;

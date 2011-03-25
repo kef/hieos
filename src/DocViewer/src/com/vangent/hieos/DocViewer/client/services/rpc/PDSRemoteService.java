@@ -20,6 +20,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 @RemoteServiceRelativePath("PDSRemoteService")
 public interface PDSRemoteService extends RemoteService {
 	/**

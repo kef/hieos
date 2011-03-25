@@ -25,6 +25,11 @@ import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.vangent.hieos.DocViewer.client.config.Config;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class PatientViewContainer extends Canvas {
 	private final DocViewerController controller;
 	private final PatientList patientList;

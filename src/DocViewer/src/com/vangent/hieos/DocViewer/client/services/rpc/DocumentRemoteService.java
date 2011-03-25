@@ -20,6 +20,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 @RemoteServiceRelativePath("DocumentRemoteService")
 public interface DocumentRemoteService extends RemoteService {
 	/**

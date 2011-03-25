@@ -35,6 +35,11 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class PDSRemoteServiceImpl extends RemoteServiceServlet implements PDSRemoteService {
 
 	/**

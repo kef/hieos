@@ -37,6 +37,11 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		DocumentRemoteService {
 

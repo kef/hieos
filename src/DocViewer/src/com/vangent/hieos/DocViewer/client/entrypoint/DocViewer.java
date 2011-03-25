@@ -34,6 +34,8 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
+ * 
+ * @author Bernie Thuman
  */
 public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();

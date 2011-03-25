@@ -19,6 +19,11 @@ import com.smartgwt.client.widgets.toolbar.ToolStrip;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class PatientBanner extends Canvas {
 	private final Label name;
 	private final Label dob;

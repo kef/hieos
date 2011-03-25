@@ -18,6 +18,11 @@ import java.util.List;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class DocumentMetadataRecord extends ListGridRecord {
 	private DocumentMetadata documentMetadata;
 

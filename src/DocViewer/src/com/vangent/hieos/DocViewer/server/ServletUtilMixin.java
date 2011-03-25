@@ -25,6 +25,11 @@ import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class ServletUtilMixin {
 	
 	static final String XCONFIG_FILE = "/resources/xconfig.xml";
