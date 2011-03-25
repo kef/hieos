@@ -35,5 +35,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/wstx-asl-3.2.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/xercesImpl-2.6.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/XmlSchema-1.4.3.jar"/>
+	<classpathentry kind="var" path="GWT_HOME"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
