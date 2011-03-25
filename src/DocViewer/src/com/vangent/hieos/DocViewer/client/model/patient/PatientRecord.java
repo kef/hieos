@@ -23,6 +23,15 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
  * 
  */
 public class PatientRecord extends ListGridRecord {
+	static public final String DOB_FIELD = "dob";
+	static public final String GENDER_FIELD = "gender";
+	static public final String FAMILY_NAME_FIELD = "family_name";
+	static public final String GIVEN_NAME_FIELD = "given_name";
+	static public final String EUID_FIELD = "euid";
+	static public final String SSN_FIELD = "ssn";
+	static public final String MATCH_CONFIDENCE_FIELD = "match_confidence";
+
+	
 	private Patient patient;
 
 	/**
@@ -32,13 +41,13 @@ public class PatientRecord extends ListGridRecord {
 	public PatientRecord(Patient patient) {
 		this.patient = patient;
 		// To allow grouping/sorting:
-		setAttribute("dob", patient.getDateOfBirth());
-		setAttribute("gender", this.getFormattedGender());
-		setAttribute("family_name", this.getFormattedFamilyName());
-		setAttribute("given_name", patient.getGivenName());
-		setAttribute("euid", patient.getEuid());
+		setAttribute(DOB_FIELD, patient.getDateOfBirth());
+		setAttribute(GENDER_FIELD, this.getFormattedGender());
+		setAttribute(FAMILY_NAME_FIELD, this.getFormattedFamilyName());
+		setAttribute(GIVEN_NAME_FIELD, patient.getGivenName());
+		setAttribute(EUID_FIELD, patient.getEuid());
 		setAttribute("ssn", patient.getSSN());
-		setAttribute("match_confidence_percentage", patient.getMatchConfidencePercentage());
+		setAttribute("match_confidence", patient.getMatchConfidencePercentage());
 	}
 
 	/**

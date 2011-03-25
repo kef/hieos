@@ -24,6 +24,22 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
  *
  */
 public class DocumentMetadataRecord extends ListGridRecord {
+	static public final String CREATION_DATE_FIELD = "creation_date";
+	static public final String SOURCE_FIELD = "source";
+	static public final String MIME_TYPE_FIELD = "mime_type";
+	static public final String CLASS_CODE_FIELD = "class_code";
+	static public final String FORMAT_CODE_FIELD = "format_code";
+	static public final String TYPE_CODE_FIELD = "type_code";
+	static public final String AUTHOR_INSTITUTION_FIELD = "author_institution";
+	static public final String AUTHOR_NAME_FIELD = "author_name";
+	static public final String TITLE_FIELD = "title";
+	static public final String SIZE_FIELD = "size";
+	static public final String DOCUMENT_ID_FIELD = "document_id";
+	static public final String REPOSITORY_ID_FIELD = "repository_id";
+	static public final String HOME_COMMUNITY_ID_FIELD = "home_community_id";
+	static public final String EUID_FIELD = "euid";
+	static public final String ASSIGNING_AUTHORITY_FIELD = "assigning_authority";
+	
 	private DocumentMetadata documentMetadata;
 
 	/**
@@ -41,21 +57,21 @@ public class DocumentMetadataRecord extends ListGridRecord {
 	public DocumentMetadataRecord(DocumentMetadata documentMetadata) {
 		this.documentMetadata = documentMetadata;
 		// To allow grouping/sorting:
-		setAttribute("creation_date", documentMetadata.getCreationTime());
-		setAttribute("source", documentMetadata.getSource());
-		setAttribute("mime_type", documentMetadata.getMimeType());
-		setAttribute("class_code", documentMetadata.getClassCode());
-		setAttribute("format_code", documentMetadata.getFormatCode());
-		setAttribute("type_code", documentMetadata.getTypeCode());
-		setAttribute("author_institution", this.getFormattedAuthorInstitution());
-		setAttribute("author_name", this.getFormattedAuthorName());
-		setAttribute("title", documentMetadata.getTitle());
-		setAttribute("size", documentMetadata.getSize());
-		setAttribute("document_id", documentMetadata.getDocumentID());
-		setAttribute("repository_id", documentMetadata.getRepositoryID());
-		setAttribute("home_community_id", documentMetadata.getHomeCommunityID());
-		setAttribute("euid", documentMetadata.getEuid());
-		setAttribute("assigning_authority", documentMetadata.getAssigningAuthority());
+		setAttribute(CREATION_DATE_FIELD, documentMetadata.getCreationTime());
+		setAttribute(SOURCE_FIELD, documentMetadata.getSource());
+		setAttribute(MIME_TYPE_FIELD, documentMetadata.getMimeType());
+		setAttribute(CLASS_CODE_FIELD, documentMetadata.getClassCode());
+		setAttribute(FORMAT_CODE_FIELD, documentMetadata.getFormatCode());
+		setAttribute(TYPE_CODE_FIELD, documentMetadata.getTypeCode());
+		setAttribute(AUTHOR_INSTITUTION_FIELD, this.getFormattedAuthorInstitution());
+		setAttribute(AUTHOR_NAME_FIELD, this.getFormattedAuthorName());
+		setAttribute(TITLE_FIELD, documentMetadata.getTitle());
+		setAttribute(SIZE_FIELD, documentMetadata.getSize());
+		setAttribute(DOCUMENT_ID_FIELD, documentMetadata.getDocumentID());
+		setAttribute(REPOSITORY_ID_FIELD, documentMetadata.getRepositoryID());
+		setAttribute(HOME_COMMUNITY_ID_FIELD, documentMetadata.getHomeCommunityID());
+		setAttribute(EUID_FIELD, documentMetadata.getEuid());
+		setAttribute(ASSIGNING_AUTHORITY_FIELD, documentMetadata.getAssigningAuthority());
 	}
 
 	/**

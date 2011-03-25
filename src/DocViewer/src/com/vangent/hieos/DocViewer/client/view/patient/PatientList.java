@@ -49,7 +49,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setEmptyMessage("<br>Click the <b>Find</b> button to populate this grid.");
 		patientListGrid.setSelectionType(SelectionStyle.SINGLE);
 		patientListGrid.setShowAllRecords(true);
-		patientListGrid.setSortField("match_confidence_percentage");
+		patientListGrid.setSortField(PatientRecord.MATCH_CONFIDENCE_FIELD);
 		patientListGrid.setSortDirection(SortDirection.DESCENDING);
 		patientListGrid.setWidth(550);
 		patientListGrid.setHeight(408);
@@ -58,16 +58,16 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setTooltip("Double-click to find patient records");
 
 		// Given Name:
-		final ListGridField givenNameField = new ListGridField("given_name", "Given Name", 90);	
+		final ListGridField givenNameField = new ListGridField(PatientRecord.GIVEN_NAME_FIELD, "Given Name", 90);	
 		givenNameField.setType(ListGridFieldType.TEXT);
 
 		// Family Name:
-		final ListGridField familyNameField = new ListGridField("family_name",
+		final ListGridField familyNameField = new ListGridField(PatientRecord.FAMILY_NAME_FIELD,
 				"Family Name", 90);
 		familyNameField.setType(ListGridFieldType.TEXT);
 		
 		// Gender:
-		final ListGridField genderField = new ListGridField("gender",
+		final ListGridField genderField = new ListGridField(PatientRecord.GENDER_FIELD,
 				"Gender", 60);
 		genderField.setAlign(Alignment.LEFT);
 		genderField.setType(ListGridFieldType.TEXT);
@@ -92,7 +92,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		});
 		
 		// Date of Birth:
-		final ListGridField dateOfBirthField = new ListGridField("dob",
+		final ListGridField dateOfBirthField = new ListGridField(PatientRecord.DOB_FIELD,
 				"Date of Birth", 80);
 		dateOfBirthField.setType(ListGridFieldType.DATE);
 		dateOfBirthField.setAlign(Alignment.LEFT);
@@ -108,15 +108,15 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		
 		
 		// EUID:
-		final ListGridField euidField = new ListGridField("euid", "EUID", 90);
+		final ListGridField euidField = new ListGridField(PatientRecord.EUID_FIELD, "EUID", 90);
 		euidField.setType(ListGridFieldType.TEXT);
 		
 		// SSN:
-		final ListGridField ssnField = new ListGridField("ssn", "SSN", 40);
+		final ListGridField ssnField = new ListGridField(PatientRecord.SSN_FIELD, "SSN", 40);
 		ssnField.setType(ListGridFieldType.TEXT);
 		
 		// Match Weight:
-		final ListGridField matchConfidencePercentageField = new ListGridField("match_confidence_percentage", "Confidence", 50);
+		final ListGridField matchConfidencePercentageField = new ListGridField(PatientRecord.MATCH_CONFIDENCE_FIELD, "Confidence", 50);
 		matchConfidencePercentageField.setType(ListGridFieldType.INTEGER);
 		matchConfidencePercentageField.setCellFormatter(new CellFormatter() {
 			public String format(Object value, ListGridRecord record,

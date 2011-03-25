@@ -96,7 +96,7 @@ public class DocumentList extends Canvas {
 
 		// Creation Date:
 		final ListGridField creationDateField = new ListGridField(
-				"creation_date", "Creation Date", 80);
+				DocumentMetadataRecord.CREATION_DATE_FIELD, "Creation Date", 80);
 		creationDateField.setType(ListGridFieldType.DATE);
 		creationDateField.setAlign(Alignment.LEFT);
 		creationDateField.setCellFormatter(new CellFormatter() {
@@ -110,24 +110,24 @@ public class DocumentList extends Canvas {
 		});
 
 		// Title:
-		final ListGridField titleField = new ListGridField("title", "Title",
+		final ListGridField titleField = new ListGridField(DocumentMetadataRecord.TITLE_FIELD, "Title",
 				100);
 		titleField.setType(ListGridFieldType.TEXT);
 
 		// Type Code:
-		final ListGridField typeCodeField = new ListGridField("type_code",
+		final ListGridField typeCodeField = new ListGridField(DocumentMetadataRecord.TYPE_CODE_FIELD,
 				"Type Code", 150);
 		typeCodeField.setType(ListGridFieldType.TEXT);
 		
 		// Type Code:
-		final ListGridField mimeTypeField = new ListGridField("mime_type",
+		final ListGridField mimeTypeField = new ListGridField(DocumentMetadataRecord.MIME_TYPE_FIELD,
 				"Mime Type", 100);
 		mimeTypeField.setType(ListGridFieldType.TEXT);
 
 
 		// Author Institution:
 		final ListGridField institutionField = new ListGridField(
-				"author_institution", "Institution", 100);
+				DocumentMetadataRecord.AUTHOR_INSTITUTION_FIELD, "Institution", 100);
 		institutionField.setType(ListGridFieldType.TEXT);
 
 		// Author Name:
