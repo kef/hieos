@@ -17,7 +17,7 @@ import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
-import com.vangent.hieos.DocViewer.client.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;

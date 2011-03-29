@@ -10,8 +10,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.server;
+package com.vangent.hieos.DocViewer.server.servlets.docview;
 
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
+import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.template.TemplateUtil;

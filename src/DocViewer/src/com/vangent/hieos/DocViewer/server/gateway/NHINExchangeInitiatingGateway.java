@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.server;
+package com.vangent.hieos.DocViewer.server.gateway;
 
 import java.util.HashMap;
 
@@ -19,6 +19,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 

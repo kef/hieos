@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.client.config;
+package com.vangent.hieos.DocViewer.client.model.config;
 
 import java.util.HashMap;
 

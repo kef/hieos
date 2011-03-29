@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.server;
+package com.vangent.hieos.DocViewer.server.services.rpc.document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +28,9 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
+import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;

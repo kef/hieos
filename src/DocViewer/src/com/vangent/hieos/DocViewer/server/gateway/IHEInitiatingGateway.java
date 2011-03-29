@@ -10,10 +10,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.server;
+package com.vangent.hieos.DocViewer.server.gateway;
 
 import org.apache.axiom.om.OMElement;
 
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 

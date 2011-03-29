@@ -10,9 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.DocViewer.server;
+package com.vangent.hieos.DocViewer.server.gateway;
 
-import com.vangent.hieos.DocViewer.client.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 
 /**
  * 
