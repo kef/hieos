@@ -23,6 +23,7 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.services.proxy.ConfigRetrieveService;
 import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
 import com.vangent.hieos.DocViewer.client.services.proxy.PatientQueryService;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentListObserver;
@@ -41,16 +42,33 @@ public class DocViewerController {
 	private Canvas mainCanvas;
 	private PatientViewContainer patientViewContainer;
 	private TabSet patientTabs = null;
-	private Config config = new Config();
+	private Config config = null;
 
 	/**
 	 * 
 	 */
 	public DocViewerController() {
-		// Setup defaults ...
-		// FIXME: Later should configure from the server-side.
-		this.getConfig()
-				.put(Config.KEY_SEARCH_MODE, Config.VAL_SEARCH_MODE_HIE);
+		
+	}
+	
+	/**
+	 * 
+	 */
+	public void loadConfig()
+	{
+		ConfigObserver observer = new ConfigObserver(this);
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		ConfigRetrieveService service = new ConfigRetrieveService(observer, timeOutHelper);
+		service.doWork();	
+	}
+	
+	/**
+	 * 
+	 * @param config
+	 */
+	public void setConfig(Config config)
+	{
+		this.config = config;
 	}
 
 	/**

@@ -43,6 +43,9 @@ public class DocViewer implements EntryPoint {
 
 	public void onModuleLoad() {
 		
+		// Load client configuration ...
+		controller.loadConfig();
+		
 		// Create the ToolStrip.
 		final ToolStrip toolStrip = this.createToolStrip();
 		
