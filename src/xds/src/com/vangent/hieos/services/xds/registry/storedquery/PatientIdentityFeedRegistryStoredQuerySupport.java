@@ -19,7 +19,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
@@ -261,7 +260,7 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      * @throws XMLParserException
      * @throws XdsException
      */
-    private List<String> queryForObjectRefs() throws XMLParserException, XdsException {
+    protected List<String> queryForObjectRefs() throws XMLParserException, XdsException {
         if (logger.isDebugEnabled()) {
             logger.debug("REGISTRY QUERY -> " + this.query.toString());
         }

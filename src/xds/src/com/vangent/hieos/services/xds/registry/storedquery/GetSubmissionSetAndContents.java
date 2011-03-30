@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
-import com.vangent.hieos.xutil.exception.NoSubmissionSetException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -21,7 +20,6 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SQCodedTerm;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.query.StoredQuery;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
