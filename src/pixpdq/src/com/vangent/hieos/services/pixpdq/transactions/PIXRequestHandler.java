@@ -57,7 +57,6 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         PatientRegistryRecordAdded
     };
 
-
     /**
      *
      * @param log_message
@@ -159,13 +158,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      */
     private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         EMPIAdapter adapter = EMPIFactory.getInstance();
-        // Pull the first identifier.
-        Subject searchSubject = subjectSearchCriteria.getSubject();
-        List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
-        SubjectSearchResponse subjectSearchResponse = null;
-        if (searchSubjectIdentifiers.size() > 0) {
-            subjectSearchResponse = adapter.findSubjectByIdentifier(searchSubjectIdentifiers.get(0));
-        }
+        SubjectSearchResponse subjectSearchResponse = adapter.findSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
     }
 
