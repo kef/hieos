@@ -42,6 +42,8 @@ import org.openhie.openempi.model.RecordPair;
 public class OpenEMPIAdapter implements EMPIAdapter {
 
     private final static Logger logger = Logger.getLogger(OpenEMPIAdapter.class);
+    private final static String ENTERPRISE_RECORD_INDICATOR = "E";
+    //private final static String SYSTEM_RECORD_INDICATOR = "S";
 
     // ** TBD: FIGURE OUT WHAT GOES IN OpenEMPI conf, lib directories (and axis2 AAR).
     /**
@@ -95,123 +97,257 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-
         // Prepare the response.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        List<Subject> responseSubjects = subjectSearchResponse.getSubjects();
         try {
-            // First convert the HIEOS  search Subject into an OpenEMPI Person instance.
-            Subject searchSubject = subjectSearchCriteria.getSubject();
-            OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-            Person personSearchTemplate = builder.buildPerson(searchSubject);
-            // HACK ... Have to use custom field to house gender code for simple compare
-            if (personSearchTemplate.getGender() != null) {
-                personSearchTemplate.setCustom3(personSearchTemplate.getGender().getGenderCode());
-            }
-
             // Conduct the search ...
-            List<Subject> matchedSubjects = new ArrayList<Subject>();
             if (subjectSearchCriteria.hasSubjectIdentifiers()) {
-                logger.trace("Searching based on identifiers ...");
-                // Have to do this differently, otherwise OpenEMPI returns the entire DB matching
-                // the assigning authority specified.
-                Subject matchedSubject = this.findSubjectByIdentifier(personSearchTemplate);
-                if (matchedSubject != null) {
-                    matchedSubjects.add(matchedSubject);
-                }
+                logger.debug("Searching based on identifiers ...");
+                subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
+
             } else if (subjectSearchCriteria.hasSubjectDemographics()) {
-                logger.trace("Searching based on demographics ...");
-                matchedSubjects = this.findSubjectsByAttributes(personSearchTemplate);
+                logger.debug("Searching based on demographics ...");
+                subjectSearchResponse = this.findSubjectsByAttributes(subjectSearchCriteria);
             } else {
-                logger.trace("Not searching at all!!");
                 // Do nothing ...
-            }
-            if (subjectSearchCriteria.hasScopingAssigningAuthorities()) {
-                // Now should filter based upon scoping organization (assigning authority).
-
-                // Go through each matched subject.
-                for (Subject subject : matchedSubjects) {
-                    List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-                    List<SubjectIdentifier> copyOfSubjectIdentifiers = new ArrayList<SubjectIdentifier>();
-                    copyOfSubjectIdentifiers.addAll(subjectIdentifiers);
-
-                    // Go through each subject identifier.
-                    boolean retainedAtLeastOneSubjectId = false;
-                    for (SubjectIdentifier subjectIdentifier : copyOfSubjectIdentifiers) {
-                        SubjectIdentifierDomain identifierDomain = subjectIdentifier.getIdentifierDomain();
-
-                        // Now see if we should return the identifier or not.
-                        for (SubjectIdentifierDomain aaDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
-                            if (identifierDomain.equals(aaDomain)) {
-                                retainedAtLeastOneSubjectId = true;  // Kept at least one.
-                            } else {
-                                // Not a match ... disregard id (should not return id).
-                                subjectIdentifiers.remove(subjectIdentifier);
-                            }
-                        }
-                    }
-                    if (retainedAtLeastOneSubjectId == true) {
-                        // Add to the response if we retained at least one id for the subject.
-                        responseSubjects.add(subject);
-                    }
-                }
-            } else {
-                // Just return the result with all known identifiers ...
-                responseSubjects.addAll(matchedSubjects);
+                logger.trace("Not searching at all!!");
             }
         } catch (Exception ex) {
             throw new EMPIException("EMPI EXCEPTION: when looking for Subjects: " + ex.getMessage());
         }
+        return subjectSearchResponse;
+    }
 
+    /**
+     * 
+     * @param subjectSearchCriteria
+     * @return
+     * @throws EMPIException
+     */
+    public SubjectSearchResponse findSubjectByIdentifier(
+            SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+
+        // Prepare default response.
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+
+        // Make sure we at least have one identifier to search from.
+        Subject searchSubject = subjectSearchCriteria.getSubject();
+        List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
+        if (searchSubjectIdentifiers.size() > 0) {
+            Subject subject = null;
+
+            // Pull the first identifier and convert.
+            SubjectIdentifier subjectIdentifier = searchSubjectIdentifiers.get(0);
+            OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
+            PersonIdentifier personIdentifier = builder.buildPersonIdentifier(subjectIdentifier);
+
+            // Look for a match based on the subject identifier.
+            Person matchedPerson = Context.getPersonQueryService().findPersonById(personIdentifier);
+            if (matchedPerson != null) {
+                Person enterprisePerson;
+                if (this.isEnterprisePerson(matchedPerson)) {
+                    // Just load.
+                    enterprisePerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
+                } else {
+                    // Must have a System record, get the corresponding Enterprise Record.
+                    enterprisePerson = this.getEnterprisePerson(matchedPerson);
+                }
+                this.print("MATCHED PERSON", enterprisePerson);
+
+                // Convert Person into a HIEOS Subject.
+                subject = builder.buildSubject(enterprisePerson, 100 /* matchConfidencePercentage */);
+
+                // Add person links to the subject.
+                this.getAndAddLinksToSubject(enterprisePerson, subject, builder);
+
+                // Filter out those identifiers of no interest.
+                this.filterIdentifiers(subjectSearchCriteria, subject, subjectIdentifier);
+            }
+            if (subject != null) {
+                // Add Subject to SubjectSearchResponse.
+                subjectSearchResponse.getSubjects().add(subject);
+            }
+        }
 
         return subjectSearchResponse;
     }
 
     /**
      *
-     * @param person
+     * @param subjectSearchCriteria
+     * @param subject
+     * @param subjectIdentifierToStrip
      */
-    private List<Subject> findSubjectsByAttributes(Person personSearchTemplate) throws EMPIException {
-        List<Subject> subjects = new ArrayList<Subject>();
+    private void filterIdentifiers(SubjectSearchCriteria subjectSearchCriteria, Subject subject, SubjectIdentifier subjectIdentifierToStrip) {
+        // Strip out the "subjectIdentifierToStrip" (if not null).
+        if (subjectIdentifierToStrip != null) {
+            subject.removeSubjectIdentifier(subjectIdentifierToStrip);
+        }
+
+        // Now should filter identifiers based upon scoping organization (assigning authority).
+        if (subjectSearchCriteria.hasScopingAssigningAuthorities()) {
+
+            List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+            List<SubjectIdentifier> copyOfSubjectIdentifiers = new ArrayList<SubjectIdentifier>();
+            copyOfSubjectIdentifiers.addAll(subjectIdentifiers);
+
+            // Go through each SubjectIdentifier.
+            for (SubjectIdentifier subjectIdentifier : copyOfSubjectIdentifiers) {
+
+                // Should we keep it?
+                if (!this.shouldKeepIdentifier(subjectSearchCriteria, subjectIdentifier)) {
+                    // Not a match ... disregard id (should not return id).
+                    subjectIdentifiers.remove(subjectIdentifier);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param subjectIdentifier
+     * @return
+     */
+    private boolean shouldKeepIdentifier(SubjectSearchCriteria subjectSearchCriteria, SubjectIdentifier subjectIdentifier) {
+        // Based on calling logic, already determined that scoping assigning authorities exist.
+
+        // Get identifier domain for the given subject.
+        SubjectIdentifierDomain identifierDomain = subjectIdentifier.getIdentifierDomain();
+
+        // Now see if we should return the identifier or not.
+        boolean keepIdentifier = false;
+        for (SubjectIdentifierDomain aaDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+            if (identifierDomain.equals(aaDomain)) {
+                keepIdentifier = true;
+                break;
+            }
+        }
+        return keepIdentifier;
+    }
+
+    /**
+     * 
+     * @param subjectSearchCriteria
+     * @return
+     * @throws EMPIException
+     */
+    private SubjectSearchResponse findSubjectsByAttributes(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+        // Prepare the response.
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        List<Subject> subjects = subjectSearchResponse.getSubjects();
+
+        // Create the builder.
         OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
 
-// WORKS
-        /*
-        List<Person> persons = Context.getPersonQueryService().findPersonsByAttributes(personSearchTemplate);
-        for (Person matchedPerson : persons) {
-        Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-        this.print(loadedPerson);
-        // TBD?: NEED TO DEAL WITH LINKS!!
-        Subject subject = builder.buildSubjectFromPerson(loadedPerson, 100);
-        subjects.add(subject);
-        }*/
+        // Convert the HIEOS search Subject into an OpenEMPI Person instance.
+        Subject searchSubject = subjectSearchCriteria.getSubject();
+        Person personSearchTemplate = builder.buildPerson(searchSubject);
+        personSearchTemplate.setCustom1(OpenEMPIAdapter.ENTERPRISE_RECORD_INDICATOR);  // Look only for Enterprise records.
 
+        // HACK ... Have to use custom field to house gender code for simple compare
+        if (personSearchTemplate.getGender() != null) {
+            personSearchTemplate.setCustom4(personSearchTemplate.getGender().getGenderCode());
+        }
+
+        Record record = new Record(personSearchTemplate);
+        record.setRecordId(Long.MAX_VALUE);
         try {
-            Record record = new Record(personSearchTemplate);
-            record.setRecordId(Long.MAX_VALUE);  // FIXME: HACK
-
             MatchingService matchingService = Context.getMatchingService();
-            this.authenticate();
+            this.authenticate();  // Needed?
+
             // Conduct the matching ... do not count null search fields as a negative.
             Set<RecordPair> matches = matchingService.match(record, false);
-            // FIXME: Deal with links from PERSON (also, need to avoid dups).
             for (RecordPair matchedRecordPair : matches) {
+
                 // RightRecord should be the matching record.
-                //Double matchWeight = matchedRecordPair.getWeight();
                 Record rightRecord = matchedRecordPair.getRightRecord();
                 Person rightPerson = (Person) rightRecord.getObject();
 
                 // Need to expand the record.
-                Person matchedPerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
-                this.print("MATCHED PERSON (weight: " + matchedRecordPair.getWeight() + "):", matchedPerson);
+                Person enterprisePerson = Context.getPersonQueryService().loadPerson(rightPerson.getPersonId());
+                this.print("MATCHED PERSON (weight: " + matchedRecordPair.getWeight() + "):", enterprisePerson);
 
-                Subject subject = builder.buildSubject(matchedPerson, this.getMatchConfidencePercentage(matchedRecordPair));
-                subjects.add(subject);
+                Subject subject = builder.buildSubject(enterprisePerson, this.getMatchConfidencePercentage(matchedRecordPair));
+
+                // Add identifiers for linked persons to the Subject.
+                this.getAndAddLinksToSubject(enterprisePerson, subject, builder);
+
+                // Filter unwanted results.
+                this.filterIdentifiers(subjectSearchCriteria, subject, null);
+
+                // If we kept at least one identifier ...
+                if (subject.getSubjectIdentifiers().size() > 0) {
+                    subjects.add(subject);
+                }
             }
         } catch (Exception ex) {
             throw new EMPIException("EMPI EXCEPTION: when looking for Subjects: " + ex.getMessage());
         }
-        return subjects;
+        return subjectSearchResponse;
+    }
+
+    /**
+     * Add identifiers for linked Persons to the given Subject.
+     *
+     * @param enterprisePerson
+     * @param subject
+     * @param builder
+     */
+    private void getAndAddLinksToSubject(Person enterprisePerson, Subject subject, OpenEMPIModelBuilder builder) {
+        // FIXME: Should we do this elsewhere???? in OpenEMPI????
+
+        // Go through all identifiers for the given Enterprise Person.
+        Set<PersonIdentifier> personIdentifiers = enterprisePerson.getPersonIdentifiers();
+        for (PersonIdentifier personIdentifier : personIdentifiers) {  // Should only loop once.
+
+            // Get linked Persons for the given PersonIdentifier.
+            List<Person> linkedPersons = Context.getPersonQueryService().findLinkedPersons(personIdentifier);
+
+            // Go through all linked Persons.
+            for (Person linkedPerson : linkedPersons) {
+
+                // Load the linked person.
+                Person loadedLinkedPerson = Context.getPersonQueryService().loadPerson(linkedPerson.getPersonId());
+                this.print("LINKED PERSON", loadedLinkedPerson);
+
+                // Add identifiers to given Subject (will ensure ids are not added more than once).
+                builder.addIdentifiersToSubject(subject, loadedLinkedPerson);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param systemPerson
+     * @return
+     */
+    private Person getEnterprisePerson(Person systemPerson) {
+        Person enterprisePerson = null;
+
+        // Loop through all identifiers for system person.
+        Set<PersonIdentifier> personIdentifiers = systemPerson.getPersonIdentifiers();
+        for (PersonIdentifier personIdentifier : personIdentifiers) {
+
+            // Get linked Persons for the given PersonIdentifier.
+            List<Person> linkedPersons = Context.getPersonQueryService().findLinkedPersons(personIdentifier);
+
+            // Loop through linked persons.
+            for (Person linkedPerson : linkedPersons) {
+
+                // If found Enterprise record, break out.
+                if (this.isEnterprisePerson(linkedPerson)) {
+
+                    // Load the linked person (the Enterprise person) ....
+                    enterprisePerson = Context.getPersonQueryService().loadPerson(linkedPerson.getPersonId());
+                    break;
+                }
+            }
+            if (enterprisePerson != null) {
+                break;  // Get out of main loop.
+            }
+        }
+        return enterprisePerson;
     }
 
     /**
@@ -230,65 +366,8 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      * @param person
      * @return
      */
-    public Subject findSubjectByIdentifier(Person personSearchTemplate) {
-        OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-        List<PersonIdentifier> personIdentifiers = new ArrayList<PersonIdentifier>();
-        personIdentifiers.addAll(personSearchTemplate.getPersonIdentifiers());
-
-        // FIXME: This may not be accurate ... links ... are all search ids in the result???
-        Person matchedPerson = Context.getPersonManagerService().getPerson(personIdentifiers);
-        if (matchedPerson != null) {
-            Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-            this.print("MATCHED PERSON", loadedPerson);
-
-            // TBD?: NEED TO DEAL WITH LINKS!!
-            Subject subject = builder.buildSubject(loadedPerson, 100 /* matchConfidencePercentage */);
-            return subject;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     *
-     * @param subjectIdentifier
-     * @return
-     * @throws EMPIException
-     */
-    public SubjectSearchResponse findSubjectByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
-        Subject subject = null;
-        OpenEMPIModelBuilder builder = new OpenEMPIModelBuilder();
-        PersonIdentifier personIdentifier =
-                builder.buildPersonIdentifier(subjectIdentifier);
-
-        // Look for a match based on the subject identifier.
-        Person matchedPerson = Context.getPersonQueryService().findPersonById(personIdentifier);
-        if (matchedPerson != null) {
-
-            // Load the full person.
-            Person loadedPerson = Context.getPersonQueryService().loadPerson(matchedPerson.getPersonId());
-            this.print("MATCHED PERSON", loadedPerson);
-
-            // Convert Person into a HIEOS Subject.
-            subject = builder.buildSubject(loadedPerson, 100 /* matchConfidencePercentage */);
-
-            // Get any links to this person.
-            List<Person> linkedPersons = Context.getPersonQueryService().findLinkedPersons(personIdentifier);
-            for (Person linkedPerson : linkedPersons) {
-                // Load the full linked Person.
-                Person loadedLinkedPerson = Context.getPersonQueryService().loadPerson(linkedPerson.getPersonId());
-                this.print("LINKED PERSON", loadedLinkedPerson);
-                
-                // Add linked identifiers to the subject.
-                builder.addIdentifiersToSubject(subject, loadedLinkedPerson);
-            }
-        }
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        if (subject != null) {
-            List<Subject> subjects = subjectSearchResponse.getSubjects();
-            subjects.add(subject);
-        }
-        return subjectSearchResponse;
+    private boolean isEnterprisePerson(Person person) {
+        return person.getCustom1().equals(OpenEMPIAdapter.ENTERPRISE_RECORD_INDICATOR);
     }
 
     /**
@@ -297,6 +376,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      */
     private void print(String text, Person person) {
         logger.trace(text);
+        logger.trace("  custom1 (indicator) = " + person.getCustom1());
         logger.trace("  gender = " + person.getGender().getGenderCode());
         logger.trace("  givenName = " + person.getGivenName());
         logger.trace("  familyName = " + person.getFamilyName());
@@ -312,6 +392,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
                 logger.trace("      ... universalIDNameSpace = " + identifierDomain.getNamespaceIdentifier());
                 logger.trace("      ... universalIDTypeCode = " + identifierDomain.getUniversalIdentifierTypeCode());
             }
+
         }
     }
 
@@ -323,6 +404,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
         if (Context.getUserContext() != null && Context.getUserContext().getSessionKey() != null) {
             sessionKey = Context.getUserContext().getSessionKey();
         }
+
         sessionKey = Context.authenticate("admin", "admin"); // TBD: FIXME!!!
     }
 }
