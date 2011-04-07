@@ -47,10 +47,10 @@ public interface EMPIAdapter {
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
 
     /**
-     *
-     * @param subjectIdentifier
+     * 
+     * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse findSubjectByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException;
+    public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
 }
