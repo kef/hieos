@@ -104,6 +104,23 @@ public class Subject {
     }
 
     /**
+     * Remove subject identifier from the list of identifiers for the subject.
+     *
+     * @param subjectIdentifier
+     */
+    public void removeSubjectIdentifier(SubjectIdentifier subjectIdentifier) {
+        // First make sure that the subject identifier does not already exist in the list.
+        int i = 0;
+        for (SubjectIdentifier id : this.subjectIdentifiers) {
+            if (subjectIdentifier.equals(id)) {
+                this.subjectIdentifiers.remove(i);
+                break;
+            }
+            ++i;
+        }
+    }
+
+    /**
      *
      * @return
      */

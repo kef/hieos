@@ -161,6 +161,19 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
 
         // Now add parameters.
 
+        // PRPA_IN201309UV02/controlActProcess/queryByParameter/parameterList/dataSource
+        // <dataSource>
+        //    <value root="1.2.840.114350.1.13.99997.2.3412"/>
+        //    <semanticsText>DataSource.id</semanticsText>
+        // </dataSource>
+        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+            String assigningAuthority = subjectIdentifierDomain.getUniversalId();
+            OMElement dataSourceNode = this.addChildOMElement(parameterListNode, "dataSource");
+            OMElement valueNode = this.addChildOMElement(dataSourceNode, "value");
+            this.setAttribute(valueNode, "root", assigningAuthority);
+            this.addChildOMElementWithValue(dataSourceNode, "semanticsText", "DataSource.id");
+        }
+
         // PRPA_IN201309UV02/controlActProcess/queryByParameter/parameterList/patientIdentifier
         // <patientIdentifier>
         //    <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_9"/>
@@ -170,7 +183,7 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
             OMElement patientIdentifierNode = this.addChildOMElement(parameterListNode, "patientIdentifier");
             OMElement valueNode = this.addChildOMElement(patientIdentifierNode, "value");
             this.addSubjectIdentifier(valueNode, subjectIdentifier);
-            this.addChildOMElementWithValue(patientIdentifierNode, "semanticsText", "Patient.Id");
+            this.addChildOMElementWithValue(patientIdentifierNode, "semanticsText", "Patient.id");
         }
 
         return parameterListNode;

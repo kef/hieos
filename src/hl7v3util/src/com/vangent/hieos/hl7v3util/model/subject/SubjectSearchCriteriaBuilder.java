@@ -44,6 +44,8 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
             "./ns:livingSubjectId";
     private final static String XPATH_PARAMETER_PATIENT_ID =
             "./ns:controlActProcess/ns:queryByParameter/ns:parameterList/ns:patientIdentifier[1]";
+    private final static String XPATH_DATA_SOURCES =
+            "./ns:controlActProcess/ns:queryByParameter/ns:parameterList/ns:dataSource";
     private final static String XPATH_COMMUNITY_PATIENT_ID_ASSIGNING_AUTHORITY =
             "./ns:controlActProcess/ns:authorOrPerformer/ns:assignedDevice/ns:id[1]";
     private final static String XPATH_PARAMETER_MIN_DEGREE_MATCH_VALUE =
@@ -103,6 +105,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
         Subject subject = new Subject();
         crit.setSubject(subject);
         this.setPatientIdentifier(subject, patientIdNode);
+        this.setScopingAssigningAuthoritiesFromDataSources(crit, message.getMessageNode());
         return crit;
     }
 
@@ -215,6 +218,36 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
      * @param subjectSearchCriteria
      * @param message
      */
+    private void setScopingAssigningAuthoritiesFromDataSources(
+            SubjectSearchCriteria subjectSearchCriteria,
+            OMElement message) {
+        try {
+            List<OMElement> dataSourceNodes =
+                    this.selectNodes(message, XPATH_DATA_SOURCES);
+            for (OMElement dataSourceNode : dataSourceNodes) {
+                OMElement valueNode = this.getFirstChildNodeWithName(dataSourceNode, "value");
+                if (valueNode != null) {
+                    // Pull out assigning authority.
+                    String root = valueNode.getAttributeValue(new QName("root")); // Assigning Authority - required.
+                    if (root != null) {
+                        SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+                        identifierDomain.setUniversalId(root);
+                        //identifierDomain.setNamespaceId(assigningAuthorityName);
+                        identifierDomain.setUniversalIdType("ISO"); // FIXME: FIXED VALUE?
+                        subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+                    }
+                }
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param message
+     */
     private void setScopingAssigningAuthorities(
             SubjectSearchCriteria subjectSearchCriteria,
             OMElement message) {
@@ -238,7 +271,6 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
         } catch (XPathHelperException ex) {
             // TBD: Do something.
         }
-
     }
 
     /**
