@@ -171,12 +171,20 @@
                <statusCode code="new"/>
                <responsePriorityCode code="I"/>
                <parameterList>
+                 <!-- could have multiple data sources -->
+		  <!--
+                  <dataSource>
+                     <value root="1.3.6.1.4.1.21367.2005.1.2"/>
+                     <semanticsText>DataSource.Id</semanticsText>
+                  </dataSource>
+                 -->
+
                   <patientIdentifier>
 		     <!--<value root="1.3.6.1.4.1.21367.3000.1.6" extension="GREEN_LOCAL_05"/>-->
-                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_1"/>
+                     <value root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
                      <semanticsText>Patient.Id</semanticsText>
                   </patientIdentifier>
-               </parameterList>
+                </parameterList>
             </queryByParameter>
          </controlActProcess>
       </PRPA_IN201309UV02>
@@ -211,7 +219,7 @@
                   <statusCode code="active"/>
                   <subject1 typeCode="SBJ">
                      <patient classCode="PAT">
-                        <id root="1.3.6.1.4.1.21367.13.20.2000" extension="TESTME2000_JJ"/>
+                        <id root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
                         <statusCode code="active"/>
                         <patientPerson>
                            <name>
