@@ -27,17 +27,7 @@
         <!-- Set this property to false to disable XML schema validation for all input messages
              recieved by HIEOS. -->
         <Property name="XMLSchemaValidationEnabled">true</Property>
-        <!-- FIXME: need to fixup use of environment variables, etc (this is new method) -->
         <Property name="XMLSchemaHL7V3ValidationEnabled">true</Property>
-        <!--<Property name="XMLSchemaHL7V3Directory">$HIEOSxSchemaDir/HL7V3/NE2008/multicacheschemas/</Property>-->
-
-        <!-- Place to find the "codes.xml" file.
-
-             Alternatively, you can set the HIEOSxCodesFile environment variable to include
-             the path to the "codes.xml" file such as c:\dev\vhgate\xds-xca\src\xdstoolkit\codes\codes.xml
-
-             -->
-        <Property name="CodesLocation">http://localhost:8091/xref/codes/codes.xml</Property>
 
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
@@ -70,7 +60,7 @@
         <Property name="SOAPAsyncResponseHTTPPort">8091</Property>
 
         <!-- Log file parameters -->
-        <Property name="LogEnabled">false</Property>  <!-- set to false to turn logging off. -->
+        <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
 
         <!-- Repository parameters (may want to move to repository configuration section). -->
         <Property name="RepoStorageClassImpl">com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorageSQL</Property>
