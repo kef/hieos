@@ -103,7 +103,7 @@ public class OpenEMPIAdapter implements EMPIAdapter {
             // Conduct the search ...
             if (subjectSearchCriteria.hasSubjectIdentifiers()) {
                 logger.debug("Searching based on identifiers ...");
-                subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
+                subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria, false);
 
             } else if (subjectSearchCriteria.hasSubjectDemographics()) {
                 logger.debug("Searching based on demographics ...");
@@ -126,6 +126,19 @@ public class OpenEMPIAdapter implements EMPIAdapter {
      */
     public SubjectSearchResponse findSubjectByIdentifier(
             SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+
+        return this.findSubjectByIdentifier(subjectSearchCriteria, true);
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param stripSearchSubjectIdentifier
+     * @return
+     * @throws EMPIException
+     */
+    private SubjectSearchResponse findSubjectByIdentifier(
+            SubjectSearchCriteria subjectSearchCriteria, boolean shouldStripSearchSubjectIdentifier) throws EMPIException {
 
         // Prepare default response.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
@@ -161,9 +174,13 @@ public class OpenEMPIAdapter implements EMPIAdapter {
                 this.getAndAddLinksToSubject(enterprisePerson, subject, builder);
 
                 // Filter out those identifiers of no interest.
-                this.filterIdentifiers(subjectSearchCriteria, subject, subjectIdentifier);
+                SubjectIdentifier subjectIdentifierToStrip = subjectIdentifier;
+                if (shouldStripSearchSubjectIdentifier == false) {
+                    subjectIdentifierToStrip = null;
+                }
+                this.filterIdentifiers(subjectSearchCriteria, subject, subjectIdentifierToStrip);
             }
-            if (subject != null) {
+            if ((subject != null) && (subject.getSubjectIdentifiers().size() > 0)) {
                 // Add Subject to SubjectSearchResponse.
                 subjectSearchResponse.getSubjects().add(subject);
             }
