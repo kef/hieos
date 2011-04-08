@@ -53,11 +53,9 @@ public class HL7V3SchemaValidator {
         }
         boolean validate = config.getHomeCommunityConfigPropertyAsBoolean("XMLSchemaHL7V3ValidationEnabled", false);
         if (validate == true) {
-            //String schemaDirectory = "C:\\dev\\ihe-materials\\ITI\\schema\\HL7V3\\NE2008\\multicacheschemas\\";
-            //String schemaDirectory = config.getHomeCommunityConfigProperty("XMLSchemaHL7V3Directory");
-            String schemaDirectory = System.getenv("HIEOSxSchemaDir");
+            String schemaDirectory = XConfig.getConfigLocation(XConfig.ConfigItem.SCHEMA_DIR);
             if (schemaDirectory == null) {
-                logger.warn("Unable to get HIEOSxSchemaDir to enable/disable XMLSchemaHL73Validation");
+                logger.warn("Unable to get HIEOS Schema Dir to enable/disable XMLSchemaHL73Validation");
                 return;
             } else {
                 schemaDirectory = schemaDirectory + "/HL7V3/NE2008/multicacheschemas/";
