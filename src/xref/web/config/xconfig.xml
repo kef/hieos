@@ -7,7 +7,7 @@
     Description:
         Master configuration file for HIEOS supported IHE profiles
 
-        This file is referenced via the URL: http://localhost:8080/xref/config/xconfig.xml
+        This file is referenced via the URL: http://localhost:8091/xref/config/xconfig.xml
 -->
 
 <Config>
@@ -37,7 +37,7 @@
              the path to the "codes.xml" file such as c:\dev\vhgate\xds-xca\src\xdstoolkit\codes\codes.xml
 
              -->
-        <Property name="CodesLocation">http://localhost:8080/xref/codes/codes.xml</Property>
+        <Property name="CodesLocation">http://localhost:8091/xref/codes/codes.xml</Property>
 
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
@@ -67,10 +67,10 @@
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
         <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 120(10-connectathon) seconds -->
-        <Property name="SOAPAsyncResponseHTTPPort">8080</Property>
+        <Property name="SOAPAsyncResponseHTTPPort">8091</Property>
 
         <!-- Log file parameters -->
-        <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
+        <Property name="LogEnabled">false</Property>  <!-- set to false to turn logging off. -->
 
         <!-- Repository parameters (may want to move to repository configuration section). -->
         <Property name="RepoStorageClassImpl">com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorageSQL</Property>
@@ -108,7 +108,7 @@
     <Object name="xdstest" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -116,7 +116,7 @@
     <Object name="IHENA1" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -124,7 +124,7 @@
     <Object name="IHENA2" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.2000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
     
@@ -132,7 +132,7 @@
     <Object name="IHENA3" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.3000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -140,7 +140,7 @@
     <Object name="XCPD_Test" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1300&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
     
@@ -148,7 +148,7 @@
     <Object name = "PAMX" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -156,16 +156,16 @@
     <Actor name="localregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
         <Transaction name="RegisterDocumentSet-b" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xdsregistrybas</Endpoint>
         </Transaction>
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsregistryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xdsregistrybas</Endpoint>
         </Transaction>
         
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
@@ -178,16 +178,16 @@
     <Actor name="localrepository" type="DocumentRepositoryType">
         <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
@@ -215,19 +215,19 @@
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
         </Transaction>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
         </Transaction>
         <Transaction name="PatientRegistryGetIdentifiersQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdig</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcpdig</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
@@ -251,11 +251,11 @@
         <!-- This will be used to pass along to XCPD Responding Gateway's if not supplied in
              a request to the XCPD Initiating Gateway (e.g. PDQ). -->
         <Property name="MinimumDegreeMatchPercentage">90</Property>
-        
+
         <!-- Set the amount of days to cache a correlation when a MATCH is found. -->
-	<Property name="MatchCacheExpirationDays">5</Property>
-	
-	<!-- Set the amount of days to cache a correlation when NO MATCH is found. -->
+        <Property name="MatchCacheExpirationDays">5</Property>
+
+        <!-- Set the amount of days to cache a correlation when NO MATCH is found. -->
         <Property name="NoMatchCacheExpirationDays">5</Property>
         
         <!-- determine how XCA Initiating Gateway will process queries -->
@@ -267,7 +267,7 @@
              2) xcpd - A PIX query will be directed to an XCPD IG to determine where to go.
              3) pix? - TBD / requests will be directed to a PIXManager to determine where to go.
         -->
-        <Property name="XCAInitiatingGatewayPatientMappingMode">passthrough</Property>
+        <Property name="XCAInitiatingGatewayPatientMappingMode">xcpd</Property>
 
          <!-- To support outbound XCPD Initiating Gateway PIX requests when in "xcpd" mode. -->
          <!-- OK to self reference here. -->
@@ -276,35 +276,35 @@
 
     <!-- Lists the XCPD Responding Gateways to connect to for CrossGatewayPatientDiscovery requests. -->
     <Object name="XCPDRespondingGateways" type="XCPDRespondingGatewaysType">
-        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>  <!-- just for testing .... -->
-        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
+        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
+        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
     </Object>
 
     <Actor name="localrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId>  <!-- Home Community ID -->
         <Transaction name="CrossGatewayQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcarg</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcarg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcargas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcargas</Endpoint>
         </Transaction>
         <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcarg</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcarg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcargas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcargas</Endpoint>
         </Transaction>
         <Transaction name="CrossGatewayPatientDiscovery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdrg</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcpdrg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcpdrgas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcpdrgas</Endpoint>
         </Transaction>
         <Transaction name="PatientLocationQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcpdrg</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcpdrg</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcpdrgas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcpdrgas</Endpoint>
         </Transaction>
 
         <!-- In support of XDS Affinity Domain Option -->
@@ -317,6 +317,38 @@
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
         <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.1000</Property>
+
+    </Actor>
+
+    <Actor name="vangent2-rg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3071</UniqueId>  <!-- Home Community ID -->
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xcargas</Endpoint>
+        </Transaction>
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xcarg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xcargas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xcargas</Endpoint>
+        </Transaction>
+        <Transaction name="CrossGatewayPatientDiscovery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xcpdrgas</Endpoint>
+        </Transaction>
+        <Transaction name="PatientLocationQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xcpdrg</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8105/axis2/services/xcpdrgas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xcpdrgas</Endpoint>
+        </Transaction>
+        
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
 
     </Actor>
 
