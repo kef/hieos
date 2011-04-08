@@ -20,6 +20,7 @@ import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
+import com.vangent.hieos.xutil.xconfig.XConfig;
 import org.apache.axiom.om.OMElement;
 
 public class SchemaValidation implements MetadataTypes {
@@ -36,38 +37,31 @@ public class SchemaValidation implements MetadataTypes {
     // off-machine go through the firewall where the port translation happens.
     // even though this says validate_local, it is used by all requests
     public static void validate_local(OMElement ele, int metadataType) throws XdsInternalException {
-
-        // This should cover all use cases except xdstest2 running on a users desktop
-        SchemaValidation.run(ele.toString(), metadataType, "localhost", "8080");
-
-        // Xdstest2 needs to reference the public register server
-        // port 80 makes it easier when strict firewalls are in place
-        // SchemaValidation.run(ele.toString(), metadataType, "129.6.24.109", "80");
+        SchemaValidation.run(ele.toString(), metadataType);
     }
 
     // empty string as result means no errors
-    static private void run(String metadata, int metadataType, String host, String portString) throws XdsInternalException {
-        //String portString = "9080";
-        String localSchema = System.getenv("HIEOSxSchemaDir");
+    static private void run(String metadata, int metadataType) throws XdsInternalException {
+        String localSchema = XConfig.getConfigLocation(XConfig.ConfigItem.SCHEMA_DIR);
 
         // Decode schema location
         String schemaLocation;
         switch (metadataType) {
             case METADATA_TYPE_Rb:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/lcm.xsd" : localSchema + "/v3/lcm.xsd");
+                        (localSchema + "/v3/lcm.xsd");
                 break;
             case METADATA_TYPE_SQ:
                 schemaLocation = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/query.xsd " : localSchema + "/v3/query.xsd ") +
+                        (localSchema + "/v3/query.xsd ") +
                         "urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/rs.xsd" : localSchema + "/v3/rs.xsd");
+                        (localSchema + "/v3/rs.xsd");
                 break;
             case METADATA_TYPE_RET:
                 schemaLocation = "urn:ihe:iti:xds-b:2007 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/XDS.b_DocumentRepository.xsd " : localSchema + "/v3/XDS.b_DocumentRepository.xsd ") +
+                        (localSchema + "/v3/XDS.b_DocumentRepository.xsd ") +
                         "urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0 " +
-                        ((localSchema == null) ? "http://" + host + ":" + portString + "/xref/schema/v3/rs.xsd" : localSchema + "/v3/rs.xsd");
+                        (localSchema + "/v3/rs.xsd");
                 break;
             default:
                 throw new XdsInternalException("SchemaValidation: invalid metadata type = " + metadataType);

@@ -13,16 +13,13 @@
 package com.vangent.hieos.xutil.metadata.validation;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
-import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.http.HttpClient;
 import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.metadata.structure.Classification;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
-import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -36,8 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 
@@ -257,38 +252,28 @@ public class CodeValidation {
 
         /**
          * 
-         * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+         * @throws XdsInternalException
          */
         public void loadCodes() throws XdsInternalException {
-            String fileCodesLocation = System.getenv("HIEOSxCodesFile");
+            String fileCodesLocation = XConfig.getConfigLocation(XConfig.ConfigItem.CODES_FILE);
             XConfig xconf = XConfig.getInstance();
-            //String localCodesLocation = "http://localhost:8080/xref/codes/codes.xml";
-            String localCodesLocation = xconf.getHomeCommunityConfigProperty("CodesLocation");
-            //String globalCodesLocation = "http://ihexds.nist.gov:9080/xdsref/codes/codes.xml";
             String codes_string = null;
             String from = null;
-
             if (fileCodesLocation != null) {
                 try {
                     codes_string = Io.getStringFromInputStream(new FileInputStream(new File(fileCodesLocation)));
                     from = fileCodesLocation;
                 } catch (Exception e) {
-                    throw new XdsInternalException("Env Var HIEOSxCodesFile exists but codes.xml file cannot be loaded.", e);
+                    throw new XdsInternalException("CodeValidation: Unable to load code configuration file: " + e.getMessage(), e);
                 }
             } else {
-
-                try {
-                    codes_string = HttpClient.httpGet(localCodesLocation);
-                    from = localCodesLocation;
-                } catch (Exception e) {
-                    throw new XdsInternalException("CodeValidation: Unable to retrieve code configuration file " + localCodesLocation);
-                }
+                throw new XdsInternalException("CodeValidation: Unable to load code configuration file.");
             }
             if (codes_string == null) {
-                throw new XdsInternalException("CodeValidation.init(): GET codes.xml returned NULL from " + from);
+                throw new XdsInternalException("CodeValidation: GET codes.xml returned NULL from " + from);
             }
             if (codes_string.equals("")) {
-                throw new XdsInternalException("CodeValidation.init(): GET codes.xml returned enpty from " + from);
+                throw new XdsInternalException("CodeValidation: GET codes.xml returned empty from " + from);
             }
             try {
                 codes = XMLParser.stringToOM(codes_string);

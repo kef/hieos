@@ -21,7 +21,6 @@ package com.vangent.hieos.xutil.xconfig;
 
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.xml.XMLParser;
-import com.vangent.hieos.xutil.http.HttpClient;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.iosupport.Io;
 
@@ -43,9 +42,23 @@ import org.apache.log4j.Logger;
  */
 public class XConfig {
 
+    public enum ConfigItem {
+
+        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE
+    };
+    // HIEOS environment variables (would like to rename but remaining backward compatible).
+    public final static String ENV_HIEOS_CONFIG_DIR = "HIEOSxConfigDir";
+    public final static String ENV_HIEOS_XCONFIG_FILE = "HIEOSxConfigFile";
+    public final static String ENV_HIEOS_SCHEMA_DIR = "HIEOSxSchemaDir";
+    public final static String ENV_HIEOS_CODES_FILE = "HIEOSxCodesFile";
+    // HIEOS system properties (would like to rename but remaining backward compatible).
+    public final static String SYSPROP_HIEOS_CONFIG_DIR = "com.vangent.hieos.configdir";
+    public final static String SYSPROP_HIEOS_XCONFIG_FILE = "com.vangent.hieos.xconfig";
+    public final static String SYSPROP_HIEOS_SCHEMA_DIR = "com.vangent.hieos.schemadir";
+    public final static String SYSPROP_HIEOS_CODES_FILE = "com.vangent.hieos.codesfile";
     private final static Logger logger = Logger.getLogger(XConfig.class);
+    
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
-    static private String _configURL = "http://localhost:8080/xref/config/xconfig.xml";
     static private XConfig _instance = null;  // Singleton instance.
     static private String _configLocation = null;  // Location of xconfig.xml file
     // Internal data structure starts here.
@@ -64,6 +77,74 @@ public class XConfig {
     static final public String PDS_TYPE = "PDSType";
     static final public String PIX_MANAGER_TYPE = "PIXManagerType";
     static final public String XDR_DOCUMENT_RECIPIENT_TYPE = "DocumentRecipientType";
+
+    /**
+     *
+     * @param configItem
+     * @return
+     */
+    static public String getConfigLocation(ConfigItem configItem) {
+        String configLocation = null;
+        switch (configItem) {
+            case CONFIG_DIR:
+                configLocation = getConfigDir();
+                break;
+            case XCONFIG_FILE:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_XCONFIG_FILE, XConfig.ENV_HIEOS_XCONFIG_FILE);
+                break;
+            case SCHEMA_DIR:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_SCHEMA_DIR, XConfig.ENV_HIEOS_SCHEMA_DIR);
+                break;
+            case CODES_FILE:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_CODES_FILE, XConfig.ENV_HIEOS_CODES_FILE);
+                break;
+        }
+        return configLocation;
+    }
+
+    /**
+     *
+     * @return
+     */
+    static public String getConfigDir() {
+        // First look at system property.
+        String configDir = System.getProperty(XConfig.SYSPROP_HIEOS_CONFIG_DIR);
+        if (configDir == null) {
+            // Look in environment variable next.
+            configDir = System.getenv(XConfig.ENV_HIEOS_CONFIG_DIR);
+        }
+        return configDir;
+    }
+
+    /**
+     * 
+     * @param sysPropName
+     * @param envName
+     * @return
+     */
+    static private String getConfigLocation(ConfigItem configItem, String sysPropName, String envName) {
+        // First look at system property.
+        String configLocation = System.getProperty(sysPropName);
+        if (configLocation == null) {
+            // Look in environment variable next.
+            configLocation = System.getenv(envName);
+        }
+        if (configLocation == null) {
+            String configDir = XConfig.getConfigDir();
+            switch (configItem) {
+                case XCONFIG_FILE:
+                    configLocation = configDir + "/xconfig.xml";
+                    break;
+                case SCHEMA_DIR:
+                    configLocation = configDir + "/schema";
+                    break;
+                case CODES_FILE:
+                    configLocation = configDir + "/codes/codes.xml";
+                    break;
+            }
+        }
+        return configLocation;
+    }
 
     /**
      * 
@@ -324,12 +405,7 @@ public class XConfig {
     private void loadConfiguration() throws XConfigException {
         String configLocation = _configLocation;  // May be set.
         if (configLocation == null) {
-            // See if a system property is set.
-            configLocation = System.getProperty("com.vangent.hieos.xconfig");
-        }
-        if (configLocation == null) {
-            // Look in environment variable next.
-            configLocation = System.getenv("HIEOSxConfigFile");
+            configLocation = XConfig.getConfigLocation(ConfigItem.XCONFIG_FILE);
         }
         String configXML = null;
         if (configLocation != null) {
@@ -342,16 +418,10 @@ public class XConfig {
                         "XConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
             }
         } else {
-            configLocation = _configURL;
-            logger.info("Loading XConfig from: " + configLocation);
-            // Get the configuration file from web server.
-            try {
-                configXML = HttpClient.httpGet(configLocation);
-            } catch (Exception e) {
-                throw new XConfigException(
-                        "XConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
-            }
+            throw new XConfigException(
+                    "XConfig: Unable to get location of xconfig file");
         }
+
         // Parse the XML file.
         OMElement configXMLRoot;
         try {
