@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.xconfig;
 
 import java.util.List;
@@ -23,6 +22,10 @@ import org.apache.axiom.om.OMElement;
  */
 public class XConfigTransaction {
 
+    public enum SOAPVersion {
+
+        SOAP_1_1, SOAP_1_2
+    };
     private XConfigTransactionEndpoint transactionEndpoint;
     private boolean secureTransaction;
     private boolean asyncTransaction;
@@ -74,6 +77,24 @@ public class XConfigTransaction {
     }
 
     /**
+     * Returns the SOAP version to use for the endpoint.
+     *
+     * @return SOAPVersion
+     */
+    public XConfigTransaction.SOAPVersion getSOAPVersionForEndpoint() {
+        return (this.transactionEndpoint != null) ? this.transactionEndpoint.getSOAPVersion() : SOAPVersion.SOAP_1_2;
+    }
+
+    /**
+     * Returns true if this endpoint is SOAP 1.2 based.  Otherwise, return false.
+     *
+     * @return boolean
+     */
+    public boolean isSOAP12Endpoint() {
+        return this.getSOAPVersionForEndpoint() == SOAPVersion.SOAP_1_2;
+    }
+
+    /**
      * This method, populates the XConfigTransaction class by evaluating the input OMElement.
      *
      * @param rootNode, an OMElement, representing the transaction.
@@ -115,8 +136,7 @@ public class XConfigTransaction {
             XConfigTransactionEndpoint txnEP = new XConfigTransactionEndpoint();
             txnEP.parse(currentNode);
             if ((this.isSecureTransaction() == txnEP.isSecureEndpoint()) &&
-                (this.isAsyncTransaction() == txnEP.isAsyncEndpoint()))
-            {
+                    (this.isAsyncTransaction() == txnEP.isAsyncEndpoint())) {
                 this.transactionEndpoint = txnEP;
                 break;
             }

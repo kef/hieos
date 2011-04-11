@@ -32,9 +32,11 @@ import org.apache.axiom.om.OMElement;
  */
 public class XConfigTransactionEndpoint {
 
-    private String  endpointURL = "";
+   
+    private String endpointURL = "";
     private boolean secureEndpoint;
     private boolean asyncEndpoint;
+    private XConfigTransaction.SOAPVersion soapVersion = XConfigTransaction.SOAPVersion.SOAP_1_2;  // Default.
 
     /**
      * Returns information whether the endpoint is on a secured transport.
@@ -54,7 +56,6 @@ public class XConfigTransactionEndpoint {
         return asyncEndpoint;
     }
 
-
     /**
      * Returns the endpoint's URL.
      *
@@ -62,6 +63,24 @@ public class XConfigTransactionEndpoint {
      */
     public String getEndpointURL() {
         return endpointURL;
+    }
+
+    /**
+     * Returns the SOAP version to use for the endpoint.
+     *
+     * @return SOAPVersion
+     */
+    public XConfigTransaction.SOAPVersion getSOAPVersion() {
+        return soapVersion;
+    }
+
+    /**
+     * Returns true if this endpoint is SOAP 1.2 based.  Otherwise, return false.
+     *
+     * @return boolean
+     */
+    public boolean isSOAP12Endpoint() {
+        return this.getSOAPVersion() == XConfigTransaction.SOAPVersion.SOAP_1_2;
     }
 
     /**
@@ -75,7 +94,12 @@ public class XConfigTransactionEndpoint {
                 ("true".equalsIgnoreCase(rootNode.getAttributeValue(new QName("secure")))) ? true : false;
         this.asyncEndpoint =
                 ("true".equalsIgnoreCase(rootNode.getAttributeValue(new QName("async")))) ? true : false;
-
+        // Get SOAP version to use.
+        String soap = rootNode.getAttributeValue(new QName("soap"));
+        if ((soap != null) && (soap.equals("1.1") == true)) {
+            soapVersion = XConfigTransaction.SOAPVersion.SOAP_1_1;
+        }
+        // else, will default to SOAP 1.2
     }
 
     /**
