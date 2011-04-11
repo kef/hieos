@@ -57,12 +57,13 @@ public class PIXManagerClient extends Client {
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("PatientRegistryGetIdentifiersQuery");
             soap.setAsync(txn.isAsyncTransaction());
+            boolean soap12 = txn.isSOAP12Endpoint();
             OMElement soapResponse = soap.soapCall(
                     request.getMessageNode(),
                     txn.getEndpointURL(),
-                    false /* mtom */,
-                    true /* addressing */,
-                    txn.isSOAP12Endpoint(),
+                    false,  /* MTOM */
+                    soap12, /* Addressing - Only if SOAP 1.2 */
+                    soap12,
                     PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION /* SOAP action */,
                     PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION_RESPONSE /* SOAP action response */);
             response = new PRPA_IN201310UV02_Message(soapResponse);
