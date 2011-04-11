@@ -151,10 +151,11 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
 
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
+        boolean soap12 = xconfigTxn.isSOAP12Endpoint();
         soap.soapCall(request, endpoint,
-                true, // mtom
-                true, // addressing
-                xconfigTxn.isSOAP12Endpoint(),
+                true,    /* mtom */
+                soap12,  /* addressing [only if SOAP1.2] */
+                soap12,
                 action,
                 expectedReturnAction);
         OMElement result = soap.getResult();  // Get the result.
