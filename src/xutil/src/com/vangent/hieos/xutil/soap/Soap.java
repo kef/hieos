@@ -144,7 +144,7 @@ public class Soap {
             // Validate proper return action is received.
             if (this.async) {
                 verifySOAPReturnAction(expectedReturnAction, "urn:mediateResponse");
-            } else {
+            } else if (addressing) {  // Only validate in this case.
                 verifySOAPReturnAction(expectedReturnAction, null);
             }
 
