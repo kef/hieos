@@ -59,14 +59,8 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
-    private String registryEndpoint = null;
-    //private MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
 
-    /* BHT: Removed
-    static {
-    BasicConfigurator.configure();
-    }*/
     /**
      *
      * @param log_message
@@ -277,7 +271,14 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         try {
             OMElement result;
             try {
-                soap.soapCall(register_transaction, epr, false, true, true, action, expectedReturnAction);
+                soap.soapCall(
+                        register_transaction,
+                        epr,
+                        false,  // mtom.
+                        true,   // addressing.
+                        this.isRegisterTransactionSOAP12(),
+                        action,
+                        expectedReturnAction);
                 //AUDIT:POINT
                 //call to audit message for document repository
                 //for Transaction id = ITI-42. (Register Document set-b)
@@ -326,7 +327,15 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String getRegistryEndpoint() throws XdsInternalException {
-        return (registryEndpoint == null) ? Repository.getRegisterTransactionEndpoint() : registryEndpoint;
+        return Repository.getRegisterTransactionEndpoint();
+    }
+
+    /**
+     *
+     * @return
+     */
+    private boolean isRegisterTransactionSOAP12() throws XdsInternalException {
+        return Repository.isRegisterTransactionSOAP12();
     }
 
     /**

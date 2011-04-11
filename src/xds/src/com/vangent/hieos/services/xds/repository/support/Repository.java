@@ -41,6 +41,16 @@ public class Repository {
     }
 
     /**
+     * Returns true if SOAP 1.2 should be used, otherwise SOAP 1.1 for the
+     * RegisterDocumentSet-b transaction.
+     * 
+     * @return true if SOAP 1.2 should be used, otherwise SOAP1.1
+     */
+    static public boolean isRegisterTransactionSOAP12() throws XdsInternalException {
+        return getRegisterTransaction().isSOAP12Endpoint();
+    }
+
+    /**
      * This method returns the Unique Id for the local repository.
      * @return a String value.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
@@ -59,7 +69,7 @@ public class Repository {
         try {
             XConfig xconf = XConfig.getInstance();
             XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
-            XConfigActor repository = (XConfigActor)homeCommunity.getXConfigObjectWithName("repo", XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
+            XConfigActor repository = (XConfigActor) homeCommunity.getXConfigObjectWithName("repo", XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
             return repository;
         } catch (Exception e) {
             throw new XdsInternalException("Unable to get Repository configuration + " + e.getMessage());
@@ -74,7 +84,7 @@ public class Repository {
      */
     static private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
         XConfigActor repo = Repository.getRepositoryConfig();
-        XConfigActor localRegistry = (XConfigActor)repo.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+        XConfigActor localRegistry = (XConfigActor) repo.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
         return txn;
     }
