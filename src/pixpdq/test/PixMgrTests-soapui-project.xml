@@ -174,14 +174,27 @@
                  <!-- could have multiple data sources -->
 		  <!--
                   <dataSource>
-                     <value root="1.3.6.1.4.1.21367.2005.1.2"/>
+                     <value root="1.3.6.1.4.1.21367.2005.1.1"/>
                      <semanticsText>DataSource.Id</semanticsText>
                   </dataSource>
-                 -->
-
+                  <dataSource>
+                     <value root="1.3.6.1.4.1.21367.2005.1.2"/>
+                     <semanticsText>DataSource.Id</semanticsText>
+                  </dataSource> -->
+		  <dataSource>
+                     <value root="1.3.6.1.4.1.21367.13.20.1000"/>
+                     <semanticsText>DataSource.Id</semanticsText>
+                  </dataSource>
+                 
+<!-- 1.3.6.1.4.1.21367.13.20.1000 -->
                   <patientIdentifier>
-		     <!--<value root="1.3.6.1.4.1.21367.3000.1.6" extension="GREEN_LOCAL_05"/>-->
                      <value root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
+                     <!--
+		     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="9ed7c8d0608a11e08f7f00242b818f15"/>
+                     -->
+		     <!--
+                     <value root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
+                     -->
                      <semanticsText>Patient.Id</semanticsText>
                   </patientIdentifier>
                 </parameterList>
@@ -219,7 +232,7 @@
                   <statusCode code="active"/>
                   <subject1 typeCode="SBJ">
                      <patient classCode="PAT">
-                        <id root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
+                        <id root="1.3.6.1.4.1.21367.2005.1.1" extension="TESTME_2"/>
                         <statusCode code="active"/>
                         <patientPerson>
                            <name>

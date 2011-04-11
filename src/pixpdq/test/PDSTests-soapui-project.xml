@@ -121,15 +121,16 @@
                   </minimumDegreeMatch>
                </matchCriterionList>
                <parameterList>
+
                   <livingSubjectAdministrativeGender>
-                     <value code="M"/>
+                     <value code="F"/>
                      <semanticsText>LivingSubject.administrativeGender</semanticsText>
                   </livingSubjectAdministrativeGender>
 		  <livingSubjectBirthTime>
                      <value value="19640610"/>
                      <semanticsText>LivingSubject.birthTime</semanticsText>
                   </livingSubjectBirthTime>
-                  <!-- <patientAddress>
+              <!-- <patientAddress>
                      <value>
                         <streetAddressLine>1701 Hunt Meadow Drive</streetAddressLine>
                         <city>Annapolis</city>
@@ -139,30 +140,32 @@
                      <semanticsText>Patient.addr</semanticsText>
                   </patientAddress> -->
 		  <!--<livingSubjectId>
-                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="TESTME1000_100"/>
+                     <value root="1.3.6.1.4.1.21367.2005.1.2" extension="TESTME_1"/>
                      <semanticsText>LivingSubject.id</semanticsText>
                   </livingSubjectId>-->
  		 <!--<livingSubjectId>
                      <value root="1.3.6.1.4.1.21367.13.20.2000" extension="GREEN_GLOBAL_05"/>
                      <semanticsText>LivingSubject.id</semanticsText>
                   </livingSubjectId>-->
+ 
                   <livingSubjectName>
                      <value>
-                        <given>Jack</given>
-                        <family>smith</family>
+                        <given>Jordan</given>
+                        <family>Jackson</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
-                  <!--<otherIDsScopingOrganization>
+  
+                <!--<otherIDsScopingOrganization>
                      <value root="1.3.6.1.4.1.21367.13.20.1000"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
                   </otherIDsScopingOrganization>-->
                   <!--<otherIDsScopingOrganization>
-                     <value root="2.16.840.1.113883.4.1"/>
+                     <value root="1.3.6.1.4.1.21367.2005.1.2"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
                   </otherIDsScopingOrganization>
                   <otherIDsScopingOrganization>
-                     <value root="1.2.840.114350.1.13.99998.8734"/>
+                     <value root="1.3.6.1.4.1.21367.2005.1.1"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
                   </otherIDsScopingOrganization>-->
                </parameterList>
