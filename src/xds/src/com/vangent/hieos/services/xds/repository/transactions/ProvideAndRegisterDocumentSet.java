@@ -271,12 +271,13 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         try {
             OMElement result;
             try {
+                boolean soap12 = this.isRegisterTransactionSOAP12();
                 soap.soapCall(
                         register_transaction,
                         epr,
-                        false,  // mtom.
-                        true,   // addressing.
-                        this.isRegisterTransactionSOAP12(),
+                        false,    /* mtom. */
+                        soap12,   /* addressing - only if SOAP 1.2 */
+                        soap12,
                         action,
                         expectedReturnAction);
                 //AUDIT:POINT
