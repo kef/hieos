@@ -137,8 +137,8 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
         soap.setAsync(isAsyncTxn);
         soap.soapCall(request, endpoint,
                 false, // mtom
-                true, // addressing
-                true, // soap12
+                true,  // addressing
+                xconfigTxn.isSOAP12Endpoint(),
                 action,
                 expectedReturnAction);
 
