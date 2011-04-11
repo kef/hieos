@@ -65,7 +65,7 @@ public class PDSClient extends Client {
                     txn.getEndpointURL(),
                     false /* mtom */,
                     true /* addressing */,
-                    true /* soap12 */,
+                    txn.isSOAP12Endpoint(),
                     PDSClient.PDS_PDQV3_ACTION /* SOAP action */,
                     PDSClient.PDS_PDQV3_ACTION_RESPONSE /* SOAP action response */);
             response = new PRPA_IN201306UV02_Message(soapResponse);

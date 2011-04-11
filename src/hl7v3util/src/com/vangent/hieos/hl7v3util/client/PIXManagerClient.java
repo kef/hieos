@@ -62,7 +62,7 @@ public class PIXManagerClient extends Client {
                     txn.getEndpointURL(),
                     false /* mtom */,
                     true /* addressing */,
-                    true /* soap12 */,
+                    txn.isSOAP12Endpoint(),
                     PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION /* SOAP action */,
                     PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION_RESPONSE /* SOAP action response */);
             response = new PRPA_IN201310UV02_Message(soapResponse);

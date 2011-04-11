@@ -59,7 +59,7 @@ public class XCPDGatewayClient extends Client {
                     txn.getEndpointURL(),
                     false /* mtom */,
                     true /* addressing */,
-                    true /* soap12 */,
+                    txn.isSOAP12Endpoint(),
                     XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION /* SOAP action */,
                     XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION_RESPONSE /* SOAP action response */);
             response = new PRPA_IN201306UV02_Message(soapResponse);
