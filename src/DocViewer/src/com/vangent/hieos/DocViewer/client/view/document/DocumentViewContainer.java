@@ -147,6 +147,8 @@ public class DocumentViewContainer extends Canvas {
 		c32TemplateFileNames[3] = "va/CCD.xsl";
 		c32TemplateDisplayNames[4] = "MEDVA Template";
 		c32TemplateFileNames[4] = "medva/CCD_MAIN.xsl";
+		c32TemplateDisplayNames[5] = "CCR Template";
+		c32TemplateFileNames[5] = "ccr/CCR.xsl";
 		c32TemplateFileName = c32TemplateFileNames[0];
 	}
 	
