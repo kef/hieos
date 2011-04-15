@@ -12,15 +12,13 @@
             <resources>
                 <file file="${file.reference.commons-collections.jar}"/>
                 <file file="${file.reference.dom4j-1.4.jar}"/>
-                <file file="${file.reference.ehcache-0.9.jar}"/>
                 <file file="${file.reference.jaxr-api.jar}"/>
                 <file file="${file.reference.oasis-regrep.jar}"/>
                 <file file="${file.reference.stax-api-1.0.1.jar}"/>
                 <file file="${file.reference.adt.jar}"/>
                 <file file="${file.reference.xutil.jar}"/>
                 <file file="${file.reference.omar.jar}"/>
-                <file file="${file.reference.mysql-connector-java-5.1.10-bin.jar}"/>
-                <file file="${file.reference.postgresql-8.3-604.jdbc4.jar}"/>
+                <file file="${file.reference.commons-codec-1.3.jar}"/>
             </resources>
         </copy>
         <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
