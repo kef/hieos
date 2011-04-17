@@ -76,7 +76,7 @@ public class XATNALogger {
 
     public enum ActorType {
 
-        REGISTRY, REPOSITORY, DOCCONSUMER, INITIATING_GATEWAY, RESPONDING_GATEWAY, UNKNOWN
+        REGISTRY, REPOSITORY, DOCCONSUMER, INITIATING_GATEWAY, RESPONDING_GATEWAY, UNKNOWN, DOCRECIPIENT
     }
     private static final String REG_STOR_QRY = "Registry Stored Query";
     private static final String REG_DOC_SET = "Register Document Set-b";
