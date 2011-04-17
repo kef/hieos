@@ -166,6 +166,8 @@ public class MetadataSupport {
     public static String XDSUnavailableCommunity = "XDSUnavailableCommunity";
     public static QName response_option_qname = new QName("ResponseOption");
     public static QName adhoc_query_qname = new QName("AdhocQuery");
+    // XDR Error Codes
+    public static String XDRRecipientError = "XDRRecipientError";
 
     public static OMElement firstChildWithLocalName(OMElement ele, String localName) {
         for (Iterator it = ele.getChildElements(); it.hasNext();) {
