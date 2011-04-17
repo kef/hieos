@@ -18,20 +18,14 @@
 package com.vangent.hieos.xutil.xlog.client;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.jms.JMSHandler;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
+
 import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.ObjectMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -103,27 +97,13 @@ public class XLogger {
      * @throws javax.jms.JMSException
      */
     private void sendJMSMessageToXLogger(XLogMessage messageData) throws NamingException, JMSException {
-        Context ctx = new InitialContext();
-        QueueConnectionFactory factory = (QueueConnectionFactory) ctx.lookup("jms/XLoggerFactory");
-        QueueConnection connection = null;
-        QueueSession session = null;
+        JMSHandler jms = new JMSHandler("jms/XLoggerFactory", "jms/XLogger");
         try {
-            connection = factory.createQueueConnection();
-            session = connection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            Queue queue = (Queue) ctx.lookup("jms/XLogger");
-            MessageProducer mp = session.createProducer(queue);
-            mp.send(createJMSMessageForjmsXLogger(session, messageData));
+            jms.createConnectionFactoryFromPool();
+            jms.createJMSSession();
+            jms.sendMessage(messageData);
         } finally {
-            if (session != null) {
-                try {
-                    session.close();
-                } catch (JMSException e) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot close session", e);
-                }
-            }
-            if (connection != null) {
-                connection.close();
-            }
+            jms.close();
         }
     }
 
@@ -144,22 +124,5 @@ public class XLogger {
         } catch (XdsInternalException ex) {
             Logger.getLogger(XLogger.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    /**
-     *
-     * @param session
-     * @param messageData
-     * @return
-     * @throws javax.jms.JMSException
-     */
-    private Message createJMSMessageForjmsXLogger(Session session, XLogMessage messageData) throws JMSException {
-        //TextMessage tm = session.createTextMessage();
-        //tm.setText(messageData.toString());
-        //return tm;
-
-        //System.out.println("CLIENT logMessage id = " + messageData.toString());
-        ObjectMessage om = session.createObjectMessage(messageData);
-        return om;
     }
 }
