@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <!-- XDR Recipient Actor -->
+    <service name="xdrrecipient" class="com.vangent.hieos.services.xdr.recipient.serviceimpl.XDRRecipient">
+        <description> XDR Recipient Interface</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xdr.recipient.serviceimpl.XDRRecipient</parameter>
+        <operation name="XDRDocRecipientRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</actionMapping>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+    </service>
+</serviceGroup>

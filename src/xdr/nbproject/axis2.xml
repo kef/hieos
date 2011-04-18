@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axis2 xmlns="http://www.netbeans.org/ns/axis2/1">
+    <service name="xdrrecipient">
+        <service-class>com.vangent.hieos.services.xdr.recipient.serviceimpl.XDRRecipient</service-class>
+    </service>
+    <libraries>
+        <library-ref name="log4j-1.2.15.jar"/>
+        <library-ref name="xutil.jar"/>
+    </libraries>
+</axis2>
+
