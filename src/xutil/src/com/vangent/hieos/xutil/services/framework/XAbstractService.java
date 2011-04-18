@@ -64,8 +64,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected XLogMessage log_message = null;
 
     public enum ActorType {
-
-        REGISTRY, REPOSITORY, PIXMGR, PDS, XCPD_GW
+        REGISTRY, REPOSITORY, PIXMGR, PDS, DOCRECIPIENT
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
@@ -481,7 +480,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     public AxisFault getAxisFault(Exception ex) {
         if (log_message != null) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            //log_message.setPass(false);
+            log_message.setPass(false);
         }
         endTransaction(false);
         return new AxisFault(ex.getMessage());
