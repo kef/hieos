@@ -27,7 +27,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Vector;
 
 import javax.xml.namespace.QName;
 
@@ -52,6 +51,7 @@ import org.apache.axis2.description.AxisService;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.xua.client.XServiceProvider;
+import java.util.Vector;
 
 /**
  *
@@ -64,7 +64,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected XLogMessage log_message = null;
 
     public enum ActorType {
-        REGISTRY, REPOSITORY, PIXMGR, PDS, DOCRECIPIENT
+        REGISTRY, REPOSITORY, PIXMGR, PDS, XCPD_GW, DOCRECIPIENT
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
@@ -480,7 +480,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     public AxisFault getAxisFault(Exception ex) {
         if (log_message != null) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            log_message.setPass(false);
+            //log_message.setPass(false);
         }
         endTransaction(false);
         return new AxisFault(ex.getMessage());
