@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <service name="ATNARepository" scope="application">
+        <description>ATNARepository service</description>
+        <parameter name="ServiceClass">com.vangent.hieos.services.atna.arr.serviceimpl.ATNARepository</parameter>
+        <operation name="retrieveIPAddresses">
+            <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+            <actionMapping>urn:hieos:atna:retrieveIPAddresses</actionMapping>
+        </operation>
+        <operation name="retrieveAuditList">
+            <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+            <actionMapping>urn:hieos:atna:retrieveAuditList</actionMapping>
+        </operation>
+        <operation name="retrieveAuditDetail">
+            <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+            <actionMapping>urn:hieos:atna:retrieveAuditDetail</actionMapping>
+        </operation>
+    </service>
+</serviceGroup>
+

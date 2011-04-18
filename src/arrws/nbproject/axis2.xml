@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axis2 xmlns="http://www.netbeans.org/ns/axis2/1">
+    <service name="ARRRepository">
+        <service-class>com.vangent.hieos.services.atna.arr.serviceimpl.ARRRepository</service-class>
+    </service>
+    <libraries>
+        <library-ref name="arrmdb.jar"/>
+        <library-ref name="xutil.jar"/>
+    </libraries>
+</axis2>
+
