@@ -1,0 +1,682 @@
+03:44:07,061  INFO UDPServer:41 - Start UDP Server ....
+03:44:07,123  INFO UDPServer:45 - +++++ SOCKET [UDP] created (PORT = 3110) +++++
+03:44:07,123  INFO TCPServer:45 - Start TCP Server ....
+03:44:07,201  INFO TLSSocketSupport:131 - +++++ Key/Trust Stores :- C:/sun/sdk/domains/domain1/config/keystore.jks and C:/sun/sdk/domains/domain1/config/cacerts.jks
+03:44:09,011  INFO TLSSocketSupport:221 - Enabling required cipher suites...
+03:44:09,011  INFO TLSSocketSupport:148 - +++++ TLS SOCKET CREATED (port = 3100) +++++
+03:44:09,011  INFO TCPServer:52 - +++++ SOCKET [TLS] created (PORT = 3100) +++++
+03:44:09,042  INFO UDPListener:46 - Waiting For UDP Messages on Port: 3110
+03:44:09,042  INFO TCPListener:45 - Waiting For TCP Messages on Port: 3100
+03:46:27,866  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:27,882  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:27,898  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:27,913  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60250 Length: 830
+03:46:27,913  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60252 Length: 830
+03:46:27,929  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:27,913  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60251 Length: 830
+03:46:27,929  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60253 Length: 830
+03:46:30,050  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:30,066  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60254 Length: 824
+03:46:31,486  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:31,486  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60255 Length: 820
+03:46:31,517  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:31,517  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60256 Length: 820
+03:46:31,532  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:31,532  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60257 Length: 822
+03:46:31,548  INFO UDPHandler:42 - UDPHandler Instantiated 
+03:46:31,564  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60258 Length: 822
+04:01:14,136  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,136  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64300 Length: 829
+04:01:14,199  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,199  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64301 Length: 821
+04:01:14,261  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,261  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64302 Length: 829
+04:01:14,401  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,401  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,401  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64303 Length: 829
+04:01:14,417  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64304 Length: 823
+04:01:14,433  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,433  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64305 Length: 819
+04:01:14,495  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,495  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64306 Length: 829
+04:01:14,620  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,651  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64308 Length: 819
+04:01:14,776  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:14,791  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64310 Length: 821
+04:01:38,925  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:38,925  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63308 Length: 830
+04:01:38,971  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:38,971  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63309 Length: 830
+04:01:39,034  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:39,034  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63310 Length: 830
+04:01:39,081  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:39,081  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63311 Length: 830
+04:01:39,954  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:39,954  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63312 Length: 824
+04:01:40,531  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:40,531  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63313 Length: 820
+04:01:40,609  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:40,609  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63314 Length: 820
+04:01:40,687  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:40,703  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63315 Length: 822
+04:01:40,765  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:01:40,765  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63316 Length: 822
+04:09:43,524  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:09:43,540  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52861 Length: 1914
+04:09:44,180  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:09:44,195  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52862 Length: 1914
+04:09:48,845  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:09:48,847  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:54428 Length: 1912
+04:40:43,030  INFO UDPHandler:42 - UDPHandler Instantiated 
+04:40:43,033  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51160 Length: 957
+11:55:17,947  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,000  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52352 Length: 829
+11:55:18,018  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,038  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52353 Length: 821
+11:55:18,052  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,062  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52354 Length: 829
+11:55:18,131  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,152  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52355 Length: 829
+11:55:18,168  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,171  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52356 Length: 823
+11:55:18,219  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,245  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52357 Length: 819
+11:55:18,325  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,327  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52358 Length: 829
+11:55:18,419  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:18,428  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52359 Length: 819
+11:55:22,210  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:55:22,526  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52360 Length: 821
+11:55:22,919 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4000]: Packet acknowledge failed. user=guest, broker=VGE73H65L1LARL.vangent.local:7676(53739)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:712)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:22,995 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.121Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.113" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@INITIATING_GATEWAY_VANGENT_HIEOS"/></AuditMessage>
+11:55:22,920 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4000]: Packet acknowledge failed. user=guest, broker=VGE73H65L1LARL.vangent.local:7676(53739)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:712)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:23,033 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.018Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.015" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@REPOSITORY_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,204 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_SESSION(68)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,218 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.418Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.410" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@REGISTRY_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,220 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_DESTINATION(34)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createDestination(ProtocolHandler.java:1404)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createMessageProducer(ProtocolHandler.java:1243)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createMessageProducer(ProtocolHandler.java:1234)
+	at com.sun.messaging.jmq.jmsclient.MessageProducerImpl.<init>(MessageProducerImpl.java:113)
+	at com.sun.messaging.jmq.jmsclient.QueueSenderImpl.<init>(QueueSenderImpl.java:64)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.createSender(UnifiedSessionImpl.java:164)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.createProducer(UnifiedSessionImpl.java:516)
+	at com.sun.messaging.jms.ra.SessionAdapter.createProducer(SessionAdapter.java:234)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createDestination(JMSHandler.java:136)
+	at com.vangent.hieos.xutil.jms.JMSHandler.sendMessage(JMSHandler.java:149)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:71)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,276 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.052Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.047" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@RESPONDING_GATEWAY_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,462 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_SESSION(68)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,473 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.325Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.301" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@RESPONDING_GATEWAY_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,494 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_SESSION(68)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,546 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.168Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.165" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@DOCRECIPIENT_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,677 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_SESSION(68)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createSession(ProtocolHandler.java:3807)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.init(SessionImpl.java:439)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:383)
+	at com.sun.messaging.jmq.jmsclient.SessionImpl.<init>(SessionImpl.java:328)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.<init>(UnifiedSessionImpl.java:70)
+	at com.sun.messaging.jmq.jmsclient.XASessionImpl.<init>(XASessionImpl.java:99)
+	at com.sun.messaging.jmq.jmsclient.XAConnectionImpl.createSession(XAConnectionImpl.java:110)
+	at com.sun.messaging.jms.ra.ConnectionAdapter.createSession(ConnectionAdapter.java:383)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createJMSSession(JMSHandler.java:122)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:70)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,684 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:18.218Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:18.209" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@REGISTRY_VANGENT_HIEOS"/></AuditMessage>
+11:55:47,730 ERROR UDPHandler:74 - Error Audit Message Not Written to Queue: 
+com.sun.messaging.jms.JMSException: [C4001]: Write packet failed., packet type = CREATE_DESTINATION(34)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkPacketType(ConnectionImpl.java:654)
+	at com.sun.messaging.jmq.jmsclient.ConnectionImpl.checkReconnecting(ConnectionImpl.java:641)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.checkConnectionState(ProtocolHandler.java:766)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketNoAck(ProtocolHandler.java:360)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:617)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithAck(ProtocolHandler.java:575)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.writePacketWithReply(ProtocolHandler.java:430)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createDestination(ProtocolHandler.java:1404)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createMessageProducer(ProtocolHandler.java:1243)
+	at com.sun.messaging.jmq.jmsclient.ProtocolHandler.createMessageProducer(ProtocolHandler.java:1234)
+	at com.sun.messaging.jmq.jmsclient.MessageProducerImpl.<init>(MessageProducerImpl.java:113)
+	at com.sun.messaging.jmq.jmsclient.QueueSenderImpl.<init>(QueueSenderImpl.java:64)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.createSender(UnifiedSessionImpl.java:164)
+	at com.sun.messaging.jmq.jmsclient.UnifiedSessionImpl.createProducer(UnifiedSessionImpl.java:516)
+	at com.sun.messaging.jms.ra.SessionAdapter.createProducer(SessionAdapter.java:234)
+	at com.vangent.hieos.xutil.jms.JMSHandler.createDestination(JMSHandler.java:136)
+	at com.vangent.hieos.xutil.jms.JMSHandler.sendMessage(JMSHandler.java:149)
+	at com.vangent.hieos.services.atna.arr.serviceimpl.UDPHandler.run(UDPHandler.java:71)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+11:55:47,758 ERROR UDPHandler:75 - Audit Message XML: <85>1 2010-11-24T11:55:17.925Z VGE73H65L1LARL HIEOS - - - <AuditMessage><EventIdentification EventOutcomeIndicator="0" EventDateTime="2010-11-24T11:55:17.602" EventActionCode="E"><EventID codeSystemName="DCM" codeSystem="DCM" displayName="Application Activity" code="110100"/><EventTypeCode codeSystemName="DCM" codeSystem="DCM" displayName="Application Stop" code="110121"/></EventIdentification><ActiveParticipant NetworkAccessPointTypeCode="2" NetworkAccessPointID="10.10.10.10" UserIsRequestor="false" AlternativeUserID="2204@VGE73H65L1LARL" UserID="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><RoleIDCode codeSystemName="DCM" codeSystem="DCM" displayName="Application" code="110150"/></ActiveParticipant><AuditSourceIdentification AuditSourceID="10.10.10.10@INITIATING_GATEWAY_VANGENT_HIEOS"/></AuditMessage>
+11:56:23,789  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:23,791  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50352 Length: 830
+11:56:23,813  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:23,817  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50353 Length: 830
+11:56:23,897  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:23,903  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50354 Length: 830
+11:56:23,978  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:24,034  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50355 Length: 830
+11:56:27,494  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:27,498  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50361 Length: 824
+11:56:29,156  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:29,159  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50364 Length: 820
+11:56:29,205  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:29,210  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50365 Length: 820
+11:56:29,244  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:29,254  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50366 Length: 822
+11:56:29,299  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:56:29,313  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50367 Length: 822
+11:57:15,114  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:57:15,127  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52448 Length: 1914
+11:57:16,165  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:57:16,167  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52449 Length: 1914
+11:57:19,337  INFO UDPHandler:42 - UDPHandler Instantiated 
+11:57:19,354  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52450 Length: 1912
+12:32:12,644  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:32:12,649  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51851 Length: 1914
+12:32:12,700  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:32:12,708  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51852 Length: 1914
+12:32:17,426  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:32:17,429  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51857 Length: 1905
+12:32:17,520  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:32:17,571  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51859 Length: 1912
+12:39:36,887  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:39:36,890  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57125 Length: 1914
+12:39:36,930  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:39:36,952  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57126 Length: 1914
+12:39:37,087  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:39:37,091  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57127 Length: 1905
+12:39:37,242  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:39:37,287  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57128 Length: 1912
+12:56:46,235  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:56:46,239  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56102 Length: 1914
+12:56:46,278  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:56:46,284  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56103 Length: 1914
+12:56:46,423  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:56:46,427  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56104 Length: 1905
+12:56:46,476  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:56:46,480  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56105 Length: 1912
+12:59:43,394  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:59:43,398  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52515 Length: 1914
+12:59:43,446  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:59:43,452  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52516 Length: 1914
+12:59:43,544  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:59:43,547  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52517 Length: 1905
+12:59:43,606  INFO UDPHandler:42 - UDPHandler Instantiated 
+12:59:43,720  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52518 Length: 1912
+13:06:59,330  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:06:59,333  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50820 Length: 1914
+13:06:59,382  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:06:59,386  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50821 Length: 1914
+13:07:00,335  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:07:00,337  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62870 Length: 1905
+13:07:00,505  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:07:00,508  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62871 Length: 1912
+13:36:54,633  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,635  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62948 Length: 829
+13:36:54,669  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,671  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62949 Length: 821
+13:36:54,737  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,744  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62950 Length: 829
+13:36:54,781  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,819  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62951 Length: 829
+13:36:54,841  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,846  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62952 Length: 823
+13:36:54,909  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,918  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62953 Length: 819
+13:36:54,962  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:54,968  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62954 Length: 829
+13:36:55,003  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:55,022  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62955 Length: 819
+13:36:55,055  INFO UDPHandler:42 - UDPHandler Instantiated 
+13:36:55,071  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62956 Length: 821
+14:07:14,869  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:14,871  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55059 Length: 830
+14:07:14,893  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:14,899  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55060 Length: 830
+14:07:14,947  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:14,963  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55061 Length: 830
+14:07:14,982  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:14,988  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55062 Length: 830
+14:07:16,421  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:16,423  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55063 Length: 824
+14:07:24,052  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:24,062  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50884 Length: 820
+14:07:24,076  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:24,087  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50885 Length: 820
+14:07:24,128  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:24,136  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50886 Length: 822
+14:07:24,209  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:24,211  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50887 Length: 822
+14:07:58,896  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:58,900  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55762 Length: 1914
+14:07:59,392  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:07:59,395  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:55763 Length: 1914
+14:08:00,697  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:08:00,709  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57083 Length: 1905
+14:08:00,736  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:08:00,839  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57084 Length: 1912
+14:35:12,082  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,084  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65197 Length: 829
+14:35:12,113  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,209  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,211  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,212  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,210  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65198 Length: 821
+14:35:12,238  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,213  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65201 Length: 823
+14:35:12,212  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65200 Length: 829
+14:35:12,211  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65199 Length: 829
+14:35:12,278  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,243  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65202 Length: 819
+14:35:12,304  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65203 Length: 829
+14:35:12,320  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,342  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65204 Length: 819
+14:35:12,373  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:12,423  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65205 Length: 821
+14:35:24,868  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:24,891  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:24,898  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65206 Length: 830
+14:35:24,900  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65207 Length: 830
+14:35:24,945  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:24,952  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65208 Length: 830
+14:35:24,983  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:24,993  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65209 Length: 830
+14:35:27,380  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:27,382  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65210 Length: 824
+14:35:29,391  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:29,394  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65215 Length: 820
+14:35:29,472  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:29,484  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65216 Length: 820
+14:35:29,510  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:29,517  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65217 Length: 822
+14:35:29,551  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:35:29,556  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:65218 Length: 822
+14:38:51,615  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:38:51,670  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62629 Length: 1914
+14:38:51,913  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:38:51,933  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62630 Length: 1914
+14:38:53,155  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:38:53,165  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52493 Length: 1905
+14:38:53,230  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:38:53,248  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52494 Length: 1912
+14:41:05,295  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:41:05,297  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52472 Length: 1914
+14:41:05,340  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:41:05,343  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52473 Length: 1914
+14:41:05,996  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:41:05,998  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52474 Length: 1905
+14:41:06,091  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:41:06,097  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:52475 Length: 1912
+14:54:04,062  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:54:04,064  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51289 Length: 1914
+14:54:04,106  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:54:04,112  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:51290 Length: 1914
+14:54:04,348  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:54:04,351  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57400 Length: 1905
+14:54:04,833  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:54:04,875  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:57401 Length: 1912
+14:56:34,682  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:56:34,684  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63980 Length: 1914
+14:56:34,726  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:56:34,730  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63981 Length: 1914
+14:56:34,947  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:56:34,949  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63982 Length: 1905
+14:56:34,989  INFO UDPHandler:42 - UDPHandler Instantiated 
+14:56:35,000  INFO UDPHandler:65 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63983 Length: 1912
+15:27:15,528  INFO UDPServer:41 - Start UDP Server ....
+15:27:15,590  INFO UDPServer:45 - +++++ SOCKET [UDP] created (PORT = 3110) +++++
+15:27:15,590  INFO TCPServer:45 - Start TCP Server ....
+15:27:15,808  INFO TLSSocketSupport:131 - +++++ Key/Trust Stores :- C:/sun/sdk/domains/domain1/config/keystore.jks and C:/sun/sdk/domains/domain1/config/cacerts.jks
+15:27:17,727  INFO TLSSocketSupport:221 - Enabling required cipher suites...
+15:27:17,727  INFO TLSSocketSupport:148 - +++++ TLS SOCKET CREATED (port = 3100) +++++
+15:27:17,727  INFO TCPServer:52 - +++++ SOCKET [TLS] created (PORT = 3100) +++++
+15:27:17,758  INFO TCPListener:45 - Waiting For TCP Messages on Port: 3100
+15:27:17,758  INFO UDPListener:46 - Waiting For UDP Messages on Port: 3110
+15:54:08,610  INFO TCPHandler:42 - TCPHandler Instantiated 
+15:54:08,688  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+15:54:08,953  INFO TCPHandler:72 - TCP Message From Client: 
+15:54:08,953  INFO TCPHandler:73 - 961 <85>1 2010-12-14T15:54:08Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2010-12-14T15:54:07" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+15:59:44,020  INFO TCPHandler:42 - TCPHandler Instantiated 
+15:59:44,024  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+15:59:44,085  INFO TCPHandler:72 - TCP Message From Client: 
+15:59:44,086  INFO TCPHandler:73 - 961 <85>1 2010-12-14T15:59:44Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2010-12-14T15:59:43" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+12:53:14,886  INFO UDPServer:41 - Start UDP Server ....
+12:53:14,944  INFO UDPServer:45 - +++++ SOCKET [UDP] created (PORT = 3110) +++++
+12:53:14,948  INFO TCPServer:45 - Start TCP Server ....
+12:53:14,994  INFO TLSSocketSupport:131 - +++++ Key/Trust Stores :- C:/sun/sdk/domains/domain1/config/keystore.jks and C:/sun/sdk/domains/domain1/config/cacerts.jks
+12:53:18,445  INFO TLSSocketSupport:221 - Enabling required cipher suites...
+12:53:18,447  INFO TLSSocketSupport:148 - +++++ TLS SOCKET CREATED (port = 3100) +++++
+12:53:18,447  INFO TCPServer:52 - +++++ SOCKET [TLS] created (PORT = 3100) +++++
+12:53:18,453  INFO UDPListener:46 - Waiting For UDP Messages on Port: 3110
+12:53:18,455  INFO TCPListener:45 - Waiting For TCP Messages on Port: 3100
+12:55:24,926  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:24,949  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62567 Length: 830
+12:55:24,957  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:24,960  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62568 Length: 830
+12:55:24,978  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:24,982  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62569 Length: 830
+12:55:25,019  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:25,023  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62570 Length: 830
+12:55:26,106  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:26,114  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62572 Length: 824
+12:55:27,198  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:27,209  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62573 Length: 820
+12:55:27,227  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:27,237  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62574 Length: 820
+12:55:27,274  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:27,279  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62575 Length: 822
+12:55:27,314  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:55:27,317  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62576 Length: 822
+12:57:22,348  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,350  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62611 Length: 829
+12:57:22,410  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,411  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62612 Length: 821
+12:57:22,467  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,469  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62613 Length: 829
+12:57:22,553  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,554  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62614 Length: 829
+12:57:22,614  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,617  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62615 Length: 823
+12:57:22,671  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,673  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62616 Length: 819
+12:57:22,754  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,756  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62617 Length: 829
+12:57:22,811  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,815  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62618 Length: 819
+12:57:22,863  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:22,865  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62619 Length: 821
+12:57:39,917  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:39,919  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62624 Length: 830
+12:57:39,951  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:39,952  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62625 Length: 830
+12:57:39,985  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:39,988  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62626 Length: 830
+12:57:40,021  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:40,022  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62627 Length: 830
+12:57:40,917  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:40,919  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62628 Length: 824
+12:57:41,508  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:41,511  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62629 Length: 820
+12:57:41,533  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:41,534  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62630 Length: 820
+12:57:41,639  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:41,641  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62631 Length: 822
+12:57:41,747  INFO UDPHandler:38 - UDPHandler Instantiated 
+12:57:41,749  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:62632 Length: 822
+13:03:22,556  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:22,557  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50096 Length: 829
+13:03:22,592  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:22,595  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50097 Length: 821
+13:03:22,703  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:22,704  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50098 Length: 829
+13:03:22,752  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:22,754  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50099 Length: 829
+13:03:22,819  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:22,820  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50100 Length: 823
+13:03:22,919  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:23,278  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50101 Length: 819
+13:03:23,279  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:23,324  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50102 Length: 829
+13:03:23,323  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:23,396  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50103 Length: 819
+13:03:23,396  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:23,401  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50104 Length: 821
+13:03:37,939  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:37,943  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50105 Length: 830
+13:03:37,963  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:37,964  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50106 Length: 830
+13:03:37,996  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:37,998  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50107 Length: 830
+13:03:38,029  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:38,031  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50108 Length: 830
+13:03:38,846  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:38,849  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50109 Length: 824
+13:03:39,571  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:39,573  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50110 Length: 820
+13:03:39,598  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:39,603  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50111 Length: 820
+13:03:39,626  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:39,628  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50112 Length: 822
+13:03:39,646  INFO UDPHandler:38 - UDPHandler Instantiated 
+13:03:39,651  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50113 Length: 822
+16:19:03,150  INFO UDPServer:41 - Start UDP Server ....
+16:19:03,353  INFO UDPServer:45 - +++++ SOCKET [UDP] created (PORT = 3110) +++++
+16:19:03,384  INFO TCPServer:45 - Start TCP Server ....
+16:19:03,446  INFO TLSSocketSupport:131 - +++++ Key/Trust Stores :- C:/sun/sdk/domains/domain1/config/keystore.jks and C:/sun/sdk/domains/domain1/config/cacerts.jks
+16:19:05,615  INFO TLSSocketSupport:221 - Enabling required cipher suites...
+16:19:05,615  INFO TLSSocketSupport:148 - +++++ TLS SOCKET CREATED (port = 3100) +++++
+16:19:05,615  INFO TCPServer:52 - +++++ SOCKET [TLS] created (PORT = 3100) +++++
+16:19:05,630  INFO UDPListener:46 - Waiting For UDP Messages on Port: 3110
+16:19:05,646  INFO TCPListener:45 - Waiting For TCP Messages on Port: 3100
+21:24:18,931  INFO UDPHandler:38 - UDPHandler Instantiated 
+21:24:19,318  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:61530 Length: 294
+22:30:29,739  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:30:29,763  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58226 Length: 284
+22:42:32,097  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,100  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64701 Length: 343
+22:42:32,199  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,210  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64702 Length: 343
+22:42:32,556  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,563  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,603  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64704 Length: 343
+22:42:32,604  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64703 Length: 343
+22:42:32,625  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,652  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64705 Length: 343
+22:42:32,782  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:32,788  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64706 Length: 342
+22:42:33,346  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:33,349  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64707 Length: 543
+22:42:33,509  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:33,562  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64708 Length: 343
+22:42:33,600  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:33,602  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64709 Length: 343
+22:42:33,854  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:33,857  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64711 Length: 692
+22:42:33,980  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:33,984  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64713 Length: 336
+22:42:34,239  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:34,247  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64715 Length: 343
+22:42:34,463  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:34,465  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64717 Length: 343
+22:42:34,622  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:34,627  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64718 Length: 342
+22:42:34,798  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:34,799  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64719 Length: 342
+22:42:34,895  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:34,896  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64720 Length: 543
+22:42:35,132  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:35,136  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64721 Length: 342
+22:42:35,363  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:35,365  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64722 Length: 342
+22:42:35,654  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:35,656  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64723 Length: 342
+22:42:35,763  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:35,766  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64724 Length: 543
+22:42:35,925  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:35,927  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64725 Length: 342
+22:42:36,082  INFO UDPHandler:38 - UDPHandler Instantiated 
+22:42:36,094  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:64726 Length: 342
+22:59:04,615  INFO TCPHandler:42 - TCPHandler Instantiated 
+22:59:04,624  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+22:59:05,017  INFO TCPHandler:72 - TCP Message From Client: 
+22:59:05,019  INFO TCPHandler:73 - 961 <85>1 2011-01-09T22:59:04Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2011-01-09T22:59:03" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+00:20:45,324  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:45,400  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50154 Length: 829
+00:20:45,534  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:45,713  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50155 Length: 821
+00:20:45,725  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:45,945  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50156 Length: 829
+00:20:45,945  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:45,984  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50157 Length: 829
+00:20:46,030  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:46,066  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50158 Length: 823
+00:20:46,069  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:48,808  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:48,832  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:48,838  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:20:48,810  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50159 Length: 819
+00:20:48,844  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50162 Length: 821
+00:20:48,843  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50161 Length: 819
+00:20:48,843  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:50160 Length: 829
+00:25:59,852  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:25:59,864  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58737 Length: 831
+00:25:59,949  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:25:59,954  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58738 Length: 831
+00:26:00,000  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:00,002  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58739 Length: 831
+00:26:00,033  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:00,035  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58740 Length: 831
+00:26:01,613  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:01,616  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:58741 Length: 825
+00:26:03,196  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:03,198  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60992 Length: 821
+00:26:03,248  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:03,252  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60993 Length: 821
+00:26:03,291  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:03,299  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60994 Length: 823
+00:26:03,353  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:26:03,358  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:60995 Length: 823
+00:39:19,913  INFO TCPHandler:42 - TCPHandler Instantiated 
+00:39:19,915  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+00:39:19,937  INFO TCPHandler:72 - TCP Message From Client: 
+00:39:19,939  INFO TCPHandler:73 - 961 <85>1 2011-01-10T00:39:19Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2011-01-10T00:39:17" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+00:49:25,043  INFO UDPHandler:38 - UDPHandler Instantiated 
+00:49:25,044  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:54416 Length: 957
+02:03:09,316  INFO UDPHandler:38 - UDPHandler Instantiated 
+02:03:09,393  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:63851 Length: 1917
+02:03:26,639  INFO UDPHandler:38 - UDPHandler Instantiated 
+02:03:26,642  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:49198 Length: 1908
+03:27:41,404  INFO TCPHandler:42 - TCPHandler Instantiated 
+03:27:41,406  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+03:27:41,473  INFO TCPHandler:72 - TCP Message From Client: 
+03:27:41,473  INFO TCPHandler:73 - 961 <85>1 2011-01-10T03:27:41Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2011-01-10T03:27:40" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+03:46:45,954  INFO TCPHandler:42 - TCPHandler Instantiated 
+03:46:45,955  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+03:46:46,001  INFO TCPHandler:72 - TCP Message From Client: 
+03:46:46,002  INFO TCPHandler:73 - 961 <85>1 2011-01-10T03:46:45Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2011-01-10T03:46:45" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+03:49:46,032  INFO TCPHandler:42 - TCPHandler Instantiated 
+03:49:46,035  INFO TCPHandler:62 - Processing TCP Message from 127.0.0.1
+03:49:46,129  INFO TCPHandler:72 - TCP Message From Client: 
+03:49:46,130  INFO TCPHandler:73 - 961 <85>1 2011-01-10T03:49:46Z VGE73H65L1LARL Spartacus 777 PDQIN - ﻿<AuditMessage> <EventIdentification EventActionCode="E" EventDateTime="2011-01-10T03:49:45" EventOutcomeIndicator="0">  <EventID code="110100" codeSystemName="DCM" displayName="Application Activity" />  <EventTypeCode code="110120" codeSystemName="DCM" displayName="Application Start" /> </EventIdentification> <ActiveParticipant UserID="MESA Application" AlternativeUserID="MESA AE Title" UserIsRequestor="false">  <RoleIDCode code="110150" codeSystemName="DCM" displayName="Application"/> </ActiveParticipant> <ActiveParticipant UserID="smm" UserName="Steve Moore" UserIsRequestor="true">  <RoleIDCode code="110151" codeSystemName="DCM" displayName="Application Launcher"/> </ActiveParticipant> <AuditSourceIdentification AuditEnterpriseSiteID="Hospital" AuditSourceID="ReadingRoom">  <AuditSourceTypeCode code="1"/> </AuditSourceIdentification></AuditMessage>
+04:15:29,514  INFO UDPHandler:38 - UDPHandler Instantiated 
+04:15:29,517  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56806 Length: 1917
+04:15:29,756  INFO UDPHandler:38 - UDPHandler Instantiated 
+04:15:29,765  INFO UDPHandler:61 - UDP MESSAGE RECEIVED FROM CLIENT: 127.0.0.1:56807 Length: 1908
