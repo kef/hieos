@@ -14,16 +14,18 @@ package com.vangent.hieos.xutil.atna;
 
 import java.io.IOException;
 import org.apache.log4j.Logger;
-import java.net.DatagramSocket;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import com.vangent.hieos.xutil.socket.UDPSocketSupport;
+import com.vangent.hieos.xutil.socket.TLSSocketSupport;
+
 /**
- * ATNA Syslog Messages over UDP (RFC5426) with The Syslog Protocol (RFC5424)
+ * Supports ATNA Syslog Messages over:
+ * UDP (RFC5426) with the Syslog Protocol (RFC5424) or
+ * TLS (RFC5425) with the Syslog Protocol (RFC5424)
  *
  * @author Adeola O. / Bernie Thuman
  */
@@ -32,17 +34,18 @@ public class SysLogAdapter {
     private final static Logger logger = Logger.getLogger(SysLogAdapter.class);
     private final static String APP_NAME = "HIEOS";
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    private InetAddress syslogHostAddress = null;
-    private String localHostName = null;
-    private DatagramSocket socket = null;
+    private String syslogHost = null;
     private int syslogPort = 514;
+    private String protocol = null;
+    private UDPSocketSupport udpSocket;
+    private TLSSocketSupport tlsSocket;
 
     /**
-     * Initialize the SysLogAdaptor with the target host, port and protocl (now only "udp").
+     * Initialize the SysLogAdaptor with the target host, port and protocol.
      *
      * @param syslogHost Target syslog host.
      * @param syslogPort Target syslog port.
-     * @param syslogProtocol Syslog protocol to use (now only "udp").
+     * @param syslogProtocol Syslog protocol to use.
      */
     public SysLogAdapter(String syslogHost, int syslogPort, String syslogProtocol) {
         if (logger.isTraceEnabled()) {
@@ -52,84 +55,81 @@ public class SysLogAdapter {
     }
 
     /**
-     * Initialize the SysLogAdaptor with the target host, port and protocl (now only "udp").
+     * Initialize the SysLogAdaptor with the target host, port and protocol.
      *
      * @param syslogHost Target syslog host.
      * @param syslogPort Target syslog port.
-     * @param syslogProtocol Syslog protocol to use (now only "udp").
+     * @param syslogProtocol Syslog protocol to use.
      */
     private void initialize(String syslogHost, int syslogPort, String syslogProtocol) {
         if (logger.isTraceEnabled()) {
             logger.trace("Initializing ATNA/syslog using protocol=" + syslogProtocol);
         }
+        this.protocol = syslogProtocol;
         this.syslogPort = syslogPort;
+        this.syslogHost = syslogHost;
 
-        // Initialize the Syslog message length (not used right now).
-        /*
-        int syslogMaxLength = 1024;
-        try {
-        syslogMaxLength = new Integer(XConfig.getInstance().getHomeCommunityProperty("ATNAsyslogMaxLength")).intValue();
-        } catch (Exception ex) {
-        logger.error("Error retrieving SysLogMaxlength from Config file: " + ex);
-        }*/
+        // Instantiate either a UDP or TLS Socket
+        if (this.protocol.equalsIgnoreCase("UDP")) {
+            udpSocket = new UDPSocketSupport(syslogHost, syslogPort);
 
-        // Get the address for the target syslog host:
-        try {
-            this.syslogHostAddress = InetAddress.getByName(syslogHost);
-        } catch (UnknownHostException e) {
-            logger.error("Could not find " + syslogHost + ". All ATNA logging will fail!", e);
-        }
-
-        // Get the host name for the local host:
-        try {
-            this.localHostName = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            logger.error("Could not find localhost name", e);
-            this.localHostName = "localhost";
-        }
-
-        // Create new datagram socket:
-        try {
-            this.socket = new DatagramSocket();
-        } catch (SocketException e) {
-            e.printStackTrace();
-            logger.error("Could not instantiate DatagramSocket. All ATNA logging will fail!", e);
+        } else {
+            tlsSocket = new TLSSocketSupport(syslogHost, syslogPort);
         }
     }
 
     /**
-     * Write the message to the syslog.
+     * Write the message using eith UDP or TLS.
      *
      * @param msg The message to write.
      */
     public void write(String msg) {
-        if (this.socket != null) {
-            java.util.Date date = new java.util.Date();
-            String currentDateTime = dateFormat.format(date);
+        // Format message in RFC5424 syslog format
+        String syslogMsg = buildSysLogMessage(msg);
 
-            // See http://www.faqs.org/rfcs/rfc5424.html for format:
-            // PRI = <85> (10 * 8 + 5)
-            // VERSION = 1
-            // TIMESTAMP
-            // HOSTNAME
-            // APP-NAME
-            // PROCID
-            // MSGID
-            String syslogMsg = "<85>1 " + currentDateTime + " " + this.localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
-            if (logger.isDebugEnabled()) {
-                logger.debug("ATNA: Syslog msg=[" + syslogMsg + "]");
-            }
-            byte[] bytes = syslogMsg.getBytes();
-            // syslog packets must be less than 1024 bytes (Ignore for now).
-            int bytesLength = bytes.length;
-            DatagramPacket packet = new DatagramPacket(bytes, bytesLength,
-                    this.syslogHostAddress, this.syslogPort);
+        if (this.protocol.equalsIgnoreCase("UDP")) {
+            // UDP Protocol
+            udpSocket.write(syslogMsg);
+        } else {
+            // TLS Protocol
             try {
-                this.socket.send(packet);
-                this.socket.close();
-            } catch (IOException e) {
-                logger.error("Unable to send ATNA message.", e);
+                tlsSocket.sendSecureMessage(syslogHost, syslogPort, syslogMsg);
+            } catch (IOException ex) {
+                logger.error("TLS Connection could not be established with Audit Repository" +
+                        ", NO TLS ATNA logs will be captured: " + ex);
             }
         }
+    }
+
+    /**
+     * Creates the Syslog (RFC 5424) message.
+     *
+     * @param msg The message to write.
+     * @param String - the syslog message
+     *
+     */
+    private String buildSysLogMessage(String msg) {
+        java.util.Date date = new java.util.Date();
+        String currentDateTime = dateFormat.format(date);
+
+        // Get the host name for the local host:
+        String localHostName;
+        try {
+            localHostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Could not find localhost name", e);
+            localHostName = "localhost";
+        }
+
+        // See http://www.faqs.org/rfcs/rfc5424.html for format:
+        // PRI = <85> (10 * 8 + 5)
+        // VERSION = 1
+        // TIMESTAMP
+        // HOSTNAME
+        // APP-NAME
+        // PROCID
+        // MSGID
+        String syslogMsg = "<85>1 " + currentDateTime + " " + localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
+        return syslogMsg;
     }
 }
