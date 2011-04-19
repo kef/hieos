@@ -9,6 +9,7 @@
 		<servlet-name>PDSRemoteService</servlet-name>
 		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/PDSRemoteService</url-pattern>
 	</servlet-mapping>
+
 	<servlet>
 		<servlet-name>DocumentRemoteService</servlet-name>
 		<servlet-class>com.vangent.hieos.DocViewer.server.services.rpc.document.DocumentRemoteServiceImpl</servlet-class>
@@ -17,6 +18,7 @@
 		<servlet-name>DocumentRemoteService</servlet-name>
 		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/DocumentRemoteService</url-pattern>
 	</servlet-mapping>
+
 	<servlet>
 		<servlet-name>DocViewServlet</servlet-name>
 		<servlet-class>com.vangent.hieos.DocViewer.server.servlets.docview.DocViewServlet</servlet-class>
@@ -24,9 +26,8 @@
 	<servlet-mapping>
 		<servlet-name>DocViewServlet</servlet-name>
 		<url-pattern>/docview</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping>	
 
-	
 	<servlet>
 		<servlet-name>ConfigRemoteService</servlet-name>
 		<servlet-class>com.vangent.hieos.DocViewer.server.services.rpc.config.ConfigRemoteServiceImpl</servlet-class>
@@ -34,6 +35,15 @@
 	<servlet-mapping>
 		<servlet-name>ConfigRemoteService</servlet-name>
 		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/ConfigRemoteService</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>AuthenticationRemoteService</servlet-name>
+		<servlet-class>com.vangent.hieos.DocViewer.server.services.rpc.authentication.AuthenticationRemoteServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AuthenticationRemoteService</servlet-name>
+		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/AuthenticationRemoteService</url-pattern>
 	</servlet-mapping>
 	
 	<!-- Default page to serve -->
