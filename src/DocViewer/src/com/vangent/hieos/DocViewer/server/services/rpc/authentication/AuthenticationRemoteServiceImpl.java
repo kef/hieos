@@ -20,6 +20,11 @@ import com.vangent.hieos.DocViewer.server.services.rpc.authentication.Authentica
 import com.vangent.hieos.authutil.framework.AuthenticationService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+/**
+ * 
+ * @author Anand Sastry
+ *
+ */
 public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		implements AuthenticationRemoteService {
 
@@ -29,18 +34,24 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	private static final long serialVersionUID = -7923244304825432784L;
 
 	@Override
+	/**
+	 * @param guiCreds
+	 * @return AuthenticationContext
+	 */
 	public AuthenticationContext authenticateUser(Credentials guiCreds) {
-		System.out.println("SERVER SIDE - ABOUT TO CALL =======");
 		com.vangent.hieos.authutil.model.AuthenticationContext authCtxt = null;
 		AuthenticationService authService = new AuthenticationService();
 		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(
 				guiCreds.getUserId(), guiCreds.getPassword());
 		authCtxt = authService.authenticateUser(authCredentials);
-		System.out.println("SERVER SIDE =========" + authCtxt);
-
 		return getAuthenticationContext(authCtxt);
 	}
 
+	/**
+	 * 
+	 * @param authCtxt
+	 * @return
+	 */
 	private AuthenticationContext getAuthenticationContext(
 			com.vangent.hieos.authutil.model.AuthenticationContext authCtxt) {
 		return AuthenticationContextTransform.doWork(authCtxt);
