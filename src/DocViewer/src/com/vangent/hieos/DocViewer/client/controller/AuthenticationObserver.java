@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.DocViewer.client.controller;
 
-import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.entrypoint.DocViewer;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
