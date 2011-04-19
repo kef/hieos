@@ -116,8 +116,9 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		ssnField.setType(ListGridFieldType.TEXT);
 		
 		// Match Weight:
-		final ListGridField matchConfidencePercentageField = new ListGridField(PatientRecord.MATCH_CONFIDENCE_FIELD, "Confidence", 50);
+		final ListGridField matchConfidencePercentageField = new ListGridField(PatientRecord.MATCH_CONFIDENCE_FIELD, "Confidence", 65);
 		matchConfidencePercentageField.setType(ListGridFieldType.INTEGER);
+		matchConfidencePercentageField.setAlign(Alignment.CENTER);
 		matchConfidencePercentageField.setCellFormatter(new CellFormatter() {
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
