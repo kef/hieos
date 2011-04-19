@@ -43,9 +43,12 @@ public class PatientSearch extends Canvas implements ClickHandler {
 	private final DateTimeItem dateOfBirthField = new DateTimeItem("DOB",
 			"Date of birth");
 	private final RadioGroupItem genderGroupItem = new RadioGroupItem();
-	private final TextItem ssnLast4Field = new TextItem("ssn", "SSN(last 4)");
-	private final TextItem hrnField = new TextItem("hrn", "HRN");
+	//private final TextItem ssnLast4Field = new TextItem("ssn", "SSN(last 4)");
+	//private final TextItem hrnField = new TextItem("hrn", "HRN");
 
+	/**
+	 * 
+	 */
 	public PatientSearch(DocViewerController mainController) {
 		this.controller = mainController;
 
@@ -70,6 +73,7 @@ public class PatientSearch extends Canvas implements ClickHandler {
 		genderGroupItem.setDefaultValue("unspecified");
 		genderGroupItem.setRequired(false);
 
+		/*
 		// HRN:
 		hrnField.setRequired(false);
 
@@ -77,10 +81,14 @@ public class PatientSearch extends Canvas implements ClickHandler {
 		ssnLast4Field.setLength(4);
 		ssnLast4Field.setWidth(40);
 		ssnLast4Field.setRequired(false);
+		*/
 
 		// Search fields:
 		searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
-				dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
+				dateOfBirthField, genderGroupItem });
+		
+		//searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
+		//		dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
 
 		final IButton btnFind = new IButton("Find");
 		btnFind.setIcon("find.png");
@@ -139,10 +147,10 @@ public class PatientSearch extends Canvas implements ClickHandler {
 		criteria.setGenderCode(genderCode);
 
 		// HRN:
-		criteria.setHealthRecordNumber(hrnField.getValueAsString());
+		//criteria.setHealthRecordNumber(hrnField.getValueAsString());
 
 		// SSN(last4):
-		criteria.setSsnLast4(ssnLast4Field.getValueAsString());
+		//criteria.setSsnLast4(ssnLast4Field.getValueAsString());
 		return criteria;
 	}
 	
