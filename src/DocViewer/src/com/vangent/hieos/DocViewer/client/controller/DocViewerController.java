@@ -17,12 +17,15 @@ import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.services.proxy.AuthenticationService;
 import com.vangent.hieos.DocViewer.client.services.proxy.ConfigRetrieveService;
 import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
 import com.vangent.hieos.DocViewer.client.services.proxy.PatientQueryService;
@@ -40,6 +43,7 @@ import com.vangent.hieos.DocViewer.client.view.patient.PatientViewContainer;
  */
 public class DocViewerController {
 	private Canvas mainCanvas;
+	private AuthenticationContext authContext;
 	private PatientViewContainer patientViewContainer;
 	private TabSet patientTabs = null;
 	private Config config = null;
@@ -49,6 +53,23 @@ public class DocViewerController {
 	 */
 	public DocViewerController() {
 		
+	}
+	
+	/**
+	 * 
+	 * @param authObserver
+	 * @param userid
+	 * @param password
+	 */
+	public void authenticateUser(AuthenticationObserver authObserver, String userid, String password)
+	{
+		Credentials creds = new Credentials();
+		creds.setPassword(password);
+		creds.setUserId(userid);
+		TimeOutHelper progressHelper = new TimeOutHelper();
+		AuthenticationService service = new AuthenticationService(creds,
+				authObserver, progressHelper);
+		service.doWork();
 	}
 	
 	/**
@@ -77,6 +98,22 @@ public class DocViewerController {
 	 */
 	public Config getConfig() {
 		return this.config;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public AuthenticationContext getAuthContext() {
+		return authContext;
+	}
+
+	/**
+	 * 
+	 * @param authContext
+	 */
+	public void setAuthContext(AuthenticationContext authContext) {
+		this.authContext = authContext;
 	}
 
 	/**

@@ -135,8 +135,8 @@ public class DocumentViewContainer extends Canvas {
 	private void initializeC32Templates()
 	{
 		// FIXME: do not hardwire here.
-		c32TemplateDisplayNames = new String[5];
-		c32TemplateFileNames = new String[5];
+		c32TemplateDisplayNames = new String[6];
+		c32TemplateFileNames = new String[6];
 		c32TemplateDisplayNames[0] = new String("IHS Template");
 		c32TemplateFileNames[0] = "raa/CCD.xsl";
 		c32TemplateDisplayNames[1] = new String("Basic Template");
