@@ -43,13 +43,14 @@ public class PatientBanner extends Canvas {
 
 		name = new Label("Patient Name");
 		dob = new Label("DOB");
-		dob.setWidth(150);
+		dob.setWidth(100);
 
 		gender = new Label("Gender");
+		gender.setWidth(90);
 
 		euid = new Label("EUID");
 		ssn = new Label("SSN");
-		ssn.setWidth(115);
+		ssn.setWidth(110);
 
 		topBar.addMember(name);
 		topBar.addSeparator();
@@ -78,7 +79,7 @@ public class PatientBanner extends Canvas {
 			name.setContents("<b>" + patient.getEuid() + "</b>");
 		}
 		dob.setContents("<i>Born:</i>&nbsp;" + "<b>"
-				+ patientRecord.getFormattedDateOfBirth() + "&nbsp;(ddy)</b>");
+				+ patientRecord.getFormattedDateOfBirth() + "</b>");
 		gender.setContents("<i>Gender:</i>&nbsp;" + "<b>"
 				+ patientRecord.getFormattedGender() + "</b>");
 		ssn.setContents("<i>SSN:</i>&nbsp;" + "<b>"
