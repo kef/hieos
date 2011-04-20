@@ -13,6 +13,7 @@
 package com.vangent.hieos.DocViewer.client.view.document;
 
 import java.util.HashMap;
+import java.util.List;
 
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import com.smartgwt.client.widgets.layout.VStack;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
@@ -164,21 +166,18 @@ public class DocumentViewContainer extends Canvas {
 	 */
 	private void initializeDocumentTemplates()
 	{
-		// FIXME: do not hardwire here.
-		documentTemplateDisplayNames = new String[6];
-		documentTemplateFileNames = new String[6];
-		documentTemplateDisplayNames[0] = new String("IHS Template");
-		documentTemplateFileNames[0] = "raa/CCD.xsl";
-		documentTemplateDisplayNames[1] = new String("Basic Template");
-		documentTemplateFileNames[1] = "basic/CCD.xsl";
-		documentTemplateDisplayNames[2] = "DOD Template";
-		documentTemplateFileNames[2] = "dod/CCD.xsl";
-		documentTemplateDisplayNames[3] = "VA Template";
-		documentTemplateFileNames[3] = "va/CCD.xsl";
-		documentTemplateDisplayNames[4] = "MEDVA Template";
-		documentTemplateFileNames[4] = "medva/CCD_MAIN.xsl";
-		documentTemplateDisplayNames[5] = "CCR Template";
-		documentTemplateFileNames[5] = "ccr/CCR.xsl";
+		// Probably not best way to integrate, but will do for now..
+		Config config = controller.getConfig();
+		List<DocumentTemplateConfig> documentTemplateConfigs = config.getDocumentTemplateConfigs();
+		documentTemplateDisplayNames = new String[documentTemplateConfigs.size()];
+		documentTemplateFileNames = new String[documentTemplateConfigs.size()];
+		int i = 0;
+		for (DocumentTemplateConfig documentTemplateConfig : documentTemplateConfigs)
+		{
+			documentTemplateDisplayNames[i] = documentTemplateConfig.getDisplayName();
+			documentTemplateFileNames[i] = documentTemplateConfig.getFileName();
+			++i;
+		}
 		documentTemplateFileName = documentTemplateFileNames[0];
 	}
 	
