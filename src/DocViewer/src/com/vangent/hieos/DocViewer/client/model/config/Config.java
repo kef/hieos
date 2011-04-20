@@ -12,7 +12,9 @@
  */
 package com.vangent.hieos.DocViewer.client.model.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -23,6 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class Config implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
+	private List<DocumentTemplateConfig> documentTemplateConfigs = new ArrayList<DocumentTemplateConfig>();
 
 	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static String VAL_SEARCH_MODE_HIE = "hie";
@@ -33,7 +36,7 @@ public class Config implements IsSerializable {
 	public static String KEY_LOGO_HEIGHT = "LogoHeight";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
-
+	
 	/**
 	 * 
 	 */
@@ -87,5 +90,30 @@ public class Config implements IsSerializable {
 	 */
 	public void put(String key, String value) {
 		props.put(key, value);
+	}
+
+	/**
+	 * 
+	 * @param documentTemplateConfigs
+	 */
+	public void setDocumentTemplateConfigs(List<DocumentTemplateConfig> documentTemplateConfigs) {
+		this.documentTemplateConfigs = documentTemplateConfigs;
+	}
+	
+	/**
+	 * 
+	 * @param documentTemplateConfig
+	 */
+	public void addDocumentTemplateConfig(DocumentTemplateConfig documentTemplateConfig)
+	{
+		this.documentTemplateConfigs.add(documentTemplateConfig);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public List<DocumentTemplateConfig> getDocumentTemplateConfigs() {
+		return documentTemplateConfigs;
 	}
 }
