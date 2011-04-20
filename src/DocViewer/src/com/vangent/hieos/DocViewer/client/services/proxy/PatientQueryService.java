@@ -34,10 +34,11 @@ public class PatientQueryService extends ProxyService {
 	 * 
 	 * @param criteria
 	 * @param observer
+	 * @param timeOutHelper
 	 */
 	public PatientQueryService(PatientSearchCriteria criteria,
-			Observer observer, TimeOutHelper progressHelper) {
-		super(observer, progressHelper);
+			Observer observer, TimeOutHelper timeOutHelper) {
+		super(observer, timeOutHelper);
 		this.criteria = criteria;
 	}
 

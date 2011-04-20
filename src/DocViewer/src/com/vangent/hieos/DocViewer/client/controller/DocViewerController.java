@@ -68,9 +68,10 @@ public class DocViewerController {
 		Credentials creds = new Credentials();
 		creds.setPassword(password);
 		creds.setUserId(userid);
-		TimeOutHelper progressHelper = new TimeOutHelper();
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		timeOutHelper.setPrompt("Authenticating ...");
 		AuthenticationService service = new AuthenticationService(creds,
-				authObserver, progressHelper);
+				authObserver, timeOutHelper);
 		service.doWork();
 	}
 
@@ -151,9 +152,9 @@ public class DocViewerController {
 	 */
 	public void findPatients(PatientSearchCriteria criteria,
 			final PatientListObserver observer) {
-		TimeOutHelper progressHelper = new TimeOutHelper();
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		PatientQueryService service = new PatientQueryService(criteria,
-				observer, progressHelper);
+				observer, timeOutHelper);
 		service.doWork();
 	}
 
@@ -179,9 +180,9 @@ public class DocViewerController {
 	private void findDocuments(final DocumentSearchCriteria criteria,
 			final DocumentListObserver observer) {
 
-		TimeOutHelper progressHelper = new TimeOutHelper();
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		DocumentQueryService service = new DocumentQueryService(criteria,
-				observer, progressHelper);
+				observer, timeOutHelper);
 		service.doWork();
 	}
 

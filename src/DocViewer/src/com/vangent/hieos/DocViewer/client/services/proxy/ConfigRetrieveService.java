@@ -24,10 +24,10 @@ public class ConfigRetrieveService extends ProxyService {
 	/**
 	 * 
 	 * @param observer
-	 * @param progressHelper
+	 * @param timeOutHelper
 	 */
-	public ConfigRetrieveService(Observer observer, TimeOutHelper progressHelper) {
-		super(observer, progressHelper);
+	public ConfigRetrieveService(Observer observer, TimeOutHelper timeOutHelper) {
+		super(observer, timeOutHelper);
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class ConfigRetrieveService extends ProxyService {
 	 */
 	public void doWork() {
 
-		this.getProgressHelper().startTimer();
+		this.getTimeOutHelper().startTimer();
 		// RPC:
 		ConfigRemoteService.Util.getInstance().getConfig(
 				new AsyncCallback<Config>() {

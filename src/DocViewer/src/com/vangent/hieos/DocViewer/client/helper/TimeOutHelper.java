@@ -22,11 +22,11 @@ import com.smartgwt.client.util.SC;
  */
 public class TimeOutHelper {
 	static final int TIMEOUT_INTERVAL_MSECS = 15000; // 15 sec
-	static final String PROMPT = "<img src=\"images/loadingSmall.gif\"\"/><span style=\"padding-left:10px;font-size:10pt;\">Searching ...</span>";
-
+	static final String DEFAULT_PROMPT = "Searching ....";
 	private Timer timer = null;
 	private int timeOutInterval = TIMEOUT_INTERVAL_MSECS;
 	private boolean abortFlag = false;
+	private String prompt = DEFAULT_PROMPT;
 
 	/**
 	 * 
@@ -56,7 +56,7 @@ public class TimeOutHelper {
 	 * 
 	 */
 	public void startTimer() {
-		SC.showPrompt(PROMPT);
+		SC.showPrompt(this.getFormattedPrompt());
 		if (timer != null) {
 			// Should never happen??
 			SC.warn("Command is already running!");
@@ -66,7 +66,7 @@ public class TimeOutHelper {
 			public void run() {
 				abortFlag = true; // TIMEOUT.
 				SC.clearPrompt();
-				SC.warn("Search request timed out!");
+				SC.warn("Request timed out!");
 				cancel();  // Cancel the timer.
 			}
 		};
@@ -84,5 +84,31 @@ public class TimeOutHelper {
 			timer.cancel();
 			timer = null;
 		}
+	}
+
+	/**
+	 * 
+	 * @param prompt
+	 */
+	public void setPrompt(String prompt) {
+		this.prompt = prompt;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getPrompt() {
+		return prompt;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String getFormattedPrompt()
+	{
+		//"<img src=\"images/loadingSmall.gif\"\"/><span style=\"padding-left:10px;font-size:10pt;\">Searching ...</span>";
+		return "<img src=\"images/loadingSmall.gif\"\"/><span style=\"padding-left:10px;font-size:10pt;\">" + this.getPrompt() + "</span>";
 	}
 }

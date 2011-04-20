@@ -34,10 +34,11 @@ public class DocumentQueryService extends ProxyService {
 	 * 
 	 * @param criteria
 	 * @param observer
+	 * @param timeOutHelper
 	 */
 	public DocumentQueryService(DocumentSearchCriteria criteria,
-			Observer observer, TimeOutHelper progressHelper) {
-		super(observer, progressHelper);
+			Observer observer, TimeOutHelper timeOutHelper) {
+		super(observer, timeOutHelper);
 		this.criteria = criteria;
 	}
 
@@ -45,7 +46,7 @@ public class DocumentQueryService extends ProxyService {
 	 * 
 	 */
 	public void doWork() {
-		this.getProgressHelper().startTimer();
+		this.getTimeOutHelper().startTimer();
 		// RPC:
 		DocumentRemoteService.Util.getInstance().findDocuments(criteria,
 				new AsyncCallback<List<DocumentMetadata>>() {

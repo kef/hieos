@@ -29,10 +29,10 @@ public class AuthenticationService extends ProxyService {
 	 * 
 	 * @param creds
 	 * @param observer
-	 * @param progressHelper
+	 * @param timeOutHelper
 	 */
-	public AuthenticationService(Credentials creds, Observer observer, TimeOutHelper progressHelper) {
-		super(observer, progressHelper);
+	public AuthenticationService(Credentials creds, Observer observer, TimeOutHelper timeOutHelper) {
+		super(observer, timeOutHelper);
 		this.creds = creds;
 	}
 	
@@ -42,7 +42,7 @@ public class AuthenticationService extends ProxyService {
 	 */
 	public void doWork() {
 
-		this.getProgressHelper().startTimer();
+		this.getTimeOutHelper().startTimer();
 		// RPC:
 		AuthenticationRemoteService.Util.getInstance().authenticateUser(creds,
 				new AsyncCallback<AuthenticationContext>() {
@@ -58,7 +58,6 @@ public class AuthenticationService extends ProxyService {
 
 					public void onFailure(Throwable caught) {
 						cancelTimer();
-						System.out.println("Service.do(Work)" + caught.toString());
 						caught.printStackTrace();
 						SC.warn("EXCEPTION: " + caught.getMessage());
 						SC.logWarn(caught.getMessage());

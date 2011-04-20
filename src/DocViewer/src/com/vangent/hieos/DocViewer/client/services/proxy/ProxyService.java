@@ -22,16 +22,16 @@ import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
  */
 public class ProxyService {
 	private Observer observer;
-	private TimeOutHelper progressHelper;
+	private TimeOutHelper timeOutHelper;
 
 	/**
 	 * 
 	 * @param observer
-	 * @param progressHelper
+	 * @param timeOutHelper
 	 */
-	public ProxyService(Observer observer, TimeOutHelper progressHelper) {
+	public ProxyService(Observer observer, TimeOutHelper timeOutHelper) {
 		this.observer = observer;
-		this.progressHelper = progressHelper;
+		this.timeOutHelper = timeOutHelper;
 	}
 
 	/**
@@ -46,22 +46,22 @@ public class ProxyService {
 	 * 
 	 * @return
 	 */
-	public TimeOutHelper getProgressHelper() {
-		return progressHelper;
+	public TimeOutHelper getTimeOutHelper() {
+		return timeOutHelper;
 	}
 
 	/**
 	 * 
 	 */
 	public void startTimer() {
-		progressHelper.startTimer();
+		timeOutHelper.startTimer();
 	}
 
 	/**
 	 * 
 	 */
 	public void cancelTimer() {
-		progressHelper.cancelTimer();
+		timeOutHelper.cancelTimer();
 	}
 
 	/**
@@ -77,6 +77,6 @@ public class ProxyService {
 	 * @return
 	 */
 	public boolean getAbortFlag() {
-		return progressHelper.getAbortFlag();
+		return timeOutHelper.getAbortFlag();
 	}
 }
