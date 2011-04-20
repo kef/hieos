@@ -18,6 +18,7 @@ import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.types.Alignment;
+import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
 import com.smartgwt.client.widgets.Canvas;
@@ -34,6 +35,7 @@ import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
+import com.smartgwt.client.widgets.layout.VStack;
 import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
 import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
@@ -90,7 +92,8 @@ public class DocViewer implements EntryPoint {
 
 		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
-		loginForm.setWidth(400);
+		//loginForm.setWidth(400);
+		loginForm.setWidth100();
 		loginForm.setHeight100();
 
 		HeaderItem header = new HeaderItem();
@@ -99,19 +102,20 @@ public class DocViewer implements EntryPoint {
 
 		final Img logo = new Img(logoFileName, logoWidth, logoHeight);
 
-		Label logonLabel = new Label();
+		/*Label logonLabel = new Label();
 		logonLabel.setWidth(200);
 		logonLabel.setHeight100();
 		logonLabel.setAlign(Alignment.CENTER);
-		logonLabel.setContents("Enter your account details below");
+		logonLabel.setContents("Enter your account details below");*/
 
 		final TextItem userIdItem = new TextItem("userid", "User ID");
 		final PasswordItem passwordItem = new PasswordItem("Password",
 				"Password");
 
 		userIdItem.setRequired(true);
-		userIdItem.setRequiredMessage("Please specify User Id");
+		userIdItem.setRequiredMessage("Please specify User ID");
 		passwordItem.setRequired(true);
+		passwordItem.setRequiredMessage("Please specify Password");
 
 		final IButton loginButton = new IButton("Login");
 		loginButton.setIcon("login-blue.png");
@@ -135,19 +139,30 @@ public class DocViewer implements EntryPoint {
 		loginForm.setFields(header, userIdItem, passwordItem);
 
 		// Now, lay it out.
-		final VLayout layout = new VLayout();
-		layout.setShowEdges(true);
-		layout.setEdgeSize(3);
-		layout.setPadding(8);
-		layout.addMember(logo);
-		layout.addMember(loginForm);
+		final VStack mainLayout = new VStack();
+		mainLayout.setWidth100();
+		mainLayout.setHeight100();
+		//vLayout.setAlign(Alignment.CENTER);
+		mainLayout.setLayoutAlign(VerticalAlignment.CENTER);
+		
+		final VLayout formLayout = new VLayout();
+		formLayout.setLayoutAlign(VerticalAlignment.CENTER);
+
+//		layout.setAlign(Alignment.CENTER);
+		formLayout.setWidth(300);
+		formLayout.setHeight(220);
+		formLayout.setShowEdges(true);
+		formLayout.setEdgeSize(3);
+		formLayout.setPadding(10);
+		formLayout.addMember(logo);
+		formLayout.addMember(loginForm);
 		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setHeight(3);
-		layout.addMember(spacer);
-		layout.addMember(loginButton);
-
-		this.addCanvasToRootPanel(layout);
-
+		spacer.setHeight(4);
+		formLayout.addMember(spacer);
+		formLayout.addMember(loginButton);
+		
+		mainLayout.addMember(formLayout);
+		this.addCanvasToRootPanel(mainLayout);
 	}
 
 	/**
