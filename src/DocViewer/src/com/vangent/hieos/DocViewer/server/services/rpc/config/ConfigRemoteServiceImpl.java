@@ -14,6 +14,7 @@
 
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.services.rpc.ConfigRemoteService;
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements ConfigRemoteService {
@@ -30,6 +31,19 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements Con
 		config.put(Config.KEY_SEARCH_MODE, Config.VAL_SEARCH_MODE_HIE);
 
 		// FIXME: read from XConfig ...
+		ServletUtilMixin servletUtil = new ServletUtilMixin();
+		servletUtil.init(this.getServletContext());
+		String title = servletUtil.getProperty("DocViewerTitle");
+		String logoName = servletUtil.getProperty("DocViewerLogo");
+		String logoWidth = servletUtil.getProperty("DocViewerLogoW");
+		String logoHeigth = servletUtil.getProperty("DocViewerLogoH");
+		config.put("DocViewerTitle", title);
+		config.put("DocViewerLogo", logoName);
+		config.put("DocViewerLogoW", logoWidth);
+		config.put("DocViewerLogoH", logoHeigth);
+		System.out.println("Title: " + title);
+		System.out.println("LogoName: " + logoName);
+		
 		return config;
 	}
 }
