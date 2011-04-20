@@ -72,7 +72,7 @@ public class PatientViewContainer extends Canvas {
 		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE, "HIE");
 		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE, "NHIN Exchange");
 		searchModeRadioGroupItem.setValueMap(searchModeMap);
-		searchModeRadioGroupItem.setDefaultValue(Config.VAL_SEARCH_MODE_HIE);
+		searchModeRadioGroupItem.setDefaultValue(controller.getConfig().get(Config.KEY_SEARCH_MODE));
 		searchModeRadioGroupItem.addChangedHandler(new ChangedHandler() {
 			@Override
 			public void onChanged(ChangedEvent event) {

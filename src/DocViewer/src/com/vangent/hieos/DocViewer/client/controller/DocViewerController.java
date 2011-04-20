@@ -22,6 +22,7 @@ import com.smartgwt.client.widgets.tab.events.TabCloseClickEvent;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
@@ -78,8 +79,8 @@ public class DocViewerController {
 	/**
 	 * 
 	 */
-	public void loadConfig() {
-		ConfigObserver observer = new ConfigObserver(this);
+	public void loadConfig(Observer observer) {
+		//ConfigObserver observer = new ConfigObserver(this);
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		ConfigRetrieveService service = new ConfigRetrieveService(observer,
 				timeOutHelper);

@@ -24,9 +24,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Config implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
 	
-	public static String KEY_SEARCH_MODE = "search_mode";
+	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static String VAL_SEARCH_MODE_HIE = "hie";
 	public static String VAL_SEARCH_MODE_NHIN_EXCHANGE = "nhin_exchange";
+	public static String KEY_TITLE = "Title";
+	public static String KEY_LOGO_FILE_NAME = "LogoFileName";
+	public static String KEY_LOGO_WIDTH = "LogoWidth";
+	public static String KEY_LOGO_HEIGHT = "LogoHeight";
 
 	/**
 	 * 

@@ -22,7 +22,7 @@ import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationCon
  * 
  */
 public class AuthenticationObserver implements Observer {
-	private DocViewer docViewer;
+	final private DocViewer docViewer;
 
 	public AuthenticationObserver(DocViewer docViewer) {
 		this.docViewer = docViewer;

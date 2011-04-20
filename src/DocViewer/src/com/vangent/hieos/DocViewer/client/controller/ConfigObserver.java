@@ -12,18 +12,27 @@
  */
 package com.vangent.hieos.DocViewer.client.controller;
 
+import com.vangent.hieos.DocViewer.client.entrypoint.DocViewer;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 
+/**
+ * 
+ * @author Bernie Thuman
+ *
+ */
 public class ConfigObserver implements Observer {
 	private final DocViewerController controller;
+	private final DocViewer docViewer;
 	
 	/**
 	 * 
+	 * @param docViewer
 	 * @param controller
 	 */
-	public ConfigObserver(DocViewerController controller)
+	public ConfigObserver(DocViewer docViewer, DocViewerController controller)
 	{
+		this.docViewer = docViewer;
 		this.controller = controller;
 	}
 
@@ -34,6 +43,7 @@ public class ConfigObserver implements Observer {
 	public void update(Object object) {
 		Config config = (Config) object;
 		controller.setConfig(config);
+		docViewer.loadLoginPage();
 	}
 
 }

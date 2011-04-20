@@ -27,22 +27,49 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements Con
 	@Override
 	public Config getConfig() {
 		System.out.println("********* ConfigRemoteServiceImpl ********");
-		Config config = new Config();
-		config.put(Config.KEY_SEARCH_MODE, Config.VAL_SEARCH_MODE_HIE);
-
-		// FIXME: read from XConfig ...
+		
+		// Get the mixin to allow access to xconfig.xml.
 		ServletUtilMixin servletUtil = new ServletUtilMixin();
 		servletUtil.init(this.getServletContext());
-		String title = servletUtil.getProperty("DocViewerTitle");
-		String logoName = servletUtil.getProperty("DocViewerLogo");
-		String logoWidth = servletUtil.getProperty("DocViewerLogoW");
-		String logoHeigth = servletUtil.getProperty("DocViewerLogoH");
-		config.put("DocViewerTitle", title);
-		config.put("DocViewerLogo", logoName);
-		config.put("DocViewerLogoW", logoWidth);
-		config.put("DocViewerLogoH", logoHeigth);
-		System.out.println("Title: " + title);
-		System.out.println("LogoName: " + logoName);
+
+		// Create the Config instance that will be sent back to the client.
+		Config config = new Config();
+		
+		// Now get the relevant properties
+		
+		// DefaultSearchMode:
+		String defaultSearchMode = servletUtil.getProperty(Config.KEY_SEARCH_MODE);
+		System.out.println("DefaultSearchMode = " + defaultSearchMode);
+		if (defaultSearchMode == null)
+		{
+			defaultSearchMode = Config.VAL_SEARCH_MODE_HIE;
+		}
+
+		// Title:
+		String title = servletUtil.getProperty(Config.KEY_TITLE);		
+		if (title == null)
+		{
+			title = "HIEOS Doc Viewer";
+		}
+		
+		// LogoFileName:
+		String logoFileName = servletUtil.getProperty(Config.KEY_LOGO_FILE_NAME);
+		System.out.println("LogoFileName = " + logoFileName);
+		if (logoFileName == null)
+		{
+			logoFileName = "search_computer.png";
+		}
+		
+		// LogoWidth/LogoHeight:
+		String logoWidth = servletUtil.getProperty(Config.KEY_LOGO_WIDTH);
+		String logoHeigth = servletUtil.getProperty(Config.KEY_LOGO_HEIGHT);
+		
+		// Fill up the config:
+		config.put(Config.KEY_SEARCH_MODE, defaultSearchMode);
+		config.put(Config.KEY_TITLE, title);
+		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
+		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
+		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
 		
 		return config;
 	}

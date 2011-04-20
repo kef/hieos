@@ -35,12 +35,13 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
+import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
-import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -51,17 +52,25 @@ public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
-	
 
 	/**
 	 * 
 	 */
 	public void onModuleLoad() {
 		// Load client configuration ...
-		controller.loadConfig();
+		this.loadConfig();
 
 		// Load the Login page
-		this.loadLoginPage();
+		// this.loadLoginPage();
+	}
+
+	/**
+	 * 
+	 */
+	private void loadConfig() {
+		// Load client configuration ...
+		ConfigObserver observer = new ConfigObserver(this, controller);
+		controller.loadConfig(observer);
 	}
 
 	/**
@@ -69,38 +78,35 @@ public class DocViewer implements EntryPoint {
 	 */
 	public void loadLoginPage() {
 		// Get Title and Logo details from config file
-		String title = "HIEOS Doc Viewer";
-		String logoName = "search_computer.png";
-		String logoWidth = "100";
-		String logoHeigth = "100";
-		if (controller.getConfig()!= null){
-			// TODO CLEAN UP LOGIC
-			if (controller.getConfig().get("DocViewerTitle") !=null)
-				title = controller.getConfig().get("DocViewerTitle");
-			//SC.say("Title: " + title);
-			if (controller.getConfig().get("DocViewerLogo") !=null)
-				logoName = controller.getConfig().get("DocViewerLogo");
-			logoWidth = controller.getConfig().get("DocViewerLogoW");
-			logoHeigth = controller.getConfig().get("DocViewerLogoH");
-		}
-		
+		// String title = "HIEOS Doc Viewer";
+		// String logoFileName = "search_computer.png";
+		// String logoWidth = "100";
+		// String logoHeigth = "100";
+		Config config = controller.getConfig();
+		String title = config.get(Config.KEY_TITLE);
+		String logoFileName = config.get(Config.KEY_LOGO_FILE_NAME);
+		String logoWidthAsString = config.get(Config.KEY_LOGO_WIDTH);
+		String logoHeightAsString = config.get(Config.KEY_LOGO_HEIGHT);
+		Integer logoWidth = new Integer(logoWidthAsString);
+		Integer logoHeight = new Integer(logoHeightAsString);
+
 		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
 		loginForm.setWidth(400);
 		loginForm.setHeight100();
 
-		HeaderItem header = new HeaderItem(); 
-		header.setDefaultValue(title); 
+		HeaderItem header = new HeaderItem();
+		header.setDefaultValue(title);
 		header.setAlign(Alignment.CENTER);
-		
-		final Img logo = new Img(logoName, 100, 100);
-		
-		Label logonLabel = new Label();  
-		logonLabel.setWidth(200);  
-		logonLabel.setHeight100();  
-		logonLabel.setAlign(Alignment.CENTER);  
-		logonLabel.setContents("Enter your account details below"); 
-				
+
+		final Img logo = new Img(logoFileName, logoWidth, logoHeight);
+
+		Label logonLabel = new Label();
+		logonLabel.setWidth(200);
+		logonLabel.setHeight100();
+		logonLabel.setAlign(Alignment.CENTER);
+		logonLabel.setContents("Enter your account details below");
+
 		final TextItem userIdItem = new TextItem("userid", "User ID");
 		final PasswordItem passwordItem = new PasswordItem("Password",
 				"Password");
@@ -112,15 +118,17 @@ public class DocViewer implements EntryPoint {
 		final IButton loginButton = new IButton("Login");
 		loginButton.setIcon("login-blue.png");
 		loginButton.setLayoutAlign(Alignment.CENTER);
-		
+
 		final DocViewer entryPoint = this;
 
 		loginButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				boolean validatedOk = loginForm.validate();
 				if (validatedOk == true) {
-					AuthenticationObserver authObserver = new AuthenticationObserver(entryPoint);					
-					controller.authenticateUser(authObserver, userIdItem.getValueAsString(),
+					AuthenticationObserver authObserver = new AuthenticationObserver(
+							entryPoint);
+					controller.authenticateUser(authObserver,
+							userIdItem.getValueAsString(),
 							passwordItem.getValueAsString());
 				}
 			}
@@ -143,16 +151,14 @@ public class DocViewer implements EntryPoint {
 		this.addCanvasToRootPanel(layout);
 
 	}
-	
+
 	/**
 	 * 
 	 * @param authContext
 	 */
-	public void loadMainPageOnLoginSuccess(AuthenticationContext authContext)
-	{
+	public void loadMainPageOnLoginSuccess(AuthenticationContext authContext) {
 		controller.setAuthContext(authContext);
-		if (authContext.getSuccessStatus() == true)
-		{
+		if (authContext.getSuccessStatus() == true) {
 			loadMainPage();
 		} else {
 			// Login failure.
@@ -164,7 +170,6 @@ public class DocViewer implements EntryPoint {
 	 * 
 	 */
 	public void loadMainPage() {
-
 
 		// Create the ToolStrip.
 		final ToolStrip toolStrip = this.createToolStrip();
@@ -200,8 +205,7 @@ public class DocViewer implements EntryPoint {
 	private void addCanvasToRootPanel(Canvas canvas) {
 		final RootPanel rootPanel = RootPanel.get();
 		// Remove old canvas (if exists).
-		if (currentCanvas != null)
-		{
+		if (currentCanvas != null) {
 			rootPanel.remove(currentCanvas);
 		}
 		currentCanvas = canvas;
@@ -252,7 +256,7 @@ public class DocViewer implements EntryPoint {
 		patientConsentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					public void onClick(ClickEvent event) {
-						SC.warn("Please Use the Consumer Preferences GUI Application");
+						SC.warn("Under construction");
 					}
 				});
 
