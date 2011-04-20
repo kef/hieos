@@ -34,7 +34,7 @@ public class DocumentDetail extends Canvas {
 	 */
 	public DocumentDetail() {
 		detailViewer.setWidth100();
-		detailViewer.setMargin(15);
+		//detailViewer.setMargin(15);
 		detailViewer.setEmptyMessage("Select a document to view its details");
 		final DetailViewerField titleField = new DetailViewerField("title", "Title");
 		final DetailViewerField creationDateField = new DetailViewerField("creation_date", "Creation Date");

@@ -20,6 +20,7 @@ import java.util.Map;
 //import com.google.gwt.user.client.ui.FlowPanel;
 import com.smartgwt.client.widgets.Window;  
 //import com.google.gwt.user.client.Window;
+import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.ContentsType;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.Canvas;
@@ -32,8 +33,10 @@ import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangeHandler;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.layout.HLayout;
+import com.smartgwt.client.widgets.layout.HStack;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.smartgwt.client.widgets.layout.VLayout;
+import com.smartgwt.client.widgets.layout.VStack;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
@@ -52,51 +55,53 @@ public class DocumentViewContainer extends Canvas {
 	private final DocViewerController controller;
 	private final DocumentList documentList;
 	private final DocumentDetail documentDetail;
-	private final TabSet tabSet;
+	private final TabSet documentTabSet;
 	private final PatientBanner patientBanner;
-	private final SelectItem c32TemplateSelectItem;
-	private String[] c32TemplateDisplayNames;
-	private String[] c32TemplateFileNames;
-	private String c32TemplateFileName;	
+	private SelectItem documentTemplateSelectItem;
+	private String[] documentTemplateDisplayNames;
+	private String[] documentTemplateFileNames;
+	private String documentTemplateFileName;	
 
 	/**
 	 * 
-	 * @param mainController
+	 * @param patientRecord
+	 * @param controller
 	 */
 	public DocumentViewContainer(PatientRecord patientRecord, DocViewerController controller) {
+		this.controller = controller;
 
 		// Create sub components.		
 		this.patientBanner = new PatientBanner();
-		this.controller = controller;
 		patientBanner.update(patientRecord);
+
 		this.documentList = new DocumentList(this);
 		this.documentDetail = new DocumentDetail();
+		this.documentTabSet = this.getDocumentTabSet();
 		
-		// Options form.
-		this.initializeC32Templates();
-		this.c32TemplateSelectItem = new SelectItem();   
-		c32TemplateSelectItem.setDefaultToFirstOption(true);    
-		c32TemplateSelectItem.setTitle("C32 Template");  
-		c32TemplateSelectItem.setWidth(105);
-		c32TemplateSelectItem.setValueMap(this.c32TemplateDisplayNames);   
+		// Add components to the layout.
+		final VLayout layout = new VLayout();
+		layout.setWidth100();
+		layout.setHeight100();
+		layout.addMember(this.patientBanner);
+		final LayoutSpacer spacer = new LayoutSpacer();
+		spacer.setHeight(4);
+		layout.addMember(spacer);
+		layout.addMember(this.documentTabSet);
 
-		c32TemplateSelectItem.addChangeHandler(new ChangeHandler() {   
-            public void onChange(ChangeEvent event) {   
-            	setC32TemplateFileName(event.getValue().toString());
-            }   
-        });   
-
-		DynamicForm optionsForm = new DynamicForm();
-		optionsForm.setTitle("Options");
-		optionsForm.setGroupTitle("Options");  
-		optionsForm.setIsGroup(true);   
-		optionsForm.setWidth(190);
-		optionsForm.setHeight(30);
-		optionsForm.setItems(c32TemplateSelectItem);
-		
+		this.addChild(layout);
+		//this.markForRedraw();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private TabSet getDocumentTabSet()
+	{
+		final DynamicForm optionsForm = this.getOptionsForm();
 		
 		// Create the tab set.
-		this.tabSet = new TabSet();
+		final TabSet tabSet = new TabSet();
 		tabSet.setWidth100();
 		tabSet.setHeight100();
 		tabSet.setTabBarPosition(Side.TOP);  
@@ -105,62 +110,89 @@ public class DocumentViewContainer extends Canvas {
 		Tab documentsTab = new Tab("Documents", "folder.png");		       
 		tabSet.addTab(documentsTab);
 		
-		HLayout documentTabLayout = new HLayout();
-		documentTabLayout.setWidth(500);
-		documentTabLayout.addMember(documentList);
+		// Now layout it out.
+		VStack vLayout = new VStack();
+		vLayout.addMember(this.documentList);
+		final LayoutSpacer optionsFormSpacer = new LayoutSpacer();
+		optionsFormSpacer.setHeight(5);
+		vLayout.addMember(optionsFormSpacer);
+		vLayout.addMember(optionsForm);
+		
+		HLayout layout = new HLayout();
+		layout.setWidth(500);
+		layout.addMember(vLayout);
 		final LayoutSpacer spacer = new LayoutSpacer();
 		spacer.setWidth(10);
-		documentTabLayout.addMember(spacer);
-		documentTabLayout.addMember(this.documentDetail);
-		documentTabLayout.addMember(optionsForm);
-		documentsTab.setPane(documentTabLayout);
-		
-		// Add components to the layout.
-		final VLayout layout = new VLayout();
-		layout.setWidth100();
-		layout.setHeight100();
-		layout.addMember(patientBanner);
-		final LayoutSpacer bannerSpacer = new LayoutSpacer();
-		spacer.setHeight(4);
-		layout.addMember(bannerSpacer);
-		layout.addMember(tabSet);
+		layout.addMember(spacer);
+		//layout.addMember(optionsForm);
+		layout.addMember(this.documentDetail);
+		documentsTab.setPane(layout);
+		return tabSet;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private DynamicForm getOptionsForm()
+	{
+		this.initializeDocumentTemplates();
+		this.documentTemplateSelectItem = new SelectItem();   
+		documentTemplateSelectItem.setDefaultToFirstOption(true);    
+		documentTemplateSelectItem.setTitle("Document Template");  
+		documentTemplateSelectItem.setWidth(105);
+		documentTemplateSelectItem.setValueMap(this.documentTemplateDisplayNames);   
+		documentTemplateSelectItem.addChangeHandler(new ChangeHandler() {   
+            public void onChange(ChangeEvent event) {   
+            	setDocumentTemplateFileName(event.getValue().toString());
+            }   
+        });   
 
-		this.addChild(layout);
-		//this.markForRedraw();
+		DynamicForm optionsForm = new DynamicForm();
+		//optionsForm.setTitle("Options");
+		optionsForm.setGroupTitle("<b>Display Options</b>");
+		optionsForm.setAutoWidth();
+		optionsForm.setIsGroup(true);   
+		//optionsForm.setWidth(300);
+		optionsForm.setHeight(30);
+		optionsForm.setNumCols(1);
+		optionsForm.setItems(documentTemplateSelectItem);
+		
+		return optionsForm;
 	}
 	
 	/**
 	 * 
 	 */
-	private void initializeC32Templates()
+	private void initializeDocumentTemplates()
 	{
 		// FIXME: do not hardwire here.
-		c32TemplateDisplayNames = new String[6];
-		c32TemplateFileNames = new String[6];
-		c32TemplateDisplayNames[0] = new String("IHS Template");
-		c32TemplateFileNames[0] = "raa/CCD.xsl";
-		c32TemplateDisplayNames[1] = new String("Basic Template");
-		c32TemplateFileNames[1] = "basic/CCD.xsl";
-		c32TemplateDisplayNames[2] = "DOD Template";
-		c32TemplateFileNames[2] = "dod/CCD.xsl";
-		c32TemplateDisplayNames[3] = "VA Template";
-		c32TemplateFileNames[3] = "va/CCD.xsl";
-		c32TemplateDisplayNames[4] = "MEDVA Template";
-		c32TemplateFileNames[4] = "medva/CCD_MAIN.xsl";
-		c32TemplateDisplayNames[5] = "CCR Template";
-		c32TemplateFileNames[5] = "ccr/CCR.xsl";
-		c32TemplateFileName = c32TemplateFileNames[0];
+		documentTemplateDisplayNames = new String[6];
+		documentTemplateFileNames = new String[6];
+		documentTemplateDisplayNames[0] = new String("IHS Template");
+		documentTemplateFileNames[0] = "raa/CCD.xsl";
+		documentTemplateDisplayNames[1] = new String("Basic Template");
+		documentTemplateFileNames[1] = "basic/CCD.xsl";
+		documentTemplateDisplayNames[2] = "DOD Template";
+		documentTemplateFileNames[2] = "dod/CCD.xsl";
+		documentTemplateDisplayNames[3] = "VA Template";
+		documentTemplateFileNames[3] = "va/CCD.xsl";
+		documentTemplateDisplayNames[4] = "MEDVA Template";
+		documentTemplateFileNames[4] = "medva/CCD_MAIN.xsl";
+		documentTemplateDisplayNames[5] = "CCR Template";
+		documentTemplateFileNames[5] = "ccr/CCR.xsl";
+		documentTemplateFileName = documentTemplateFileNames[0];
 	}
 	
 	/**
 	 * 
-	 * @param c32TemplateDisplayName
+	 * @param documentTemplateDisplayName
 	 */
-	private void setC32TemplateFileName(String c32TemplateDisplayName)
+	private void setDocumentTemplateFileName(String documentTemplateDisplayName)
 	{
-		for (int i = 0; i < c32TemplateDisplayNames.length; i++) {
-			if (c32TemplateDisplayNames[i].equals(c32TemplateDisplayName)) {
-				c32TemplateFileName = c32TemplateFileNames[i];
+		for (int i = 0; i < documentTemplateDisplayNames.length; i++) {
+			if (documentTemplateDisplayNames[i].equals(documentTemplateDisplayName)) {
+				documentTemplateFileName = documentTemplateFileNames[i];
 				break;
 			}
 		}
@@ -179,7 +211,8 @@ public class DocumentViewContainer extends Canvas {
 		final Tab documentTab = new Tab();
 		documentTab.setTitle(Canvas.imgHTML("document.png") + " " + metadata.getTitle());
 		documentTab.setCanClose(true);
-		tabSet.addTab(documentTab);
+		documentTab.setPrompt("THIS IS AN EXTREMELY LONG TITLE");
+		documentTabSet.addTab(documentTab);
 		
 		// Put htmlPane into an HLayout (to avoid Firefox problem).
 		final HLayout layout = new HLayout();
@@ -192,7 +225,7 @@ public class DocumentViewContainer extends Canvas {
 		this.loadDocument(metadata, htmlPane);
 	
 		// Now make sure the new tab is selected.
-		tabSet.selectTab(documentTab);		
+		documentTabSet.selectTab(documentTab);		
 	}
 	
 	/**
@@ -218,7 +251,7 @@ public class DocumentViewContainer extends Canvas {
 		urlParams.put("hc_id", metadata.getHomeCommunityID());
 		urlParams.put("doc_id", metadata.getDocumentID());
 		urlParams.put("repo_id", metadata.getRepositoryID());
-		urlParams.put("template_filename", this.c32TemplateFileName);
+		urlParams.put("template_filename", this.documentTemplateFileName);
 		String searchMode = controller.getConfig().get(Config.KEY_SEARCH_MODE);
 		urlParams.put("search_mode", searchMode);
 		htmlPane.setContentsURLParams(urlParams);

@@ -43,14 +43,28 @@ public class PatientViewContainer extends Canvas {
 		this.controller = mainController;
 		this.patientList = new PatientList(controller);
 		this.patientSearch = new PatientSearch(controller);
-
+		final DynamicForm optionsForm = this.getOptionsForm();
+	
+		// Now add to the layout.
 		final HLayout layout = new HLayout();
 		layout.addMember(this.patientSearch);
-		final LayoutSpacer layoutSpacer = new LayoutSpacer();
-		layoutSpacer.setWidth(5);
-		layout.addMember(layoutSpacer);
+		final LayoutSpacer spacer1 = new LayoutSpacer();
+		spacer1.setWidth(5);
+		layout.addMember(spacer1);
 		layout.addMember(this.patientList);
-
+		final LayoutSpacer spacer2 = new LayoutSpacer();
+		spacer2.setWidth(10);
+		layout.addMember(spacer2);
+		layout.addMember(optionsForm);
+		this.addChild(layout);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private DynamicForm getOptionsForm()
+	{
 		final RadioGroupItem searchModeRadioGroupItem = new RadioGroupItem();
 		searchModeRadioGroupItem.setTitle("");
 		searchModeRadioGroupItem.setShowTitle(false);
@@ -60,14 +74,12 @@ public class PatientViewContainer extends Canvas {
 		searchModeRadioGroupItem.setValueMap(searchModeMap);
 		searchModeRadioGroupItem.setDefaultValue(Config.VAL_SEARCH_MODE_HIE);
 		searchModeRadioGroupItem.addChangedHandler(new ChangedHandler() {
-
 			@Override
 			public void onChanged(ChangedEvent event) {
 				String searchMode = (String) event.getValue();
 				controller.getConfig().put(Config.KEY_SEARCH_MODE, searchMode);
 				//SC.say("value = " + searchMode);
 			}
-
 		});
 
 		final DynamicForm optionsForm = new DynamicForm();
@@ -75,18 +87,10 @@ public class PatientViewContainer extends Canvas {
 		optionsForm.setHeight(40);
 		optionsForm.setWidth(110);
 		optionsForm.setNumCols(1);
-		// optionsForm.setTitle("");
-		optionsForm.setGroupTitle("Search Mode");
+		optionsForm.setGroupTitle("<b>Search Mode</b>");
 		optionsForm.setFields(searchModeRadioGroupItem);
-		/*
-		 * optionsForm.setFields(new FormItem[] { radioGroupItem });
-		 */
 
-		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setWidth(10);
-		layout.addMember(spacer);
-		layout.addMember(optionsForm);
-		this.addChild(layout);
+		return optionsForm;
 	}
 
 	/**

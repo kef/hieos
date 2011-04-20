@@ -51,7 +51,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setShowAllRecords(true);
 		patientListGrid.setSortField(PatientRecord.MATCH_CONFIDENCE_FIELD);
 		patientListGrid.setSortDirection(SortDirection.DESCENDING);
-		patientListGrid.setWidth(550);
+		patientListGrid.setWidth(600);
 		patientListGrid.setHeight(408);
 		patientListGrid.setWrapCells(true);
 		patientListGrid.setFixedRecordHeights(false);
@@ -112,7 +112,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		euidField.setType(ListGridFieldType.TEXT);
 		
 		// SSN:
-		final ListGridField ssnField = new ListGridField(PatientRecord.SSN_FIELD, "SSN", 40);
+		final ListGridField ssnField = new ListGridField(PatientRecord.SSN_FIELD, "SSN", 85);
 		ssnField.setType(ListGridFieldType.TEXT);
 		
 		// Match Weight:

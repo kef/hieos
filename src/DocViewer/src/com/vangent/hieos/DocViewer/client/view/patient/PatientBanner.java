@@ -49,7 +49,7 @@ public class PatientBanner extends Canvas {
 
 		euid = new Label("EUID");
 		ssn = new Label("SSN");
-		ssn.setWidth(60);
+		ssn.setWidth(115);
 
 		topBar.addMember(name);
 		topBar.addSeparator();
