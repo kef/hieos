@@ -22,12 +22,14 @@ import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.IButton;
+import com.smartgwt.client.widgets.Img;
 import com.smartgwt.client.widgets.Label;
 import com.smartgwt.client.widgets.toolbar.ToolStrip;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.HeaderItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.layout.VLayout;
@@ -38,6 +40,7 @@ import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationCon
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -65,10 +68,39 @@ public class DocViewer implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void loadLoginPage() {
-
+		// Get Title and Logo details from config file
+		String title = "HIEOS Doc Viewer";
+		String logoName = "search_computer.png";
+		String logoWidth = "100";
+		String logoHeigth = "100";
+		if (controller.getConfig()!= null){
+			// TODO CLEAN UP LOGIC
+			if (controller.getConfig().get("DocViewerTitle") !=null)
+				title = controller.getConfig().get("DocViewerTitle");
+			//SC.say("Title: " + title);
+			if (controller.getConfig().get("DocViewerLogo") !=null)
+				logoName = controller.getConfig().get("DocViewerLogo");
+			logoWidth = controller.getConfig().get("DocViewerLogoW");
+			logoHeigth = controller.getConfig().get("DocViewerLogoH");
+		}
+		
+		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
-		loginForm.setWidth(300);
+		loginForm.setWidth(400);
+		loginForm.setHeight100();
 
+		HeaderItem header = new HeaderItem(); 
+		header.setDefaultValue(title); 
+		header.setAlign(Alignment.CENTER);
+		
+		final Img logo = new Img(logoName, 100, 100);
+		
+		Label logonLabel = new Label();  
+		logonLabel.setWidth(200);  
+		logonLabel.setHeight100();  
+		logonLabel.setAlign(Alignment.CENTER);  
+		logonLabel.setContents("Enter your account details below"); 
+				
 		final TextItem userIdItem = new TextItem("userid", "User ID");
 		final PasswordItem passwordItem = new PasswordItem("Password",
 				"Password");
@@ -78,7 +110,7 @@ public class DocViewer implements EntryPoint {
 		passwordItem.setRequired(true);
 
 		final IButton loginButton = new IButton("Login");
-		loginButton.setIcon("find.png");
+		loginButton.setIcon("login-blue.png");
 		loginButton.setLayoutAlign(Alignment.CENTER);
 		
 		final DocViewer entryPoint = this;
@@ -94,12 +126,14 @@ public class DocViewer implements EntryPoint {
 			}
 		});
 
-		loginForm.setFields(userIdItem, passwordItem);
+		loginForm.setFields(header, userIdItem, passwordItem);
 
 		// Now, lay it out.
 		final VLayout layout = new VLayout();
 		layout.setShowEdges(true);
 		layout.setEdgeSize(3);
+		layout.setPadding(8);
+		layout.addMember(logo);
 		layout.addMember(loginForm);
 		final LayoutSpacer spacer = new LayoutSpacer();
 		spacer.setHeight(3);
@@ -218,7 +252,7 @@ public class DocViewer implements EntryPoint {
 		patientConsentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					public void onClick(ClickEvent event) {
-						SC.warn("Under construction!");
+						SC.warn("Please Use the Consumer Preferences GUI Application");
 					}
 				});
 
@@ -246,8 +280,10 @@ public class DocViewer implements EntryPoint {
 		logoutButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					public void onClick(ClickEvent event) {
-						// SC.showConsole();
-						// FIXME: do something
+						// Clear the authentication Context
+						controller.setAuthContext(null);
+						// Load the Login page
+						loadLoginPage();
 					}
 				});
 
