@@ -35,12 +35,18 @@
         <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
-        <Property name="ContentURL">http://localhost:8091/DocViewer/docview</Property>
-        <!--<Property name="ContentURL">http://localhost:8888/docview</Property>-->
+        <!--<Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>-->
+        <Property name="ContentURL">http://localhost:8888/docview</Property>
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
         <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
         <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.1000</Property>
+        <!-- Valid DefaultSearchMode values: hie, nhin_exchange -->
+        <Property name="DefaultSearchMode">hie</Property>
+        <Property name="Title">HIEOS Doc Viewer</Property>
+        <Property name="LogoFileName">search_computer.png</Property>
+        <Property name="LogoWidth">50</Property>
+        <Property name="LogoHeight">50</Property>
     </Object>
 
     <!-- Left here since this may be used in the future for XUA client usage -->
@@ -66,16 +72,16 @@
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
         </Transaction>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8091/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8192/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8091/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8192/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
         </Transaction>
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
@@ -107,25 +113,25 @@
     <Actor name="localpix" type="PIXManagerType">
         <UniqueId>NA</UniqueId>
         <Transaction name="PatientRegistryRecordAdded" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pixmgr</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
         <Transaction name="PatientRegistryRecordRevised" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pixmgr</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
         <Transaction name="PatientRegistryDuplicatesResolved" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pixmgr</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
         <Transaction name="PatientRegistryGetIdentifiersQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pixmgr</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pixmgr</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
@@ -138,7 +144,7 @@
     <Actor name="localpds" type="PDSType">
         <UniqueId>NA</UniqueId>
         <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8126/axis2/services/pds</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pds</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
