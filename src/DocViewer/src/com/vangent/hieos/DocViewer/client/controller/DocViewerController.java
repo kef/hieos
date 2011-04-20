@@ -194,7 +194,7 @@ public class DocViewerController {
 		if (patientTabSet != null) {
 			this.addPaneToMainCanvas(patientTabSet);
 		} else {
-			SC.warn("You must choose \"Find Patients\" before being able to view documents");
+			SC.warn("You must choose a Patient using \"Find Patients\" before being able to view documents");
 		}
 	}
 
