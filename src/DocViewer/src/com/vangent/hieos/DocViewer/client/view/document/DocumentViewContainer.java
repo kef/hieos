@@ -102,10 +102,10 @@ public class DocumentViewContainer extends Canvas {
 		final TabSet tabSet = new TabSet();
 		tabSet.setWidth100();
 		tabSet.setHeight100();
-		tabSet.setTabBarPosition(Side.TOP);  
+		tabSet.setTabBarPosition(Side.TOP);
 		
-		// Tabs.
-		Tab documentsTab = new Tab("Documents", "folder.png");		       
+		// Add the document tab.
+		Tab documentsTab = new Tab("Documents", "folder.png");
 		tabSet.addTab(documentsTab);
 		
 		// Now layout it out.
@@ -209,7 +209,7 @@ public class DocumentViewContainer extends Canvas {
 		final Tab documentTab = new Tab();
 		documentTab.setTitle(Canvas.imgHTML("document.png") + " " + metadata.getTitle());
 		documentTab.setCanClose(true);
-		documentTab.setPrompt("THIS IS AN EXTREMELY LONG TITLE");
+		documentTab.setPrompt(metadata.getTitle());
 		documentTabSet.addTab(documentTab);
 		
 		// Put htmlPane into an HLayout (to avoid Firefox problem).
