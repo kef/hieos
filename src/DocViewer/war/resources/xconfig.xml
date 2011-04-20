@@ -49,7 +49,52 @@
         <Property name="LogoHeight">50</Property>
         <Property name="TrimDocumentTabTitles">false</Property>
         <Property name="TrimDocumentTabTitlesLength">20</Property>
+	<ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
+
     </Object>
+    
+    
+     <!-- Lists available document templates -->
+     <Object name="DocumentTemplateList" type="DocumentTemplateListType">
+     	<ObjectReference refname="IHSDocumentTemplate" reftype="DocumentTemplateType"/>
+     	<ObjectReference refname="BasicDocumentTemplate" reftype="DocumentTemplateType"/>
+     	<ObjectReference refname="DODDocumentTemplate" reftype="DocumentTemplateType"/>
+     	<ObjectReference refname="VADocumentTemplate" reftype="DocumentTemplateType"/>
+     	<ObjectReference refname="MEDVADocumentTemplate" reftype="DocumentTemplateType"/>
+     	<ObjectReference refname="CCRDocumentTemplate" reftype="DocumentTemplateType"/>
+     </Object>
+    
+    <!-- will extend later with types, etc. -->
+     <Object name="IHSDocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">IHS Template</Property>
+        <Property name="FileName">raa/CCD.xsl</Property>
+     </Object>
+     
+     <Object name="BasicDocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">Basic Template</Property>
+        <Property name="FileName">basic/CCD.xsl</Property>
+     </Object>
+     
+     <Object name="DODDocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">DOD Template</Property>
+        <Property name="FileName">dod/CCD.xsl</Property>
+     </Object>
+     
+     <Object name="VADocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">VA Template</Property>
+        <Property name="FileName">va/CCD.xsl</Property>
+     </Object>
+     
+     <Object name="MEDVADocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">MEDVA Template</Property>
+        <Property name="FileName">medva/CCD_MAIN.xsl</Property>
+     </Object>
+          
+     <Object name="CCRDocumentTemplate" type="DocumentTemplateType">
+         <Property name="DisplayName">CCR Template</Property>
+         <Property name="FileName">ccr/CCR.xsl</Property>
+     </Object>
+     
 
     <!-- Left here since this may be used in the future for XUA client usage -->
     <Object name="XUAProperties" type="XUAPropertiesType">
