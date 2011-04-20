@@ -47,6 +47,8 @@
         <Property name="LogoFileName">search_computer.png</Property>
         <Property name="LogoWidth">50</Property>
         <Property name="LogoHeight">50</Property>
+        <Property name="TrimDocumentTabTitles">false</Property>
+        <Property name="TrimDocumentTabTitlesLength">20</Property>
     </Object>
 
     <!-- Left here since this may be used in the future for XUA client usage -->
