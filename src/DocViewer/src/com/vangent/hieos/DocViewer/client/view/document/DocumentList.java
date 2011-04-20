@@ -86,7 +86,7 @@ public class DocumentList extends Canvas {
 		documentListGrid.setSelectionAppearance(SelectionAppearance.ROW_STYLE);
 		documentListGrid.setSelectionType(SelectionStyle.SINGLE);
 		documentListGrid.setShowAllRecords(true);
-		documentListGrid.setWidth(570);
+		documentListGrid.setWidth(600);
 		documentListGrid.setHeight(208);
 		documentListGrid.setTooltip("Double-click to open document in new tab");
 		documentListGrid.setWrapCells(true);
