@@ -207,7 +207,21 @@ public class DocumentViewContainer extends Canvas {
 
 		// Create tab to hold document.
 		final Tab documentTab = new Tab();
-		documentTab.setTitle(Canvas.imgHTML("document.png") + " " + metadata.getTitle());
+		Config config = controller.getConfig();
+		String title = metadata.getTitle();
+
+		// Trim the document tab title if configured to do so.
+		boolean trimDocumentTabTitles = config.getAsBoolean(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
+		if (trimDocumentTabTitles == true)
+		{
+			Integer trimDocumentTabTitlesLength = config.getAsInteger(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
+			if (title.length() > trimDocumentTabTitlesLength)
+			{
+				int endIndex = trimDocumentTabTitlesLength-1;
+				title = title.substring(0, endIndex) + "...";
+			}
+		}
+		documentTab.setTitle(Canvas.imgHTML("document.png") + " " + title);
 		documentTab.setCanClose(true);
 		documentTab.setPrompt(metadata.getTitle());
 		documentTabSet.addTab(documentTab);

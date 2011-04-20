@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class Config implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
-	
+
 	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static String VAL_SEARCH_MODE_HIE = "hie";
 	public static String VAL_SEARCH_MODE_NHIN_EXCHANGE = "nhin_exchange";
@@ -31,6 +31,8 @@ public class Config implements IsSerializable {
 	public static String KEY_LOGO_FILE_NAME = "LogoFileName";
 	public static String KEY_LOGO_WIDTH = "LogoWidth";
 	public static String KEY_LOGO_HEIGHT = "LogoHeight";
+	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
+	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
 
 	/**
 	 * 
@@ -46,6 +48,36 @@ public class Config implements IsSerializable {
 	 */
 	public String get(String key) {
 		return props.get(key);
+	}
+
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean getAsBoolean(String key) {
+		String value = props.get(key);
+		if (value == null) {
+			return false;
+		}
+		if (value.equalsIgnoreCase("true")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Integer getAsInteger(String key) {
+		String value = props.get(key);
+		if (value == null) {
+			return new Integer(0);
+		}
+		return new Integer(value);
 	}
 
 	/**

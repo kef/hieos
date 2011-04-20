@@ -44,6 +44,20 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements Con
 		{
 			defaultSearchMode = Config.VAL_SEARCH_MODE_HIE;
 		}
+		
+		// TrimDocumentTabTitles:
+		String trimDocumentTabTitles = servletUtil.getProperty(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
+		if (trimDocumentTabTitles == null)
+		{
+			trimDocumentTabTitles = "false";
+		}
+		
+		// TrimDocumentTabTitlesLength:
+		String trimDocumentTabTitlesLength = servletUtil.getProperty(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
+		if (trimDocumentTabTitlesLength == null)
+		{
+			trimDocumentTabTitlesLength = "50";
+		}
 
 		// Title:
 		String title = servletUtil.getProperty(Config.KEY_TITLE);		
@@ -66,6 +80,8 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements Con
 		
 		// Fill up the config:
 		config.put(Config.KEY_SEARCH_MODE, defaultSearchMode);
+		config.put(Config.KEY_TRIM_DOCUMENT_TAB_TITLES, trimDocumentTabTitles);
+		config.put(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH, trimDocumentTabTitlesLength);
 		config.put(Config.KEY_TITLE, title);
 		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
 		config.put(Config.KEY_LOGO_WIDTH, logoWidth);

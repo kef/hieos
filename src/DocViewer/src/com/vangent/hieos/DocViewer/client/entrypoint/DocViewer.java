@@ -85,10 +85,8 @@ public class DocViewer implements EntryPoint {
 		Config config = controller.getConfig();
 		String title = config.get(Config.KEY_TITLE);
 		String logoFileName = config.get(Config.KEY_LOGO_FILE_NAME);
-		String logoWidthAsString = config.get(Config.KEY_LOGO_WIDTH);
-		String logoHeightAsString = config.get(Config.KEY_LOGO_HEIGHT);
-		Integer logoWidth = new Integer(logoWidthAsString);
-		Integer logoHeight = new Integer(logoHeightAsString);
+		Integer logoWidth = config.getAsInteger(Config.KEY_LOGO_WIDTH);
+		Integer logoHeight = config.getAsInteger(Config.KEY_LOGO_HEIGHT);
 
 		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
