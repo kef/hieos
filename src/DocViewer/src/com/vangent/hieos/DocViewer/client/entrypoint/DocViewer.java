@@ -254,7 +254,7 @@ public class DocViewer implements EntryPoint {
 		patientConsentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					public void onClick(ClickEvent event) {
-						SC.warn("Under construction");
+						SC.warn("Under construction!");
 					}
 				});
 
