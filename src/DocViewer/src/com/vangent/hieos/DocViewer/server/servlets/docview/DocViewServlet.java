@@ -47,7 +47,7 @@ public class DocViewServlet extends HttpServlet {
 	private static final long serialVersionUID = 3787115682508341906L;
 
 	// private static Properties _properties = null;
-	private ServletUtilMixin servletUtil = new ServletUtilMixin();
+	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	static final String PROP_RETRIEVE_SINGLE_DOC_TEMPLATE = "RetrieveSingleDocTemplate";
 
