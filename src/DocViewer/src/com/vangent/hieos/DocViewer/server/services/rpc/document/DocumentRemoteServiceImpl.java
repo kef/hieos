@@ -52,7 +52,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = 3195773598502538894L;
-	private ServletUtilMixin servletUtil = new ServletUtilMixin();
+	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	static final String PROP_ADHOCQUERY_SINGLEPID_TEMPLATE = "AdhocQuerySinglePIDTemplate";
 	static final String PROP_CONTENT_URL = "ContentURL";
