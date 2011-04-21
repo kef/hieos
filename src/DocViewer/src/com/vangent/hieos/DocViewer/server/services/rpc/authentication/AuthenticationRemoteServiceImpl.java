@@ -31,7 +31,11 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7923244304825432784L;
+	private static final long serialVersionUID = -8437219381457225576L;
+
+	/**
+	 * 
+	 */
 
 	@Override
 	/**
