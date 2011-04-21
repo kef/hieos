@@ -49,7 +49,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = 8292224336985456850L;
-	private ServletUtilMixin servletUtil = new ServletUtilMixin();
+	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	@Override
 	public void init() {
