@@ -257,7 +257,7 @@
              2) xcpd - A PIX query will be directed to an XCPD IG to determine where to go.
              3) pix? - TBD / requests will be directed to a PIXManager to determine where to go.
         -->
-        <Property name="XCAInitiatingGatewayPatientMappingMode">xcpd</Property>
+        <Property name="XCAInitiatingGatewayPatientMappingMode">passthrough</Property>
 
          <!-- To support outbound XCPD Initiating Gateway PIX requests when in "xcpd" mode. -->
          <!-- OK to self reference here. -->
