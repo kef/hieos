@@ -29,13 +29,14 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = -7923244304825432784L;
+	
+	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	@Override
 	public Config getConfig() {
 		System.out.println("********* ConfigRemoteServiceImpl ********");
 
 		// Get the mixin to allow access to xconfig.xml.
-		ServletUtilMixin servletUtil = new ServletUtilMixin();
 		servletUtil.init(this.getServletContext());
 
 		// Create the Config instance that will be sent back to the client.
@@ -93,16 +94,15 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
 		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
 
-		this.loadDocumentTemplateConfigs(servletUtil, config);
+		this.loadDocumentTemplateConfigs(config);
 		return config;
 	}
 
 	/**
 	 * 
-	 * @param servletUtil
 	 * @param config
 	 */
-	private void loadDocumentTemplateConfigs(ServletUtilMixin servletUtil,
+	private void loadDocumentTemplateConfigs(
 			Config config) {
 		try {
 			XConfig xconf = XConfig.getInstance();
