@@ -56,6 +56,13 @@
 	<Property name="PermittedRoles_ViewConsent">Role1</Property>
 	<Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 
+        <!-- Authenticaiton Handler Configuration -->
+        <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
+
+        <!-- if using LDAP ... -->
+        <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
+
     </Object>
     
     
