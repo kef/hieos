@@ -112,6 +112,10 @@ is divided into following sections:
                 <isset property="app.client"/>
             </and>
         </condition>
+        <path id="endorsed.classpath.path" path="${endorsed.classpath}"/>
+        <condition else="" property="endorsed.classpath.cmd.line.arg" value="-Xbootclasspath/p:'${toString:endorsed.classpath.path}'">
+            <length length="0" string="${endorsed.classpath}" when="greater"/>
+        </condition>
     </target>
     <target depends="init" name="-init-cos">
         <condition else="false" property="build.deploy.on.save">
@@ -168,7 +172,7 @@ exists or setup the property manually. For example like this:
             <fileset dir="${meta.inf}"/>
         </copy>
     </target>
-    <target depends="init,deps-jar,pre-pre-compile,pre-compile" if="do.package.not.directory.deploy" name="-do-compile-deps">
+    <target depends="init,deps-jar,pre-pre-compile,pre-compile" name="-do-compile-deps">
         <copyfiles files="${reference.xlogmdb.dist-ear}" todir="${build.dir}//"/>
         <copyfiles files="${file.reference.axiom-api-1.2.8.jar}" todir="${build.dir}//"/>
         <copyfiles files="${file.reference.axiom-impl-1.2.8.jar}" todir="${build.dir}//"/>
@@ -336,13 +340,70 @@ exists or setup the property manually. For example like this:
             <arg line="${browser.args} ${browse.url}"/>
         </exec>
     </target>
-    <target depends="init" if="app.client" name="run-ac">
-        <antcall target="run-${app.client}"/>
+    <target if="app.client" name="run-ac">
+        <antcall target="-run-ac"/>
+    </target>
+    <target depends="init,-as-retrieve-option-workaround,-init-run-macros,-run-appclient-pregfv3,-run-appclient" name="-run-ac"/>
+    <target if="j2ee.appclient.tool.args" name="-run-appclient-pregfv3">
+        <ear2:run-appclient-pregfv3/>
+    </target>
+    <target name="-run-appclient" unless="j2ee.appclient.tool.args">
+        <ear2:run-appclient subprojectname="${app.client}"/>
     </target>
     <target if="j2ee.appclient.mainclass.args" name="-as-retrieve-option-workaround" unless="j2ee.clientName">
         <property name="client.jar" value="${dist.dir}/xlogClient.jar"/>
         <sleep seconds="3"/>
-        <copy file="${wa.copy.client.jar.from}/xlog/xlogClient.jar" todir="${dist.dir}"/>
+        <copy failonerror="false" file="${wa.copy.client.jar.from}/xlog/xlogClient.jar" todir="${dist.dir}"/>
+        <copy failonerror="false" flatten="true" todir="${dist.dir}/">
+            <fileset dir="${wa.copy.client.jar.from}/xlog" includes="**/xlogClient.jar"/>
+        </copy>
+        <copy flatten="true" todir="${dist.dir}/xlogClient">
+            <fileset dir="${wa.copy.client.jar.from}/xlog" includes="**/*.*ar"/>
+        </copy>
+        <copy failonerror="false" flatten="false" todir="${dist.dir}/xlogClient">
+            <fileset dir="${dist.dir}/gfdeploy/xlog" includes="**/*.jar"/>
+        </copy>
+    </target>
+    <target depends="init" name="-init-run-macros">
+        <macrodef name="run-appclient" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
+            <attribute name="subprojectname"/>
+            <attribute default="${application.args.param}" name="args"/>
+            <element name="customize" optional="true"/>
+            <sequential>
+                <java dir="${basedir}" fork="true" jar="${client.jar}">
+                    <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
+                    <jvmarg line="${j2ee.appclient.tool.jvmoptions}${client.jar},arg=-name,arg=@{subprojectname}"/>
+                    <arg line="@{args}"/>
+                    <syspropertyset>
+                        <propertyref prefix="run-sys-prop."/>
+                        <mapper from="run-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <customize/>
+                </java>
+            </sequential>
+        </macrodef>
+        <macrodef name="run-appclient-pregfv3" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
+            <element name="customize" optional="true"/>
+            <sequential>
+                <java classname="${j2ee.appclient.tool.mainclass}" fork="true">
+                    <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
+                    <jvmarg line="${j2ee.appclient.tool.jvmoptions}"/>
+                    <jvmarg line="${j2ee.appclient.jvmoptions.param}"/>
+                    <arg line="${j2ee.appclient.tool.args}"/>
+                    <arg line="-client ${client.jar}"/>
+                    <arg line="${j2ee.appclient.mainclass.tool.param}"/>
+                    <arg line="${application.args.param}"/>
+                    <classpath>
+                        <path path="${j2ee.platform.classpath}:${j2ee.appclient.tool.runtime}"/>
+                    </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="run-sys-prop."/>
+                        <mapper from="run-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <customize/>
+                </java>
+            </sequential>
+        </macrodef>
     </target>
     <!--
     DEBUGGING SECTION
@@ -354,9 +415,10 @@ exists or setup the property manually. For example like this:
         <antcall target="debug-display-browser"/>
     </target>
     <target name="connect-debugger" unless="is.debugged">
-        <nbjpdaconnect address="${jpda.address}" host="${jpda.host}" name="${name}" transport="${jpda.transport}">
+        <nbjpdaconnect address="${jpda.address}" host="${jpda.host}" name="${jpda.host}:${jpda.address}" transport="${jpda.transport}">
             <classpath>
                 <path path="${debug.classpath}"/>
+                <fileset dir="${build.dir}" includes="lib/*.jar"/>
             </classpath>
             <sourcepath>
                 <path path="${ear.docbase.dirs}"/>
@@ -366,6 +428,10 @@ exists or setup the property manually. For example like this:
     <target if="do.display.browser" name="debug-display-browser">
         <nbbrowse url="${client.url}"/>
     </target>
+    <target if="can.debug.appclient" name="run-debug-appclient">
+        <antcall target="-run-debug-appclient"/>
+    </target>
+    <target depends="init,-init-debug-args,-debug-appclient-deploy,-as-retrieve-option-workaround,-init-debug-macros,-debug-appclient-start-nbjpda,-debug-appclient-pregfv3,-debug-appclient,connect-debugger" name="-run-debug-appclient"/>
     <target name="-init-debug-args">
         <property name="version-output" value="java version &quot;${ant.java.version}"/>
         <condition property="have-jdk-older-than-1.4">
@@ -380,44 +446,63 @@ exists or setup the property manually. For example like this:
             <istrue value="${have-jdk-older-than-1.4}"/>
         </condition>
     </target>
-    <target depends="init,-init-debug-args" if="can.debug.appclient" name="run-debug-appclient">
-        <macrodef name="debug-appclient" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
-            <attribute name="mainclass"/>
+    <target depends="init,-init-debug-args,-as-retrieve-option-workaround,-init-run-macros" name="-init-debug-macros">
+        <condition else="dt_socket" property="debug-transport-by-os" value="dt_shmem">
+            <os family="windows"/>
+        </condition>
+        <condition else="${debug-transport-by-os}" property="debug-transport-appclient" value="${debug.transport}">
+            <isset property="debug.transport"/>
+        </condition>
+        <macrodef name="nbjpdastart" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
+            <attribute default="${main.class}" name="name"/>
             <attribute default="${debug.classpath}" name="classpath"/>
-            <element name="customize" optional="true"/>
-            <attribute default="${application.args.param}" name="args"/>
+            <attribute default="" name="stopclassname"/>
             <sequential>
-                <parallel>
-                    <java classname="@{mainclass}" fork="true">
-                        <jvmarg line="${j2ee.appclient.tool.jvmoptions}"/>
-                        <jvmarg line="${debug-args-line}"/>
-                        <jvmarg value="-Xrunjdwp:transport=${jpda.transport},server=y,address=${jpda.address},suspend=y"/>
-                        <jvmarg line="${j2ee.appclient.jvmoptions.param}"/>
-                        <arg line="@{args}"/>
-                        <classpath>
-                            <path path="${j2ee.platform.classpath}:${j2ee.appclient.tool.runtime}"/>
-                            <path path="@{classpath}"/>
-                        </classpath>
-                        <syspropertyset>
-                            <propertyref prefix="run-sys-prop."/>
-                            <mapper from="run-sys-prop.*" to="*" type="glob"/>
-                        </syspropertyset>
-                        <customize/>
-                    </java>
-                    <nbjpdaconnect address="${jpda.address}" host="${jpda.host}" name="${name}" transport="${jpda.transport}">
-                        <classpath>
-                            <path path="${j2ee.platform.classpath}:${j2ee.appclient.tool.runtime}"/>
-                            <path path="@{classpath}"/>
-                        </classpath>
-                        <sourcepath>
-                            <path path="${src.dir}"/>
-                        </sourcepath>
-                    </nbjpdaconnect>
-                </parallel>
+                <nbjpdastart addressproperty="jpda.address.appclient" name="@{name}" stopclassname="@{stopclassname}" transport="${debug-transport-appclient}">
+                    <classpath>
+                        <path path="@{classpath}"/>
+                    </classpath>
+                </nbjpdastart>
             </sequential>
         </macrodef>
-        <nbdeploy clientModuleUri="${client.module.uri}" clientUrlPart="${client.urlPart}" debugmode="false"/>
-        <antcall target="debug-${app.client}"/>
+        <macrodef name="debug-appclient" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
+            <attribute name="subprojectname"/>
+            <sequential>
+                <ear2:run-appclient subprojectname="@{subprojectname}">
+                    <customize>
+                        <jvmarg value="-Xrunjdwp:transport=${debug-transport-appclient},address=${jpda.address.appclient}"/>
+                        <jvmarg line="${debug-args-line}"/>
+                    </customize>
+                </ear2:run-appclient>
+            </sequential>
+        </macrodef>
+        <macrodef name="debug-appclient-pregfv3" uri="http://www.netbeans.org/ns/j2ee-earproject/2">
+            <sequential>
+                <ear2:run-appclient-pregfv3>
+                    <customize>
+                        <jvmarg value="-Xrunjdwp:transport=${debug-transport-appclient},address=${jpda.address.appclient}"/>
+                        <jvmarg line="${debug-args-line}"/>
+                    </customize>
+                </ear2:run-appclient-pregfv3>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-debug-appclient-deploy">
+        <nbstartserver debugmode="true"/>
+        <nbdeploy clientModuleUri="${client.module.uri}" clientUrlPart="${client.urlPart}" debugmode="true"/>
+    </target>
+    <target name="-debug-appclient-start-nbjpda">
+        <ear2:nbjpdastart classpath="" name="${app.client}"/>
+    </target>
+    <target if="j2ee.appclient.tool.args" name="-debug-appclient-pregfv3">
+        <ear2:debug-appclient-pregfv3/>
+    </target>
+    <target name="-debug-appclient" unless="j2ee.appclient.tool.args">
+        <mkdir dir="${dist.dir}/xlogClient"/>
+        <copy flatten="true" todir="${dist.dir}/xlogClient">
+            <fileset dir="${wa.copy.client.jar.from}/xlog" includes="**/*.*ar"/>
+        </copy>
+        <ear2:debug-appclient subprojectname="${app.client}"/>
     </target>
     <!--
     CLEANUP SECTION
