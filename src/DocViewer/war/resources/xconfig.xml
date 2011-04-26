@@ -53,7 +53,7 @@
 	
 	<!-- Permission Mappings  -->
 	<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
-	<Property name="PermittedRoles_ViewConsent">RoleX</Property>
+	<Property name="PermittedRoles_ViewConsent">Role1</Property>
 	<Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 
     </Object>
