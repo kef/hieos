@@ -16,6 +16,7 @@ package com.vangent.hieos.authutil.openam;
 import com.vangent.hieos.authutil.framework.AuthenticationHandler;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  *
@@ -24,6 +25,10 @@ import com.vangent.hieos.authutil.model.Credentials;
 public class OpenAMAuthenticationHandler implements AuthenticationHandler {
 
     public AuthenticationContext authenticate(Credentials creds) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setConfig(XConfigObject config) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -18,7 +18,7 @@ import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.authutil.model.Role;
 import com.vangent.hieos.authutil.model.UserProfile;
-import java.io.IOException;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,40 +33,28 @@ import org.apache.log4j.Logger;
 public class LDAPAuthenticationHandler implements AuthenticationHandler {
 
     private static Logger log = Logger.getLogger(LDAPAuthenticationHandler.class);
-    private LDAPAccessProperties ldapAccessProperties;
+    private static final String LDAP_URL = "AuthHandlerLDAP_URL";
+    private static final String LDAP_BASE_DN = "AuthHandlerLDAP_BASE_DN";
     private LDAPClient ldapClient = null;
-    private static final String LDAP_URL = "LDAPURL";
-    private static final String BASE_DN = "BaseDN";
+    private String ldapBaseDN = null;
+    private XConfigObject config;
 
     /**
-     * CTOR
-     * @throws AuthUtilException
+     *
      */
-    public LDAPAuthenticationHandler() throws AuthUtilException  {
-        try {
-            // Property file location needs to be investigated.
-            ldapAccessProperties = 
-                    LDAPAccessProperties.getInstance("com/vangent/hieos/authutil/ldap/LDAPAccess.properties");
-            ldapClient = new LDAPClient(ldapAccessProperties.getProperty(LDAP_URL));
-        } catch (IOException e) {
-            log.error("Error accessing LDAP Access Configuration.", e);
-            throw new AuthUtilException("Error accessing LDAP Configuration." + e.getMessage());
-        }
-        catch (NamingException e) {
-            log.error("Error accessing LDAP.", e);
-            throw new AuthUtilException("Error accessing LDAP." + e.getMessage());
-        }
-
+    public LDAPAuthenticationHandler() {
+        // Do nothing.
     }
 
     /**
      *
      * @param creds
      * @return
+     * @throws AuthUtilException
      */
-    public AuthenticationContext authenticate(Credentials creds)  {
+    public AuthenticationContext authenticate(Credentials creds) throws AuthUtilException {
         AuthenticationContext authnCtx = new AuthenticationContext();
-
+        this.configure();
         boolean status = false;
         if (creds != null) {
             // authenticate
@@ -82,12 +70,27 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
         } else {
             authnCtx.setStatus(AuthenticationContext.Status.FAILURE);
             if (log.isInfoEnabled()) {
-                log.info("LDAPAuthenticationHandler - User, " + (creds!=null ? creds.getUserId() : "") + ", could not be authenticated.");
+                log.info("LDAPAuthenticationHandler - User, " + (creds != null ? creds.getUserId() : "") + ", could not be authenticated.");
             }
         }
         //disconnect
         ldapClient.unbind();
         return authnCtx;
+    }
+
+    /**
+     *
+     * @throws AuthUtilException
+     */
+    private void configure() throws AuthUtilException {
+        try {
+            String ldapURL = config.getProperty(LDAP_URL);
+            this.ldapBaseDN = config.getProperty(LDAP_BASE_DN);
+            ldapClient = new LDAPClient(ldapURL);
+        } catch (NamingException e) {
+            log.error("Error accessing LDAP.", e);
+            throw new AuthUtilException("Error accessing LDAP." + e.getMessage());
+        }
     }
 
     // Private
@@ -99,7 +102,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
     private UserProfile getUserProfile(Credentials credentials) {
         String userName = extractUserName(credentials.getUserId());
         Map userAttrs = ldapClient.lookupUserAttributes(userName,
-                ldapAccessProperties.getProperty(BASE_DN),
+                this.ldapBaseDN,
                 userAttributes());
 
         if (userAttrs.isEmpty()) {
@@ -193,9 +196,16 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
         return userWithDomainName.substring(userWithDomainName.lastIndexOf("\\") + 1);
     }
 
-    public static void main(String[] args) throws Exception {
-        LDAPAuthenticationHandler ldapAuthenticationHandler = new LDAPAuthenticationHandler();
-
-        System.out.println(ldapAuthenticationHandler.authenticate( new Credentials("x\\testuser", "abc123")));
+    /**
+     * 
+     * @param config
+     */
+    public void setConfig(XConfigObject config) {
+        this.config = config;
+        if (log.isInfoEnabled()) {
+            log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
+            log.info("AuthHandlerLDAP_URL: " + config.getProperty("AuthHandlerLDAP_URL"));
+            log.info("AuthHandlerLDAP_BASE_DN: " + config.getProperty("AuthHandlerLDAP_BASE_DN"));
+        }
     }
 }

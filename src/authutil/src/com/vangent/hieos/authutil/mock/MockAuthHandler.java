@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.authutil.mock;
 
+import com.vangent.hieos.authutil.framework.AuthUtilException;
 import com.vangent.hieos.authutil.framework.AuthenticationHandler;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.authutil.model.Role;
 import com.vangent.hieos.authutil.model.UserProfile;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -29,10 +31,18 @@ public class MockAuthHandler implements AuthenticationHandler {
 
     private static Logger log = Logger.getLogger(MockAuthHandler.class);
 
+    private XConfigObject config;
+
     public MockAuthHandler() throws Exception {
     }
 
-    public AuthenticationContext authenticate(Credentials creds) {
+    /**
+     * 
+     * @param creds
+     * @return
+     * @throws AuthUtilException
+     */
+    public AuthenticationContext authenticate(Credentials creds) throws AuthUtilException {
         AuthenticationContext authnCtx = new AuthenticationContext();
         if (validateInput(creds)) {
             authnCtx.setStatus(AuthenticationContext.Status.SUCCESS);
@@ -78,9 +88,13 @@ public class MockAuthHandler implements AuthenticationHandler {
         return true;
     }
 
-    public static void main(String[] args) throws Exception {
-        MockAuthHandler MockAuthHandler = new MockAuthHandler();
-
-        System.out.println(MockAuthHandler.authenticate(new Credentials("testuser", "abc123")));
+    public void setConfig(XConfigObject config) {
+        this.config = config;
+        if (log.isInfoEnabled())
+        {
+            log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
+            log.info("AuthHandlerLDAP_URL: " + config.getProperty("AuthHandlerLDAP_URL"));
+            log.info("AuthHandlerLDAP_BASE_DN: " + config.getProperty("AuthHandlerLDAP_BASE_DN"));
+        }
     }
 }

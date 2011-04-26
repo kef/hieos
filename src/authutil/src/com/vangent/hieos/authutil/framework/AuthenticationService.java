@@ -14,6 +14,7 @@ package com.vangent.hieos.authutil.framework;
 
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,14 +23,26 @@ import java.util.logging.Logger;
  * @author Anand Sastry
  */
 public class AuthenticationService {
+
+    private XConfigObject config;
+
+    /**
+     *
+     * @param config
+     */
+    public AuthenticationService(XConfigObject config) {
+        this.config = config;
+    }
+
     /**
      *
      * @param creds
+     * @param config
      * @return
      */
-    public AuthenticationContext authenticateUser(Credentials creds) {
+    public AuthenticationContext authenticate(Credentials creds) {
         try {
-            return getHandler().authenticate(creds);
+            return getHandler(config).authenticate(creds);
         } catch (AuthUtilException ex) {
             Logger.getLogger(AuthenticationService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -47,19 +60,15 @@ public class AuthenticationService {
 
     /**
      *
+     * @param config
      * @return
      * @throws AuthUtilException
      */
-    private AuthenticationHandler getHandler() throws AuthUtilException {
+    private AuthenticationHandler getHandler(XConfigObject config) throws AuthUtilException {
         try {
-            return AuthenticationHandlerFactory.getHandler();
+            return AuthenticationHandlerFactory.getHandler(config);
         } catch (Exception e) {
             throw new AuthUtilException("Configure handler via config file or system property", e);
         }
-    }
-
-    public static void main (String [] args) throws  AuthUtilException {
-        AuthenticationContext authCtxt = new AuthenticationService().authenticateUser(new Credentials("testuser", "abc123"));
-        System.out.println(authCtxt);
     }
 }

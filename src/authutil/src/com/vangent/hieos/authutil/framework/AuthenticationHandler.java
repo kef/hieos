@@ -14,12 +14,19 @@ package com.vangent.hieos.authutil.framework;
 
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  *
  * @author sastan
  */
 public interface AuthenticationHandler {
+
+    /**
+     * 
+     * @param config
+     */
+    public void setConfig(XConfigObject config);
 
     /**
      *

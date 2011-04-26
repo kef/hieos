@@ -10,34 +10,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.authutil.framework;
+
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  *
  * @author Anand Sastry
  */
-
 public class AuthenticationHandlerFactory {
 
+    private static final String AUTH_HANDLER_CLASS_IMPL = "AuthHandlerClassImpl";
+
     /**
-     * 
+     *
+     * @param config
      * @return
      * @throws AuthUtilException
      */
-    public static synchronized AuthenticationHandler getHandler() throws AuthUtilException {
-        String authHandlerName = "";
-        // get from config file. If not available, failover to System Property
-        if (authHandlerName == null || authHandlerName.trim().length() == 0) {
-            authHandlerName = System.getProperty("com.vangent.hieos.authutil.AuthenticationHandler");
-            try {
-                return (AuthenticationHandler) Class.forName(authHandlerName).newInstance();
-            } catch (Exception e) {
-                throw new AuthUtilException ("Error instantiating handler, " + authHandlerName + ", ", e);
-            }
+    public static synchronized AuthenticationHandler getHandler(XConfigObject config) throws AuthUtilException {
+        String authHandlerClassImpl = config.getProperty(AUTH_HANDLER_CLASS_IMPL);
+        Class authHandlerClass;
+        try {
+            authHandlerClass = Class.forName(authHandlerClassImpl);
+        } catch (ClassNotFoundException ex) {
+            throw new AuthUtilException("Unable to load AuthenticationHandler class: " + ex.getMessage());
         }
-        return null;
+
+        AuthenticationHandler authenticationHandler;
+        try {
+            authenticationHandler = (AuthenticationHandler) authHandlerClass.newInstance();
+            authenticationHandler.setConfig(config);
+        } catch (InstantiationException ex) {
+            throw new AuthUtilException("Unable to instantiate AuthenticationHandler: " + ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            throw new AuthUtilException("Unable to instantiate AuthenticationHandler: " + ex.getMessage());
+        }
+        return authenticationHandler;
     }
-
-
 }
