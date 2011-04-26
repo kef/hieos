@@ -12,8 +12,6 @@
  */
 package com.vangent.hieos.DocViewer.client.entrypoint;
 
-import java.util.List;
-
 import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.event.dom.client.ClickEvent;
 //import com.google.gwt.event.dom.client.ClickHandler;
@@ -42,7 +40,6 @@ import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
 import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Permission;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
