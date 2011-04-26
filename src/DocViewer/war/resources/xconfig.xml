@@ -45,16 +45,16 @@
         <Property name="DefaultSearchMode">hie</Property>
         <Property name="Title">HIEOS Doc Viewer</Property>
         <Property name="LogoFileName">search_computer.png</Property>
-        <Property name="LogoWidth">50</Property>
-        <Property name="LogoHeight">50</Property>
+        <Property name="LogoWidth">100</Property>
+        <Property name="LogoHeight">100</Property>
         <Property name="TrimDocumentTabTitles">false</Property>
         <Property name="TrimDocumentTabTitlesLength">20</Property>
 	<ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
 	
 	<!-- Permission Mappings  -->
-	<Property name="ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
-	<Property name="ViewConsent">Role1</Property>
-	<Property name="EditConsent">Role2, Role3</Property>
+	<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
+	<Property name="PermittedRoles_ViewConsent">RoleX</Property>
+	<Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 
     </Object>
     
