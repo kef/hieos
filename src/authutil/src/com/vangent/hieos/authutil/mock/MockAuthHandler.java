@@ -15,7 +15,7 @@ package com.vangent.hieos.authutil.mock;
 import com.vangent.hieos.authutil.framework.AuthenticationHandler;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
-import com.vangent.hieos.authutil.model.Permission;
+import com.vangent.hieos.authutil.model.Role;
 import com.vangent.hieos.authutil.model.UserProfile;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,16 +52,15 @@ public class MockAuthHandler implements AuthenticationHandler {
         userProfile.setGivenName("Given Name for " + credentials.getUserId());
         userProfile.setFamilyName("Family Name for " + credentials.getUserId());
         userProfile.setFullName("Full Name for " + credentials.getUserId());
-        userProfile.setPermissions(getPermissions());
-
+        userProfile.setRoles(getRoles());
         return userProfile;
     }
 
-    private List<Permission> getPermissions() {
-        List<Permission> permissions = new ArrayList<Permission>();
-        Permission permission = new Permission("Role1", Permission.Access.PERMIT);
-        permissions.add(permission);
-        return permissions;
+    private List<Role> getRoles() {
+        List<Role> roles = new ArrayList<Role>();
+        Role role = new Role("Role1");
+        roles.add(role);
+        return roles;
     }
 
     private boolean validateInput(Credentials creds) {

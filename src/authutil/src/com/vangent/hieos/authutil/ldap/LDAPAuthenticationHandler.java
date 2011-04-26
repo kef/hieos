@@ -16,7 +16,7 @@ import com.vangent.hieos.authutil.framework.AuthUtilException;
 import com.vangent.hieos.authutil.framework.AuthenticationHandler;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
-import com.vangent.hieos.authutil.model.Permission;
+import com.vangent.hieos.authutil.model.Role;
 import com.vangent.hieos.authutil.model.UserProfile;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
         userProfile.setGivenName(getGivenName(userAttrs));
         userProfile.setFamilyName(getSurname(userAttrs));
         userProfile.setFullName(getCommonName(userAttrs));
-        userProfile.setPermissions(getPermissions(userAttrs));
+        userProfile.setRoles(getRoles(userAttrs));
 
         return userProfile;
     }
@@ -122,16 +122,16 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      * @param userAttrs
      * @return
      */
-    private List<Permission> getPermissions(Map userAttrs) {
-        ArrayList roles = (ArrayList) userAttrs.get("memberOf");
-        List<Permission> permissions = new ArrayList<Permission>();
-        Iterator rolesIt = roles.iterator();
+    private List<Role> getRoles(Map userAttrs) {
+        ArrayList ldapRoles = (ArrayList) userAttrs.get("memberOf");
+        List<Role> roles = new ArrayList<Role>();
+        Iterator rolesIt = ldapRoles.iterator();
         while (rolesIt.hasNext()) {
-            String role = (String) rolesIt.next();
-            Permission permission = new Permission(role, Permission.Access.PERMIT);
-            permissions.add(permission);
+            String roleName = (String) rolesIt.next();
+            Role role = new Role(roleName);
+            roles.add(role);
         }
-        return permissions;
+        return roles;
     }
 
     /**

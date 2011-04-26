@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class UserProfile {
     private List<Permission> permissions;
+    private List<Role> roles;
     private String givenName;
     private String familyName;
     private String fullName;
@@ -65,11 +66,20 @@ public class UserProfile {
         return this.distinguishedName;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    @Override
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("Permissions [")
-           .append(this.permissions)
+        StringBuilder buf = new StringBuilder();
+        buf.append("Roles [")
+           .append(this.roles)
            .append("], Given Name [")
            .append(this.givenName)
            .append("], Family Name [")
