@@ -50,6 +50,11 @@
         <Property name="TrimDocumentTabTitles">false</Property>
         <Property name="TrimDocumentTabTitlesLength">20</Property>
 	<ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
+	
+	<!-- Permission Mappings  -->
+	<Property name="ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
+	<Property name="ViewConsent">Role1</Property>
+	<Property name="EditConsent">Role2, Role3</Property>
 
     </Object>
     
