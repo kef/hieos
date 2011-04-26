@@ -61,6 +61,7 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	private AuthenticationContext getAuthenticationContext(
 			com.vangent.hieos.authutil.model.AuthenticationContext authCtxt) {
 		ServletContext servletContext = this.getServletContext();
-		return AuthenticationContextTransform.doWork(authCtxt, servletContext);
+		AuthenticationContextTransform authContextTransform = new AuthenticationContextTransform(authCtxt, servletContext);
+		return authContextTransform.doWork();
 	}
 }

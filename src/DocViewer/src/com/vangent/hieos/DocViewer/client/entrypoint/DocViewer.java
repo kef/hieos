@@ -59,10 +59,6 @@ public class DocViewer implements EntryPoint {
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
 	
-	private final static String VIEWDOCS = "ViewDocs";
-	private final static String VIEWCONSENT = "ViewConsent";
-	private final static String EDITCONSENT = "EditConsent";
-
 	/**
 	 * 
 	 */
@@ -176,14 +172,7 @@ public class DocViewer implements EntryPoint {
 		controller.setAuthContext(authContext);
 		if (authContext.getSuccessStatus() == true) {
 			// Check if the user has permission to use the application
-			List<Permission> permissions = authContext.getUserProfile().getPermissions();
-			boolean permitted = false;
-			for (Permission perm : permissions){
-				if (perm.getName().equals(VIEWDOCS) || perm.getName().equals(VIEWCONSENT) ||
-						perm.getName().equals(EDITCONSENT)){
-					permitted = true;
-				}				
-			}
+			boolean permitted = authContext.hasPermissionToApplication();
 			if (permitted){
 				loadMainPage();
 			} else {
