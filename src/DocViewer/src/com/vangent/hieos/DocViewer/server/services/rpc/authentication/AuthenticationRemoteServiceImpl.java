@@ -13,6 +13,8 @@
  */
 package com.vangent.hieos.DocViewer.server.services.rpc.authentication;
 
+import javax.servlet.ServletContext;
+
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.services.rpc.AuthenticationRemoteService;
@@ -58,6 +60,7 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 */
 	private AuthenticationContext getAuthenticationContext(
 			com.vangent.hieos.authutil.model.AuthenticationContext authCtxt) {
-		return AuthenticationContextTransform.doWork(authCtxt);
+		ServletContext servletContext = this.getServletContext();
+		return AuthenticationContextTransform.doWork(authCtxt, servletContext);
 	}
 }

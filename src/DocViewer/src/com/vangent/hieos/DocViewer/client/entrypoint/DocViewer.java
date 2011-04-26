@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.DocViewer.client.entrypoint;
 
+import java.util.List;
+
 import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.event.dom.client.ClickEvent;
 //import com.google.gwt.event.dom.client.ClickHandler;
@@ -40,10 +42,12 @@ import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
 import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.Permission;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
+
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -54,6 +58,10 @@ public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
+	
+	private final static String VIEWDOCS = "ViewDocs";
+	private final static String VIEWCONSENT = "ViewConsent";
+	private final static String EDITCONSENT = "EditConsent";
 
 	/**
 	 * 
@@ -80,10 +88,6 @@ public class DocViewer implements EntryPoint {
 	 */
 	public void loadLoginPage() {
 		// Get Title and Logo details from config file
-		// String title = "HIEOS Doc Viewer";
-		// String logoFileName = "search_computer.png";
-		// String logoWidth = "100";
-		// String logoHeigth = "100";
 		Config config = controller.getConfig();
 		String title = config.get(Config.KEY_TITLE);
 		String logoFileName = config.get(Config.KEY_LOGO_FILE_NAME);
@@ -92,7 +96,6 @@ public class DocViewer implements EntryPoint {
 
 		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
-		//loginForm.setWidth(400);
 		loginForm.setWidth100();
 		loginForm.setHeight100();
 
@@ -172,7 +175,20 @@ public class DocViewer implements EntryPoint {
 	public void loadMainPageOnLoginSuccess(AuthenticationContext authContext) {
 		controller.setAuthContext(authContext);
 		if (authContext.getSuccessStatus() == true) {
-			loadMainPage();
+			// Check if the user has permission to use the application
+			List<Permission> permissions = authContext.getUserProfile().getPermissions();
+			boolean permitted = false;
+			for (Permission perm : permissions){
+				if (perm.getName().equals(VIEWDOCS) || perm.getName().equals(VIEWCONSENT) ||
+						perm.getName().equals(EDITCONSENT)){
+					permitted = true;
+				}				
+			}
+			if (permitted){
+				loadMainPage();
+			} else {
+				SC.warn("You do not have access to this application");
+			}
 		} else {
 			// Login failure.
 			SC.warn("Invalid User ID and/or Password. Please check your credentials and try again.");
