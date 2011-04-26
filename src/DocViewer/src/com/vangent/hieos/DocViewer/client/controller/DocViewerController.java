@@ -82,6 +82,7 @@ public class DocViewerController {
 	public void loadConfig(Observer observer) {
 		//ConfigObserver observer = new ConfigObserver(this);
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		timeOutHelper.setPrompt("Loading configuration ...");
 		ConfigRetrieveService service = new ConfigRetrieveService(observer,
 				timeOutHelper);
 		service.doWork();
