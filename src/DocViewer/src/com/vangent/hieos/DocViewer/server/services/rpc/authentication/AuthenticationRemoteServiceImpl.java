@@ -13,11 +13,10 @@
  */
 package com.vangent.hieos.DocViewer.server.services.rpc.authentication;
 
-import javax.servlet.ServletContext;
-
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.services.rpc.AuthenticationRemoteService;
+import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.services.rpc.authentication.AuthenticationContextTransform;
 import com.vangent.hieos.authutil.framework.AuthenticationService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -25,10 +24,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 /**
  * 
  * @author Anand Sastry
- *
+ * 
  */
 public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		implements AuthenticationRemoteService {
+	private ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	/**
 	 * 
@@ -45,11 +45,14 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 * @return AuthenticationContext
 	 */
 	public AuthenticationContext authenticateUser(Credentials guiCreds) {
+		// Get the mixin to allow access to xconfig.xml.
+		servletUtil.init(this.getServletContext());
+
 		com.vangent.hieos.authutil.model.AuthenticationContext authCtxt = null;
-		AuthenticationService authService = new AuthenticationService();
+		AuthenticationService authService = new AuthenticationService(servletUtil.getConfig());
 		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(
 				guiCreds.getUserId(), guiCreds.getPassword());
-		authCtxt = authService.authenticateUser(authCredentials);
+		authCtxt = authService.authenticate(authCredentials);
 		return getAuthenticationContext(authCtxt);
 	}
 
@@ -60,8 +63,8 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 */
 	private AuthenticationContext getAuthenticationContext(
 			com.vangent.hieos.authutil.model.AuthenticationContext authCtxt) {
-		ServletContext servletContext = this.getServletContext();
-		AuthenticationContextTransform authContextTransform = new AuthenticationContextTransform(authCtxt, servletContext);
+		AuthenticationContextTransform authContextTransform = new AuthenticationContextTransform(
+				authCtxt, this.servletUtil);
 		return authContextTransform.doWork();
 	}
 }

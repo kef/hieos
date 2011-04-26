@@ -28,32 +28,31 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class ServletUtilMixin {
-	
+
 	static final String XCONFIG_FILE = "/resources/xconfig.xml";
 	private ServletContext servletContext;
-	
-	public void init(ServletContext servletContext)
-	{		
+
+	public void init(ServletContext servletContext) {
 		this.servletContext = servletContext;
 		// FIXME: ? This may happen more than once, but likely OK since
 		// all servlets share the same "xconfig.xml".
-		String xConfigRealPath = servletContext.getRealPath(ServletUtilMixin.XCONFIG_FILE);
+		String xConfigRealPath = servletContext
+				.getRealPath(ServletUtilMixin.XCONFIG_FILE);
 		System.out.println("Real Path: " + xConfigRealPath);
 		XConfig.setConfigLocation(xConfigRealPath);
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public ServletContext getServletContext()
-	{
+	public ServletContext getServletContext() {
 		return this.servletContext;
 	}
-	
+
 	/**
 	 * 
 	 * @param servletContext
@@ -62,19 +61,13 @@ public class ServletUtilMixin {
 	 */
 	public String getProperty(String key) {
 		String value = null;
-		try {
-			XConfig xconf = XConfig.getInstance();
-			XConfigObject configObject = xconf.getXConfigObjectByName("DocViewerProperties", "DocViewerPropertiesType");
-			if (configObject != null) {
-				value = configObject.getProperty(key);
-			}
-		} catch (XConfigException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		XConfigObject configObject = this.getConfig();
+		if (configObject != null) {
+			value = configObject.getProperty(key);
 		}
 		return value;
 	}
-	
+
 	/**
 	 * 
 	 * @param templateFilename
@@ -92,7 +85,7 @@ public class ServletUtilMixin {
 		}
 		return writer.toString();
 	}
-	
+
 	/**
 	 * 
 	 * @param name
@@ -101,16 +94,27 @@ public class ServletUtilMixin {
 	 */
 	public XConfigActor getActorConfig(String name, String type) {
 		XConfigActor actorConfig = null;
+		XConfigObject configObject = this.getConfig();
+		actorConfig = (XConfigActor) configObject.getXConfigObjectWithName(
+				name, type);
+		return actorConfig;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public XConfigObject getConfig() {
+		XConfigObject config = null;
 		try {
 			XConfig xconf = XConfig.getInstance();
-			XConfigObject configObject = xconf.getXConfigObjectByName(
-					"DocViewerProperties", "DocViewerPropertiesType");
-			actorConfig = (XConfigActor) configObject.getXConfigObjectWithName(
-					name, type);
+			config = xconf.getXConfigObjectByName("DocViewerProperties",
+					"DocViewerPropertiesType");
+
 		} catch (XConfigException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return actorConfig;
+		return config;
 	}
 }

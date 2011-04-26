@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.servlet.ServletContext;
-
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.authentication.Permission;
 import com.vangent.hieos.DocViewer.client.model.authentication.UserProfile;
@@ -36,13 +34,12 @@ public class AuthenticationContextTransform {
 	/**
 	 * 
 	 * @param authContext
-	 * @param servletContext
+	 * @param servletUtil
 	 */
-	public AuthenticationContextTransform(com.vangent.hieos.authutil.model.AuthenticationContext authContext, ServletContext servletContext)
+	public AuthenticationContextTransform(com.vangent.hieos.authutil.model.AuthenticationContext authContext, ServletUtilMixin servletUtil)
 	{
 		this.authContext = authContext;
-		this.servletUtil = new ServletUtilMixin();
-		servletUtil.init(servletContext);
+		this.servletUtil = servletUtil;
 	}
 	
 	/**
