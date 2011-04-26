@@ -58,6 +58,8 @@
 
         <!-- Authenticaiton Handler Configuration -->
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
+        <!--<Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>-->
+
 
         <!-- if using LDAP ... -->
         <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
