@@ -33,6 +33,7 @@ public class XCAIGStoredQueryTransaction extends StoredQueryTransaction {
 		super(s_ctx, instruction, instruction_output);
 	}
 
+    @Override
 	public void run() throws XdsException {
 		expectedHomeCommunityId = s_ctx.get("HomeCommunityId");
 		parseParameters(s_ctx, instruction, instruction_output);
@@ -75,6 +76,7 @@ public class XCAIGStoredQueryTransaction extends StoredQueryTransaction {
 		}
 	}
 
+    @Override
 	public void parseParameters(StepContext s_ctx, OMElement instruction,
 			OMElement instruction_output) throws XdsException {
 		Iterator<OMElement> elements = instruction.getChildElements();

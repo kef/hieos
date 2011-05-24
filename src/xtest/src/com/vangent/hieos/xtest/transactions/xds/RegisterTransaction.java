@@ -66,9 +66,9 @@ public class RegisterTransaction extends BasicTransaction {
 
         log_metadata(request);
 
-        if (XTestDriver.prepair_only) {
+        /*if (XTestDriver.prepair_only) {
             return;
-        }
+        }*/
 
         setMetadata(request);
 

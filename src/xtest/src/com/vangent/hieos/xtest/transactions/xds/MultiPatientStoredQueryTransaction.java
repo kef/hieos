@@ -39,6 +39,7 @@ public class MultiPatientStoredQueryTransaction extends StoredQueryTransaction {
      * 
      * @throws XdsException
      */
+    @Override
      public void run() throws XdsException {
         parseRegistryEndpoint(TestConfig.defaultRegistry, "RegistryStoredQuery");
         super.run();
@@ -47,6 +48,7 @@ public class MultiPatientStoredQueryTransaction extends StoredQueryTransaction {
      *
      * @return
      */
+    @Override
     protected String getRequestAction() {
         return SoapActionFactory.XDSB_REGISTRY_MPQ_ACTION;
     }

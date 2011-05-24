@@ -14,7 +14,6 @@ package com.vangent.hieos.xtest.validator;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.MetadataException;
-import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;

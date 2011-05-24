@@ -16,9 +16,9 @@ package com.vangent.hieos.xtest.framework;
 import java.util.ArrayList;
 
 public class StringSub {
-	ArrayList<String> from;
-	ArrayList<String> to;
-	StringBuffer buf;
+	private ArrayList<String> from;
+	private ArrayList<String> to;
+	private StringBuffer buf;
 
 	public StringSub(String content) {
 		setString(content);
@@ -42,20 +42,20 @@ public class StringSub {
 
 	private void doSub() {
 		for (int i=0; i<from.size(); i++) {
-			String from = this.from.get(i);
-			String to = this.to.get(i);
+			String fromText = this.from.get(i);
+			String toText = this.to.get(i);
 
 			int cnt=10000;
 			while(true) {
 
-				int idx = buf.indexOf(from);
+				int idx = buf.indexOf(fromText);
 				
 				if (idx == -1) 
 					break;
 				
-				int len = from.length();
+				int len = fromText.length();
 
-				buf.replace(idx, idx+len, to);
+				buf.replace(idx, idx+len, toText);
 				
 				cnt--;
 				if (cnt<=0) 
@@ -65,6 +65,7 @@ public class StringSub {
 		}
 	}
 
+    @Override
 	public String toString() {
 		doSub();
 		return buf.toString();

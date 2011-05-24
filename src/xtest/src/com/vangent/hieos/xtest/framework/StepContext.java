@@ -171,15 +171,15 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
         }
         step_id = id.getAttributeValue();
         TestConfig.currentStep = step_id;
-        if (!XTestDriver.only_steps.isEmpty() && !XTestDriver.only_steps.contains(step_id)) {
+        if (!XTestDriver.driver.getOnlySteps().isEmpty() && !XTestDriver.driver.getOnlySteps().contains(step_id)) {
             //System.out.println("Step " + step_id + " found but not requested - only steps " + Xdstest2.only_steps);
             return;
         }
         setId(step_id);
         System.out.println("step " + step_id);
-        if (XTestDriver.l_option) {
+        /*if (XTestDriver.l_option) {
             return;
-        }
+        }*/
         test_step_output = add_simple_element_with_id(
                 plan_context.getResultsDocument(),
                 "TestStep",
@@ -303,8 +303,8 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
      * @param xds_version
      * @return
      */
-    public String getRegistryEndpoint(String transaction, short xds_version) {
+    /*public String getRegistryEndpoint(String transaction, short xds_version) {
         // transaction is "pr", "r", "q", "sq", "ret"
         return XTestDriver.getEndpoint(transaction, xds_version);
-    }
+    }*/
 }

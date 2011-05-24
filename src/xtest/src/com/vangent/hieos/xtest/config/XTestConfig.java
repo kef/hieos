@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.xtest.config;
 
-import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.iosupport.Io;
 
@@ -21,8 +20,6 @@ import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
-import java.util.logging.Level;
-import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
 import java.io.File;
 import java.io.FileInputStream;

@@ -55,6 +55,7 @@ public class XCAIGRetrieveTransaction extends BasicTransaction {
     Metadata reference_metadata = null;
     private final static Logger logger = Logger.getLogger(RetrieveTransaction.class);
 
+    @Override
     public String toString() {
 
         return "XCAIGRetrieveTransaction: *************" +

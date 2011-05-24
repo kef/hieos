@@ -12,282 +12,349 @@
  */
 package com.vangent.hieos.xtest.main;
 
+import com.vangent.hieos.xtest.config.XTestConfig;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xtest.framework.TestConfig;
 import com.vangent.hieos.xtest.framework.StringSub;
 import com.vangent.hieos.xtest.framework.BasicTransaction;
 import com.vangent.hieos.xtest.framework.PlanContext;
 
-import com.vangent.hieos.xutil.exception.XMLParserException;
-import com.vangent.hieos.xutil.xml.XMLParser;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import javax.xml.namespace.QName;
-import org.apache.axiom.om.OMElement;
+import java.util.List;
 
+/**
+ *
+ * @author Bernie Thuman (rewrote / cleanup ... still could be better).
+ */
 public class XTestDriver {
 
-    static public String version = "xx.yy";
-    static public ArrayList only_steps = new ArrayList();
-    static public boolean direct_call = false;
-    static public boolean prepair_only = false;
-    static public String actor_config_file = null;
-    static public OMElement actor_config = null;  // entire configuration
-    static public OMElement actor_element = null; // selected actor
-    static public boolean xds_a = false;
-    static public boolean xds_b = false;
-    static public boolean l_option = false;
-    //static public String target = null;
-    static public String args = "";
-    static StringSub str_sub = new StringSub();
+    static public XTestDriver driver;
+    private String version = "xtest 1.0";
+    private ArrayList only_steps = new ArrayList();
+    private String args = "";
+    private String logDir = null;
+    private StringSub str_sub = new StringSub();
 
+    /**
+     * 
+     * @param argv
+     */
     static public void main(String[] argv) {
-        // This gets around a bug in Leopard (MacOS X 10.5) on Macs
-        //System.setProperty("http.nonProxyHosts", "");
-
+        XTestDriver.driver = new XTestDriver();
+        driver.version = "xtest 1.0";
         for (int i = 0; i < argv.length; i++) {
-            args += argv[i] + " ";
+            driver.args += argv[i] + " ";
         }
+        String siteName = null;
+        String testDir = null;
+        String testCollectionName = null;
+        boolean loop = false;
+        boolean secure = false;
         try {
             for (int i = 0; i < argv.length; i++) {
                 String cmd = argv[i];
-                if (cmd.equals("--prepare")) {
-                    prepair_only = true;
-                } else if (cmd.equals("--target") || cmd.equals("-t")) {
+                if (cmd.equals("-s")) {
                     i++;
                     if (i >= argv.length) {
-                        System.out.println("--target missing value");
+                        System.out.println("-s missing value");
                         throw new Exception("");
                     }
-                    TestConfig.target = argv[i];
-                } else if (cmd.equals("-l")) {
-                    l_option = true;
-                } else if (cmd.equals("--runcheck")) {
-                    System.out.println("xdstest2 status: Xdstest2 is running");
+                    siteName = argv[i];
+                } else if (cmd.equals("-t")) {
+                    i++;
+                    if (i >= argv.length) {
+                        System.out.println("-t missing value");
+                        throw new Exception("");
+                    }
+                    testDir = argv[i];
+                } else if (cmd.equals("-tc")) {
+                    i++;
+                    if (i >= argv.length) {
+                        System.out.println("-tc missing value");
+                        throw new Exception("");
+                    }
+                    testCollectionName = argv[i];
+                } else if (cmd.equals("-secure")) {
+                    secure = true;
+                } else if (cmd.equals("-h")) {
+                    driver.usage();
                     System.exit(0);
-                } else if (cmd.equals("--xdsa")) {
-                    xds_a = true;
-                } else if (cmd.equals("--xdsb")) {
-                    xds_b = true;
-                } else if (cmd.equals("--actorconfig")) {
-                    i++;
-                    if (i >= argv.length) {
-                        System.out.println("--actorconfig missing value");
-                        throw new Exception("");
-                    }
-                    actor_config_file = argv[i];
-                } else if (cmd.equals("--testmgmt")) {
-                    i++;
-                    if (i >= argv.length) {
-                        System.out.println("--testmgmt missing value");
-                        throw new Exception("");
-                    }
-                    TestConfig.testmgmt_dir = argv[i];
-                } else if (cmd.equals("--logstatus")) {
-                    i++;
-                    if (i >= argv.length) {
-                        System.out.println("--logstatus missing value");
-                        throw new Exception("");
-                    }
-                    String logname = argv[i];
-                    parse_log_status(logname);
-                } else if (cmd.equals("--sub")) {
-                    i++;
-                    if (i >= argv.length) {
-                        System.out.println("--sub missing values");
-                        throw new Exception("");
-                    }
-                    String from = argv[i];
-                    i++;
-                    if (i >= argv.length) {
-                        System.out.println("--sub missing values");
-                        throw new Exception("");
-                    }
-                    String to = argv[i];
-                    str_sub.addSub(from, to);
+                } else if (cmd.equals("-loop")) {
+                    loop = true;
                 } else {
-                    only_steps.add(cmd);
+                    driver.usage();
+                    System.exit(0);
                 }
             }
         } catch (Exception e) {
-            usage();
+            driver.usage();
             System.exit(-1);
         }
-        validate();
-
-        boolean stat = runTest(TestConfig.base_path);
-        if (stat) {
-            System.out.println("xdstest2 status: Pass");
-        } else {
-            System.out.println("xdstest2 status: Fail");
-        }
-    }
-
-    static void parse_log_status(String logname) {
-        OMElement log = null;
         try {
-            log = XMLParser.fileToOM(logname);
-        } catch (XMLParserException e) {
-            System.out.println("Cannot open or parse " + logname);
+            TestConfig.secure = secure;
+            driver.setConfig(siteName);
+        } catch (XdsInternalException ex) {
             System.exit(-1);
         }
-        String status = log.getAttributeValue(new QName("status"));
-        if (status != null && status.equals("Pass")) {
+        List<TestSpec> testSpecs = null;
+        if (testDir != null) {
+            testSpecs = driver.findTestSpecs(testDir);
+        } else if (testCollectionName != null) {
+            testSpecs = driver.findTestSpecsForTestCollection(testCollectionName);
+        } else {
+            driver.usage();
             System.exit(0);
         }
-        System.exit(-1);
-    }
 
-    private static void validate() {
-//		if (xds_a == false && xds_b == false) {
-//			System.out.println("--xdsa or --xdsb must be specified");
-//			usage();
-//			System.exit(-1);
-//		}
-
-        if (actor_config_file == null) {
-            System.out.println("--actorconfig configfile is required");
-            usage();
-            System.exit(-1);
-        }
-
-        if (TestConfig.testmgmt_dir == null) {
-            System.out.println("--testmgmt dir is required");
-            usage();
-            System.exit(-1);
-        }
-
-        if (!TestConfig.testmgmt_dir.endsWith("/")) {
-            TestConfig.testmgmt_dir = TestConfig.testmgmt_dir + "/";
-        }
-
-        try {
-            actor_config = XMLParser.fileToOM(actor_config_file);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            usage();
-            System.exit(-1);
-        }
-
-        int system_count = 0;
-        for (Iterator it = actor_config.getChildElements(); it.hasNext();) {
-            it.next();
-            system_count++;
-        }
-
-        if (system_count == 0) {
-            System.out.println("No systems configured in " + actor_config_file);
-            usage();
-            System.exit(-1);
-        }
-
-//		if (target == null && system_count > 1) {
-//			System.out.println("--target was not specified and more than one system is configured in " + actor_config_file);
-//			usage();
-//			System.exit(-1);
-//		}
-
-        if (TestConfig.target == null) {
-            actor_element = (OMElement) actor_config.getChildElements().next();
-        } else {
-            for (Iterator it = actor_config.getChildElements(); it.hasNext();) {
-                OMElement actor = (OMElement) it.next();
-                String name = actor.getLocalName();
-                if (name.equals(TestConfig.target)) {
-                    actor_element = actor;
-                    break;
+        long testRunStartTime = System.currentTimeMillis();  // Start time of test run.
+        for (;;) {
+            for (TestSpec testSpec : testSpecs) {
+                TestConfig.base_path = testSpec.getTestSpecDir();
+                TestConfig.log_dir = driver.makeLogDir(testSpec);
+                //System.out.println("test spec = " + TestConfig.base_path);
+                boolean ok = driver.runTest(TestConfig.base_path);
+                if (ok) {
+                    System.out.println("...Pass");
+                } else {
+                    System.out.println("...Fail");
                 }
             }
-            if (actor_element == null) {
-                System.out.println("Actor definitions for target implementation " + TestConfig.target + " was not found in configuration file " + actor_config_file);
-                usage();
-                System.exit(-1);
+            if (!loop) {
+                break;
             }
         }
+        long testRunStopTime = System.currentTimeMillis();  // Stop time of test run.
+        long testRunElapsedTime = testRunStopTime - testRunStartTime;
+        System.out.println("\n\n---------------------------------  Test Summary  ------------------------------\n");
+        System.out.println("\t Number of test specs: " + testSpecs.size());
+        System.out.println("\t Elapsed time: " + testRunElapsedTime / 1000.0 + " seconds");
+        System.exit(0);
     }
 
-    static void usage() {
-        System.out.println(
-                "\n" +
-                "Usage: xds2 --xdsa|--xdsb [options] \n" +
-                "     where options are:\n" +
-                "   --xdsa : selects XDS.a coding and protocols\n" +
-                "   --xdsb : selects XDS.b coding and protocols\n" +
-                "   --actorconfig filename : XML file defining the Registry and Repository actors and their endpoints\n" +
-                "   --target system : the system, configured in actor configuration (--actorconfig option) to send tests to.\n" +
-                "             if this is specified, --trans must also be specified.\n" +
-                "   --trans transactionname :  used to select a transaction from the machine from the above configuration file (--target must also be specified)\n" +
-                "      IF --machine AND --trans ARE specified then they override the <RegistryEndpoint/> element of testplan.xml\n" +
-                "   --testmgmt directoryname : directory holding the test management info like uniqueId counter etc.\n" +
-                "   -t system         The system requested here must be an Element in the actor configuration. If only one system is\n" +
-                "                     configured then this option need not be specified\n" +
-                "   --prepair : prepair the submission, add it to the log file and exit (no trancation is sent)\n" +
-                "   --sub <from> <to> : substitute string <to> for string <from> in testplan.xml before using\n" +
-                "   -l : list steps and exit\n" +
-                "   teststep : zero or more test step names, test steps are executed in order of listing. If no\n" +
-                "            test steps are provided, all test steps will be run.\n" +
-                "\n" +
-                "If no teststeps are specified, all test steps in testplan.xml are executed in order.\n" +
-                "All results go into log.xml");
+    /**
+     * 
+     * @return
+     */
+    public String getVersion() {
+        return this.version;
     }
 
-    static public String getEndpoint(String service, short xds_version) {
-        // service should be "r", "pr" "q", "sq", "ret"
-        String target_name = service + ".b";
-        OMElement ele = MetadataSupport.firstChildWithLocalName(actor_element, target_name);
-        if (ele == null) {
-            System.out.println("Actor " + actor_element.getLocalName() + " does not have and endpoint for service " + target_name);
-            usage();
+    /**
+     *
+     * @return
+     */
+    public String getArgs() {
+        return this.args;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public ArrayList getOnlySteps() {
+        return this.only_steps;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getLogDir() {
+        return this.logDir;
+    }
+
+    /**
+     *
+     * @param siteName
+     */
+    private void setConfig(String siteName) throws XdsInternalException {
+        // Test directory:
+        String testDir = System.getenv("HIEOSxTestDir");
+        if (testDir == null) {
+            System.err.println("HIEOSxTestDir environment variable not specified!");
             System.exit(-1);
         }
-        return ele.getText();
+
+        // FIXME: What if directory does not exist?
+        TestConfig.testmgmt_dir = testDir + File.separatorChar;
+
+        // Log directory:
+        this.logDir = System.getenv("HIEOSxLogDir");
+        if (this.logDir == null) {
+            // Default
+            this.logDir = TestConfig.testmgmt_dir + "logs" + File.separatorChar;
+            System.out.println("HIEOSxLogDir environment variable not set ... default to " + this.logDir);
+        }
+  
+        // Setup site configuration.
+        this.setSiteConfig(siteName);
     }
 
-    public static boolean runTestDirect(String test_path, short xds_version, String config, String mgmt, String target_config, ArrayList<String> steps) {
-        /*if (xds_version == BasicTransaction.xds_a)
-        xds_a = true;
-        else*/
-        xds_b = true;
-        actor_config_file = config;
-        TestConfig.testmgmt_dir = mgmt;
-        TestConfig.target = target_config;
-        TestConfig.base_path = test_path;
-        if (!TestConfig.base_path.endsWith("/")) {
-            TestConfig.base_path = TestConfig.base_path + "/";
+    /**
+     *
+     * @param siteName
+     * @throws XdsInternalException
+     */
+    private void setSiteConfig(String siteName) throws XdsInternalException {
+        TestConfig.xtestConfig = XTestConfig.getInstance();
+        if (siteName == null) {
+            // get default from xtestconfig.xml
+            siteName = TestConfig.xtestConfig.getDefaultSite();
         }
+        TestConfig.pid_allocate_endpoint = TestConfig.xtestConfig.getPIDAllocateEndpoint(siteName);
+        TestConfig.defaultRegistry = TestConfig.xtestConfig.getDefaultRegistry(siteName);
+        TestConfig.defaultRepository = TestConfig.xtestConfig.getDefaultRepository(siteName);
+        TestConfig.defaultInitiatingGateway = TestConfig.xtestConfig.getDefaultInitiatingGateway(siteName);
+        TestConfig.target = siteName;
+        System.out.println("Using site " + siteName);
+    }
 
-        direct_call = true;
-
-        validate();
-
-        if (steps != null) {
-            for (String step : steps) {
-                only_steps.add(step);
+    /**
+     *
+     * @param testDir
+     * @return
+     */
+    private List<TestSpec> findTestSpecs(String testDir) {
+        String scriptsDir = TestConfig.testmgmt_dir + File.separatorChar + "scripts";
+        // Loop through each test directory looking for directory.
+        List<TestSpec> testSpecs = new ArrayList<TestSpec>();
+        String[] sections = {"tests", "testdata"};
+        for (int i = 0; i < sections.length; i++) {
+            // See if the directory exists.
+            File rootFolder = new File(scriptsDir + File.separatorChar + sections[i] + File.separatorChar + testDir);
+            if (rootFolder.isDirectory()) {
+                // Match.
+                // Now see if the directory contains a testplan.xml file.
+                File testPlanFile = new File(rootFolder.getAbsolutePath() + File.separatorChar + "testplan.xml");
+                if (testPlanFile.exists()) {
+                    TestSpec testSpec = new TestSpec();
+                    testSpec.setTestSpecDir(rootFolder.getAbsolutePath());
+                    String logDirSuffix = sections[i] + File.separatorChar + testDir;
+                    testSpec.setLogDirSuffix(logDirSuffix);
+                    testSpecs.add(testSpec);
+                    //System.out.println("Found testplan.xml in " + rootFolder.getAbsolutePath());
+                } else {
+                    // See if the directory contains an index.idx file.
+                    File indexFile = new File(rootFolder.getAbsolutePath() + File.separatorChar + "index.idx");
+                    if (indexFile.exists()) {
+                        //System.out.println("Found index.idx in " + rootFolder.getAbsolutePath());
+                        BufferedReader input = null;
+                        try {
+                            input = new BufferedReader(new FileReader(indexFile));
+                            String folderName = null;
+                            while ((folderName = input.readLine()) != null) {
+                                File subFolder = new File(rootFolder.getAbsolutePath() + File.separatorChar + folderName);
+                                testPlanFile = new File(subFolder.getAbsolutePath() + File.separatorChar + "testplan.xml");
+                                if (testPlanFile.exists()) {
+                                    TestSpec testSpec = new TestSpec();
+                                    testSpec.setTestSpecDir(subFolder.getAbsolutePath());
+                                    String logDirSuffix = sections[i] + File.separatorChar + testDir + File.separatorChar + folderName;
+                                    testSpec.setLogDirSuffix(logDirSuffix);
+                                    testSpecs.add(testSpec);
+                                    //System.out.println("Found testplan.xml in " + subFolder.getAbsolutePath());
+                                }
+                            }
+                        } catch (IOException ex) {
+                            // TBD
+                        } finally {
+                            try {
+                                input.close();
+                            } catch (IOException ex) {
+                                // TBD
+                            }
+                        }
+                    }
+                }
             }
         }
-
-        return runTest(test_path);
+        return testSpecs;
     }
 
-    public static boolean runTest(String test_path) {
-        // This gets around a bug in Leopard (MacOS X 10.5) on Macs and their
-        // interaction with addressing.mar
-        //System.setProperty("http.nonProxyHosts", "");
-        if (!test_path.endsWith("/")) {
-            test_path = test_path + "/";
-        }
-        TestConfig.base_path = test_path;
-        try {
-//			String default_config_file = TestConfig.testmgmt_dir + "/default.xml";
-//			OMElement default_config = Util.parse_xml(new File(default_config_file));
+    /**
+     *
+     * @param testCollectionName
+     * @return
+     */
+    private List<TestSpec> findTestSpecsForTestCollection(String testCollectionName) {
+        String scriptsDir = TestConfig.testmgmt_dir + File.separatorChar + "scripts";
+        // Loop through each test directory looking for directory.
+        List<TestSpec> testSpecs = new ArrayList<TestSpec>();
+        String collectionsDir = scriptsDir + File.separatorChar + "collections";
+        File collectionsFile = new File(collectionsDir + File.separatorChar + testCollectionName + ".tc");
+        if (collectionsFile.exists()) {
+            // Loop through the contents of the collections file.
+            BufferedReader input = null;
+            try {
+                input = new BufferedReader(new FileReader(collectionsFile));
+                String folderName;
+                while ((folderName = input.readLine()) != null) {
+                    List<TestSpec> subTestSpecs = this.findTestSpecs(folderName);
+                    testSpecs.addAll(subTestSpecs);
+                }
+            } catch (IOException ex) {
+                // TBD
+            } finally {
+                try {
+                    input.close();
+                } catch (IOException ex) {
+                    // TBD
+                }
+            }
 
+        }
+        return testSpecs;
+    }
+
+    /**
+     * 
+     * @param testSpec
+     * @return
+     */
+    private String makeLogDir(TestSpec testSpec) {
+        //System.out.println("Making log dir from: " + testSpec.getLogDirSuffix());
+        String logDirName = this.logDir + File.separatorChar + testSpec.getLogDirSuffix() + File.separatorChar;
+        //System.out.println(" ... " + logDirName);
+        new File(logDirName).mkdirs();
+        return logDirName;
+    }
+
+    /**
+     *
+     */
+    private void usage() {
+        System.out.println(
+                "\n"
+                + "Usage: xtest [options] \n"
+                + "     where options are:\n"
+                + "   -h : Display this help message\n"
+                + "   -s <sitename> : Selects site name to use from xtestconfig.xml\n"
+                + "   -t <test name> : Selects test plan to run\n"
+                + "   -tc <test collection name> : Selects test collection to run\n"
+                + "   -secure : Run in secure mode\n"
+                + "   -loop : Loops selected test forever\n");
+    }
+
+    /**
+     *
+     * @param testPathName
+     * @return
+     */
+    private boolean runTest(String testPathName) {
+        if (!testPathName.endsWith("/")) {
+            testPathName = testPathName + "/";
+        }
+        TestConfig.base_path = testPathName;
+        try {
             PlanContext plan = new PlanContext(BasicTransaction.xds_b);
-//			plan.setDefaultConfig(default_config);
-            return plan.run(test_path + "testplan.xml", str_sub);
+            return plan.run(testPathName + "testplan.xml", str_sub);
         } catch (XdsException e) {
             System.out.println("XdsException thrown: " + exception_details(e));
         } catch (NullPointerException e) {
@@ -296,11 +363,63 @@ public class XTestDriver {
         return false;
     }
 
-    static public String exception_details(Exception e) {
+    /**
+     *
+     * @param e
+     * @return
+     */
+    private String exception_details(Exception e) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         e.printStackTrace(ps);
 
         return "Exception thrown: " + e.getClass().getName() + "\n" + e.getMessage() + "\n" + new String(baos.toByteArray());
+    }
+
+    /**
+     *
+     */
+    public class TestSpec {
+
+        private String testSpecDir;
+        private String logDirSuffix;
+
+        /**
+         *
+         */
+        public TestSpec() {
+        }
+
+        /**
+         *
+         * @return
+         */
+        public String getTestSpecDir() {
+            return testSpecDir;
+        }
+
+        /**
+         * 
+         * @param testSpecDir
+         */
+        public void setTestSpecDir(String testSpecDir) {
+            this.testSpecDir = testSpecDir;
+        }
+
+        /**
+         *
+         * @return
+         */
+        public String getLogDirSuffix() {
+            return logDirSuffix;
+        }
+
+        /**
+         * 
+         * @param logDirSuffix
+         */
+        public void setLogDirSuffix(String logDirSuffix) {
+            this.logDirSuffix = logDirSuffix;
+        }
     }
 }

@@ -57,6 +57,7 @@ public class RetrieveTransaction extends BasicTransaction {
     boolean is_xca = false;
     private final static Logger logger = Logger.getLogger(RetrieveTransaction.class);
 
+    @Override
     public String toString() {
 
         return "RetrieveTransaction: *************" +

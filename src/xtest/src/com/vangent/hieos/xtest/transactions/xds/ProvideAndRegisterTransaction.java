@@ -41,6 +41,7 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
         super(s_ctx, instruction, instruction_output);
     }
 
+    @Override
     public void run()
             throws XdsException {
 
@@ -88,9 +89,9 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
 
             log_metadata(pnr);
 
-            if (XTestDriver.prepair_only) {
+            /*if (XTestDriver.prepair_only) {
                 return;
-            }
+            }*/
 
             body = pnr;
             try {
@@ -334,6 +335,7 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
         }
     }
 
+    @Override
     protected String getRequestAction() {
         if (xds_version == BasicTransaction.xds_b) {
             return SoapActionFactory.XDSB_REPOSITORY_PNR_ACTION;

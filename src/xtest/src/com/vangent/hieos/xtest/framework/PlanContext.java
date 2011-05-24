@@ -106,8 +106,8 @@ public class PlanContext extends BasicContext {
         try {
             results_document = build_results_document();
 
-            add_name_value(results_document, "version", XTestDriver.version);
-            add_name_value(results_document, "args", XTestDriver.args);
+            add_name_value(results_document, "version", XTestDriver.driver.getVersion());
+            add_name_value(results_document, "args", XTestDriver.driver.getArgs());
 
             String testplan_str = Io.stringFromFile(new File(testplan_filename));
             str_sub.setString(testplan_str);

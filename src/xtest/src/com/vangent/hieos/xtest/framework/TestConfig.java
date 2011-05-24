@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class TestConfig {
 	// Directory holding testplan.xml and its support files
@@ -27,7 +26,7 @@ public class TestConfig {
 	// Output directory for log.xml files (organized in same dir structure as testkit)
 	static public String log_dir = null;
 	
-	// Full path to xdstoolkit/xdstest directory
+	// Full path to xtest/test directory
 	static public String testmgmt_dir = null;
 	
 	// REST service to call to allocate a patient id for testing 
