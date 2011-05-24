@@ -247,6 +247,25 @@ public class XConfig {
     }
 
     /**
+     * Returns all XConfigObject instances of the specific type.
+     *
+     * @param type The type of XConfigObject to locate.
+     * @return List<XConfigObject>
+     */
+    public List<XConfigObject> getXConfigObjectsOfType(String type)
+    {
+        List<XConfigObject> configObjects = new ArrayList<XConfigObject>();
+        for (XConfigObject object : objects)
+        {
+            if (object.getType().equalsIgnoreCase(type))
+            {
+                configObjects.add(object);
+            }
+        }
+        return configObjects;
+    }
+
+    /**
      * Returns an XConfigActor for a give "name" and "type".
      *
      * @param name Name of the Actor.
