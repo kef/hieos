@@ -8,7 +8,6 @@ echo AXIS_LIBS=$AXIS_LIBS
 echo NIO_LIBS=$NIO_LIBS
 export CLASSPATH="\
 $SRC_ROOT\xtest\dist\xtest.jar\
-;$SHARED_LIBS\groovy-all-1.5.6.jar\
 ;$AXIS_LIBS\modules\addressing-1.5.mar\
 ;$AXIS_LIBS\activation-1.1.jar\
 ;$AXIS_LIBS\axiom-api-1.2.8.jar\
