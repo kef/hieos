@@ -52,6 +52,10 @@ public class RetrieveBEngine {
 			qc.addFatalError("No repositoryUniqueId found in document <" + id + ">");
 			return;
 		}
+                if (isXca)
+                {
+                    rep_uid = home;
+                }
 		ArrayList<String> endpoints = repositories.get(rep_uid);
 		if (endpoints == null) {
 			qc.addFatalError("The repositoryUniqueId found in document <" + id + ">, is not configured in xwebtools");
