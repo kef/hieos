@@ -62,12 +62,30 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     private final static Logger logger = Logger.getLogger(XAbstractService.class);
     protected XLogMessage log_message = null;
+    private boolean excludedServiceFromXUA = false;
 
     public enum ActorType {
+
         REGISTRY, REPOSITORY, PIXMGR, PDS, XCPD_GW, DOCRECIPIENT
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
+
+    /**
+     *
+     * @return
+     */
+    public boolean isExcludedServiceFromXUA() {
+        return excludedServiceFromXUA;
+    }
+
+    /**
+     *
+     * @param excludedServiceFromXUA
+     */
+    public void setExcludedServiceFromXUA(boolean excludedServiceFromXUA) {
+        this.excludedServiceFromXUA = excludedServiceFromXUA;
+    }
 
     /**
      *
@@ -111,8 +129,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected void validateWS() throws XdsWSException {
         checkSOAP12();
         if (isAsync()) {
-            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint"
+                    + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
 
@@ -125,8 +143,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     protected void validateAsyncWS() throws XdsWSException {
         checkSOAP12();
         if (!isAsync()) {
-            throw new XdsWSException("Asynchronous web service required on this endpoint" +
-                    " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+            throw new XdsWSException("Asynchronous web service required on this endpoint"
+                    + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
 
@@ -228,6 +246,12 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @return
      */
     private OMElement validateXUA(OMElement request) {
+        if (this.excludedServiceFromXUA) {
+            // This service is not participating in XUA -- most notably the
+            // Secure Token Service (STS).
+            return null;
+        }
+
         // Validate XUA constraints here:
         XServiceProvider xServiceProvider = new XServiceProvider(log_message);
         XServiceProvider.Status response;
@@ -258,9 +282,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param status
      */
     protected void endTransaction(boolean status) {
-        logger.info("End " + serviceName + " " +
-                ((log_message == null) ? "null" : log_message.getMessageID()) + " : " +
-                ((status) ? "Pass" : "Fail"));
+        logger.info("End " + serviceName + " "
+                + ((log_message == null) ? "null" : log_message.getMessageID()) + " : "
+                + ((status) ? "Pass" : "Fail"));
         stopXLogger();
     }
 
@@ -492,10 +516,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected boolean isAsync() {
         MessageContext mc = getMessageContext();
-        return mc.getMessageID() != null &&
-                !mc.getMessageID().equals("") &&
-                mc.getReplyTo() != null &&
-                !mc.getReplyTo().hasAnonymousAddress();
+        return mc.getMessageID() != null
+                && !mc.getMessageID().equals("")
+                && mc.getReplyTo() != null
+                && !mc.getReplyTo().hasAnonymousAddress();
     }
 
     /**
