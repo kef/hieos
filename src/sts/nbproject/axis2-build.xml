@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:axis2="http://www.netbeans.org/ns/axis2/1" xmlns:xalan="http://xml.apache.org/xslt" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3">
+    <!--
+                ===================
+                JAX-WS WSIMPORT SECTION
+                ===================
+            -->
+    <target name="axis2-aar" depends="compile">
+        <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
+         <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
+        <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
+            <resources>
+                <file file="${file.reference.xutil.jar}"/>
+                <file file="${file.reference.bcprov-jdk15-1.45.jar}"/>
+                <file file="${file.reference.commons-collections-3.1.jar}"/>
+                <file file="${file.reference.log4j-over-slf4j-1.6.1.jar}"/>
+                <file file="${file.reference.commons-codec-1.3.jar}"/>
+                <file file="${file.reference.commons-httpclient-3.1.jar}"/>
+                <file file="${file.reference.commons-lang-2.1.jar}"/>
+                <file file="${file.reference.esapi-2.0GA.jar}"/>
+                <file file="${file.reference.jcip-annotations-1.0.jar}"/>
+                <file file="${file.reference.jcl-over-slf4j-1.6.1.jar}"/>
+                <file file="${file.reference.joda-time-1.6.2.jar}"/>
+                <file file="${file.reference.jul-to-slf4j-1.6.1.jar}"/>
+                <file file="${file.reference.not-yet-commons-ssl-0.3.9.jar}"/>
+                <file file="${file.reference.opensaml-2.5.0.jar}"/>
+                <file file="${file.reference.openws-1.4.2.jar}"/>
+                <file file="${file.reference.slf4j-api-1.6.0.jar}"/>
+                <file file="${file.reference.velocity-1.5.jar}"/>
+                <file file="${file.reference.xmlsec-1.4.4.jar}"/>
+                <file file="${file.reference.xmltooling-1.3.2.jar}"/>
+            </resources>
+        </copy>
+        <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
+            <fileset excludes="**/Test.class" dir="${build.dir}/classes"/>
+            <fileset dir="${basedir}/xml-resources/axis2">
+                <include name="**/*.wsdl"/>
+                <include name="**/*.xsd"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.jar"/>
+            </fileset>
+        </jar>
+        <delete dir="${basedir}/xml-resources/axis2/lib"/>
+    </target>
+    <target name="axis2-deploy-dir-check" depends="axis2-aar">
+        <condition property="axis2-deploy-dir-required">
+            <isset property="axis2.deploy.dir"/>
+        </condition>
+    </target>
+    <target name="axis2-deploy-dir" depends="axis2-deploy-dir-check" if="axis2-deploy-dir-required">
+        <copy toDir="${axis2.deploy.dir}/WEB-INF/services">
+            <fileset dir="${build.dir}/axis2/WEB-INF/services">
+                <include name="*.aar"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="axis2-deploy-war-check" depends="axis2-aar">
+        <condition property="axis2-deploy-war-required">
+            <isset property="axis2.deploy.war"/>
+        </condition>
+    </target>
+    <target name="axis2-deploy-war" depends="axis2-deploy-war-check" if="axis2-deploy-war-required">
+        <jar destfile="${axis2.deploy.war}" update="true">
+            <fileset dir="${build.dir}/axis2">
+                <include name="**/*.aar"/>
+            </fileset>
+        </jar>
+    </target>
+    <target name="axis2-deploy" depends="axis2-deploy-dir, axis2-deploy-war"/>
+</project>

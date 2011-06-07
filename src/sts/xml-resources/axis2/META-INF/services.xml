@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <service name="STS" class="com.vangent.hieos.services.sts.serviceimpl.STS">
+        <description>Secure Token Service</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.sts.serviceimpl.STS</parameter>
+        <operation name="RequestSecurityToken">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</actionMapping>
+            <actionMapping>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</actionMapping>
+        </operation>
+    </service>
+</serviceGroup>
