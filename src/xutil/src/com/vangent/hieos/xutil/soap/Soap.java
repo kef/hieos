@@ -35,8 +35,13 @@ import com.vangent.hieos.xutil.xconfig.XConfig;
 import java.util.List;
 import org.apache.axis2.engine.Phase;
 import com.vangent.hieos.xutil.xua.handlers.XUAOutPhaseHandler;
+import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import java.util.Iterator;
+import javax.xml.namespace.QName;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.log4j.Logger;
 
@@ -128,7 +133,7 @@ public class Soap {
             }
 
             // Setup for XUA (if required).
-            this.setupXUAOutPhaseHandler();
+            this.setupXUA(serviceClient);
 
             // Make the SOAP request (and save the result).
             this.result = serviceClient.sendReceive(body);
@@ -165,7 +170,7 @@ public class Soap {
         return result;
     }
 
-    /**
+    /*
      * Returns a deep copy of the SOAP "in" header.
      *
      * @return A deep copy of the SOAP "in" header.
@@ -363,15 +368,15 @@ public class Soap {
         if (alternateReturnAction == null) {
             if (soapActionValue == null || !soapActionValue.equals(expectedReturnAction)) {
                 throw new XdsInternalException(
-                        "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction +
-                        " returned action = " + soapActionValue);
+                        "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction
+                        + " returned action = " + soapActionValue);
             }
         } else {
-            if (soapActionValue == null ||
-                    ((!soapActionValue.equals(expectedReturnAction)) && (!soapActionValue.equals(alternateReturnAction)))) {
+            if (soapActionValue == null
+                    || ((!soapActionValue.equals(expectedReturnAction)) && (!soapActionValue.equals(alternateReturnAction)))) {
                 throw new XdsInternalException(
-                        "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction +
-                        " returned action = " + soapActionValue);
+                        "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction
+                        + " returned action = " + soapActionValue);
             }
         }
     }
@@ -379,8 +384,12 @@ public class Soap {
     /**
      * Sets the XUA "Out Phase Handler" (if XUA is enabled).
      */
-    private void setupXUAOutPhaseHandler() {
-        if ((this.xuaObject != null) && (this.xuaObject.isXUAEnabled())) {
+    private void setupXUA(ServiceClient serviceClient) {
+        OMElement currentSecurityHeader = this.getCurrentSecurityHeader();
+        if (currentSecurityHeader != null) {
+            // Must be on server-side -- propogate Security header on out-bound requests.
+            serviceClient.addHeader(currentSecurityHeader);
+        } else if ((this.xuaObject != null) && (this.xuaObject.isXUAEnabled())) {
             List outFlowPhases = serviceClient.getAxisConfiguration().getOutFlowPhases();
             // Check to see if the out phase handler already exists
             for (Iterator it = outFlowPhases.iterator(); it.hasNext();) {
@@ -414,5 +423,38 @@ public class Soap {
             t.printStackTrace();
         }
         return phase;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private OMElement getCurrentSecurityHeader() {
+
+        OMElement securityHeader = null;
+        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+        if (currentMessageContext != null) {
+            //System.out.println("+++ XUA - Current SOAP Action: "
+            //        + MessageContext.getCurrentMessageContext().getSoapAction());
+
+            // Get the SOAP envelope from the current message context
+            SOAPEnvelope env = currentMessageContext.getEnvelope();
+
+            // Check to see if the envelope contains a Security header ... if so, propagate
+            SOAPHeader header = env.getHeader();
+            if (header != null) {
+                securityHeader = header.getFirstChildWithName(
+                        new QName(XUAConstants.WS_SECURITY_NS_URL, "Security"));
+                //if (securityHeader != null) {
+                //    System.out.println("+++++ FOUND +++++");
+                //}
+            }
+        }
+        return securityHeader;
+
+        // Attach assertion to wrapper and
+        //wsseSecurityHeader.addChild(samlTokenEle);
+        // Attach wrapper to SOAP message
+        //requestEnvelope.getHeader().addChild(wsseSecurityHeader);
     }
 }

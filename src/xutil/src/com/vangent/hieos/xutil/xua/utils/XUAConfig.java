@@ -85,6 +85,14 @@ public class XUAConfig {
      * @return
      */
     public boolean containsSOAPAction(String soapAction) {
+        if (this.soapActionsList.isEmpty()) {
+            // Always constrain if the SOAP action list is empty.
+            return true;
+        }
+        if (this.soapActionsList.contains("all")) {
+            // Constrain all SOAP actions.
+            return true;
+        }
         return this.soapActionsList.contains(soapAction.toLowerCase());
     }
 
@@ -95,7 +103,7 @@ public class XUAConfig {
      */
     public boolean IPAddressIsConstrained(String IPAddress) {
         // Check to see if all IP addresses should be constrained.
-        if (this.constrainedIPList.size() == 0) {
+        if (this.constrainedIPList.isEmpty()) {
             // Always constrain if the IP list is empty.
             return true;
         }
