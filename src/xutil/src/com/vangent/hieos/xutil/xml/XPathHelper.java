@@ -68,7 +68,7 @@ public class XPathHelper {
             if (resultNode != null) {
                 logger.debug("*** Found node for XPATH: " + xpathExpression);
             } else {
-                logger.error("*** Could not find node for XPATH: " + xpathExpression);
+                logger.warn("*** Could not find node for XPATH: " + xpathExpression);
             }
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
@@ -116,7 +116,7 @@ public class XPathHelper {
             if (resultNodes != null) {
                 logger.debug("*** Found nodes for XPATH: " + xpathExpression);
             } else {
-                logger.error("*** Could not find nodes for XPATH: " + xpathExpression);
+                logger.warn("*** Could not find nodes for XPATH: " + xpathExpression);
             }
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
@@ -143,7 +143,7 @@ public class XPathHelper {
             if (result != null) {
                 logger.debug("*** Found nodes for XPATH: " + xpathExpression);
             } else {
-                logger.error("*** Could not find nodes for XPATH: " + xpathExpression);
+                logger.warn("*** Could not find nodes for XPATH: " + xpathExpression);
             }
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
