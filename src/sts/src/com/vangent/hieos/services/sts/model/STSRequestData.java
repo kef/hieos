@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.services.sts.model.SOAPHeaderData;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;

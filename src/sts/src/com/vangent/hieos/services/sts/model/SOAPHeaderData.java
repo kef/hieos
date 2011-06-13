@@ -12,9 +12,12 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+import java.security.cert.X509Certificate;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -30,6 +33,7 @@ import org.joda.time.format.ISODateTimeFormat;
  */
 public class SOAPHeaderData {
 
+    // UserNameToken:
     //<soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
     //  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     //     <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -42,12 +46,38 @@ public class SOAPHeaderData {
     //     </wsse:UsernameToken>
     //  </wsse:Security>
     //</soapenv:Header>
+    // BinarySecurityToken (X.509 Certificate):
+    //<soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    //  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    //     <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    //        <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
+    //        <wsu:Expires>2011-06-04T20:45:49.881Z</wsu:Expires>
+    //     </wsu:Timestamp>
+    //     <wsse:BinarySecurityToken wsu:Id="binarytoken"
+    //         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    //         ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
+    //         EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">
+    //        ...
+    //     </wsse:BinarySecurityToken>
+    //  </wsse:Security>
+    //</soapenv:Header>
     private DateTime timestampCreated;
     private DateTime timestampExpires;
     private String userName;
     private String userPassword;
+    private STSConstants.AuthenticationType authenticationType;
+    private X509Certificate certificate;
     private String soapAction;
     private MessageContext messageContext;
+    private STSConfig stsConfig;
+
+    private SOAPHeaderData() {
+        // Do not allow.
+    }
+
+    public SOAPHeaderData(STSConfig stsConfig) {
+        this.stsConfig = stsConfig;
+    }
 
     public DateTime getTimestampCreated() {
         return timestampCreated;
@@ -63,6 +93,14 @@ public class SOAPHeaderData {
 
     public String getUserPassword() {
         return userPassword;
+    }
+
+    public X509Certificate getClientCertificate() {
+        return certificate;
+    }
+
+    public STSConstants.AuthenticationType getAuthenticationType() {
+        return authenticationType;
     }
 
     public String getSoapAction() {
@@ -87,10 +125,28 @@ public class SOAPHeaderData {
         }
         timestampCreated = this.getTimestampCreated(securityHeader);
         timestampExpires = this.getTimestampExpires(securityHeader);
-        userName = this.getUsername(securityHeader);
-        userPassword = this.getUserPassword(securityHeader);
 
+        this.getAuthenticationInfo(securityHeader);
         this.validate();
+    }
+
+    /**
+     * 
+     * @param securityHeader
+     * @throws STSException
+     */
+    private void getAuthenticationInfo(OMElement securityHeader) throws STSException {
+        // Check to see if UserNameToken is present or BinarySecurityToken.
+        if (this.isUserNameToken(securityHeader)) {
+            authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
+            userName = this.getUsername(securityHeader);
+            userPassword = this.getUserPassword(securityHeader);
+        } else if (this.isBinarySecurityToken(securityHeader)) {
+            authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
+            certificate = this.getX509Certificate(securityHeader);
+        } else {
+            authenticationType = STSConstants.AuthenticationType.NONE;
+        }
     }
 
     /**
@@ -98,32 +154,46 @@ public class SOAPHeaderData {
      * @throws STSException
      */
     private void validate() throws STSException {
+        this.validateTimestamp();
+        this.validateAuthenticationInfo();
+
+    }
+
+    /**
+     *
+     * @throws STSException
+     */
+    private void validateTimestamp() throws STSException {
         if (this.timestampCreated == null || this.timestampExpires == null) {
             throw new STSException("No timestamp provided - rejecting request");
         }
-        if (this.soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
-            // FIXME: Need to handle client-side certs also.
-            if (userName == null || userPassword == null) {
-                throw new STSException("No UserNameToken provided - rejecting request");
-            }
-            /* FIXME (DISABLED ONLY FOR TESTING)
-            boolean isSecureTransport = messageContext.getTo().toString().indexOf("https://") != -1;
-            if (!isSecureTransport)
-            {
-                 throw new STSException("Must use secure transport with UserNameToken - rejecting request");
-            }*/
-        }
-
         // Do some basic timestamp checking.
-        if (this.timestampCreated.isAfter(this.timestampExpires))
-        {
+        if (this.timestampCreated.isAfter(this.timestampExpires)) {
             throw new STSException("Timestamp created is > expires - rejecting request");
         }
 
         // Now check for message expiration.
-        if (this.timestampExpires.isBeforeNow())
-        {
+        if (this.timestampExpires.isBeforeNow()) {
             throw new STSException("Timestamp is expired - rejecting request");
+        }
+    }
+
+    /**
+     *
+     * @throws STSException
+     */
+    private void validateAuthenticationInfo() throws STSException {
+        // Only care about "issue" actions.
+        if (this.soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
+            if (stsConfig.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
+                if (userName == null || userPassword == null) {
+                    throw new STSException("No UserNameToken provided - rejecting request");
+                }
+            } else if (stsConfig.getAuthenticationType() == STSConstants.AuthenticationType.X509_CERTIFICATE) {
+                if (certificate == null) {
+                    throw new STSException("No Certificate provided - rejecting request");
+                }
+            }
         }
     }
 
@@ -145,7 +215,7 @@ public class SOAPHeaderData {
                 time = fmt.parseDateTime(timeString);
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/Timestamp/Created found");
+            System.out.println("No Security/Timestamp/Created found: " + ex.getMessage());
         }
         return time;
     }
@@ -168,9 +238,51 @@ public class SOAPHeaderData {
                 time = fmt.parseDateTime(timeString);
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/Timestamp/Expires found");
+            System.out.println("No Security/Timestamp/Expires found: " + ex.getMessage());
         }
         return time;
+    }
+
+    /**
+     * 
+     * @param securityHeader
+     * @return
+     */
+    private boolean isUserNameToken(OMElement securityHeader) {
+        boolean result = false;
+        try {
+            OMElement node = XPathHelper.selectSingleNode(
+                    securityHeader,
+                    "./ns:UsernameToken[1]",
+                    STSConstants.WSSECURITY_NS);
+            if (node != null) {
+                result = true;
+            }
+        } catch (XPathHelperException ex) {
+            System.out.println("No Security/UsernameToken found: " + ex.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 
+     * @param securityHeader
+     * @return
+     */
+    private boolean isBinarySecurityToken(OMElement securityHeader) {
+        boolean result = false;
+        try {
+            OMElement node = XPathHelper.selectSingleNode(
+                    securityHeader,
+                    "./ns:BinarySecurityToken[1]",
+                    STSConstants.WSSECURITY_NS);
+            if (node != null) {
+                result = true;
+            }
+        } catch (XPathHelperException ex) {
+            System.out.println("No Security/BinarySecurityToken found: " + ex.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -189,7 +301,7 @@ public class SOAPHeaderData {
                 result = node.getText();
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/UsernameToken/Username found");
+            System.out.println("No Security/UsernameToken/Username found: " + ex.getMessage());
         }
         return result;
     }
@@ -210,9 +322,38 @@ public class SOAPHeaderData {
                 result = node.getText();
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/UsernameToken/Password found");
+            System.out.println("No Security/UsernameToken/Password found: " + ex.getMessage());
         }
         return result;
+    }
+
+    //     <wsse:BinarySecurityToken wsu:Id="binarytoken"
+    //         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    //         ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
+    //         EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">
+    //        ...
+    //     </wsse:BinarySecurityToken>
+    /**
+     * 
+     * @param securityHeader
+     * @return
+     */
+    private X509Certificate getX509Certificate(OMElement securityHeader) throws STSException {
+        X509Certificate cert = null;
+
+        try {
+            OMElement node = XPathHelper.selectSingleNode(
+                    securityHeader,
+                    "./ns:BinarySecurityToken[1]",
+                    STSConstants.WSSECURITY_NS);
+            if (node != null) {
+                String base64Text = node.getText();
+                cert = STSUtil.getCertificate(base64Text);
+            }
+        } catch (XPathHelperException ex) {
+            System.out.println("No Security/BinarySecurityToken found: " + ex.getMessage());
+        }
+        return cert;
     }
 
     @Override

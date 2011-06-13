@@ -46,7 +46,7 @@ public class STS extends XAbstractService {
         try {
             this.setExcludedServiceFromXUA(true);
             OMElement startup_error = beginTransaction(
-                    "STS:RequestSecurityToken", requestSecurityTokenRequest, XAbstractService.ActorType.XCPD_GW);
+                    "STS:RST", requestSecurityTokenRequest, XAbstractService.ActorType.STS);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;

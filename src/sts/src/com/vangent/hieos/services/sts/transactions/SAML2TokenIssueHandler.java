@@ -16,9 +16,11 @@ import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
-import java.io.FileInputStream;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import java.security.KeyStore;
+import java.security.KeyStore.PrivateKeyEntry;
 import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +58,7 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
+import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
 
 /**
  *
@@ -80,6 +83,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
     @Override
     protected OMElement handle(STSRequestData request) throws STSException {
         STSConfig stsConfig = this.getSTSConfig();
+
+        // Create the Assertion with a unique UUID.
         Assertion assertion = (Assertion) createSamlObject(Assertion.DEFAULT_ELEMENT_NAME);
         Namespace dsns = new Namespace("http://www.w3.org/2000/09/xmldsig#", "ds");
         assertion.addNamespace(dsns);
@@ -88,90 +93,74 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         assertion.setVersion(SAMLVersion.VERSION_20);
         assertion.setID(UUID.randomUUID().toString());
 
+        // Set the issuer name.
         Issuer issuer = (Issuer) createSamlObject(Issuer.DEFAULT_ELEMENT_NAME);
         issuer.setValue(stsConfig.getIssuerName());
         assertion.setIssuer(issuer);
 
-        // Validity period
+        // Set the instant the Assertion was created.
         DateTime createdDate = new DateTime();
         assertion.setIssueInstant(createdDate);
 
-        // Add AuthnStatement
+        // Add an AuthnStatement.
         assertion.getAuthnStatements().add(this.getAuthnStatement());
 
+        // Set the validity period (as Conditions).
         long ttl = stsConfig.getTimeToLive();
         DateTime expiresDate = new DateTime(createdDate.getMillis() + ttl);
-
-        // These variables are used to build the trust assertion
-
-        // FIXME: Do we need these for SubjectConfirmation data?
-        //Date creationTime = createdDate.toDate();
-        //Date expirationTime = expiresDate.toDate();
-
         Conditions conditions = new ConditionsBuilder().buildObject();
         conditions.setNotBefore(createdDate);
         conditions.setNotOnOrAfter(expiresDate);
         assertion.setConditions(conditions);
 
+        // Create the Subject.
         Subject subj = (Subject) createSamlObject(Subject.DEFAULT_ELEMENT_NAME);
         assertion.setSubject(subj);
 
-
+        // Set the "Name" of the Subject.
+        // FIXME?
         NameID nameId = (NameID) createSamlObject(NameID.DEFAULT_ELEMENT_NAME);
         String userName = request.getHeaderData().getUserName();
         nameId.setValue(userName);
         subj.setNameID(nameId);
 
-
+        // Set the SubjectConfirmation method to "holder of key".
         SubjectConfirmation subjConf = (SubjectConfirmation) createSamlObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
         subjConf.setMethod("urn:oasis:names:tc:2.0:cm:holder-of-key");
         subj.getSubjectConfirmations().add(subjConf);
-
-
         SubjectConfirmationData subjData = (SubjectConfirmationData) createSamlObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
         subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"),
                 "saml:KeyInfoConfirmationDataType");
         subjConf.setSubjectConfirmationData(subjData);
 
-        // Set the validity period
+        // Set the validity period.
         subjData.setNotBefore(createdDate);
         subjData.setNotOnOrAfter(expiresDate);
 
+        // Add the KeyInfo.
         KeyInfo ki = (KeyInfo) createSamlObject(KeyInfo.DEFAULT_ELEMENT_NAME);
         subjData.getUnknownXMLObjects().add(ki);
 
         KeyName kn = (KeyName) createSamlObject(KeyName.DEFAULT_ELEMENT_NAME);
-        kn.setValue("s1as");
+        kn.setValue(stsConfig.getIssuerAlias());  // FIXME!!
         ki.getKeyNames().add(kn);
 
+        // Add Attribute statements.
         AttributeStatement as = (AttributeStatement) createSamlObject(AttributeStatement.DEFAULT_ELEMENT_NAME);
         SAML2AttributeHandler attributeHandler = new SAML2AttributeHandler();
         List<Attribute> attributes = attributeHandler.handle(request);
         as.getAttributes().addAll(attributes);
         assertion.getAttributeStatements().add(as);
 
-        KeyStore ks;
-        try {
-            ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            String keyStorePassword = stsConfig.getKeyStorePassword();
-            char[] password = keyStorePassword.toCharArray();
-            FileInputStream fis = new FileInputStream(stsConfig.getKeyStoreFileName());
-            ks.load(fis, password);
-            fis.close();
-        } catch (Exception ex) {
-            throw new STSException("Problem loading keystore: " + ex.getMessage());
-        }
+        // Get the issuer PrivateKeyEntry from KeyStore (used to "sign" the Assertion).
+        KeyStore keyStore = STSUtil.getKeyStore(stsConfig);
+        PrivateKeyEntry pkEntry = STSUtil.getIssuerPrivateKeyEntry(stsConfig, keyStore);
+       
+        // Now, get private key and certificate for the issuer.
+        PrivateKey pk = pkEntry.getPrivateKey();
+        X509Certificate certificate = (X509Certificate) pkEntry.getCertificate();
 
-        X509Certificate certificate;
-        PrivateKey pk;
-        try {
-            KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry("s1as", new KeyStore.PasswordProtection("changeit".toCharArray()));
-            pk = pkEntry.getPrivateKey();
-            certificate = (X509Certificate) pkEntry.getCertificate();
-        } catch (Exception ex) {
-            throw new STSException("Problem getting private key: " + ex.getMessage());
-        }
-
+        // Get ready to sign the Assertion using the issuer's private key.
         BasicX509Credential credential = new BasicX509Credential();
         credential.setEntityCertificate(certificate);
         credential.setPrivateKey(pk);
@@ -180,12 +169,18 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-        KeyInfo keyinfo = (KeyInfo) createSamlObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-        signature.setKeyInfo(keyinfo);
+        // Place the Certificate (public portion) for the issuer in the KeyInfo response.
+        KeyInfo keyInfo = (KeyInfo) createSamlObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+        KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+        try {
+            KeyInfoHelper.addCertificate(keyInfo, certificate);
+        } catch (CertificateEncodingException ex) {
+            throw new STSException("Unable to encode Certificate: " + ex.getMessage());
+        }
+        signature.setKeyInfo(keyInfo);
         assertion.setSignature(signature);
 
-
-        // marshall Assertion Java class into XML
+        // Fully marshall the Assertion - required in order for the signature to be applied
         MarshallerFactory marshallerFactory =
                 Configuration.getMarshallerFactory();
         Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
@@ -195,11 +190,15 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         } catch (MarshallingException ex) {
             throw new STSException("Unable to marshall Assertion: " + ex.getMessage());
         }
+
+        // Now, "sign" the Assertion using the issuer's private key.
         try {
             Signer.signObject(signature);
         } catch (SignatureException ex) {
             throw new STSException("Unable to sign Assertion: " + ex.getMessage());
         }
+
+        // Convert the response to an OMElement (for subsequent processing).
         OMElement assertionOMElement;
         try {
             assertionOMElement = XMLUtils.toOM(assertionElement);
@@ -207,43 +206,43 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
             throw new STSException("Unable to convert Assertion from Element to OMElement: " + ex.getMessage());
         }
 
+        // Return a properly formatted WS-Trust response.
         return this.getWSTrustResponse(assertionOMElement, createdDate, expiresDate);
     }
 
-  //  <wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-  //          <wst:RequestSecurityTokenResponse>
-  //              <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
-  //              <wst:KeySize>256</wst:KeySize>
-  //              <wst:RequestedAttachedReference>
-  //                  <wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-  //                      <wsse:Reference URI="#urn:uuid:B5B6F87D35F524847D1307123499963" ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
-  //                  </wsse:SecurityTokenReference>
-  //              </wst:RequestedAttachedReference>
-  //              <wst:RequestedUnattachedReference>
-  //                  <wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-  //                      <wsse:Reference URI="urn:uuid:B5B6F87D35F524847D1307123499963" ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
-  //                  </wsse:SecurityTokenReference>
-  //              </wst:RequestedUnattachedReference>
-  //              <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-  //                  <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-  //                      <wsa:Address>http://www.vangent.com/X-ServiceProvider-HIEOS</wsa:Address>
-  //                  </wsa:EndpointReference>
-  //              </wsp:AppliesTo>
-  //              <wst:Lifetime>
-  //                  <wsu:Created xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">2011-06-03T17:51:40.475Z</wsu:Created>
-  //                  <wsu:Expires xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">2011-06-03T17:56:40.475Z</wsu:Expires>
-  //              </wst:Lifetime>
-  //              <wst:RequestedSecurityToken>
-  //                  <saml:Assertion ID="urn:uuid:B5B6F87D35F524847D1307123499963" IssueInstant="2011-06-03T17:51:39.975Z" Version="2.0" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
-  //                      ...
-  //                  </saml:Assertion>
-  //              </wst:RequestedSecurityToken>
-  //              <wst:RequestedProofToken>
-  //                  <wst:BinarySecret>aeZRUBMDMzsH1wqLxsXO7W2OMTRE/fNSdQM+XQAeXkc=</wst:BinarySecret>
-  //              </wst:RequestedProofToken>
-  //          </wst:RequestSecurityTokenResponse>
-  //      </wst:RequestSecurityTokenResponseCollection>
-
+    //  <wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+    //          <wst:RequestSecurityTokenResponse>
+    //              <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+    //              <wst:KeySize>256</wst:KeySize>
+    //              <wst:RequestedAttachedReference>
+    //                  <wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    //                      <wsse:Reference URI="#urn:uuid:B5B6F87D35F524847D1307123499963" ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+    //                  </wsse:SecurityTokenReference>
+    //              </wst:RequestedAttachedReference>
+    //              <wst:RequestedUnattachedReference>
+    //                  <wsse:SecurityTokenReference xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    //                      <wsse:Reference URI="urn:uuid:B5B6F87D35F524847D1307123499963" ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+    //                  </wsse:SecurityTokenReference>
+    //              </wst:RequestedUnattachedReference>
+    //              <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    //                  <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    //                      <wsa:Address>http://www.vangent.com/X-ServiceProvider-HIEOS</wsa:Address>
+    //                  </wsa:EndpointReference>
+    //              </wsp:AppliesTo>
+    //              <wst:Lifetime>
+    //                  <wsu:Created xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">2011-06-03T17:51:40.475Z</wsu:Created>
+    //                  <wsu:Expires xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">2011-06-03T17:56:40.475Z</wsu:Expires>
+    //              </wst:Lifetime>
+    //              <wst:RequestedSecurityToken>
+    //                  <saml:Assertion ID="urn:uuid:B5B6F87D35F524847D1307123499963" IssueInstant="2011-06-03T17:51:39.975Z" Version="2.0" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+    //                      ...
+    //                  </saml:Assertion>
+    //              </wst:RequestedSecurityToken>
+    //              <wst:RequestedProofToken>
+    //                  <wst:BinarySecret>aeZRUBMDMzsH1wqLxsXO7W2OMTRE/fNSdQM+XQAeXkc=</wst:BinarySecret>
+    //              </wst:RequestedProofToken>
+    //          </wst:RequestSecurityTokenResponse>
+    //      </wst:RequestSecurityTokenResponseCollection>
     /**
      *
      * @param assertion
@@ -294,7 +293,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         authCtxClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
 
         // May need: urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-        // FIXUP code to handler properly.
+        // FIXME: code to handler properly.
         // authCtxClassRef.setAuthnContextClassRef(AuthnContext.X509_AUTHN_CTX);
 
         authContext.setAuthnContextClassRef(authCtxClassRef);

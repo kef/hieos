@@ -16,11 +16,17 @@ import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-import java.io.FileInputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -37,6 +43,8 @@ import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 import org.apache.axis2.util.XMLUtils;
+import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
+import org.opensaml.xml.signature.KeyInfo;
 
 /**
  *
@@ -74,32 +82,77 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      */
     @Override
     protected OMElement handle(STSRequestData request) throws STSException {
-        // Get Assertion from request.
-        OMElement assertionOMElement = this.getAssertion(request.getRequest());
+        // Get Assertion (asOMElement) from request.
+        OMElement assertionOMElement = this.getAssertionOMElement(request.getRequest());
 
         STSConfig stsConfig = this.getSTSConfig();
-        KeyStore ks;
+
+        // Get the TrustStore.
+        KeyStore trustStore = STSUtil.getTrustStore(stsConfig);
+
+        // Get the Assertion (as an OpenSAML object).
+        Assertion assertion = this.getAssertion(assertionOMElement);
+
+        // Conduct some prelimary validation of the signature.
+        Signature signature;
         try {
-            ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            String trustStorePassword = stsConfig.getTrustStorePassword();
-            char[] password = trustStorePassword.toCharArray();
-            FileInputStream fis = new FileInputStream(stsConfig.getTrustStoreFileName());
-            ks.load(fis, password);
-            fis.close();
-        } catch (Exception ex) {
-            throw new STSException("Problem loading truststore: " + ex.getMessage());
+            assertion.validate(true);
+            signature = assertion.getSignature();
+            SAMLSignatureProfileValidator pv = new SAMLSignatureProfileValidator();
+            pv.validate(signature);
+        } catch (ValidationException ex) {
+            System.out.println("Unable to validate Assertion: " + ex.getMessage());
+            return this.getWSTrustResponse(false);
         }
 
-        X509Certificate certificate;
-        try {
-            KeyStore.TrustedCertificateEntry tcEntry =
-                    (KeyStore.TrustedCertificateEntry) ks.getEntry("s1as", null);
-            certificate = (X509Certificate) tcEntry.getTrustedCertificate();
-        } catch (Exception ex) {
-            throw new STSException("Problem getting public certificate: " + ex.getMessage());
+        // Get the Certificate (from Signature/KeyInfo) used to sign the assertion.
+        X509Certificate certificate = null;
+        KeyInfo keyInfo = signature.getKeyInfo();
+        if (keyInfo != null) {
+            List<X509Certificate> certs = null;
+            try {
+                certs = KeyInfoHelper.getCertificates(keyInfo);
+            } catch (CertificateException ex) {
+                System.out.println("Unable to get Certificate used to sign Assertion from KeyInfo: " + ex.getMessage());
+                return this.getWSTrustResponse(false);
+            }
+            if ((certs != null) || !certs.isEmpty()) {
+                certificate = certs.get(0);  // Use the first one.
+                try {
+                    this.validateCertificate(certificate, trustStore);
+                } catch (Exception ex) {
+                    System.out.println("STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
+                    return this.getWSTrustResponse(false);
+                }
+            }
         }
 
+        // Get the "issuer" Certificate if not present in Signature/KeyInfo
+        if (certificate == null) {
+            certificate = STSUtil.getIssuerCertificate(stsConfig, trustStore);
+        }
 
+        // Now, validate the signature on the Assertion using chosen Certificate.
+        BasicX509Credential credential = new BasicX509Credential();
+        credential.setEntityCertificate(certificate);
+        SignatureValidator sigValidator = new SignatureValidator(credential);
+        try {
+            sigValidator.validate(signature);
+        } catch (ValidationException ex) {
+            System.out.println("Unable to validate Assertion: " + ex.getMessage());
+            return this.getWSTrustResponse(false);
+        }
+        // Finally, a success!
+        return this.getWSTrustResponse(true);
+    }
+
+    /**
+     * 
+     * @param assertionOMElement
+     * @return
+     * @throws STSException
+     */
+    private Assertion getAssertion(OMElement assertionOMElement) throws STSException {
         // Convert OMElement to Element.
         Element assertionElement;
         try {
@@ -108,6 +161,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             throw new STSException("Unable to convert Assertion from OMElement to Element: " + ex.getMessage());
         }
 
+        // Fully unmarshall the Assertion so that the signature validation will work.
         UnmarshallerFactory unmarshallerFactory =
                 Configuration.getUnmarshallerFactory();
         Unmarshaller unmarshaller =
@@ -118,25 +172,28 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
         } catch (UnmarshallingException ex) {
             throw new STSException("Unable to unmarshall Assertion: " + ex.getMessage());
         }
-        boolean success = true;
-        try {
-            assertion.validate(true);
-            Signature signature = assertion.getSignature();
-            SAMLSignatureProfileValidator pv = new SAMLSignatureProfileValidator();
-            pv.validate(signature);
-            BasicX509Credential credential = new BasicX509Credential();
-            credential.setEntityCertificate(certificate);
-            SignatureValidator sigValidator = new SignatureValidator(credential);
-            sigValidator.validate(signature);
-        } catch (ValidationException ex) {
-            System.out.println("ValidationException: " + ex.getMessage());
-            success = false;
-            //throw new STSException("Unable to validate Assertion: " + ex.getMessage());
-        }
-
-        return this.getWSTrustResponse(success);
+        return assertion;
     }
 
+    /**
+     *
+     * @param cert
+     * @param trustStore
+     * @throws CertificateException
+     * @throws KeyStoreException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchAlgorithmException
+     * @throws CertPathValidatorException
+     */
+    private void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
+        STSUtil.validateCertificate(cert, trustStore);
+    }
+
+    /**
+     *
+     * @param success
+     * @return
+     */
     private OMElement getWSTrustResponse(boolean success) {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
         OMNamespace wstNs = omfactory.createOMNamespace(STSConstants.WSTRUST_NS, "wst");
@@ -171,7 +228,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      * @return
      * @throws STSException
      */
-    private OMElement getAssertion(OMElement request) throws STSException {
+    private OMElement getAssertionOMElement(OMElement request) throws STSException {
         OMElement assertionNode = null;
         try {
             String nameSpaceNames[] = {"wst", "saml2"};
