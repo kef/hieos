@@ -58,7 +58,7 @@ public class MockAuthHandler implements AuthenticationHandler {
     // Private
     private UserProfile getUserProfile(Credentials credentials) {
         UserProfile userProfile = new UserProfile();
-        userProfile.setDistinguishedName("Distinguished Name for " + credentials.getUserId());
+        userProfile.setDistinguishedName("CN=" + credentials.getUserId() + ", OU=Division, O=Vangent Inc, C=US");
         userProfile.setGivenName("Given Name for " + credentials.getUserId());
         userProfile.setFamilyName("Family Name for " + credentials.getUserId());
         userProfile.setFullName("Full Name for " + credentials.getUserId());
