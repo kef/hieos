@@ -12,6 +12,9 @@
  */
 package com.vangent.hieos.services.sts.transactions;
 
+import com.vangent.hieos.authutil.framework.AuthenticationService;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.model.SOAPHeaderData;
@@ -19,6 +22,7 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -93,22 +97,26 @@ public class STSRequestHandler extends XBaseTransaction {
         OMElement result = null;
         log_message.setPass(true);  // Hope for the best.
 
+        // First parse and validate that SOAP header.
+        STSRequestData requestData;
         SOAPHeaderData headerData;
         MessageContext mCtx = this.getMessageContext();
         try {
             headerData = new SOAPHeaderData(STSConfig.getInstance());
+            requestData = new STSRequestData();
+            requestData.setHeaderData(headerData);  // attach for later use.
             headerData.parse(mCtx);
             System.out.println("SOAP Header - " + headerData.toString());
         } catch (STSException ex) {
             throw new AxisFault(ex.getMessage());
         }
-        // Get the SOAP action. String soapAction = mCtx.getSoapAction();
 
+        // Authenticate user (for Issue requests).
         String soapAction = headerData.getSoapAction();
         if (soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
             boolean authenticated = false;
             try {
-                authenticated = this.authenticate(headerData);
+                authenticated = this.authenticate(requestData);
             } catch (STSException ex) {
                 throw new AxisFault(ex.getMessage());
             }
@@ -117,9 +125,8 @@ public class STSRequestHandler extends XBaseTransaction {
             }
         }
 
+        // Now, either process an "Issue" or "Validate" token request.
         try {
-            STSRequestData requestData = new STSRequestData();
-            requestData.setHeaderData(headerData);
             requestData.parse(request);
             System.out.println("STSRequestData - " + requestData.toString());
             String requestType = requestData.getRequestType();
@@ -134,86 +141,61 @@ public class STSRequestHandler extends XBaseTransaction {
             throw new AxisFault(ex.getMessage());
         }
 
-
-
-        // ISSUE (UserNameToken) ... also need to handle client cert:
-        //<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-        // <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-        //    <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
-        //    <wsu:Expires>2011-06-04T20:45:49.881Z</wsu:Expires>
-        // </wsu:Timestamp>
-        // <wsse:UsernameToken>
-        //    <wsse:Username>stsclient</wsse:Username>
-        //    <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">stsclient</wsse:Password>
-        // </wsse:UsernameToken>
-        //</wsse:Security>
-
-        // VALIDATE (ust require Timestamp for now):
-        //<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-        // <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-        //    <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
-        //    <wsu:Expires>2011-06-04T20:45:49.881Z</wsu:Expires>
-        // </wsu:Timestamp>
-        //</wsse:Security>
-
-        /*
-        if (result != null) {
-        if (log_message.isLogEnabled()) {
-        log_message.addOtherParam("Response", result.getMessageNode());
-        }
-        }*/
         return result;
         //return (result != null) ? result.getMessageNode() : null;
     }
 
     /**
      *
-     * @param request
+     * @param requestData
      * @return
      */
-    private OMElement processIssueTokenRequest(STSRequestData request) throws STSException {
-        System.out.println("ISSUE action!");
+    private OMElement processIssueTokenRequest(STSRequestData requestData) throws STSException {
+        System.out.println("STS ISSUE action!");
         //this.runTest();
         STSConfig stsConfig = STSConfig.getInstance();
         SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler(stsConfig);
-        return handler.handle(request);
+        return handler.handle(requestData);
     }
 
     /**
      *
-     * @param request
+     * @param requestData
      * @return
      */
-    private OMElement processValidateTokenRequest(STSRequestData request) throws STSException {
-        System.out.println("VALIDATE action!");
+    private OMElement processValidateTokenRequest(STSRequestData requestData) throws STSException {
+        System.out.println("STS VALIDATE action!");
         STSConfig stsConfig = STSConfig.getInstance();
         SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler(stsConfig);
-        return handler.handle(request);
+        return handler.handle(requestData);
     }
 
     /**
      *
      * @param securityHeaderData
      */
-    private boolean authenticate(SOAPHeaderData headerData) throws STSException {
-
+    private boolean authenticate(STSRequestData requestData) throws STSException {
+        SOAPHeaderData headerData = requestData.getHeaderData();
         if (headerData.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
             String userName = headerData.getUserName();
             String userPassword = headerData.getUserPassword();
-            if (userName != null && userPassword != null) {
-                // FIXME: Plug in "authutil".
-                if (userName.equalsIgnoreCase("stsclient")
-                        && userPassword.equalsIgnoreCase("stsclient")) {
-                    return true;
-                }
+            STSConfig stsConfig = STSConfig.getInstance();
+            XConfigObject configObject = stsConfig.getConfigObject();
+            AuthenticationService authService = new AuthenticationService(configObject);
+            Credentials authCredentials = new Credentials(userName, userPassword);
+            AuthenticationContext authCtxt = authService.authenticate(authCredentials);
+            boolean authStatus = authCtxt.hasSuccessStatus();
+            if (authStatus == true) {
+                requestData.setPrincipal(authCtxt.getUserProfile().getDistinguishedName());
             }
-            return false;
+            return authStatus;
         } else {
             // Assume BinarySecurityToken.
             X509Certificate certificate = headerData.getClientCertificate();
             KeyStore trustStore = STSUtil.getTrustStore(STSConfig.getInstance());
             try {
                 STSUtil.validateCertificate(certificate, trustStore);
+                requestData.setPrincipal(certificate.getSubjectX500Principal().getName());
             } catch (STSException ex) {
                 System.out.println("Certificate not valid: " + ex.getMessage());
                 return false;

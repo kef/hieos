@@ -19,12 +19,13 @@ package com.vangent.hieos.services.sts.model;
 public class STSConstants {
 
     public enum AuthenticationType {
-
         USER_NAME_TOKEN, X509_CERTIFICATE, NONE
     };
+
     // Possible SOAP actions.
     public final static String ISSUE_ACTION = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue";
     public final static String VALIDATE_ACTION = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate";
+
     // Namespaces.
     public final static String WSTRUST_NS = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
     public final static String XSPA_NS = "urn:oasis:names:tc:xspa:1.0:claims";
@@ -35,13 +36,20 @@ public class STSConstants {
     public final static String XSPA_CLAIMS_NS = "urn:oasis:names:tc:xspa:1.0:claims";
     public final static String SAML2_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
     public final static String XML_DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+
+
     // Request Types
     public final static String ISSUE_REQUEST_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue";
     public final static String VALIDATE_REQUEST_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Validate";
+
     // Token Types
     public final static String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
     public final static String STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
+
     // Status Values
     public final static String TOKEN_VALID = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/valid";
     public final static String TOKEN_INVALID = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/invalid";
+
+    // Subject name format.
+    public final static String SUBJECT_NAME_FORMAT = "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName";
 }

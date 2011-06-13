@@ -64,11 +64,11 @@ public class SAML2AttributeHandler {
 
     /**
      * 
-     * @param request
+     * @param requestData
      * @return
      */
-    public List<Attribute> handle(STSRequestData request) {
-        OMElement claims = request.getClaims();
+    public List<Attribute> handle(STSRequestData requestData) {
+        OMElement claims = requestData.getClaims();
         List<Attribute> attributes = new ArrayList<Attribute>();
         if (claims == null) {
             System.out.println("No Claims!");
@@ -165,7 +165,7 @@ public class SAML2AttributeHandler {
 
         org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
         XMLObjectBuilder<XSAny> xsAnyBuilder = bf.getBuilder(XSAny.TYPE_NAME);
-        XSAny purposeOfUse = xsAnyBuilder.buildObject("urn:hl7-org:v3", "PurposeOfUse", "hl7");
+        XSAny purposeOfUse = xsAnyBuilder.buildObject("urn:hl7-org:v3", "PurposeForUse", "hl7");
         purposeOfUse.getUnknownAttributes().put(new QName("xsi:type"), "CE");
         purposeOfUse.getUnknownAttributes().put(new QName("code"), "OPERATIONS");
         purposeOfUse.getUnknownAttributes().put(new QName("codeSystem"), "2.16.840.1.113883.3.18.7.1");

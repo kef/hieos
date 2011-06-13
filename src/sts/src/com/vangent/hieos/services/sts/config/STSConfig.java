@@ -40,6 +40,7 @@ public class STSConfig {
     private String trustStorePassword;
     private String issuerPassword;
     private STSConstants.AuthenticationType authenticationType;
+    private XConfigObject configObject;
 
     /**
      *
@@ -59,6 +60,7 @@ public class STSConfig {
      * @param configObject
      */
     private void loadConfig(XConfigObject configObject) {
+        this.configObject = configObject;
         issuerName = configObject.getProperty("issuerName");
         issuerAlias = configObject.getProperty("issuerAlias");
         if (issuerAlias == null) {
@@ -118,6 +120,10 @@ public class STSConfig {
 
     private STSConfig() {
         // Do not allow.
+    }
+
+    public XConfigObject getConfigObject() {
+        return configObject;
     }
 
     public String getIssuerName() {

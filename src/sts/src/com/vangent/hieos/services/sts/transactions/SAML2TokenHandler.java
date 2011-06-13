@@ -57,7 +57,7 @@ public abstract class SAML2TokenHandler {
         return this.stsConfig;
     }
 
-    abstract protected OMElement handle(STSRequestData request) throws STSException;
+    abstract protected OMElement handle(STSRequestData requestData) throws STSException;
 
      /**
      *

@@ -31,6 +31,7 @@ public class STSRequestData {
     private OMElement request;
     private OMElement claims;
     private SOAPHeaderData headerData;
+    private String principal;
 
     public OMElement getRequest() {
         return request;
@@ -58,6 +59,14 @@ public class STSRequestData {
 
     public void setHeaderData(SOAPHeaderData headerData) {
         this.headerData = headerData;
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal;
     }
 
     /**

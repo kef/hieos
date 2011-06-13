@@ -11,6 +11,7 @@
         <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
                 <file file="${file.reference.xutil.jar}"/>
+                <file file="${file.reference.authutil.jar}"/>
                 <file file="${file.reference.bcprov-jdk15-1.45.jar}"/>
                 <file file="${file.reference.commons-collections-3.1.jar}"/>
                 <file file="${file.reference.log4j-over-slf4j-1.6.1.jar}"/>

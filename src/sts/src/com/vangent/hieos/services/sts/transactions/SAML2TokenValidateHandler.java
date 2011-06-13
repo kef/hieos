@@ -76,14 +76,14 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
 
     /**
      *
-     * @param request
+     * @param requestData
      * @return
      * @throws STSException
      */
     @Override
-    protected OMElement handle(STSRequestData request) throws STSException {
-        // Get Assertion (asOMElement) from request.
-        OMElement assertionOMElement = this.getAssertionOMElement(request.getRequest());
+    protected OMElement handle(STSRequestData requestData) throws STSException {
+        // Get Assertion (asOMElement) from requestData.
+        OMElement assertionOMElement = this.getAssertionOMElement(requestData.getRequest());
 
         STSConfig stsConfig = this.getSTSConfig();
 

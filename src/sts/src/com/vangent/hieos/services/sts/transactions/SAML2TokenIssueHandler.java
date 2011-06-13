@@ -16,6 +16,7 @@ import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.model.SOAPHeaderData;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -76,12 +77,12 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
     /**
      *
-     * @param request
+     * @param requestData
      * @return
      * @throws STSException
      */
     @Override
-    protected OMElement handle(STSRequestData request) throws STSException {
+    protected OMElement handle(STSRequestData requestData) throws STSException {
         STSConfig stsConfig = this.getSTSConfig();
 
         // Create the Assertion with a unique UUID.
@@ -93,12 +94,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         assertion.setVersion(SAMLVersion.VERSION_20);
         assertion.setID(UUID.randomUUID().toString());
 
-        // Set the issuer name.
-        Issuer issuer = (Issuer) createSamlObject(Issuer.DEFAULT_ELEMENT_NAME);
-        issuer.setValue(stsConfig.getIssuerName());
-        assertion.setIssuer(issuer);
-
-        // Set the instant the Assertion was created.
+               // Set the instant the Assertion was created.
         DateTime createdDate = new DateTime();
         assertion.setIssueInstant(createdDate);
 
@@ -120,8 +116,21 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         // Set the "Name" of the Subject.
         // FIXME?
         NameID nameId = (NameID) createSamlObject(NameID.DEFAULT_ELEMENT_NAME);
-        String userName = request.getHeaderData().getUserName();
-        nameId.setValue(userName);
+
+        // <NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">
+        //   CN=Alex G. Bell,O=1.22.333.4444,UID=abell
+        //</NameID>
+        nameId.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
+        //SOAPHeaderData headerData = requestData.getHeaderData();
+        /*String userName;
+        if (headerData.getAuthenticationType() == STSConstants.AuthenticationType.X509_CERTIFICATE) {
+            X509Certificate clientCert = headerData.getClientCertificate();
+            //userName = clientCert.getSubjectDN().getName();
+            userName = clientCert.getIssuerX500Principal().getName();
+        } else {
+            userName = "UID="+requestData.getHeaderData().getUserName();
+        }*/
+        nameId.setValue(requestData.getPrincipal());
         subj.setNameID(nameId);
 
         // Set the SubjectConfirmation method to "holder of key".
@@ -148,17 +157,25 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         // Add Attribute statements.
         AttributeStatement as = (AttributeStatement) createSamlObject(AttributeStatement.DEFAULT_ELEMENT_NAME);
         SAML2AttributeHandler attributeHandler = new SAML2AttributeHandler();
-        List<Attribute> attributes = attributeHandler.handle(request);
+        List<Attribute> attributes = attributeHandler.handle(requestData);
         as.getAttributes().addAll(attributes);
         assertion.getAttributeStatements().add(as);
 
         // Get the issuer PrivateKeyEntry from KeyStore (used to "sign" the Assertion).
         KeyStore keyStore = STSUtil.getKeyStore(stsConfig);
         PrivateKeyEntry pkEntry = STSUtil.getIssuerPrivateKeyEntry(stsConfig, keyStore);
-       
+
         // Now, get private key and certificate for the issuer.
         PrivateKey pk = pkEntry.getPrivateKey();
         X509Certificate certificate = (X509Certificate) pkEntry.getCertificate();
+
+         // Set the issuer name.
+        Issuer issuer = (Issuer) createSamlObject(Issuer.DEFAULT_ELEMENT_NAME);
+        issuer.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
+
+        issuer.setValue(certificate.getSubjectX500Principal().getName());
+        assertion.setIssuer(issuer);
+
 
         // Get ready to sign the Assertion using the issuer's private key.
         BasicX509Credential credential = new BasicX509Credential();
