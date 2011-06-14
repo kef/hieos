@@ -43,6 +43,8 @@ import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
 import org.apache.axis2.util.XMLUtils;
+import org.joda.time.DateTime;
+import org.opensaml.saml2.core.Conditions;
 import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
 import org.opensaml.xml.signature.KeyInfo;
 
@@ -94,6 +96,19 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             signature = assertion.getSignature();
             SAMLSignatureProfileValidator pv = new SAMLSignatureProfileValidator();
             pv.validate(signature);
+
+            // Validate time stamps
+            Conditions conditions = assertion.getConditions();
+            DateTime startDate = conditions.getNotBefore();
+            DateTime endDate = conditions.getNotOnOrAfter();
+            if (startDate.isAfterNow()) {
+                System.out.println("Assertion not valid yet");
+                return this.getWSTrustResponse(false);
+            }
+            if (endDate.isBeforeNow() || endDate.isEqualNow()) {
+                System.out.println("Assertion expired");
+                return this.getWSTrustResponse(false);
+            }
         } catch (ValidationException ex) {
             System.out.println("Unable to validate Assertion: " + ex.getMessage());
             return this.getWSTrustResponse(false);

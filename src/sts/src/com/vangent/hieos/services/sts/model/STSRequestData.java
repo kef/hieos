@@ -88,7 +88,6 @@ public class STSRequestData {
         this.appliesToAddress = this.getAppliesToAddress(request);
         if (this.requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
             this.claimsNode = this.getClaimsNode(request);
-            System.out.println("Claims = " + claimsNode.toString());
             ClaimBuilder claimBuilder = new ClaimBuilder();
             this.claims = claimBuilder.parse(this);
             if (stsConfig.getComputeSubjectNameFromClaims()) {
@@ -113,7 +112,14 @@ public class STSRequestData {
         String CN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
         String OU = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization-id");
         String O = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization");
-        return "CN=" + CN + ", OU=" + OU + ", O=" + O;
+        if (CN != null) {
+            OU = (OU == null) ? "UNKNOWN" : OU;
+            O = (O == null) ? "UNKNOWN" : O;
+            return "CN=" + CN + ", OU=" + OU + ", O=" + O;
+        } else {
+            // Do not override existing value
+            return this.getSubjectName();
+        }
     }
 
     /**

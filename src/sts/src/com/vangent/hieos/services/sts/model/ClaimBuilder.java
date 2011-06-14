@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
@@ -40,8 +41,7 @@ public class ClaimBuilder {
         "urn:oasis:names:tc:xspa:1.0:environment:locality",
         "urn:oasis:names:tc:xspa:2.0:subject:npi"
     };
-
-     private final static String[] XSPA_NAMES_REQUIRED = {
+    private final static String[] XSPA_NAMES_REQUIRED = {
         "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
         "urn:oasis:names:tc:xspa:1.0:subject:organization",
         "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
@@ -49,19 +49,16 @@ public class ClaimBuilder {
         "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse",
         "urn:oasis:names:tc:xacml:1.0:resource:resource-id"
     };
-
     // FUTURE:
     private final static String[] CODED_NAMES = {
         "urn:oasis:names:tc:xacml:2.0:subject:role",
         "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse"
     };
-
     // FUTURE:
     private final static String[] CODED_NODE_NAMES = {
         "Role",
         "PurposeForUse"
     };
-
     // FUTURE:
     private final static String[] NHIN_NAMES = {
         "urn:oasis:names:tc:xspa:1.0:subject:subject-id", // Differs from XSPA.
@@ -73,7 +70,6 @@ public class ClaimBuilder {
         "urn:oasis:names:tc:xacml:2.0:resource:resource-id", // Differs from XSPA.
         "urn:oasis:names:tc:xspa:2.0:subject:npi"
     };
-
     // Maps URI to XSPA ClaimType node.
     private Map<String, OMElement> xspaClaimTypeURIMap = new HashMap<String, OMElement>();
 
@@ -86,13 +82,10 @@ public class ClaimBuilder {
     public List<Claim> parse(STSRequestData requestData) throws STSException {
         OMElement claimsNode = requestData.getClaimsNode();
         List<Claim> claims = new ArrayList<Claim>();
-        if (claimsNode == null) {
-            System.out.println("No Claims!");
-            throw new STSException("No Claims specified");
-        } else {
-            System.out.println("Claims = " + claimsNode.toString());
-            this.buildXSPAClaimTypeURIMap(claimsNode);
-            this.parse(claims);
+        this.buildXSPAClaimTypeURIMap(claimsNode);
+        this.parse(claims);
+        STSConfig stsConfig = requestData.getSTSConfig();
+        if (stsConfig.getValidateRequiredClaims() == true) {
             this.validate(claims);
         }
         return claims;
@@ -121,7 +114,6 @@ public class ClaimBuilder {
             }
         }
     }
-
 
     /**
      *
@@ -172,6 +164,9 @@ public class ClaimBuilder {
      * @param claims
      */
     private void buildXSPAClaimTypeURIMap(OMElement claims) {
+        if (claims == null) {
+            return;  // Nothing to do.
+        }
         try {
             // Get all ClaimType nodes.
             List<OMElement> claimTypeNodes = XPathHelper.selectNodes(claims, "./ns:ClaimType",

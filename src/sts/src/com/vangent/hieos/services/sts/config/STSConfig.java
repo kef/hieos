@@ -38,6 +38,7 @@ public class STSConfig {
     private String trustStorePassword;
     private String issuerPassword;
     private boolean computeSubjectNameFromClaims;
+    private boolean validateRequiredClaims;
     private STSConstants.AuthenticationType authenticationType;
     private XConfigObject configObject;
 
@@ -99,6 +100,7 @@ public class STSConfig {
             authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
         }
         computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("computeSubjectNameFromClaims", false);
+        validateRequiredClaims = configObject.getPropertyAsBoolean("validateRequiredClaims", true);
     }
 
     /**
@@ -164,5 +166,10 @@ public class STSConfig {
 
     public boolean getComputeSubjectNameFromClaims() {
         return computeSubjectNameFromClaims;
+    }
+
+    public boolean getValidateRequiredClaims()
+    {
+        return validateRequiredClaims;
     }
 }
