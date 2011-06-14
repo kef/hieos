@@ -121,7 +121,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         } else {
             userName = "UID="+requestData.getHeaderData().getUserName();
         }*/
-        nameId.setValue(requestData.getPrincipal());
+        nameId.setValue(requestData.getSubjectName());
         subj.setNameID(nameId);
 
         // Set the SubjectConfirmation method to "holder of key".

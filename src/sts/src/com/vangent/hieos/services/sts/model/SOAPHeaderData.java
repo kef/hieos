@@ -67,7 +67,6 @@ public class SOAPHeaderData {
     //  </wsse:Security>
     //</soapenv:Header>
     //
-
     private DateTime timestampCreated;
     private DateTime timestampExpires;
     private String userName;
@@ -132,9 +131,8 @@ public class SOAPHeaderData {
         }
         timestampCreated = this.getTimestampCreated(securityHeader);
         timestampExpires = this.getTimestampExpires(securityHeader);
-
+        this.validateTimestamp();
         this.getAuthenticationInfo(securityHeader);
-        this.validate();
     }
 
     /**
@@ -144,26 +142,33 @@ public class SOAPHeaderData {
      */
     private void getAuthenticationInfo(OMElement securityHeader) throws STSException {
         // Check to see if UserNameToken is present or BinarySecurityToken.
-        if (this.isUserNameToken(securityHeader)) {
-            authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
-            userName = this.getUsername(securityHeader);
-            userPassword = this.getUserPassword(securityHeader);
-        } else if (this.isBinarySecurityToken(securityHeader)) {
-            authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
-            certificate = this.getX509Certificate(securityHeader);
-        } else {
-            authenticationType = STSConstants.AuthenticationType.NONE;
+        if (soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
+            switch (stsConfig.getAuthenticationType()) {
+                case USER_NAME_TOKEN:
+                    if (!this.isUserNameToken(securityHeader)) {
+                        throw new STSException("No UserNameToken found");
+                    }
+                    authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
+                    userName = this.getUsername(securityHeader);
+                    userPassword = this.getUserPassword(securityHeader);
+                    if (userName == null || userPassword == null) {
+                        throw new STSException("No UserNameToken provided - rejecting request");
+                    }
+                    break;
+                case X509_CERTIFICATE:
+                    if (!this.isBinarySecurityToken(securityHeader)) {
+                        throw new STSException("No BinarySecurityToken found");
+                    }
+                    authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
+                    certificate = this.getX509Certificate(securityHeader);
+                    if (certificate == null) {
+                        throw new STSException("No Certificate provided - rejecting request");
+                    }
+                    break;
+                default:
+                    throw new STSException("Unknown Authentication Type");
+            }
         }
-    }
-
-    /**
-     *
-     * @throws STSException
-     */
-    private void validate() throws STSException {
-        this.validateTimestamp();
-        this.validateAuthenticationInfo();
-
     }
 
     /**
@@ -182,25 +187,6 @@ public class SOAPHeaderData {
         // Now check for message expiration.
         if (this.timestampExpires.isBeforeNow()) {
             throw new STSException("Timestamp is expired - rejecting request");
-        }
-    }
-
-    /**
-     *
-     * @throws STSException
-     */
-    private void validateAuthenticationInfo() throws STSException {
-        // Only validate "issue" actions.
-        if (soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
-            if (stsConfig.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
-                if (userName == null || userPassword == null) {
-                    throw new STSException("No UserNameToken provided - rejecting request");
-                }
-            } else if (stsConfig.getAuthenticationType() == STSConstants.AuthenticationType.X509_CERTIFICATE) {
-                if (certificate == null) {
-                    throw new STSException("No Certificate provided - rejecting request");
-                }
-            }
         }
     }
 

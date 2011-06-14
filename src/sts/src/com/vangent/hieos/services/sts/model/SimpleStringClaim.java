@@ -51,5 +51,10 @@ public class SimpleStringClaim extends Claim {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String getStringValue() {
+        return this.getValue();
+    }
    
 }

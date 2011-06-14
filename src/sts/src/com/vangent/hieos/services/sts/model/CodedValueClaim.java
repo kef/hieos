@@ -43,7 +43,7 @@ import org.opensaml.xml.schema.XSAny;
  *
  * @author Bernie Thuman
  */
-public abstract class CodedValueClaim extends Claim {
+public class CodedValueClaim extends Claim {
 
     private String nodeName;
     private String code;
@@ -114,5 +114,11 @@ public abstract class CodedValueClaim extends Claim {
         //attribute.setNameFormat("http://www.hhs.gov/healthit/nhin");
         attribute.getAttributeValues().add(attributeValue);
         return attribute;
+    }
+
+    @Override
+    public String getStringValue() {
+        // TBD: Provide concatenation of values
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

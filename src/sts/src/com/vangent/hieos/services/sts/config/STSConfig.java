@@ -95,6 +95,7 @@ public class STSConfig {
         if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
             authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
         } else {
+            // Otherwise.
             authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
         }
         computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("computeSubjectNameFromClaims", false);
@@ -159,5 +160,9 @@ public class STSConfig {
 
     public STSConstants.AuthenticationType getAuthenticationType() {
         return authenticationType;
+    }
+
+    public boolean getComputeSubjectNameFromClaims() {
+        return computeSubjectNameFromClaims;
     }
 }

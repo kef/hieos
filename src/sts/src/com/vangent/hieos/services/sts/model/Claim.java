@@ -31,4 +31,6 @@ public abstract class Claim {
     }
 
     abstract public Attribute getAttribute();
+
+    abstract public String getStringValue();
 }
