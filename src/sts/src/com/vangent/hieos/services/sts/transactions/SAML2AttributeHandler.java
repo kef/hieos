@@ -12,8 +12,11 @@
  */
 package com.vangent.hieos.services.sts.transactions;
 
+import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.model.Claim;
 import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
+import com.vangent.hieos.services.sts.model.SimpleStringClaim;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.ArrayList;
@@ -22,13 +25,7 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
-import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeValue;
-import org.opensaml.xml.XMLObjectBuilder;
-import org.opensaml.xml.schema.XSAny;
-import org.opensaml.xml.schema.XSString;
-import org.opensaml.xml.schema.impl.XSStringBuilder;
 
 /**
  *
@@ -36,9 +33,11 @@ import org.opensaml.xml.schema.impl.XSStringBuilder;
  */
 public class SAML2AttributeHandler {
 
+    // name, required(true/false)?, type(CodedValue/string), codeValueNodeName(optional)
+
     private final static String[] XSPA_NAMES = {
         "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
-        "urn:oasis:names:tc:xpsa:1.0:subject:organization",
+        "urn:oasis:names:tc:xspa:1.0:subject:organization",
         "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
         "urn:oasis:names:tc:xspa:1.0:subject:hl7:permission",
         "urn:oasis:names:tc:xacml:2.0:subject:role",
@@ -48,6 +47,26 @@ public class SAML2AttributeHandler {
         "urn:oasis:names:tc:xspa:1.0:environment:locality",
         "urn:oasis:names:tc:xspa:2.0:subject:npi"
     };
+
+    private final static String[] XSPA_NAMES_TO_VALIDATE = {
+        "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+        "urn:oasis:names:tc:xspa:1.0:subject:organization",
+        "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
+        "urn:oasis:names:tc:xacml:2.0:subject:role",
+        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse",
+        "urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+    };
+
+    private final static String[] CODED_NAMES = {
+        "urn:oasis:names:tc:xacml:2.0:subject:role",
+        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse"
+    };
+
+     private final static String[] CODED_NODE_NAMES = {
+        "Role",
+        "PurposeForUse"
+    };
+
     // FIXME: Integrate
     private final static String[] NHIN_NAMES = {
         "urn:oasis:names:tc:xspa:1.0:subject:subject-id", // Differs from XSPA.
@@ -67,17 +86,44 @@ public class SAML2AttributeHandler {
      * @param requestData
      * @return
      */
-    public List<Attribute> handle(STSRequestData requestData) {
-        OMElement claims = requestData.getClaims();
+    public List<Attribute> handle(STSRequestData requestData) throws STSException {
+        OMElement claimsNode = requestData.getClaimsNode();
         List<Attribute> attributes = new ArrayList<Attribute>();
-        if (claims == null) {
+        if (claimsNode == null) {
             System.out.println("No Claims!");
+            throw new STSException("No Claims specified");
         } else {
-            System.out.println("Claims = " + claims.toString());
-            this.buildXSPAClaimTypeURIMap(claims);
-            attributes = this.getAttributes();
+            System.out.println("Claims = " + claimsNode.toString());
+            this.buildXSPAClaimTypeURIMap(claimsNode);
+            List<Claim> claims = this.getClaims();
+            attributes = this.getAttributes(claims);
+            this.validate(attributes);
         }
         return attributes;
+    }
+
+    /**
+     *
+     * @param attributes
+     * @throws STSException
+     */
+    private void validate(List<Attribute> attributes) throws STSException {
+        // Validate proper attributes are available.
+
+        for (int i = 0; i < XSPA_NAMES_TO_VALIDATE.length; i++) {
+            String attributeNameToValidate = XSPA_NAMES_TO_VALIDATE[i];
+            boolean foundAttributeName = false;
+            for (Attribute attribute : attributes) {
+                if (attribute.getName().equalsIgnoreCase(attributeNameToValidate)) {
+                    foundAttributeName = true;
+                    break;
+                }
+            }
+            if (foundAttributeName == false) {
+                System.out.println("Missing " + attributeNameToValidate + " attribute");
+                throw new STSException("Missing " + attributeNameToValidate + " attribute");
+            }
+        }
     }
 
     /**
@@ -99,17 +145,30 @@ public class SAML2AttributeHandler {
     }
 
     /**
-     * 
-     * @param attrCallback
+     *
+     * @return
      */
-    private List<Attribute> getAttributes() {
-        List<Attribute> attributes = new ArrayList<Attribute>();
+    private List<Claim> getClaims() {
+        List<Claim> claims = new ArrayList<Claim>();
         for (int i = 0; i < XSPA_NAMES.length; i++) {
             String xspaName = XSPA_NAMES[i];
-            Attribute attribute = this.getSimpleStringAttribute(xspaName);
-            if (attribute != null) {
-                attributes.add(attribute);
+            Claim claim = this.getClaim(xspaName);
+            if (claim != null) {
+                claims.add(claim);
             }
+        }
+        return claims;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private List<Attribute> getAttributes(List<Claim> claims) {
+        List<Attribute> attributes = new ArrayList<Attribute>();
+        for (Claim claim : claims) {
+            Attribute attribute = claim.getAttribute();
+            attributes.add(attribute);
         }
         return attributes;
     }
@@ -119,7 +178,7 @@ public class SAML2AttributeHandler {
      * @param name
      * @return
      */
-    private Attribute getSimpleStringAttribute(String name) {
+    private Claim getClaim(String name) {
 
         // Get the XSPA ClaimType node for the given XSPA name.
         OMElement xspaClaimTypeNode = this.xspaClaimTypeURIMap.get(name);
@@ -138,47 +197,9 @@ public class SAML2AttributeHandler {
         // Get the String value.
         String xspaClaimValueText = xspaClaimValueNode.getText();
 
-        // Now, create the SAML attribute.
-        org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
-        Attribute attribute = (Attribute) bf.getBuilder(Attribute.DEFAULT_ELEMENT_NAME).buildObject(Attribute.DEFAULT_ELEMENT_NAME);
-        attribute.setName(name);
-        XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory().getBuilder(XSString.TYPE_NAME);
-        XSString stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
-        stringValue.setValue(xspaClaimValueText);
-        attribute.getAttributeValues().add(stringValue);
-        return attribute;
-    }
-
-    /**
-     * FIXME: Uses NHIN-style coded values versus simply text as specified by XASP.
-     *
-     * @return
-     */
-    private Attribute getXSPAPurposeOfUseAttribute() {
-        // <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-        //    <saml:AttributeValue>
-        //      <PurposeForUse xmlns="urn:hl7-org:v3" xsi:type="CE" code="OPERATIONS"
-        //         codeSystem="2.16.840.1.113883.3.18.7.1" codeSystemName="nhin-purpose"
-        //         displayName="Healthcare Operations"/>
-        //    </saml:AttributeValue>
-        // </saml:Attribute>
-
-        org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
-        XMLObjectBuilder<XSAny> xsAnyBuilder = bf.getBuilder(XSAny.TYPE_NAME);
-        XSAny purposeOfUse = xsAnyBuilder.buildObject("urn:hl7-org:v3", "PurposeForUse", "hl7");
-        purposeOfUse.getUnknownAttributes().put(new QName("xsi:type"), "CE");
-        purposeOfUse.getUnknownAttributes().put(new QName("code"), "OPERATIONS");
-        purposeOfUse.getUnknownAttributes().put(new QName("codeSystem"), "2.16.840.1.113883.3.18.7.1");
-        purposeOfUse.getUnknownAttributes().put(new QName("codeSystemName"), "nhin-purpose");
-        purposeOfUse.getUnknownAttributes().put(new QName("displayName"), "Healthcare Operations");
-
-        XSAny purposeOfUseAttributeValue = xsAnyBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
-        purposeOfUseAttributeValue.getUnknownXMLObjects().add(purposeOfUse);
-
-        Attribute attribute = (Attribute) bf.getBuilder(Attribute.DEFAULT_ELEMENT_NAME).buildObject(Attribute.DEFAULT_ELEMENT_NAME);
-        attribute.setName("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse");
-        //attribute.setNameFormat("http://www.hhs.gov/healthit/nhin");
-        attribute.getAttributeValues().add(purposeOfUseAttributeValue);
-        return attribute;
+        SimpleStringClaim claim = new SimpleStringClaim();
+        claim.setName(name);
+        claim.setValue(xspaClaimValueText);
+        return claim;
     }
 }

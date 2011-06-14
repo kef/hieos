@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,12 +28,67 @@ import org.apache.log4j.Logger;
 public class STSRequestData {
 
     private final static Logger logger = Logger.getLogger(STSRequestData.class);
+
     private String requestType;
     private String appliesToAddress;
     private OMElement request;
-    private OMElement claims;
+    private OMElement claimsNode;
     private SOAPHeaderData headerData;
     private String principal;
+    private MessageContext mCtx;
+    private STSConfig stsConfig;
+
+    /**
+     * 
+     */
+    private STSRequestData() {
+        // Do not allow.
+    }
+
+    /**
+     *
+     * @param stsConfig
+     * @param mCtx
+     * @param request
+     */
+    public STSRequestData(STSConfig stsConfig, MessageContext mCtx, OMElement request) {
+        this.stsConfig = stsConfig;
+        this.mCtx = mCtx;
+        this.request = request;
+
+        // Just parse the SOAP header.
+        this.headerData = new SOAPHeaderData(this.stsConfig, this.mCtx);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public STSConfig getSTSConfig() {
+        return stsConfig;
+    }
+
+
+    /**
+     *
+     * @return
+     * @throws STSException
+     */
+    public SOAPHeaderData parseHeader() throws STSException {
+        this.headerData.parse();
+        return this.headerData;
+    }
+
+    /**
+     *
+     * @throws STSException
+     */
+    public void parseBody() throws STSException
+    {
+        this.requestType = this.getRequestType(request);
+        this.appliesToAddress = this.getAppliesToAddress(request);
+        this.claimsNode = this.getClaimsNode(request);
+    }
 
     public OMElement getRequest() {
         return request;
@@ -49,16 +106,12 @@ public class STSRequestData {
         return headerData.getSoapAction();
     }
 
-    public OMElement getClaims() {
-        return claims;
+    public OMElement getClaimsNode() {
+        return claimsNode;
     }
 
     public SOAPHeaderData getHeaderData() {
         return headerData;
-    }
-
-    public void setHeaderData(SOAPHeaderData headerData) {
-        this.headerData = headerData;
     }
 
     public String getPrincipal() {
@@ -67,17 +120,6 @@ public class STSRequestData {
 
     public void setPrincipal(String principal) {
         this.principal = principal;
-    }
-
-    /**
-     * 
-     * @param request
-     */
-    public void parse(OMElement request) throws STSException {
-        this.request = request;
-        this.requestType = this.getRequestType(request);
-        this.appliesToAddress = this.getAppliesToAddress(request);
-        this.claims = this.getClaims(request);
     }
 
     /**
@@ -127,10 +169,10 @@ public class STSRequestData {
      * @param request
      * @return
      */
-    private OMElement getClaims(OMElement request) {
-        OMElement claimsNode = null;
+    private OMElement getClaimsNode(OMElement request) {
+        OMElement node = null;
         try {
-            claimsNode = XPathHelper.selectSingleNode(
+            node = XPathHelper.selectSingleNode(
                     request,
                     "./ns:Claims[1]",
                     STSConstants.WSTRUST_NS);
@@ -138,7 +180,7 @@ public class STSRequestData {
             System.out.println("Exception: " + ex.getMessage());
             logger.warn("No Claims found");
         }
-        return claimsNode;
+        return node;
     }
 
     @Override

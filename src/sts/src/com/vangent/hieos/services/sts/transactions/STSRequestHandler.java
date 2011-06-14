@@ -26,7 +26,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
@@ -97,22 +96,26 @@ public class STSRequestHandler extends XBaseTransaction {
         OMElement result = null;
         log_message.setPass(true);  // Hope for the best.
 
-        // First parse and validate that SOAP header.
-        STSRequestData requestData;
-        SOAPHeaderData headerData;
-        MessageContext mCtx = this.getMessageContext();
+        // Get configuration.
+        STSConfig stsConfig;
         try {
-            headerData = new SOAPHeaderData(STSConfig.getInstance());
-            requestData = new STSRequestData();
-            requestData.setHeaderData(headerData);  // attach for later use.
-            headerData.parse(mCtx);
+            stsConfig = STSConfig.getInstance();
+        } catch (STSException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
+
+        // First parse and validate the SOAP header.
+        MessageContext mCtx = this.getMessageContext();
+        STSRequestData requestData = new STSRequestData(stsConfig, mCtx, request);
+        try {
+            SOAPHeaderData headerData = requestData.parseHeader();
             System.out.println("SOAP Header - " + headerData.toString());
         } catch (STSException ex) {
             throw new AxisFault(ex.getMessage());
         }
 
         // Authenticate user (for Issue requests).
-        String soapAction = headerData.getSoapAction();
+        String soapAction = requestData.getSoapAction();
         if (soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
             boolean authenticated = false;
             try {
@@ -127,7 +130,7 @@ public class STSRequestHandler extends XBaseTransaction {
 
         // Now, either process an "Issue" or "Validate" token request.
         try {
-            requestData.parse(request);
+            requestData.parseBody();
             System.out.println("STSRequestData - " + requestData.toString());
             String requestType = requestData.getRequestType();
             if (requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
@@ -153,8 +156,7 @@ public class STSRequestHandler extends XBaseTransaction {
     private OMElement processIssueTokenRequest(STSRequestData requestData) throws STSException {
         System.out.println("STS ISSUE action!");
         //this.runTest();
-        STSConfig stsConfig = STSConfig.getInstance();
-        SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler(stsConfig);
+        SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler();
         return handler.handle(requestData);
     }
 
@@ -165,8 +167,7 @@ public class STSRequestHandler extends XBaseTransaction {
      */
     private OMElement processValidateTokenRequest(STSRequestData requestData) throws STSException {
         System.out.println("STS VALIDATE action!");
-        STSConfig stsConfig = STSConfig.getInstance();
-        SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler(stsConfig);
+        SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler();
         return handler.handle(requestData);
     }
 
@@ -175,32 +176,32 @@ public class STSRequestHandler extends XBaseTransaction {
      * @param securityHeaderData
      */
     private boolean authenticate(STSRequestData requestData) throws STSException {
+        STSConfig stsConfig = requestData.getSTSConfig();
+        boolean authenticated = false;
         SOAPHeaderData headerData = requestData.getHeaderData();
         if (headerData.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
             String userName = headerData.getUserName();
             String userPassword = headerData.getUserPassword();
-            STSConfig stsConfig = STSConfig.getInstance();
             XConfigObject configObject = stsConfig.getConfigObject();
             AuthenticationService authService = new AuthenticationService(configObject);
             Credentials authCredentials = new Credentials(userName, userPassword);
             AuthenticationContext authCtxt = authService.authenticate(authCredentials);
-            boolean authStatus = authCtxt.hasSuccessStatus();
-            if (authStatus == true) {
+            authenticated = authCtxt.hasSuccessStatus();
+            if (authenticated == true) {
                 requestData.setPrincipal(authCtxt.getUserProfile().getDistinguishedName());
             }
-            return authStatus;
         } else {
             // Assume BinarySecurityToken.
             X509Certificate certificate = headerData.getClientCertificate();
-            KeyStore trustStore = STSUtil.getTrustStore(STSConfig.getInstance());
+            KeyStore trustStore = STSUtil.getTrustStore(stsConfig);
             try {
                 STSUtil.validateCertificate(certificate, trustStore);
                 requestData.setPrincipal(certificate.getSubjectX500Principal().getName());
+                authenticated = true;
             } catch (STSException ex) {
                 System.out.println("Certificate not valid: " + ex.getMessage());
-                return false;
             }
-            return true;
         }
+        return authenticated;
     }
 }

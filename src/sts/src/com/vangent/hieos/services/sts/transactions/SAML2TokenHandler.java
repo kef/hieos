@@ -29,34 +29,14 @@ import org.opensaml.xml.XMLObjectBuilderFactory;
  * @author Bernie Thuman
  */
 public abstract class SAML2TokenHandler {
-    private STSConfig stsConfig;
+    private static XMLObjectBuilderFactory builderFactory;
 
     /**
      *
-     */
-    private SAML2TokenHandler()
-    {
-        // Do nothing -- must use constructor below.
-    }
-
-    /**
-     *
-     * @param stsConfig
-     */
-    protected SAML2TokenHandler(STSConfig stsConfig)
-    {
-        this.stsConfig = stsConfig;
-    }
-
-    /**
-     * 
+     * @param requestData
      * @return
+     * @throws STSException
      */
-    protected STSConfig getSTSConfig()
-    {
-        return this.stsConfig;
-    }
-
     abstract protected OMElement handle(STSRequestData requestData) throws STSException;
 
      /**
@@ -64,12 +44,10 @@ public abstract class SAML2TokenHandler {
      * @param qname
      * @return
      */
-    protected XMLObject createSamlObject(QName qname) throws STSException {
+    protected XMLObject createSAMLObject(QName qname) throws STSException {
         //return Configuration.getBuilderFactory().getBuilder(qname).buildObject(qname);
         return SAML2TokenHandler.getXMLObjectBuilderFactory().getBuilder(qname).buildObject(qname);
     }
-
-    private static XMLObjectBuilderFactory builderFactory;
 
     /**
      * 

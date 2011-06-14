@@ -33,7 +33,10 @@ import org.joda.time.format.ISODateTimeFormat;
  */
 public class SOAPHeaderData {
 
+    // Examples:
+    //
     // UserNameToken:
+    //
     //<soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
     //  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     //     <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -46,7 +49,9 @@ public class SOAPHeaderData {
     //     </wsse:UsernameToken>
     //  </wsse:Security>
     //</soapenv:Header>
+    //
     // BinarySecurityToken (X.509 Certificate):
+    //
     //<soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
     //  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     //     <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -61,6 +66,8 @@ public class SOAPHeaderData {
     //     </wsse:BinarySecurityToken>
     //  </wsse:Security>
     //</soapenv:Header>
+    //
+
     private DateTime timestampCreated;
     private DateTime timestampExpires;
     private String userName;
@@ -68,15 +75,16 @@ public class SOAPHeaderData {
     private STSConstants.AuthenticationType authenticationType;
     private X509Certificate certificate;
     private String soapAction;
-    private MessageContext messageContext;
+    private MessageContext mCtx;
     private STSConfig stsConfig;
 
     private SOAPHeaderData() {
         // Do not allow.
     }
 
-    public SOAPHeaderData(STSConfig stsConfig) {
+    public SOAPHeaderData(STSConfig stsConfig, MessageContext mCtx) {
         this.stsConfig = stsConfig;
+        this.mCtx = mCtx;
     }
 
     public DateTime getTimestampCreated() {
@@ -111,10 +119,9 @@ public class SOAPHeaderData {
      *
      * @param request
      */
-    public void parse(MessageContext messageContext) throws STSException {
-        this.messageContext = messageContext;
-        this.soapAction = messageContext.getSoapAction();
-        SOAPEnvelope env = messageContext.getEnvelope();
+    public void parse() throws STSException {
+        this.soapAction = mCtx.getSoapAction();
+        SOAPEnvelope env = mCtx.getEnvelope();
         SOAPHeader header = env.getHeader();
         if (header == null) {
             throw new STSException("No SOAP header found");
@@ -183,8 +190,8 @@ public class SOAPHeaderData {
      * @throws STSException
      */
     private void validateAuthenticationInfo() throws STSException {
-        // Only care about "issue" actions.
-        if (this.soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
+        // Only validate "issue" actions.
+        if (soapAction.equalsIgnoreCase(STSConstants.ISSUE_ACTION)) {
             if (stsConfig.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
                 if (userName == null || userPassword == null) {
                     throw new STSException("No UserNameToken provided - rejecting request");
@@ -327,12 +334,6 @@ public class SOAPHeaderData {
         return result;
     }
 
-    //     <wsse:BinarySecurityToken wsu:Id="binarytoken"
-    //         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-    //         ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
-    //         EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">
-    //        ...
-    //     </wsse:BinarySecurityToken>
     /**
      * 
      * @param securityHeader

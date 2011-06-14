@@ -51,6 +51,7 @@ import org.opensaml.xml.signature.KeyInfo;
  * @author Bernie Thuman
  */
 public class SAML2TokenValidateHandler extends SAML2TokenHandler {
+    //
     //   <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
     //       <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
     //       <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Validate</wst:RequestType>
@@ -65,14 +66,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
     //          </saml:Assertion>
     //       </wst:ValidateTarget>
     //    </wst:RequestSecurityToken>
-
-    /**
-     *
-     * @param stsConfig
-     */
-    public SAML2TokenValidateHandler(STSConfig stsConfig) {
-        super(stsConfig);
-    }
+    //
 
     /**
      *
@@ -82,10 +76,10 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      */
     @Override
     protected OMElement handle(STSRequestData requestData) throws STSException {
-        // Get Assertion (asOMElement) from requestData.
+        // Get Assertion (as OMElement) from requestData.
         OMElement assertionOMElement = this.getAssertionOMElement(requestData.getRequest());
 
-        STSConfig stsConfig = this.getSTSConfig();
+        STSConfig stsConfig = requestData.getSTSConfig();
 
         // Get the TrustStore.
         KeyStore trustStore = STSUtil.getTrustStore(stsConfig);
@@ -119,8 +113,8 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             if ((certs != null) || !certs.isEmpty()) {
                 certificate = certs.get(0);  // Use the first one.
                 try {
-                    this.validateCertificate(certificate, trustStore);
-                } catch (Exception ex) {
+                    STSUtil.validateCertificate(certificate, trustStore);
+                } catch (STSException ex) {
                     System.out.println("STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
                     return this.getWSTrustResponse(false);
                 }
@@ -130,6 +124,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
         // Get the "issuer" Certificate if not present in Signature/KeyInfo
         if (certificate == null) {
             certificate = STSUtil.getIssuerCertificate(stsConfig, trustStore);
+            // Will validate using this.
         }
 
         // Now, validate the signature on the Assertion using chosen Certificate.
@@ -173,20 +168,6 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             throw new STSException("Unable to unmarshall Assertion: " + ex.getMessage());
         }
         return assertion;
-    }
-
-    /**
-     *
-     * @param cert
-     * @param trustStore
-     * @throws CertificateException
-     * @throws KeyStoreException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchAlgorithmException
-     * @throws CertPathValidatorException
-     */
-    private void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
-        STSUtil.validateCertificate(cert, trustStore);
     }
 
     /**

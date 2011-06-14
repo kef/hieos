@@ -17,8 +17,6 @@ import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -39,6 +37,7 @@ public class STSConfig {
     private String keyStorePassword;
     private String trustStorePassword;
     private String issuerPassword;
+    private boolean computeSubjectNameFromClaims;
     private STSConstants.AuthenticationType authenticationType;
     private XConfigObject configObject;
 
@@ -93,12 +92,12 @@ public class STSConfig {
             issuerPassword = keyStorePassword;
         }
         String authenticationTypeText = configObject.getProperty("authenticationType");
-        if (authenticationTypeText.equalsIgnoreCase("UserNameToken"))
-        {
+        if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
             authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
         } else {
             authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
         }
+        computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("computeSubjectNameFromClaims", false);
     }
 
     /**
