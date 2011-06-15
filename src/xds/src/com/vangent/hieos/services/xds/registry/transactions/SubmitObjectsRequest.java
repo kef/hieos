@@ -25,7 +25,7 @@ import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsPatientIdDoesNotMatchException;
 import com.vangent.hieos.xutil.exception.XdsUnknownPatientIdException;
-import com.vangent.hieos.xutil.registry.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;

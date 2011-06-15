@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.xutil.registry;
+package com.vangent.hieos.services.xds.registry.backend;
 
 import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;

@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
-import com.vangent.hieos.xutil.registry.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
