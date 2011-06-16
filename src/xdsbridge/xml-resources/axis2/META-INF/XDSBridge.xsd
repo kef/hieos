@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://schemas.hieos.vangent.com/xdsbridge"
+	targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
+    <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+            This is the schema definition for the HIEOS XDS.b Bridge Service that enables
+            a document source to submit one or more documents to an XDS.b Repository.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="SubmitDocumentRequest">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+            The SubmitDocumentRequest element contains the Patient Id, Organization Id
+            and one or more documents for the patient. The Patient and Organization Id
+            are defined with a root (identifier) and extension (assigning authority
+            for the identifier). The extension is optional.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="PatientId" type="IdType" />
+                <xsd:element name="OrganizationId" type="IdType" />
+                <xsd:element name="Documents" type="DocumentsType" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="IdType">
+        <xsd:attribue name="root" type="xsd:string" use="required"/>
+        <xsd:attribue name="extension" type="xsd:string" use="optional" />
+    </xsd:complexType>
+
+    <xsd:complexType name="DocumentsType">
+        <xsd:sequence>
+            <xsd:element name="Document" type="DocumentType" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="DocumentType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+            The DocumentType element contains the document Type, Id, Replace Id and Content
+            for a document. The Document Type is a coded value indicating the type of document
+            being submitted. The Document Id is a unique identifier for the document. It will
+            be generated if not specified. If a Replace Id is provided, the service will
+            replace the document specified in Replace Id with the submitted document. Content
+            contains the actual document.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Type" type="CodeType" />
+            <xsd:element name="Id" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ReplaceId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Content" type="xsd:base64Binary" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="CodeType">
+        <xsd:attribue name="code" type="xsd:string" use="required"/>
+        <xsd:attribue name="codeSystem" type="xsd:string" use="required" />
+        <xsd:attribue name="codeSystemName" type="xsd:string" use="optional"/>
+        <xsd:attribue name="displayName" type="xsd:string" use="optional"/>
+    </xsd:complexType>
+
+
+    <xsd:element name="SubmitDocumentResponse">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+            The SubmitDocumentResponse element indicates if the transaction was successful. If an error
+            occurs then the error details are specified in one or more Error elements. If more than one
+            document is submitted in the request and some documents are processed successfully and some
+            fail then a status of PartialSuccess is returned. The Error Message will indicate which
+            document the error is associated with.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attribute name="status" type="xsd:string" use="required">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="Success"/>
+                    <xsd:enumeration value="PartialSuccess"/>
+                    <xsd:enumeration value="Failure"/>
+                </xsd:restriction>
+            </xsd:attribute>
+            <xsd:sequence>
+                <xsd:element name="Errors" type="ErrorsType" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="ErrorsType">
+        <xsd:sequence>
+            <xsd:element name="Error" type="ErrorType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ErrorType">
+        <xsd:sequence>
+            <xsd:element name="Code" type="xsd:string" />
+            <xsd:element name="Message" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+    <service name="xdsbridge"
+        class="com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge">
+        <description>SubmitDocumentRequest Service</description>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge</parameter>
+        
+        <!-- TODO remove this -->
+        <parameter name="LoggerCategory">com.vangent.hieos</parameter>
+        <parameter name="LoggerLevel">DEBUG</parameter>
+        
+        <parameter name="useOriginalwsdl">true</parameter>
+        <parameter name="modifyUserWSDLPortAddress">true</parameter>
+    
+        <operation name="SubmitDocumentRequest">
+            <actionMapping>urn:hieos:xds:bridge:SubmitDocumentRequest</actionMapping>
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <parameter name="enableMTOM" locked="false">true</parameter>
+        </operation>
+    </service>
+</serviceGroup>

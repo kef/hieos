@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xdsb="http://hieos.vangent.com/schema/XDSBridge">
+   <soapenv:Header />
+   <soapenv:Body>
+        <xdsb:SubmitDocumentResponse status="Success"/>
+   </soapenv:Body>
+</soapenv:Envelope>
+

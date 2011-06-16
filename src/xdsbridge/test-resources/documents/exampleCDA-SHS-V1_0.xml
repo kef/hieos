@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This example is provided for illustrative purposes only. It has had no clinical validation. 
+ While every effort has been taken to ensure that the examples are consistent with the message specification, 
+ where there are conflicts with the written message specification or schema, the specification or schema 
+ shall be considered to take precedence -->
+<ClinicalDocument 
+    xmlns="urn:hl7-org:v3" 
+    xmlns:ext="http://ns.electronichealth.net.au/Ci/Cda/Extensions/3.0" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3" />
+    <templateId extension="1.0" root="1.2.36.1.2001.1001.101.100.20000" />
+    <id root="8BC3406A-B93F-11DE-8A2B-6A1C56D89593" />
+    <code code="51855-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary" />
+    <effectiveTime value="200910201235" />
+    <confidentialityCode nullFlavor="NA" />
+    <languageCode code="en-AU" />
+    <setId root="6C6BA56C-BC92-11DE-A170-D85556D89593" />
+    <versionNumber value="1" />
+    <ext:completionCode code="F" codeSystem="1.2.36.1.2001.1001.101.104.20104" codeSystemName="NCTIS Document Status Values" displayName="Final" />
+
+	<!-- Begin CDA Header -->
+	<!-- Begin Subject of Care - Header Part -->
+    <recordTarget>
+        <patientRole>
+
+			<!-- ID is used for system purposes such as matching -->
+            <id root="7AA0BAAC-0CD0-11E0-9516-4350DFD72085" />
+
+			<!-- Address -->
+            <addr use="H">
+                <streetAddressLine>1 Clinician Street</streetAddressLine>
+                <city>Nehtaville</city>
+                <state>QLD</state>
+                <postalCode>5555</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+
+			<!-- Electronic Communication Detail -->
+            <telecom use="H" value="tel:0499999999" />
+
+			<!-- Participant -->
+            <patient>
+
+				<!-- Person Name -->
+                <name use="L">
+                    <prefix>Ms</prefix>
+                    <given>Sally</given>
+                    <family>Grant</family>
+                </name>
+
+				<!-- Indigenous Status -->
+                <ethnicGroupCode code="4" codeSystem="2.16.840.1.113883.3.879" codeSystemName="METeOR" displayName="Neither Aboriginal nor Torres Strait Islander origin" />
+
+				<!-- Sex -->
+                <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex" />
+
+				<!-- Date of Birth -->
+                <birthTime value="19480607" />
+
+				<!-- Multiple Birth Indicator -->
+                <ext:multipleBirthInd value="true" />
+                <ext:multipleBirthOrderNumber value="2" />
+
+				<!-- Date of Death -->
+                <ext:deceasedInd value="true" />
+                <ext:deceasedTime value="20101201" />
+
+				<!-- Country of Birth -->
+                <birthplace>
+                    <place>
+                        <addr>
+                            <country>8104</country>
+                        </addr>
+                    </place>
+                </birthplace>
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601234512345" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </patient>
+        </patientRole>
+    </recordTarget>
+	<!-- End Subject of Care - Header Part -->
+
+	<!-- Begin Document Author -->
+    <author>
+
+		<!-- Must hold same value as DateTime attested (ClinicalDocument.legalAuthenticator.time) -->
+        <time value="200910201235" />
+
+        <assignedAuthor>
+
+			<!-- ID is used for system purposes such as matching -->
+            <id root="7FCB0EC4-0CD0-11E0-9DFC-8F50DFD72085" />
+
+			<!-- Role -->
+            <code code="253317" codeSystem="2.16.840.1.113883.13.62" codeSystemName="1220.0 - ANZSCO - Australian and New Zealand Standard Classification of Occupations, First Edition, 2006"
+				displayName="Intensive Care Specialist" />
+
+			<!-- Address -->
+            <addr use="WP">
+                <streetAddressLine>1 Clinician Street</streetAddressLine>
+                <city>Nehtaville</city>
+                <state>QLD</state>
+                <postalCode>5555</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+
+			<!-- Electronic Communication Detail -->
+            <telecom use="WP" value="tel:0712341234" />
+
+			<!-- Participant -->
+            <assignedPerson>
+
+				<!-- Person Name -->
+                <name>
+                    <prefix>Dr.</prefix>
+                    <given>Good</given>
+                    <family>Doctor</family>
+                </name>
+
+				<!-- Sex -->
+                <ext:administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex" />
+
+				<!-- Date of Birth -->
+                <ext:birthTime value="19480607" />
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-I" root="1.2.36.1.2001.1003.0.8003611234567890" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </assignedPerson>
+
+			<!-- Employment Detail -->
+			<!-- Employer Organisation (Participant (Organisation)) -->
+            <representedOrganization>
+
+				<!-- Department/Unit -->
+                <name>Surgical Ward</name>
+
+                <asOrganizationPartOf>
+                    <wholeOrganization>
+
+						<!-- Organisation Name -->
+                        <name use="L">Good Hospital</name>
+                    </wholeOrganization>
+                </asOrganizationPartOf>
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003621231167890" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </representedOrganization>
+
+        </assignedAuthor>
+    </author>
+	<!-- End Document Author -->
+
+	<!-- Begin Custodian -->
+    <custodian>
+        <assignedCustodian>
+            <representedCustodianOrganization>
+
+				<!-- ID is used for system purposes such as matching -->
+                <id root="8464C6BE-0CD0-11E0-B45A-9250DFD72085" />
+                <name>Oz Health Clinic</name>
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8066621771167888" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </representedCustodianOrganization>
+        </assignedCustodian>
+    </custodian>
+	<!-- End Custodian -->
+
+	<!-- Start Information Recipient - Primary -->
+    <informationRecipient typeCode="PRCP">
+        <intendedRecipient>
+
+			<!-- ID is used for system purposes such as matching -->
+            <id root="8AF5F8F4-0CD0-11E0-AC48-9350DFD72085" />
+
+            <addr use="WP">
+                <streetAddressLine>1 Primary Care Provider Street</streetAddressLine>
+                <city>Nehtaville</city>
+                <state>QLD</state>
+                <postalCode>5555</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+            <telecom use="WP" value="tel:0712341245" />
+            <informationRecipient>
+
+				<!-- Person Name -->
+                <name>
+                    <prefix>Dr.</prefix>
+                    <given>Information</given>
+                    <family>Recipient</family>
+                </name>
+
+				<!-- Sex -->
+                <ext:administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex" />
+
+				<!-- Date of Birth -->
+                <ext:birthTime value="19681007" />
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-I" root="1.2.36.1.2001.1003.0.8003611222567890" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </informationRecipient>
+
+            <receivedOrganization>
+                <name>Information Recipient Clinic Name</name>
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003621771167888" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </receivedOrganization>
+        </intendedRecipient>
+    </informationRecipient>
+	<!-- End Information Recipient - Primary -->
+
+	<!-- Begin Document Recipient Detail (Organisation) -->
+    <informationRecipient typeCode="TRC">
+        <intendedRecipient>
+
+			<!-- ID is used for system purposes such as matching -->
+            <id root="958A0E90-0CD0-11E0-A43E-AA50DFD72085" />
+            <ext:code code="80522000" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT" codeSystemVersion="20090731" displayName="Rehabilitation hosipital" />
+            <addr use="WP">
+                <streetAddressLine>99 Rehab Road</streetAddressLine>
+                <city>Nehtaville</city>
+                <state>QLD</state>
+                <postalCode>5555</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+            <telecom use="WP" value="tel:0712341999" />
+            <receivedOrganization>
+                <name use="L">Foot Rehab Department 
+                    <validTime>
+                        <low value="19950101" />
+                    </validTime>
+                </name>
+                <asOrganizationPartOf>
+
+					<!-- ID is used for system purposes such as matching -->
+                    <id root="9BE8577E-0CD0-11E0-8D19-AB50DFD72085" />
+                    <wholeOrganization>
+                        <name use="L">Rehab Clinic Name</name>
+
+						<!-- Entity Identifier -->
+                        <ext:asEntityIdentifier classCode="IDENT">
+                            <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003621744167888" />
+                            <ext:assigningGeographicArea classCode="PLC">
+                                <ext:name>National Identifier</ext:name>
+                            </ext:assigningGeographicArea>
+                        </ext:asEntityIdentifier>
+
+                    </wholeOrganization>
+                </asOrganizationPartOf>
+            </receivedOrganization>
+        </intendedRecipient>
+    </informationRecipient>
+	<!-- End Document Recipient Detail (Organisation) -->
+
+	<!-- Begin Authenticator -->
+    <legalAuthenticator>
+
+		<!-- DateTime Attested -->
+        <time value="200910201235" />
+        <signatureCode code="S" />
+        <assignedEntity>
+
+			<!-- ID is used for system purposes such as matching -->
+            <id root="B8E71AC2-0CD0-11E0-8746-CE50DFD72085" />
+            <code code="AT" codeSystem="2.16.840.1.113883.12.443" codeSystemName="HL7 Provider Role" displayName="Attending" />
+            <addr use="H">
+                <streetAddressLine>1 Clinician Street</streetAddressLine>
+                <city>Nehtaville</city>
+                <state>QLD</state>
+                <postalCode>5555</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+            <telecom use="WP" value="tel:0712341234" />
+            <assignedPerson>
+
+				<!-- Person Name -->
+                <name>
+                    <prefix>Dr.</prefix>
+                    <given>Good</given>
+                    <family>Doctor</family>
+                </name>
+
+				<!-- Sex -->
+                <ext:administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex" />
+
+				<!-- Date of Birth -->
+                <ext:birthTime value="19780607" />
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-I" root="1.2.36.1.2001.1003.0.8113611234567890" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </assignedPerson>
+
+            <representedOrganization>
+                <name>Oz Health Clinic</name>
+
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8223621771167888" />
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+
+            </representedOrganization>
+        </assignedEntity>
+    </legalAuthenticator>
+	<!-- End Authenticator -->
+
+	<!-- Begin Encounter (header part) -->
+    <componentOf>
+        <encompassingEncounter>
+
+			<!-- This is a mandatory element -->
+            <effectiveTime nullFlavor="NA" />
+
+        </encompassingEncounter>
+    </componentOf>
+	<!-- End Encounter (header part) -->
+	<!-- End CDA Header -->
+
+	<!-- Begin CDA Body -->
+    <component>
+        <structuredBody>
+
+			<!-- Reviewed Adverse Substance Reactions -->
+            <component>
+                <section>
+                    <code code="101.20113" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Adverse Substance Reactions" />
+                    <title>Reviewed Adverse Substance Reactions</title>
+                    <text>Reviewed Adverse Substance Reactions narrative goes here.</text>
+
+					<!-- Adverse Substance Reaction Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Adverse Substance Reactions Review" />
+							<!-- Record Review DateTime -->
+                            <effectiveTime value="20101225" />
+                        </act>
+                    </entry>
+					<!-- End Adverse Substance Reaction Review -->
+
+					<!-- Adverse Substance Reaction -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16473" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Adverse Substance Reaction" />
+							<!-- Substance/Agent -->
+                            <participant typeCode="CAGNT">
+                                <participantRole>
+                                    <playingEntity>
+                                        <code code="90580008" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT" displayName="fish" />
+                                    </playingEntity>
+                                </participantRole>
+                            </participant>
+
+							<!-- Reaction Event -->
+                            <entryRelationship typeCode="CAUS">
+                                <observation classCode="OBS" moodCode="EVN">
+                                    <code code="102.16474" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reaction Event" />
+
+									<!-- Manifestation -->
+                                    <entryRelationship typeCode="MFST">
+                                        <observation classCode="OBS" moodCode="EVN" negationInd="true">
+                                            <code code="271807003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT" codeSystemVersion="20090731" displayName="skin rash" />
+                                            <text>Skin Rash.</text>
+                                        </observation>
+
+                                    </entryRelationship>
+                                </observation>
+                            </entryRelationship>
+							<!-- End Reaction Event -->
+
+                        </act>
+                    </entry>
+					<!-- End Adverse Substance Reaction -->
+
+					<!-- Exclusion Statement - Adverse Substance Reaction -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement" />
+                            <value code="02" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="Not asked" xsi:type="CD" />
+                        </observation>
+                    </entry>
+					<!-- End Exclusion Statement - Adverse Substance Reaction -->
+
+                </section>
+            </component>
+			<!-- End Reviewed Adverse Substance Reactions -->
+
+			<!-- Reviewed Medications -->
+            <component>
+                <section>
+                    <code code="101.16022" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Medications" />
+                    <title>Reviewed Medications</title>
+                    <text>Reviewed Medications narrative goes here.</text>
+
+					<!-- Medications Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Medications Review" />
+                            <effectiveTime value="20101225" />
+                        </act>
+                    </entry>
+					<!-- End Medications Review -->
+
+					<!-- Used Medications -->
+                    <entry>
+                        <substanceAdministration classCode="SBADM" moodCode="EVN">
+                            <id root="C57A9F32-754B-11E0-A7E0-599F4824019B" />
+							<!-- Directions -->
+                            <text xsi:type="ST">2 tablets daily after breakfast</text>
+                            <consumable>
+                                <manufacturedProduct>
+                                    <manufacturedMaterial>
+										<!-- Therapeutic Good Identification -->
+                                        <code code="23641011000036102" codeSystem="1.2.36.1.2001.1004.100" codeSystemName="Australian Medicinces Terminology (AMT)"
+											displayName="paracetamol 500 mg + codeine phosphate 30 mg tablet" />
+                                    </manufacturedMaterial>
+                                </manufacturedProduct>
+                            </consumable>
+
+							<!-- Clinical Indication -->
+                            <entryRelationship typeCode="RSON">
+                                <act classCode="INFRM" moodCode="EVN">
+                                    <id root="361B6EF6-754C-11E0-A3C3-D19F4824019B" />
+                                    <code code="103.10141" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Clinical Indication" />
+                                    <text xsi:type="ST">Pain control.</text>
+                                </act>
+                            </entryRelationship>
+							<!-- End Clinical Indication -->
+
+							<!-- Comment -->
+                            <entryRelationship typeCode="COMP">
+                                <act classCode="INFRM" moodCode="EVN">
+                                    <id root="361B6EF6-754C-11E0-A3C3-D19F4824019B" />
+                                    <code code="103.16044" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Additional Comments" />
+                                    <text xsi:type="ST">Dosage to be reviewed in 10 days.</text>
+                                </act>
+                            </entryRelationship>
+							<!-- End Comment -->
+
+                        </substanceAdministration>
+                    </entry>
+					<!-- End Used Medications -->
+
+					<!-- Exclusion Statement - Medications -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement" />
+                            <value code="11" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="None known" xsi:type="CD" />
+                        </observation>
+                    </entry>
+					<!-- Exclusion Statement - Medications -->
+
+                </section>
+            </component>
+			<!-- End Reviewed Medications -->
+
+			<!-- Start Reviewed Medical History -->
+            <component>
+                <section>
+                    <code code="101.21003" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Medical History" />
+                    <title>Reviewed Medical history</title>
+                    <text>Reviewed Medical history narrative goes here.</text>
+
+					<!-- Medical History Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Medical History Review" />
+                            <effectiveTime value="20101225" />
+                        </act>
+                    </entry>
+					<!-- Medical History Review -->
+
+					<!-- Problem/Diagnosis -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <id root="74D29C88-706E-11E0-9726-5ABE4824019B" />
+                            <code code="102.15530" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Problem/Diagnosis" />
+							<!-- Date of Onset -->
+                            <effectiveTime value="20111104" />
+
+							<!-- Problem/Diagnosis Identification -->
+                            <value code="116223007" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT" codeSystemVersion="20090731" displayName="Comorbidity" xsi:type="CD" />
+
+							<!-- Date of Resolution/Remission -->
+                            <entryRelationship typeCode="SUBJ">
+                                <observation classCode="OBS" moodCode="EVN">
+                                    <id root="6AD19BAE-7527-11E0-851E-82774824019B" />
+                                    <code code="103.15510" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Date of Resolution/Remission" />
+                                    <value value="20110427" xsi:type="IVL_TS" />
+                                </observation>
+                            </entryRelationship>
+							<!-- End Date of Resolution/Remission -->
+
+							<!-- Problem/Diagnosis Comment -->
+                            <entryRelationship typeCode="COMP">
+                                <act classCode="INFRM" moodCode="EVN">
+                                    <code code="103.16545" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Problem/Diagnosis Comment" />
+                                    <text xsi:type="ST">Problem/Diagnosis Comment Comment goes here.</text>
+                                </act>
+                            </entryRelationship>
+							<!-- End Problem/Diagnosis Comment -->
+
+                        </observation>
+                    </entry>
+					<!-- End Problem/Diagnosis -->
+
+					<!-- Exclusion Statement - Problem/Diagnoses -->
+					<!-- Global Statement -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <id root="9CB7C5DC-752F-11E0-9FE2-97804824019B" />
+                            <code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement" />
+                            <value code="1" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values"
+								displayName="No significant medical history of any problem or diagnosis" xsi:type="CD" />
+                        </observation>
+                    </entry>
+					<!-- End Exclusion Statement - Problem/Diagnoses -->
+
+					<!-- Procedure -->
+                    <entry>
+                        <procedure classCode="PROC" moodCode="EVN">
+                            <id root="B96A38C6-706C-11E0-AD2E-42BC4824019B" />
+							<!-- Procedure Name -->
+                            <code code="397956004" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT" displayName="hip replacement" />
+							<!-- DateTime Started -->
+                            <effectiveTime value="20110427" />
+
+							<!-- Procedure Comment -->
+                            <entryRelationship typeCode="COMP">
+                                <act classCode="INFRM" moodCode="EVN">
+                                    <code code="103.15595" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Procedure Comment" />
+                                    <text xsi:type="ST">Procedure Comment goes here.</text>
+                                </act>
+                            </entryRelationship>
+                        </procedure>
+                    </entry>
+					<!-- End Procedure -->
+
+					<!-- Exclusion Statement - Procedures -->
+					<!-- Global Statement -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <id root="8115545C-752F-11E0-A8E2-8B804824019B" />
+                            <code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement" />
+                            <value code="11" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="None known" xsi:type="CD" />
+                        </observation>
+                    </entry>
+					<!-- End Exclusion Statement - Procedures -->
+
+					<!-- Other Medical History Item -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <id root="0CBE0B42-7072-11E0-94B1-26C24824019B" />
+                            <code code="102.15513" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Other Medical History Item" />
+                            <text xsi:type="ST">Other Medical History Item goes here.</text>
+                            <author>
+                                <time value="201104271100" />
+                                <assignedAuthor nullFlavor="NA">
+                                    <id nullFlavor="NA" />
+                                </assignedAuthor>
+                            </author>
+                        </act>
+                    </entry>
+					<!-- End Other Medical History Item -->
+
+                </section>
+            </component>
+			<!-- End Reviewed Medical History -->
+
+			<!-- Reviewed Immunisations Section -->
+            <component>
+                <section>
+                    <code code="101.16600" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Immunisations" />
+                    <title>Reviewed Immunisations</title>
+                    <text>Reviewed Immunisations narrative goes here.</text>
+
+					<!-- Reviewed Immunisations -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <id root="45F3BE28-7551-11E0-971D-65A54824019B" />
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Immunisation History Review" />
+							<!-- Record Review DateTime -->
+                            <effectiveTime value="20110427" />
+                        </act>
+                    </entry>
+					<!-- End Reviewed Immunisations -->
+
+					<!-- Administered Immunisation -->
+                    <entry>
+                        <substanceAdministration classCode="SBADM" moodCode="EVN">
+							<!-- Medication Action DateTime -->
+                            <effectiveTime value="20110427" />
+                            <consumable>
+                                <manufacturedProduct>
+                                    <manufacturedMaterial>
+                                        <code code="?????" codeSystem="1.2.36.1.2001.1004.100" codeSystemName="Australian Medicinces Terminology (AMT)" displayName="?????" />
+                                    </manufacturedMaterial>
+                                </manufacturedProduct>
+                            </consumable>
+                        </substanceAdministration>
+                    </entry>
+					<!-- End Administered Immunisation -->
+
+					<!-- Exclusion Statement - Immunisations -->
+                    <entry>
+                        <observation classCode="OBS" moodCode="EVN">
+                            <code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement" />
+                            <value code="01" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="None known" xsi:type="CD" />
+                        </observation>
+                    </entry>
+					<!-- End Exclusion Statement - Immunisations -->
+
+                </section>
+            </component>
+			<!-- End Reviewed Immunisations Section -->
+
+        </structuredBody>
+    </component>
+	<!-- End CDA Body -->
+</ClinicalDocument>

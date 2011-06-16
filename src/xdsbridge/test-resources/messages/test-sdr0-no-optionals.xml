@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bridge:SubmitDocumentRequest
+    xmlns:bridge="http://schemas.hieos.vangent.com/xdsbridge"
+    xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+    <bridge:PatientId root="2.16.840.1.113883.3.454.1.1000387002" />
+    <bridge:Documents>
+        <bridge:Document>
+            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" />
+            <bridge:Content xm:contentType="application/?">cid:749524621891</bridge:Content>
+        </bridge:Document>
+    </bridge:Documents>
+</bridge:SubmitDocumentRequest>
