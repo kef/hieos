@@ -16,7 +16,10 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.List;
+import javax.security.auth.x500.X500Principal;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
@@ -35,7 +38,7 @@ public class STSRequestData {
     private OMElement claimsNode;
     private List<Claim> claims;
     private SOAPHeaderData headerData;
-    private String subjectName;
+    private String subjectDN;
     private MessageContext mCtx;
     private STSConfig stsConfig;
 
@@ -92,7 +95,7 @@ public class STSRequestData {
             this.claims = claimBuilder.parse(this);
             if (stsConfig.getComputeSubjectNameFromClaims()) {
                 // Override any previously set SubjectName
-                this.setSubjectName(this.getComputedSubjectName());
+                this.setSubjectDN(this.getComputedSubjectName());
             }
         }
     }
@@ -102,6 +105,8 @@ public class STSRequestData {
      * @return
      */
     private String getComputedSubjectName() {
+        // PRECONDITION: Authentication already took place.
+
         // CN=jack,OU=Sun GlassFish Enterprise Server,O=Sun Microsystems,L=Santa Clara,ST=California,C=US
         // CN=urn:oasis:names:tc:xacml:1.0:subject:subject-id
         // OU=urn:oasis:names:tc:xspa:1.0:subject:organization-id
@@ -109,6 +114,29 @@ public class STSRequestData {
         // L=XXX
         // ST=XXX
         // C=XXX
+        // Only override if using a CERT.
+
+        X509Certificate clientCert = headerData.getClientCertificate();
+        if (clientCert != null)
+        {
+            X500Principal principal = clientCert.getSubjectX500Principal();
+            String subjectDN = principal.getName();
+            X500Name x500Name = new X500Name(subjectDN);
+
+            // Just override the CN using subject-id CLAIM
+            String newCN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
+            x500Name.replace("CN", newCN);
+            
+            String newSubjectName = x500Name.toString();
+            System.out.println("+++ newSubjectName = " + newSubjectName);
+            return newSubjectName;
+            
+        } else {
+            // Assume userName/userPassword
+            // Do not override existing value
+            return this.getSubjectDN();
+        }
+        /*
         String CN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
         String OU = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization-id");
         String O = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization");
@@ -118,8 +146,8 @@ public class STSRequestData {
             return "CN=" + CN + ", OU=" + OU + ", O=" + O;
         } else {
             // Do not override existing value
-            return this.getSubjectName();
-        }
+            return this.getSubjectDN();
+        }*/
     }
 
     /**
@@ -165,12 +193,12 @@ public class STSRequestData {
         return headerData;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public String getSubjectDN() {
+        return subjectDN;
     }
 
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
+    public void setSubjectDN(String subjectDN) {
+        this.subjectDN = subjectDN;
     }
 
     /**

@@ -121,7 +121,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         } else {
             userName = "UID="+requestData.getHeaderData().getUserName();
         }*/
-        nameId.setValue(requestData.getSubjectName());
+        nameId.setValue(requestData.getSubjectDN());
         subj.setNameID(nameId);
 
         // Set the SubjectConfirmation method to "holder of key".
@@ -163,7 +163,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
          // Set the issuer name.
         Issuer issuer = (Issuer) createSAMLObject(Issuer.DEFAULT_ELEMENT_NAME);
         issuer.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
-        issuer.setValue(issuerCertificate.getSubjectX500Principal().getName());
+        issuer.setValue(issuerCertificate.getIssuerX500Principal().getName());
         assertion.setIssuer(issuer);
 
         // Get ready to sign the Assertion using the issuer's private key.

@@ -188,7 +188,7 @@ public class STSRequestHandler extends XBaseTransaction {
             AuthenticationContext authCtxt = authService.authenticate(authCredentials);
             authenticated = authCtxt.hasSuccessStatus();
             if (authenticated == true) {
-                requestData.setSubjectName(authCtxt.getUserProfile().getDistinguishedName());
+                requestData.setSubjectDN(authCtxt.getUserProfile().getDistinguishedName());
             }
         } else {
             // Assume BinarySecurityToken.
@@ -196,7 +196,7 @@ public class STSRequestHandler extends XBaseTransaction {
             KeyStore trustStore = STSUtil.getTrustStore(stsConfig);
             try {
                 STSUtil.validateCertificate(certificate, trustStore);
-                requestData.setSubjectName(certificate.getSubjectX500Principal().getName());
+                requestData.setSubjectDN(certificate.getSubjectX500Principal().getName());
                 authenticated = true;
             } catch (STSException ex) {
                 System.out.println("Certificate not valid: " + ex.getMessage());
