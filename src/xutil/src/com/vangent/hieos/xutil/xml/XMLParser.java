@@ -14,11 +14,13 @@ package com.vangent.hieos.xutil.xml;
 
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.iosupport.Io;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 
 /**
@@ -66,5 +68,21 @@ public class XMLParser {
         } catch (XMLStreamException ex) {
             throw new XMLParserException(ex.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param xml
+     * @return
+     * @throws XMLStreamException
+     */
+    public static OMElement bytesToOM(byte[] xml) throws XMLParserException {
+        StAXOMBuilder builder = null;
+        try {
+            builder = new StAXOMBuilder(new ByteArrayInputStream(xml));
+        } catch (final XMLStreamException ex) {
+            throw new XMLParserException(ex.getMessage());
+        }
+        return builder.getDocumentElement();
     }
 }
