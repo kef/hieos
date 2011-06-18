@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="XDSBridgeService"
-   targetNamespace="http://www.hieos.vangent.com/wsdl/XDSBridgeService"
+   targetNamespace="http://schemas.hieos.vangent.com/xdsbridge"
    xmlns="http://schemas.xmlsoap.org/wsdl/"
    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
@@ -9,8 +9,7 @@
    xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
    xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"
-   xmlns:tns="http://www.hieos.vangent.com/wsdl/XDSBridgeService"
-   xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
+   xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge">
 
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
@@ -20,18 +19,16 @@
     </xsd:annotation>
 
     <types>
-        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <xsd:import namespace="http://schemas.hieos.vangent.com/xdsbridge"
-            schemaLocation="XDSBridge.xsd">
-            </xsd:import>
+        <xsd:schema targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
+            <xsd:include schemaLocation="XDSBridge.xsd" />
         </xsd:schema>
     </types>
    
     <message name="SubmitDocumentRequestMessage">
-        <part name="body" element="xdsb:SubmitDocumentRequest"/>
+        <part name="body" element="tns:SubmitDocumentRequest"/>
     </message>
     <message name="SubmitDocumentResponseMessage">
-        <part name="body" element="xdsb:SubmitDocumentResponse"/>
+        <part name="body" element="tns:SubmitDocumentResponse"/>
     </message>
  
     <portType name="XDSBridgePortType">
@@ -58,10 +55,9 @@
         </operation>
     </binding>
  
-    <service name="XDSBridgeService">
-        <port  name="XDSBridgeEndpoint" binding="tns:XDSBridgeBindingSoap12">
-            <soap12:address
-            location="http://localhost:8080/axis2/services/xdsbridge"/>
+    <service name="xdsbridge">
+        <port name="XDSBridgeEndpoint" binding="tns:XDSBridgeBindingSoap12">
+            <soap12:address location="http://localhost:8080/axis2/services/xdsbridge"/>
         </port>
     </service>
 

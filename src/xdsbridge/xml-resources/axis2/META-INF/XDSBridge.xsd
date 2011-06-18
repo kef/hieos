@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://schemas.hieos.vangent.com/xdsbridge"
+	xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge"
 	targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
@@ -20,21 +20,21 @@
         </xsd:annotation>
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="PatientId" type="IdType" />
-                <xsd:element name="OrganizationId" type="IdType" />
-                <xsd:element name="Documents" type="DocumentsType" />
+                <xsd:element name="PatientId" type="tns:IdType" />
+                <xsd:element name="OrganizationId" type="tns:IdType" />
+                <xsd:element name="Documents" type="tns:DocumentsType" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
 
     <xsd:complexType name="IdType">
-        <xsd:attribue name="root" type="xsd:string" use="required"/>
-        <xsd:attribue name="extension" type="xsd:string" use="optional" />
+        <xsd:attribute name="root" type="xsd:string" use="required" />
+        <xsd:attribute name="extension" type="xsd:string" use="optional" />
     </xsd:complexType>
 
     <xsd:complexType name="DocumentsType">
         <xsd:sequence>
-            <xsd:element name="Document" type="DocumentType" maxOccurs="unbounded" />
+            <xsd:element name="Document" type="tns:DocumentType" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
 
@@ -50,18 +50,18 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="Type" type="CodeType" />
-            <xsd:element name="Id" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="ReplaceId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="Type" type="tns:CodeType" />
+            <xsd:element name="Id" type="xsd:string" minOccurs="0" />
+            <xsd:element name="ReplaceId" type="xsd:string" minOccurs="0" />
             <xsd:element name="Content" type="xsd:base64Binary" />
         </xsd:sequence>
     </xsd:complexType>
 
     <xsd:complexType name="CodeType">
-        <xsd:attribue name="code" type="xsd:string" use="required"/>
-        <xsd:attribue name="codeSystem" type="xsd:string" use="required" />
-        <xsd:attribue name="codeSystemName" type="xsd:string" use="optional"/>
-        <xsd:attribue name="displayName" type="xsd:string" use="optional"/>
+        <xsd:attribute name="code" type="xsd:string" use="required" />
+        <xsd:attribute name="codeSystem" type="xsd:string" use="required" />
+        <xsd:attribute name="codeSystemName" type="xsd:string" use="optional" />
+        <xsd:attribute name="displayName" type="xsd:string" use="optional" />
     </xsd:complexType>
 
 
@@ -76,29 +76,31 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:attribute name="status" type="xsd:string" use="required">
-                <xsd:restriction base="xsd:string">
-                    <xsd:enumeration value="Success"/>
-                    <xsd:enumeration value="PartialSuccess"/>
-                    <xsd:enumeration value="Failure"/>
-                </xsd:restriction>
-            </xsd:attribute>
             <xsd:sequence>
-                <xsd:element name="Errors" type="ErrorsType" minOccurs="0"/>
+                <xsd:element name="Errors" type="tns:ErrorsType" minOccurs="0" />
             </xsd:sequence>
+            <xsd:attribute name="status" use="required">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="Success" />
+                        <xsd:enumeration value="PartialSuccess" />
+                        <xsd:enumeration value="Failure" />
+                    </xsd:restriction>
+                </xsd:simpleType>                
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 
     <xsd:complexType name="ErrorsType">
         <xsd:sequence>
-            <xsd:element name="Error" type="ErrorType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="Error" type="tns:ErrorType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
 
     <xsd:complexType name="ErrorType">
         <xsd:sequence>
             <xsd:element name="Code" type="xsd:string" />
-            <xsd:element name="Message" type="xsd:string"/>
+            <xsd:element name="Message" type="xsd:string" />
         </xsd:sequence>
     </xsd:complexType>
 
