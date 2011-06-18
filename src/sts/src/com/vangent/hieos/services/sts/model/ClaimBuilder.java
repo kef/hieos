@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.policyutil.model.PolicyConstants;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
