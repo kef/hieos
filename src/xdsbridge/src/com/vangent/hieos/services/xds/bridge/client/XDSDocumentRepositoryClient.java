@@ -19,8 +19,10 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.log4j.Logger;
 
 /**
  * Class description
@@ -41,6 +43,10 @@ public class XDSDocumentRepositoryClient extends Client {
 
     /** Field description */
     private final static String PNR_TRANS = "ProvideAndRegisterDocumentSet-b";
+
+    /** Field description */
+    private final static Logger logger =
+        Logger.getLogger(XDSDocumentRepositoryClient.class);
 
     /**
      * Constructs ...
@@ -79,7 +85,7 @@ public class XDSDocumentRepositoryClient extends Client {
             soap.setAsync(pnrTrans.isAsyncTransaction());
 
             boolean soap12 = pnrTrans.isSOAP12Endpoint();
-            
+
             // TODO configurable?? XConfigTransactionEndpoint?
             boolean useMtom = true;
             boolean useWsa = true;
@@ -90,8 +96,10 @@ public class XDSDocumentRepositoryClient extends Client {
                                    PNR_RESPONSE_ACTION);
 
         } catch (XdsException ex) {
-            
-            throw new AxisFault(ex.getMessage());
+
+            logger.error(ex, ex);
+
+            throw new AxisFault(ex.getMessage(), ex);
         }
 
         return result;

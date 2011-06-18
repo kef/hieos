@@ -13,11 +13,11 @@
 
 package com.vangent.hieos.services.xds.bridge.support;
 
-import java.util.Map;
 import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -62,6 +62,56 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
         super();
         this.actorType = actorType;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     *
+     * @param serviceName
+     * @param request
+     * @param actor
+     *
+     * @return
+     *
+     * @throws AxisFault
+     */
+    @Override
+    protected OMElement beginTransaction(String serviceName, OMElement request,
+            ActorType actor)
+            throws AxisFault {
+
+        OMElement result = null;
+
+        try {
+
+            // this flow can throw NPE, let's wrap and make pretty
+            result = super.beginTransaction(serviceName, request, actor);
+
+        } catch (AxisFault e) {
+
+            throw e;
+
+        } catch (Exception e) {
+
+            // log exception
+            logger.error(e, e);
+
+            String msg =
+                "XDSBridge could not initialize to process the request. Check the XML for validity.";
+
+            result = start_up_error(request, null, getActorType(), msg);
+
+            if (result == null) {
+
+                // start_up_error ate an exception
+                // Last resort, THROW A FAULT!!!
+                throw getAxisFault(new IllegalStateException(msg));
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -182,6 +232,8 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
         } finally {
 
+            // if startupError is not null then
+            // endTransaction has already been called
             if (startupError == null) {
 
                 XLogMessage lm = getLogMessage();

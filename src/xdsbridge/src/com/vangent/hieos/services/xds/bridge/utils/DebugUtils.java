@@ -57,7 +57,7 @@ public class DebugUtils {
             } catch (Exception e) {
 
                 // nothing can be done to recover
-                logger.fatal("Exception", e);
+                logger.fatal("###### Unable to PrettyPrint.", e);
 
             } finally {
 
@@ -68,7 +68,7 @@ public class DebugUtils {
                     } catch (IOException e) {
 
                         // nothing can be done
-                        logger.warn("Exception", e);
+                        logger.warn("Unable to close ByteStream.", e);
                     }
                 }
             }

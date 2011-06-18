@@ -13,7 +13,6 @@
 
 package com.vangent.hieos.services.xds.bridge.transactions;
 
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
@@ -27,11 +26,14 @@ import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
+
+import java.util.List;
 
 /**
  * Class description
@@ -191,7 +193,10 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
             // regclient.blah(pnr);
 
             // send PNR
-            // repoclient.blah(pnr);
+            OMElement pnrResponse =
+                repoclient.submitProvideAndRegisterDocumentSet(pnr);
+            
+            logger.debug(DebugUtils.toPrettyString(pnrResponse));
         }
 
         return result;

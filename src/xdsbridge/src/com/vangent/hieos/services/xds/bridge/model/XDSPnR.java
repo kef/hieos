@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
+import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,11 +64,10 @@ public class XDSPnR {
         OMFactory fac = this.node.getOMFactory();
 
         // create document node <xdsb:Document id="eo_id_0"></xdsb:Document>
-        QName docQName = new QName("Document", XDS_URI);
+        QName docQName = new QName(XDS_URI, "Document");
         OMElement docelem = fac.createOMElement(docQName);
 
-        docelem.addAttribute("id", document.getSymbolicId(),
-                             docelem.getNamespace());
+        docelem.addAttribute("id", document.getSymbolicId(), null);
 
         // TODO make sure the message goes to XDS as mtom
         // Set up the DataHandler.
@@ -85,7 +85,11 @@ public class XDSPnR {
 
         docelem.addChild(text);
 
-        this.node.addChild(docelem);
+        // for some reason, this.node.addChild(docelem)
+        // is adding the docelem as the first child, should be last
+        // forcing it to be last child
+        OMElement firstChild = this.node.getFirstElement();
+        firstChild.insertSiblingAfter(docelem);
     }
 
     /**
@@ -132,6 +136,7 @@ public class XDSPnR {
          *
          * @return
          */
+        @Override
         public String getContentType() {
             return contentType;
         }
@@ -142,6 +147,7 @@ public class XDSPnR {
          *
          * @return
          */
+        @Override
         public InputStream getInputStream() {
             return new ByteArrayInputStream(bytes);
         }
@@ -152,6 +158,7 @@ public class XDSPnR {
          *
          * @return
          */
+        @Override
         public String getName() {
             return name;
         }
@@ -162,6 +169,7 @@ public class XDSPnR {
          *
          * @return
          */
+        @Override
         public OutputStream getOutputStream() {
             throw new UnsupportedOperationException();
         }
