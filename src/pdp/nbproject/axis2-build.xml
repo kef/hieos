@@ -5,15 +5,18 @@
                 JAX-WS WSIMPORT SECTION
                 ===================
             -->
-    <target name="axis2-aar" depends="compile">
+        <target name="axis2-aar" depends="compile">
         <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
-        <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
+         <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
         <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
                 <file file="${file.reference.xutil.jar}"/>
+                <file file="${file.reference.hl7v3util.jar}"/>
+                <file file="${file.reference.policyutil.jar}"/>
+                <!--
                 <file file="${file.reference.jbossxacml-2.0.6.Final.jar}"/>
                 <file file="${file.reference.picketlink-bindings-1.0.3.SP1.jar}"/>
-                <file file="${file.reference.picketlink-fed-1.0.3.SP1.jar}"/>
+                <file file="${file.reference.picketlink-fed-1.0.3.SP1.jar}"/>-->
             </resources>
         </copy>
         <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
