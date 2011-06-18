@@ -19,11 +19,7 @@ import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -31,18 +27,12 @@ import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
-import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.security.SAMLSignatureProfileValidator;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
-import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
-import org.w3c.dom.Element;
-import org.apache.axis2.util.XMLUtils;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Conditions;
 import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
@@ -163,8 +153,10 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      * @throws STSException
      */
     private Assertion getAssertion(OMElement assertionOMElement) throws STSException {
+        return (Assertion)STSUtil.convertOMElementToXMLObject(assertionOMElement);
+        /*
         // Convert OMElement to Element.
-        Element assertionElement;
+       Element assertionElement;
         try {
             assertionElement = XMLUtils.toDOM(assertionOMElement);
         } catch (Exception ex) {
@@ -182,7 +174,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
         } catch (UnmarshallingException ex) {
             throw new STSException("Unable to unmarshall Assertion: " + ex.getMessage());
         }
-        return assertion;
+        return assertion;*/
     }
 
     /**

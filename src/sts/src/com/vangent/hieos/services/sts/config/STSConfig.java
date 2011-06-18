@@ -168,8 +168,7 @@ public class STSConfig {
         return computeSubjectNameFromClaims;
     }
 
-    public boolean getValidateRequiredClaims()
-    {
+    public boolean getValidateRequiredClaims() {
         return validateRequiredClaims;
     }
 }

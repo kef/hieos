@@ -16,7 +16,6 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
@@ -120,8 +119,8 @@ public class STSRequestData {
         if (clientCert != null)
         {
             X500Principal principal = clientCert.getSubjectX500Principal();
-            String subjectDN = principal.getName();
-            X500Name x500Name = new X500Name(subjectDN);
+            String principalDN = principal.getName();
+            X500Name x500Name = new X500Name(principalDN);
 
             // Just override the CN using subject-id CLAIM
             String newCN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
@@ -136,18 +135,6 @@ public class STSRequestData {
             // Do not override existing value
             return this.getSubjectDN();
         }
-        /*
-        String CN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
-        String OU = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization-id");
-        String O = this.getClaimStringValue("urn:oasis:names:tc:xspa:1.0:subject:organization");
-        if (CN != null) {
-            OU = (OU == null) ? "UNKNOWN" : OU;
-            O = (O == null) ? "UNKNOWN" : O;
-            return "CN=" + CN + ", OU=" + OU + ", O=" + O;
-        } else {
-            // Do not override existing value
-            return this.getSubjectDN();
-        }*/
     }
 
     /**

@@ -30,7 +30,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -42,9 +41,6 @@ import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml2.core.impl.ConditionsBuilder;
 import org.opensaml.xml.Namespace;
-import org.opensaml.xml.io.Marshaller;
-import org.opensaml.xml.io.MarshallerFactory;
-import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.KeyName;
@@ -53,7 +49,6 @@ import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.SignatureException;
 import org.opensaml.xml.signature.Signer;
 import org.w3c.dom.Element;
-import org.apache.axis2.util.XMLUtils;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
@@ -112,15 +107,6 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         //   CN=Alex G. Bell,O=1.22.333.4444,UID=abell
         //</NameID>
         nameId.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
-        //SOAPHeaderData headerData = requestData.getHeaderData();
-        /*String userName;
-        if (headerData.getAuthenticationType() == STSConstants.AuthenticationType.X509_CERTIFICATE) {
-            X509Certificate clientCert = headerData.getClientCertificate();
-            //userName = clientCert.getSubjectDN().getName();
-            userName = clientCert.getIssuerX500Principal().getName();
-        } else {
-            userName = "UID="+requestData.getHeaderData().getUserName();
-        }*/
         nameId.setValue(requestData.getSubjectDN());
         subj.setNameID(nameId);
 
@@ -187,7 +173,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         assertion.setSignature(signature);
 
         // Fully marshall the Assertion - required in order for the signature to be applied
-        MarshallerFactory marshallerFactory =
+        Element assertionElement = STSUtil.convertXMLObjectToElement(assertion);
+        /*MarshallerFactory marshallerFactory =
                 Configuration.getMarshallerFactory();
         Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
         Element assertionElement;
@@ -195,7 +182,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
             assertionElement = marshaller.marshall(assertion);
         } catch (MarshallingException ex) {
             throw new STSException("Unable to marshall Assertion: " + ex.getMessage());
-        }
+        }*/
 
         // Now, "sign" the Assertion using the issuer's private key.
         try {
@@ -205,12 +192,14 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         }
 
         // Convert the response to an OMElement (for subsequent processing).
+        OMElement assertionOMElement = STSUtil.convertElementToOMElement(assertionElement);
+        /*
         OMElement assertionOMElement;
         try {
             assertionOMElement = XMLUtils.toOM(assertionElement);
         } catch (Exception ex) {
             throw new STSException("Unable to convert Assertion from Element to OMElement: " + ex.getMessage());
-        }
+        }*/
 
         // Return a properly formatted WS-Trust response.
         return this.getWSTrustResponse(assertionOMElement, createdDate, expiresDate);

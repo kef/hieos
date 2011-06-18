@@ -56,5 +56,4 @@ public class SimpleStringClaim extends Claim {
     public String getStringValue() {
         return this.getValue();
     }
-   
 }

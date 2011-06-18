@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.policyutil.model.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
@@ -30,24 +31,24 @@ import org.apache.axiom.om.OMElement;
 public class ClaimBuilder {
 
     private final static String[] XSPA_NAMES = {
-        "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
-        "urn:oasis:names:tc:xspa:1.0:subject:organization",
-        "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
-        "urn:oasis:names:tc:xspa:1.0:subject:hl7:permission",
-        "urn:oasis:names:tc:xacml:2.0:subject:role",
-        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse",
-        "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
-        "urn:oasis:names:tc:xspa:1.0:resource:hl7:type",
-        "urn:oasis:names:tc:xspa:1.0:environment:locality",
-        "urn:oasis:names:tc:xspa:2.0:subject:npi"
-    };
+        PolicyConstants.XACML_SUBJECT_ID,
+        PolicyConstants.XACML_SUBJECT_ORGANIZATION,
+        PolicyConstants.XACML_SUBJECT_ORGANIZATION_ID,
+        PolicyConstants.XACML_SUBJECT_HL7_PERMISSION,
+        PolicyConstants.XACML_SUBJECT_ROLE,
+        PolicyConstants.XACML_SUBJECT_PURPOSE_OF_USE,
+        PolicyConstants.XACML_SUBJECT_NPI,
+        PolicyConstants.XACML_RESOURCE_ID,
+        PolicyConstants.XACML_RESOURCE_HL7_TYPE,
+        PolicyConstants.XACML_ENVIRONMENT_LOCALITY};
+
     private final static String[] XSPA_NAMES_REQUIRED = {
-        "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
-        "urn:oasis:names:tc:xspa:1.0:subject:organization",
-        "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
-        "urn:oasis:names:tc:xacml:2.0:subject:role",
-        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse",
-        "urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+        PolicyConstants.XACML_SUBJECT_ID,
+        PolicyConstants.XACML_SUBJECT_ORGANIZATION,
+        PolicyConstants.XACML_SUBJECT_ORGANIZATION_ID,
+        PolicyConstants.XACML_SUBJECT_ROLE,
+        PolicyConstants.XACML_SUBJECT_PURPOSE_OF_USE,
+        PolicyConstants.XACML_RESOURCE_ID
     };
     // FUTURE:
     private final static String[] CODED_NAMES = {

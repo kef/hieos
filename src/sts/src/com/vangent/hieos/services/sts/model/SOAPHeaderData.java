@@ -116,7 +116,7 @@ public class SOAPHeaderData {
 
     /**
      *
-     * @param request
+     * @throws STSException
      */
     public void parse() throws STSException {
         this.soapAction = mCtx.getSoapAction();

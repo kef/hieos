@@ -14,17 +14,9 @@ package com.vangent.hieos.services.sts.transactions;
 
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.model.Claim;
-import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
-import com.vangent.hieos.services.sts.model.SimpleStringClaim;
-import com.vangent.hieos.xutil.exception.XPathHelperException;
-import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.xml.namespace.QName;
-import org.apache.axiom.om.OMElement;
 import org.opensaml.saml2.core.Attribute;
 
 /**
@@ -33,11 +25,11 @@ import org.opensaml.saml2.core.Attribute;
  */
 public class SAML2AttributeHandler {
 
-
     /**
-     * 
+     *
      * @param requestData
      * @return
+     * @throws STSException
      */
     public List<Attribute> handle(STSRequestData requestData) throws STSException {
         List<Claim> claims = requestData.getClaims();
@@ -45,7 +37,8 @@ public class SAML2AttributeHandler {
     }
 
     /**
-     * 
+     *
+     * @param claims
      * @return
      */
     private List<Attribute> getAttributes(List<Claim> claims) {

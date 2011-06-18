@@ -92,9 +92,10 @@ public class X500Name {
 
     }
     }*/
+
     /**
      *
-     * @param rdnName
+     * @param searchRdnName
      * @return
      */
     private int find(String searchRdnName) {

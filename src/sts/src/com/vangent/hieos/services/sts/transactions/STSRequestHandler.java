@@ -152,6 +152,7 @@ public class STSRequestHandler extends XBaseTransaction {
      *
      * @param requestData
      * @return
+     * @throws STSException
      */
     private OMElement processIssueTokenRequest(STSRequestData requestData) throws STSException {
         System.out.println("STS ISSUE action!");
@@ -161,9 +162,10 @@ public class STSRequestHandler extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param requestData
      * @return
+     * @throws STSException
      */
     private OMElement processValidateTokenRequest(STSRequestData requestData) throws STSException {
         System.out.println("STS VALIDATE action!");
@@ -173,7 +175,9 @@ public class STSRequestHandler extends XBaseTransaction {
 
     /**
      *
-     * @param securityHeaderData
+     * @param requestData
+     * @return
+     * @throws STSException
      */
     private boolean authenticate(STSRequestData requestData) throws STSException {
         STSConfig stsConfig = requestData.getSTSConfig();

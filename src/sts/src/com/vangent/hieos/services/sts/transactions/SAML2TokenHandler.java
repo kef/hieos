@@ -14,7 +14,6 @@
 package com.vangent.hieos.services.sts.transactions;
 
 import com.vangent.hieos.services.sts.model.STSRequestData;
-import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;

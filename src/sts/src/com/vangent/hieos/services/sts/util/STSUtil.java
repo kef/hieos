@@ -16,14 +16,10 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
@@ -33,7 +29,18 @@ import java.security.cert.PKIXParameters;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.codec.binary.Base64;
+import org.opensaml.Configuration;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.io.Marshaller;
+import org.opensaml.xml.io.MarshallerFactory;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.io.UnmarshallingException;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -42,14 +49,105 @@ import org.apache.commons.codec.binary.Base64;
 public class STSUtil {
 
     /**
+     *
+     * @param xmlObject
+     * @return
+     * @throws STSException
+     */
+    // FIXME: Any way to avoid double conversion?
+    static public OMElement convertXMLObjectToOMElement(XMLObject xmlObject) throws STSException {
+        // 2 step process.
+        Element element = STSUtil.convertXMLObjectToElement(xmlObject);
+        OMElement omElement = STSUtil.convertElementToOMElement(element);
+        return omElement;
+    }
+
+    /**
+     *
+     * @param xmlObject
+     * @return
+     * @throws STSException
+     */
+    static public Element convertXMLObjectToElement(XMLObject xmlObject) throws STSException {
+
+        // Fully marshall the XMLObject - required in order for signature validation to be applied
+        MarshallerFactory marshallerFactory =
+                Configuration.getMarshallerFactory();
+        Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
+        try {
+            return marshaller.marshall(xmlObject);
+        } catch (MarshallingException ex) {
+            throw new STSException("Unable to marshall XMLObject: " + ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param element
+     * @return
+     * @throws STSException
+     */
+    // TBD: Move to xutil?
+    static public OMElement convertElementToOMElement(Element element) throws STSException {
+        try {
+            return XMLUtils.toOM(element);
+        } catch (Exception ex) {
+            throw new STSException("Unable to convert from Element to OMElement: " + ex.getMessage());
+        }
+    }
+
+    /**
      * 
+     * @param omElement
+     * @return
+     * @throws STSException
+     */
+    static public Element convertOMElementToElement(OMElement omElement) throws STSException
+    {
+        try {
+            return XMLUtils.toDOM(omElement);
+        } catch (Exception ex) {
+            throw new STSException("Unable to convert OMElement to Element: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 
+     * @param element
+     * @return
+     * @throws STSException
+     */
+    static public XMLObject convertElementToXMLObject(Element element) throws STSException
+    {
+        // Convert Element to an XMLObject.
+        UnmarshallerFactory unmarshallerFactory =
+                Configuration.getUnmarshallerFactory();
+        Unmarshaller unmarshaller =
+                unmarshallerFactory.getUnmarshaller(element);
+        try {
+            return unmarshaller.unmarshall(element);
+        } catch (UnmarshallingException ex) {
+            throw new STSException("Unable to unmarshall XMLObject: " + ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param omElement
+     * @return
+     * @throws STSException
+     */
+    static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
+        // Convert OMElement to Element.
+        Element element = STSUtil.convertOMElementToElement(omElement);
+        return STSUtil.convertElementToXMLObject(element);
+    }
+
+    /**
+     *
      * @param cert
      * @param trustStore
-     * @throws CertificateException
-     * @throws KeyStoreException
-     * @throws InvalidAlgorithmParameterException
-     * @throws NoSuchAlgorithmException
-     * @throws CertPathValidatorException
+     * @throws STSException
      */
     public static void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
 
@@ -84,7 +182,7 @@ public class STSUtil {
     }
 
     /**
-     * 
+     *
      * @param base64Text
      * @return
      * @throws STSException
