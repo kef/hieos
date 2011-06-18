@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge"
-	targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
+	targetNamespace="http://schemas.hieos.vangent.com/xdsbridge"
+        attributeFormDefault="unqualified" elementFormDefault="qualified">
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
             This is the schema definition for the HIEOS XDS.b Bridge Service that enables
