@@ -133,21 +133,51 @@ public class XPathHelper {
      * @return String null if not found.
      */
     static public String stringValueOf(OMElement rootNode, String xpathExpression, String nameSpace) throws XPathHelperException {
+        
+        return stringValueOf(rootNode, xpathExpression, 
+                new String[]{"ns"}, 
+                new String[]{nameSpace});
+    }
+    
+    /**
+     * Return a string result given the XPATH expression.
+     *
+     * @param rootNode The starting node (OMElement) for the search.
+     * @param xpathExpression The XPATH expression.
+     * @param namespacePrefixes List of namespace prefixes.
+     * @param namespaceURIs List of namespace URIs (parallel array to namespacePrefixes).
+     * @return String null if not found.
+     * @throws XPathHelperException
+     */
+    public static String stringValueOf(OMElement rootNode,
+                                       String xpathExpression,
+                                       String[] namespacePrefixes,
+                                       String[] namespaceURIs)
+            throws XPathHelperException {
+
         String result = null;
+
         try {
+
             AXIOMXPath xpath = new AXIOMXPath(xpathExpression);
-            if (nameSpace != null) {
-                xpath.addNamespace("ns", nameSpace /* "urn:hl7-org:v3" */);
+
+            for (int i = 0; i < namespacePrefixes.length; i++) {
+                xpath.addNamespace(namespacePrefixes[i], namespaceURIs[i]);
             }
+
             result = xpath.stringValueOf(rootNode);
+
             if (result != null) {
                 logger.debug("*** Found nodes for XPATH: " + xpathExpression);
             } else {
                 logger.warn("*** Could not find nodes for XPATH: " + xpathExpression);
             }
+
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
         }
+
         return result;
     }
+    
 }
