@@ -113,7 +113,7 @@
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification"
                     nodeRepresentation="{HealthcareFacilityTypeCode}">
                     <rim:Name>
-                        <rim:LocalizedString value="{HealthcareFacilityTypeCodeDisplayName}"/>
+                        <rim:LocalizedString value="{HealthcareFacilityTypeDisplayName}"/>
                     </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
