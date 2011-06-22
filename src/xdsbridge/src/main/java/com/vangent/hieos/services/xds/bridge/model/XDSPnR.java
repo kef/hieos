@@ -13,7 +13,6 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,6 +88,7 @@ public class XDSPnR {
         // is adding the docelem as the first child, should be last
         // forcing it to be last child
         OMElement firstChild = this.node.getFirstElement();
+
         firstChild.insertSiblingAfter(docelem);
     }
 

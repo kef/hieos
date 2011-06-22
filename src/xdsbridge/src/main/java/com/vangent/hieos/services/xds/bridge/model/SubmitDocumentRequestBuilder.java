@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 public class SubmitDocumentRequestBuilder {
 
     /** Field description */
-    private final static String URI =
+    public final static String URI =
         "http://schemas.hieos.vangent.com/xdsbridge";
 
     /** Field description */

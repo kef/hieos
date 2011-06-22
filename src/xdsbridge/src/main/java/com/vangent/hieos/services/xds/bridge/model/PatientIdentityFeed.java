@@ -11,29 +11,31 @@
  * limitations under the License.
  */
 
-package com.vangent.hieos.services.xds.bridge.transaction;
+package com.vangent.hieos.services.xds.bridge.model;
 
-import org.junit.Test;
+import org.apache.axiom.om.OMElement;
 
 /**
  * Class description
  *
  *
- * @version        v1.0, 2011-06-13
+ * @version        v1.0, 2011-06-22
  * @author         Jim Horner    
  */
-public class SubmitDocumentRequestHandlerTest {
+public class PatientIdentityFeed {
+
+    /** Field description */
+    private final OMElement node;
 
     /**
-     * Method description
+     * Constructs ...
      *
      *
-     * @throws Exception
+     * @param node
      */
-    @Test
-    public void submitDocumentRequestTest() throws Exception {
-    
-        
-    
+    public PatientIdentityFeed(OMElement node) {
+
+        super();
+        this.node = node;
     }
 }

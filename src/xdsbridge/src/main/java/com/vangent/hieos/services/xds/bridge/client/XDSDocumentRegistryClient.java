@@ -14,7 +14,10 @@
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.client.Client;
+import com.vangent.hieos.services.xds.bridge.model.PatientIdentityFeed;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 
 /**
  * Class description
@@ -33,5 +36,21 @@ public class XDSDocumentRegistryClient extends Client {
      */
     public XDSDocumentRegistryClient(XConfigActor config) {
         super(config);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param pif
+     *
+     * @return
+     *
+     * @throws AxisFault
+     */
+    public OMElement sendPatientIdentity(PatientIdentityFeed pif)
+            throws AxisFault {
+    
+        return null;
     }
 }
