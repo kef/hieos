@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
+    <soapenv:Header />
+    <soapenv:Body>
+        <xdsb:SubmitDocumentResponse status="Error">
+            <xdsb:Errors>
+                <xdsb:Error>
+                    <xdsb:Code>E1001</xdsb:Code>
+                    <xdsb:Message>Invalid code</xdsb:Message>
+                </xdsb:Error>
+                <xdsb:Error>
+                    <xdsb:Code>E1002</xdsb:Code>
+                    <xdsb:Message>codeSystem not provided</xdsb:Message>
+                </xdsb:Error>
+            </xdsb:Errors>
+        </xdsb:SubmitDocumentResponse>
+    </soapenv:Body>
+</soapenv:Envelope>

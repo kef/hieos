@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="xdsbridge" resourceRoot="" soapui-version="4.0.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="200508" name="XDSBridgeBindingSoap12" type="wsdl" bindingName="{http://schemas.hieos.vangent.com/xdsbridge}XDSBridgeBindingSoap12" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/axis2/services/xdsbridge?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/axis2/services/xdsbridge?wsdl"><con:part><con:url>http://localhost:8080/axis2/services/xdsbridge?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://schemas.hieos.vangent.com/xdsbridge" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsp:Policy wsu:Id="XDSBridgeServicePolicy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <wsoma:OptimizedMimeSerialization/>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:documentation>xdsbridge</wsdl:documentation>
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
+      <xsd:include schemaLocation="xdsbridge?xsd=XDSBridge.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="SubmitDocumentRequestMessage">
+    <wsdl:part name="body" element="tns:SubmitDocumentRequest"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitDocumentResponseMessage">
+    <wsdl:part name="body" element="tns:SubmitDocumentResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="xdsbridgePortType">
+    <wsdl:operation name="SubmitDocumentRequest">
+      <wsdl:input message="tns:SubmitDocumentRequestMessage" wsaw:Action="urn:hieos:xds:bridge:SubmitDocumentRequest"/>
+      <wsdl:output message="tns:SubmitDocumentResponseMessage" wsaw:Action="urn:hieos:xds:bridge:SubmitDocumentResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="XDSBridgeBindingSoap12" type="tns:xdsbridgePortType">
+    <wsp:PolicyReference URI="#XDSBridgeServicePolicy"/>
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsaw:UsingAddressing wsdl:required="true"/>
+    <wsdl:operation name="SubmitDocumentRequest">
+      <soap12:operation soapAction="urn:hieos:xds:bridge:SubmitDocumentRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="xdsbridge">
+    <wsdl:port name="XDSBridgeEndpoint" binding="tns:XDSBridgeBindingSoap12">
+      <soap12:address location="http://localhost:8080/axis2/services/xdsbridge.XDSBridgeEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:8080/axis2/services/xdsbridge?xsd=XDSBridge.xsd</con:url><con:content><![CDATA[<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://schemas.hieos.vangent.com/xdsbridge" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge">
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">This is the schema definition for the HIEOS XDS.b Bridge Service that enables
+            a document source to submit one or more documents to an XDS.b Repository.</xsd:documentation>
+  </xsd:annotation>
+  <xsd:element name="SubmitDocumentRequest">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The SubmitDocumentRequest element contains the Patient Id, Organization Id
+            and one or more documents for the patient. The Patient and Organization Id
+            are defined with a root (identifier) and extension (assigning authority
+            for the identifier). The extension is optional.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="PatientId" type="tns:IdType"/>
+        <xsd:element name="OrganizationId" type="tns:IdType"/>
+        <xsd:element name="Documents" type="tns:DocumentsType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:complexType name="IdType">
+    <xsd:attribute name="root" type="xsd:string" use="required"/>
+    <xsd:attribute name="extension" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+  <xsd:complexType name="DocumentsType">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="Document" type="tns:DocumentType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="DocumentType">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The DocumentType element contains the document Type, Id, Replace Id and Content
+            for a document. The Document Type is a coded value indicating the type of document
+            being submitted. The Document Id is a unique identifier for the document. It will
+            be generated if not specified. If a Replace Id is provided, the service will
+            replace the document specified in Replace Id with the submitted document. Content
+            contains the actual document.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Type" type="tns:CodeType"/>
+      <xsd:element minOccurs="0" name="Id" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ReplaceId" type="xsd:string"/>
+      <xsd:element name="Content" type="xsd:base64Binary"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CodeType">
+    <xsd:attribute name="code" type="xsd:string" use="required"/>
+    <xsd:attribute name="codeSystem" type="xsd:string" use="required"/>
+    <xsd:attribute name="codeSystemName" type="xsd:string" use="optional"/>
+    <xsd:attribute name="displayName" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+  <xsd:element name="SubmitDocumentResponse">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">The SubmitDocumentResponse element indicates if the transaction was successful. If an error
+            occurs then the error details are specified in one or more Error elements. If more than one
+            document is submitted in the request and some documents are processed successfully and some
+            fail then a status of PartialSuccess is returned. The Error Message will indicate which
+            document the error is associated with.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element minOccurs="0" name="Errors" type="tns:ErrorsType"/>
+      </xsd:sequence>
+      <xsd:attribute name="status" use="required">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Success"/>
+            <xsd:enumeration value="PartialSuccess"/>
+            <xsd:enumeration value="Failure"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:attribute>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:complexType name="ErrorsType">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="Error" type="tns:ErrorType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ErrorType">
+    <xsd:sequence>
+      <xsd:element name="Code" type="xsd:string"/>
+      <xsd:element name="Message" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/axis2/services/xdsbridge?wsdl</con:endpoint><con:endpoint>http://localhost:9090/axis2/services/xdsbridge?wsdl</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:hieos:xds:bridge:SubmitDocumentRequest" name="SubmitDocumentRequest" bindingOperationName="SubmitDocumentRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Blank All-Up Request" useWsAddressing="true"><con:settings><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@disable-multipart-attachments">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsbridge?wsdl</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xds="http://schemas.hieos.vangent.com/xdsbridge">
+   <soap:Header/>
+   <soap:Body>
+      <xds:SubmitDocumentRequest>
+         <xds:PatientId root="?" extension="?"/>
+         <xds:OrganizationId root="?" extension="?"/>
+         <xds:Documents>
+            <!--1 or more repetitions:-->
+            <xds:Document>
+               <xds:Type code="?" codeSystem="?" codeSystemName="?" displayName="?"/>
+               <!--Optional:-->
+               <xds:Id>?</xds:Id>
+               <!--Optional:-->
+               <xds:ReplaceId>?</xds:ReplaceId>
+               <xds:Content>cid:exampleCDA-SHS-V1_0.xml</xds:Content>
+            </xds:Document>
+         </xds:Documents>
+      </xds:SubmitDocumentRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:xds:bridge:SubmitDocumentRequest" addDefaultAction="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Patient-1234" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@disable-multipart-attachments">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9090/axis2/services/xdsbridge?wsdl</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" 
+	xmlns:xds="http://schemas.hieos.vangent.com/xdsbridge">
+   <soap:Header/>
+   <soap:Body>
+      <xds:SubmitDocumentRequest>
+         <xds:PatientId root="1.3.6.1.4.1.30086.007" />
+         <xds:Documents>
+            <!--1 or more repetitions:-->
+            <xds:Document>
+               <xds:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.3" />
+               <xds:Content>cid:exampleCDA-SHS-V1_0.xml</xds:Content>
+            </xds:Document>
+         </xds:Documents>
+      </xds:SubmitDocumentRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>exampleCDA-SHS-V1_0.xml</con:name><con:contentType>text/xml</con:contentType><con:size>31338</con:size><con:contentId>exampleCDA-SHS-V1_0.xml</con:contentId><con:part>exampleCDA-SHS-V1_0.xml</con:part><con:data>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</con:data><con:id>31637622-0362-46dd-9d2a-7f295a2cd5d3</con:id></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:xds:bridge:SubmitDocumentRequest" addDefaultAction="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>

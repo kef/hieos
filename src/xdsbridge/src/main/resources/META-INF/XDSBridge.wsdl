@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="XDSBridgeService"
+   targetNamespace="http://schemas.hieos.vangent.com/xdsbridge"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+   xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+   xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+   xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"
+   xmlns:tns="http://schemas.hieos.vangent.com/xdsbridge">
+
+    <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+            This is the WSDL for the HIEOS XDS.b Bridge Service that enables a
+            document source to submit one or more documents to an XDS.b Repository.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://schemas.hieos.vangent.com/xdsbridge">
+            <xsd:include schemaLocation="XDSBridge.xsd" />
+        </xsd:schema>
+    </wsdl:types>
+   
+    <wsdl:message name="SubmitDocumentRequestMessage">
+        <wsdl:part name="body" element="tns:SubmitDocumentRequest"/>
+    </wsdl:message>
+    <wsdl:message name="SubmitDocumentResponseMessage">
+        <wsdl:part name="body" element="tns:SubmitDocumentResponse"/>
+    </wsdl:message>
+ 
+    <wsdl:portType name="XDSBridgePortType">
+        <wsdl:operation name="SubmitDocumentRequest">
+            <wsdl:input message="tns:SubmitDocumentRequestMessage"
+                    wsaw:Action="urn:hieos:xds:bridge:SubmitDocumentRequest"/>
+            <wsdl:output message="tns:SubmitDocumentResponseMessage"
+                    wsaw:Action="urn:hieos:xds:bridge:SubmitDocumentResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+   
+    <wsdl:binding name="XDSBridgeBindingSoap12" type="tns:XDSBridgePortType">
+        <soap12:binding style="document"
+                transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsaw:UsingAddressing wsdl:required="true" />
+        <wsp:PolicyReference URI="#XDSBridgeServicePolicy" wsdl:required="true" />
+        <wsdl:operation name="SubmitDocumentRequest">
+            <soap12:operation soapAction="urn:hieos:xds:bridge:SubmitDocumentRequest"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+ 
+    <wsdl:service name="xdsbridge">
+        <wsdl:port name="XDSBridgeEndpoint" binding="tns:XDSBridgeBindingSoap12">
+            <soap12:address location="http://localhost:8080/axis2/services/xdsbridge"/>
+        </wsdl:port>
+    </wsdl:service>
+
+    <wsp:Policy wsu:Id="XDSBridgeServicePolicy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsoma:OptimizedMimeSerialization/>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+</wsdl:definitions>

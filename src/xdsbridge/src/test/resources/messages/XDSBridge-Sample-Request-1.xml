@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <xdsb:SubmitDocumentRequest>
+         <!--PatientId extension is optional-->
+         <xdsb:PatientId root="1234567890123456" extension=""/>
+         <!--OrganizationId extension is optional-->
+         <xdsb:OrganizationId root="1234" extension=""/>
+         <xdsb:Documents>
+            <!--1 or more repetitions of Document-->
+            <xdsb:Document>
+               <!--Type codeSystemName and displayName are optional-->
+               <xdsb:Type code="51855-5" codeSystem="2.16.840.1.113883.6.1"
+                    codeSystemName="LOINC" displayName="Shared Health Summary"/>
+               <!-- Id is Optional-->
+               <xdsb:Id>uuid:2b9a1234-a0df-4bae-ac3f-ec17cb3a93d7</xdsb:Id>
+               <!--Replace Id is Optional-->
+               <xdsb:ReplaceId></xdsb:ReplaceId>
+               <xdsb:Content>cid:827684597413</xdsb:Content>
+            </xdsb:Document>
+         </xdsb:Documents>
+      </xdsb:SubmitDocumentRequest>
+   </soapenv:Body>
+</soapenv:Envelope>
