@@ -12,20 +12,18 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
-import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.xutil.xua.utils.XUAConfig;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 
 import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -159,15 +157,6 @@ public class XServiceProvider {
                 userName = nameIDEle.getText();
             }
         }
-        /*
-        Iterator ite = assertion.getChildrenWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Subject"));
-        while (ite.hasNext()) {
-        OMElement subjectEle = (OMElement) ite.next();
-        OMElement nameIDEle = subjectEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "NameID"));
-        userName = nameIDEle.getText();
-        }*/
-        // concat username in a specified formate for ATNA logging.
-        //alias"<"user"@"issuer">"
         return SPProviderID + "<" + userName + "@" + Issuer + ">";
     }
 
@@ -242,15 +231,6 @@ public class XServiceProvider {
         if (securityEle != null) {
             assertion = securityEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
         }
-        /*
-        // Get Response Element
-        Iterator ite = requestHeader.getChildrenWithName(new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-        "Security"));
-        OMElement assertion = null;
-        while (ite.hasNext()) {
-        OMElement securityEle = (OMElement) ite.next();
-        assertion = securityEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
-        }*/
         return assertion;
     }
 
@@ -263,16 +243,18 @@ public class XServiceProvider {
      * @return boolean true on success, false if SAML assertion is not validated.
      */
     public boolean validateSAMLAssertion(String stsUrl, String action, OMElement assertion) throws XdsException {
-        String content = null;
         String assertionAsString = assertion.toString();
         if (logMessage.isLogEnabled()) {
             logger.info("---- Validating the assertion againt STS (URL: " + stsUrl + ") ----");
         }
-        String requestContent = XUAConstants.WS_TRUST_TOKEN_VALIDATE_REQUEST_BODY;
-        content = this.substituteVariables("__TOKEN__", assertionAsString, requestContent);
-        OMElement elementHeader = this.constructWsTrustRequestHeader(null /*????*/);
+        Map<String, String> templateVariableValues = new HashMap<String, String>();
+        templateVariableValues.put("TOKEN", assertionAsString);
+        OMElement tokenValidateRequestBody = TemplateUtil.getOMElementFromTemplate(
+                XUAConstants.WS_TRUST_TOKEN_VALIDATE_REQUEST_BODY,
+                templateVariableValues);
 
-        SOAPEnvelope response = this.send(stsUrl, content, elementHeader, action);
+        OMElement elementHeader = this.constructWsTrustRequestHeader();
+        SOAPEnvelope response = this.send(stsUrl, tokenValidateRequestBody, elementHeader, action);
         if (logger.isInfoEnabled()) {
             logger.info("---- Received validation status ---");
         }
@@ -282,37 +264,16 @@ public class XServiceProvider {
     /**
      * Construct Ws-Trust request header element
      *
-     * @param userName user Name
-     * @param password password
-     * @param serviceUri STS service uri
-     * @return reqHeaderElement, converted DOM element
      * @throws Exception, handling the exceptions
      */
-    private OMElement constructWsTrustRequestHeader(String serviceUri) throws XdsException {
-        String headerContent = XUAConstants.WS_TRUST_TOKEN_VALIDATE_HEADER;
-        String reqHeaderContent = headerContent;
-        /*
-        if (userName != null) {
-        reqHeaderContent = this.substituteVariables("__USERNAME__", userName, reqHeaderContent);
-        }
-        if (password != null) {
-        reqHeaderContent = this.substituteVariables("__PASSWORD__", password, reqHeaderContent);
-        }
-
-        if (serviceUri != null) {
-        reqHeaderContent = this.substituteVariables("__SERVICE__", serviceUri, reqHeaderContent);
-        }*/
-
+    private OMElement constructWsTrustRequestHeader() throws XdsException {
+        Map<String, String> templateVariableValues = new HashMap<String, String>();
         // Deal with CreatedTime and ExpiredTime.
-        reqHeaderContent = this.substituteVariables("__CREATEDTIME__", XUAConfig.getCreatedTime(), reqHeaderContent);
-        reqHeaderContent = this.substituteVariables("__EXPIREDTIME__", XUAConfig.getExpireTime(), reqHeaderContent);
-
-        OMElement reqHeaderElement;
-        try {
-            reqHeaderElement = XMLParser.stringToOM(reqHeaderContent);
-        } catch (XMLParserException ex) {
-            throw new XdsException("XUA:Exception: Error creating Ws-Trust request header - " + ex.getMessage());
-        }
+        templateVariableValues.put("CREATEDTIME", XUAConfig.getCreatedTime());
+        templateVariableValues.put("EXPIREDTIME", XUAConfig.getExpireTime());
+        OMElement reqHeaderElement = TemplateUtil.getOMElementFromTemplate(
+                XUAConstants.WS_TRUST_TOKEN_VALIDATE_HEADER,
+                templateVariableValues);
         return reqHeaderElement;
     }
 
@@ -321,7 +282,7 @@ public class XServiceProvider {
      * is valid or not
      * @param envelope, received SOAPEnvelope from STS
      * @return status, true or false
-     * @throws Exception, habdling exceptions
+     * @throws Exception, handling exceptions
      */
     private boolean getSAMLValidationStatus(SOAPEnvelope envelope) throws XdsException {
         boolean status = false;
@@ -331,12 +292,6 @@ public class XServiceProvider {
             throw new XdsException("XUA:Exception: Response body should not be null.");
         }
         String validateStr = null;
-        /*do {
-        OMElement resElement = envelope.getBody().getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
-        "RequestSecurityTokenResponse"));
-        if (resElement == null) {
-        break;
-        } */
         OMElement codeEle = XPathHelper.selectSingleNode(responseBody, "./ns:RequestSecurityTokenResponseCollection/ns:RequestSecurityTokenResponse/ns:Status/ns:Code[1]", "http://docs.oasis-open.org/ws-sx/ws-trust/200512");
         if (codeEle != null) {
             validateStr = codeEle.getText();
@@ -344,19 +299,6 @@ public class XServiceProvider {
         } else {
             logger.error("*** XUA: SAML Validation Response = NULL");
         }
-        /*
-        Iterator iterator = resElement.getChildElements();
-        while (iterator.hasNext()) {
-        OMElement statusEle = (OMElement) iterator.next();
-        if (statusEle.getLocalName().equalsIgnoreCase("Status")) {
-        OMElement codeEle = statusEle.getFirstElement();
-        validateStr = codeEle.getText();
-        break;
-        }
-        }
-        } while (false);
-         */
-
         if (validateStr != null) {
             if (validateStr.equalsIgnoreCase("http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/valid")) {
                 status = true;
@@ -380,15 +322,7 @@ public class XServiceProvider {
      * @throws Exception, handling the exceptions
      * @return responseSOAPEnvelope, responseSOAPEnvelope contains validation status
      */
-    private SOAPEnvelope send(String stsUrl, String request, OMElement requestHeader, String action) throws XdsException {
-        //construct axis OMElement using request
-        OMElement bodyOMElement;
-        try {
-            bodyOMElement = XMLParser.stringToOM(request);
-        } catch (XMLParserException ex) {
-            throw new XdsException(
-                    "XUA:Exception: Could not convert STS request - " + ex.getMessage());
-        }
+    private SOAPEnvelope send(String stsUrl, OMElement request, OMElement requestHeader, String action) throws XdsException {
 
         // Create empty SOAP Envelope
         SOAPSenderImpl soapSender = new SOAPSenderImpl();
@@ -397,8 +331,7 @@ public class XServiceProvider {
         // get request SOAP body from the SOAP Envelope
         SOAPBody requestSOAPBody = requestSOAPEnvelope.getBody();
         // Add bodyOMElement to SOAP Body as a child
-        requestSOAPBody.addChild(bodyOMElement);
-
+        requestSOAPBody.addChild(request);
         SOAPHeaderBlock b;
         try {
             b = ElementHelper.toSOAPHeaderBlock(requestHeader, OMAbstractFactory.getSOAP12Factory());
@@ -424,19 +357,5 @@ public class XServiceProvider {
                     "XUA:Exception: Could not interpret STS URL - " + ex.getMessage());
         }
         return responseSOAPEnvelope;
-    }
-
-    /**
-     *
-     * @param varName
-     * @param val
-     * @param template
-     * @return
-     */
-    private String substituteVariables(String varName, String val, String template) {
-        Pattern pattern = Pattern.compile(varName, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(template);
-        String newContent = matcher.replaceAll(val);
-        return newContent;
     }
 }

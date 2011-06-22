@@ -12,21 +12,14 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
-import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.xutil.xua.utils.XUAConfig;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import java.net.URISyntaxException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -38,7 +31,7 @@ import org.apache.log4j.Logger;
 
 /**
  * X-Service User - System making a service request of an X-Service Provider,
- * It has a resposiblity to communicate with X-Assertion provider to get the SAML
+ * It has a responsibility to communicate with X-Assertion provider to get the SAML
  * token for user authentication. It initializes the X-ServiceUserClient which constructs
  * the SOAP message and send it to STS.
  * 
@@ -47,7 +40,6 @@ import org.apache.log4j.Logger;
 public class XServiceUser {
 
     private final static Logger logger = Logger.getLogger(XServiceUser.class);
-    //private final static String DATE_FORMAT = "yyyy-MM-ddTHH:mm:ss.SSSZ";
 
     /**
      * Constructor
@@ -63,21 +55,18 @@ public class XServiceUser {
      * @return requestBodyElement, converted DOM element
      * @throws Exception, handling the exceptions
      */
-    private OMElement constructWsTrustRequestBody(String userName, String serviceUri) throws XdsException {
-        String requestBodyContent = XUAConstants.WS_TRUST_TOKEN_REQUEST_BODY;
-        String bodyContent = requestBodyContent;
+    private OMElement constructTokenRequestBody(String userName, String serviceUri) throws XdsException {
+        // Do template variable substitution.
+        Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
-            bodyContent = this.substituteVariables("__USERNAME__", userName, bodyContent);
+            templateVariableValues.put("USERNAME", userName);
         }
         if (serviceUri != null) {
-            bodyContent = this.substituteVariables("__SERVICE__", serviceUri, bodyContent);
+            templateVariableValues.put("SERVICE", serviceUri);
         }
-        OMElement requestBodyElement = null;
-        try {
-            requestBodyElement = XMLParser.stringToOM(bodyContent);
-        } catch (XMLParserException ex) {
-            throw new XdsException("XUA:Exception: Error creating Ws-Trust request body - " + ex.getMessage());
-        }
+        OMElement requestBodyElement = TemplateUtil.getOMElementFromTemplate(
+                XUAConstants.WS_TRUST_TOKEN_REQUEST_BODY,
+                templateVariableValues);
         return requestBodyElement;
     }
 
@@ -91,36 +80,33 @@ public class XServiceUser {
      * @throws Exception, handling the exceptions
      */
     private OMElement constructWsTrustRequestHeader(String userName, String password, String serviceUri) throws XdsException {
-        String headerContent = XUAConstants.WS_TRUST_TOKEN_REQUEST_HEADER;
-        String reqHeaderContent = headerContent;
+        // Do template variable substitution.
+        Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
-            reqHeaderContent = this.substituteVariables("__USERNAME__", userName, reqHeaderContent);
+            templateVariableValues.put("USERNAME", userName);
         }
         if (password != null) {
-            reqHeaderContent = this.substituteVariables("__PASSWORD__", password, reqHeaderContent);
+            templateVariableValues.put("PASSWORD", password);
         }
-
         if (serviceUri != null) {
-            reqHeaderContent = this.substituteVariables("__SERVICE__", serviceUri, reqHeaderContent);
+            templateVariableValues.put("SERVICE", serviceUri);
         }
 
         // Deal with CreatedTime and ExpiredTime.
-        reqHeaderContent = this.substituteVariables("__CREATEDTIME__", XUAConfig.getCreatedTime(), reqHeaderContent);
-        reqHeaderContent = this.substituteVariables("__EXPIREDTIME__", XUAConfig.getExpireTime(), reqHeaderContent);
+        templateVariableValues.put("CREATEDTIME", XUAConfig.getCreatedTime());
+        templateVariableValues.put("EXPIREDTIME", XUAConfig.getExpireTime());
 
-        OMElement reqHeaderElement;
-        try {
-            reqHeaderElement = XMLParser.stringToOM(reqHeaderContent);
-        } catch (XMLParserException ex) {
-            throw new XdsException("XUA:Exception: Error creating Ws-Trust request header - " + ex.getMessage());
-        }
+        OMElement reqHeaderElement = TemplateUtil.getOMElementFromTemplate(
+                XUAConstants.WS_TRUST_TOKEN_REQUEST_HEADER,
+                templateVariableValues);
+
         return reqHeaderElement;
     }
 
     /**
      * get the SOAP response from STS
      * @param stsUrl STS endpoint URl
-     * @param serviceUri STS serivce Uri
+     * @param serviceUri STS service Uri
      * @param userName
      * @param password
      * @return response, received SOAP envelope from STS
@@ -136,7 +122,7 @@ public class XServiceUser {
 
         SOAPEnvelope response = null;
         OMElement elementBody, elementHeader;
-        elementBody = this.constructWsTrustRequestBody(userName, serviceUri);
+        elementBody = this.constructTokenRequestBody(userName, serviceUri);
         elementHeader = this.constructWsTrustRequestHeader(userName, password, serviceUri);
         response = this.send(stsUrl, elementBody, elementHeader, XUAConstants.SOAP_ACTION_ISSUE_TOKEN);
         return response;
@@ -174,22 +160,6 @@ public class XServiceUser {
         } else {
             logger.debug("XUA: RequestedSecurityToken = NULL!!!!");
         }
-        /*
-        // Get Response Element
-        OMElement responseOMElement = envelope.getBody().getFirstElement();
-        if (responseOMElement == null) {
-        throw new XdsException("XUA:Exception: Response element should not be null");
-        }
-        OMElement assertionEle = null;
-        do {
-        OMElement resElement = responseOMElement.getFirstChildWithName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512",
-        "RequestedSecurityToken"));
-        if (resElement == null) {
-        break;
-        }
-        assertionEle = resElement.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion"));
-        } while (false);
-         */
         if (assertionEle == null) {
             throw new XdsException("XUA:Exception: Could not get assertion.");
         }
@@ -232,19 +202,5 @@ public class XServiceUser {
             throw new XdsException("XUA:Exception: Could not interpret STS URL - " + ex.getMessage());
         }
         return responseEnvelope;
-    }
-
-    /**
-     *
-     * @param varName
-     * @param val
-     * @param template
-     * @return
-     */
-    private String substituteVariables(String varName, String val, String template) {
-        Pattern pattern = Pattern.compile(varName, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(template);
-        String newContent = matcher.replaceAll(val);
-        return newContent;
     }
 }

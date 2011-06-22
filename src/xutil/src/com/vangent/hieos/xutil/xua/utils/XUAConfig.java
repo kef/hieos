@@ -148,25 +148,6 @@ public class XUAConfig {
     // FIXME: Rewrite / move to proper class
     static public String getCreatedTime() {
         return XUAConfig.getTimeUTCFormat(0);
-        /*
-        StringBuilder sb = new StringBuilder();
-        // Send all output to the Appendable object sb
-        Formatter formatter = new Formatter(sb, Locale.US);
-        Calendar c = new GregorianCalendar();
-        c.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        //"2011-01-20T17:23:33.011Z";
-        formatter.format("%s-%02d-%02dT%02d:%02d:%02d.%03dZ",
-        c.get(Calendar.YEAR),
-        c.get(Calendar.MONTH) + 1,
-        c.get(Calendar.DAY_OF_MONTH),
-        c.get(Calendar.HOUR_OF_DAY),
-        c.get(Calendar.MINUTE),
-        c.get(Calendar.SECOND),
-        c.get(Calendar.MILLISECOND));
-        String formattedTime = sb.toString();
-        System.out.println("created time = " + formattedTime);
-        return formattedTime;*/
     }
 
     /**
