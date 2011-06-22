@@ -71,4 +71,28 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+	<!-- override -->
+    <target name="wsimport-client-XDSBridge" depends="wsimport-init">
+        <mkdir dir="${build.generated.test-sources.dir}/wsimport" />
+        <property name="wsdl-XDSBridge"
+            location="${src.resources.dir}/META-INF/XDSBridge.wsdl" />
+        <wsimport sourcedestdir="${build.generated.test-sources.dir}/wsimport"
+            destdir="${build.generated.test-sources.dir}/wsimport"
+            wsdl="${wsdl-XDSBridge}" xnocompile="true"
+            extension="true" verbose="true"
+            wsdlLocation="META-INF/XDSBridge.wsdl" xendorsed="true">
+
+            <depends file="${wsdl-XDSBridge}"/>
+            <produces dir="${build.generated.test-sources.dir}/wsimport"/>
+        </wsimport>
+        <!--
+        <copy todir="${build.test.classes.dir}">
+            <fileset dir="${build.generated.dir}/jax-wsCache/XDSBridge">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+        -->
+    </target>
+
 </project>
