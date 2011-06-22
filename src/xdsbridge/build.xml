@@ -80,7 +80,7 @@
         <wsimport sourcedestdir="${build.generated.test-sources.dir}/wsimport"
             destdir="${build.generated.test-sources.dir}/wsimport"
             wsdl="${wsdl-XDSBridge}" xnocompile="true"
-            extension="true" verbose="true"
+            extension="true" verbose="true" target="2.1"
             wsdlLocation="META-INF/XDSBridge.wsdl" xendorsed="true">
 
             <depends file="${wsdl-XDSBridge}"/>
