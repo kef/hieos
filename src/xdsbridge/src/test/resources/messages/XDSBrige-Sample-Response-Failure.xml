@@ -3,7 +3,7 @@
 	xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
     <soapenv:Header />
     <soapenv:Body>
-        <xdsb:SubmitDocumentResponse status="Error">
+        <xdsb:SubmitDocumentResponse status="Failure">
             <xdsb:Errors>
                 <xdsb:Error>
                     <xdsb:Code>E1001</xdsb:Code>
