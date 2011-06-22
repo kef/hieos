@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bridge:SubmitDocumentRequest
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:bridge="http://schemas.hieos.vangent.com/xdsbridge"
+    xmlns:xm="http://www.w3.org/2005/05/xmlmime">
+    <bridge:OrganizationId root="2.16.840.1.113883.3.454.1.8991" extension="50" />
+    <bridge:Documents>
+        <bridge:Document>
+            <bridge:Type code="C32" />
+            <bridge:Id>2.16.840.1.113883.10.20.1234</bridge:Id> <!-- optional -->
+            <bridge:ReplaceId>2.16.840.1.113883.10.20.1235</bridge:ReplaceId> <!-- optional --> 
+            <bridge:Content xm:contentType="application/?">cid:749524621891</bridge:Content>
+        </bridge:Document>
+    </bridge:Documents>
+</bridge:SubmitDocumentRequest>
