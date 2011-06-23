@@ -13,19 +13,14 @@
 package com.vangent.hieos.services.pdp.transactions;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.services.pdp.attribute.finder.AttributeFinder;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import com.vangent.hieos.services.pdp.impl.PDPImpl;
+import com.vangent.hieos.policyutil.util.PolicyUtil;
+import com.vangent.hieos.services.pdp.attribute.finder.AttributeFinder;
+
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.axiom.om.OMElement;
@@ -33,25 +28,33 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
-import org.jboss.security.xacml.core.JBossPDP;
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.factories.RequestResponseContextFactory;
-import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
-import org.jboss.security.xacml.interfaces.RequestContext;
-import org.jboss.security.xacml.interfaces.ResponseContext;
+import com.sun.xacml.Obligation;
+import com.sun.xacml.ctx.Attribute;
+import com.sun.xacml.ctx.ResponseCtx;
+import com.sun.xacml.ctx.Result;
+import com.sun.xacml.ctx.Status;
+import com.vangent.hieos.policyutil.model.pdp.RequestTypeElement;
+import com.vangent.hieos.policyutil.model.pdp.SAMLResponseElement;
+import com.vangent.hieos.policyutil.model.pdp.XACMLRequestBuilder;
+import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
 
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.factories.XACMLContextFactory;
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.xml.bind.JAXBElement;
+import javax.xml.stream.XMLStreamReader;
+import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
+
+import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResultType;
+import oasis.names.tc.xacml._2_0.context.schema.os.StatusCodeType;
+import oasis.names.tc.xacml._2_0.context.schema.os.StatusType;
+import oasis.names.tc.xacml._2_0.policy.schema.os.AttributeAssignmentType;
+import oasis.names.tc.xacml._2_0.policy.schema.os.EffectType;
+import oasis.names.tc.xacml._2_0.policy.schema.os.ObligationType;
+import oasis.names.tc.xacml._2_0.policy.schema.os.ObligationsType;
+
 
 /**
  *
@@ -60,7 +63,8 @@ import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLA
 public class PDPRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PDPRequestHandler.class);
-    private static PolicyDecisionPoint _pdp = null;
+    private static PDPImpl _pdp = null;
+    private ClassLoader classLoader;
 
     /**
      *
@@ -95,17 +99,16 @@ public class PDPRequestHandler extends XBaseTransaction {
      * @return
      * @throws AxisFault
      */
-    public OMElement run(OMElement request) throws AxisFault {
+    public OMElement run(OMElement request, ClassLoader classLoader) throws AxisFault {
         try {
+            this.classLoader = classLoader;
             log_message.setPass(true); // Hope for the best.
-            Unmarshaller unmarshaller = SOAPSAMLXACMLUtil.getUnmarshaller();
-            JAXBElement<?> jaxbElement = (JAXBElement<?>) unmarshaller.unmarshal(request.getXMLStreamReader());
-            XACMLAuthzDecisionQueryType decisionQuery = (XACMLAuthzDecisionQueryType) jaxbElement.getValue();
-            OMElement authorizeResponse = this.evaluate(decisionQuery);
+            RequestType requestType = this.getRequestType(request);
+            SAMLResponseElement samlResponse = this.evaluate(requestType);
             if (log_message.isLogEnabled()) {
-                log_message.addOtherParam("Response", authorizeResponse);
+                log_message.addOtherParam("Response", samlResponse.getElement());
             }
-            return authorizeResponse;
+            return samlResponse.getElement();
         } catch (Exception ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             log_message.setPass(false);
@@ -114,19 +117,44 @@ public class PDPRequestHandler extends XBaseTransaction {
     }
 
     /**
-     * 
-     * @param decisionQuery
+     *
+     * @param request
      * @return
+     * @throws PolicyException
      */
-    private OMElement evaluate(XACMLAuthzDecisionQueryType decisionQuery) throws PolicyException {
+    private RequestType getRequestType(OMElement request) throws PolicyException {
         try {
-            RequestType requestType = decisionQuery.getRequest();
+            OMElement requestTypeNode = XPathHelper.selectSingleNode(request,
+                    "./ns:Request[1]", "urn:oasis:names:tc:xacml:2.0:context:schema:os");
+
+            XACMLRequestBuilder builder = new XACMLRequestBuilder();
+            return builder.buildRequestType(new RequestTypeElement(requestTypeNode));
+
+            /* JAXB free zone
+            XMLStreamReader xsr = requestTypeOMElement.getXMLStreamReader();
+            JAXBContext jc = PolicyUtil.getXACML_JAXBContext(this.classLoader);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            JAXBElement<RequestType> unmarshal = (JAXBElement<RequestType>) unmarshaller.unmarshal(xsr);
+            return unmarshal.getValue();*/
+        } catch (Exception ex) {
+            throw new PolicyException("Unable to marshall request: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 
+     * @param requestType
+     * @return
+     * @throws PolicyException
+     */
+    private SAMLResponseElement evaluate(RequestType requestType) throws PolicyException {
+        try {
             this.addMissingAttributes(requestType);
-            RequestContext requestContext = RequestResponseContextFactory.createRequestCtx();
-            requestContext.setRequest(requestType);
-            PolicyDecisionPoint pdp = this.getPDP();
-            ResponseContext responseContext = pdp.evaluate(requestContext);
-            return this.createSAML2Response(requestType, responseContext);
+            PDPImpl pdp = this.getPDP();
+            ResponseCtx responseCtx = pdp.evaluate(requestType);
+            // DEBUG:
+            responseCtx.encode(System.out);
+            return this.createSAML2Response(requestType, responseCtx);
         } catch (Exception ex) {
             throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
         }
@@ -136,16 +164,22 @@ public class PDPRequestHandler extends XBaseTransaction {
      *
      * @return
      */
-    private synchronized PolicyDecisionPoint getPDP() {
+    private synchronized PDPImpl getPDP() throws PolicyException {
         if (_pdp == null) {
-            // FIXME: Had to add location of policyConfig in CLASSPATH
-            ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-            InputStream configInputStream = tcl.getResourceAsStream("policyConfig.xml");
-            //File file = new File("C:/dev/hieos/src/XACMLutil/test/policyConfig.xml");
-            //configInputStream = new FileInputStream(file);
-            // FIXME: Cache the PDP ... it is thread-safe according to JBOSS folks.
-            // Invoke the PDP.
-            _pdp = new JBossPDP(configInputStream);
+            try {
+                // FIXME: Had to add location of policyConfig in CLASSPATH
+                //ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+                //InputStream configInputStream = tcl.getResourceAsStream("policyConfig.xml");
+                //File file = new File("C:/dev/hieos/src/XACMLutil/test/policyConfig.xml");
+                //configInputStream = new FileInputStream(file);
+                // FIXME: Cache the PDP ... is this safe?
+                // FIXME:
+                // Invoke the PDP.
+                String[] policyFiles = {"c:/dev/hieos/config/policy/policies/australia-hie-policy.xml"};
+                _pdp = new PDPImpl(policyFiles);
+            } catch (Exception ex) {
+                throw new PolicyException("Unable to create PDPImpl: " + ex.getMessage());
+            }
         }
         return _pdp;
     }
@@ -153,88 +187,22 @@ public class PDPRequestHandler extends XBaseTransaction {
     /**
      *
      * @param requestType
-     * @param responseContext
+     * @param responseCtx
      * @return
      * @throws PolicyException
      */
-    private OMElement createSAML2Response(RequestType requestType, ResponseContext responseContext) throws PolicyException {
+    private SAMLResponseElement createSAML2Response(RequestType requestType, ResponseCtx responseCtx) throws PolicyException {
         try {
-            //
-            // Always include the request as well ... in this way any additional attributes added from the PIP
-            // will be included (in order to satisfy Obligations).
-            //
-            // Normally, you would pass in the ResponseType here (set to null)
-            //
-            XACMLAuthzDecisionStatementType xacmlDecisionStatement = XACMLContextFactory.createXACMLAuthzDecisionStatementType(requestType, null);
-
-            // Place the XACML statement in an assertion
-            // Then the assertion goes inside a SAML Response
-            String ID = IDGenerator.create("ID_");
-            SAML2Response saml2Response = new SAML2Response();
-            IssuerInfoHolder issuerInfo = new IssuerInfoHolder("HIEOS PDP");
-            List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
-            statements.add(xacmlDecisionStatement);
-
-            // Create the assertion:
-            AssertionType assertion = SAMLAssertionFactory.createAssertion(ID, issuerInfo.getIssuer(), XMLTimeUtil.getIssueInstant(), null, null, statements);
-            org.picketlink.identity.federation.saml.v2.protocol.ResponseType saml2ResponseType = saml2Response.createResponseType(ID, issuerInfo, assertion);
-            JAXBElement<?> jaxbResponse = JAXBElementMappingUtil.get(saml2ResponseType);
-
-            // Convert JAXBElement to OMElement now
-            OMElement responseOMElement = this.convertJAXBElementToOMElement(jaxbResponse);
-
-            // Now, add in the ResponseType [converting like this due to bug in ResponseContext.getResponse()]
-            // Convert byte array to OMElement
-            OMElement responseContextOMElement = this.convertResponseContextToOMElement(responseContext);
-            String[] namespacePrefixes = {"xacml-samlp", "saml2"};
-            String[] namespaceURIs = {"urn:oasis:names:tc:SAML:2.0:protocol", "urn:oasis:names:tc:SAML:2.0:assertion"};
-            OMElement stmt = XPathHelper.selectSingleNode(responseOMElement, "/xacml-samlp:Response/saml2:Assertion/saml2:Statement[1]", namespacePrefixes, namespaceURIs);
-            // FIXME: Need to put response first.
-            stmt.addChild(responseContextOMElement);
-            return responseOMElement;
+            XACMLResponseBuilder builder = new XACMLResponseBuilder();
+            ResponseType responseType = builder.buildResponseType(responseCtx);
+            return builder.buildSAMLResponse(requestType, responseType);
         } catch (Exception ex) {
             throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
         }
     }
 
-    /**
-     * 
-     * @param responseContext
-     * @return
-     * @throws PolicyException
-     */
-    private OMElement convertResponseContextToOMElement(ResponseContext responseContext) throws PolicyException {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            responseContext.marshall(baos);
-            // Convert byte array to OMElement
-            OMElement responseContextOMElement = XMLParser.bytesToOM(baos.toByteArray());
-            return responseContextOMElement;
-        } catch (Exception ex) {
-            throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
-        }
-    }
-
-    /**
-     *
-     * @param jaxbElement
-     * @return
-     * @throws PolicyException
-     */
-    private OMElement convertJAXBElementToOMElement(JAXBElement<?> jaxbElement) throws PolicyException {
-        try {
-            OMElement responseOMElement = null;
-            StringWriter sw = new StringWriter();
-            Marshaller marshaller = SOAPSAMLXACMLUtil.getMarshaller();
-            marshaller.marshal(jaxbElement, sw);
-            String xml = sw.toString();
-            responseOMElement = XMLParser.stringToOM(xml);
-            return responseOMElement;
-        } catch (Exception ex) {
-            throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
-        }
-    }
-
+    // FIXME: Move this code to a Builder ...
+    
     /**
      * 
      * @param requestType
@@ -242,6 +210,7 @@ public class PDPRequestHandler extends XBaseTransaction {
      */
     private void addMissingAttributes(RequestType requestType) throws PolicyException {
         AttributeFinder attrFinder = new AttributeFinder(requestType);
+        // Get missing attributes from the PIP.
         attrFinder.addMissingAttributes();
     }
 }

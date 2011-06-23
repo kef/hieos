@@ -13,21 +13,21 @@
 package com.vangent.hieos.services.pdp.attribute.finder;
 
 import com.vangent.hieos.policyutil.model.patientconsent.PatientConsentDirectives;
-import com.vangent.hieos.policyutil.model.patientconsent.Organization;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.policyutil.client.PIPClient;
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.model.patientconsent.DocumentType;
-import com.vangent.hieos.policyutil.util.PolicyConstants;
+import java.io.ByteArrayInputStream;
 
-import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResourceContentType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResourceType;
 
 import org.apache.axis2.AxisFault;
 
-import org.jboss.security.xacml.core.model.context.AttributeType;
-import org.jboss.security.xacml.core.model.context.AttributeValueType;
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.core.model.context.ResourceType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -50,69 +50,54 @@ public class AttributeFinder {
     }
 
     /**
-     * 
+     *
+     * @throws PolicyException
      */
     public void addMissingAttributes() throws PolicyException {
         SubjectIdentifier patientId = new SubjectIdentifier();
+        // FIXME: Should we just pull from resource-id???
         // TODO: fill in patientId properly from "requestType".
 
-        // Get info from PIP.
+        // Get info from PIP... just pass XML to Policy engine?  May be more configurable????
         this.consentDirectives = this.getPatientConsentDirectives(patientId);
-        this.addOrganizations(PolicyConstants.XACML_RESOURCE_ALLOWED_ORGANIZATIONS, consentDirectives.getAllowedOrganizations());
-        this.addOrganizations(PolicyConstants.XACML_RESOURCE_BLOCKED_ORGANIZATIONS, consentDirectives.getBlockedOrganizations());
-        this.addDocumentTypes(PolicyConstants.XACML_RESOURCE_SENSITIVE_DOCUMENT_TYPES, consentDirectives.getSensitiveDocumentTypes());
+        this.addResourceContent();
     }
 
     /**
      *
-     * @param attributeId
-     * @param orgs
+     * @throws PolicyException
      */
-    private void addOrganizations(String attributeId, List<Organization> orgs) {
-        if (orgs == null || orgs.isEmpty()) {
-            return;
-        }
-        // Create a multi-valued attribute
-        AttributeType multiValuedAttribute = new AttributeType();
-        multiValuedAttribute.setAttributeId(attributeId);
-        multiValuedAttribute.setDataType("http://www.w3.org/2001/XMLSchema#string");
-        for (Organization org : orgs) {
-            String orgId = org.getId().getIdentifier();
-            multiValuedAttribute.getAttributeValue().add(createAttributeValueType(orgId));
-        }
-        resourceType.getAttribute().add(multiValuedAttribute);
-    }
+    private void addResourceContent() throws PolicyException {
+        try {
+            // Get the content
+            String content = this.consentDirectives.getContent();
 
-     /**
-      *
-      * @param attributeId
-      * @param docTypes
-      */
-    private void addDocumentTypes(String attributeId, List<DocumentType> docTypes) {
-        if (docTypes == null || docTypes.isEmpty()) {
-            return;
-        }
-        // Create a multi-valued attribute
-        AttributeType multiValuedAttribute = new AttributeType();
-        multiValuedAttribute.setAttributeId(attributeId);
-        multiValuedAttribute.setDataType("http://www.w3.org/2001/XMLSchema#string");
-        for (DocumentType docType : docTypes) {
-            String value = docType.asAttribute().getValue();
-            multiValuedAttribute.getAttributeValue().add(createAttributeValueType(value));
-        }
-        resourceType.getAttribute().add(multiValuedAttribute);
-    }
+            // Convert the content into a DOM node.
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            ByteArrayInputStream bais = new ByteArrayInputStream(content.getBytes());
+            Document document = documentBuilder.parse(bais);
+            Element node = document.getDocumentElement();
 
+            // Add node as ResourceContent to the Resource.
+            ResourceContentType resourceContentType = new ResourceContentType();
+            resourceContentType.getContent().add(node);
+            resourceType.setResourceContent(resourceContentType);
 
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    private AttributeValueType createAttributeValueType(String value) {
-        AttributeValueType avt = new AttributeValueType();
-        avt.getContent().add(value);
-        return avt;
+            // DEBUG
+            /*System.out.println("+++++++++++++++");
+            TransformerFactory tFactory =
+                    TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(System.out);
+            transformer.transform(source, result);
+            System.out.println("+++++++++++++++");*/
+
+        } catch (Exception ex) {
+            throw new PolicyException("Exception trying to get Consent Directives: " + ex.getMessage());
+        }
     }
 
     /**
