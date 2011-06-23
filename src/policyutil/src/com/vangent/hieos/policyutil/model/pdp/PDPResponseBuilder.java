@@ -12,9 +12,7 @@
  */
 package com.vangent.hieos.policyutil.model.pdp;
 
-import com.vangent.hieos.policyutil.model.pdp.PDPResponse;
-import org.jboss.security.xacml.core.model.context.DecisionType;
-import org.jboss.security.xacml.core.model.context.ResultType;
+import org.apache.axiom.om.OMElement;
 
 /**
  *
@@ -27,14 +25,11 @@ public class PDPResponseBuilder {
      * @param result
      * @return
      */
-    public PDPResponse buildPDPResponse(ResultType result) {
-        PDPResponse response = new PDPResponse();
+    public PDPResponse buildPDPResponse(SAMLResponseElement samlResponse) {
+        PDPResponse pdpResponse = new PDPResponse();
 
-        // Decision:
-        DecisionType decisionType = result.getDecision();
-        response.setDecision(PDPResponse.Decision.valueOf(decisionType.toString()));
-
-        // TODO: Obligations
-        return response;
+        // TBD: Implement ...
+        // TBD: Obligations
+        return pdpResponse;
     }
 }
