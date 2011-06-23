@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.sts.transactions;
 
-import com.vangent.hieos.services.sts.model.STSConstants;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
@@ -72,7 +72,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         STSConfig stsConfig = requestData.getSTSConfig();
 
         // Create the Assertion with a unique UUID.
-        Assertion assertion = (Assertion) createSAMLObject(Assertion.DEFAULT_ELEMENT_NAME);
+        Assertion assertion = (Assertion) STSUtil.createXMLObject(Assertion.DEFAULT_ELEMENT_NAME);
         Namespace dsns = new Namespace("http://www.w3.org/2000/09/xmldsig#", "ds");
         assertion.addNamespace(dsns);
         Namespace xsins = new Namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
@@ -96,25 +96,25 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         assertion.setConditions(conditions);
 
         // Create the Subject.
-        Subject subj = (Subject) createSAMLObject(Subject.DEFAULT_ELEMENT_NAME);
+        Subject subj = (Subject) STSUtil.createXMLObject(Subject.DEFAULT_ELEMENT_NAME);
         assertion.setSubject(subj);
 
         // Set the "Name" of the Subject.
         // FIXME?
-        NameID nameId = (NameID) createSAMLObject(NameID.DEFAULT_ELEMENT_NAME);
+        NameID nameId = (NameID) STSUtil.createXMLObject(NameID.DEFAULT_ELEMENT_NAME);
 
         // <NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">
         //   CN=Alex G. Bell,O=1.22.333.4444,UID=abell
         //</NameID>
-        nameId.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
+        nameId.setFormat(PolicyConstants.SUBJECT_NAME_FORMAT);
         nameId.setValue(requestData.getSubjectDN());
         subj.setNameID(nameId);
 
         // Set the SubjectConfirmation method to "holder of key".
-        SubjectConfirmation subjConf = (SubjectConfirmation) createSAMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
+        SubjectConfirmation subjConf = (SubjectConfirmation) STSUtil.createXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
         subjConf.setMethod("urn:oasis:names:tc:2.0:cm:holder-of-key");
         subj.getSubjectConfirmations().add(subjConf);
-        SubjectConfirmationData subjData = (SubjectConfirmationData) createSAMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+        SubjectConfirmationData subjData = (SubjectConfirmationData) STSUtil.createXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
         subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"),
                 "saml:KeyInfoConfirmationDataType");
         subjConf.setSubjectConfirmationData(subjData);
@@ -124,15 +124,15 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         subjData.setNotOnOrAfter(expiresDate);
 
         // Add the KeyInfo.
-        KeyInfo ki = (KeyInfo) createSAMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+        KeyInfo ki = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
         subjData.getUnknownXMLObjects().add(ki);
 
-        KeyName kn = (KeyName) createSAMLObject(KeyName.DEFAULT_ELEMENT_NAME);
+        KeyName kn = (KeyName) STSUtil.createXMLObject(KeyName.DEFAULT_ELEMENT_NAME);
         kn.setValue(stsConfig.getIssuerAlias());  // FIXME!!
         ki.getKeyNames().add(kn);
 
         // Add Attribute statements.
-        AttributeStatement as = (AttributeStatement) createSAMLObject(AttributeStatement.DEFAULT_ELEMENT_NAME);
+        AttributeStatement as = (AttributeStatement) STSUtil.createXMLObject(AttributeStatement.DEFAULT_ELEMENT_NAME);
         SAML2AttributeHandler attributeHandler = new SAML2AttributeHandler();
         List<Attribute> attributes = attributeHandler.handle(requestData);
         as.getAttributes().addAll(attributes);
@@ -146,9 +146,9 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         PrivateKey pk = pkEntry.getPrivateKey();
         X509Certificate issuerCertificate = (X509Certificate) pkEntry.getCertificate();
 
-         // Set the issuer name.
-        Issuer issuer = (Issuer) createSAMLObject(Issuer.DEFAULT_ELEMENT_NAME);
-        issuer.setFormat(STSConstants.SUBJECT_NAME_FORMAT);
+        // Set the issuer name.
+        Issuer issuer = (Issuer) STSUtil.createXMLObject(Issuer.DEFAULT_ELEMENT_NAME);
+        issuer.setFormat(PolicyConstants.SUBJECT_NAME_FORMAT);
         issuer.setValue(issuerCertificate.getIssuerX500Principal().getName());
         assertion.setIssuer(issuer);
 
@@ -156,13 +156,13 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         BasicX509Credential credential = new BasicX509Credential();
         credential.setEntityCertificate(issuerCertificate);
         credential.setPrivateKey(pk);
-        Signature signature = (Signature) createSAMLObject(Signature.DEFAULT_ELEMENT_NAME);
+        Signature signature = (Signature) STSUtil.createXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(credential);
         signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
         // Place the Certificate (public portion) for the issuer in the KeyInfo response.
-        KeyInfo keyInfo = (KeyInfo) createSAMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+        KeyInfo keyInfo = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
         KeyInfoHelper.addPublicKey(keyInfo, issuerCertificate.getPublicKey());
         try {
             KeyInfoHelper.addCertificate(keyInfo, issuerCertificate);
@@ -174,15 +174,6 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Fully marshall the Assertion - required in order for the signature to be applied
         Element assertionElement = STSUtil.convertXMLObjectToElement(assertion);
-        /*MarshallerFactory marshallerFactory =
-                Configuration.getMarshallerFactory();
-        Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
-        Element assertionElement;
-        try {
-            assertionElement = marshaller.marshall(assertion);
-        } catch (MarshallingException ex) {
-            throw new STSException("Unable to marshall Assertion: " + ex.getMessage());
-        }*/
 
         // Now, "sign" the Assertion using the issuer's private key.
         try {
@@ -193,13 +184,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Convert the response to an OMElement (for subsequent processing).
         OMElement assertionOMElement = STSUtil.convertElementToOMElement(assertionElement);
-        /*
-        OMElement assertionOMElement;
-        try {
-            assertionOMElement = XMLUtils.toOM(assertionElement);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert Assertion from Element to OMElement: " + ex.getMessage());
-        }*/
+        
 
         // Return a properly formatted WS-Trust response.
         return this.getWSTrustResponse(assertionOMElement, createdDate, expiresDate);
@@ -240,7 +225,6 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
     //          </wst:RequestSecurityTokenResponse>
     //      </wst:RequestSecurityTokenResponseCollection>
     //
-
     /**
      *
      * @param assertion
@@ -250,8 +234,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
      */
     private OMElement getWSTrustResponse(OMElement assertion, DateTime creationDate, DateTime expirationDate) {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
-        OMNamespace wstNs = omfactory.createOMNamespace(STSConstants.WSTRUST_NS, "wst");
-        OMNamespace wsuNs = omfactory.createOMNamespace(STSConstants.WSSECURITY_UTILITY_NS, "wsu");
+        OMNamespace wstNs = omfactory.createOMNamespace(PolicyConstants.WSTRUST_NS, "wst");
+        OMNamespace wsuNs = omfactory.createOMNamespace(PolicyConstants.WSSECURITY_UTILITY_NS, "wsu");
         OMElement rstResponseCollection = omfactory.createOMElement("RequestSecurityTokenResponseCollection", wstNs);
         OMElement rstResponse = omfactory.createOMElement("RequestSecurityTokenResponse", wstNs);
         OMElement requestedSecurityToken = omfactory.createOMElement("RequestedSecurityToken", wstNs);
@@ -264,7 +248,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         lifeTime.addChild(expires);
 
         OMElement tokenType = omfactory.createOMElement("TokenType", wstNs);
-        tokenType.setText(STSConstants.SAML2_TOKEN_TYPE);
+        tokenType.setText(PolicyConstants.SAML2_TOKEN_TYPE);
 
         // Wire things up in proper order.
         rstResponseCollection.addChild(rstResponse);
@@ -282,13 +266,13 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
      */
     private AuthnStatement getAuthnStatement() throws STSException {
         // Construct AuthnStatement.
-        AuthnStatement authStmt = (AuthnStatement) this.createSAMLObject(AuthnStatement.DEFAULT_ELEMENT_NAME);
+        AuthnStatement authStmt = (AuthnStatement) STSUtil.createXMLObject(AuthnStatement.DEFAULT_ELEMENT_NAME);
 
         // Set the Authentication instant.
         authStmt.setAuthnInstant(new DateTime());
-        AuthnContext authContext = (AuthnContext) this.createSAMLObject(AuthnContext.DEFAULT_ELEMENT_NAME);
+        AuthnContext authContext = (AuthnContext) STSUtil.createXMLObject(AuthnContext.DEFAULT_ELEMENT_NAME);
 
-        AuthnContextClassRef authCtxClassRef = (AuthnContextClassRef) this.createSAMLObject(AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
+        AuthnContextClassRef authCtxClassRef = (AuthnContextClassRef) STSUtil.createXMLObject(AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
 
         authCtxClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
 

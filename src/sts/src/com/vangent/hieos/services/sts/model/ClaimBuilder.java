@@ -12,16 +12,17 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.namespace.QName;
+
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -29,51 +30,7 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 public class ClaimBuilder {
-
-    private final static String[] XSPA_NAMES = {
-        PolicyConstants.XACML_SUBJECT_ID,
-        PolicyConstants.XACML_SUBJECT_ORGANIZATION,
-        PolicyConstants.XACML_SUBJECT_ORGANIZATION_ID,
-        PolicyConstants.XACML_SUBJECT_HL7_PERMISSION,
-        PolicyConstants.XACML_SUBJECT_ROLE,
-        PolicyConstants.XACML_SUBJECT_PURPOSE_OF_USE,
-        PolicyConstants.XACML_SUBJECT_NPI,
-        PolicyConstants.XACML_RESOURCE_ID,
-        PolicyConstants.XACML_RESOURCE_HL7_TYPE,
-        PolicyConstants.XACML_ENVIRONMENT_LOCALITY};
-
-    private final static String[] XSPA_NAMES_REQUIRED = {
-        PolicyConstants.XACML_SUBJECT_ID,
-        PolicyConstants.XACML_SUBJECT_ORGANIZATION,
-        PolicyConstants.XACML_SUBJECT_ORGANIZATION_ID,
-        PolicyConstants.XACML_SUBJECT_ROLE,
-        PolicyConstants.XACML_SUBJECT_PURPOSE_OF_USE,
-        PolicyConstants.XACML_RESOURCE_ID
-    };
-    // FUTURE:
-    private final static String[] CODED_NAMES = {
-        "urn:oasis:names:tc:xacml:2.0:subject:role",
-        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse"
-    };
-    // FUTURE:
-    private final static String[] CODED_NODE_NAMES = {
-        "Role",
-        "PurposeForUse"
-    };
-    // FUTURE:
-    private final static String[] NHIN_NAMES = {
-        "urn:oasis:names:tc:xspa:1.0:subject:subject-id", // Differs from XSPA.
-        "urn:oasis:names:tc:xspa:1.0:subject:organization",
-        "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
-        "urn:nhin:names:saml:homeCommunityId", // Not in XSPA.
-        "urn:oasis:names:tc:xacml:2.0:subject:role", // Coded value.
-        "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse", // Coded value (node is PurposeForUse).
-        "urn:oasis:names:tc:xacml:2.0:resource:resource-id", // Differs from XSPA.
-        "urn:oasis:names:tc:xspa:2.0:subject:npi"
-    };
-    // Maps URI to XSPA ClaimType node.
-    private Map<String, OMElement> xspaClaimTypeURIMap = new HashMap<String, OMElement>();
-
+   
     /**
      *
      * @param requestData
@@ -83,8 +40,7 @@ public class ClaimBuilder {
     public List<Claim> parse(STSRequestData requestData) throws STSException {
         OMElement claimsNode = requestData.getClaimsNode();
         List<Claim> claims = new ArrayList<Claim>();
-        this.buildXSPAClaimTypeURIMap(claimsNode);
-        this.parse(claims);
+        this.parse(claimsNode, claims);
         STSConfig stsConfig = requestData.getSTSConfig();
         if (stsConfig.getValidateRequiredClaims() == true) {
             this.validate(claims);
@@ -94,14 +50,35 @@ public class ClaimBuilder {
 
     /**
      *
+     * @param claimsNode
+     * @param claims
+     */
+    private void parse(OMElement claimsNode, List<Claim> claims) {
+        try {
+            // Get all ClaimType nodes.
+            List<OMElement> claimTypeNodes = XPathHelper.selectNodes(claimsNode, "./ns:ClaimType", PolicyConstants.XSPA_CLAIMS_NS);
+            for (OMElement claimTypeNode : claimTypeNodes) {
+                Claim claim = this.getClaim(claimTypeNode);
+                if (claim != null) {
+                    claims.add(claim);
+                }
+            }
+        } catch (XPathHelperException ex) {
+            // FIXME: Do something here.
+        }
+    }
+
+    /**
+     *
      * @param claims
      * @throws STSException
      */
     private void validate(List<Claim> claims) throws STSException {
         // Validate proper attributes are available.
-
-        for (int i = 0; i < XSPA_NAMES_REQUIRED.length; i++) {
-            String nameToValidate = XSPA_NAMES_REQUIRED[i];
+        PolicyConfig pConfig = PolicyConfig.getInstance();
+        String[] requiredIds = pConfig.getRequiredClaimIds();
+        for (int i = 0; i < requiredIds.length; i++) {
+            String nameToValidate = requiredIds[i];
             boolean foundName = false;
             for (Claim claim : claims) {
                 if (claim.getName().equalsIgnoreCase(nameToValidate)) {
@@ -118,66 +95,26 @@ public class ClaimBuilder {
 
     /**
      *
-     * @param claims
-     */
-    private void parse(List<Claim> claims) {
-        for (int i = 0; i < XSPA_NAMES.length; i++) {
-            String xspaName = XSPA_NAMES[i];
-            Claim claim = this.getClaim(xspaName);
-            if (claim != null) {
-                claims.add(claim);
-            }
-        }
-    }
-
-    /**
-     *
-     * @param name
+     * @param claimTypeNode
      * @return
      */
-    private Claim getClaim(String name) {
-
-        // Get the XSPA ClaimType node for the given XSPA name.
-        OMElement xspaClaimTypeNode = this.xspaClaimTypeURIMap.get(name);
-        if (xspaClaimTypeNode == null) {
-            // FIXME: PUT DEBUG/DEFAULT?
-            return null;  // Get out.
-        }
+    private Claim getClaim(OMElement claimTypeNode) {
+        String claimTypeURI = claimTypeNode.getAttributeValue(new QName("Uri"));
 
         // Found ClaimType ... now, get its ClaimValue.
-        OMElement xspaClaimValueNode = xspaClaimTypeNode.getFirstChildWithName(new QName(STSConstants.XSPA_CLAIMS_NS, "ClaimValue"));
+        OMElement xspaClaimValueNode = claimTypeNode.getFirstChildWithName(new QName(PolicyConstants.XSPA_CLAIMS_NS, "ClaimValue"));
         if (xspaClaimValueNode == null) {
             // FIXME: PUT DEBUG/DEFAULT?
             return null; // Get out.
         }
 
         // Get the String value.
-        String xspaClaimValueText = xspaClaimValueNode.getText();
+        String valueText = xspaClaimValueNode.getText();
 
+        // FIXME: Only dealing with simple single value string claims.
         SimpleStringClaim claim = new SimpleStringClaim();
-        claim.setName(name);
-        claim.setValue(xspaClaimValueText);
+        claim.setName(claimTypeURI);
+        claim.setValue(valueText);
         return claim;
-    }
-
-    /**
-     *
-     * @param claims
-     */
-    private void buildXSPAClaimTypeURIMap(OMElement claims) {
-        if (claims == null) {
-            return;  // Nothing to do.
-        }
-        try {
-            // Get all ClaimType nodes.
-            List<OMElement> claimTypeNodes = XPathHelper.selectNodes(claims, "./ns:ClaimType",
-                    STSConstants.XSPA_CLAIMS_NS);
-            for (OMElement claimTypeNode : claimTypeNodes) {
-                String claimTypeURI = claimTypeNode.getAttributeValue(new QName("Uri"));
-                xspaClaimTypeURIMap.put(claimTypeURI, claimTypeNode);
-            }
-        } catch (XPathHelperException ex) {
-            // FIXME.
-        }
     }
 }

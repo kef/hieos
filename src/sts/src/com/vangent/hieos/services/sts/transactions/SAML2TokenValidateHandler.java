@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.sts.transactions;
 
-import com.vangent.hieos.services.sts.model.STSConstants;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
@@ -153,28 +153,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      * @throws STSException
      */
     private Assertion getAssertion(OMElement assertionOMElement) throws STSException {
-        return (Assertion)STSUtil.convertOMElementToXMLObject(assertionOMElement);
-        /*
-        // Convert OMElement to Element.
-       Element assertionElement;
-        try {
-            assertionElement = XMLUtils.toDOM(assertionOMElement);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert Assertion from OMElement to Element: " + ex.getMessage());
-        }
-
-        // Fully unmarshall the Assertion so that the signature validation will work.
-        UnmarshallerFactory unmarshallerFactory =
-                Configuration.getUnmarshallerFactory();
-        Unmarshaller unmarshaller =
-                unmarshallerFactory.getUnmarshaller(assertionElement);
-        Assertion assertion;
-        try {
-            assertion = (Assertion) unmarshaller.unmarshall(assertionElement);
-        } catch (UnmarshallingException ex) {
-            throw new STSException("Unable to unmarshall Assertion: " + ex.getMessage());
-        }
-        return assertion;*/
+        return (Assertion) STSUtil.convertOMElementToXMLObject(assertionOMElement);
     }
 
     /**
@@ -184,21 +163,21 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      */
     private OMElement getWSTrustResponse(boolean success) {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
-        OMNamespace wstNs = omfactory.createOMNamespace(STSConstants.WSTRUST_NS, "wst");
+        OMNamespace wstNs = omfactory.createOMNamespace(PolicyConstants.WSTRUST_NS, "wst");
         OMElement rstResponseCollection = omfactory.createOMElement("RequestSecurityTokenResponseCollection", wstNs);
         OMElement rstResponse = omfactory.createOMElement("RequestSecurityTokenResponse", wstNs);
         OMElement requestedSecurityToken = omfactory.createOMElement("RequestedSecurityToken", wstNs);
         OMElement tokenType = omfactory.createOMElement("TokenType", wstNs);
-        tokenType.setText(STSConstants.SAML2_TOKEN_TYPE);
+        tokenType.setText(PolicyConstants.SAML2_TOKEN_TYPE);
 
         OMElement status = omfactory.createOMElement("Status", wstNs);
         OMElement code = omfactory.createOMElement("Code", wstNs);
         status.addChild(code);
         String statusText;
         if (success) {
-            statusText = STSConstants.TOKEN_VALID;
+            statusText = PolicyConstants.WSTRUST_TOKEN_VALID;
         } else {
-            statusText = STSConstants.TOKEN_INVALID;
+            statusText = PolicyConstants.WSTRUST_TOKEN_INVALID;
         }
         code.setText(statusText);
 
@@ -220,7 +199,7 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
         OMElement assertionNode = null;
         try {
             String nameSpaceNames[] = {"wst", "saml2"};
-            String nameSpaceURIs[] = {STSConstants.WSTRUST_NS, STSConstants.SAML2_NS};
+            String nameSpaceURIs[] = {PolicyConstants.WSTRUST_NS, PolicyConstants.SAML2_NS};
             assertionNode = XPathHelper.selectSingleNode(
                     request,
                     "./wst:ValidateTarget/saml2:Assertion[1]",

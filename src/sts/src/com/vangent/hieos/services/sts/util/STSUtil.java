@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.services.sts.util;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.PolicyUtil;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import java.io.ByteArrayInputStream;
@@ -29,11 +31,15 @@ import java.security.cert.PKIXParameters;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.codec.binary.Base64;
-import org.opensaml.Configuration;
+import org.opensaml.DefaultBootstrap;
+import org.opensaml.xml.Configuration;
+import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.io.MarshallingException;
@@ -47,6 +53,28 @@ import org.w3c.dom.Element;
  * @author Bernie Thuman
  */
 public class STSUtil {
+
+    private static XMLObjectBuilderFactory _xmlObjectBuilderFactory = null;
+
+    /**
+     *
+     * @return
+     * @throws STSException
+     */
+    public synchronized static XMLObjectBuilderFactory getXMLObjectBuilderFactory() throws STSException {
+
+        if (_xmlObjectBuilderFactory == null) {
+            try {
+                // OpenSAML 2.3
+                DefaultBootstrap.bootstrap();
+            } catch (ConfigurationException ex) {
+                throw new STSException("Failure initializing OpenSAML: " + ex.getMessage());
+            }
+            _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
+        }
+
+        return _xmlObjectBuilderFactory;
+    }
 
     /**
      *
@@ -62,8 +90,23 @@ public class STSUtil {
         return omElement;
     }
 
-    /**
+      /**
      *
+     * @param element
+     * @return
+     * @throws STSException
+     */
+    // TBD: Move to xutil?
+    static public OMElement convertElementToOMElement(Element element) throws STSException {
+        try {
+            return XMLUtils.toOM(element);
+        } catch (Exception ex) {
+            throw new STSException("Unable to convert from Element to OMElement: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 
      * @param xmlObject
      * @return
      * @throws STSException
@@ -82,43 +125,12 @@ public class STSUtil {
     }
 
     /**
-     *
-     * @param element
-     * @return
-     * @throws STSException
-     */
-    // TBD: Move to xutil?
-    static public OMElement convertElementToOMElement(Element element) throws STSException {
-        try {
-            return XMLUtils.toOM(element);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert from Element to OMElement: " + ex.getMessage());
-        }
-    }
-
-    /**
-     * 
-     * @param omElement
-     * @return
-     * @throws STSException
-     */
-    static public Element convertOMElementToElement(OMElement omElement) throws STSException
-    {
-        try {
-            return XMLUtils.toDOM(omElement);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert OMElement to Element: " + ex.getMessage());
-        }
-    }
-
-    /**
      * 
      * @param element
      * @return
      * @throws STSException
      */
-    static public XMLObject convertElementToXMLObject(Element element) throws STSException
-    {
+    static public XMLObject convertElementToXMLObject(Element element) throws STSException {
         // Convert Element to an XMLObject.
         UnmarshallerFactory unmarshallerFactory =
                 Configuration.getUnmarshallerFactory();
@@ -131,16 +143,41 @@ public class STSUtil {
         }
     }
 
+   /**
+    * 
+    * @param omElement
+    * @return
+    * @throws STSException
+    */
+    static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
+        // Convert OMElement to Element.
+        Element element = STSUtil.convertOMElementToElement(omElement);
+        return STSUtil.convertElementToXMLObject(element);
+    }
+
     /**
      *
      * @param omElement
      * @return
      * @throws STSException
      */
-    static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
-        // Convert OMElement to Element.
-        Element element = STSUtil.convertOMElementToElement(omElement);
-        return STSUtil.convertElementToXMLObject(element);
+    static public Element convertOMElementToElement(OMElement omElement) throws STSException {
+        try {
+            return XMLUtils.toDOM(omElement);
+        } catch (Exception ex) {
+            throw new STSException("Unable to convert OMElement to Element: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 
+     * @param qname
+     * @return
+     * @throws STSException
+     */
+    static public XMLObject createXMLObject(QName qname) throws STSException {
+        //return Configuration.getBuilderFactory().getBuilder(qname).buildObject(qname);
+        return STSUtil.getXMLObjectBuilderFactory().getBuilder(qname).buildObject(qname);
     }
 
     /**

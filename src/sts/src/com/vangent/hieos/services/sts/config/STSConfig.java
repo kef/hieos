@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.services.sts.config;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.exception.STSException;
-import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -39,7 +39,7 @@ public class STSConfig {
     private String issuerPassword;
     private boolean computeSubjectNameFromClaims;
     private boolean validateRequiredClaims;
-    private STSConstants.AuthenticationType authenticationType;
+    private PolicyConstants.AuthenticationType authenticationType;
     private XConfigObject configObject;
 
     /**
@@ -94,10 +94,10 @@ public class STSConfig {
         }
         String authenticationTypeText = configObject.getProperty("authenticationType");
         if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
-            authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
+            authenticationType = PolicyConstants.AuthenticationType.USER_NAME_TOKEN;
         } else {
             // Otherwise.
-            authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
+            authenticationType = PolicyConstants.AuthenticationType.X509_CERTIFICATE;
         }
         computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("computeSubjectNameFromClaims", false);
         validateRequiredClaims = configObject.getPropertyAsBoolean("validateRequiredClaims", true);
@@ -160,7 +160,7 @@ public class STSConfig {
         return trustStorePassword;
     }
 
-    public STSConstants.AuthenticationType getAuthenticationType() {
+    public PolicyConstants.AuthenticationType getAuthenticationType() {
         return authenticationType;
     }
 

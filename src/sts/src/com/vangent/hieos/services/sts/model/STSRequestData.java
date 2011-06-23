@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
@@ -88,7 +89,7 @@ public class STSRequestData {
     public void parseBody() throws STSException {
         this.requestType = this.getRequestType(request);
         this.appliesToAddress = this.getAppliesToAddress(request);
-        if (this.requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
+        if (this.requestType.equalsIgnoreCase(PolicyConstants.ISSUE_REQUEST_TYPE)) {
             this.claimsNode = this.getClaimsNode(request);
             ClaimBuilder claimBuilder = new ClaimBuilder();
             this.claims = claimBuilder.parse(this);
@@ -195,7 +196,7 @@ public class STSRequestData {
      * @throws STSException
      */
     private String getRequestType(OMElement request) throws STSException {
-        OMElement reqTypeElem = request.getFirstChildWithName(new QName(STSConstants.WSTRUST_NS,
+        OMElement reqTypeElem = request.getFirstChildWithName(new QName(PolicyConstants.WSTRUST_NS,
                 "RequestType"));
         if (reqTypeElem == null
                 || reqTypeElem.getText() == null
@@ -215,7 +216,7 @@ public class STSRequestData {
         String result = null;
         try {
             String nameSpaceNames[] = {"wsp", "wsa"};
-            String nameSpaceURIs[] = {STSConstants.WSPOLICY_NS, STSConstants.WSADDRESSING_NS};
+            String nameSpaceURIs[] = {PolicyConstants.WSPOLICY_NS, PolicyConstants.WSADDRESSING_NS};
             OMElement addressNode = XPathHelper.selectSingleNode(
                     request,
                     "./wsp:AppliesTo/wsa:EndpointReference/wsa:Address[1]",
@@ -241,7 +242,7 @@ public class STSRequestData {
             node = XPathHelper.selectSingleNode(
                     request,
                     "./ns:Claims[1]",
-                    STSConstants.WSTRUST_NS);
+                    PolicyConstants.WSTRUST_NS);
         } catch (XPathHelperException ex) {
             System.out.println("Exception: " + ex.getMessage());
             logger.warn("No Claims found");
