@@ -44,17 +44,19 @@ public class XConfig {
 
     public enum ConfigItem {
 
-        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE
+        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE, XDSBRIDGE_DIR
     };
     // HIEOS environment variables (would like to rename but remaining backward compatible).
     public final static String ENV_HIEOS_CONFIG_DIR = "HIEOSxConfigDir";
     public final static String ENV_HIEOS_XCONFIG_FILE = "HIEOSxConfigFile";
     public final static String ENV_HIEOS_SCHEMA_DIR = "HIEOSxSchemaDir";
+    public final static String ENV_HIEOS_XDSBRIDGE_DIR = "HIEOSxXDSBridgeDir";
     public final static String ENV_HIEOS_CODES_FILE = "HIEOSxCodesFile";
     // HIEOS system properties (would like to rename but remaining backward compatible).
     public final static String SYSPROP_HIEOS_CONFIG_DIR = "com.vangent.hieos.configdir";
     public final static String SYSPROP_HIEOS_XCONFIG_FILE = "com.vangent.hieos.xconfig";
     public final static String SYSPROP_HIEOS_SCHEMA_DIR = "com.vangent.hieos.schemadir";
+    public final static String SYSPROP_HIEOS_XDSBRIDGE_DIR = "com.vangent.hieos.xdsbridgedir";
     public final static String SYSPROP_HIEOS_CODES_FILE = "com.vangent.hieos.codesfile";
     private final static Logger logger = Logger.getLogger(XConfig.class);
     
@@ -98,6 +100,9 @@ public class XConfig {
             case CODES_FILE:
                 configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_CODES_FILE, XConfig.ENV_HIEOS_CODES_FILE);
                 break;
+            case XDSBRIDGE_DIR:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_XDSBRIDGE_DIR, XConfig.ENV_HIEOS_XDSBRIDGE_DIR);
+                break;
         }
         return configLocation;
     }
@@ -140,6 +145,9 @@ public class XConfig {
                     break;
                 case CODES_FILE:
                     configLocation = configDir + "/codes/codes.xml";
+                    break;
+                case XDSBRIDGE_DIR:
+                    configLocation = configDir + "/xdsbridge";
                     break;
             }
         }
