@@ -5,10 +5,6 @@
         <description>SubmitDocumentRequest Service</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge</parameter>
         
-        <!-- TODO remove this -->
-        <parameter name="LoggerCategory">com.vangent.hieos</parameter>
-        <parameter name="LoggerLevel">DEBUG</parameter>
-        
         <operation name="SubmitDocumentRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <parameter name="enableMTOM" locked="false">true</parameter>
