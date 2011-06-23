@@ -13,8 +13,6 @@
 package com.vangent.hieos.policyutil.model.patientconsent;
 
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -23,46 +21,22 @@ import java.util.List;
 public class PatientConsentDirectives {
 
     private SubjectIdentifier patientId;
-    private boolean alwaysAuthorize = true;
-    private List<Organization> allowedOrganizations = new ArrayList<Organization>();
-    private List<Organization> blockedOrganizations = new ArrayList<Organization>();
-    private List<Individual> blockedIndividuals = new ArrayList<Individual>();
-    private List<Individual> sensitiveAccessIndividuals = new ArrayList<Individual>();
-    private List<DocumentType> sensitiveDocumentTypes = new ArrayList<DocumentType>();
+    private String content;
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    
     public SubjectIdentifier getPatientId() {
         return patientId;
     }
 
     public void setPatientId(SubjectIdentifier patientId) {
         this.patientId = patientId;
-    }
-
-    public List<Organization> getAllowedOrganizations() {
-        return allowedOrganizations;
-    }
-
-    public boolean isAlwaysAuthorize() {
-        return alwaysAuthorize;
-    }
-
-    public void setAlwaysAuthorize(boolean alwaysAuthorize) {
-        this.alwaysAuthorize = alwaysAuthorize;
-    }
-
-    public List<Individual> getBlockedIndividuals() {
-        return blockedIndividuals;
-    }
-
-    public List<Organization> getBlockedOrganizations() {
-        return blockedOrganizations;
-    }
-
-    public List<Individual> getSensitiveAccessIndividuals() {
-        return sensitiveAccessIndividuals;
-    }
-
-    public List<DocumentType> getSensitiveDocumentTypes() {
-        return sensitiveDocumentTypes;
     }
 }

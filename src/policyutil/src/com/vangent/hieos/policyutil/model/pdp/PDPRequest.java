@@ -28,7 +28,9 @@ public class PDPRequest {
     private String action;
     private List<Attribute> subjectAttributes = new ArrayList<Attribute>();
     private List<Attribute> resourceAttributes = new ArrayList<Attribute>();
+    private List<Attribute> environmentAttributes = new ArrayList<Attribute>();
 
+    // FIXME: Do we need this (since we should use resource-id - CX format!!!) ????
     public SubjectIdentifier getPatientId() {
         return patientId;
     }
@@ -60,4 +62,13 @@ public class PDPRequest {
     public List<Attribute> getSubjectAttributes() {
         return subjectAttributes;
     }
+
+    public List<Attribute> getEnvironmentAttributes() {
+        return environmentAttributes;
+    }
+
+    public void setEnvironmentAttributes(List<Attribute> environmentAttributes) {
+        this.environmentAttributes = environmentAttributes;
+    }
+
 }

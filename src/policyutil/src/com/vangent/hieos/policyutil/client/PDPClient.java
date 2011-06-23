@@ -16,20 +16,17 @@ import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.model.pdp.PDPRequest;
 import com.vangent.hieos.policyutil.model.pdp.PDPResponse;
-import com.vangent.hieos.policyutil.model.pdp.PDPResponseBuilder;
+import com.vangent.hieos.policyutil.model.pdp.SAMLResponseElement;
+import com.vangent.hieos.policyutil.model.pdp.XACMLAuthzDecisionQueryElement;
 import com.vangent.hieos.policyutil.model.pdp.XACMLRequestBuilder;
+import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
+import com.vangent.hieos.policyutil.model.saml.SAML2Assertion;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
-import java.util.List;
-
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.core.model.context.ResultType;
-import org.jboss.security.xacml.core.model.policy.AttributeAssignmentType;
-import org.jboss.security.xacml.core.model.policy.ObligationType;
-import org.jboss.security.xacml.core.model.policy.ObligationsType;
-
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.apache.axiom.om.OMElement;
 
 /**
  *
@@ -47,57 +44,75 @@ public class PDPClient extends Client {
 
     /**
      *
-     * @param pdpRequest
+     * @param action
+     * @param saml2Assertion
      * @return
      * @throws PolicyException
      */
+    public PDPResponse authorize(String action, SAML2Assertion saml2Assertion) throws PolicyException {
+        XACMLRequestBuilder builder = new XACMLRequestBuilder();
+        PDPRequest pdpRequest = builder.buildPDPRequest(action, saml2Assertion);
+        return this.authorize(pdpRequest);
+    }
+
+   /**
+    *
+    * @param pdpRequest
+    * @return
+    * @throws PolicyException
+    */
     public PDPResponse authorize(PDPRequest pdpRequest) throws PolicyException {
         try {
-            // Convert PDPRequest to XACML request.
-            XACMLRequestBuilder xacmlRequestBuilder = new XACMLRequestBuilder();
-            RequestType requestType = xacmlRequestBuilder.buildXACMLRequestType(pdpRequest);
-
             // Get configuration.
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("Authorize");
 
             // Perform SOAP call to PDP.
-            PDPSOAPClient soapSAMLXACML = new PDPSOAPClient();
-            ResultType resultType = soapSAMLXACML.send(txn.getEndpointURL(),
-                    txn.isSOAP12Endpoint(), pdpRequest.getIssuer(), requestType);
-            // DEBUG:
-            this.print(resultType);
-
-            // Convert XACML response to PDPResponse.
-            PDPResponseBuilder pdpResponseBuilder = new PDPResponseBuilder();
-            PDPResponse pdpResponse = pdpResponseBuilder.buildPDPResponse(resultType);
+            PDPResponse pdpResponse = this.send(pdpRequest, txn.getEndpointURL(), txn.isSOAP12Endpoint());
             return pdpResponse;
-        } catch (ProcessingException ex) {
+        } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Decision Point: " + ex.getMessage());
         }
     }
 
     /**
      *
-     * @param result
+     * @param pdpRequest
+     * @param endpointURL
+     * @param soap12
+     * @return
+     * @throws PolicyException
      */
-    private void print(ResultType result) {
-        System.out.println("Decision = " + result.getDecision());
-        System.out.println("Obligations:");
-        ObligationsType obligations = result.getObligations();
-        if (obligations != null) {
-            for (ObligationType obligationType : obligations.getObligation()) {
-                System.out.println("... Id = " + obligationType.getObligationId());
-                System.out.println("... fulfillOn.name = " + obligationType.getFulfillOn().name());
-                System.out.println("... fulfillOn.value = " + obligationType.getFulfillOn().value());
-                List<AttributeAssignmentType> attrAssignmentTypes = obligationType.getAttributeAssignment();
-                for (AttributeAssignmentType attrAssignmentType : attrAssignmentTypes) {
-                    System.out.println("..... attributeId = " + attrAssignmentType.getAttributeId());
-                    System.out.println("..... dataType = " + attrAssignmentType.getDataType());
-                }
+    private PDPResponse send(PDPRequest pdpRequest, String endpointURL, boolean soap12) throws PolicyException {
+        try {
+            XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+            XACMLAuthzDecisionQueryElement authzDecisionQuery = requestBuilder.buildXACMLAuthzDecisionQuery(pdpRequest);
+            OMElement authzDecisionQueryNode = authzDecisionQuery.getElement();
+
+            // Make SOAP call to PDP.
+            Soap soap = new Soap();
+            OMElement samlResponseNode;
+            try {
+                samlResponseNode = soap.soapCall(
+                        authzDecisionQueryNode,
+                        endpointURL,
+                        false /* MTOM */,
+                        soap12 /* Addressing - Only if SOAP 1.2 */,
+                        soap12 /* SOAP 1.2 */,
+                        PolicyConstants.PDP_SOAP_ACTION, null);
+            } catch (Exception ex) {
+                throw new PolicyException(ex.getMessage());
             }
+            if (samlResponseNode == null) {
+                throw new PolicyException("No SOAP Response!");
+            }
+
+            XACMLResponseBuilder responseBuilder = new XACMLResponseBuilder();
+            PDPResponse pdpResponse = responseBuilder.buildPDPResponse(new SAMLResponseElement(samlResponseNode));
+            return pdpResponse;
+
+        } catch (Exception ex) {
+            throw new PolicyException(ex.getMessage());
         }
-        System.out.println("Status = " + result.getStatus().getStatusCode().getValue());
-        System.out.println("Resource Id = " + result.getResourceId());
     }
 }

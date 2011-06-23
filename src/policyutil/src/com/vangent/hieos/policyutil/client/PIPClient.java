@@ -43,33 +43,20 @@ public class PIPClient extends Client {
     public PatientConsentDirectives getPatientConsentDirectives(
             SubjectIdentifier patientId) throws AxisFault {
 
-        // TBD: MAY JUST SEND BACK RAW XML ... NOT SURE YET ... and use XPATH in Policy????
-        // TBD: OR SHOULD THIS JUST RETURN ATTRIBUTES?  WOULD NEED SUPPORT FOR BAGS ...
-        // FIXME: STUB!!!!
+        // FIXME: STUB
         PatientConsentDirectives pcd = new PatientConsentDirectives();
-
-        Organization org = new Organization();
-        SubjectIdentifier orgId = new SubjectIdentifier();
-        orgId.setIdentifier("1.1");
-        org.setId(orgId);
-        pcd.getAllowedOrganizations().add(org);
-
-        org = new Organization();
-        orgId = new SubjectIdentifier();
-        orgId.setIdentifier("1.2");
-        org.setId(orgId);
-        pcd.getAllowedOrganizations().add(org);
-
-        DocumentType docType = new DocumentType();
-        docType.setCode("code1");
-        docType.setCodeSystem("codesystem1");
-        pcd.getSensitiveDocumentTypes().add(docType);
-
-        docType = new DocumentType();
-        docType.setCode("code2");
-        docType.setCodeSystem("codesystem2");
-        pcd.getSensitiveDocumentTypes().add(docType);
-
+        String content = 
+                "<hieos-consent:ConsentDirectives xmlns:hieos-consent=\"urn:hieos:policy:1.0:consent\">"+
+                "  <hieos-consent:AllowedOrganizations>" +
+                "    <hieos-consent:Organization>1.1</hieos-consent:Organization>" +
+                "    <hieos-consent:Organization>1.2</hieos-consent:Organization>" +
+                "  </hieos-consent:AllowedOrganizations>" +
+                "  <hieos-consent:SensitiveDocumentTypes>" +
+                "    <hieos-consent:DocumentType code=\"1\" codeSystem=\"1\"/>" +
+                "    <hieos-consent:DocumentType code=\"2\" codeSystem=\"1\"/>" +
+                "  </hieos-consent:SensitiveDocumentTypes>" +
+                "</hieos-consent:ConsentDirectives>";
+        pcd.setContent(content);
         return pcd;
     }
 }
