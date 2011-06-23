@@ -228,7 +228,7 @@ public class XACMLResponseBuilder {
             OMElement responseNode = XPathHelper.selectSingleNode(samlResponseNode,
                     "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Response[1]", nsPrefixes, nsURIs);
 
-            ResponseType responseType = this.buildRequestType(new ResponseTypeElement(responseNode));
+            ResponseType responseType = this.buildResponseType(new ResponseTypeElement(responseNode));
             pdpResponse.setResponseType(responseType);
 
             // Find the Request
@@ -244,15 +244,80 @@ public class XACMLResponseBuilder {
         return pdpResponse;
     }
 
+//    <xacml-context:Response xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
+//       <xacml-context:Result ResourceId="PID^^^1" Decision="Permit">
+//             <xacml-context:Status>
+//                 <xacml-context:StatusCode>urn:oasis:names:tc:xacml:1.0:status:ok</xacml-context:StatusCode>
+//             </xacml-context:Status>
+//             <xacml-context:Obligations>
+//                 <xacml-context:Obligation FulfillOn="Permit" ObligationId="test-obligation">
+//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+//                 </xacml-context:Obligation>
+//                 <xacml-context:Obligation FulfillOn="Permit" ObligationId="sensitive-doc-types-obligation">
+//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+//                 </xacml-context:Obligation>
+//             </xacml-context:Obligations>
+//       </xacml-context:Result>
     /**
      * 
      * @param responseTypeElement
      * @return
      */
-    public ResponseType buildRequestType(ResponseTypeElement responseTypeElement) {
+    public ResponseType buildResponseType(ResponseTypeElement responseTypeElement) {
         ResponseType responseType = new ResponseType();
+        try {
+            OMElement responseNode = responseTypeElement.getElement();
+            String nsURI = PolicyConstants.XACML_CONTEXT_NS;
 
-        // TBD: Implement
+            // Result(s)
+            Iterator<OMElement> resultNodes = responseNode.getChildrenWithName(
+                    new QName(nsURI, "Result"));
+            while (resultNodes.hasNext()) {
+                // ResultType
+                OMElement resultNode = resultNodes.next();
+                String resourceId = resultNode.getAttributeValue(new QName("ResourceId"));
+                String decision = resultNode.getAttributeValue(new QName("Decision"));
+                ResultType resultType = new ResultType();
+                resultType.setResourceId(resourceId);
+
+                // DecisionType
+                DecisionType decisionType = DecisionType.fromValue(decision);
+                resultType.setDecision(decisionType);
+
+                // StatusType
+                OMElement statusCodeNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusCode[1]", nsURI);
+                if (statusCodeNode != null) {
+                    // FIXME: Handle status code messages, etc.
+                    String statusText = statusCodeNode.getText();
+                    StatusType statusType = new StatusType();
+                    StatusCodeType statusCodeType = new StatusCodeType();
+                    statusCodeType.setValue(statusText);
+                    statusType.setStatusCode(statusCodeType);
+                    resultType.setStatus(statusType);
+                }
+
+                // Obligation(s)
+                List<OMElement> obligationNodes = XPathHelper.selectNodes(resultNode, "./ns:Obligations/ns:Obligation", nsURI);
+                if (obligationNodes != null && !obligationNodes.isEmpty()) {
+                    ObligationsType obligationsType = new ObligationsType();
+                    resultType.setObligations(obligationsType);
+                    for (OMElement obligationNode : obligationNodes) {
+                        String obligationId = obligationNode.getAttributeValue(new QName("ObligationId"));
+                        String fulfillOn = obligationNode.getAttributeValue(new QName("FulfillOn"));
+                        ObligationType obligationType = new ObligationType();
+                        obligationType.setObligationId(obligationId);
+                        obligationType.setFulfillOn(EffectType.fromValue(fulfillOn));
+                        //  FIXME: Content
+                        obligationsType.getObligation().add(obligationType);
+                    }
+                }
+                responseType.getResult().add(resultType);
+            }
+
+        } catch (XPathHelperException ex) {
+            // FIXME: Do something?
+        }
         return responseType;
     }
 

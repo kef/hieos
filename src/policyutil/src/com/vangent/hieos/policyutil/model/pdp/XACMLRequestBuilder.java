@@ -173,11 +173,11 @@ public class XACMLRequestBuilder {
     public RequestType buildRequestType(RequestTypeElement requestTypeElement) {
         RequestType requestType = new RequestType();
         try {
-            OMElement request = requestTypeElement.getElement();
+            OMElement requestNode = requestTypeElement.getElement();
             String nsURI = PolicyConstants.XACML_CONTEXT_NS;
 
             // Action
-            OMElement actionNode = XPathHelper.selectSingleNode(request, "./ns:Action[1]", nsURI);
+            OMElement actionNode = XPathHelper.selectSingleNode(requestNode, "./ns:Action[1]", nsURI);
             if (actionNode != null) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(actionNode);
                 ActionType actionType = new ActionType();
@@ -186,7 +186,7 @@ public class XACMLRequestBuilder {
             }
 
             // Subjects
-            List<OMElement> subjectNodes = XPathHelper.selectNodes(request, "./ns:Subject[1]", nsURI);
+            List<OMElement> subjectNodes = XPathHelper.selectNodes(requestNode, "./ns:Subject[1]", nsURI);
             for (OMElement subjectNode : subjectNodes) {
                 String subjectCategory = subjectNode.getAttributeValue(new QName("SubjectCategory"));
                 List<AttributeType> attributeTypes = this.getAttributeTypes(subjectNode);
@@ -197,7 +197,7 @@ public class XACMLRequestBuilder {
             }
 
             // Resources
-            List<OMElement> resourceNodes = XPathHelper.selectNodes(request, "./ns:Resource[1]", nsURI);
+            List<OMElement> resourceNodes = XPathHelper.selectNodes(requestNode, "./ns:Resource[1]", nsURI);
             for (OMElement resourceNode : resourceNodes) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(resourceNode);
                 ResourceType resourceType = new ResourceType();
@@ -222,7 +222,7 @@ public class XACMLRequestBuilder {
             }
 
             // Environment
-            OMElement environmentNode = XPathHelper.selectSingleNode(request, "./ns:Environment[1]", nsURI);
+            OMElement environmentNode = XPathHelper.selectSingleNode(requestNode, "./ns:Environment[1]", nsURI);
             if (environmentNode != null) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(environmentNode);
                 EnvironmentType envType = new EnvironmentType();
