@@ -73,10 +73,13 @@
     -->
 
 	<!-- override -->
-    <target name="wsimport-client-XDSBridge" depends="wsimport-init">
+    <target name="-pre-compile">
         <mkdir dir="${build.generated.test-sources.dir}/wsimport" />
         <property name="wsdl-XDSBridge"
             location="${src.resources.dir}/META-INF/XDSBridge.wsdl" />
+ 	<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+            <classpath path="${libs.jaxws21.classpath}"/>
+ 	</taskdef>            
         <wsimport sourcedestdir="${build.generated.test-sources.dir}/wsimport"
             destdir="${build.generated.test-sources.dir}/wsimport"
             wsdl="${wsdl-XDSBridge}" xnocompile="true"

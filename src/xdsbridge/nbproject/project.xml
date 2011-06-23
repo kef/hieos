@@ -3,9 +3,6 @@
     <type>org.netbeans.modules.java.j2seproject</type>
     <configuration>
         <buildExtensions xmlns="http://www.netbeans.org/ns/ant-build-extender/1">
-            <extension file="jaxws-build.xml" id="jaxws">
-                <dependency dependsOn="wsimport-client-generate" target="-pre-pre-compile"/>
-            </extension>
             <extension file="axis2-build.xml" id="axis2">
                 <dependency dependsOn="axis2-aar" target="jar"/>
             </extension>
