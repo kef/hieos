@@ -20,6 +20,7 @@
                         <rim:Value>{LegalAuthenticatorExtension}^{LegalAuthenticatorLastName}^{LegalAuthenticatorFirstName}^^{LegalAuthenticatorSuffix}^{LegalAuthenticatorPrefix}^^^{LegalAuthenticatorRoot}</rim:Value>
                     </rim:ValueList>
                 </rim:Slot>
+                <!-- missing
                 <rim:Slot name="serviceStartTime">
                     <rim:ValueList>
                         <rim:Value>{ServiceStartTime}</rim:Value>
@@ -30,6 +31,7 @@
                         <rim:Value>{ServiceStopTime}</rim:Value>
                     </rim:ValueList>
                 </rim:Slot>
+                -->
                 <rim:Slot name="sourcePatientId">
                     <rim:ValueList>
                         <rim:Value>{SourcePatientExtension}^^^{SourcePatientRoot}</rim:Value>
@@ -55,11 +57,13 @@
                             <rim:Value>{AuthorInstitutionName}^^^^^{AuthorInstitutionRoot}^^^^{AuthorInstitutionExtension}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <!-- missing but added
                     <rim:Slot name="authorRole">  
                         <rim:ValueList>
                             <rim:Value>{AuthorRole}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    -->
                 </rim:Classification>
                 <rim:Classification 
                     classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" 
@@ -82,14 +86,14 @@
                     id="my_id_3"
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification"
                     nodeRepresentation="{DocumentConfidentialityCode}">
-                    <rim:Name>
-                        <rim:LocalizedString value="{DocumentConfidentialityDisplayName}"/>
-                    </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
                             <rim:Value>{DocumentConfidentialityCodeSystem}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="{DocumentConfidentialityDisplayName}"/>
+                    </rim:Name>
                 </rim:Classification>                
                 <rim:Classification 
                     classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" 
@@ -97,14 +101,14 @@
                     id="my_id_4"
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification"
                     nodeRepresentation="{DocumentFormatCode}">
-                    <rim:Name>
-                        <rim:LocalizedString value="{DocumentFormatDisplayName}"/>
-                    </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
                             <rim:Value>{DocumentFormatCodeSystem}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="{DocumentFormatDisplayName}"/>
+                    </rim:Name>
                 </rim:Classification>
                 <rim:Classification 
                     classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" 
@@ -112,14 +116,14 @@
                     id="my_id_5"
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification"
                     nodeRepresentation="{HealthcareFacilityTypeCode}">
-                    <rim:Name>
-                        <rim:LocalizedString value="{HealthcareFacilityTypeDisplayName}"/>
-                    </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
                             <rim:Value>{HealthcareFacilityTypeCodeSystem}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="{HealthcareFacilityTypeDisplayName}"/>
+                    </rim:Name>
                 </rim:Classification>
                 <rim:Classification 
                     classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" 
@@ -127,14 +131,14 @@
                     id="my_id_6"
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification"
                     nodeRepresentation="{PracticeSettingCode}">
-                    <rim:Name>
-                        <rim:LocalizedString value="{PracticeSettingDisplayName}" />
-                    </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
                             <rim:Value>{PracticeSettingCodeSystem}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="{PracticeSettingDisplayName}" />
+                    </rim:Name>
                 </rim:Classification>
                 <rim:Classification 
                     classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" 
@@ -142,16 +146,16 @@
                     nodeRepresentation="{DocumentTypeCode}"
                     id="my_id_7"
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification">
-                    <rim:Name>
-                        <rim:LocalizedString value="{DocumentTypeDisplayName}"/>
-                    </rim:Name>
                     <rim:Slot name="codingScheme">
                         <rim:ValueList>
                             <rim:Value>{DocumentTypeCodeSystem}</rim:Value>
                         </rim:ValueList>
                     </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="{DocumentTypeDisplayName}"/>
+                    </rim:Name>
                 </rim:Classification>
-
+                <!-- different scheme
                 <rim:ExternalIdentifier  
                     identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446"  
                     value="{PatientExtension}^^^{PatientRoot}" 
@@ -161,6 +165,7 @@
                         <rim:LocalizedString value = "XDSDocumentEntry.patientId"/> 
                     </rim:Name> 
                 </rim:ExternalIdentifier> 
+                -->
                 <rim:ExternalIdentifier 
                     identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" 
                     value="{DocumentUniqueId}"
@@ -184,17 +189,21 @@
                     </rim:ValueList>
                 </rim:Slot>
                
+               <!-- missing
                 <rim:Name> 
                     <rim:LocalizedString value="{DocumentTitle}"/> 
                 </rim:Name>
+                -->
                 
                 <!-- Classify registry package as being an XDSSubmissionSet -->
+                <!-- moved to be sibling of RegistryPackage
                 <Classification 
                     classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd"
                     classifiedObject="SubmissionSet{EntryUUID}" 
                     id="my_id_45" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" />
-                    
+                -->
+                
                 <rim:Classification
                     classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d"
                     classifiedObject="SubmissionSet{EntryUUID}"
