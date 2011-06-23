@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 public class PDP extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(PDP.class);
-    private static ClassLoader classLoader;
 
     /**
      *
@@ -49,7 +48,7 @@ public class PDP extends XAbstractService {
             validateNoMTOM();
             PDPRequestHandler handler =
                     new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(authorizeRequest, this.classLoader);
+            OMElement result = handler.run(authorizeRequest);
             endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
@@ -65,7 +64,6 @@ public class PDP extends XAbstractService {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("PDP::startUp()");
-        this.classLoader = service.getClassLoader();
     }
 
     /**

@@ -85,25 +85,16 @@ public class AttributeFinder {
             resourceContentType.getContent().add(node);
             resourceType.setResourceContent(resourceContentType);
 
-            // DEBUG
-            /*System.out.println("+++++++++++++++");
-            TransformerFactory tFactory =
-                    TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer();
-            DOMSource source = new DOMSource(document);
-            StreamResult result = new StreamResult(System.out);
-            transformer.transform(source, result);
-            System.out.println("+++++++++++++++");*/
-
         } catch (Exception ex) {
             throw new PolicyException("Exception trying to get Consent Directives: " + ex.getMessage());
         }
     }
 
     /**
-     *
+     * 
      * @param patientId
      * @return
+     * @throws PolicyException
      */
     private PatientConsentDirectives getPatientConsentDirectives(SubjectIdentifier patientId) throws PolicyException {
         try {

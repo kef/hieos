@@ -17,6 +17,9 @@ package com.vangent.hieos.services.pdp.impl;
  *
  * @author Bernie Thuman
  */
+
+// Adapted from SimplePDP.java (see below notice):
+
 /*
  * @(#)SimplePDP.java
  *
@@ -59,10 +62,6 @@ import com.sun.xacml.ParsingException;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
 
-import com.sun.xacml.cond.FunctionFactory;
-import com.sun.xacml.cond.FunctionFactoryProxy;
-import com.sun.xacml.cond.StandardFunctionFactory;
-import com.sun.xacml.cond.TimeInRangeFunction;
 import com.sun.xacml.ctx.RequestCtx;
 
 import com.sun.xacml.ctx.ResponseCtx;
