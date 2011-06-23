@@ -17,5 +17,5 @@ package com.vangent.hieos.policyutil.util;
  * @author Bernie Thuman
  */
 public class PolicyUtil {
-    // FIXME: Do we need this class - been refactored to nothing??
+    // FIXME: Do we need this class - has been refactored to nothing??
 }

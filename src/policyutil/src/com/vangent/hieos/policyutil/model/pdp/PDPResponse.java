@@ -12,25 +12,31 @@
  */
 package com.vangent.hieos.policyutil.model.pdp;
 
+import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
+
 /**
  *
  * @author Bernie Thuman
  */
 public class PDPResponse {
-    // TODO: Add Obligations, etc.
-    public enum Decision {
-        PERMIT,
-        DENY,
-        INDETERMINATE,
-        NOT_APPLICABLE
-    }
-    private Decision decision;
 
-    public Decision getDecision() {
-        return decision;
+    private RequestType requestType;
+    private ResponseType responseType;
+
+    public RequestType getRequestType() {
+        return requestType;
     }
 
-    public void setDecision(Decision decision) {
-        this.decision = decision;
+    public void setRequestType(RequestType requestType) {
+        this.requestType = requestType;
+    }
+
+    public ResponseType getResponseType() {
+        return responseType;
+    }
+
+    public void setResponseType(ResponseType responseType) {
+        this.responseType = responseType;
     }
 }

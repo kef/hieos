@@ -51,9 +51,25 @@ public class PolicyConstants {
     public final static String WSSECURITY_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
     public final static String WSSECURITY_UTILITY_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
     public final static String WSADDRESSING_NS = "http://www.w3.org/2005/08/addressing";
-    public final static String XSPA_CLAIMS_NS = "urn:oasis:names:tc:xspa:1.0:claims";
-    public final static String SAML2_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
     public final static String XML_DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+
+    public final static String XSPA_CLAIMS_NS = "urn:oasis:names:tc:xspa:1.0:claims";
+
+    public final static String XACML_CONTEXT_NS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
+    public final static String XACML_SAML_NS = "urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os";
+    public final static String XACML_SAML_PROTOCOL_NS ="urn:oasis:names:tc:xacml:2.0:saml:protocol:schema:os";
+    
+    public final static String SAML2_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
+    public final static String SAML2_PROTOCOL_NS ="urn:oasis:names:tc:SAML:2.0:protocol";
+
+    // Namespace prefixes.
+    public final static String XACML_CONTEXT_NS_PREFIX = "xacml-context";
+    public final static String XACML_SAML_NS_PREFIX = "xacml-saml";
+    public final static String XACML_SAML_PROTOCOL_NS_PREFIX ="xacml-samlp";
+
+    public final static String SAML2_NS_PREFIX = "saml";
+    public final static String SAML2_PROTOCOL_NS_PREFIX ="samlp";
+
 
     // STS Request Types
     public final static String ISSUE_REQUEST_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue";

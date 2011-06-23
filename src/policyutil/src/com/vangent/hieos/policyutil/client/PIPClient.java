@@ -14,8 +14,6 @@ package com.vangent.hieos.policyutil.client;
 
 import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.policyutil.model.patientconsent.DocumentType;
-import com.vangent.hieos.policyutil.model.patientconsent.Organization;
 import com.vangent.hieos.policyutil.model.patientconsent.PatientConsentDirectives;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.axis2.AxisFault;

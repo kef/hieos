@@ -18,10 +18,15 @@ import com.sun.xacml.ctx.ResponseCtx;
 import com.sun.xacml.ctx.Result;
 import com.sun.xacml.ctx.Status;
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
@@ -67,9 +72,8 @@ public class XACMLResponseBuilder {
      * @throws PolicyException
      */
     public ResponseTypeElement buildResponseTypeElement(ResponseType responseType) throws PolicyException {
-// FIXME: namespace hardcoding
-        String nsURI = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
-        String nsPrefix = "xacml-context";
+        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
+        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         // Response
@@ -81,7 +85,9 @@ public class XACMLResponseBuilder {
             String decision = resultType.getDecision().value();
             String statusCode = resultType.getStatus().getStatusCode().getValue();
             OMElement resultNode = omfactory.createOMElement(new QName(nsURI, "Result", nsPrefix));
-            resultNode.addAttribute("ResourceId", resourceId, null);
+            if (resourceId != null) {
+                resultNode.addAttribute("ResourceId", resourceId, null);
+            }
             resultNode.addAttribute("Decision", decision, null);
             OMElement statusNode = omfactory.createOMElement(new QName(nsURI, "Status", nsPrefix));
             OMElement statusCodeNode = omfactory.createOMElement(new QName(nsURI, "StatusCode", nsPrefix));
@@ -200,36 +206,81 @@ public class XACMLResponseBuilder {
 
     /**
      * 
-     * @param result
+     * @param samlResponse
      * @return
      */
     public PDPResponse buildPDPResponse(SAMLResponseElement samlResponse) {
         PDPResponse pdpResponse = new PDPResponse();
+        OMElement samlResponseNode = samlResponse.getElement();
 
-        // TBD: Implement ...
-        // TBD: Obligations
+        // Not using constants here (as the constants may change but these prefixes should stay
+        // as they are only used to support xpath.
+        String nsPrefixes[] = {
+            "xacml-saml",
+            "xacml-context",
+            "saml"};
+        String nsURIs[] = {
+            PolicyConstants.XACML_SAML_NS,
+            PolicyConstants.XACML_CONTEXT_NS,
+            PolicyConstants.SAML2_NS};
+        try {
+            // Find the Response
+            OMElement responseNode = XPathHelper.selectSingleNode(samlResponseNode,
+                    "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Response[1]", nsPrefixes, nsURIs);
+
+            ResponseType responseType = this.buildRequestType(new ResponseTypeElement(responseNode));
+            pdpResponse.setResponseType(responseType);
+
+            // Find the Request
+            OMElement requestNode = XPathHelper.selectSingleNode(samlResponseNode,
+                    "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Request[1]", nsPrefixes, nsURIs);
+
+            XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+            RequestType requestType = requestBuilder.buildRequestType(new RequestTypeElement(requestNode));
+            pdpResponse.setRequestType(requestType);
+        } catch (XPathHelperException ex) {
+            // FIXME: ? Do something ?
+        }
         return pdpResponse;
     }
 
     /**
      * 
+     * @param responseTypeElement
      * @return
+     */
+    public ResponseType buildRequestType(ResponseTypeElement responseTypeElement) {
+        ResponseType responseType = new ResponseType();
+
+        // TBD: Implement
+        return responseType;
+    }
+
+    /**
+     *
+     * @param requestType
+     * @param responseType
+     * @return
+     * @throws PolicyException
      */
     public SAMLResponseElement buildSAMLResponse(RequestType requestType, ResponseType responseType) throws PolicyException {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         //     <saml2p:Response Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
-        OMElement saml2pResponseNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:SAML:2.0:protocol", "Response", "saml2p"));
+        OMElement saml2pResponseNode = omfactory.createOMElement(
+                new QName(PolicyConstants.SAML2_PROTOCOL_NS, "Response", PolicyConstants.SAML2_PROTOCOL_NS_PREFIX));
         saml2pResponseNode.addAttribute("Version", "2.0", null);
 
         // <saml2:Assertion ID="2607abfd-36d6-4260-9d7b-1c79a1bce458" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
-        OMElement assertionNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "saml"));
+        OMElement assertionNode = omfactory.createOMElement(
+                new QName(PolicyConstants.SAML2_NS, "Assertion", PolicyConstants.SAML2_NS_PREFIX));
         assertionNode.addAttribute("Version", "2.0", null);
         assertionNode.addAttribute("ID", UUID.randomUUID().toString(), null);
         saml2pResponseNode.addChild(assertionNode);
 
         //<xacml-saml:XACMLAuthzDecisionStatement xmlns:xacml-saml="urn:oasis:names:tc:xacml:2.0:profile:saml2.0:v2:schema:assertion">
-        OMElement authzDecisionStatementNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:xacml:2.0:profile:saml2.0:v2:schema:assertion", "XACMLAuthzDecisionStatement", "xacml-saml"));
+        OMElement authzDecisionStatementNode = omfactory.createOMElement(
+                new QName(PolicyConstants.XACML_SAML_NS, "XACMLAuthzDecisionStatement", PolicyConstants.XACML_SAML_NS_PREFIX));
         assertionNode.addChild(authzDecisionStatementNode);
 
         // Convert JAXB RequestType to OMElement

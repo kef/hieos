@@ -32,14 +32,17 @@ import oasis.names.tc.xacml._2_0.context.schema.os.AttributeType;
 import oasis.names.tc.xacml._2_0.context.schema.os.AttributeValueType;
 import oasis.names.tc.xacml._2_0.context.schema.os.EnvironmentType;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResourceContentType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResourceType;
 import oasis.names.tc.xacml._2_0.context.schema.os.SubjectType;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
+import org.apache.axis2.util.XMLUtils;
 
 import org.joda.time.DateTime;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -79,9 +82,8 @@ public class XACMLRequestBuilder {
      * @throws PolicyException
      */
     public RequestTypeElement buildRequestTypeElement(RequestType requestType) throws PolicyException {
-        // FIXME: namespace hardcoding
-        String nsURI = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
-        String nsPrefix = "xacml-context";
+        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
+        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         // Request
@@ -100,7 +102,21 @@ public class XACMLRequestBuilder {
         for (ResourceType resourceType : requestType.getResource()) {
             OMElement resourceNode = omfactory.createOMElement(new QName(nsURI, "Resource", nsPrefix));
             this.addAttributes(resourceNode, omfactory, resourceType.getAttribute());
-            // FIXME: ResourceContent
+
+            // ResourceContent
+            ResourceContentType resourceContentType = resourceType.getResourceContent();
+            if (resourceContentType != null && !resourceContentType.getContent().isEmpty()) {
+                OMElement resourceContentNode = omfactory.createOMElement(new QName(nsURI, "ResourceContent", nsPrefix));
+                Element contentElement = (Element) resourceContentType.getContent().get(0);
+                try {
+                    // Convert to OMElement.
+                    OMElement contentNode = XMLUtils.toOM(contentElement);
+                    resourceContentNode.addChild(contentNode);
+                } catch (Exception ex) {
+                    throw new PolicyException("Unable to get ResourceContent: " + ex.getMessage());
+                }
+                resourceNode.addChild(resourceContentNode);
+            }
             requestNode.addChild(resourceNode);
         }
 
@@ -126,9 +142,8 @@ public class XACMLRequestBuilder {
      * @param attributeTypes
      */
     private void addAttributes(OMElement rootNode, OMFactory omfactory, List<AttributeType> attributeTypes) {
-        // FIXME: namespace hardcoding
-        String nsURI = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
-        String nsPrefix = "xacml-context";
+        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
+        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         for (AttributeType attributeType : attributeTypes) {
             String attributeId = attributeType.getAttributeId();
             String dataType = attributeType.getDataType();
@@ -159,9 +174,7 @@ public class XACMLRequestBuilder {
         RequestType requestType = new RequestType();
         try {
             OMElement request = requestTypeElement.getElement();
-
-            // FIXME: namespace hardcoding
-            String nsURI = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
+            String nsURI = PolicyConstants.XACML_CONTEXT_NS;
 
             // Action
             OMElement actionNode = XPathHelper.selectSingleNode(request, "./ns:Action[1]", nsURI);
@@ -188,7 +201,22 @@ public class XACMLRequestBuilder {
             for (OMElement resourceNode : resourceNodes) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(resourceNode);
                 ResourceType resourceType = new ResourceType();
-                // FIXME: ResourceContent
+                OMElement resourceContentNode = resourceNode.getFirstChildWithName(new QName(nsURI, "ResourceContent"));
+                if (resourceContentNode != null) {
+                    Iterator<OMElement> it = resourceContentNode.getChildElements();
+                    if (it.hasNext()) {
+                        OMElement childNode = it.next();  // Just get first.
+                        try {
+                            Element childElement = XMLUtils.toDOM(childNode);
+                            ResourceContentType resourceContentType = new ResourceContentType();
+                            resourceContentType.getContent().add(childElement);
+                            resourceType.setResourceContent(resourceContentType);
+                        } catch (Exception ex) {
+                            // FIXME: ? Do nothing
+                        }
+                    }
+                }
+
                 resourceType.getAttribute().addAll(attributeTypes);
                 requestType.getResource().add(resourceType);
             }
@@ -243,7 +271,7 @@ public class XACMLRequestBuilder {
      * @return
      */
     private Iterator<OMElement> getAttributeNodes(OMElement rootNode) {
-        return rootNode.getChildrenWithLocalName("Attribute");
+        return rootNode.getChildrenWithName(new QName(PolicyConstants.XACML_CONTEXT_NS, "Attribute"));
     }
 
     /**
@@ -252,7 +280,7 @@ public class XACMLRequestBuilder {
      * @return
      */
     private Iterator<OMElement> getAttributeValueNodes(OMElement rootNode) {
-        return rootNode.getChildrenWithLocalName("AttributeValue");
+        return rootNode.getChildrenWithName(new QName(PolicyConstants.XACML_CONTEXT_NS, "AttributeValue"));
     }
 
     /**
@@ -275,7 +303,7 @@ public class XACMLRequestBuilder {
      */
     private void buildAttributes(PDPRequest pdpRequest, SAML2Assertion saml2Assertion) {
         PolicyConfig pConfig = PolicyConfig.getInstance();
-        // TBD:
+        // TBD: Implement (mainly to support PEP).
 /*
         // Get OpenSAML assertion.
         Assertion assertion = saml2Assertion.getAssertion();
@@ -336,10 +364,8 @@ public class XACMLRequestBuilder {
     public XACMLAuthzDecisionQueryElement buildXACMLAuthzDecisionQuery(PDPRequest pdpRequest) throws PolicyException {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
-        // FIXME: Remove hardwired prefix/URIs
-
         // Build XACMLAuthzDecisionQueryElement
-        OMElement authzDecisionQueryNode = omfactory.createOMElement(new QName("urn:oasis:xacml:2.0:saml:protocol:schema:os", "XACMLAuthzDecisionQuery", "xacml-samlp"));
+        OMElement authzDecisionQueryNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_SAML_PROTOCOL_NS, "XACMLAuthzDecisionQuery", PolicyConstants.XACML_SAML_PROTOCOL_NS_PREFIX));
         authzDecisionQueryNode.addAttribute("InputContextOnly", "false", null);
         authzDecisionQueryNode.addAttribute("ReturnContext", "true", null);
         authzDecisionQueryNode.addAttribute("ID", UUID.randomUUID().toString(), null);
