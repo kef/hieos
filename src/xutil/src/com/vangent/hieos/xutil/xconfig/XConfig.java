@@ -621,7 +621,7 @@ public class XConfig {
      * @param localName Local name to find.
      * @return List<OMElement>
      */
-    protected static List<OMElement> parseLevelOneNode(OMElement rootNode, String localName) {
+    public static List<OMElement> parseLevelOneNode(OMElement rootNode, String localName) {
         ArrayList<OMElement> al = new ArrayList<OMElement>();
         for (Iterator it = rootNode.getChildElements(); it.hasNext();) {
             OMElement child = (OMElement) it.next();
