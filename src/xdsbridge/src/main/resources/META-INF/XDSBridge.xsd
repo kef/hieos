@@ -77,7 +77,7 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:element name="Response" type="tns:ResponseType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="Response" type="tns:ResponseType" maxOccurs="unbounded" />
             <xsd:attribute name="status" use="required">
                 <xsd:simpleType>
                     <xsd:restriction base="xsd:string">
@@ -92,10 +92,17 @@
 
     <xsd:complexType name="ResponseType">
         <xsd:sequence>
-            <xsd:element name="Code" type="xsd:string" />
             <xsd:element name="DocumentId" type="xsd:string" minOccurs="0" />
             <xsd:element name="Message" type="xsd:string" minOccurs="0" />
         </xsd:sequence>
+        <xsd:attribute name="status" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="Success" />
+                    <xsd:enumeration value="Failure" />
+                </xsd:restriction>
+            </xsd:simpleType>                
+        </xsd:attribute>
     </xsd:complexType>
 
 </xsd:schema>
