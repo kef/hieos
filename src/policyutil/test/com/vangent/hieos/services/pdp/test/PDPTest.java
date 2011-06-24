@@ -82,32 +82,32 @@ public class PDPTest {
 
         // subject-id
         StringValueAttribute attrSubjectId = new StringValueAttribute();
-        attrSubjectId.setId(PolicyConstants.XACML_SUBJECT_ID);
+        attrSubjectId.setId("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
         attrSubjectId.setValue("SUBJECT-ID");
 
         // organization
         StringValueAttribute attrOrganization = new StringValueAttribute();
-        attrOrganization.setId(PolicyConstants.XACML_SUBJECT_ORGANIZATION);
+        attrOrganization.setId("urn:oasis:names:tc:xspa:1.0:subject:organization");
         attrOrganization.setValue("ORG");
 
         // organization-id
         StringValueAttribute attrOrganizationId = new StringValueAttribute();
-        attrOrganizationId.setId(PolicyConstants.XACML_SUBJECT_ORGANIZATION_ID);
+        attrOrganizationId.setId("urn:oasis:names:tc:xspa:1.0:subject:organization-id");
         attrOrganizationId.setValue("1.1");
 
         // role
         StringValueAttribute attrRole = new StringValueAttribute();
-        attrRole.setId(PolicyConstants.XACML_SUBJECT_ROLE);
+        attrRole.setId("urn:oasis:names:tc:xacml:2.0:subject:role");
         attrRole.setValue("DOCTOR");
 
         // purposeofuse
         StringValueAttribute attrPurposeOfUse = new StringValueAttribute();
-        attrPurposeOfUse.setId(PolicyConstants.XACML_SUBJECT_PURPOSE_OF_USE);
+        attrPurposeOfUse.setId("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse");
         attrPurposeOfUse.setValue("TREATMENT");
 
         // npi
         StringValueAttribute attrNPI = new StringValueAttribute();
-        attrNPI.setId(PolicyConstants.XACML_SUBJECT_NPI);
+        attrNPI.setId("urn:oasis:names:tc:xspa:2.0:subject:npi");
         attrNPI.setValue("NPI");
 
         // TODO: Test CodedValue Types.
@@ -124,7 +124,7 @@ public class PDPTest {
 
         // resource-id
         StringValueAttribute attrResourceId = new StringValueAttribute();
-        attrResourceId.setId(PolicyConstants.XACML_RESOURCE_ID);
+        attrResourceId.setId("urn:oasis:names:tc:xacml:1.0:resource:resource-id");
         attrResourceId.setValue("RESOURCE-ID");
         resourceAttributes.add(attrResourceId);
 

@@ -19,23 +19,7 @@ package com.vangent.hieos.policyutil.util;
 public class PolicyConstants {
     static public final String XACML_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
-    // Subject attribute identifiers
-    static public final String XACML_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
-    static public final String XACML_SUBJECT_ORGANIZATION = "urn:oasis:names:tc:xspa:1.0:subject:organization";
-    static public final String XACML_SUBJECT_ORGANIZATION_ID = "urn:oasis:names:tc:xspa:1.0:subject:organization-id";
-    static public final String XACML_SUBJECT_ROLE = "urn:oasis:names:tc:xacml:2.0:subject:role";
-    static public final String XACML_SUBJECT_PURPOSE_OF_USE = "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse";
-    static public final String XACML_SUBJECT_NPI = "urn:oasis:names:tc:xspa:2.0:subject:npi";
-    static public final String XACML_SUBJECT_HL7_PERMISSION = "urn:oasis:names:tc:xspa:1.0:subject:hl7:permission";
-
-    // Resource attribute identifiers
-    static public final String XACML_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
-    static public final String XACML_RESOURCE_HL7_TYPE = "urn:oasis:names:tc:xspa:1.0:resource:hl7:type";
-
-    // Environment attribute identifiers
-    static public final String XACML_ENVIRONMENT_LOCALITY = "urn:oasis:names:tc:xspa:1.0:environment:locality";
-
-    // Pulled from the PIP
+    // Pulled from the PIP (FIXME: put somewhere in policyConfig.xml)
     static public final String XACML_RESOURCE_ALLOWED_ORGANIZATIONS = "urn:oasis:names:tc:xspa:1.0:resource:org:allowed-organizations";
     static public final String XACML_RESOURCE_BLOCKED_ORGANIZATIONS = "urn:oasis:names:tc:xspa:1.0:resource:org:blocked-organizations";
     static public final String XACML_RESOURCE_SENSITIVE_DOCUMENT_TYPES = "urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types";
