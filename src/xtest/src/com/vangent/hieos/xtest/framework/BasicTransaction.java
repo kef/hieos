@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoMetadataException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
@@ -31,10 +32,13 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -90,6 +94,7 @@ public abstract class BasicTransaction extends OmLogger {
 
     protected abstract String getRequestAction();
 
+    @Override
     public String toString() {
         String exceptionString = "";
 
@@ -204,7 +209,7 @@ public abstract class BasicTransaction extends OmLogger {
         RegistryErrorList rel = null;
 
         try {
-            rel = RegistryUtility.metadata_validator(new MetadataParser().parseNonSubmission(registry_result), false);
+            rel = RegistryUtility.metadata_validator(MetadataParser.parseNonSubmission(registry_result), false);
         } catch (NoMetadataException e) {
             // not all responses contain metadata
             rel = new RegistryErrorList();
@@ -214,8 +219,8 @@ public abstract class BasicTransaction extends OmLogger {
         returned_code_contexts.addAll(validatorErrors);
 
         eval_expected_status(status, returned_code_contexts);
-        if (step_failure == false && validatorErrors.size() != 0) {
-            StringBuffer msg = new StringBuffer();
+        if (step_failure == false && !validatorErrors.isEmpty()) {
+            StringBuilder msg = new StringBuilder();
             for (int i = 0; i < validatorErrors.size(); i++) {
                 msg.append(validatorErrors.get(i));
                 msg.append("\n");
@@ -389,10 +394,10 @@ public abstract class BasicTransaction extends OmLogger {
             endpoint = TestConfig.xtestConfig.getRegistryEndpoint(TestConfig.target, registryName, trans, TestConfig.secure, async);
 
             if (endpoint == null || endpoint.equals("")) {
-                fatal("No endpoint specified for transaction " + trans + " and XDS version " + xds_version_name() +
-                        " and secure = " + TestConfig.secure +
-                        "\nasync = " + async +
-                        " on server " + TestConfig.target);
+                fatal("No endpoint specified for transaction " + trans + " and XDS version " + xds_version_name()
+                        + " and secure = " + TestConfig.secure
+                        + "\nasync = " + async
+                        + " on server " + TestConfig.target);
             }
             s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
             logger.info("Set Registry Endpoint = " + endpoint);
@@ -405,10 +410,10 @@ public abstract class BasicTransaction extends OmLogger {
 
         s_ctx.add_name_value(instruction_output, "Endpoint", endpoint);
         if (endpoint == null) {
-            fatal("Cannot get repository endpoint from configuration:" +
-                    "\nrepositoryUniqueId=" + repositoryUniqueId +
-                    "\nisSecure = " + TestConfig.secure +
-                    "\nasync = " + async);
+            fatal("Cannot get repository endpoint from configuration:"
+                    + "\nrepositoryUniqueId=" + repositoryUniqueId
+                    + "\nisSecure = " + TestConfig.secure
+                    + "\nasync = " + async);
         }
     }
 
@@ -447,7 +452,7 @@ public abstract class BasicTransaction extends OmLogger {
             }
 
         } catch (MetadataException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             fatal("Error parsing metadata: filename is " + metadata_filename + ", Error is: " + e.getMessage());
         } catch (MetadataValidationException e) {
             this.s_ctx.metadata_validation_error(e.getMessage());
@@ -676,11 +681,11 @@ public abstract class BasicTransaction extends OmLogger {
         }
 
         Metadata m = MetadataParser.parseNonSubmission(result.getFirstElement());
-        if (m.getExtrinsicObjectIds().size() == 0) {
-            fail("No ExtrinsicObjects found in log file " + log_file + " step " + step_id +
-                    " with transaction type " + transaction_type);
-            throw new XdsException("No ExtrinsicObjects found in log file " + log_file + " step " + step_id +
-                    " with transaction type " + transaction_type);
+        if (m.getExtrinsicObjectIds().isEmpty()) {
+            fail("No ExtrinsicObjects found in log file " + log_file + " step " + step_id
+                    + " with transaction type " + transaction_type);
+            throw new XdsException("No ExtrinsicObjects found in log file " + log_file + " step " + step_id
+                    + " with transaction type " + transaction_type);
         }
         OMElement eo = m.getExtrinsicObject(0);
         //dd.uri = m.getSlotValue(eo, "URI", 0);
@@ -786,8 +791,8 @@ public abstract class BasicTransaction extends OmLogger {
                     getRequestAction(),
                     getResponseAction());
             long stopTime = System.currentTimeMillis();
-            System.out.println("  ...SOAP call complete (" +
-                    new Long(stopTime - startTime).toString() + " msecs)");
+            System.out.println("  ...SOAP call complete ("
+                    + new Long(stopTime - startTime).toString() + " msecs)");
         } catch (XdsException e) {
             s_ctx.set_error(e.getMessage());
             failed();
@@ -801,7 +806,7 @@ public abstract class BasicTransaction extends OmLogger {
             s_ctx.add_name_value(instruction_output, "Result", getSoapResult());
         } catch (Exception e) {
             System.out.println("oops");
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
 
         if (s_ctx.expectedstatus) {
@@ -828,7 +833,7 @@ public abstract class BasicTransaction extends OmLogger {
      */
     protected void setXUAConfiguration() {
         String site = TestConfig.target;
-        boolean xuaEnabled = new Boolean(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Enabled"));
+        boolean xuaEnabled = Boolean.valueOf(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Enabled"));
         if (xuaEnabled == true) {
             xuaObject = new XUAObject();
             xuaObject.setXUAEnabled(true);
@@ -837,8 +842,31 @@ public abstract class BasicTransaction extends OmLogger {
             xuaObject.setPassword(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Password"));
             xuaObject.setSTSUrl(TestConfig.xtestConfig.getSiteProperty(site, "XUA:STSURL"));
             xuaObject.setXUASupportedSOAPActions(TestConfig.xtestConfig.getSiteProperty(site, "XUA:SOAPActions"));
+            xuaObject.setClaims(this.getClaims().cloneOMElement());
         } else {
             xuaObject = null;
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    private OMElement getClaims() {
+        if (TestConfig.claims != null) {
+            return TestConfig.claims;
+        }
+        try {
+            String claimsFilePath = TestConfig.testmgmt_dir + "claims.xml";
+            String claimsXML = Io.getStringFromInputStream(new FileInputStream(new File(claimsFilePath)));
+            TestConfig.claims = XMLParser.stringToOM(claimsXML);
+        } catch (XMLParserException ex) {
+            ex.printStackTrace(System.err);
+            System.err.println("Exception trying to load claims.xml: " + ex.getMessage());
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+            System.err.println("Exception trying to load claims.xml: " + ex.getMessage());
+        }
+        return TestConfig.claims;
     }
 }

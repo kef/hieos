@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.apache.axiom.om.OMElement;
 
 public class TestConfig {
 	// Directory holding testplan.xml and its support files
@@ -49,7 +50,7 @@ public class TestConfig {
 	
 	static public boolean secure = false;
 	
-	
+	static public OMElement claims = null;
 	
 	
 	static public void rememberPatientId(String pid) throws FileNotFoundException, IOException {

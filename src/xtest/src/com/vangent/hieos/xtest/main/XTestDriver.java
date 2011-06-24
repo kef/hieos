@@ -102,6 +102,7 @@ public class XTestDriver {
             TestConfig.secure = secure;
             driver.setConfig(siteName);
         } catch (XdsInternalException ex) {
+            ex.printStackTrace();
             System.exit(-1);
         }
         List<TestSpec> testSpecs = null;
