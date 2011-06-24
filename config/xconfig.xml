@@ -142,6 +142,22 @@
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
+    <!-- XDS Bridge -->
+    <Actor name="localxdsbridge" type="XDSBridgeType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="SubmitDocumentRequest" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsbridge</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsbridge</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
+        <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
+        <!-- add properties here 
+        <Property name="TBD">TBD</Property>
+		-->
+   </Actor>
+
    <!-- List of Registries -->
     <Actor name="localregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
