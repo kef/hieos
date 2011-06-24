@@ -1,0 +1,20 @@
+<wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>Joe Smith</xspa:ClaimValue>
+    </xspa:ClaimType>
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>TREATMENT</xspa:ClaimValue>
+    </xspa:ClaimType>
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>1.1</xspa:ClaimValue>
+    </xspa:ClaimType>
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>HIP-O Organization Name</xspa:ClaimValue>
+    </xspa:ClaimType>
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>Some Role</xspa:ClaimValue>
+    </xspa:ClaimType>
+    <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:resource:resource-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+        <xspa:ClaimValue>PID</xspa:ClaimValue>
+    </xspa:ClaimType>
+</wst:Claims>
