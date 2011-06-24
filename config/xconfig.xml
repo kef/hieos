@@ -153,9 +153,9 @@
         </Transaction>
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
         <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
-        <!-- add properties here 
-        <Property name="TBD">TBD</Property>
-		-->
+
+        <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
+
    </Actor>
 
    <!-- List of Registries -->
