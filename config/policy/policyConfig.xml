@@ -30,5 +30,15 @@
     <EnvironmentAttributes>
         <Attribute id="urn:oasis:names:tc:xspa:1.0:environment:locality" type="string" />
     </EnvironmentAttributes>
+
+    <!-- List of required claims -->
+    <RequiredClaims>
+        <Claim id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
+        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
+        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
+        <Claim id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
+        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" />
+        <Claim id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
+    </RequiredClaims>
     
 </Config>
