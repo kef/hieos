@@ -106,6 +106,10 @@
         <Code code="11502-2" codingScheme="2.16.840.1.113883.6.1"
 			display="LABORATORY REPORT.TOTAL" />
 
+		<!-- Added for new content type 06/23/2011 -->
+        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
+			display="Shared Health Summary" />
+
     </CodeType>
     <CodeType name="classCode" classScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a">
 		
@@ -275,6 +279,11 @@
 
         <Code code="MPQ-classcode-2" codingScheme="Connect-a-thon classCodes"
 			display="MPQ-classcode-2" />
+
+		<!-- Added for new content type 06/23/2011 -->
+        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
+			display="Shared Health Summary" />
+
 
     </CodeType>
     <CodeType name="confidentialityCode" classScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f">
@@ -1684,6 +1693,10 @@
 			display="CYTOLOGY STUDIES" />
         <Code code="11502-2" codingScheme="2.16.840.1.113883.6.1"
 			display="LABORATORY REPORT.TOTAL" />
+
+		<!-- Added for new content type 06/23/2011 -->
+        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
+			display="Shared Health Summary" />
 
     </CodeType>
 	<!--
