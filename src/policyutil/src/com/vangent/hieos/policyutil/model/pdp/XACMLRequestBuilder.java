@@ -266,7 +266,7 @@ public class XACMLRequestBuilder {
      * @param saml2Assertion
      * @return
      */
-    public PDPRequest buildPDPRequest(String action, SAML2Assertion saml2Assertion) {
+    public PDPRequest buildPDPRequest(String action, SAML2Assertion saml2Assertion) throws PolicyException {
         PDPRequest request = new PDPRequest();
         request.setAction(action);
         this.buildAttributes(request, saml2Assertion);
@@ -356,9 +356,9 @@ public class XACMLRequestBuilder {
      * @param pdpRequest
      * @param saml2Assertion
      */
-    private void buildAttributes(PDPRequest pdpRequest, SAML2Assertion saml2Assertion) {
-        PolicyConfig pConfig = PolicyConfig.getInstance();
+    private void buildAttributes(PDPRequest pdpRequest, SAML2Assertion saml2Assertion) throws PolicyException {
         OMElement assertionNode = saml2Assertion.getElement();
+        PolicyConfig pConfig = PolicyConfig.getInstance();
         try {
             List<OMElement> attributeNodes = XPathHelper.selectNodes(assertionNode, "./ns:AttributeStatement/ns:Attribute", PolicyConstants.SAML2_NS);
             for (OMElement attributeNode : attributeNodes) {

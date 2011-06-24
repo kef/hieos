@@ -20,8 +20,6 @@ import com.vangent.hieos.policyutil.model.pdp.SAMLResponseElement;
 import com.vangent.hieos.policyutil.model.pdp.XACMLAuthzDecisionQueryElement;
 import com.vangent.hieos.policyutil.model.pdp.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
-import com.vangent.hieos.policyutil.model.saml.SAML2Assertion;
-import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
@@ -53,9 +51,10 @@ public class PDPClient extends Client {
             // Get configuration.
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("Authorize");
+            String soapAction = config.getProperty("AuthorizeSOAPAction");
 
             // Perform SOAP call to PDP.
-            PDPResponse pdpResponse = this.send(pdpRequest, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            PDPResponse pdpResponse = this.send(pdpRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
             return pdpResponse;
         } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Decision Point: " + ex.getMessage());
@@ -63,14 +62,15 @@ public class PDPClient extends Client {
     }
 
     /**
-     * 
+     *
      * @param pdpRequest
+     * @param soapAction
      * @param endpointURL
      * @param soap12
      * @return
      * @throws PolicyException
      */
-    private PDPResponse send(PDPRequest pdpRequest, String endpointURL, boolean soap12) throws PolicyException {
+    private PDPResponse send(PDPRequest pdpRequest, String soapAction, String endpointURL, boolean soap12) throws PolicyException {
         try {
             XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
             XACMLAuthzDecisionQueryElement authzDecisionQuery = requestBuilder.buildXACMLAuthzDecisionQuery(pdpRequest);
@@ -86,7 +86,7 @@ public class PDPClient extends Client {
                         false /* MTOM */,
                         soap12 /* Addressing - Only if SOAP 1.2 */,
                         soap12 /* SOAP 1.2 */,
-                        PolicyConstants.PDP_SOAP_ACTION, null);
+                        soapAction, null);
             } catch (Exception ex) {
                 throw new PolicyException(ex.getMessage());
             }

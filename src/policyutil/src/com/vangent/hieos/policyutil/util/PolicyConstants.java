@@ -17,9 +17,6 @@ package com.vangent.hieos.policyutil.util;
  * @author Bernie Thuman
  */
 public class PolicyConstants {
-    // PDP SOAP Action (FIXME!!!)
-    static public final String PDP_SOAP_ACTION = "urn:Authorize";
-
     static public final String XACML_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
 
     // Subject attribute identifiers

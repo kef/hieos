@@ -12,16 +12,38 @@
  */
 package com.vangent.hieos.policyutil.util;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
+import com.vangent.hieos.xutil.iosupport.Io;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfig.ConfigItem;
+import com.vangent.hieos.xutil.xml.XMLParser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.namespace.QName;
+import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author Bernie Thuman
  */
 public class PolicyConfig {
-    // TBD: Pull from configuration file [allow for coded attributes].
 
+    private final static Logger logger = Logger.getLogger(PolicyConfig.class);
+    // TBD: Pull from configuration file [allow for coded attributes].
     // FIXME: Need to make more complex ... need an AttributeType with enums, etc.
     static private PolicyConfig _instance = null;
+    // Configuration.
+    private List<String> policyFiles = new ArrayList<String>();
+    private List<AttributeConfig> subjectAttributeConfigs = new ArrayList<AttributeConfig>();
+    private List<AttributeConfig> resourceAttributeConfigs = new ArrayList<AttributeConfig>();
+    private List<AttributeConfig> environmentAttributeConfigs = new ArrayList<AttributeConfig>();
+
     public enum IdType {
+
         SUBJECT_ID, RESOURCE_ID, ENVIRONMENT_ID
     };
     static private final String[] XSPA_SUBJECT_IDS = {
@@ -78,11 +100,168 @@ public class PolicyConfig {
      *
      * @return
      */
-    static public synchronized PolicyConfig getInstance() {
+    static public synchronized PolicyConfig getInstance() throws PolicyException {
         if (_instance == null) {
             _instance = new PolicyConfig();
+            _instance.loadConfiguration();
         }
         return _instance;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<String> getPolicyFiles() {
+        return policyFiles;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<AttributeConfig> getSubjectAttributeConfigs() {
+        return subjectAttributeConfigs;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<AttributeConfig> getResourceAttributeConfigs() {
+        return resourceAttributeConfigs;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<AttributeConfig> getEnvironmentAttributeConfigs() {
+        return environmentAttributeConfigs;
+    }
+
+    /**
+     *
+     */
+    private void loadConfiguration() throws PolicyException {
+        String policyDir = PolicyConfig.getConfigDir();
+        String configLocation = policyDir + "/policyConfig.xml";
+        // Load the "policyConfig.xml" file from the above directory.
+
+        String configXML = null;
+        if (configLocation != null) {
+            try {
+                logger.info("Loading \"policyConfig.xml\" from: " + configLocation);
+                // Get the configuration file from the file system.
+                configXML = Io.getStringFromInputStream(new FileInputStream(new File(configLocation)));
+            } catch (Exception e) {
+                throw new PolicyException(
+                        "PolicyConfig: Could not load configuration from " + configLocation + " " + e.getMessage());
+            }
+        } else {
+            throw new PolicyException(
+                    "PolicyConfig: Unable to get location of \"policyConfig.xml\" file");
+        }
+
+        // Parse the XML file.
+        OMElement configXMLRoot;
+        try {
+            configXMLRoot = XMLParser.stringToOM(configXML);
+        } catch (XMLParserException ex) {
+            throw new PolicyException(ex.getMessage());
+        }
+        if (configXMLRoot == null) {
+            throw new PolicyException(
+                    "PolicyConfig: Could not parse configuration from " + configLocation);
+        }
+        buildInternalStructure(configXMLRoot);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static String getConfigDir() {
+        return XConfig.getConfigLocation(ConfigItem.POLICY_DIR);
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void buildInternalStructure(OMElement rootNode) {
+        this.parsePolicyFiles(rootNode);
+        this.parseSubjectAttributes(rootNode);
+        this.parseResourceAttributes(rootNode);
+        this.parseEnvironmentAttributes(rootNode);
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void parsePolicyFiles(OMElement rootNode) {
+        OMElement policyFilesNode = rootNode.getFirstChildWithName(new QName("PolicyFiles"));
+        List<OMElement> policyFileNodes = XConfig.parseLevelOneNode(policyFilesNode, "PolicyFile");
+        for (OMElement policyFileNode : policyFileNodes) {
+            String policyFileName = policyFileNode.getAttributeValue(new QName("name"));
+            String policyFullPathName = PolicyConfig.getConfigDir() + "/" + policyFileName;
+            this.policyFiles.add(policyFullPathName);
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void parseSubjectAttributes(OMElement rootNode) {
+        this.subjectAttributeConfigs = this.parseAttributes(rootNode, "SubjectAttributes");
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void parseResourceAttributes(OMElement rootNode) {
+        this.resourceAttributeConfigs = this.parseAttributes(rootNode, "ResourceAttributes");
+    }
+
+    /**
+     * 
+     * @param rootNode
+     */
+    private void parseEnvironmentAttributes(OMElement rootNode) {
+        this.environmentAttributeConfigs = this.parseAttributes(rootNode, "EnvironmentAttributes");
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param elementName
+     * @return
+     */
+    private List<AttributeConfig> parseAttributes(OMElement rootNode, String elementName) {
+        OMElement attributesNode = rootNode.getFirstChildWithName(new QName(elementName));
+        return this.parseAttributes(attributesNode);
+    }
+
+    /**
+     * 
+     * @param rootNode
+     * @return
+     */
+    private List<AttributeConfig> parseAttributes(OMElement rootNode) {
+        List<AttributeConfig> attributeConfigs = new ArrayList<AttributeConfig>();
+        List<OMElement> attributeNodes = XConfig.parseLevelOneNode(rootNode, "Attribute");
+        for (OMElement attributeNode : attributeNodes) {
+            String attributeId = attributeNode.getAttributeValue(new QName("id"));
+            String attributeType = attributeNode.getAttributeValue(new QName("type"));
+            AttributeConfig attributeConfig = new AttributeConfig();
+            attributeConfig.setId(attributeId);
+            attributeConfig.setType(attributeType);
+            attributeConfigs.add(attributeConfig);
+        }
+        return attributeConfigs;
     }
 
     /**
