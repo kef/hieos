@@ -44,22 +44,23 @@ public class XConfig {
 
     public enum ConfigItem {
 
-        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE, XDSBRIDGE_DIR
+        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE, XDSBRIDGE_DIR, POLICY_DIR
     };
     // HIEOS environment variables (would like to rename but remaining backward compatible).
     public final static String ENV_HIEOS_CONFIG_DIR = "HIEOSxConfigDir";
     public final static String ENV_HIEOS_XCONFIG_FILE = "HIEOSxConfigFile";
     public final static String ENV_HIEOS_SCHEMA_DIR = "HIEOSxSchemaDir";
     public final static String ENV_HIEOS_XDSBRIDGE_DIR = "HIEOSxXDSBridgeDir";
+    public final static String ENV_HIEOS_POLICY_DIR = "HIEOSxPolicyDir";
     public final static String ENV_HIEOS_CODES_FILE = "HIEOSxCodesFile";
     // HIEOS system properties (would like to rename but remaining backward compatible).
     public final static String SYSPROP_HIEOS_CONFIG_DIR = "com.vangent.hieos.configdir";
     public final static String SYSPROP_HIEOS_XCONFIG_FILE = "com.vangent.hieos.xconfig";
     public final static String SYSPROP_HIEOS_SCHEMA_DIR = "com.vangent.hieos.schemadir";
     public final static String SYSPROP_HIEOS_XDSBRIDGE_DIR = "com.vangent.hieos.xdsbridgedir";
+    public final static String SYSPROP_HIEOS_POLICY_DIR = "com.vangent.hieos.policydir";
     public final static String SYSPROP_HIEOS_CODES_FILE = "com.vangent.hieos.codesfile";
     private final static Logger logger = Logger.getLogger(XConfig.class);
-    
     // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private XConfig _instance = null;  // Singleton instance.
     static private String _configLocation = null;  // Location of xconfig.xml file
@@ -102,6 +103,9 @@ public class XConfig {
                 break;
             case XDSBRIDGE_DIR:
                 configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_XDSBRIDGE_DIR, XConfig.ENV_HIEOS_XDSBRIDGE_DIR);
+                break;
+            case POLICY_DIR:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_POLICY_DIR, XConfig.ENV_HIEOS_POLICY_DIR);
                 break;
         }
         return configLocation;
@@ -148,6 +152,9 @@ public class XConfig {
                     break;
                 case XDSBRIDGE_DIR:
                     configLocation = configDir + "/xdsbridge";
+                    break;
+                case POLICY_DIR:
+                    configLocation = configDir + "/policy";
                     break;
             }
         }
@@ -260,13 +267,10 @@ public class XConfig {
      * @param type The type of XConfigObject to locate.
      * @return List<XConfigObject>
      */
-    public List<XConfigObject> getXConfigObjectsOfType(String type)
-    {
+    public List<XConfigObject> getXConfigObjectsOfType(String type) {
         List<XConfigObject> configObjects = new ArrayList<XConfigObject>();
-        for (XConfigObject object : objects)
-        {
-            if (object.getType().equalsIgnoreCase(type))
-            {
+        for (XConfigObject object : objects) {
+            if (object.getType().equalsIgnoreCase(type)) {
                 configObjects.add(object);
             }
         }
