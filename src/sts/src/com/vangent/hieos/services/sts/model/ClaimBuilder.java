@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.sts.model;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.ClaimConfig;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
@@ -42,10 +43,7 @@ public class ClaimBuilder {
         OMElement claimsNode = requestData.getClaimsNode();
         List<Claim> claims = new ArrayList<Claim>();
         this.parse(claimsNode, claims);
-        STSConfig stsConfig = requestData.getSTSConfig();
-        if (stsConfig.getValidateRequiredClaims() == true) {
-            this.validate(claims);
-        }
+        this.validate(claims);
         return claims;
     }
 
@@ -83,9 +81,9 @@ public class ClaimBuilder {
             // rethrow
             throw new STSException(ex.getMessage());
         }
-        String[] requiredIds = pConfig.getRequiredClaimIds();
-        for (int i = 0; i < requiredIds.length; i++) {
-            String nameToValidate = requiredIds[i];
+        List<ClaimConfig> requiredClaimConfigs = pConfig.getRequiredClaimConfigs();
+        for (ClaimConfig requiredClaimConfig : requiredClaimConfigs) {
+            String nameToValidate = requiredClaimConfig.getId();
             boolean foundName = false;
             for (Claim claim : claims) {
                 if (claim.getName().equalsIgnoreCase(nameToValidate)) {
