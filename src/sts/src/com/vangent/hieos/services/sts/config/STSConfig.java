@@ -61,46 +61,46 @@ public class STSConfig {
      */
     private void loadConfig(XConfigObject configObject) {
         this.configObject = configObject;
-        issuerName = configObject.getProperty("issuerName");
-        issuerAlias = configObject.getProperty("issuerAlias");
+        issuerName = configObject.getProperty("IssuerName");
+        issuerAlias = configObject.getProperty("IssuerAlias");
         if (issuerAlias == null) {
             issuerAlias = STSConfig.DEFAULT_ISSUER_ALIAS;  // Default.
         }
-        String timeToLiveAsString = configObject.getProperty("timeToLiveInMilliseconds");
+        String timeToLiveAsString = configObject.getProperty("TimeToLiveInMilliseconds");
         if (timeToLiveAsString == null) {
             timeToLive = STSConfig.DEFAULT_TIME_TO_LIVE;  // DEFAULT.
         } else {
             timeToLive = new Long(timeToLiveAsString);
         }
-        keyStore = configObject.getProperty("keyStore");
+        keyStore = configObject.getProperty("KeyStore");
         if (keyStore == null) {
             keyStore = System.getProperty("javax.net.ssl.keyStore");
         }
-        trustStore = configObject.getProperty("trustStore");
+        trustStore = configObject.getProperty("TrustStore");
         if (trustStore == null) {
             trustStore = System.getProperty("javax.net.ssl.trustStore");
         }
-        keyStorePassword = configObject.getProperty("keyStorePassword");
+        keyStorePassword = configObject.getProperty("KeyStorePassword");
         if (keyStorePassword == null) {
             keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
         }
-        trustStorePassword = configObject.getProperty("trustStorePassword");
+        trustStorePassword = configObject.getProperty("TrustStorePassword");
         if (trustStorePassword == null) {
             trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
         }
-        issuerPassword = configObject.getProperty("issuerPassword");
+        issuerPassword = configObject.getProperty("IssuerPassword");
         if (issuerPassword == null) {
             issuerPassword = keyStorePassword;
         }
-        String authenticationTypeText = configObject.getProperty("authenticationType");
+        String authenticationTypeText = configObject.getProperty("AuthenticationType");
         if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
             authenticationType = PolicyConstants.AuthenticationType.USER_NAME_TOKEN;
         } else {
             // Otherwise.
             authenticationType = PolicyConstants.AuthenticationType.X509_CERTIFICATE;
         }
-        computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("computeSubjectNameFromClaims", false);
-        validateRequiredClaims = configObject.getPropertyAsBoolean("validateRequiredClaims", true);
+        computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("ComputeSubjectNameFromClaims", false);
+        validateRequiredClaims = configObject.getPropertyAsBoolean("ValidateRequiredClaims", true);
     }
 
     /**

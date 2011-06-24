@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
@@ -30,7 +31,7 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 public class ClaimBuilder {
-   
+
     /**
      *
      * @param requestData
@@ -75,7 +76,13 @@ public class ClaimBuilder {
      */
     private void validate(List<Claim> claims) throws STSException {
         // Validate proper attributes are available.
-        PolicyConfig pConfig = PolicyConfig.getInstance();
+        PolicyConfig pConfig;
+        try {
+            pConfig = PolicyConfig.getInstance();
+        } catch (PolicyException ex) {
+            // rethrow
+            throw new STSException(ex.getMessage());
+        }
         String[] requiredIds = pConfig.getRequiredClaimIds();
         for (int i = 0; i < requiredIds.length; i++) {
             String nameToValidate = requiredIds[i];
