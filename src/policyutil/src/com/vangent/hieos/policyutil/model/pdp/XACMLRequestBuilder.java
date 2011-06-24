@@ -15,8 +15,10 @@ package com.vangent.hieos.policyutil.model.pdp;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.policyutil.model.attribute.Attribute;
+import com.vangent.hieos.policyutil.model.attribute.StringValueAttribute;
 import com.vangent.hieos.policyutil.model.saml.SAML2Assertion;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
+import com.vangent.hieos.policyutil.util.PolicyConfig.IdType;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -76,6 +78,7 @@ public class XACMLRequestBuilder {
     //   </xacml-context:Environment>
     // </xacml-context:Request>
     /**
+     * Builds an OASIS RequestType from an OMElement(XML).
      *
      * @param requestType
      * @return
@@ -136,36 +139,7 @@ public class XACMLRequestBuilder {
     }
 
     /**
-     *
-     * @param rootNode
-     * @param omfactory
-     * @param attributeTypes
-     */
-    private void addAttributes(OMElement rootNode, OMFactory omfactory, List<AttributeType> attributeTypes) {
-        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
-        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
-        for (AttributeType attributeType : attributeTypes) {
-            String attributeId = attributeType.getAttributeId();
-            String dataType = attributeType.getDataType();
-            String issuer = attributeType.getIssuer();
-            OMElement attributeNode = omfactory.createOMElement(new QName(nsURI, "Attribute", nsPrefix));
-            attributeNode.addAttribute("AttributeId", attributeId, null);
-            attributeNode.addAttribute("DataType", dataType, null);
-            if (issuer != null) {
-                attributeNode.addAttribute("Issuer", issuer, null);
-            }
-            rootNode.addChild(attributeNode);
-            for (AttributeValueType attributeValueType : attributeType.getAttributeValue()) {
-                // FIXME: AttributeValue content - how to properly handle?
-                String attributeValue = attributeValueType.getContent().get(0).toString();
-                OMElement attributeValueNode = omfactory.createOMElement(new QName(nsURI, "AttributeValue", nsPrefix));
-                attributeValueNode.setText(attributeValue);
-                attributeNode.addChild(attributeValueNode);
-            }
-        }
-    }
-
-    /**
+     * Builds an OMElement(XML) from an OASIS RequestType.
      *
      * @param requestTypeElement
      * @return
@@ -236,6 +210,100 @@ public class XACMLRequestBuilder {
     }
 
     /**
+     * NOTE: Build by hand to avoid dependency on OpenSAML library.
+     *
+     * Builds an OMElement(XML) from a PDPRequest.
+     *
+     * @param pdpRequest
+     * @return
+     */
+    public XACMLAuthzDecisionQueryElement buildXACMLAuthzDecisionQuery(PDPRequest pdpRequest) throws PolicyException {
+        OMFactory omfactory = OMAbstractFactory.getOMFactory();
+
+        // Build XACMLAuthzDecisionQueryElement
+        OMElement authzDecisionQueryNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_SAML_PROTOCOL_NS, "XACMLAuthzDecisionQuery", PolicyConstants.XACML_SAML_PROTOCOL_NS_PREFIX));
+        authzDecisionQueryNode.addAttribute("InputContextOnly", "false", null);
+        authzDecisionQueryNode.addAttribute("ReturnContext", "true", null);
+        authzDecisionQueryNode.addAttribute("ID", UUID.randomUUID().toString(), null);
+        authzDecisionQueryNode.addAttribute("Version", "2.0", null);
+        authzDecisionQueryNode.addAttribute("IssueInstant", (new DateTime()).toString(), null);
+
+        // Build Issuer [FIXME: May need more ...]
+        OMElement issuerNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer", "saml"));
+        issuerNode.setText(pdpRequest.getIssuer());
+        authzDecisionQueryNode.addChild(issuerNode);
+
+        // Get XACML RequestType from PDPRequest
+        RequestType requestType = this.buildRequestType(pdpRequest);
+        OMElement requestNode = this.buildRequestTypeElement(requestType).getElement();
+        authzDecisionQueryNode.addChild(requestNode);
+
+        return new XACMLAuthzDecisionQueryElement(authzDecisionQueryNode);
+    }
+
+    /**
+     *
+     * @param pdpRequest
+     * @return
+     */
+    public RequestType buildRequestType(PDPRequest pdpRequest) {
+        RequestType requestType = new RequestType();
+        SubjectType subjectType = this.buildSubject(pdpRequest);
+        ResourceType resourceType = this.buildResource(pdpRequest);
+        ActionType actionType = this.buildAction(pdpRequest);
+        EnvironmentType envType = this.buildEnvironment(pdpRequest);
+        requestType.getSubject().add(subjectType);
+        requestType.getResource().add(resourceType);
+        requestType.setAction(actionType);
+        requestType.setEnvironment(envType);
+        return requestType;
+    }
+
+    /**
+     * Builds a PDPRequest from a SAML2 Assertion.
+     *
+     * @param action
+     * @param saml2Assertion
+     * @return
+     */
+    public PDPRequest buildPDPRequest(String action, SAML2Assertion saml2Assertion) {
+        PDPRequest request = new PDPRequest();
+        request.setAction(action);
+        this.buildAttributes(request, saml2Assertion);
+        return request;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param omfactory
+     * @param attributeTypes
+     */
+    private void addAttributes(OMElement rootNode, OMFactory omfactory, List<AttributeType> attributeTypes) {
+        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
+        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
+        for (AttributeType attributeType : attributeTypes) {
+            String attributeId = attributeType.getAttributeId();
+            String dataType = attributeType.getDataType();
+            String issuer = attributeType.getIssuer();
+            OMElement attributeNode = omfactory.createOMElement(new QName(nsURI, "Attribute", nsPrefix));
+            attributeNode.addAttribute("AttributeId", attributeId, null);
+            attributeNode.addAttribute("DataType", dataType, null);
+            if (issuer != null) {
+                attributeNode.addAttribute("Issuer", issuer, null);
+            }
+            rootNode.addChild(attributeNode);
+            for (AttributeValueType attributeValueType : attributeType.getAttributeValue()) {
+                // FIXME: AttributeValue content - how to properly handle?
+                String attributeValue = attributeValueType.getContent().get(0).toString();
+                OMElement attributeValueNode = omfactory.createOMElement(new QName(nsURI, "AttributeValue", nsPrefix));
+                attributeValueNode.setText(attributeValue);
+                attributeNode.addChild(attributeValueNode);
+            }
+        }
+    }
+
+    /**
      *
      * @param rootNode
      * @return
@@ -285,122 +353,45 @@ public class XACMLRequestBuilder {
 
     /**
      *
-     * @param action
-     * @param saml2Assertion
-     * @return
-     */
-    public PDPRequest buildPDPRequest(String action, SAML2Assertion saml2Assertion) {
-        PDPRequest request = new PDPRequest();
-        request.setAction(action);
-        this.buildAttributes(request, saml2Assertion);
-        return request;
-    }
-
-    /**
-     *
      * @param pdpRequest
      * @param saml2Assertion
      */
     private void buildAttributes(PDPRequest pdpRequest, SAML2Assertion saml2Assertion) {
         PolicyConfig pConfig = PolicyConfig.getInstance();
-        // TBD: Implement (mainly to support PEP).
-/*
-        // Get OpenSAML assertion.
-        Assertion assertion = saml2Assertion.getAssertion();
-        // Get attribute statement.
-        List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
+        OMElement assertionNode = saml2Assertion.getElement();
+        try {
+            List<OMElement> attributeNodes = XPathHelper.selectNodes(assertionNode, "./ns:AttributeStatement/ns:Attribute", PolicyConstants.SAML2_NS);
+            for (OMElement attributeNode : attributeNodes) {
+                String attributeId = attributeNode.getAttributeValue(new QName("Name"));
+                // FIXME: Only handling single value String types ... need to also make
+                // IdType much smarter.
 
-        if (attributeStatements == null || attributeStatements.isEmpty()) {
-        return;  // Early exit!
+                // Get attribute value (grab first one).
+                OMElement attributeValueNode = attributeNode.getFirstChildWithName(new QName(PolicyConstants.SAML2_NS, "AttributeValue"));
+                String attributeValueText = "";
+                if (attributeValueNode != null) {
+                    attributeValueText = attributeValueNode.getText();
+                }
+                IdType idType = pConfig.getIdType(attributeId);
+                StringValueAttribute attr = new StringValueAttribute();
+                attr.setId(attributeId);
+                attr.setValue(attributeValueText);
+                switch (idType) {
+                    case SUBJECT_ID:
+                        pdpRequest.getSubjectAttributes().add(attr);
+                        break;
+                    case RESOURCE_ID:
+                        pdpRequest.getResourceAttributes().add(attr);
+                        break;
+                    default:
+                        // Just treat all else as part of the Environment
+                        pdpRequest.getEnvironmentAttributes().add(attr);
+                        break;
+                }
+            }
+        } catch (XPathHelperException ex) {
+            // Fixme: Do something?
         }
-
-        // Just use the first one ... multiples not used in this implementation
-        AttributeStatement attributeStatement = attributeStatements.get(0);
-        List<Attribute> attributes = attributeStatement.getAttributes();
-        if (attributes == null || attributes.isEmpty()) {
-        return;  // Early exit!
-        }
-
-        // Loop through all attributes.
-        System.out.println("Attribute count = " + attributes.size());
-        for (Attribute attribute : attributes) {
-        String name = attribute.getName();
-        System.out.println("... Name = " + name);
-
-        // Determine the type of attribute through configuration.
-        IdType idType = pConfig.getIdType(name);
-
-        List<XMLObject> attributeValues = attribute.getAttributeValues();
-
-        // FIXME: Only dealing with single value attributes as strings
-        if (attributeValues != null && !attributeValues.isEmpty()) {
-        XSString value = (XSString) attributeValues.get(0);
-        StringValueAttribute attr = new StringValueAttribute();
-        attr.setId(name);
-        attr.setValue(value.getValue());
-        // TBD: Need to figure out what kind of attribute (Subject/Resource/etc.)
-        switch (idType) {
-        case SUBJECT_ID:
-        request.getSubjectAttributes().add(attr);
-        break;
-        case RESOURCE_ID:
-        request.getResourceAttributes().add(attr);
-        break;
-        default:
-        // Just treat all else as part of the Environment
-        request.getEnvironmentAttributes().add(attr);
-        break;
-        }
-        }
-        }*/
-    }
-
-    /**
-     * NOTE: Build by hand to avoid dependency on OpenSAML library.
-     *
-     * @param pdpRequest
-     * @return
-     */
-    public XACMLAuthzDecisionQueryElement buildXACMLAuthzDecisionQuery(PDPRequest pdpRequest) throws PolicyException {
-        OMFactory omfactory = OMAbstractFactory.getOMFactory();
-
-        // Build XACMLAuthzDecisionQueryElement
-        OMElement authzDecisionQueryNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_SAML_PROTOCOL_NS, "XACMLAuthzDecisionQuery", PolicyConstants.XACML_SAML_PROTOCOL_NS_PREFIX));
-        authzDecisionQueryNode.addAttribute("InputContextOnly", "false", null);
-        authzDecisionQueryNode.addAttribute("ReturnContext", "true", null);
-        authzDecisionQueryNode.addAttribute("ID", UUID.randomUUID().toString(), null);
-        authzDecisionQueryNode.addAttribute("Version", "2.0", null);
-        authzDecisionQueryNode.addAttribute("IssueInstant", (new DateTime()).toString(), null);
-
-        // Build Issuer [FIXME: May need more ...]
-        OMElement issuerNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer", "saml"));
-        issuerNode.setText(pdpRequest.getIssuer());
-        authzDecisionQueryNode.addChild(issuerNode);
-
-        // Get XACML RequestType from PDPRequest
-        RequestType requestType = this.buildXACMLRequestType(pdpRequest);
-        OMElement requestNode = this.buildRequestTypeElement(requestType).getElement();
-        authzDecisionQueryNode.addChild(requestNode);
-
-        return new XACMLAuthzDecisionQueryElement(authzDecisionQueryNode);
-    }
-
-    /**
-     *
-     * @param pdpRequest
-     * @return
-     */
-    public RequestType buildXACMLRequestType(PDPRequest pdpRequest) {
-        RequestType requestType = new RequestType();
-        SubjectType subjectType = this.buildSubject(pdpRequest);
-        ResourceType resourceType = this.buildResource(pdpRequest);
-        ActionType actionType = this.buildAction(pdpRequest);
-        EnvironmentType envType = this.buildEnvironment(pdpRequest);
-        requestType.getSubject().add(subjectType);
-        requestType.getResource().add(resourceType);
-        requestType.setAction(actionType);
-        requestType.setEnvironment(envType);
-        return requestType;
     }
 
     /**

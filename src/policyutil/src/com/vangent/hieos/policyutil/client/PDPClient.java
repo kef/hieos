@@ -44,23 +44,10 @@ public class PDPClient extends Client {
 
     /**
      *
-     * @param action
-     * @param saml2Assertion
+     * @param pdpRequest
      * @return
      * @throws PolicyException
      */
-    public PDPResponse authorize(String action, SAML2Assertion saml2Assertion) throws PolicyException {
-        XACMLRequestBuilder builder = new XACMLRequestBuilder();
-        PDPRequest pdpRequest = builder.buildPDPRequest(action, saml2Assertion);
-        return this.authorize(pdpRequest);
-    }
-
-   /**
-    *
-    * @param pdpRequest
-    * @return
-    * @throws PolicyException
-    */
     public PDPResponse authorize(PDPRequest pdpRequest) throws PolicyException {
         try {
             // Get configuration.

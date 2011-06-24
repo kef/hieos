@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
@@ -66,7 +64,8 @@ public class XACMLResponseBuilder {
     //   </Result>
     // </Response>
     /**
-     * 
+     * Builds an OASIS ResponseType from an OMElement(XML).
+     *
      * @param responseType
      * @return
      * @throws PolicyException
@@ -97,35 +96,37 @@ public class XACMLResponseBuilder {
             responseNode.addChild(resultNode);
 
             // Obligation(s).
-            List<ObligationType> obligationTypes = resultType.getObligations().getObligation();
-            if (!obligationTypes.isEmpty()) {
-                OMElement obligationsNode = omfactory.createOMElement(new QName(nsURI, "Obligations", nsPrefix));
-                resultNode.addChild(obligationsNode);
-                for (ObligationType obligationType : obligationTypes) {
-                    EffectType fulfillOn = obligationType.getFulfillOn();
-                    String obligationId = obligationType.getObligationId();
-                    OMElement obligationNode = omfactory.createOMElement(new QName(nsURI, "Obligation", nsPrefix));
-                    obligationNode.addAttribute("FulfillOn", fulfillOn.value(), null);
-                    obligationNode.addAttribute("ObligationId", obligationId, null);
-
-                    for (AttributeAssignmentType attributeAssignmentType : obligationType.getAttributeAssignment()) {
-                        String attributeId = attributeAssignmentType.getAttributeId();
-                        String dataType = attributeAssignmentType.getDataType();
-                        OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(nsURI, "AttributeAssignment", nsPrefix));
-                        attributeAssignmentNode.addAttribute("AttributeId", attributeId, null);
-                        attributeAssignmentNode.addAttribute("DataType", dataType, null);
-                        // FIXME: Content????
-                        obligationNode.addChild(attributeAssignmentNode);
+            ObligationsType obligationsType = resultType.getObligations();
+            if (obligationsType != null) {
+                List<ObligationType> obligationTypes = resultType.getObligations().getObligation();
+                if (!obligationTypes.isEmpty()) {
+                    OMElement obligationsNode = omfactory.createOMElement(new QName(nsURI, "Obligations", nsPrefix));
+                    resultNode.addChild(obligationsNode);
+                    for (ObligationType obligationType : obligationTypes) {
+                        EffectType fulfillOn = obligationType.getFulfillOn();
+                        String obligationId = obligationType.getObligationId();
+                        OMElement obligationNode = omfactory.createOMElement(new QName(nsURI, "Obligation", nsPrefix));
+                        obligationNode.addAttribute("FulfillOn", fulfillOn.value(), null);
+                        obligationNode.addAttribute("ObligationId", obligationId, null);
+                        for (AttributeAssignmentType attributeAssignmentType : obligationType.getAttributeAssignment()) {
+                            String attributeId = attributeAssignmentType.getAttributeId();
+                            String dataType = attributeAssignmentType.getDataType();
+                            OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(nsURI, "AttributeAssignment", nsPrefix));
+                            attributeAssignmentNode.addAttribute("AttributeId", attributeId, null);
+                            attributeAssignmentNode.addAttribute("DataType", dataType, null);
+                            // FIXME: Content????
+                            obligationNode.addChild(attributeAssignmentNode);
+                        }
+                        obligationsNode.addChild(obligationNode);
                     }
-                    obligationsNode.addChild(obligationNode);
                 }
             }
         }
-
         return new ResponseTypeElement(responseNode);
     }
 
     /**
+     * Builds an OASIS ResponseType from a sunxacml ResponseCtx.
      *
      * @param responseCtx
      * @return
@@ -205,7 +206,8 @@ public class XACMLResponseBuilder {
     }
 
     /**
-     * 
+     * Builds a PDPResponse from a SAMLResponseElement / OMElement(XML).
+     *
      * @param samlResponse
      * @return
      */
@@ -260,7 +262,8 @@ public class XACMLResponseBuilder {
 //             </xacml-context:Obligations>
 //       </xacml-context:Result>
     /**
-     * 
+     * Builds an OASIS ResponseType from an OMElement(XML).
+     *
      * @param responseTypeElement
      * @return
      */
@@ -322,6 +325,7 @@ public class XACMLResponseBuilder {
     }
 
     /**
+     * Builds an OMElement(XML) from OASIS RequestType/ResponseType.
      *
      * @param requestType
      * @param responseType
