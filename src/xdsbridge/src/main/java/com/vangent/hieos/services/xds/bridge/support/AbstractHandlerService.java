@@ -13,7 +13,6 @@
 
 package com.vangent.hieos.services.xds.bridge.support;
 
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -25,8 +24,6 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.description.Parameter;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -112,37 +109,6 @@ public abstract class AbstractHandlerService extends XAbstractService {
         }
 
         return result;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param service
-     */
-    private void configureLoggerLevel(AxisService service) {
-
-        Parameter lcparam = service.getParameter("LoggerCategory");
-        Parameter llparam = service.getParameter("LoggerLevel");
-
-        if ((lcparam != null) && (llparam != null)) {
-
-            String loggerCategory = (String) lcparam.getValue();
-            Level loggerLevel = Level.toLevel((String) llparam.getValue(),
-                                              Level.INFO);
-
-            if (StringUtils.isNotBlank(loggerCategory)) {
-
-                Logger baseLogger = Logger.getLogger(loggerCategory);
-
-                baseLogger.setLevel(loggerLevel);
-
-                baseLogger.info(
-                    String.format(
-                        "Setting logger [%s] level to %s(%d).", loggerCategory,
-                        loggerLevel.toString(), loggerLevel.toInt()));
-            }
-        }
     }
 
     /**
@@ -320,8 +286,6 @@ public abstract class AbstractHandlerService extends XAbstractService {
     public void startUp(ConfigurationContext configctx, AxisService service) {
 
         super.startUp(configctx, service);
-
-        configureLoggerLevel(service);
 
         String serviceName = service.getName();
 
