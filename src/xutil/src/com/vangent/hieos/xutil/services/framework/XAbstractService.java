@@ -98,6 +98,17 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @return
+     * @throws XdsException
+     */
+    public static OMElement getSAMLAssertionFromRequest() throws XdsException {
+        // Can't rely on "messageContext" to be set above - should look to remove messageContext
+        // variable (not sure the purpose).
+        return XServiceProvider.getSAMLAssertionFromRequest(MessageContext.getCurrentMessageContext());
+    }
+
+    /**
+     *
+     * @return
      */
     protected String getServiceName() {
         return this.serviceName;

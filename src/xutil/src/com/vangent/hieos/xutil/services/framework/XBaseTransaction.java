@@ -16,6 +16,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
+import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -46,6 +47,15 @@ public class XBaseTransaction {
      */
     public MessageContext getMessageContext() {
         return messageContext;
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public static OMElement getSAMLAssertionFromRequest() throws XdsException {
+        return XAbstractService.getSAMLAssertionFromRequest();
     }
 
     /**
@@ -90,7 +100,7 @@ public class XBaseTransaction {
                 //log_message.setPass(false);
                 log_message.addErrorParam("Errors", response.getErrorsAndWarnings());
             } /*else {
-                log_message.setPass(true);
+            log_message.setPass(true);
             }*/
             try {
                 OMElement rsp = response.getResponse();

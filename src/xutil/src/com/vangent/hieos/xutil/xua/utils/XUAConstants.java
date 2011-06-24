@@ -50,8 +50,6 @@ public interface XUAConstants {
       */
      public static final String SOAP_ACTION_VALIDATE_TOKEN = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate";
 
-
-
      /**
      * WS-Trust Token Request body template
      */
@@ -63,21 +61,18 @@ public interface XUAConstants {
         "<wsa:Address>{SERVICE}</wsa:Address>"+
         "</wsa:EndpointReference>"+
         "</wsp:AppliesTo>"+
-        "<wst:Claims Dialect=\"urn:ibm:names:ITFIM:saml\" xmlns:wst=\"http://schemas.xmlsoap.org/ws/2005/02/trust\">"+
-        "<fimsaml:Saml20Claims xmlns:fimsaml=\"urn:ibm:names:ITFIM:saml\">"+
-        "<fimsaml:ConfirmationMethod>urn:oasis:names:tc:SAML:2.0:cm:bearer</fimsaml:ConfirmationMethod>"+
-        "<saml:NameID xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" Format=\"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\">{USERNAME}</saml:NameID>"+
-        "</fimsaml:Saml20Claims>"+
-        "</wst:Claims>"+
+        "{CLAIMS}" +
+     //   "<wst:Claims Dialect=\"urn:ibm:names:ITFIM:saml\" xmlns:wst=\"http://schemas.xmlsoap.org/ws/2005/02/trust\">"+
+     //   "<fimsaml:Saml20Claims xmlns:fimsaml=\"urn:ibm:names:ITFIM:saml\">"+
+     //   "<fimsaml:ConfirmationMethod>urn:oasis:names:tc:SAML:2.0:cm:bearer</fimsaml:ConfirmationMethod>"+
+     //   "<saml:NameID xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" Format=\"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\">{USERNAME}</saml:NameID>"+
+     //   "</fimsaml:Saml20Claims>"+
+     //   "</wst:Claims>"+
         "</wst:RequestSecurityToken>";
 
      /**
       * WS-Trust Token Request header template
       */
-//<wsu:Timestamp xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="Timestamp-2">
-// <wsu:Created>2011-01-20T17:23:33.011Z</wsu:Created>
-// <wsu:Expires>2011-01-20T17:54:33.011Z</wsu:Expires>
-//</wsu:Timestamp>
      public static final String WS_TRUST_TOKEN_REQUEST_HEADER =
         "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"+
         "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">" +

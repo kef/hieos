@@ -20,9 +20,6 @@ package com.vangent.hieos.xutil.xlog.client;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.jms.JMSHandler;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
@@ -30,6 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -37,6 +35,7 @@ import com.vangent.hieos.xutil.xconfig.XConfig;
  */
 public class XLogger {
 
+    private final static Logger logger = Logger.getLogger(XLogger.class);
     static XLogger _instance = null;
     boolean logEnabled = false;  // Default (no logging).
 
@@ -82,10 +81,8 @@ public class XLogger {
         if (this.logEnabled == true) {
             try {
                 this.sendJMSMessageToXLogger(messageData);
-            } catch (NamingException ex) {
-                Logger.getLogger(XLogger.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (JMSException ex) {
-                Logger.getLogger(XLogger.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                logger.warn("XLogger exception: " + ex.getMessage());
             }
         }
     }
@@ -122,7 +119,7 @@ public class XLogger {
         try {
             this.logEnabled = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("LogEnabled");
         } catch (XdsInternalException ex) {
-            Logger.getLogger(XLogger.class.getName()).log(Level.SEVERE, null, ex);
+            logger.warn("XLogger XLogger exception: " + ex.getMessage());
         }
     }
 }

@@ -52,10 +52,11 @@ public class XServiceUser {
      * 
      * @param userName username
      * @param serviceUri STS service URI
-     * @return requestBodyElement, converted DOM element
+     * @param claimsNode list of claims
+     * @return requestBodyElement, converted OMElement
      * @throws Exception, handling the exceptions
      */
-    private OMElement constructTokenRequestBody(String userName, String serviceUri) throws XdsException {
+    private OMElement constructTokenRequestBody(String userName, String serviceUri, OMElement claimsNode) throws XdsException {
         // Do template variable substitution.
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
@@ -64,9 +65,11 @@ public class XServiceUser {
         if (serviceUri != null) {
             templateVariableValues.put("SERVICE", serviceUri);
         }
+        templateVariableValues.put("CLAIMS", claimsNode.toString());
         OMElement requestBodyElement = TemplateUtil.getOMElementFromTemplate(
                 XUAConstants.WS_TRUST_TOKEN_REQUEST_BODY,
                 templateVariableValues);
+
         return requestBodyElement;
     }
 
@@ -109,10 +112,12 @@ public class XServiceUser {
      * @param serviceUri STS service Uri
      * @param userName
      * @param password
+     * @param claimsNode optional list of claims (may be null)
      * @return response, received SOAP envelope from STS
      * @throws Exception, handling the exceptions
      */
-    public SOAPEnvelope getSOAPResponseFromSts(String stsUrl, String serviceUri, String userName, String password) throws XdsException {
+    public SOAPEnvelope getSOAPResponseFromSts(
+            String stsUrl, String serviceUri, String userName, String password, OMElement claimsNode) throws XdsException {
         if (userName == null || password == null || serviceUri == null) {
             throw new XdsException(
                     "XUA:Exception: You must specify a username, password, and service URI to use XUA.");
@@ -122,7 +127,7 @@ public class XServiceUser {
 
         SOAPEnvelope response = null;
         OMElement elementBody, elementHeader;
-        elementBody = this.constructTokenRequestBody(userName, serviceUri);
+        elementBody = this.constructTokenRequestBody(userName, serviceUri, claimsNode);
         elementHeader = this.constructWsTrustRequestHeader(userName, password, serviceUri);
         response = this.send(stsUrl, elementBody, elementHeader, XUAConstants.SOAP_ACTION_ISSUE_TOKEN);
         return response;

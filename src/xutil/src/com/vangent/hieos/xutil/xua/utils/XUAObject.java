@@ -14,10 +14,11 @@ package com.vangent.hieos.xutil.xua.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.axiom.om.OMElement;
 
 /**
- * It holds xua releated properties, username password, xua enabled or not,
- * STSurl,STSUrI. The outPhaseHandler will use this object to get the xua
+ * It holds XUA related properties, username/password, XUA enabled or not,
+ * STSurl,STSUrI. The outPhaseHandler will use this object to get the XUA
  * properties.
  * @author Fred Aabedi
  */
@@ -28,12 +29,29 @@ public class XUAObject {
     private boolean xuaEnabled = false;
     private String stsURL;
     private String stsURI;
+    private OMElement claims = null;
     private List soapActionsList = new ArrayList();
 
     /**
      * Constructor
      */
     public XUAObject() {
+    }
+
+    /**
+     *
+     * @return
+     */
+    public OMElement getClaims() {
+        return claims;
+    }
+
+    /**
+     *
+     * @param claims
+     */
+    public void setClaims(OMElement claims) {
+        this.claims = claims;
     }
 
     /**
@@ -117,7 +135,7 @@ public class XUAObject {
     }
 
     /**
-     * set XUA Supported saop actions and maintain in a list
+     * set XUA Supported soap actions and maintain in a list
      * @param saopactions
      */
     public void setXUASupportedSOAPActions(String saopactions) {

@@ -186,7 +186,6 @@ public class XUAConfig {
                 c.get(Calendar.SECOND),
                 c.get(Calendar.MILLISECOND));
         String formattedTime = sb.toString();
-        System.out.println("time = " + formattedTime);
         return formattedTime;
     }
 }

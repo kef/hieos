@@ -102,7 +102,7 @@ public class XServiceProvider {
             logMessage.addSOAPParam("XUA:SOAPAction", mc.getSoapAction());
         }
         // Get assertion from the received messageContext
-        OMElement assertion = this.getSAMLAssertionFromRequest(mc);
+        OMElement assertion = XServiceProvider.getSAMLAssertionFromRequest(mc);
         if (assertion == null) {
             logMessage.addErrorParam("XUA:ERROR", "No SAML Assertion found on request!");
             throw new XdsException("XUA:Exception: No SAML Assertion found on request!");
@@ -131,7 +131,7 @@ public class XServiceProvider {
     public String getUserNameFromRequest(MessageContext mc) {
         OMElement assertion = null;
         try {
-            assertion = this.getSAMLAssertionFromRequest(mc);
+            assertion = XServiceProvider.getSAMLAssertionFromRequest(mc);
         } catch (XdsException ex) {
             // Eat this.
             logger.error("Could not get SAML Assertion", ex);
@@ -218,7 +218,7 @@ public class XServiceProvider {
      * @param mc messageContext, received messageContext
      * @return OMElement, assertion element
      */
-    private OMElement getSAMLAssertionFromRequest(MessageContext mc) throws XdsException {
+    public static OMElement getSAMLAssertionFromRequest(MessageContext mc) throws XdsException {
         SOAPEnvelope envelope = mc.getEnvelope();
         // Verify the request header is not null
         SOAPHeader requestHeader = envelope.getHeader();
