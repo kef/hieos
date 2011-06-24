@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:hieos-consent="urn:hieos:policy:1.0:consent"
+           xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+           xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
+           PolicySetId="urn:hieos:policy:1.0:policyset:100"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+    <Target>
+        <Actions>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">urn:ihe:iti:2007:RegistryStoredQuery</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
+        </Actions>
+    </Target>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="urn:hieos:policy:1.0:id:100"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Sample XACML policy</Description>
+
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+           
+        <Rule RuleId="allowed-organizations-rule" Effect="Permit">
+          
+            <Description>
+                Permit if subject's organization-id is in one of the designated set of allowed organizations
+            </Description>
+
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                    <AttributeSelector
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/hieos-consent:ConsentDirectives/hieos-consent:AllowedOrganizations/hieos-consent:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+
+        </Rule>
+
+        <Rule RuleId="deny-all-rule" Effect="Deny">
+            <Description>deny all access to documents. Since this rule is last, it will
+            be selected if no other rule applies, under the rule combining algorithm of first applicable.
+            </Description>
+            <!--<Target/>-->
+        </Rule>
+        <Obligations>
+	      <!-- These obligations provide specific instructions to PEP in the response -->
+	      <!-- This obligation informs the PEP user granted emergency access      -->
+            <Obligation
+	        ObligationId="permit-test-hie-policy"
+	        FulfillOn="Permit">
+                <AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">
+                    &lt;SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" DataType="http://www.w3.org/2001/XMLSchema#string"/&gt;
+                </AttributeAssignment>
+            </Obligation>
+            <Obligation
+	        ObligationId="sensitive-doc-types-obligation"
+	        FulfillOn="Permit">
+                <AttributeAssignment DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types">&lt;ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string"/&gt;</AttributeAssignment>
+                <AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">
+                    Your medical record has been accessed
+                </AttributeAssignment>
+            </Obligation>
+            <Obligation
+	        ObligationId="deny-test-hie-policy"
+	        FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+       
+</PolicySet>
