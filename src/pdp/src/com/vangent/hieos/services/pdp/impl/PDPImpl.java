@@ -120,15 +120,16 @@ public class PDPImpl
      * to these policies only. The <code>PDP</code> is configured
      * programatically to have only a few specific modules.
      *
-     * @param policyFiles an arry of filenames that specify policies
+     * @param policyFiles an array of filenames that specify policies
      */
-    public PDPImpl(String [] policyFiles) throws Exception {
+    public PDPImpl(List<String> policyFiles) throws Exception {
         // Create a PolicyFinderModule and initialize it...in this case,
         // we're using the sample FilePolicyModule that is pre-configured
         // with a set of policies from the filesystem
         FilePolicyModule filePolicyModule = new FilePolicyModule();
-        for (int i = 0; i < policyFiles.length; i++)
-            filePolicyModule.addPolicy(policyFiles[i]);
+        for (int i = 0; i < policyFiles.size(); i++) {
+            filePolicyModule.addPolicy(policyFiles.get(i));
+        }
 
         // next, setup the PolicyFinder that this PDP will use
         PolicyFinder policyFinder = new PolicyFinder();
@@ -224,10 +225,13 @@ public class PDPImpl
             pdpImpl = new PDPImpl();
         } else {
             requestFile = args[0];
-            String [] policyFiles = new String[args.length - 1];
+            //String [] policyFiles = new String[args.length - 1];
+            List<String> policyFiles = new ArrayList<String>();
 
-            for (int i = 1; i < args.length; i++)
-                policyFiles[i-1] = args[i];
+            for (int i = 1; i < args.length; i++) {
+                //policyFiles[i-1] = args[i];
+                policyFiles.add(args[i]);
+            }
 
             pdpImpl = new PDPImpl(policyFiles);
         }

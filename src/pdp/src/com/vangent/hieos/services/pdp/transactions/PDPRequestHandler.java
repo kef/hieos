@@ -29,7 +29,9 @@ import com.vangent.hieos.policyutil.model.pdp.RequestTypeElement;
 import com.vangent.hieos.policyutil.model.pdp.SAMLResponseElement;
 import com.vangent.hieos.policyutil.model.pdp.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
+import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
+import java.util.List;
 
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
@@ -158,12 +160,10 @@ public class PDPRequestHandler extends XBaseTransaction {
     private synchronized PDPImpl getPDP() throws PolicyException {
         if (_pdp == null) {
             try {
-                //File file = new File("C:/dev/hieos/src/XACMLutil/test/policyConfig.xml");
-                //configInputStream = new FileInputStream(file);
+                PolicyConfig pConfig = PolicyConfig.getInstance();
+                List<String> policyFiles = pConfig.getPolicyFiles();
                 // FIXME: Cache the PDP ... is this safe?
-                // FIXME:
                 // Invoke the PDP.
-                String[] policyFiles = {"c:/dev/hieos/config/policy/policies/australia-hie-policy.xml"};
                 _pdp = new PDPImpl(policyFiles);
             } catch (Exception ex) {
                 throw new PolicyException("Unable to create PDPImpl: " + ex.getMessage());

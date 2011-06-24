@@ -37,7 +37,7 @@ public class PDP extends XAbstractService {
      */
     public OMElement Authorize(OMElement authorizeRequest) throws AxisFault {
         try {
-            this.setExcludedServiceFromXUA(true);
+            this.setExcludedServiceFromXUA(true);  // FIXME: Should likely not exclude from XUA
             OMElement startup_error = beginTransaction(
                     "PDP:Authorize", authorizeRequest, XAbstractService.ActorType.PDP);
             if (startup_error != null) {
