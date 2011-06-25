@@ -69,7 +69,9 @@
         <ObjectReference name="pix" refname="localpix" reftype="PIXManagerType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
-        <!-- Other global properties will go here. -->
+        <!-- XDS Bridge -->
+         <ObjectReference name="xdsbridge" refname="localxdsbridge" reftype="XDSBridgeType"/>
+
     </Object>
 
     <Object name="XUAProperties" type="XUAPropertiesType">
@@ -154,6 +156,7 @@
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
         <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
 
+        <Property name="ConfigFile">xdsbridgeconfig.xml</Property>
         <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
 
    </Actor>
