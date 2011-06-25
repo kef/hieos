@@ -34,15 +34,15 @@ import org.apache.log4j.Logger;
 public class XDSDocumentRepositoryClient extends Client {
 
     /** Field description */
-    private final static String PNR_REQUEST_ACTION =
+    public final static String PNR_REQUEST_ACTION =
         "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
 
     /** Field description */
-    private final static String PNR_RESPONSE_ACTION =
+    public final static String PNR_RESPONSE_ACTION =
         "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
 
     /** Field description */
-    private final static String PNR_TRANS = "ProvideAndRegisterDocumentSet-b";
+    public final static String PNR_TRANS = "ProvideAndRegisterDocumentSet-b";
 
     /** Field description */
     private final static Logger logger =
@@ -71,17 +71,14 @@ public class XDSDocumentRepositoryClient extends Client {
     public OMElement submitProvideAndRegisterDocumentSet(XDSPnR request)
             throws AxisFault {
 
-        // TODO Copied from hl7v3util/Validate against schema??
-
         OMElement result = null;
-
-        Soap soap = new Soap();
 
         try {
 
             XConfigActor config = getConfig();
             XConfigTransaction pnrTrans = config.getTransaction(PNR_TRANS);
 
+            Soap soap = new Soap();
             soap.setAsync(pnrTrans.isAsyncTransaction());
 
             boolean soap12 = pnrTrans.isSOAP12Endpoint();

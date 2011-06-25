@@ -11,54 +11,45 @@
  * limitations under the License.
  */
 
-package com.vangent.hieos.services.xds.bridge.model;
+package com.vangent.hieos.services.xds.bridge.utils;
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-06-22
- * @author         Jim Horner    
+ * @author         Jim Horner
  */
-public class SDRError {
-
-    /** Field description */
-    private final String code;
-
-    /** Field description */
-    private final String message;
+public class ClassUtils {
 
     /**
-     * Constructs ...
+     * Method description
      *
      *
-     * @param code
-     * @param message
+     * @param cls
+     *
+     * @return
      */
-    public SDRError(String code, String message) {
+    public static String getShortCanonicalName(Class cls) {
 
-        super();
-        this.code = code;
-        this.message = message;
+        String result = StringUtils.substringAfterLast(cls.getCanonicalName(),
+                            ".");
+
+        return StringUtils.trimToEmpty(result);
     }
 
     /**
      * Method description
      *
      *
+     * @param cls
+     *
      * @return
      */
-    public String getCode() {
-        return code;
-    }
+    public static String getShortClassName(Class cls) {
 
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    public String getMessage() {
-        return message;
+        String result = StringUtils.substringAfterLast(cls.getName(), ".");
+
+        return StringUtils.trimToEmpty(result);
     }
 }

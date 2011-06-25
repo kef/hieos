@@ -14,9 +14,16 @@
 package com.vangent.hieos.services.xds.bridge.transactions.activity;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
+import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType
+    .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.services.xds.bridge.utils.ClassUtils;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.response.RegistryResponseParser;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -35,6 +42,9 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
         Logger.getLogger(SubmitPnRActivity.class);
 
     /** Field description */
+    private final String ERROR_CODE = "E003";
+
+    /** Field description */
     private final XDSDocumentRepositoryClient repositoryClient;
 
     /**
@@ -47,6 +57,60 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
 
         super();
         this.repositoryClient = client;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param pnrResponse
+     * @param context
+     *
+     * @return
+     */
+    private boolean checkForSuccess(OMElement pnrResponse,
+                                    SDRActivityContext context) {
+
+        boolean result = false;
+
+        SubmitDocumentResponse sdrResponse =
+            context.getSubmitDocumentResponse();
+        Document document = context.getDocument();
+
+        try {
+
+            RegistryResponseParser parser =
+                new RegistryResponseParser(pnrResponse);
+
+            if (parser.is_error()) {
+
+                String errmsg = parser.get_regrep_error_msg();
+
+                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                        errmsg);
+
+            } else {
+
+                result = true;
+            }
+
+        } catch (XdsInternalException e) {
+
+            // log it
+            logger.error(e, e);
+
+            // capture in response
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(
+                "Unable to parse repository response, exception follows. ");
+            sb.append(e.getMessage());
+
+            sdrResponse.addResponse(document,
+                    ResponseTypeStatus.Failure, sb.toString());
+        }
+
+        return result;
     }
 
     /**
@@ -72,15 +136,28 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
 
             logger.debug(DebugUtils.toPrettyString(pnrResponse));
 
-            // TODO parse response
+            result = checkForSuccess(pnrResponse, context);
 
         } catch (AxisFault e) {
 
             SubmitDocumentResponse resp = context.getSubmitDocumentResponse();
 
-            resp.addError(context.getDocument(), "E003", e.getMessage());
+            resp.addResponse(context.getDocument(), 
+                    ResponseTypeStatus.Failure, e.getMessage());
         }
 
         return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public String getName() {
+
+        return ClassUtils.getShortCanonicalName(getClass());
     }
 }

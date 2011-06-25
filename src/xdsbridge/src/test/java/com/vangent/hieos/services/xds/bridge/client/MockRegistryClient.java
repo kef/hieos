@@ -13,7 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.client;
 
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.services.xds.bridge.model.PatientIdentityFeed;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
@@ -24,7 +24,7 @@ import org.apache.axis2.AxisFault;
  * @version        v1.0, 2011-06-22
  * @author         Jim Horner
  */
-public class MockRepositoryClient extends XDSDocumentRepositoryClient {
+public class MockRegistryClient extends XDSDocumentRegistryClient {
 
     /** Field description */
     public int count;
@@ -46,8 +46,8 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
      * @param throwsEven
      * @param response
      */
-    public MockRepositoryClient(boolean throwsAlways, boolean throwsEven,
-                                OMElement response) {
+    public MockRegistryClient(boolean throwsAlways, boolean throwsEven,
+                              OMElement response) {
 
         super(null);
         this.throwsExceptionAlways = throwsAlways;
@@ -60,19 +60,19 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
      * Method description
      *
      *
-     * @param request
+     * @param pif
      *
      * @return
      *
      * @throws AxisFault
      */
     @Override
-    public OMElement submitProvideAndRegisterDocumentSet(XDSPnR request)
+    public OMElement sendPatientIdentity(PatientIdentityFeed pif)
             throws AxisFault {
 
         if (this.throwsExceptionAlways) {
 
-            throw new AxisFault("MockRepositoryClient thows exception always.");
+            throw new AxisFault("MockRegistryClient thows exception always.");
 
         } else if (this.throwsExceptionOnEven) {
 
@@ -80,7 +80,7 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
 
                 String msg =
                     String.format(
-                        "Document %d: MockRepositoryClient throws even exception.",
+                        "Document %d: MockRegistryClient throws even exception.",
                         this.count);
 
                 this.count++;

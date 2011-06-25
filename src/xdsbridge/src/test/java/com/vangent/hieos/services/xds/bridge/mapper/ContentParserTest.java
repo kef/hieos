@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import java.io.InputStream;
 import java.util.Map;
 import com.vangent.hieos.xutil.iosupport.Io;
@@ -53,7 +54,7 @@ public class ContentParserTest {
         assertTrue(xml.length > 0);
 
         ContentParserConfig config =
-            CDAToXDSContentParserConfigFactory.createConfig();
+            JUnitHelper.createCDAToXDSContentParserConfig();
 
         ContentParser parser = new ContentParser();
 

@@ -17,9 +17,13 @@ import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.IXDSMapper;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
 import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType
+    .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.services.xds.bridge.utils.ClassUtils;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -67,23 +71,51 @@ public class CDAToXDSMapperActivity implements ISubmitDocumentRequestActivity {
         CodedValue type = document.getType();
         IXDSMapper mapper = this.mapperFactory.getMapper(type);
 
-        try {
+        if (mapper != null) {
 
-            XDSPnR pnr = mapper.map(context.getPatientId(), document);
+            try {
 
-            logger.debug(DebugUtils.toPrettyString(pnr.getNode()));
+                XDSPnR pnr = mapper.map(context.getPatientId(), document);
 
-            context.setXdspnr(pnr);
+                logger.debug(DebugUtils.toPrettyString(pnr.getNode()));
 
-            result = true;
+                context.setXdspnr(pnr);
 
-        } catch (Exception e) {
+                result = true;
+
+            } catch (Exception e) {
+
+                SubmitDocumentResponse resp =
+                    context.getSubmitDocumentResponse();
+
+                resp.addResponse(ResponseTypeStatus.Failure, e.getMessage());
+            }
+
+        } else {
+
+            String msg =
+                String.format(
+                    "Document type is unknown %s:%s; no available mappers.",
+                    type.getCode(), type.getCodeSystem());
 
             SubmitDocumentResponse resp = context.getSubmitDocumentResponse();
 
-            resp.addError("E001", e.getMessage());
+            resp.addResponse(ResponseTypeStatus.Failure, msg);
         }
 
         return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public String getName() {
+
+        return ClassUtils.getShortCanonicalName(getClass());
+
     }
 }

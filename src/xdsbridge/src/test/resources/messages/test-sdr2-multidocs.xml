@@ -7,17 +7,20 @@
     <bridge:Documents>
         <bridge:Document>
             <bridge:Id>2.16.840.1.113883.10.20.1231</bridge:Id>
-            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" />
+            <bridge:Type code="51855-5" 
+                codeSystem="2.16.840.1.113883.6.1" />
             <bridge:Content xm:contentType="application/?">cid:749524621891</bridge:Content>
         </bridge:Document>
         <bridge:Document>
             <bridge:Id>2.16.840.1.113883.10.20.1232</bridge:Id>
-            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" />
+            <bridge:Type code="51855-5" 
+                codeSystem="2.16.840.1.113883.6.1" />
             <bridge:Content xm:contentType="application/?">cid:749524621892</bridge:Content>
         </bridge:Document>
         <bridge:Document>
             <bridge:Id>2.16.840.1.113883.10.20.1233</bridge:Id>
-            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" />
+            <bridge:Type code="51855-5" 
+                codeSystem="2.16.840.1.113883.6.1" />
             <bridge:Content xm:contentType="application/?">cid:749524621893</bridge:Content>
         </bridge:Document>
     </bridge:Documents>

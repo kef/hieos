@@ -13,6 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
+import com.vangent.hieos.services.xds.bridge.model.ResponseType
+    .ResponseTypeStatus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +29,7 @@ import java.util.List;
 public class SubmitDocumentResponse {
 
     /** Field description */
-    private final List<SDRError> errors;
+    private final List<ResponseType> responses;
 
     /** Field description */
     private Status status;
@@ -57,7 +60,7 @@ public class SubmitDocumentResponse {
     public SubmitDocumentResponse(Status status) {
 
         super();
-        this.errors = new ArrayList<SDRError>();
+        this.responses = new ArrayList<ResponseType>();
         this.status = status;
     }
 
@@ -65,12 +68,13 @@ public class SubmitDocumentResponse {
      * Method description
      *
      *
-     * @param error
+     *
+     * @param response
      */
-    public void addError(SDRError error) {
+    public void addResponse(ResponseType response) {
 
-        if (error != null) {
-            errors.add(error);
+        if (response != null) {
+            responses.add(response);
         }
     }
 
@@ -78,12 +82,13 @@ public class SubmitDocumentResponse {
      * Method description
      *
      *
-     * @param code
+     *
+     * @param status
      * @param message
      */
-    public void addError(String code, String message) {
+    public void addResponse(ResponseTypeStatus status, String message) {
 
-        addError(new SDRError(code, message));
+        addResponse(new ResponseType(status, message));
     }
 
     /**
@@ -91,16 +96,25 @@ public class SubmitDocumentResponse {
      *
      *
      * @param document
-     * @param code
+     * @param status
      * @param message
      */
-    public void addError(Document document, String code, String message) {
+    public void addResponse(Document document, ResponseTypeStatus status,
+                            String message) {
 
-        String errmsg =
-            String.format("Document %s had the following error: %s",
-                          document.getId(), message);
+        addResponse(new ResponseType(document.getId(), status, message));
+    }
 
-        addError(code, errmsg);
+    /**
+     * Method description
+     *
+     *
+     * @param document
+     */
+    public void addSuccess(Document document) {
+
+        addResponse(new ResponseType(document.getId(),
+                                     ResponseTypeStatus.Success));
     }
 
     /**
@@ -109,8 +123,8 @@ public class SubmitDocumentResponse {
      *
      * @return
      */
-    public List<SDRError> getErrors() {
-        return this.errors;
+    public List<ResponseType> getResponses() {
+        return this.responses;
     }
 
     /**

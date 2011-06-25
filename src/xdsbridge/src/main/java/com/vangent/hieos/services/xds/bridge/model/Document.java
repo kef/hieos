@@ -13,8 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import java.io.Serializable;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+
+import java.io.Serializable;
 
 /**
  * Class description
@@ -27,6 +28,9 @@ public class Document implements Serializable {
 
     /** Field description */
     private byte[] content;
+
+    /** Field description */
+    private CodedValue format;
 
     /** Field description */
     private String id;
@@ -59,6 +63,16 @@ public class Document implements Serializable {
      */
     public byte[] getContent() {
         return content;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public CodedValue getFormat() {
+        return format;
     }
 
     /**
@@ -119,6 +133,16 @@ public class Document implements Serializable {
      */
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param format
+     */
+    public void setFormat(CodedValue format) {
+        this.format = format;
     }
 
     /**

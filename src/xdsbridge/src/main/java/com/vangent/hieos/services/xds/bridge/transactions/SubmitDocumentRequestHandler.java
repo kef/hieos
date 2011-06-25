@@ -13,15 +13,14 @@
 
 package com.vangent.hieos.services.xds.bridge.transactions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
 import com.vangent.hieos.services.xds.bridge.model.Document;
-import com.vangent.hieos.services.xds.bridge.model.SDRError;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType
+    .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
@@ -38,14 +37,19 @@ import com.vangent.hieos.services.xds.bridge.transactions.activity
     .SubmitPatientIdActivity;
 import com.vangent.hieos.services.xds.bridge.transactions.activity
     .SubmitPnRActivity;
+import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class description
@@ -100,16 +104,6 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
      * Method description
      *
      *
-     * @return
-     */
-    public List<ISubmitDocumentRequestActivity> getProcessActivities() {
-        return Collections.unmodifiableList(processActivities);
-    }
-
-    /**
-     * Method description
-     *
-     *
      * @param sdrResponse
      *
      * @return
@@ -119,35 +113,42 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
         OMFactory fac = OMAbstractFactory.getOMFactory();
 
         String uri = SubmitDocumentRequestBuilder.URI;
-        OMNamespace ns = fac.createOMNamespace(uri, null);
+        OMNamespace ns = fac.createOMNamespace(uri, "xdsbridge");
         OMElement result = fac.createOMElement("SubmitDocumentResponse", ns);
 
-        result.addAttribute("status", sdrResponse.getStatus().toString(), ns);
+        result.addAttribute("status", sdrResponse.getStatus().toString(), null);
 
-        List<SDRError> errors = sdrResponse.getErrors();
+        for (ResponseType respType : sdrResponse.getResponses()) {
 
-        if (errors.isEmpty() == false) {
+            OMElement respTypeElem = fac.createOMElement("Response", ns);
 
-            OMElement errorsElem = fac.createOMElement("Errors", ns);
+            respTypeElem.addAttribute("status",
+                                      respType.getStatus().toString(), null);
 
-            for (SDRError error : sdrResponse.getErrors()) {
+            // document id is optional
+            String docId = respType.getDocumentId();
 
-                OMElement errorElem = fac.createOMElement("Error", ns);
+            if (StringUtils.isNotBlank(docId)) {
 
-                OMElement codeElem = fac.createOMElement("Code", ns);
+                OMElement docElem = fac.createOMElement("DocumentId", ns);
 
-                codeElem.setText(error.getCode());
-                errorElem.addChild(codeElem);
+                docElem.setText(docId);
+
+                respTypeElem.addChild(docElem);
+            }
+
+            // message is optional
+            String msg = respType.getMessage();
+
+            if (StringUtils.isNotBlank(msg)) {
 
                 OMElement msgElem = fac.createOMElement("Message", ns);
 
-                msgElem.setText(error.getMessage());
-                errorElem.addChild(msgElem);
-
-                errorsElem.addChild(errorElem);
+                msgElem.setText(respType.getMessage());
+                respTypeElem.addChild(msgElem);
             }
 
-            result.addChild(errorsElem);
+            result.addChild(respTypeElem);
         }
 
         return result;
@@ -180,8 +181,13 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
         } catch (ModelBuilderException e) {
 
             // this request failed validation (most likely)
+            String errmsg =
+                String.format(
+                    "Request could not be parsed. Failure(s) to follow. %s",
+                    e.getMessage());
+
             sdrResponse.setStatus(Status.Failure);
-            sdrResponse.addError("E001", e.getMessage());
+            sdrResponse.addResponse(ResponseTypeStatus.Failure, errmsg);
         }
 
         if (sdrRequest != null) {
@@ -200,17 +206,30 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
                 SDRActivityContext context = new SDRActivityContext(sdrRequest,
                                                  document, sdrResponse);
 
-                for (ISubmitDocumentRequestActivity activity :
-                        getProcessActivities()) {
+                boolean success = true;
 
-                    boolean success = activity.execute(context);
+                for (ISubmitDocumentRequestActivity activity :
+                        this.processActivities) {
+
+                    logger.debug(String.format("Executing %s",
+                                               activity.getName()));
+
+                    success = activity.execute(context);
 
                     if (success == false) {
+
+                        logger.info(String.format("Activity %s failed.",
+                                                  activity.getName()));
 
                         ++failureCount;
 
                         break;
                     }
+                }
+
+                if (success) {
+
+                    sdrResponse.addSuccess(document);
                 }
 
                 ++documentCount;

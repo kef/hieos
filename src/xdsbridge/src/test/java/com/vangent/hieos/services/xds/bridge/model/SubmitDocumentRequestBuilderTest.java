@@ -13,21 +13,21 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import java.io.File;
-import java.net.URL;
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.List;
 
 /**
  * Class description
@@ -51,19 +51,15 @@ public class SubmitDocumentRequestBuilderTest {
     @Test
     public void buildSDR0Test() throws Exception {
 
-        ClassLoader cl = getClass().getClassLoader();
-        URL testfile = cl.getResource("messages/test-sdr0-no-optionals.xml");
+        OMElement test =
+            JUnitHelper.fileToOMElement("messages/test-sdr0-no-optionals.xml");
 
-        assertNotNull(testfile);
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
-        OMElement test = XMLParser.fileToOM(new File(testfile.getFile()));
+        SubmitDocumentRequestBuilder builder =
+            new SubmitDocumentRequestBuilder(cfg);
 
-        assertNotNull(test);
-
-        logger.debug(DebugUtils.toPrettyString(test));
-
-        SubmitDocumentRequestBuilder uut = new SubmitDocumentRequestBuilder();
-        SubmitDocumentRequest sdr = uut.buildSubmitDocumentRequest(test);
+        SubmitDocumentRequest sdr = builder.buildSubmitDocumentRequest(test);
 
         assertNotNull(sdr);
 
@@ -86,9 +82,8 @@ public class SubmitDocumentRequestBuilderTest {
 
             assertNotNull(type);
 
-            assertEquals("C32", type.getCode());
-            assertEquals("2.16.840.1.113883.3.88.11.32.1",
-                         type.getCodeSystem());
+            assertEquals("51855-5", type.getCode());
+            assertEquals("2.16.840.1.113883.6.1", type.getCodeSystem());
             assertNull(type.getCodeSystemName());
             assertNull(type.getDisplayName());
         }
@@ -103,19 +98,15 @@ public class SubmitDocumentRequestBuilderTest {
     @Test
     public void buildSDR1Test() throws Exception {
 
-        ClassLoader cl = getClass().getClassLoader();
-        URL testfile = cl.getResource("messages/test-sdr1-optionals.xml");
+        OMElement test =
+            JUnitHelper.fileToOMElement("messages/test-sdr1-optionals.xml");
 
-        assertNotNull(testfile);
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
-        OMElement test = XMLParser.fileToOM(new File(testfile.getFile()));
+        SubmitDocumentRequestBuilder builder =
+            new SubmitDocumentRequestBuilder(cfg);
 
-        assertNotNull(test);
-
-        logger.debug(DebugUtils.toPrettyString(test));
-
-        SubmitDocumentRequestBuilder uut = new SubmitDocumentRequestBuilder();
-        SubmitDocumentRequest sdr = uut.buildSubmitDocumentRequest(test);
+        SubmitDocumentRequest sdr = builder.buildSubmitDocumentRequest(test);
 
         assertNotNull(sdr);
 
@@ -147,11 +138,10 @@ public class SubmitDocumentRequestBuilderTest {
 
             assertNotNull(type);
 
-            assertEquals("C32", type.getCode());
-            assertEquals("2.16.840.1.113883.3.88.11.32.1",
-                         type.getCodeSystem());
-            assertEquals("CodeSystemName", type.getCodeSystemName());
-            assertEquals("DisplayName", type.getDisplayName());
+            assertEquals("51855-5", type.getCode());
+            assertEquals("2.16.840.1.113883.6.1", type.getCodeSystem());
+            assertEquals("LOINC", type.getCodeSystemName());
+            assertEquals("Shared Health Summary", type.getDisplayName());
         }
     }
 
@@ -164,19 +154,15 @@ public class SubmitDocumentRequestBuilderTest {
     @Test
     public void buildSDR2Test() throws Exception {
 
-        ClassLoader cl = getClass().getClassLoader();
-        URL testfile = cl.getResource("messages/test-sdr2-multidocs.xml");
+        OMElement test =
+            JUnitHelper.fileToOMElement("messages/test-sdr2-multidocs.xml");
 
-        assertNotNull(testfile);
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
-        OMElement test = XMLParser.fileToOM(new File(testfile.getFile()));
+        SubmitDocumentRequestBuilder builder =
+            new SubmitDocumentRequestBuilder(cfg);
 
-        assertNotNull(test);
-
-        logger.debug(DebugUtils.toPrettyString(test));
-
-        SubmitDocumentRequestBuilder uut = new SubmitDocumentRequestBuilder();
-        SubmitDocumentRequest sdr = uut.buildSubmitDocumentRequest(test);
+        SubmitDocumentRequest sdr = builder.buildSubmitDocumentRequest(test);
 
         assertNotNull(sdr);
 
@@ -207,9 +193,8 @@ public class SubmitDocumentRequestBuilderTest {
 
             assertNotNull(type);
 
-            assertEquals("C32", type.getCode());
-            assertEquals("2.16.840.1.113883.3.88.11.32.1",
-                         type.getCodeSystem());
+            assertEquals("51855-5", type.getCode());
+            assertEquals("2.16.840.1.113883.6.1", type.getCodeSystem());
             assertNull(type.getCodeSystemName());
             assertNull(type.getDisplayName());
         }
@@ -224,19 +209,15 @@ public class SubmitDocumentRequestBuilderTest {
     @Test
     public void buildSDR3Test() throws Exception {
 
-        ClassLoader cl = getClass().getClassLoader();
-        URL testfile = cl.getResource("messages/test-sdr3-cda.xml");
+        OMElement test =
+            JUnitHelper.fileToOMElement("messages/test-sdr3-cda.xml");
 
-        assertNotNull(testfile);
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
-        OMElement test = XMLParser.fileToOM(new File(testfile.getFile()));
+        SubmitDocumentRequestBuilder builder =
+            new SubmitDocumentRequestBuilder(cfg);
 
-        assertNotNull(test);
-
-        logger.debug(DebugUtils.toPrettyString(test));
-
-        SubmitDocumentRequestBuilder uut = new SubmitDocumentRequestBuilder();
-        SubmitDocumentRequest sdr = uut.buildSubmitDocumentRequest(test);
+        SubmitDocumentRequest sdr = builder.buildSubmitDocumentRequest(test);
 
         assertNotNull(sdr);
 
@@ -261,9 +242,8 @@ public class SubmitDocumentRequestBuilderTest {
 
             assertNotNull(type);
 
-            assertEquals("C32", type.getCode());
-            assertEquals("2.16.840.1.113883.3.88.11.32.1",
-                         type.getCodeSystem());
+            assertEquals("51855-5", type.getCode());
+            assertEquals("2.16.840.1.113883.6.1", type.getCodeSystem());
             assertNull(type.getCodeSystemName());
             assertNull(type.getDisplayName());
 

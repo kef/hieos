@@ -15,7 +15,7 @@ package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import com.vangent.hieos.services.xds.bridge.serviceimpl.support.MockXDSBridge;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.support
-    .XDSBridgeTestConfigFactory;
+    .XDSBridgeServiceContextFactory;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.xml.XMLParser;
 
@@ -54,7 +54,7 @@ public class XDSBridgeITCase {
 
         // have to mock an xds brigde to override some axis2 methods
         XDSBridge xdsbridge =
-            new MockXDSBridge(XDSBridgeTestConfigFactory.createConfig());
+            new MockXDSBridge(XDSBridgeServiceContextFactory.createServiceContext());
 
         ClassLoader cl = getClass().getClassLoader();
         URL testfile = cl.getResource("messages/test-sdr3-cda.xml");

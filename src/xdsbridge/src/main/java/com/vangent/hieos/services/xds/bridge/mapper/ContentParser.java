@@ -66,7 +66,7 @@ public class ContentParser {
 
         OMElement node = XMLParser.bytesToOM(input);
 
-        String[][] prefixUris = config.toPrefixURIArray();
+        String[][] prefixUris = config.toPrefixURIArrays();
         String[] prefixes = prefixUris[0];
         String[] uris = prefixUris[1];
 

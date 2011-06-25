@@ -5,7 +5,8 @@
     <bridge:PatientId root="2.16.840.1.113883.3.454.1.1000387002" />
     <bridge:Documents>
         <bridge:Document>
-            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" />
+            <bridge:Type code="51855-5" 
+                codeSystem="2.16.840.1.113883.6.1" />
             <bridge:Content xm:contentType="application/?">cid:749524621891</bridge:Content>
         </bridge:Document>
     </bridge:Documents>

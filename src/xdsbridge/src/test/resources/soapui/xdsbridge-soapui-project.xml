@@ -157,7 +157,8 @@
          <xds:Documents>
             <!--1 or more repetitions:-->
             <xds:Document>
-               <xds:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.3" />
+               <xds:Type code="51855-5" codeSystem="2.16.840.1.113883.6.1"
+                    codeSystemName="LOINC" displayName="Shared Health Summary" />
                <xds:Content>cid:exampleCDA-SHS-V1_0.xml</xds:Content>
             </xds:Document>
          </xds:Documents>

@@ -30,7 +30,10 @@ public class ContentParserConfig {
     private final Map<String, String> expressionMap;
 
     /** Field description */
-    private final String initializationErrors;
+    private String initializationErrors;
+
+    /** Field description */
+    private final ContentParserConfigName name;
 
     /** Field description */
     private final Map<String, String> namespaces;
@@ -38,44 +41,49 @@ public class ContentParserConfig {
     /** Field description */
     private final Map<String, String> staticValues;
 
-    /**
-     * Constructs ...
-     *
-     *
-     * @param ns
-     * @param expressions
-     * @param statVals
-     */
-    public ContentParserConfig(Map<String, String> ns,
-                               Map<String, String> expressions,
-                               Map<String, String> statVals) {
+    /** Field description */
+    private final String templateFileName;
 
-        this(ns, expressions, statVals, null);
-    }
+    /**
+     * Enum description
+     *
+     */
+    public enum ContentParserConfigName { CDAToXDSMapper }
+
+    ;
 
     /**
      * Constructs ...
      *
      *
-     * @param ns
+     *
+     *
+     * @param name
+     * @param namespaces
      * @param expressions
-     * @param statVals
-     * @param errors
+     * @param staticValues
+     * @param templFileName
      */
-    public ContentParserConfig(Map<String, String> ns,
+    public ContentParserConfig(ContentParserConfigName name,
+                               Map<String, String> namespaces,
                                Map<String, String> expressions,
-                               Map<String, String> statVals, String errors) {
+                               Map<String, String> staticValues,
+                               String templFileName) {
+
+        super();
+
+        this.name = name;
 
         this.namespaces = new HashMap<String, String>();
-        this.namespaces.putAll(ns);
+        this.namespaces.putAll(namespaces);
 
         this.expressionMap = new HashMap<String, String>();
         this.expressionMap.putAll(expressions);
 
         this.staticValues = new HashMap<String, String>();
-        this.staticValues.putAll(statVals);
+        this.staticValues.putAll(staticValues);
 
-        this.initializationErrors = errors;
+        this.templateFileName = templFileName;
     }
 
     /**
@@ -104,8 +112,18 @@ public class ContentParserConfig {
      *
      * @return
      */
+    public ContentParserConfigName getName() {
+        return name;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
     public Map<String, String> getNamespaces() {
-        return Collections.unmodifiableMap(namespaces);
+        return Collections.unmodifiableMap(this.namespaces);
     }
 
     /**
@@ -115,7 +133,7 @@ public class ContentParserConfig {
      * @return
      */
     public Map<String, String> getStaticValues() {
-        return staticValues;
+        return Collections.unmodifiableMap(staticValues);
     }
 
     /**
@@ -124,7 +142,27 @@ public class ContentParserConfig {
      *
      * @return
      */
-    public String[][] toPrefixURIArray() {
+    public String getTemplateFileName() {
+        return templateFileName;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param initializationErrors
+     */
+    public void setInitializationErrors(String initializationErrors) {
+        this.initializationErrors = initializationErrors;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String[][] toPrefixURIArrays() {
 
         Map<String, String> spaces = getNamespaces();
         String[][] result = new String[2][spaces.size()];

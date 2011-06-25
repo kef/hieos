@@ -26,6 +26,7 @@ import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
  */
 public interface IXDSMapper {
 
+    
     /**
      * Method description
      *

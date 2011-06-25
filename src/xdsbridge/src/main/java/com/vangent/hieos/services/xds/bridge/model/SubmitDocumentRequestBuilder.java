@@ -13,18 +13,24 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
 import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class description
@@ -43,12 +49,19 @@ public class SubmitDocumentRequestBuilder {
     private final static Logger logger =
         Logger.getLogger(SubmitDocumentRequestBuilder.class);
 
+    /** Field description */
+    private final XDSBridgeConfig xdsbridgeConfig;
+
     /**
      * Constructs ...
      *
+     *
+     * @param xdsbridgeConfig
      */
-    public SubmitDocumentRequestBuilder() {
+    public SubmitDocumentRequestBuilder(XDSBridgeConfig xdsbridgeConfig) {
+
         super();
+        this.xdsbridgeConfig = xdsbridgeConfig;
     }
 
     /**
@@ -129,11 +142,7 @@ public class SubmitDocumentRequestBuilder {
 
         if (cvelem != null) {
 
-            result = new CodedValue();
-            result.setCode(parseText(cvelem, "@code"));
-            result.setCodeSystem(parseText(cvelem, "@codeSystem"));
-            result.setCodeSystemName(parseText(cvelem, "@codeSystemName"));
-            result.setDisplayName(parseText(cvelem, "@displayName"));
+            result = CodedValueUtils.parseCodedValue(cvelem);
         }
 
         return result;
@@ -162,7 +171,33 @@ public class SubmitDocumentRequestBuilder {
         result.setType(parseCodedValue(docelem, "./ns:Type"));
         result.setContent(parseBinaryContent(docelem, "./ns:Content"));
 
+        // use xdsbridgeconfig.xml to map and populate format
+        DocumentTypeMapping mapping =
+            this.xdsbridgeConfig.findDocumentTypeMapping(result.getType());
+
+        if (mapping != null) {
+            
+            result.setFormat(mapping.getFormat());
+            
+        } else {
+
+            // TODO just throw an exception in validation??
+            
+            // log a warning
+            CodedValue type = result.getType();
+
+            logger.warn(
+                String.format(
+                    "Document type %s:%s does not have a mapping.",
+                    type.getCode(), type.getCodeSystem()));
+
+            // instantiate an empty codedvalue
+            result.setFormat(new CodedValue());
+        }
+
         // TODO revisit how this gets populated
+        // use xdsbridgeconfig.xml???
+        logger.warn("Setting mimeType to hard-coded value text/xml.");
         result.setMimeType("text/xml");
 
         return result;
@@ -292,14 +327,18 @@ public class SubmitDocumentRequestBuilder {
             for (int i = 0; i < docs.size(); ++i) {
 
                 Document doc = docs.get(i);
+                String id = doc.getId();
+
+                if (StringUtils.isBlank(id)) {
+                    id = String.format("%02d", i + 1);
+                }
 
                 CodedValue type = doc.getType();
 
                 if (type == null) {
 
                     errmsg.append(
-                        String.format(
-                            "Document %d must have a type.%n", i + 1));
+                        String.format("Document %s must have a type.%n", id));
 
                 } else {
 
@@ -307,16 +346,15 @@ public class SubmitDocumentRequestBuilder {
 
                         errmsg.append(
                             String.format(
-                                "Document %d must have a type/@code.%n",
-                                i + 1));
+                                "Document %s must have a type/@code.%n", id));
                     }
 
                     if (StringUtils.isBlank(type.getCodeSystem())) {
 
                         errmsg.append(
                             String.format(
-                                "Document %d must have a type/@codeSystem.%n",
-                                i + 1));
+                                "Document %s must have a type/@codeSystem.%n",
+                                id));
                     }
                 }
 
@@ -324,13 +362,13 @@ public class SubmitDocumentRequestBuilder {
 
                     errmsg.append(
                         String.format(
-                            "Document %d must contain content.%n", i + 1));
+                            "Document %s must contain content.%n", id));
                 }
             }
         }
 
         if (errmsg.length() > 0) {
-            throw new ModelBuilderException(errmsg.toString());
+            throw new ModelBuilderException(errmsg.toString().trim());
         }
     }
 }

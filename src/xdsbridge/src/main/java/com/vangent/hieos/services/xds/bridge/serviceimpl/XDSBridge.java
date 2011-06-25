@@ -23,11 +23,11 @@ import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.transactions
     .SubmitDocumentRequestHandler;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -44,10 +44,10 @@ import org.apache.log4j.Logger;
 public class XDSBridge extends AbstractHandlerService {
 
     /** Field description */
-    private final static Logger logger = Logger.getLogger(XDSBridge.class);
+    private static final Logger logger = Logger.getLogger(XDSBridge.class);
 
     /** Field description */
-    protected static XDSBridgeConfig bridgeConfig;
+    protected static XDSBridgeServiceContext serviceContext;
 
     /**
      * Constructs ...
@@ -91,7 +91,7 @@ public class XDSBridge extends AbstractHandlerService {
 
         super.shutDown(configctx, service);
 
-        XDSBridge.bridgeConfig = null;
+        XDSBridge.serviceContext = null;
     }
 
     /**
@@ -106,11 +106,7 @@ public class XDSBridge extends AbstractHandlerService {
 
         super.startUp(configctx, service);
 
-        // create wiring, check environment
-        SubmitDocumentRequestBuilder sdrBuilder =
-            new SubmitDocumentRequestBuilder();
-        ContentParser conParser = new ContentParser();
-        MapperFactory mapFactory = new MapperFactory(conParser);
+        // check environment
 
         XConfig xconfig = null;
 
@@ -118,17 +114,30 @@ public class XDSBridge extends AbstractHandlerService {
 
             xconfig = XConfig.getInstance();
 
-        } catch (XConfigException e) {
+        } catch (Exception e) {
 
             // refuse to deploy
             throw new IllegalStateException(e);
         }
 
-        // TODO is this configurable???? pull from AxisService parameter?
-        String repoName = "repo";
         XConfigObject homeCommunity = xconfig.getHomeCommunityConfig();
+
+        String bridgeName = "xdsbridge";
+        XConfigActor xdsBridgeActor =
+            (XConfigActor) homeCommunity.getXConfigObjectWithName("xdsbridge",
+                "XDSBridgeType");
+
+        if (xdsBridgeActor == null) {
+
+            throw new IllegalStateException(
+                String.format(
+                    "XDSBridge [%s] config is not found.", bridgeName));
+        }
+
+        // grab repository from xdsbridge actor
+        String repoName = "repo";
         XConfigActor repositoryActor =
-            (XConfigActor) homeCommunity.getXConfigObjectWithName(repoName,
+            (XConfigActor) homeCommunity.getXConfigObjectWithName("repo",
                 XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
 
         if (repositoryActor == null) {
@@ -138,13 +147,10 @@ public class XDSBridge extends AbstractHandlerService {
                     "Repository [%s] config is not found.", repoName));
         }
 
-        XDSDocumentRepositoryClient repoClient =
-            new XDSDocumentRepositoryClient(repositoryActor);
-
-        // grab registry from repository actor stanza
+        // grab registry from xdsbrige actor
         String regName = "registry";
         XConfigActor registryActor =
-            (XConfigActor) repositoryActor.getXConfigObjectWithName(regName,
+            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(regName,
                 XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
 
         if (registryActor == null) {
@@ -153,12 +159,36 @@ public class XDSBridge extends AbstractHandlerService {
                 String.format("Registry [%s] config is not found.", regName));
         }
 
+        XDSBridgeConfig bridgeConfig = null;
+
+        try {
+
+            bridgeConfig = XDSBridgeConfig.parseConfigFile(xdsBridgeActor);
+
+        } catch (Exception e) {
+
+            throw new IllegalStateException(
+                "Unable to process xdsbridge config file.", e);
+        }
+
+        // create wiring
+
+        SubmitDocumentRequestBuilder sdrBuilder =
+            new SubmitDocumentRequestBuilder(bridgeConfig);
+
+        ContentParser conParser = new ContentParser();
+
+        MapperFactory mapFactory = new MapperFactory(bridgeConfig, conParser);
+
+        XDSDocumentRepositoryClient repoClient =
+            new XDSDocumentRepositoryClient(repositoryActor);
+
         XDSDocumentRegistryClient regClient =
             new XDSDocumentRegistryClient(registryActor);
 
-        // set configuration for this service
-        XDSBridge.bridgeConfig = new XDSBridgeConfig(mapFactory, sdrBuilder,
-                regClient, repoClient);
+        // set context for this service
+        XDSBridge.serviceContext = new XDSBridgeServiceContext(mapFactory,
+                sdrBuilder, regClient, repoClient);
     }
 
     /**
@@ -183,13 +213,14 @@ public class XDSBridge extends AbstractHandlerService {
         }
 
         SubmitDocumentRequestBuilder builder =
-            bridgeConfig.getSubmitDocumentRequestBuilder();
+            serviceContext.getSubmitDocumentRequestBuilder();
 
-        MapperFactory mapFact = bridgeConfig.getMapperFactory();
+        MapperFactory mapFact = serviceContext.getMapperFactory();
 
-        XDSDocumentRegistryClient regClient = bridgeConfig.getRegistryClient();
+        XDSDocumentRegistryClient regClient =
+            serviceContext.getRegistryClient();
         XDSDocumentRepositoryClient repoClient =
-            bridgeConfig.getRepositoryClient();
+            serviceContext.getRepositoryClient();
 
         IMessageHandler handler =
             new SubmitDocumentRequestHandler(getLogMessage(), builder, mapFact,

@@ -13,9 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig.ContentParserConfigName;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 
 /**
  * Class description
@@ -27,21 +27,24 @@ import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 public class MapperFactory {
 
     /** Field description */
-    private final static Map<String, IXDSMapper> cache = new HashMap<String,
-                                                             IXDSMapper>();
+    private final ContentParser contentParser;
 
     /** Field description */
-    private final ContentParser contentParser;
+    private final XDSBridgeConfig xdsbridgeConfig;
 
     /**
      * Constructs ...
      *
      *
+     *
+     *
+     * @param bridgeConfig
      * @param tplGen
      */
-    public MapperFactory(ContentParser tplGen) {
+    public MapperFactory(XDSBridgeConfig bridgeConfig, ContentParser tplGen) {
 
         super();
+        this.xdsbridgeConfig = bridgeConfig;
         this.contentParser = tplGen;
     }
 
@@ -49,31 +52,35 @@ public class MapperFactory {
      * Method description
      *
      *
-     * @param tplGen
-     * @param mycache
      *
+     * @param cfg
      * @return
      */
-    protected MapperFactory(ContentParser tplGen,
-                            Map<String, IXDSMapper> mycache) {
+    public CDAToXDSMapper createCDAToXDSMapper(ContentParserConfig cfg) {
 
-        this(tplGen);
-
-        cache.putAll(mycache);
+        return new CDAToXDSMapper(this.contentParser, cfg);
     }
 
     /**
      * Method description
      *
      *
+     * @param type
+     *
      * @return
      */
-    public CDAToXDSMapper createCDAToXDSMapper() {
+    private ContentParserConfig findContentParserConfig(CodedValue type) {
 
-        ContentParserConfig cfg =
-            CDAToXDSContentParserConfigFactory.createConfig();
+        ContentParserConfig result = null;
 
-        return new CDAToXDSMapper(this.contentParser, cfg);
+        DocumentTypeMapping mapping =
+            this.xdsbridgeConfig.findDocumentTypeMapping(type);
+
+        if (mapping != null) {
+            result = mapping.getContentParserConfig();
+        }
+
+        return result;
     }
 
     /**
@@ -88,22 +95,14 @@ public class MapperFactory {
 
         IXDSMapper result = null;
 
-        // if/else/then or a switch to create a key
-        // only know about CDA
-        String key = CDAToXDSMapper.class.getName();
+        ContentParserConfig parserConfig = findContentParserConfig(type);
 
-        synchronized (cache) {
+        if (parserConfig != null) {
 
-            result = cache.get(key);
+            if (ContentParserConfigName.CDAToXDSMapper
+                    == parserConfig.getName()) {
 
-            if (result == null) {
-
-                ContentParserConfig cfg =
-                    CDAToXDSContentParserConfigFactory.createConfig();
-
-                result = new CDAToXDSMapper(this.contentParser, cfg);
-
-                cache.put(key, result);
+                result = createCDAToXDSMapper(parserConfig);
             }
         }
 

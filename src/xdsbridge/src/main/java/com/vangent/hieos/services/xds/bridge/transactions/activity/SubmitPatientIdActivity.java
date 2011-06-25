@@ -14,6 +14,7 @@
 package com.vangent.hieos.services.xds.bridge.transactions.activity;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
+import com.vangent.hieos.services.xds.bridge.utils.ClassUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -75,5 +76,17 @@ public class SubmitPatientIdActivity implements ISubmitDocumentRequestActivity {
 //      return result;
 
         return true;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public String getName() {
+
+        return ClassUtils.getShortCanonicalName(getClass());
     }
 }

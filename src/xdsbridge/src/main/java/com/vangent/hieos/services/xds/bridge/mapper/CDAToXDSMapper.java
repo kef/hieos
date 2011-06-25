@@ -13,20 +13,27 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.UUID;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.Identifier;
 import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
 import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
+import com.vangent.hieos.services.xds.bridge.utils.UUIDUtils;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.template.TemplateUtil;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
+
 import org.json.XML;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Class description
@@ -36,10 +43,6 @@ import org.json.XML;
  * @author         Jim Horner
  */
 public class CDAToXDSMapper implements IXDSMapper {
-
-    /** Field description */
-    private final static String PNRFILE =
-        "META-INF/templates/ProvideAndRegisterMetadata.xml";
 
     /** Field description */
     private final static Logger logger = Logger.getLogger(CDAToXDSMapper.class);
@@ -119,7 +122,18 @@ public class CDAToXDSMapper implements IXDSMapper {
         document.setSymbolicId(symbolicId);
 
         // formatCode
-        // TODO map needs to be passed in
+        CodedValue format = document.getFormat();
+
+        result.put(ContentVariableName.DocumentFormatCode.toString(),
+                   format.getCode());
+        result.put(ContentVariableName.DocumentFormatCodeSystem.toString(),
+                   format.getCodeSystem());
+        result.put(ContentVariableName.DocumentFormatDisplayName.toString(),
+                   format.getDisplayName());
+
+        // mime type
+        result.put(ContentVariableName.DocumentMimeType.toString(),
+                   document.getMimeType());
 
         // legal Authenticator
         remapForXON(result, ContentVariableName.LegalAuthenticatorRoot,
@@ -148,36 +162,58 @@ public class CDAToXDSMapper implements IXDSMapper {
         if (StringUtils.isNotBlank(document.getId())) {
 
             // document id from SDR is preferred
-            result.put(ContentVariableName.DocumentUniqueId.toString(),
-                       document.getId());
+            String docId = document.getId();
+
+            if (UUIDUtils.isUUID(docId)) {
+
+                // if UUID then we need to convert to OID
+                docId = UUIDUtils.toOIDFromUUIDString(docId);
+            }
+
+            result.put(ContentVariableName.DocumentUniqueId.toString(), docId);
 
         } else {
 
             // if document content had internal id use that
             // else generate one
             String uuidField = ContentVariableName.DocumentUniqueId.toString();
-            String uid = result.get(uuidField);
+            String docId = result.get(uuidField);
 
-            if (StringUtils.isBlank(uid)) {
+            if (StringUtils.isBlank(docId)) {
 
-                uid = UUID.randomUUID().toString();
-                result.put(uuidField, uid);
+                UUID randUUID = UUID.randomUUID();
+
+                docId = randUUID.toString();
+
+                // TODO uses 2.25 prefix
+                result.put(uuidField, UUIDUtils.toOID(randUUID));
+
+            } else {
+
+                // if UUID then we need to convert
+                if (UUIDUtils.isUUID(docId)) {
+
+                    // TODO uses 2.25 prefix
+                    result.put(uuidField, UUIDUtils.toOIDFromUUIDString(docId));
+                }
             }
 
             // sync up with the document object
-            document.setId(uid);
+            document.setId(docId);
         }
 
         // ///
         // Submission Set
 
         String sourceIdRoot =
-            result.get(ContentVariableName.SourcePatientRoot.toString());
+            result.get(ContentVariableName.SourceIdRoot.toString());
         String sourceIdExt =
-            result.get(ContentVariableName.SourcePatientExtension.toString());
+            result.get(ContentVariableName.SourceIdExtension.toString());
 
         if (StringUtils.isBlank(sourceIdExt)) {
+
             result.put(ContentVariableName.SourceId.toString(), sourceIdRoot);
+
         } else {
 
             result.put(ContentVariableName.SourceId.toString(),
@@ -187,9 +223,10 @@ public class CDAToXDSMapper implements IXDSMapper {
         result.put(ContentVariableName.SubmissionTime.toString(),
                    Hl7Date.now());
 
-        result.put(ContentVariableName.SubmissionSetUniqueId.toString(), 
-                UUID.randomUUID().toString());
-        
+        // TODO uses 2.25 prefix
+        result.put(ContentVariableName.SubmissionSetUniqueId.toString(),
+                   UUIDUtils.toOID(UUID.randomUUID()));
+
         // ///
         // Static Values
         // set all the static values (or overrides)
@@ -233,9 +270,6 @@ public class CDAToXDSMapper implements IXDSMapper {
     public XDSPnR map(Identifier patientId, Document document)
             throws Exception {
 
-        // TODO revisit where the template could/should be stored
-        String template = readPNRTemplate();
-
         Map<String, String> repl = createReplaceVariables(document);
 
         validate(patientId, document, repl);
@@ -243,8 +277,14 @@ public class CDAToXDSMapper implements IXDSMapper {
         for (Map.Entry<String, String> entry : repl.entrySet()) {
 
             // sanitize values (& becomes &amp;)
-            entry.setValue(XML.escape(entry.getValue()));
+            String value = entry.getValue();
+
+            if (StringUtils.isNotBlank(value)) {
+                entry.setValue(XML.escape(value));
+            }
         }
+
+        String template = readPNRTemplate();
 
         OMElement elem = TemplateUtil.getOMElementFromTemplate(template, repl);
 
@@ -266,18 +306,18 @@ public class CDAToXDSMapper implements IXDSMapper {
     protected String readPNRTemplate() throws IOException {
 
         String result = null;
-
-        ClassLoader cl = getClass().getClassLoader();
         InputStream is = null;
+
+        String filename = getContentParserConfig().getTemplateFileName();
 
         try {
 
-            is = cl.getResourceAsStream(PNRFILE);
+            is = new FileInputStream(filename);
             result = Io.getStringFromInputStream(is);
 
         } catch (IOException e) {
 
-            logger.error(String.format("Unable to read %s.", PNRFILE), e);
+            logger.error(String.format("Unable to read %s.", filename), e);
 
             throw e;
 
@@ -289,7 +329,7 @@ public class CDAToXDSMapper implements IXDSMapper {
                     is.close();
                 } catch (IOException e) {
 
-                    logger.warn(String.format("Unable to close %s.", PNRFILE),
+                    logger.warn(String.format("Unable to close %s.", filename),
                                 e);
                 }
             }

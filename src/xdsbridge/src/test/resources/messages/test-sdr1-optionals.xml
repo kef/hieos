@@ -7,8 +7,9 @@
     <bridge:OrganizationId root="2.16.840.1.113883.3.454.1.8991" extension="50" />
     <bridge:Documents>
         <bridge:Document>
-            <bridge:Type code="C32" codeSystem="2.16.840.1.113883.3.88.11.32.1" 
-                codeSystemName="CodeSystemName" displayName="DisplayName" />
+            <bridge:Type code="51855-5" 
+                codeSystem="2.16.840.1.113883.6.1"
+                codeSystemName="LOINC" displayName="Shared Health Summary" />
             <bridge:Id>2.16.840.1.113883.10.20.1234</bridge:Id> <!-- optional -->
             <bridge:ReplaceId>2.16.840.1.113883.10.20.1235</bridge:ReplaceId> <!-- optional --> 
             <bridge:Content xm:contentType="application/?">cid:749524621891</bridge:Content>

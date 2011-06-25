@@ -17,6 +17,7 @@ import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.Identifier;
 import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.iosupport.Io;
 
@@ -31,6 +32,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class description
@@ -55,7 +58,7 @@ public class CDAToXDSMapperTest {
     public void createReplaceVariablesTest() throws Exception {
 
         ContentParserConfig cfg =
-            CDAToXDSContentParserConfigFactory.createConfig();
+            JUnitHelper.createCDAToXDSContentParserConfig();
         ContentParser gen = new ContentParser();
 
         CDAToXDSMapper mapper = new CDAToXDSMapper(gen, cfg);
@@ -111,7 +114,7 @@ public class CDAToXDSMapperTest {
     public void mapTest() throws Exception {
 
         ContentParserConfig cfg =
-            CDAToXDSContentParserConfigFactory.createConfig();
+            JUnitHelper.createCDAToXDSContentParserConfig();
         ContentParser gen = new ContentParser();
 
         CDAToXDSMapper mapper = new CDAToXDSMapper(gen, cfg);
@@ -136,6 +139,35 @@ public class CDAToXDSMapperTest {
 
         assertNotNull(pnr);
 
-        logger.debug(DebugUtils.toPrettyString(pnr.getNode()));
+        String pnrstr = DebugUtils.toPrettyString(pnr.getNode());
+
+        logger.debug(pnrstr);
+
+        Pattern pattern = Pattern.compile("\\{.*?\\}");
+        Matcher matcher = pattern.matcher(pnrstr);
+        StringBuilder sb = new StringBuilder();
+
+        while (matcher.find()) {
+
+            sb.append(matcher.group());
+            sb.append("\n");
+        }
+
+        // assertEquals("Found unset tokens: " + sb.toString(), 0, sb.length());
+
+//      JUnitHelper.createXConfigInstance();
+//
+//      String schemaLocation =
+//          String.format(
+//              "%s/../../config/schema/v3/XDS.b_DocumentRepository.xsd",
+//              System.getProperty("user.dir"));
+//
+//      assertTrue("File " + schemaLocation + " not exist.",
+//              new File(schemaLocation).exists());
+//
+//      XMLSchemaValidator schemaValidator =
+//          new XMLSchemaValidator(schemaLocation);
+//
+//      //schemaValidator.validate(pnrstr);
     }
 }

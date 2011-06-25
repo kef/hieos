@@ -14,7 +14,7 @@
 package com.vangent.hieos.services.xds.bridge.serviceimpl.support;
 
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeServiceContext;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.xlog.client.XLogger;
 
@@ -37,10 +37,10 @@ public class MockXDSBridge extends XDSBridge {
      *
      * @param config
      */
-    public MockXDSBridge(XDSBridgeConfig config) {
+    public MockXDSBridge(XDSBridgeServiceContext config) {
 
         super();
-        XDSBridge.bridgeConfig = config;
+        XDSBridge.serviceContext = config;
     }
 
     /**
