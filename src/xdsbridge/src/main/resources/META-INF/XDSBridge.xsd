@@ -77,7 +77,9 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
-            <xsd:element name="Response" type="tns:ResponseType" maxOccurs="unbounded" />
+        	<xsd:sequence>
+            	<xsd:element name="Response" type="tns:ResponseType" maxOccurs="unbounded" />
+        	</xsd:sequence>
             <xsd:attribute name="status" use="required">
                 <xsd:simpleType>
                     <xsd:restriction base="xsd:string">
