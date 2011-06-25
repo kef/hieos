@@ -77,9 +77,25 @@
         <mkdir dir="${build.generated.test-sources.dir}/wsimport" />
         <property name="wsdl-XDSBridge"
             location="${src.resources.dir}/META-INF/XDSBridge.wsdl" />
- 	<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
-            <classpath path="${libs.jaxws21.classpath}"/>
- 	</taskdef>            
+
+		<echo message="${java.home}/../bin/wsimport" />
+		<exec executable="${java.home}/../bin/wsimport">
+			<arg value="-Xnocompile" />
+			<arg value="-extension" />
+			<arg value="-verbose" />
+			<arg value="-verbose" />
+			<arg value="-target" />
+			<arg value="2.1" />
+			<arg value="-d" />
+			<arg value="${build.generated.test-sources.dir}/wsimport" />
+			<arg value="-s" />
+			<arg value="${build.generated.test-sources.dir}/wsimport" />
+			<arg value="-wsdllocation" />
+			<arg value="META-INF/XSDBridge.wsdl" />
+			<arg value="${wsdl-XDSBridge}" />
+		</exec>
+
+		<!--
         <wsimport sourcedestdir="${build.generated.test-sources.dir}/wsimport"
             destdir="${build.generated.test-sources.dir}/wsimport"
             wsdl="${wsdl-XDSBridge}" xnocompile="true"
@@ -89,13 +105,7 @@
             <depends file="${wsdl-XDSBridge}"/>
             <produces dir="${build.generated.test-sources.dir}/wsimport"/>
         </wsimport>
-        <!--
-        <copy todir="${build.test.classes.dir}">
-            <fileset dir="${build.generated.dir}/jax-wsCache/XDSBridge">
-                <include name="**/*.java"/>
-            </fileset>
-        </copy>
-        -->
+		-->
     </target>
 
 </project>
