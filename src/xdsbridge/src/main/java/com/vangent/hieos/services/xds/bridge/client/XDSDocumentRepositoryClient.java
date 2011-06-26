@@ -34,18 +34,18 @@ import org.apache.log4j.Logger;
 public class XDSDocumentRepositoryClient extends Client {
 
     /** Field description */
-    public final static String PNR_REQUEST_ACTION =
+    public static final String PNR_REQUEST_ACTION =
         "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
 
     /** Field description */
-    public final static String PNR_RESPONSE_ACTION =
+    public static final String PNR_RESPONSE_ACTION =
         "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
 
     /** Field description */
-    public final static String PNR_TRANS = "ProvideAndRegisterDocumentSet-b";
+    public static final String PNR_TRANS = "ProvideAndRegisterDocumentSet-b";
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(XDSDocumentRepositoryClient.class);
 
     /**

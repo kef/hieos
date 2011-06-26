@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 public class DebugUtils {
 
     /** Field description */
-    private final static Logger logger = Logger.getLogger(DebugUtils.class);
+    private static final Logger logger = Logger.getLogger(DebugUtils.class);
 
     /**
      * Method description

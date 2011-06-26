@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 public class SubmitPatientIdActivity implements ISubmitDocumentRequestActivity {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitPatientIdActivity.class);
 
     /** Field description */

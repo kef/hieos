@@ -45,7 +45,7 @@ import java.util.UUID;
 public class CDAToXDSMapper implements IXDSMapper {
 
     /** Field description */
-    private final static Logger logger = Logger.getLogger(CDAToXDSMapper.class);
+    private static final Logger logger = Logger.getLogger(CDAToXDSMapper.class);
 
     /** Field description */
     private final ContentParser contentParser;

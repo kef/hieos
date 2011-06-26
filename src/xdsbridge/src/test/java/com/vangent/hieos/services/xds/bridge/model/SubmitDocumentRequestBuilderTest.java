@@ -39,7 +39,7 @@ import java.util.List;
 public class SubmitDocumentRequestBuilderTest {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestBuilderTest.class);
 
     /**

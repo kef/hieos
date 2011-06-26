@@ -46,7 +46,7 @@ import java.util.Properties;
 public class JUnitHelper {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestHandlerTest.class);
 
     /**

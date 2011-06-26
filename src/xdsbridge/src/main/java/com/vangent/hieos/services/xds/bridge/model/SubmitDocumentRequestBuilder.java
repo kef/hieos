@@ -42,11 +42,11 @@ import java.util.List;
 public class SubmitDocumentRequestBuilder {
 
     /** Field description */
-    public final static String URI =
+    public static final String URI =
         "http://schemas.hieos.vangent.com/xdsbridge";
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestBuilder.class);
 
     /** Field description */

@@ -62,7 +62,7 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
         implements IMessageHandler {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestHandler.class);
 
     /** Field description */

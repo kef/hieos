@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 public class SubmitDocumentRequestHandlerTest {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestHandlerTest.class);
 
     /**

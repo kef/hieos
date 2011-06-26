@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 public abstract class AbstractHandlerService extends XAbstractService {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(AbstractHandlerService.class);
 
     /** Field description */

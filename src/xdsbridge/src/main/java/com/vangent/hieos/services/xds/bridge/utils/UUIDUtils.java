@@ -27,10 +27,10 @@ import org.apache.log4j.Logger;
 public class UUIDUtils {
 
     /** Field description */
-    public final static String OID_ROOT = "2.25";
+    public static final String OID_ROOT = "2.25";
 
     /** Field description */
-    private final static Logger logger = Logger.getLogger(UUIDUtils.class);
+    private static final Logger logger = Logger.getLogger(UUIDUtils.class);
 
     /**
      * Method description

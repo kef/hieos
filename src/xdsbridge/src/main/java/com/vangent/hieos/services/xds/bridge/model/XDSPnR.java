@@ -32,7 +32,7 @@ import org.apache.axiom.om.OMText;
 public class XDSPnR {
 
     /** Field description */
-    private final static String XDS_URI = "urn:ihe:iti:xds-b:2007";
+    private static final String XDS_URI = "urn:ihe:iti:xds-b:2007";
 
     /** Field description */
     private final OMElement node;

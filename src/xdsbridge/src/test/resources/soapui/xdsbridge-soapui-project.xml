@@ -148,7 +148,7 @@
          </xds:Documents>
       </xds:SubmitDocumentRequest>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:xds:bridge:SubmitDocumentRequest" addDefaultAction="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Patient-1234" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@disable-multipart-attachments">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9090/axis2/services/xdsbridge?wsdl</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" 
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:xds:bridge:SubmitDocumentRequest" addDefaultAction="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Patient-1234" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@disable-multipart-attachments">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsbridge?wsdl</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" 
 	xmlns:xds="http://schemas.hieos.vangent.com/xdsbridge">
    <soap:Header/>
    <soap:Body>
@@ -157,6 +157,7 @@
          <xds:Documents>
             <!--1 or more repetitions:-->
             <xds:Document>
+		<xds:Id>1.2.3.4.5</xds:Id>
                <xds:Type code="51855-5" codeSystem="2.16.840.1.113883.6.1"
                     codeSystemName="LOINC" displayName="Shared Health Summary" />
                <xds:Content>cid:exampleCDA-SHS-V1_0.xml</xds:Content>

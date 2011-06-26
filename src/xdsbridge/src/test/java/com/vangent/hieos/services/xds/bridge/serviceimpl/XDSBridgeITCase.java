@@ -40,7 +40,7 @@ import java.net.URL;
 public class XDSBridgeITCase {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(XDSBridgeITCase.class);
 
     /**

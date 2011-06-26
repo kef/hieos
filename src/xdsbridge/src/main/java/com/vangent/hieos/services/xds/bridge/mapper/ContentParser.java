@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 public class ContentParser {
 
     /** Field description */
-    public final static Logger logger = Logger.getLogger(ContentParser.class);
+    public static final Logger logger = Logger.getLogger(ContentParser.class);
 
     /**
      * Constructs ...

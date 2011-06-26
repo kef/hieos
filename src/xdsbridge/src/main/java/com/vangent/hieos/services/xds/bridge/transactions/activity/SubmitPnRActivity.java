@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(SubmitPnRActivity.class);
 
     /** Field description */

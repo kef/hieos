@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 public class CDAToXDSMapperTest {
 
     /** Field description */
-    private final static Logger logger =
+    private static final Logger logger =
         Logger.getLogger(CDAToXDSMapperTest.class);
 
     /**

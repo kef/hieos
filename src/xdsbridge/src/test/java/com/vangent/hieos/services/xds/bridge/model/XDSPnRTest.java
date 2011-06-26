@@ -32,14 +32,14 @@ import org.junit.BeforeClass;
 public class XDSPnRTest {
 
     /** Field description */
-    private final static String PNRFILE =
+    private static final String PNRFILE =
         "META-INF/templates/ProvideAndRegisterMetadata.xml";
 
     /** Field description */
     private static String pnrTemplate = null;
 
     /** Field description */
-    private final static Logger logger = Logger.getLogger(XDSPnRTest.class);
+    private static final Logger logger = Logger.getLogger(XDSPnRTest.class);
 
     /**
      * Method description
