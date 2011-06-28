@@ -69,11 +69,11 @@
     <xsd:element name="SubmitDocumentResponse">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-            The SubmitDocumentResponse element indicates if the transaction was successful. If an error
-            occurs then the error details are specified in one or more Error elements. If more than one
+            The SubmitDocumentResponse status indicates if the transaction was successful. If more than one
             document is submitted in the request and some documents are processed successfully and some
-            fail then a status of PartialSuccess is returned. The Error Message will indicate which
-            document the error is associated with.
+            fail then a status of PartialSuccess is returned. One Response element will be returned for each
+            document submitted. The Response DocumentId contains the Id of the document processed. If an error 
+            occurs then Response ErrorMessage will contain the details of the error.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexType>
@@ -95,7 +95,7 @@
     <xsd:complexType name="ResponseType">
         <xsd:sequence>
             <xsd:element name="DocumentId" type="xsd:string" minOccurs="0" />
-            <xsd:element name="Message" type="xsd:string" minOccurs="0" />
+            <xsd:element name="ErrorMessage" type="xsd:string" minOccurs="0" />
         </xsd:sequence>
         <xsd:attribute name="status" use="required">
             <xsd:simpleType>
