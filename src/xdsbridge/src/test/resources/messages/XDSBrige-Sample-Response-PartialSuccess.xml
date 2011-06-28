@@ -4,15 +4,13 @@
     <soapenv:Header />
     <soapenv:Body>
         <xdsb:SubmitDocumentResponse status="PartialSuccess">
-            <xdsb:Errors>
-                <xdsb:Response status="Success">
-                    <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
-                </xdsb:Response>
-                <xdsb:Response status="Failure">
-                    <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
-                    <xdsb:ErrorMessage>Missing patient name</xdsb:ErrorMessage>
-                </xdsb:Response>
-            </xdsb:Errors>
+            <xdsb:Response status="Success">
+                <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
+            </xdsb:Response>
+            <xdsb:Response status="Failure">
+                <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
+                <xdsb:ErrorMessage>Missing patient name</xdsb:ErrorMessage>
+            </xdsb:Response>
         </xdsb:SubmitDocumentResponse>
     </soapenv:Body>
 </soapenv:Envelope>

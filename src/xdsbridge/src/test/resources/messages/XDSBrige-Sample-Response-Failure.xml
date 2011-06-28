@@ -4,16 +4,14 @@
     <soapenv:Header />
     <soapenv:Body>
         <xdsb:SubmitDocumentResponse status="Failure">
-            <xdsb:Errors>
-                <xdsb:Response status="Failure">
-                    <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
-                    <xdsb:ErrorMessage>Invalid document type</xdsb:ErrorMessage>
-                </xdsb:Response>
-                <xdsb:Response status="Failure">
-                    <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
-                    <xdsb:ErrorMessage>Missing patient name</xdsb:ErrorMessage>
-                </xdsb:Response>
-            </xdsb:Errors>
+            <xdsb:Response status="Failure">
+                <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
+                <xdsb:ErrorMessage>Invalid document type</xdsb:ErrorMessage>
+            </xdsb:Response>
+            <xdsb:Response status="Failure">
+                <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
+                <xdsb:ErrorMessage>Missing patient name</xdsb:ErrorMessage>
+            </xdsb:Response>
         </xdsb:SubmitDocumentResponse>
     </soapenv:Body>
 </soapenv:Envelope>
