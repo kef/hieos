@@ -3,11 +3,10 @@
 	xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
     <soapenv:Header />
     <soapenv:Body>
-        <xdsb:SubmitDocumentResponse status="Failure">
+        <xdsb:SubmitDocumentResponse status="PartialSuccess">
             <xdsb:Errors>
-                <xdsb:Response status="Failure">
+                <xdsb:Response status="Success">
                     <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
-                    <xdsb:ErrorMessage>Invalid document type</xdsb:ErrorMessage>
                 </xdsb:Response>
                 <xdsb:Response status="Failure">
                     <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
