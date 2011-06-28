@@ -158,7 +158,7 @@
 
         <Property name="ConfigFile">xdsbridgeconfig.xml</Property>
         <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
-
+        <Property name="PRPA_IN201301UV02Template">PRPA_IN201301UV02Template.xml</Property>
    </Actor>
 
    <!-- List of Registries -->
