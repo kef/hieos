@@ -31,7 +31,7 @@
                 </rim:Slot>
                 <rim:Slot name="sourcePatientId">
                     <rim:ValueList>
-                        <rim:Value>{SourcePatientExtension}^^^{SourcePatientRoot}</rim:Value> 
+                        <rim:Value>{SourcePatientIdCX}</rim:Value> 
                     </rim:ValueList> 
                 </rim:Slot>
                 <rim:Name>
@@ -140,7 +140,7 @@
                     </rim:Name> 
                 </rim:Classification>
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" 
-                    value="{PatientExtension}^^^{PatientRoot}" 
+                    value="{PatientIdCX}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
                     id="id_8" registryObject="{EntryUUID}">
                     <rim:Name>
@@ -156,7 +156,8 @@
                     </rim:Name> 
                 </rim:ExternalIdentifier>
             </rim:ExtrinsicObject>
-            <rim:RegistryPackage id="SubmissionSet{EntryUUID}" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
+            <rim:RegistryPackage id="SubmissionSet{EntryUUID}" 
+                objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
                 <rim:Slot name="submissionTime">
                     <rim:ValueList>
                         <rim:Value>{SubmissionTime}</rim:Value> 
@@ -193,7 +194,7 @@
                     </rim:Name> 
                 </rim:ExternalIdentifier>
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" 
-                    value="{PatientExtension}^^^{PatientRoot}" 
+                    value="{PatientIdCX}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
                     id="id_14" registryObject="SubmissionSet{EntryUUID}">
                     <rim:Name>
