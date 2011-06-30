@@ -109,18 +109,20 @@
 		<!-- Added for new content type 06/23/2011 -->
         <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
 			display="Shared Health Summary" />
+        <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1" 
+                        displayName="Discharge Summarization Note" />
 
     </CodeType>
     <CodeType name="classCode" classScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a">
 		
 		<!-- Added for NHIN Sept. 2009 -->
-		<Code code="10160-0" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="10160-0" codingScheme="2.16.840.1.113883.6.1"
 			display="History of MEdication Use" />
-		<Code code="44943-9" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="44943-9" codingScheme="2.16.840.1.113883.6.1"
 			display="Self management:^Patient" />
 
                 <!-- Added to support NHIN / Patient Consent -->
-                <Code code="57017-6" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="57017-6" codingScheme="2.16.840.1.113883.6.1"
 			display="NHIN Consent Class Code" />
 		
         <Code code="Consent" display="Consent" codingScheme="Connect-a-thon classCodes" />
@@ -224,48 +226,48 @@
 			display="LABORATORY REPORT.TOTAL" />
 
 		<!-- Added for NHIN Sept. 2009 -->
-		<Code code="10160-0" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="10160-0" codingScheme="2.16.840.1.113883.6.1"
 			display="History of MEdication Use" />
-		<Code code="44943-9" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="44943-9" codingScheme="2.16.840.1.113883.6.1"
 			display="Self management:^Patient" />
 		
-		<Code code="18717-9" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18717-9" codingScheme="2.16.840.1.113883.6.1"
 			display="BLOOD BANK STUDIES" />
-		<Code code="18718-7" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18718-7" codingScheme="2.16.840.1.113883.6.1"
 			display="CELL MARKER STUDIES" />
-		<Code code="18719-5" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18719-5" codingScheme="2.16.840.1.113883.6.1"
 			display="CHEMISTRY STUDIES" />
-		<Code code="18720-3" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18720-3" codingScheme="2.16.840.1.113883.6.1"
 			display="COAGULATION STUDIES" />
-		<Code code="18721-1" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18721-1" codingScheme="2.16.840.1.113883.6.1"
 			display="THERAPEUTIC DRUG MONITORING STUDIES" />
-		<Code code="18722-9" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18722-9" codingScheme="2.16.840.1.113883.6.1"
 			display="FERTILITY STUDIES" />
-		<Code code="18723-7" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18723-7" codingScheme="2.16.840.1.113883.6.1"
 			display="HEMATOLOGY STUDIES" />
-		<Code code="18724-5" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18724-5" codingScheme="2.16.840.1.113883.6.1"
 			display="HLA STUDIES" />
-		<Code code="18725-2" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18725-2" codingScheme="2.16.840.1.113883.6.1"
 			display="MICROBIOLOGY STUDIES" />
-		<Code code="18727-8" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18727-8" codingScheme="2.16.840.1.113883.6.1"
 			display="SEROLOGY STUDIES" />
-		<Code code="18728-6" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18728-6" codingScheme="2.16.840.1.113883.6.1"
 			display="TOXICOLOGY STUDIES" />
-		<Code code="18729-4" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18729-4" codingScheme="2.16.840.1.113883.6.1"
 			display="URINALYSIS STUDIES" />
-		<Code code="18767-4" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18767-4" codingScheme="2.16.840.1.113883.6.1"
 			display="BLOOD GAS STUDIES" />
-		<Code code="18768-2" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18768-2" codingScheme="2.16.840.1.113883.6.1"
 			display="CELL COUNTS+DIFFERENTIAL STUDIES" />
-		<Code code="18769-0" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="18769-0" codingScheme="2.16.840.1.113883.6.1"
 			display="MICROBIAL SUSCEPTIBILITY TESTS" />
-		<Code code="26435-8" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="26435-8" codingScheme="2.16.840.1.113883.6.1"
 			display="MOLECULAR PATHOLOGY STUDIES" />
-		<Code code="26436-6" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="26436-6" codingScheme="2.16.840.1.113883.6.1"
 			display="LABORATORY STUDIES" />
-		<Code code="26437-4" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="26437-4" codingScheme="2.16.840.1.113883.6.1"
 			display="CHEMISTRY CHALLENGE STUDIES" />
-		<Code code="26438-2" codingScheme="2.16.840.1.113883.6.1"
+        <Code code="26438-2" codingScheme="2.16.840.1.113883.6.1"
 			display="CYTOLOGY STUDIES" />
 		
 		
@@ -283,14 +285,15 @@
 		<!-- Added for new content type 06/23/2011 -->
         <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
 			display="Shared Health Summary" />
-
+        <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1" 
+                        displayName="Discharge Summarization Note" />
 
     </CodeType>
     <CodeType name="confidentialityCode" classScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f">
 		<!-- Added Sept. 2009 NHIN -->
-		<Code code="N" display="Normal" codingScheme="2.16.840.1.113883.5.25" />
-		<Code code="R" display="Restricted" codingScheme="2.16.840.1.113883.5.25" />
-		<Code code="V" display="very restricted" codingScheme="2.16.840.1.113883.5.25" />
+        <Code code="N" display="Normal" codingScheme="2.16.840.1.113883.5.25" />
+        <Code code="R" display="Restricted" codingScheme="2.16.840.1.113883.5.25" />
+        <Code code="V" display="very restricted" codingScheme="2.16.840.1.113883.5.25" />
 		
 		<!--
 			The following codes are defined by HL7 and are not used in XDS
@@ -350,11 +353,11 @@
     <CodeType name="formatCode" classScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d">
 		
 		<!-- Added Sept. 2009 NHIN -->
-		<Code code="urn:ihe:pcc:apr:lab:2008" display="PDF embedded in CDA per XDS-SD profile" codingScheme="IHE-PCC"/>
-		<Code code="urn:ihe:pcc:apr:lab:2008" display="Test embedded in CDA per XDS-SD profile" codingScheme="IHE-PCC" />
-		<Code code="2.16.840.1.113883.10.20.1" display="HL7 CCD Document" codingScheme="HITSP"/>
-		<Code code="1.3.6.1.4.1.19376.1.3.3" display="IHE XD-Lab Document" codingScheme="IHE-LAB"/>
-		<Code code="urn:nhin:names:acp:XACML" display="NHIN XACML Document" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:apr:lab:2008" display="PDF embedded in CDA per XDS-SD profile" codingScheme="IHE-PCC"/>
+        <Code code="urn:ihe:pcc:apr:lab:2008" display="Test embedded in CDA per XDS-SD profile" codingScheme="IHE-PCC" />
+        <Code code="2.16.840.1.113883.10.20.1" display="HL7 CCD Document" codingScheme="HITSP"/>
+        <Code code="1.3.6.1.4.1.19376.1.3.3" display="IHE XD-Lab Document" codingScheme="IHE-LAB"/>
+        <Code code="urn:nhin:names:acp:XACML" display="NHIN XACML Document" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
         <Code code="ScanTEXT/IHE 1.x" display="ScanTEXT/IHE 1.x"
 			codingScheme="Connect-a-thon formatCodes" />
         <Code code="ScanPDF/IHE 1.x" display="ScanPDF/IHE 1.x"
@@ -427,259 +430,259 @@
 
 
        <!-- Added @ HIMSS 2010 -->
-<Code code="urn:ihe:pcc:xds-ms:2007" display="urn:ihe:pcc:xds-ms:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:xphr:2007" display="urn:ihe:pcc:xphr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:edr:2007" display="urn:ihe:pcc:edr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:aps:2007" display="urn:ihe:pcc:aps:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:handp:2008" display="urn:ihe:pcc:handp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:edu:2008" display="urn:ihe:pcc:edu:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:iti:xds-sd:pdf:2008" display="urn:ihe:iti:xds-sd:pdf:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:iti:xds-sd:text:2008" display="urn:ihe:iti:xds-sd:text:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:iti:bppc:2007" display="urn:ihe:iti:bppc:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:iti:bppc-sd:2007" display="urn:ihe:iti:bppc-sd:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:lab:xd-lab:2008" display="urn:ihe:lab:xd-lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:lab:2008" display="urn:ihe:pcc:lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:tn:2008" display="urn:ihe:pcc:tn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:nn:2008" display="urn:ihe:pcc:nn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:ctnn:2008" display="urn:ihe:pcc:ctnn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:edpn:2008" display="urn:ihe:pcc:edpn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:ldhp:2008" display="urn:ihe:pcc:ldhp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:lds:2008" display="urn:ihe:pcc:lds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:mds:2008" display="urn:ihe:pcc:mds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
-<Code code="urn:ihe:pcc:ic:2008" display="urn:ihe:pcc:ic:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:xds-ms:2007" display="urn:ihe:pcc:xds-ms:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:xphr:2007" display="urn:ihe:pcc:xphr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:edr:2007" display="urn:ihe:pcc:edr:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:aps:2007" display="urn:ihe:pcc:aps:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:handp:2008" display="urn:ihe:pcc:handp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:edu:2008" display="urn:ihe:pcc:edu:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:iti:xds-sd:pdf:2008" display="urn:ihe:iti:xds-sd:pdf:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:iti:xds-sd:text:2008" display="urn:ihe:iti:xds-sd:text:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:iti:bppc:2007" display="urn:ihe:iti:bppc:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:iti:bppc-sd:2007" display="urn:ihe:iti:bppc-sd:2007" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:lab:xd-lab:2008" display="urn:ihe:lab:xd-lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:lab:2008" display="urn:ihe:pcc:lab:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:tn:2008" display="urn:ihe:pcc:tn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:nn:2008" display="urn:ihe:pcc:nn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:ctnn:2008" display="urn:ihe:pcc:ctnn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:edpn:2008" display="urn:ihe:pcc:edpn:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:ldhp:2008" display="urn:ihe:pcc:ldhp:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:lds:2008" display="urn:ihe:pcc:lds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:mds:2008" display="urn:ihe:pcc:mds:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
+        <Code code="urn:ihe:pcc:ic:2008" display="urn:ihe:pcc:ic:2008" codingScheme="1.3.6.1.4.1.19376.1.2.3"/>
 
     </CodeType>
     <CodeType name="healthcareFacilityTypeCode" classScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1">
 		
 		<!-- Added Sept. 2009 NHIN -->
-		<Code code="281PC2000N" display="Hospitals; Chronic Disease Hospital; Children"
+        <Code code="281PC2000N" display="Hospitals; Chronic Disease Hospital; Children"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="282NC2000N" display="Hospitals; General Acute Care Hospital; Children"
+        <Code code="282NC2000N" display="Hospitals; General Acute Care Hospital; Children"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="281NR1301N" display="Hospitals; General Acute Care Hospital; Rural"
+        <Code code="281NR1301N" display="Hospitals; General Acute Care Hospital; Rural"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="282NW0100N" display="Hospitals; General Acute Care Hospital; Women"
+        <Code code="282NW0100N" display="Hospitals; General Acute Care Hospital; Women"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="283XC2000N" display="Hospitals;Rehabilitation Hospital; Children"
+        <Code code="283XC2000N" display="Hospitals;Rehabilitation Hospital; Children"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="2865C1500N" display="Hospitals;Military Hospital; Community Health"
+        <Code code="2865C1500N" display="Hospitals;Military Hospital; Community Health"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="2865M2000N" display="Hospitals; Military Hospital; Medical Center"
+        <Code code="2865M2000N" display="Hospitals; Military Hospital; Medical Center"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="2865X1600N" display="Hospitals; Military Hospital; Operational Component Facility"
+        <Code code="2865X1600N" display="Hospitals; Military Hospital; Operational Component Facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ACC" display="Accident Site"
+        <Code code="ACC" display="Accident Site"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ALL" display="Allergy clinic"
+        <Code code="ALL" display="Allergy clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="AMB" display="Ambulance"
+        <Code code="AMB" display="Ambulance"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="AMPUT" display="Amputee clinic"
+        <Code code="AMPUT" display="Amputee clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="BMTC" display="Bone marrow transplant clinic"
+        <Code code="BMTC" display="Bone marrow transplant clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="BMTU" display="Bone marrow transplant unit"
+        <Code code="BMTU" display="Bone marrow transplant unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="BREAST" display="Breast clinic"
+        <Code code="BREAST" display="Breast clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CANC" display="Child and adolescent neurology clinic"
+        <Code code="CANC" display="Child and adolescent neurology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CAPC" display="Child and adolescent psychiatry clinic"
+        <Code code="CAPC" display="Child and adolescent psychiatry clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CARD" display="Ambulatory Health Care Facilities; Clinic/Center; Rehabilitation; Cardiac Facilities"
+        <Code code="CARD" display="Ambulatory Health Care Facilities; Clinic/Center; Rehabilitation; Cardiac Facilities"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CATH" display="Cardiac catheterization lab"
+        <Code code="CATH" display="Cardiac catheterization lab"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CCU" display="Coronary care unit"
+        <Code code="CCU" display="Coronary care unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CHEST" display="Chest unit"
+        <Code code="CHEST" display="Chest unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CHR" display="Chronic care unit"
+        <Code code="CHR" display="Chronic care unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="COAG" display="Coagulation clinic"
+        <Code code="COAG" display="Coagulation clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="COMM" display="Community Location"
+        <Code code="COMM" display="Community Location"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CRS" display="Colon and rectal surgery clinic"
+        <Code code="CRS" display="Colon and rectal surgery clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="CVDX" display="Cardiovascular diagnostics or therepeutics unit"
+        <Code code="CVDX" display="Cardiovascular diagnostics or therepeutics unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="DADDR" display="Delvery Address"
+        <Code code="DADDR" display="Delvery Address"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="DERM" display="Dermatology clinic"
+        <Code code="DERM" display="Dermatology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="DX" display="Diagnostics or therapeutics unit"
+        <Code code="DX" display="Diagnostics or therapeutics unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ECHO" display="Echocardiography lab"
+        <Code code="ECHO" display="Echocardiography lab"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ENDO" display="Endocrinology clinic"
+        <Code code="ENDO" display="Endocrinology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ENDOS" display="Endoscopy lab"
+        <Code code="ENDOS" display="Endoscopy lab"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ENT" display="Otorhimolaryngology clinic"
+        <Code code="ENT" display="Otorhimolaryngology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="EPIL" display="Epilepsy unit"
+        <Code code="EPIL" display="Epilepsy unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ER" display="Emergency room"
+        <Code code="ER" display="Emergency room"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ETU" display="Emergency Trauma unit"
+        <Code code="ETU" display="Emergency Trauma unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="FMC" display="Family medicine clinic"
+        <Code code="FMC" display="Family medicine clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="GACH" display="Hospitals; General Acute Care Hospital"
+        <Code code="GACH" display="Hospitals; General Acute Care Hospital"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="GI" display="Gastroenterology clinic"
+        <Code code="GI" display="Gastroenterology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="GIDX" display="Gasteroenterology diagnosis or theraputics lab"
+        <Code code="GIDX" display="Gasteroenterology diagnosis or theraputics lab"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="GIM" display="General internal medicine clinic"
+        <Code code="GIM" display="General internal medicine clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="GYN" display="Gynecology clinic"
+        <Code code="GYN" display="Gynecology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HAND" display="Hand clinic"
+        <Code code="HAND" display="Hand clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HD" display="Hemodialysis unit"
+        <Code code="HD" display="Hemodialysis unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HEM" display="Hemotology clinic"
+        <Code code="HEM" display="Hemotology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HOSP" display="Hospitals"
+        <Code code="HOSP" display="Hospitals"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HTN" display="Hypertension clinic"
+        <Code code="HTN" display="Hypertension clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="HU" display="Hospital unit"
+        <Code code="HU" display="Hospital unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ICU" display="Intesnive care unit"
+        <Code code="ICU" display="Intesnive care unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="IEC" display="Impairment evaluation center"
+        <Code code="IEC" display="Impairment evaluation center"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="INFD" display="Infectious disease center"
+        <Code code="INFD" display="Infectious disease center"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="INV" display="Infertility clinic"
+        <Code code="INV" display="Infertility clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="LYMPH" display="Lympedema clinic"
+        <Code code="LYMPH" display="Lympedema clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="MGEN" display="Medical genetics clinic"
+        <Code code="MGEN" display="Medical genetics clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="MHSP" display="Military Hospital"
+        <Code code="MHSP" display="Military Hospital"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="MOBL" display="Mobile unit"
+        <Code code="MOBL" display="Mobile unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="NCCF" display="Nursing or custodial care facility"
+        <Code code="NCCF" display="Nursing or custodial care facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="NCCS" display="Neurology critical care and stroke unit"
+        <Code code="NCCS" display="Neurology critical care and stroke unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="NEPH" display="Nephrology clinic"
+        <Code code="NEPH" display="Nephrology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="NEUR" display="Neurology clinic"
+        <Code code="NEUR" display="Neurology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="NS" display="Neurosurgery unit"
+        <Code code="NS" display="Neurosurgery unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="OB" display="Obstetrics clinic"
+        <Code code="OB" display="Obstetrics clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="OF" display="Outpatient facility"
+        <Code code="OF" display="Outpatient facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="OMS" display="Oral and maxillofacial surgery clinic"
+        <Code code="OMS" display="Oral and maxillofacial surgery clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ONCL" display="Medical oncology clinic"
+        <Code code="ONCL" display="Medical oncology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="OPH" display="Opthamology clinic"
+        <Code code="OPH" display="Opthamology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="ORTHO" display="Orthopedics clinic"
+        <Code code="ORTHO" display="Orthopedics clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PAINCL" display="Pain clinic"
+        <Code code="PAINCL" display="Pain clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PC" display="Primary care clinic"
+        <Code code="PC" display="Primary care clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDC" display="Pediatrics clinic"
+        <Code code="PEDC" display="Pediatrics clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDCARD" display="Pediatric cardiology clinic"
+        <Code code="PEDCARD" display="Pediatric cardiology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDE" display="Pediatric  endocrinolgy clinci"
+        <Code code="PEDE" display="Pediatric  endocrinolgy clinci"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDGI" display="Pediatric gastroeneterolgy clinic"
+        <Code code="PEDGI" display="Pediatric gastroeneterolgy clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDHEM" display="Pediatric hematology clinic"
+        <Code code="PEDHEM" display="Pediatric hematology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
 		
-		<Code code="PEDHO" display="Pediatric oncology clinic"
+        <Code code="PEDHO" display="Pediatric oncology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDICU" display="Pediatric intensive care unit"
+        <Code code="PEDICU" display="Pediatric intensive care unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDID" display="Pediatric infectious disease clinic"
+        <Code code="PEDID" display="Pediatric infectious disease clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDNEPH" display="Pediatric nephrology clinic"
+        <Code code="PEDNEPH" display="Pediatric nephrology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDNICU" display="Pediatric neonatal intesive care unit"
+        <Code code="PEDNICU" display="Pediatric neonatal intesive care unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDRHEUM" display="Pediatric rheumatology clinic"
+        <Code code="PEDRHEUM" display="Pediatric rheumatology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PEDU" display="Pediatric unit"
+        <Code code="PEDU" display="Pediatric unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PHARM" display="Pharmacy"
+        <Code code="PHARM" display="Pharmacy"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PHU" display="Pyschiatric hospital unit"
+        <Code code="PHU" display="Pyschiatric hospital unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PLS" display="Plastic surgery clinic"
+        <Code code="PLS" display="Plastic surgery clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="POD" display="Podiatry clinic"
+        <Code code="POD" display="Podiatry clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PRC" display="Pain rehabilitation center"
+        <Code code="PRC" display="Pain rehabilitation center"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PREV" display="Preventive medicine clinic"
+        <Code code="PREV" display="Preventive medicine clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PROCTO" display="Proctology clinic"
+        <Code code="PROCTO" display="Proctology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PROFF" display="Provider's office"
+        <Code code="PROFF" display="Provider's office"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PROS" display="Prosthodontics clinic"
+        <Code code="PROS" display="Prosthodontics clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PSI" display="Phychology clinic"
+        <Code code="PSI" display="Phychology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PSY" display="Psychiatry clinic"
+        <Code code="PSY" display="Psychiatry clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PSYCHF" display="Psychiatric care facility"
+        <Code code="PSYCHF" display="Psychiatric care facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="PTRES" display="Patient's residence"
+        <Code code="PTRES" display="Patient's residence"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RADDX" display="Radiology diagnostics or therapeutics unit"
+        <Code code="RADDX" display="Radiology diagnostics or therapeutics unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RADO" display="Radiation oncology unit"
+        <Code code="RADO" display="Radiation oncology unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RH" display="Rehabilitation hospital"
+        <Code code="RH" display="Rehabilitation hospital"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RHEUM" display="Rheumatology clinic"
+        <Code code="RHEUM" display="Rheumatology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RHU" display="Rehabilitation hospital unit"
+        <Code code="RHU" display="Rehabilitation hospital unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RNEU" display="Neuroradiology unit"
+        <Code code="RNEU" display="Neuroradiology unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="RTF" display="Residential treatment Facility"
+        <Code code="RTF" display="Residential treatment Facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SCHOOL" display="school"
+        <Code code="SCHOOL" display="school"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SLEEP" display="Sleep disporders unit"
+        <Code code="SLEEP" display="Sleep disporders unit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SNF" display="Skilled nursing facility"
+        <Code code="SNF" display="Skilled nursing facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SPMED" display="Sports medicine clinic"
+        <Code code="SPMED" display="Sports medicine clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SU" display="Surgery clinic"
+        <Code code="SU" display="Surgery clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="SURF" display="Substance use rehabilitation facility"
+        <Code code="SURF" display="Substance use rehabilitation facility"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="TR" display="Transplant clinic"
+        <Code code="TR" display="Transplant clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="TRAVEL" display="Travel and geographic medicine clinit"
+        <Code code="TRAVEL" display="Travel and geographic medicine clinit"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="URO" display="Urology clinic"
+        <Code code="URO" display="Urology clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="WND" display="Wound clinic"
+        <Code code="WND" display="Wound clinic"
 			codingScheme="2.16.840.1.113883.5.11" />
-		<Code code="WORK" display="work site"
+        <Code code="WORK" display="work site"
 			codingScheme="2.16.840.1.113883.5.11" />
 		
 		<!-- End NHIN 2009 -->
-		<Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
+        <Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
 		
 		
         <Code code="Home" display="Home"
@@ -724,13 +727,13 @@
     <CodeType name="practiceSettingCode" classScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead">
 		
 		<!-- Added Sept, 2009 NHIN -->
-		<Code code="394802001" display="General Medicine"
+        <Code code="394802001" display="General Medicine"
 			codingScheme="2.16.840.1.113883.6.96" />
-		<Code code="408478003" display="Critical Care Medicine"
+        <Code code="408478003" display="Critical Care Medicine"
 			codingScheme="2.16.840.1.113883.6.96" />
-		<Code code="410001006" display="Military Medicine"
+        <Code code="410001006" display="Military Medicine"
 			codingScheme="2.16.840.1.113883.6.96" />
-                <Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
+        <Code code="385432009" display="Not applicable" codingScheme="2.16.840.1.113883.6.96"/>
 		
 		
 		
@@ -1697,6 +1700,8 @@
 		<!-- Added for new content type 06/23/2011 -->
         <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
 			display="Shared Health Summary" />
+        <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1" 
+                        displayName="Discharge Summarization Note" />
 
     </CodeType>
 	<!--
