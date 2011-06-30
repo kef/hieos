@@ -10,6 +10,7 @@
         <mkdir dir="${build.dir}/xml-resources/axis2/lib"/>
         <copy todir="${build.dir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
+                <file file="${file.reference.commons-lang-2.3.jar}"/>
                 <file file="${file.reference.xutil.jar}"/>
                 <file file="${file.reference.hl7v3xutil.jar}"/>
             </resources>

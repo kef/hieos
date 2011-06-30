@@ -3,17 +3,4 @@
     <service name="XDSBridge">
         <service-class>com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge</service-class>
     </service>
-    <!--<libraries>
-        <library-ref name="commons-collections.jar"/>
-        <library-ref name="dom4j-1.4.jar"/>
-        <library-ref name="ehcache-0.9.jar"/>
-        <library-ref name="jaxr-api.jar"/>
-        <library-ref name="oasis-regrep.jar"/>
-        <library-ref name="stax-api-1.0.1.jar"/>
-        <library-ref name="adt.jar"/>
-        <library-ref name="xutil.jar"/>
-        <library-ref name="omar.jar"/>
-        <library-ref name="mysql-connector-java-5.0.8-bin.jar"/>
-        <library-ref name="postgresql-8.3-604.jdbc4.jar"/>
-    </libraries>-->
 </axis2>
