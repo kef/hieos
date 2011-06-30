@@ -13,9 +13,13 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Class description
@@ -27,7 +31,7 @@ import java.util.Map;
 public class ContentParserConfig {
 
     /** Field description */
-    private final Map<String, String> expressionMap;
+    private final Map<String, List<String>> expressionMap;
 
     /** Field description */
     private String initializationErrors;
@@ -50,8 +54,6 @@ public class ContentParserConfig {
      */
     public enum ContentParserConfigName { CDAToXDSMapper }
 
-    ;
-
     /**
      * Constructs ...
      *
@@ -66,7 +68,7 @@ public class ContentParserConfig {
      */
     public ContentParserConfig(ContentParserConfigName name,
                                Map<String, String> namespaces,
-                               Map<String, String> expressions,
+                               Map<String, List<String>> expressions,
                                Map<String, String> staticValues,
                                String templFileName) {
 
@@ -74,13 +76,13 @@ public class ContentParserConfig {
 
         this.name = name;
 
-        this.namespaces = new HashMap<String, String>();
+        this.namespaces = new LinkedHashMap<String, String>();
         this.namespaces.putAll(namespaces);
 
-        this.expressionMap = new HashMap<String, String>();
+        this.expressionMap = new LinkedHashMap<String, List<String>>();
         this.expressionMap.putAll(expressions);
 
-        this.staticValues = new HashMap<String, String>();
+        this.staticValues = new LinkedHashMap<String, String>();
         this.staticValues.putAll(staticValues);
 
         this.templateFileName = templFileName;
@@ -92,7 +94,7 @@ public class ContentParserConfig {
      *
      * @return
      */
-    public Map<String, String> getExpressionMap() {
+    public Map<String, List<String>> getExpressionMap() {
         return Collections.unmodifiableMap(expressionMap);
     }
 
@@ -144,6 +146,25 @@ public class ContentParserConfig {
      */
     public String getTemplateFileName() {
         return templateFileName;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    public String retrieveTemplateFileAsString() throws IOException {
+
+        String result = null;
+
+        String filename = getTemplateFileName();
+
+        result = FileUtils.readFileToString(new File(filename));
+
+        return result;
     }
 
     /**

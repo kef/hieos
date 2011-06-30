@@ -11,9 +11,15 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.model;
 
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.services.xds.bridge.message
+    .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 
@@ -28,6 +34,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+
 
 /**
  * Class description
@@ -63,11 +70,16 @@ public class SubmitDocumentRequestBuilderTest {
 
         assertNotNull(sdr);
 
-        Identifier pid = sdr.getPatientId();
+        SubjectIdentifier pid = sdr.getPatientId();
 
         assertNotNull(pid);
-        assertEquals("2.16.840.1.113883.3.454.1.1000387002", pid.getRoot());
-        assertNull(pid.getExtension());
+
+        SubjectIdentifierDomain domain = pid.getIdentifierDomain();
+
+        assertNotNull(domain);
+
+        assertEquals("2.16.840.1.113883.3.454.1", domain.getUniversalId());
+        assertEquals("1000387002", pid.getIdentifier());
 
         List<Document> docs = sdr.getDocuments();
 
@@ -110,11 +122,16 @@ public class SubmitDocumentRequestBuilderTest {
 
         assertNotNull(sdr);
 
-        Identifier pid = sdr.getPatientId();
+        SubjectIdentifier pid = sdr.getPatientId();
 
         assertNotNull(pid);
-        assertEquals("2.16.840.1.113883.3.454.1", pid.getRoot());
-        assertEquals("1000387002", pid.getExtension());
+
+        SubjectIdentifierDomain domain = pid.getIdentifierDomain();
+
+        assertNotNull(domain);
+
+        assertEquals("2.16.840.1.113883.3.454.1", domain.getUniversalId());
+        assertEquals("1000387002", pid.getIdentifier());
 
         Identifier orgid = sdr.getOrganizationId();
 
@@ -166,11 +183,15 @@ public class SubmitDocumentRequestBuilderTest {
 
         assertNotNull(sdr);
 
-        Identifier pid = sdr.getPatientId();
+        SubjectIdentifier pid = sdr.getPatientId();
 
         assertNotNull(pid);
-        assertEquals("2.16.840.1.113883.3.454.1.1000387002", pid.getRoot());
-        assertNull(pid.getExtension());
+
+        SubjectIdentifierDomain domain = pid.getIdentifierDomain();
+
+        assertNotNull(domain);
+        assertEquals("2.16.840.1.113883.3.454.1", domain.getUniversalId());
+        assertEquals("1000387002", pid.getIdentifier());
 
         List<Document> docs = sdr.getDocuments();
 
@@ -221,11 +242,16 @@ public class SubmitDocumentRequestBuilderTest {
 
         assertNotNull(sdr);
 
-        Identifier pid = sdr.getPatientId();
+        SubjectIdentifier pid = sdr.getPatientId();
 
         assertNotNull(pid);
-        assertEquals("2.16.840.1.113883.3.454.1.1000387002", pid.getRoot());
-        assertNull(pid.getExtension());
+
+        SubjectIdentifierDomain domain = pid.getIdentifierDomain();
+
+        assertNotNull(domain);
+
+        assertEquals("1.3.6.1.4.1.21367.2005.3.7", domain.getUniversalId());
+        assertEquals("6fa11e467880478", pid.getIdentifier());
 
         List<Document> docs = sdr.getDocuments();
 
@@ -253,5 +279,34 @@ public class SubmitDocumentRequestBuilderTest {
             assertTrue(content.length > 0);
             logger.debug(new String(doc.getContent()));
         }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws Exception
+     */
+    @Test
+    public void buildSDR4Test() throws Exception {
+
+        OMElement test =
+            JUnitHelper.fileToOMElement("messages/test-sdr4-missing-stuff.xml");
+
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
+
+        SubmitDocumentRequestBuilder builder =
+            new SubmitDocumentRequestBuilder(cfg);
+
+        SubmitDocumentRequest sdr = null;
+        boolean exception = false;
+        try {
+            builder.buildSubmitDocumentRequest(test);
+        } catch (ModelBuilderException e) {
+            exception = true;
+        }
+
+        assertNull(sdr);
+        assertTrue(exception);
     }
 }

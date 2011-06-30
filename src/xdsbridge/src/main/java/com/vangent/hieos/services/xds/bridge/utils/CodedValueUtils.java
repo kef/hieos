@@ -10,11 +10,10 @@
 
 package com.vangent.hieos.services.xds.bridge.utils;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-
-import org.apache.axiom.om.OMElement;
-
 import javax.xml.namespace.QName;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Class description

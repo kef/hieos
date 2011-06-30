@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.vangent.hieos.services.xds.bridge.model;
+package com.vangent.hieos.services.xds.bridge.message;
 
 import org.apache.axiom.om.OMElement;
 
@@ -19,23 +19,19 @@ import org.apache.axiom.om.OMElement;
  * Class description
  *
  *
- * @version        v1.0, 2011-06-22
- * @author         Jim Horner    
+ * @version        v1.0, 2011-06-29
+ * @author         Jim Horner
  */
-public class PatientIdentityFeed {
+public class SubmitDocumentResponseMessage extends AbstractXdsBridgeMessage {
 
-    /** Field description */
-    private final OMElement node;
-
+    public static final String MESSAGE_TYPE = "SubmitDocumentResponse";
     /**
      * Constructs ...
      *
      *
-     * @param node
+     * @param messageNode
      */
-    public PatientIdentityFeed(OMElement node) {
-
-        super();
-        this.node = node;
+    public SubmitDocumentResponseMessage(OMElement messageNode) {
+        super(messageNode, MESSAGE_TYPE);
     }
 }

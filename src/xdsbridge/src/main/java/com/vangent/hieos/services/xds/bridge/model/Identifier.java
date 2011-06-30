@@ -14,6 +14,8 @@
 package com.vangent.hieos.services.xds.bridge.model;
 
 import java.io.Serializable;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Class description
@@ -40,6 +42,37 @@ public class Identifier implements Serializable {
     public Identifier() {
 
         super();
+    }
+
+    /**
+     * This method tests that root and extension are equal.
+     *
+     * @param obj other object
+     *
+     * @return true if they are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        boolean result = false;
+
+        if (obj == this) {
+
+            result = true;
+
+        } else if ((obj != null) && (getClass().equals(obj.getClass()))) {
+
+            Identifier other = (Identifier) obj;
+
+            EqualsBuilder eqbuilder = new EqualsBuilder();
+
+            eqbuilder.append(getRoot(), other.getRoot());
+            eqbuilder.append(getExtension(), other.getExtension());
+
+            result = eqbuilder.isEquals();
+        }
+
+        return result;
     }
 
     /**
@@ -70,6 +103,23 @@ public class Identifier implements Serializable {
      */
     public String getRoot() {
         return root;
+    }
+
+    /**
+     * This method uses the root and extension to generate a
+     * hashcode. equals() override uses the same.
+     *
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+
+        HashCodeBuilder hb = new HashCodeBuilder(5, 51);
+
+        hb.append(getRoot());
+        hb.append(getExtension());
+
+        return hb.toHashCode();
     }
 
     /**

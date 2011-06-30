@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import java.io.Serializable;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class SubmitDocumentRequest implements Serializable {
     private Identifier organizationId;
 
     /** Field description */
-    private Identifier patientId;
+    private SubjectIdentifier patientId;
 
     /**
      * Constructs ...
@@ -68,7 +69,7 @@ public class SubmitDocumentRequest implements Serializable {
      *
      * @return
      */
-    public Identifier getPatientId() {
+    public SubjectIdentifier getPatientId() {
         return patientId;
     }
 
@@ -98,7 +99,7 @@ public class SubmitDocumentRequest implements Serializable {
      *
      * @param patientId
      */
-    public void setPatientId(Identifier patientId) {
+    public void setPatientId(SubjectIdentifier patientId) {
         this.patientId = patientId;
     }
 }

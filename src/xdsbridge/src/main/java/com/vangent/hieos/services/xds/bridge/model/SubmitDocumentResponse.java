@@ -13,11 +13,11 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class description
@@ -74,6 +74,7 @@ public class SubmitDocumentResponse {
     public void addResponse(ResponseType response) {
 
         if (response != null) {
+
             responses.add(response);
         }
     }
@@ -124,7 +125,7 @@ public class SubmitDocumentResponse {
      * @return
      */
     public List<ResponseType> getResponses() {
-        return this.responses;
+        return Collections.unmodifiableList(this.responses);
     }
 
     /**
@@ -134,7 +135,7 @@ public class SubmitDocumentResponse {
      * @return
      */
     public Status getStatus() {
-        return status;
+        return this.status;
     }
 
     /**

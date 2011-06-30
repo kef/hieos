@@ -40,10 +40,10 @@ public enum ContentVariableName {
     LegalAuthenticatorFirstName,
     LegalAuthenticatorSuffix, LegalAuthenticatorPrefix,
     LegalAuthenticatorRoot, LegalAuthenticatorExtension,
-    PatientRoot, PatientExtension, PracticeSettingCode,
+    PatientIdRoot, PatientIdExtension, PatientIdCX, PracticeSettingCode,
     PracticeSettingDisplayName,
     PracticeSettingCodeSystem, ServiceStartTime,
     ServiceStopTime, SourceId, SourceIdRoot, SourceIdExtension,
-    SourcePatientRoot, SourcePatientExtension, SubmissionSetUniqueId,
-    SubmissionTime
+    SourcePatientIdRoot, SourcePatientIdExtension, SourcePatientIdCX,
+    SubmissionSetUniqueId, SubmissionTime
 }

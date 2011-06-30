@@ -20,9 +20,9 @@ import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
-import com.vangent.hieos.services.xds.bridge.utils.ClassUtils;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
+import org.apache.commons.lang.ClassUtils;
 
 import org.apache.log4j.Logger;
 
@@ -75,9 +75,9 @@ public class CDAToXDSMapperActivity implements ISubmitDocumentRequestActivity {
 
             try {
 
-                XDSPnR pnr = mapper.map(context.getPatientId(), document);
+                XDSPnRMessage pnr = mapper.map(context.getPatientId(), document);
 
-                logger.debug(DebugUtils.toPrettyString(pnr.getNode()));
+                logger.debug(DebugUtils.toPrettyString(pnr.getMessageNode()));
 
                 context.setXdspnr(pnr);
 
@@ -115,7 +115,7 @@ public class CDAToXDSMapperActivity implements ISubmitDocumentRequestActivity {
     @Override
     public String getName() {
 
-        return ClassUtils.getShortCanonicalName(getClass());
+        return ClassUtils.getShortClassName(getClass());
 
     }
 }

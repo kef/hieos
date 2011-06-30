@@ -13,9 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import java.io.InputStream;
 import java.util.Map;
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.iosupport.Io;
 
 import static org.junit.Assert.assertEquals;
@@ -43,8 +43,7 @@ public class ContentParserTest {
     public void createTemplateVariablesTest() throws Exception {
 
         ClassLoader cl = getClass().getClassLoader();
-        InputStream xmlis =
-            cl.getResourceAsStream("documents/exampleCDA-SHS-V1_0.xml");
+        InputStream xmlis = cl.getResourceAsStream(JUnitHelper.SALLY_GRANT);
 
         assertNotNull(xmlis);
 
@@ -62,7 +61,8 @@ public class ContentParserTest {
 
         assertNotNull(tvars);
 
-        assertEquals("1.2.36.1.2001.1003.0.8003621231167890",
-                     tvars.get(ContentVariableName.AuthorInstitutionRoot.toString()));
+        assertEquals(
+            "1.2.36.1.2001.1003.0.8003621231167890",
+            tvars.get(ContentVariableName.AuthorInstitutionRoot.toString()));
     }
 }

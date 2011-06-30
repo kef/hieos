@@ -14,13 +14,14 @@
 package com.vangent.hieos.services.xds.bridge.mapper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,13 +71,27 @@ public class ContentParser {
         String[] prefixes = prefixUris[0];
         String[] uris = prefixUris[1];
 
-        Map<String, String> expressions = config.getExpressionMap();
+        Map<String, List<String>> expressions = config.getExpressionMap();
 
-        for (Map.Entry<String, String> entry : expressions.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : expressions.entrySet()) {
 
-            String expr = entry.getValue();
+            boolean found = false;
+            for (String expression : entry.getValue()) {
 
-            result.put(entry.getKey(), parseText(node, expr, prefixes, uris));
+                String value = parseText(node, expression, prefixes, uris);
+
+                if (StringUtils.isNotBlank(value)) {
+
+                    result.put(entry.getKey(), value);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found == false) {
+                // use null to indicate no value found
+                result.put(entry.getKey(), null);
+            }
         }
 
         return result;
@@ -101,7 +116,7 @@ public class ContentParser {
             throws XPathHelperException {
 
         String result = XPathHelper.stringValueOf(elem, expr, prefixes, uris);
-        
+
         return StringUtils.trimToEmpty(result);
     }
 }

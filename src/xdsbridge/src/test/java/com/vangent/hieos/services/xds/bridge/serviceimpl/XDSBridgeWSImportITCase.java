@@ -17,6 +17,7 @@ import com.vangent.hieos.schemas.xdsbridge.ObjectFactory;
 import com.vangent.hieos.schemas.xdsbridge.SubmitDocumentRequest;
 import com.vangent.hieos.schemas.xdsbridge.XDSBridgePortType;
 import com.vangent.hieos.schemas.xdsbridge.Xdsbridge;
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.iosupport.Io;
 
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class XDSBridgeWSImportITCase {
 
         ClassLoader cl = getClass().getClassLoader();
         InputStream xmlis =
-            cl.getResourceAsStream("documents/exampleCDA-SHS-V1_0.xml");
+            cl.getResourceAsStream(JUnitHelper.SALLY_GRANT);
 
         assertNotNull(xmlis);
 

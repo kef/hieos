@@ -13,9 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-
 import java.io.Serializable;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 
 /**
  * Class description
@@ -37,6 +37,9 @@ public class Document implements Serializable {
 
     /** Field description */
     private String mimeType;
+
+    /** Field description */
+    private SubjectIdentifier patientId;
 
     /** Field description */
     private String replaceId;
@@ -93,6 +96,16 @@ public class Document implements Serializable {
      */
     public String getMimeType() {
         return mimeType;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public SubjectIdentifier getPatientId() {
+        return patientId;
     }
 
     /**
@@ -163,6 +176,16 @@ public class Document implements Serializable {
      */
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param patientId
+     */
+    public void setPatientId(SubjectIdentifier patientId) {
+        this.patientId = patientId;
     }
 
     /**

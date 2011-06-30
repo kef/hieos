@@ -11,29 +11,30 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
 
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
-import com.vangent.hieos.services.xds.bridge.model.Identifier;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
+import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
 import com.vangent.hieos.services.xds.bridge.utils.UUIDUtils;
+import com.vangent.hieos.xutil.exception.XMLParserException;
+import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
-import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.json.XML;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import java.util.Map;
 import java.util.UUID;
+
 
 /**
  * Class description
@@ -91,10 +92,12 @@ public class CDAToXDSMapper implements IXDSMapper {
      *
      * @return
      *
-     * @throws Exception
+     *
+     * @throws XMLParserException
+     * @throws XPathHelperException
      */
     protected Map<String, String> createReplaceVariables(Document document)
-            throws Exception {
+            throws XMLParserException, XPathHelperException {
 
         ContentParser parser = getContentParser();
         ContentParserConfig cfg = getContentParserConfig();
@@ -139,13 +142,27 @@ public class CDAToXDSMapper implements IXDSMapper {
         remapForXON(result, ContentVariableName.LegalAuthenticatorRoot,
                     ContentVariableName.LegalAuthenticatorExtension);
 
+        // patientId, create an identifier and store in document
+        String patIdExt =
+            result.get(ContentVariableName.PatientIdExtension.toString());
+
+        String patIdRoot =
+            result.get(ContentVariableName.PatientIdRoot.toString());
+
+        SubjectIdentifier patId =
+            SubjectIdentifierUtils.createSubjectIdentifier(patIdRoot, patIdExt);
+
+        document.setPatientId(patId);
+
         // patientId
-        remapForCX(result, ContentVariableName.PatientRoot,
-                   ContentVariableName.PatientExtension);
+        remapForCX(result, ContentVariableName.PatientIdRoot,
+                   ContentVariableName.PatientIdExtension,
+                   ContentVariableName.PatientIdCX);
 
         // sourcePatientId
-        remapForCX(result, ContentVariableName.SourcePatientRoot,
-                   ContentVariableName.SourcePatientExtension);
+        remapForCX(result, ContentVariableName.SourcePatientIdRoot,
+                   ContentVariableName.SourcePatientIdExtension,
+                   ContentVariableName.SourcePatientIdCX);
 
         // title
         String title = result.get(ContentVariableName.DocumentTitle.toString());
@@ -264,10 +281,11 @@ public class CDAToXDSMapper implements IXDSMapper {
      *
      * @return
      *
+     *
      * @throws Exception
      */
     @Override
-    public XDSPnR map(Identifier patientId, Document document)
+    public XDSPnRMessage map(SubjectIdentifier patientId, Document document)
             throws Exception {
 
         Map<String, String> repl = createReplaceVariables(document);
@@ -284,56 +302,14 @@ public class CDAToXDSMapper implements IXDSMapper {
             }
         }
 
-        String template = readPNRTemplate();
+        String template =
+            this.contentParserConfig.retrieveTemplateFileAsString();
 
         OMElement elem = TemplateUtil.getOMElementFromTemplate(template, repl);
 
-        XDSPnR result = new XDSPnR(elem);
+        XDSPnRMessage result = new XDSPnRMessage(elem);
 
         result.attachDocument(document);
-
-        return result;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     *
-     * @throws IOException
-     */
-    protected String readPNRTemplate() throws IOException {
-
-        String result = null;
-        InputStream is = null;
-
-        String filename = getContentParserConfig().getTemplateFileName();
-
-        try {
-
-            is = new FileInputStream(filename);
-            result = Io.getStringFromInputStream(is);
-
-        } catch (IOException e) {
-
-            logger.error(String.format("Unable to read %s.", filename), e);
-
-            throw e;
-
-        } finally {
-
-            if (is != null) {
-
-                try {
-                    is.close();
-                } catch (IOException e) {
-
-                    logger.warn(String.format("Unable to close %s.", filename),
-                                e);
-                }
-            }
-        }
 
         return result;
     }
@@ -349,28 +325,17 @@ public class CDAToXDSMapper implements IXDSMapper {
      */
     private void remapForCX(Map<String, String> contentVariables,
                             ContentVariableName rootField,
-                            ContentVariableName extensionField) {
+                            ContentVariableName extensionField,
+                            ContentVariableName cxField) {
 
         String root = contentVariables.get(rootField.toString());
-
-        root = StringUtils.trimToEmpty(root);
-
         String ext = contentVariables.get(extensionField.toString());
 
-        ext = StringUtils.trimToEmpty(ext);
+        SubjectIdentifier subjectIdentifier =
+            SubjectIdentifierUtils.createSubjectIdentifier(root, ext);
 
-        if (StringUtils.isBlank(ext)) {
-
-            // "Case 1 - root only"
-            // extension is everything before last period
-            ext = StringUtils.substringAfterLast(root, ".");
-            root = StringUtils.substringBeforeLast(root, ".");
-        }
-
-        String isoroot = String.format("&%s&ISO", root);
-
-        contentVariables.put(rootField.toString(), isoroot);
-        contentVariables.put(extensionField.toString(), ext);
+        contentVariables.put(cxField.toString(),
+                             subjectIdentifier.getCXFormatted());
     }
 
     /**
@@ -417,11 +382,30 @@ public class CDAToXDSMapper implements IXDSMapper {
      * @param patientId
      * @param document
      * @param repl
+     *
+     * @throws XdsValidationException
      */
-    private void validate(Identifier patientId, Document document,
-                          Map<String, String> repl) {
+    private void validate(SubjectIdentifier patientId, Document document,
+                          Map<String, String> repl)
+            throws XdsValidationException {
 
-        // TODO add validation for patientId
-        // TODO add validation for required fields
+        StringBuilder sb = new StringBuilder();
+
+        // check patient identifier
+
+        SubjectIdentifier docPatientId = document.getPatientId();
+
+        // TODO the equals in subjectIdentifier is non-standard
+        if (patientId.equals(docPatientId) == false) {
+
+            sb.append(
+                String.format(
+                    "SubmitDocumentRequest patient id [%s] does not match document patient id [%s].",
+                    patientId.getCXFormatted(), docPatientId.getCXFormatted()));
+        }
+
+        if (sb.length() > 0) {
+            throw new XdsValidationException(sb.toString());
+        }
     }
 }

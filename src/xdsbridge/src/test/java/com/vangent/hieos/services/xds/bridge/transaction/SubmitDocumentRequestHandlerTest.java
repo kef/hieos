@@ -13,15 +13,26 @@
 
 package com.vangent.hieos.services.xds.bridge.transaction;
 
+import java.io.InputStream;
+import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import com.vangent.hieos.services.xds.bridge.client.MockRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.MockRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParser;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
-import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.message
+    .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
+import com.vangent.hieos.services.xds.bridge.serviceimpl
+    .XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.transactions
     .SubmitDocumentRequestHandler;
@@ -29,16 +40,16 @@ import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNamespace;
+import org.apache.axis2.util.XMLUtils;
 import org.apache.log4j.Logger;
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+import org.w3c.dom.Element;
 
 /**
  * Class description
@@ -66,10 +77,6 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
-        
-        MapperFactory mapFactory = new MapperFactory(cfg, new ContentParser());
 
         XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
                                                   false, null);
@@ -80,9 +87,11 @@ public class SubmitDocumentRequestHandlerTest {
         XDSDocumentRepositoryClient repoClient =
             new MockRepositoryClient(false, false, reporesp);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, mapFactory,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
             JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
@@ -104,10 +113,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.Failure);
     }
 
@@ -127,8 +132,6 @@ public class SubmitDocumentRequestHandlerTest {
         SubmitDocumentRequestBuilder builder =
             new SubmitDocumentRequestBuilder(cfg);
 
-        MapperFactory mapFactory = new MapperFactory(cfg, new ContentParser());
-
         XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
                                                   false, null);
 
@@ -138,9 +141,11 @@ public class SubmitDocumentRequestHandlerTest {
         XDSDocumentRepositoryClient repoClient =
             new MockRepositoryClient(false, false, reporesp);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, mapFactory,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
             JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
@@ -162,10 +167,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.Success);
     }
 
@@ -195,9 +196,11 @@ public class SubmitDocumentRequestHandlerTest {
         XDSDocumentRepositoryClient repoClient = new MockRepositoryClient(true,
                                                      false, reporesp);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, mapFactory,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
             JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
@@ -219,10 +222,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.Failure);
     }
 
@@ -241,13 +240,12 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              null, null);
 
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, null, null,
-                null);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         boolean exception = false;
         OMElement response = null;
@@ -266,10 +264,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.Failure);
     }
 
@@ -285,10 +279,6 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
-
-        MapperFactory mapFactory = new MapperFactory(cfg, new ContentParser());
 
         XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
                                                   false, null);
@@ -299,9 +289,11 @@ public class SubmitDocumentRequestHandlerTest {
         XDSDocumentRepositoryClient repoClient =
             new MockRepositoryClient(false, true, reporesp);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, mapFactory,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
             JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
@@ -323,10 +315,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.PartialSuccess);
     }
 
@@ -342,10 +330,6 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
-
-        MapperFactory mapFactory = new MapperFactory(cfg, new ContentParser());
 
         XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
                                                   false, null);
@@ -356,9 +340,11 @@ public class SubmitDocumentRequestHandlerTest {
         XDSDocumentRepositoryClient repoClient =
             new MockRepositoryClient(false, false, reporesp);
 
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
         SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(logMessage, builder, mapFactory,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
             JUnitHelper.fileToOMElement("messages/test-sdr3-cda.xml");
@@ -380,10 +366,6 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        OMNamespace ns = response.getNamespace();
-
-        assertEquals(SubmitDocumentRequestBuilder.URI, ns.getNamespaceURI());
-        assertEquals("SubmitDocumentResponse", response.getLocalName());
         validateStatus(response, Status.Success);
     }
 
@@ -400,7 +382,30 @@ public class SubmitDocumentRequestHandlerTest {
     private void validateStatus(OMElement response, Status validStatus)
             throws Exception {
 
-        String uri = SubmitDocumentRequestBuilder.URI;
+        // validate against the schema
+        // Create a SchemaFactory capable of understanding WXS schemas.
+        SchemaFactory factory =
+            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+        // Load a WXS schema, represented by a Schema instance.
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream xsdStream =
+            classLoader.getResourceAsStream("META-INF/XDSBridge.xsd");
+
+        assertNotNull(xsdStream);
+
+        Source schemaFile = new StreamSource(xsdStream);
+        Schema schema = factory.newSchema(schemaFile);
+
+        // validate
+        Validator validator = schema.newValidator();
+
+        Element w3element = XMLUtils.toDOM(response);
+
+        validator.validate(new DOMSource(w3element));
+
+        // validate the status
+        String uri = SubmitDocumentRequestBuilder.XDSBRIDGE_URI;
         String expr = "/@status";
         String status = XPathHelper.stringValueOf(response, expr, uri);
 

@@ -13,11 +13,11 @@
 
 package com.vangent.hieos.services.xds.bridge.transactions.activity;
 
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.model.Document;
-import com.vangent.hieos.services.xds.bridge.model.Identifier;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 
 /**
  * Class description
@@ -38,7 +38,7 @@ public class SDRActivityContext {
     private final SubmitDocumentResponse submitDocumentResponse;
 
     /** Field description */
-    private XDSPnR xdspnr;
+    private XDSPnRMessage xdspnr;
 
     /**
      * Constructs ...
@@ -74,7 +74,7 @@ public class SDRActivityContext {
      *
      * @return
      */
-    public Identifier getPatientId() {
+    public SubjectIdentifier getPatientId() {
 
         return getSubmitDocumentRequest().getPatientId();
     }
@@ -105,7 +105,7 @@ public class SDRActivityContext {
      *
      * @return
      */
-    public XDSPnR getXdspnr() {
+    public XDSPnRMessage getXdspnr() {
         return xdspnr;
     }
 
@@ -115,7 +115,7 @@ public class SDRActivityContext {
      *
      * @param xdspnr
      */
-    public void setXdspnr(XDSPnR xdspnr) {
+    public void setXdspnr(XDSPnRMessage xdspnr) {
         this.xdspnr = xdspnr;
     }
 }

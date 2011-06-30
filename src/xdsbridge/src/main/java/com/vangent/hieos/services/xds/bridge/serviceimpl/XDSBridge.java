@@ -13,11 +13,6 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
-import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
-import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParser;
-import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
-import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.support.AbstractHandlerService;
 import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.transactions
@@ -27,7 +22,6 @@ import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -148,6 +142,8 @@ public class XDSBridge extends AbstractHandlerService {
         }
 
         // grab registry from xdsbrige actor
+        // TODO verify this is correct, repo has a registry entry
+        // get the registry from repo actor... negate config out of sync issues??
         String regName = "registry";
         XConfigActor registryActor =
             (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(regName,
@@ -173,22 +169,9 @@ public class XDSBridge extends AbstractHandlerService {
 
         // create wiring
 
-        SubmitDocumentRequestBuilder sdrBuilder =
-            new SubmitDocumentRequestBuilder(bridgeConfig);
-
-        ContentParser conParser = new ContentParser();
-
-        MapperFactory mapFactory = new MapperFactory(bridgeConfig, conParser);
-
-        XDSDocumentRepositoryClient repoClient =
-            new XDSDocumentRepositoryClient(repositoryActor);
-
-        XDSDocumentRegistryClient regClient =
-            new XDSDocumentRegistryClient(registryActor);
-
         // set context for this service
-        XDSBridge.serviceContext = new XDSBridgeServiceContext(mapFactory,
-                sdrBuilder, regClient, repoClient);
+        XDSBridge.serviceContext = new XDSBridgeServiceContext(
+                registryActor, repositoryActor, bridgeConfig);
     }
 
     /**
@@ -212,19 +195,8 @@ public class XDSBridge extends AbstractHandlerService {
             logger.debug(DebugUtils.toPrettyString(request));
         }
 
-        SubmitDocumentRequestBuilder builder =
-            serviceContext.getSubmitDocumentRequestBuilder();
-
-        MapperFactory mapFact = serviceContext.getMapperFactory();
-
-        XDSDocumentRegistryClient regClient =
-            serviceContext.getRegistryClient();
-        XDSDocumentRepositoryClient repoClient =
-            serviceContext.getRepositoryClient();
-
         IMessageHandler handler =
-            new SubmitDocumentRequestHandler(getLogMessage(), builder, mapFact,
-                regClient, repoClient);
+            new SubmitDocumentRequestHandler(getLogMessage(), serviceContext);
 
         response = handleMessage(request, handler);
 

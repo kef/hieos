@@ -1,15 +1,27 @@
 /*
- * @(#)XDSBridgeConfig.java   2011-06-24
+ * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright (c) 2011
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *
- *
- *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.namespace.QName;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
@@ -17,25 +29,13 @@ import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
 import com.vangent.hieos.services.xds.bridge.mapper.ContentVariableName;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfig.ConfigItem;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xml.XMLParser;
-
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import java.io.File;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 /**
  * Class description
@@ -50,7 +50,7 @@ public class XDSBridgeConfig {
     public static final String CONFIG_FILE_PROP = "ConfigFile";
 
     /** Field description */
-    public static final String TEMPLATE_PROP =
+    public static final String TEMPLATE_METADATA_PROP =
         "ProvideAndRegisterMetadataTemplate";
 
     /** Field description */
@@ -61,21 +61,22 @@ public class XDSBridgeConfig {
     private final List<DocumentTypeMapping> documentTypeMappings;
 
     /** Field description */
-    private final XConfigActor xdsbridgeActor;
+    private final XConfigActor xdsBridgeActor;
 
     /**
      * Constructs ...
      *
      *
      *
-     * @param xdsbridgeActor
+     *
+     * @param xdsBridgeActor
      * @param mappings
      */
-    private XDSBridgeConfig(XConfigActor xdsbridgeActor,
+    private XDSBridgeConfig(XConfigActor xdsBridgeActor,
                             List<DocumentTypeMapping> mappings) {
 
         super();
-        this.xdsbridgeActor = xdsbridgeActor;
+        this.xdsBridgeActor = xdsBridgeActor;
         this.documentTypeMappings = mappings;
     }
 
@@ -96,7 +97,8 @@ public class XDSBridgeConfig {
         String cfgfile = prefixFullPath(actor.getProperty(CONFIG_FILE_PROP));
         OMElement configElem = XMLParser.fileToOM(cfgfile);
 
-        String tplfile = prefixFullPath(actor.getProperty(TEMPLATE_PROP));
+        String tplfile =
+            prefixFullPath(actor.getProperty(TEMPLATE_METADATA_PROP));
 
         Map<String, ContentParserConfig> parserConfigs =
             parseContentConfigs(configElem, tplfile);
@@ -156,22 +158,22 @@ public class XDSBridgeConfig {
                 mapperConfigElem.getFirstChildWithName(namespacesQName);
 
             // pull namespaces
-            Map<String, String> namespaces =
-                parseNameValuePairs(namespacesElem, "prefix", "uri", false);
+            Map<String, String> namespaces = parseNamespaces(namespacesElem);
 
             OMElement dynamicElem =
                 mapperConfigElem.getFirstChildWithName(docContentQName);
 
             // pull expressions
-            Map<String, String> expressions = parseNameValuePairs(dynamicElem,
-                                                  "name", "expression", true);
+            Map<String, List<String>> expressions =
+                parseExpressions(dynamicElem);
+
+            parseNameValuePairs(dynamicElem, "name", "expression", true);
 
             OMElement staticElem =
                 mapperConfigElem.getFirstChildWithName(staticValuesQName);
 
             // pull static values
-            Map<String, String> staticValues = parseNameValuePairs(staticElem,
-                                                   "name", "value", true);
+            Map<String, String> staticValues = parseStaticValues(staticElem);
 
             ContentParserConfig parserConfig = new ContentParserConfig(name,
                                                    namespaces, expressions,
@@ -247,6 +249,23 @@ public class XDSBridgeConfig {
      * Method description
      *
      *
+     * @param dynamicElem
+     *
+     * @return
+     */
+    private static Map<String,
+                       List<String>> parseExpressions(OMElement dynamicElem) {
+
+        NameValueList result = parseNameValuePairs(dynamicElem, "name",
+                                   "expression", true);
+
+        return result.toMultiValueMap();
+    }
+
+    /**
+     * Method description
+     *
+     *
      * @param node
      * @param nameAttribute
      * @param valueAttribute
@@ -254,10 +273,10 @@ public class XDSBridgeConfig {
      *
      * @return
      */
-    private static Map<String, String> parseNameValuePairs(OMElement node,
+    private static NameValueList parseNameValuePairs(OMElement node,
             String nameAttribute, String valueAttribute, boolean checkKey) {
 
-        Map<String, String> result = new HashMap<String, String>();
+        NameValueList result = new NameValueList();
 
         QName nameQName = new QName(nameAttribute);
         QName valueQName = new QName(valueAttribute);
@@ -290,11 +309,42 @@ public class XDSBridgeConfig {
 
                 String value = childNode.getAttributeValue(valueQName);
 
-                result.put(key, value);
+                result.addNameValue(key, value);
             }
         }
 
         return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param node
+     *
+     * @return
+     */
+    private static Map<String, String> parseNamespaces(OMElement node) {
+
+        NameValueList list = parseNameValuePairs(node, "prefix", "uri", false);
+
+        return list.toSingleValueMap();
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param staticElem
+     *
+     * @return
+     */
+    private static Map<String, String> parseStaticValues(OMElement staticElem) {
+
+        NameValueList result = parseNameValuePairs(staticElem, "name", "value",
+                                   true);
+
+        return result.toSingleValueMap();
     }
 
     /**
@@ -388,7 +438,78 @@ public class XDSBridgeConfig {
      *
      * @return
      */
-    public XConfigActor getXdsbridgeActor() {
-        return xdsbridgeActor;
+    public XConfigActor getXdsBridgeActor() {
+        return xdsBridgeActor;
+    }
+
+    /**
+     * Class description
+     *
+     *
+     * @version        v1.0, 2011-06-29
+     * @author         Jim Horner
+     */
+    private static class NameValueList {
+
+        /** Field description */
+        private final Map<String, List<String>> pairs;
+
+        /**
+         * Constructs ...
+         *
+         */
+        public NameValueList() {
+
+            super();
+            this.pairs = new LinkedHashMap<String, List<String>>();
+        }
+
+        /**
+         * Method description
+         *
+         *
+         * @param name
+         * @param value
+         */
+        public void addNameValue(String name, String value) {
+
+            if (this.pairs.containsKey(name) == false) {
+
+                this.pairs.put(name, new ArrayList<String>());
+            }
+
+            this.pairs.get(name).add(value);
+        }
+
+        /**
+         * Method description
+         *
+         *
+         * @return
+         */
+        public Map<String, List<String>> toMultiValueMap() {
+
+            return this.pairs;
+        }
+
+        /**
+         * Method description
+         *
+         *
+         * @return
+         */
+        public Map<String, String> toSingleValueMap() {
+
+            Map<String, String> result = new LinkedHashMap<String, String>();
+
+            for (Map.Entry<String, List<String>> entry :
+                    this.pairs.entrySet()) {
+
+                result.put(entry.getKey(), entry.getValue().get(0));
+            }
+
+            return result;
+        }
     }
 }
+

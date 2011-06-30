@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 sp1 (http://www.altova.com) by Robert Trethewey (GPpartners) -->
+<!-- This example is provided for illustrative purposes only. It has had no clinical validation. 
+ While every effort has been taken to ensure that the examples are consistent with the message specification, 
+ where there are conflicts with the written message specification or schema, the specification or schema 
+ shall be considered to take precedence -->
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:ext="http://ns.electronichealth.net.au/Ci/Cda/Extensions/3.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 ../../NEHTA%20Specifications%20AB/NEHTA_750_2011_Shared_Health_Summary_Support_v1.0/schema_wave1/CDA/infrastructure/cda/CDA-WAVE1-V1_0.xsd">
+    <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3"/>
+    <templateId extension="1.0" root="1.2.36.1.2001.1001.101.100.20000"/>
+    <id root="8BC3406A-B93F-11DE-8A2B-6A1C56D89593"/>
+    <code code="51855-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary"/>
+    <effectiveTime value="201105271150"/>
+    <confidentialityCode nullFlavor="NA"/>
+    <languageCode code="en-AU"/>
+    <setId root="6C6BA56C-BC92-11DE-A170-D85556D89593"/>
+    <versionNumber value="1"/>
+    <ext:completionCode code="F" codeSystem="1.2.36.1.2001.1001.101.104.20104" codeSystemName="NCTIS Document Status Values" displayName="Final"/>
+	<!-- Begin CDA Header -->
+	<!-- Begin Subject of Care - Header Part -->
+    <recordTarget>
+        <patientRole>
+			<!-- ID is used for system purposes such as matching -->
+            <id root="7AA0BAAC-0CD0-11E0-9516-4350DFD72085"/>
+			<!-- Address -->
+            <addr use="H">
+                <streetAddressLine>1/61 Anzac Road</streetAddressLine>
+                <city>Carina Heights</city>
+                <state>QLD</state>
+                <postalCode>4152</postalCode>
+                <country>Australia</country>
+            </addr>
+			<!-- Electronic Communication Detail -->
+            <telecom use="H" value="tel:0499999999"/>
+			<!-- Participant -->
+            <patient>
+				<!-- Person Name -->
+                <name use="L">
+                    <given>Simon</given>
+                    <family>Carr</family>
+                </name>
+				<!-- Indigenous Status -->
+                <ethnicGroupCode code="4" codeSystem="2.16.840.1.113883.3.879" codeSystemName="METeOR" displayName="Neither Aboriginal nor Torres Strait Islander origin"/>
+				<!-- Sex -->
+                <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex"/>
+				<!-- Date of Birth -->
+                <birthTime value="19660908"/>
+				<!-- Country of Birth -->
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                                        <!--
+					<ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601199896908"/>
+                                        -->
+                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.2005.3.7.1a6fd7ff75144f5"/>
+                                        
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </patient>
+        </patientRole>
+    </recordTarget>
+	<!-- End Subject of Care - Header Part -->
+	<!-- Begin Document Author -->
+    <author>
+		<!-- Must hold same value as DateTime attested (ClinicalDocument.legalAuthenticator.time) -->
+        <time value="201105271150"/>
+        <assignedAuthor>
+			<!-- ID is used for system purposes such as matching -->
+            <id root="7FCB0EC4-0CD0-11E0-9DFC-8F50DFD72085"/>
+			<!-- Role -->
+            <code code="253317" codeSystem="2.16.840.1.113883.13.62" codeSystemName="1220.0 - ANZSCO - Australian and New Zealand Standard Classification of Occupations, First Edition, 2006" displayName="Intensive Care Specialist"/>
+			<!-- Address -->
+            <addr use="WP">
+                <streetAddressLine>83 Lytton Road</streetAddressLine>
+                <city>Carina</city>
+                <state>QLD</state>
+                <postalCode>4152</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+			<!-- Electronic Communication Detail -->
+            <telecom use="WP" value="tel:(07) 4942-1327"/>
+			<!-- Participant -->
+            <assignedPerson>
+				<!-- Person Name -->
+                <name>
+                    <prefix>Dr</prefix>
+                    <given>Joe</given>
+                    <family>Thomas</family>
+                </name>
+				<!-- Sex -->
+                <ext:administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex"/>
+				<!-- Date of Birth -->
+                <ext:birthTime value="19680607"/>
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-I" root="1.2.36.1.2001.1003.0.8003619166667440"/>
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </assignedPerson>
+			<!-- Employment Detail -->
+			<!-- Employer Organisation (Participant (Organisation)) -->
+            <representedOrganization>
+				<!-- Department/Unit -->
+                <name>General Practice</name>
+                <asOrganizationPartOf>
+                    <wholeOrganization>
+						<!-- Organisation Name -->
+                        <name use="L">Carina Day Centre</name>
+                    </wholeOrganization>
+                </asOrganizationPartOf>
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003629166667070"/>
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </representedOrganization>
+        </assignedAuthor>
+    </author>
+	<!-- End Document Author -->
+	<!-- Begin Custodian -->
+    <custodian>
+        <assignedCustodian>
+            <representedCustodianOrganization>
+				<!-- ID is used for system purposes such as matching -->
+                <id root="8464C6BE-0CD0-11E0-B45A-9250DFD72085"/>
+                <name>Carina Day Centre</name>
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003629166667070"/>
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </representedCustodianOrganization>
+        </assignedCustodian>
+    </custodian>
+	<!-- End Custodian -->
+	<!-- Begin Authenticator -->
+    <legalAuthenticator>
+		<!-- DateTime Attested -->
+        <time value="201105271150"/>
+        <signatureCode code="S"/>
+        <assignedEntity>
+			<!-- ID is used for system purposes such as matching -->
+            <id root="B8E71AC2-0CD0-11E0-8746-CE50DFD72085"/>
+            <code code="AT" codeSystem="2.16.840.1.113883.12.443" codeSystemName="HL7 Provider Role" displayName="Attending"/>
+            <addr use="H">
+                <streetAddressLine>83 Lytton Road</streetAddressLine>
+                <city>Carina</city>
+                <state>QLD</state>
+                <postalCode>4152</postalCode>
+                <additionalLocator>32568931</additionalLocator>
+                <country>Australia</country>
+            </addr>
+            <telecom use="WP" value="tel:0712341234"/>
+            <assignedPerson>
+				<!-- Person Name -->
+                <name>
+                    <prefix>Dr</prefix>
+                    <given>Joe</given>
+                    <family>Thomas</family>
+                </name>
+				<!-- Sex -->
+                <ext:administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.13.68" codeSystemName="AS 5017-2006 Health Care Client Identifier Sex"/>
+				<!-- Date of Birth -->
+                <ext:birthTime value="19680607"/>
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-I" root="1.2.36.1.2001.1003.0.8003619166667440"/>
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </assignedPerson>
+            <representedOrganization>
+                <name>Carina Day Centre</name>
+				<!-- Entity Identifier -->
+                <ext:asEntityIdentifier classCode="IDENT">
+                    <ext:id assigningAuthorityName="HPI-O" root="1.2.36.1.2001.1003.0.8003629166667070"/>
+                    <ext:assigningGeographicArea classCode="PLC">
+                        <ext:name>National Identifier</ext:name>
+                    </ext:assigningGeographicArea>
+                </ext:asEntityIdentifier>
+            </representedOrganization>
+        </assignedEntity>
+    </legalAuthenticator>
+	<!-- End Authenticator -->
+	<!-- Begin Encounter (header part) -->
+    <componentOf>
+        <encompassingEncounter>
+			<!-- This is a mandatory element -->
+            <effectiveTime nullFlavor="NA"/>
+        </encompassingEncounter>
+    </componentOf>
+	<!-- End Encounter (header part) -->
+	<!-- End CDA Header -->
+	<!-- Begin CDA Body -->
+    <component>
+        <structuredBody>
+			<!-- Reviewed Adverse Substance Reactions -->
+            <component>
+                <section>
+                    <code code="101.20113" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Adverse Substance Reactions"/>
+                    <title>Reviewed Adverse Substance Reactions</title>
+                    <text>
+                        <table border="1" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Substance</th>
+                                    <th>Reaction</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BEE STINGS</td>
+                                    <td>respiratory effects</td>
+                                    <td>Jul-1977</td>
+                                    <td>Current</td>
+                                </tr>
+                                <tr>
+                                    <td>ERYTHROMYCIN</td>
+                                    <td>hives</td>
+                                    <td>27-Nov-1999</td>
+                                    <td>Current</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </text>
+					<!-- Adverse Substance Reaction Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Adverse Substance Reactions Review"/>
+							<!-- Record Review DateTime -->
+                            <effectiveTime value="20101225"/>
+                        </act>
+                    </entry>
+					<!-- End Adverse Substance Reaction Review -->
+                </section>
+            </component>
+			<!-- End Reviewed Adverse Substance Reactions -->
+			<!-- Reviewed Medications -->
+            <component>
+                <section>
+                    <code code="101.16022" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Medications"/>
+                    <title>Reviewed Medications</title>
+                    <text>
+                        <table border="1" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Start Date</th>
+                                    <th>Drug Details</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Review Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>8-Nov-1999</td>
+                                    <td>GLICLAZIDE – 60mg – 1 mane - Oral</td>
+                                    <td>Diabetes Mellitus – Type II</td>
+                                    <td>Active</td>
+                                    <td>27-May-2011</td>
+                                </tr>
+                                <tr>
+                                    <td>17-Jul-2008</td>
+                                    <td>LIPITOR – 20 mg – 1 nocte - Oral</td>
+                                    <td>Hypercholesterolaemia</td>
+                                    <td>Active</td>
+                                    <td>27-May-2011</td>
+                                </tr>
+                                <tr>
+                                    <td>4-Sep-1999</td>
+                                    <td>METFORMIN SANDOZ – 1,000 mg – 1 b.d. c.c. - Oral</td>
+                                    <td>Diabetes Mellitus – Type II</td>
+                                    <td>Active</td>
+                                    <td>27-May-2011</td>
+                                </tr>
+                                <tr>
+                                    <td>17-Apr-2011</td>
+                                    <td>PERIDOPRIL – 4mg – 1 daily m.d.u</td>
+                                    <td>Oral Hypertension</td>
+                                    <td>Active</td>
+                                    <td>27-May-2011</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </text>
+					<!-- Medications Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Medications Review"/>
+                            <effectiveTime value="20110527"/>
+                        </act>
+                    </entry>
+					<!-- End Medications Review -->
+					<!--<entry>
+						<observation classCode="OBS" moodCode="EVN">
+							<code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement"/>
+							<value code="11" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="None known" xsi:type="CD"/>
+						</observation>
+					</entry>-->
+					<!-- Exclusion Statement - Medications -->
+                </section>
+            </component>
+			<!-- End Reviewed Medications -->
+			<!-- Start Reviewed Medical History -->
+            <component>
+                <section>
+                    <code code="101.21003" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Medical History"/>
+                    <title>Reviewed Medical history</title>
+                    <text>
+                        <table border="1" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Condition</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Diabetes Mellitus - Type II</td>
+                                    <td>10-Aug-2007</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>Hypercholesterolaemia</td>
+                                    <td>01-Feb-2005</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>Hypertension</td>
+                                    <td>25-Sep-2009</td>
+                                    <td>Active</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </text>
+					<!-- Medical History Review -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Medical History Review"/>
+                            <effectiveTime value="20101225"/>
+                        </act>
+                    </entry>
+					<!-- Medical History Review -->
+                </section>
+            </component>
+			<!-- End Reviewed Medical History -->
+			<!-- Reviewed Immunisations Section -->
+            <component>
+                <section>
+                    <code code="101.16600" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Reviewed Immunisations"/>
+                    <title>Reviewed Immunisations</title>
+                    <text>
+                        <table border="1" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Vaccine</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ADT</td>
+                                    <td>DL</td>
+                                    <td>12-Apr-2006</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>FLUVAX</td>
+                                    <td>DL</td>
+                                    <td>06-May-2011</td>
+                                    <td>Active</td>
+                                </tr>
+                                <tr>
+                                    <td>FLUVAX</td>
+                                    <td>DL</td>
+                                    <td>05-May-2010</td>
+                                    <td>Inactive</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </text>
+					<!-- Reviewed Immunisations -->
+                    <entry>
+                        <act classCode="ACT" moodCode="EVN">
+                            <id root="45F3BE28-7551-11E0-971D-65A54824019B"/>
+                            <code code="102.16576" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Immunisation History Review"/>
+							<!-- Record Review DateTime -->
+                            <effectiveTime value="20110527"/>
+                        </act>
+                    </entry>
+					<!-- End Reviewed Immunisations -->
+					<!-- Exclusion Statement - Immunisations -->
+					<!--<entry>
+						<observation classCode="OBS" moodCode="EVN">
+							<code code="103.16302" codeSystem="1.2.36.1.2001.1001.101" codeSystemName="NCTIS Data Components" displayName="Global Statement"/>
+							<value code="01" codeSystem="1.2.36.1.2001.1001.101.104.16299" codeSystemName="NCTIS Global Statement Values" displayName="None known" xsi:type="CD"/>
+						</observation>
+					</entry>-->
+					<!-- End Exclusion Statement - Immunisations -->
+                </section>
+            </component>
+			<!-- End Reviewed Immunisations Section -->
+        </structuredBody>
+    </component>
+	<!-- End CDA Body -->
+</ClinicalDocument>

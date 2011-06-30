@@ -11,22 +11,26 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
-import com.vangent.hieos.services.xds.bridge.model.Identifier;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
+import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
 import com.vangent.hieos.xutil.iosupport.Io;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -34,6 +38,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * Class description
@@ -64,8 +69,7 @@ public class CDAToXDSMapperTest {
         CDAToXDSMapper mapper = new CDAToXDSMapper(gen, cfg);
 
         ClassLoader cl = getClass().getClassLoader();
-        InputStream xmlis =
-            cl.getResourceAsStream("documents/exampleCDA-SHS-V1_0.xml");
+        InputStream xmlis = cl.getResourceAsStream(JUnitHelper.SALLY_GRANT);
 
         assertNotNull(xmlis);
 
@@ -76,6 +80,13 @@ public class CDAToXDSMapperTest {
 
         Document doc = new Document();
 
+        CodedValue format = new CodedValue();
+
+        format.setCode("urn:ihe:pcc:xds-ms:2007");
+        format.setCodeSystem("1.3.6.1.4.1.19376.1.2.3");
+        format.setCodeSystemName("XDS");
+
+        doc.setFormat(format);
         doc.setContent(xml);
 
         Map<String, String> repl = mapper.createReplaceVariables(doc);
@@ -89,19 +100,21 @@ public class CDAToXDSMapperTest {
             "1.2.36.1.2001.1003.0.8003611234567890",
             repl.get(ContentVariableName.AuthorPersonExtension.toString()));
 
-        // "1.2.36.1.2001.1003.0.8003601234512345"
-        assertEquals("&1.2.36.1.2001.1003.0&ISO",
-                     repl.get(ContentVariableName.PatientRoot.toString()));
-        assertEquals("8003601234512345",
-                     repl.get(ContentVariableName.PatientExtension.toString()));
+        // "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478"
+        assertEquals("1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478",
+                     repl.get(ContentVariableName.PatientIdRoot.toString()));
+        assertNull(repl.get(ContentVariableName.PatientIdExtension.toString()));
+        assertEquals("6fa11e467880478^^^&1.3.6.1.4.1.21367.2005.3.7&ISO",
+                     repl.get(ContentVariableName.PatientIdCX.toString()));
 
-        // "1.2.36.1.2001.1003.0.8003601234512345"
+        // "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478"
         assertEquals(
-            "&1.2.36.1.2001.1003.0&ISO",
-            repl.get(ContentVariableName.SourcePatientRoot.toString()));
-        assertEquals(
-            "8003601234512345",
-            repl.get(ContentVariableName.SourcePatientExtension.toString()));
+            "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478",
+            repl.get(ContentVariableName.SourcePatientIdRoot.toString()));
+        assertNull(
+            repl.get(ContentVariableName.SourcePatientIdExtension.toString()));
+        assertEquals("6fa11e467880478^^^&1.3.6.1.4.1.21367.2005.3.7&ISO",
+            repl.get(ContentVariableName.SourcePatientIdCX.toString()));
     }
 
     /**
@@ -120,8 +133,7 @@ public class CDAToXDSMapperTest {
         CDAToXDSMapper mapper = new CDAToXDSMapper(gen, cfg);
 
         ClassLoader cl = getClass().getClassLoader();
-        InputStream xmlis =
-            cl.getResourceAsStream("documents/exampleCDA-SHS-V1_0.xml");
+        InputStream xmlis = cl.getResourceAsStream(JUnitHelper.SALLY_GRANT);
 
         assertNotNull(xmlis);
 
@@ -131,15 +143,24 @@ public class CDAToXDSMapperTest {
         assertTrue(StringUtils.isNotBlank(xml));
 
         Document doc = new Document();
+        CodedValue format = new CodedValue();
 
+        format.setCode("urn:ihe:pcc:xds-ms:2007");
+        format.setCodeSystem("1.3.6.1.4.1.19376.1.2.3");
+        format.setCodeSystemName("XDS");
+
+        doc.setFormat(format);
         doc.setContent(xml.getBytes());
 
-        Identifier pid = new Identifier();
-        XDSPnR pnr = mapper.map(pid, doc);
+        SubjectIdentifier patientId =
+            SubjectIdentifierUtils.createSubjectIdentifier(
+                "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478", null);
+
+        XDSPnRMessage pnr = mapper.map(patientId, doc);
 
         assertNotNull(pnr);
 
-        String pnrstr = DebugUtils.toPrettyString(pnr.getNode());
+        String pnrstr = DebugUtils.toPrettyString(pnr.getMessageNode());
 
         logger.debug(pnrstr);
 

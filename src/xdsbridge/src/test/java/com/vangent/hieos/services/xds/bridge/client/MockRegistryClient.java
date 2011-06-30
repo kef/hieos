@@ -13,7 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.client;
 
-import com.vangent.hieos.services.xds.bridge.model.PatientIdentityFeed;
+import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
@@ -67,7 +69,8 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
      * @throws AxisFault
      */
     @Override
-    public OMElement sendPatientIdentity(PatientIdentityFeed pif)
+    public MCCI_IN000002UV01_Message addPatientIdentity(
+            PRPA_IN201301UV02_Message pif)
             throws AxisFault {
 
         if (this.throwsExceptionAlways) {
@@ -91,6 +94,39 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
             this.count++;
         }
 
-        return this.response;
+        return new MCCI_IN000002UV01_Message(this.response);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public DeviceInfo createReceiverDeviceInfo() {
+
+        DeviceInfo result = new DeviceInfo();
+
+        result.setId("TEST");
+        result.setName("TEST-Receiver");
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public DeviceInfo createSenderDeviceInfo() {
+        DeviceInfo result = new DeviceInfo();
+
+        result.setId("TEST");
+        result.setName("TEST-Sender");
+
+        return result;
     }
 }

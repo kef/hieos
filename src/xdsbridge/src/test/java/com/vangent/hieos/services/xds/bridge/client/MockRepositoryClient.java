@@ -13,7 +13,8 @@
 
 package com.vangent.hieos.services.xds.bridge.client;
 
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
@@ -60,6 +61,40 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
      * Method description
      *
      *
+     * @return
+     */
+    @Override
+    public DeviceInfo createReceiverDeviceInfo() {
+
+        DeviceInfo result = new DeviceInfo();
+
+        result.setId("TEST");
+        result.setName("TEST-Receiver");
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    public DeviceInfo createSenderDeviceInfo() {
+
+        DeviceInfo result = new DeviceInfo();
+
+        result.setId("TEST");
+        result.setName("TEST-Sender");
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
      * @param request
      *
      * @return
@@ -67,7 +102,7 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
      * @throws AxisFault
      */
     @Override
-    public OMElement submitProvideAndRegisterDocumentSet(XDSPnR request)
+    public OMElement submitProvideAndRegisterDocumentSet(XDSPnRMessage request)
             throws AxisFault {
 
         if (this.throwsExceptionAlways) {

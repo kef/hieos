@@ -13,6 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.utils;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Properties;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
     .ContentParserConfigName;
@@ -24,17 +27,10 @@ import com.vangent.hieos.services.xds.bridge.transaction
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xml.XMLParser;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
 import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-
-import java.net.URL;
-
-import java.util.Properties;
 
 /**
  * Class description
@@ -44,6 +40,9 @@ import java.util.Properties;
  * @author         Jim Horner
  */
 public class JUnitHelper {
+
+    /** Field description */
+    public static final String SALLY_GRANT = "documents/shs_sally_grant.xml";
 
     /** Field description */
     private static final Logger logger =
@@ -85,7 +84,7 @@ public class JUnitHelper {
         props.setProperty(XDSBridgeConfig.CONFIG_FILE_PROP,
                           "TESTxdsbridgeconfig.xml");
 
-        props.setProperty(XDSBridgeConfig.TEMPLATE_PROP,
+        props.setProperty(XDSBridgeConfig.TEMPLATE_METADATA_PROP,
                           "TESTProvideAndRegisterMetadata.xml");
 
         return new MockXConfigActor(props);
@@ -108,48 +107,13 @@ public class JUnitHelper {
 
         assertNotNull(cfgfile);
 
-        String tplfile = bridgeActor.getProperty(XDSBridgeConfig.TEMPLATE_PROP);
+        String tplfile =
+            bridgeActor.getProperty(XDSBridgeConfig.TEMPLATE_METADATA_PROP);
 
         assertNotNull(tplfile);
 
         return XDSBridgeConfig.parseConfigFile(bridgeActor);
     }
-
-//  /**
-//   * Method description
-//   *
-//   *
-//   * @return
-//   *
-//   * @throws Exception
-//   */
-//  public static XConfig createXConfigInstance() throws Exception {
-//
-//      XConfig xconfig = null;
-//
-//      try {
-//
-//          String configLoc = String.format("%s/src/test/resources/config",
-//                                           System.getProperty("user.dir"));
-//
-//          System.setProperty(XConfig.SYSPROP_HIEOS_CONFIG_DIR, configLoc);
-//
-//          String xconfigFile =
-//              String.format("%s/src/test/resources/config/TESTxconfig.xml",
-//                            System.getProperty("user.dir"));
-//
-//          System.setProperty(XConfig.SYSPROP_HIEOS_XCONFIG_FILE, xconfigFile);
-//          
-//          xconfig = XConfig.getInstance();
-//
-//      } catch (XConfigException e) {
-//
-//          // refuse to deploy
-//          throw new IllegalStateException(e);
-//      }
-//
-//      return xconfig;
-//  }
 
     /**
      * Method description

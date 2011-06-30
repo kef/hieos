@@ -11,26 +11,33 @@
  * limitations under the License.
  */
 
-package com.vangent.hieos.services.xds.bridge.model;
+
+package com.vangent.hieos.services.xds.bridge.message;
 
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
+import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.model.Identifier;
+import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
-import com.vangent.hieos.services.xds.bridge.utils.StringUtils;
+import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Class description
@@ -39,18 +46,12 @@ import java.util.List;
  * @version        v1.0, 2011-06-09
  * @author         Jim Horner
  */
-public class SubmitDocumentRequestBuilder {
-
-    /** Field description */
-    public static final String URI =
-        "http://schemas.hieos.vangent.com/xdsbridge";
+public class SubmitDocumentRequestBuilder
+        extends AbstractXdsBridgeMessageBuilder {
 
     /** Field description */
     private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestBuilder.class);
-
-    /** Field description */
-    private final XDSBridgeConfig xdsbridgeConfig;
 
     /**
      * Constructs ...
@@ -60,8 +61,7 @@ public class SubmitDocumentRequestBuilder {
      */
     public SubmitDocumentRequestBuilder(XDSBridgeConfig xdsbridgeConfig) {
 
-        super();
-        this.xdsbridgeConfig = xdsbridgeConfig;
+        super(xdsbridgeConfig);
     }
 
     /**
@@ -103,7 +103,8 @@ public class SubmitDocumentRequestBuilder {
 
         byte[] result = null;
 
-        OMElement binelem = XPathHelper.selectSingleNode(elem, expr, URI);
+        OMElement binelem = XPathHelper.selectSingleNode(elem, expr,
+                                XDSBRIDGE_URI);
 
         if (binelem != null) {
 
@@ -138,7 +139,8 @@ public class SubmitDocumentRequestBuilder {
             throws XPathHelperException {
 
         CodedValue result = null;
-        OMElement cvelem = XPathHelper.selectSingleNode(elem, expr, URI);
+        OMElement cvelem = XPathHelper.selectSingleNode(elem, expr,
+                               XDSBRIDGE_URI);
 
         if (cvelem != null) {
 
@@ -173,16 +175,17 @@ public class SubmitDocumentRequestBuilder {
 
         // use xdsbridgeconfig.xml to map and populate format
         DocumentTypeMapping mapping =
-            this.xdsbridgeConfig.findDocumentTypeMapping(result.getType());
+            getXdsBridgeConfig().findDocumentTypeMapping(result.getType());
 
         if (mapping != null) {
-            
+
             result.setFormat(mapping.getFormat());
-            
+
         } else {
 
-            // TODO just throw an exception in validation??
-            
+            // TODO just throw an exception in validation instead
+            // creating an empty one??
+
             // log a warning
             CodedValue type = result.getType();
 
@@ -218,7 +221,8 @@ public class SubmitDocumentRequestBuilder {
             throws XPathHelperException {
 
         Identifier result = null;
-        OMElement idelem = XPathHelper.selectSingleNode(elem, expr, URI);
+        OMElement idelem = XPathHelper.selectSingleNode(elem, expr,
+                               XDSBRIDGE_URI);
 
         if (idelem != null) {
 
@@ -227,6 +231,35 @@ public class SubmitDocumentRequestBuilder {
                     "@assigningAuthorityName"));
             result.setRoot(parseText(idelem, "@root"));
             result.setExtension(parseText(idelem, "@extension"));
+        }
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param elem
+     * @param expr
+     *
+     * @return
+     */
+    private SubjectIdentifier parseSubjectIdentifier(OMElement elem,
+            String expr)
+            throws XPathHelperException {
+
+        SubjectIdentifier result = null;
+        OMElement idelem = XPathHelper.selectSingleNode(elem, expr,
+                               XDSBRIDGE_URI);
+
+        if (idelem != null) {
+
+            String root = parseText(idelem, "@root");
+            String extension = parseText(idelem, "@extension");
+
+            result = SubjectIdentifierUtils.createSubjectIdentifier(root,
+                    extension);
         }
 
         return result;
@@ -247,7 +280,7 @@ public class SubmitDocumentRequestBuilder {
     private String parseText(OMElement elem, String expr)
             throws XPathHelperException {
 
-        String result = XPathHelper.stringValueOf(elem, expr, URI);
+        String result = XPathHelper.stringValueOf(elem, expr, XDSBRIDGE_URI);
 
         return StringUtils.trimToNull(result);
     }
@@ -269,12 +302,13 @@ public class SubmitDocumentRequestBuilder {
 
         try {
 
-            result.setPatientId(parseIdentifier(elem, "./ns:PatientId"));
+            result.setPatientId(parseSubjectIdentifier(elem, "./ns:PatientId"));
             result.setOrganizationId(parseIdentifier(elem,
                     "./ns:OrganizationId"));
 
             List<OMElement> docelems = XPathHelper.selectNodes(elem,
-                                           "./ns:Documents/ns:Document", URI);
+                                           "./ns:Documents/ns:Document",
+                                           XDSBRIDGE_URI);
 
             if (docelems != null) {
 
@@ -310,10 +344,19 @@ public class SubmitDocumentRequestBuilder {
         StringBuilder errmsg = new StringBuilder();
 
         // must have a pid, at least a root
-        Identifier pid = result.getPatientId();
+        SubjectIdentifier pid = result.getPatientId();
 
-        if ((pid == null) || StringUtils.isBlank(pid.getRoot())) {
-            errmsg.append("PatientId must have a root attribute.\n");
+        if ((pid == null)) {
+            
+            errmsg.append("Request must contain a PatientId.\n");
+            
+        } else {
+
+            String pidRoot = pid.getIdentifierDomain().getUniversalId();
+
+            if (StringUtils.isBlank(pidRoot)) {
+                errmsg.append("PatientId must have a root attribute.\n");
+            }
         }
 
         List<Document> docs = result.getDocuments();

@@ -11,11 +11,13 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
-import com.vangent.hieos.services.xds.bridge.model.Identifier;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+
 
 /**
  * Interface description
@@ -26,7 +28,6 @@ import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
  */
 public interface IXDSMapper {
 
-    
     /**
      * Method description
      *
@@ -40,6 +41,7 @@ public interface IXDSMapper {
      *
      * @throws Exception
      */
-    public abstract XDSPnR map(Identifier patientId, Document document)
+    public abstract XDSPnRMessage map(SubjectIdentifier patientId,
+                                      Document document)
             throws Exception;
 }

@@ -79,7 +79,10 @@
 
 				<!-- Entity Identifier -->
                 <ext:asEntityIdentifier classCode="IDENT">
-                    <ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601234512345" />
+                    <!-- ORIGINAL
+                    <ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601234512345" /> 
+                    -->
+                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478" />
                     <ext:assigningGeographicArea classCode="PLC">
                         <ext:name>National Identifier</ext:name>
                     </ext:assigningGeographicArea>

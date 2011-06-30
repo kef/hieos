@@ -50,14 +50,24 @@
             <Variable name="LegalAuthenticatorRoot" expression="/hl7:ClinicalDocument/hl7:legalAuthenticator/hl7:assignedEntity/hl7:assignedPerson/ext:asEntityIdentifier/ext:id/@root" /> 
             <Variable name="LegalAuthenticatorExtension" expression="/hl7:ClinicalDocument/hl7:legalAuthenticator/hl7:assignedEntity/hl7:assignedPerson/ext:asEntityIdentifier/ext:id/@extension" /> 
 
-            <Variable name="PatientRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root" /> 
-            <Variable name="PatientExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@extension" /> 
+            <!-- Primary -->
+            <Variable name="PatientIdRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:asEntityIdentifier/hl7:id/@root" /> 
+            <Variable name="PatientIdExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:asEntityIdentifier/hl7:id/@extension" /> 
+            
+            <!-- Secondary -->
+            <Variable name="PatientIdRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root" /> 
+            <Variable name="PatientIdExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@extension" /> 
 
             <Variable name="ServiceStartTime" expression="/hl7:ClinicalDocument/hl7:effectiveTime/@value" /> 
             <Variable name="ServiceStopTime" expression="/hl7:ClinicalDocument/hl7:effectiveTime/@value" /> 
 
-            <Variable name="SourcePatientRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root" /> 
-            <Variable name="SourcePatientExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@extension" /> 
+            <!-- Primary -->
+            <Variable name="SourcePatientIdRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:asEntityIdentifier/hl7:id/@root" /> 
+            <Variable name="SourcePatientIdExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:asEntityIdentifier/hl7:id/@extension" /> 
+            
+            <!-- Secondary -->
+            <Variable name="SourcePatientIdRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root" /> 
+            <Variable name="SourcePatientIdExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@extension" /> 
 
             <Variable name="DocumentTitle" expression="/hl7:ClinicalDocument/hl7:title" /> 
             <Variable name="DocumentDisplayName" expression="/hl7:ClinicalDocument/hl7:code/@displayName" /> 

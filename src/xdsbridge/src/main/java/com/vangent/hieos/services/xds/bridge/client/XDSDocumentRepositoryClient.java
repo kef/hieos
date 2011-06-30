@@ -13,13 +13,11 @@
 
 package com.vangent.hieos.services.xds.bridge.client;
 
-import com.vangent.hieos.hl7v3util.client.Client;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -31,7 +29,7 @@ import org.apache.log4j.Logger;
  * @version        v1.0, 2011-06-09
  * @author         Jim Horner
  */
-public class XDSDocumentRepositoryClient extends Client {
+public class XDSDocumentRepositoryClient extends AbstractClient {
 
     /** Field description */
     public static final String PNR_REQUEST_ACTION =
@@ -68,7 +66,7 @@ public class XDSDocumentRepositoryClient extends Client {
      *
      * @throws AxisFault
      */
-    public OMElement submitProvideAndRegisterDocumentSet(XDSPnR request)
+    public OMElement submitProvideAndRegisterDocumentSet(XDSPnRMessage request)
             throws AxisFault {
 
         OMElement result = null;
@@ -77,16 +75,17 @@ public class XDSDocumentRepositoryClient extends Client {
 
             XConfigActor config = getConfig();
             XConfigTransaction pnrTrans = config.getTransaction(PNR_TRANS);
+            String url = pnrTrans.getEndpointURL();
 
             Soap soap = new Soap();
+
             soap.setAsync(pnrTrans.isAsyncTransaction());
 
             boolean soap12 = pnrTrans.isSOAP12Endpoint();
             boolean useMtom = true;
-            boolean useWsa = true;
+            boolean useWsa = soap12;
 
-            result = soap.soapCall(request.getNode(),
-                                   pnrTrans.getEndpointURL(), useMtom, useWsa,
+            result = soap.soapCall(request.getMessageNode(), url, useMtom, useWsa,
                                    soap12, PNR_REQUEST_ACTION,
                                    PNR_RESPONSE_ACTION);
 

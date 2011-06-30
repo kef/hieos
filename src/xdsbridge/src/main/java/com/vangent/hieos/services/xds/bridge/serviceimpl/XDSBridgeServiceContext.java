@@ -15,8 +15,13 @@ package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
+import com.vangent.hieos.services.xds.bridge.mapper.ContentParser;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
-import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.message
+    .SubmitDocumentRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.message
+    .SubmitDocumentResponseBuilder;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
  *
@@ -36,26 +41,75 @@ public class XDSBridgeServiceContext {
     /** Field description */
     private final SubmitDocumentRequestBuilder submitDocumentRequestBuilder;
 
+    /** Field description */
+    private final SubmitDocumentResponseBuilder submitDocumentResponseBuilder;
+
+    /** Field description */
+    private final XDSBridgeConfig xdsBridgeConfig;
+
     /**
      * Constructs ...
      *
      *
-     * @param mapperFactory
-     * @param registryClient
-     * @param repositoryClient
-     * @param submitDocumentRequestBuilder
+     *
+     *
+     * @param registryActor
+     * @param repositoryActor
+     * @param bridgeConfig
      */
-    public XDSBridgeServiceContext(
-            MapperFactory mapperFactory,
-            SubmitDocumentRequestBuilder submitDocumentRequestBuilder,
-            XDSDocumentRegistryClient registryClient,
-            XDSDocumentRepositoryClient repositoryClient) {
+    public XDSBridgeServiceContext(XConfigActor registryActor,
+                                   XConfigActor repositoryActor,
+                                   XDSBridgeConfig bridgeConfig) {
 
         super();
-        this.mapperFactory = mapperFactory;
-        this.registryClient = registryClient;
-        this.repositoryClient = repositoryClient;
-        this.submitDocumentRequestBuilder = submitDocumentRequestBuilder;
+        this.xdsBridgeConfig = bridgeConfig;
+
+        this.submitDocumentRequestBuilder =
+            new SubmitDocumentRequestBuilder(bridgeConfig);
+
+        this.submitDocumentResponseBuilder =
+            new SubmitDocumentResponseBuilder(bridgeConfig);
+
+        ContentParser conParser = new ContentParser();
+
+        this.mapperFactory = new MapperFactory(bridgeConfig, conParser);
+
+        this.repositoryClient =
+            new XDSDocumentRepositoryClient(repositoryActor);
+
+        this.registryClient = new XDSDocumentRegistryClient(registryActor);
+    }
+
+    /**
+     * Constructs ...
+     *
+     *
+     *
+     * @param bridgeConfig
+     * @param regClient
+     * @param repoClient
+     */
+    public XDSBridgeServiceContext(XDSBridgeConfig bridgeConfig,
+                                   XDSDocumentRegistryClient regClient,
+                                   XDSDocumentRepositoryClient repoClient) {
+
+        super();
+
+        this.xdsBridgeConfig = bridgeConfig;
+
+        this.submitDocumentRequestBuilder =
+            new SubmitDocumentRequestBuilder(bridgeConfig);
+
+        this.submitDocumentResponseBuilder =
+            new SubmitDocumentResponseBuilder(bridgeConfig);
+
+        ContentParser conParser = new ContentParser();
+
+        this.mapperFactory = new MapperFactory(bridgeConfig, conParser);
+
+        this.repositoryClient = repoClient;
+
+        this.registryClient = regClient;
     }
 
     /**
@@ -96,5 +150,25 @@ public class XDSBridgeServiceContext {
      */
     public SubmitDocumentRequestBuilder getSubmitDocumentRequestBuilder() {
         return submitDocumentRequestBuilder;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public SubmitDocumentResponseBuilder getSubmitDocumentResponseBuilder() {
+        return submitDocumentResponseBuilder;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public XDSBridgeConfig getXdsBridgeConfig() {
+        return this.xdsBridgeConfig;
     }
 }

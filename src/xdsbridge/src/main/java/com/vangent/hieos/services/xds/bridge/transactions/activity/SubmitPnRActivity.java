@@ -18,14 +18,13 @@ import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.model.XDSPnR;
-import com.vangent.hieos.services.xds.bridge.utils.ClassUtils;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -40,9 +39,6 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
     /** Field description */
     private static final Logger logger =
         Logger.getLogger(SubmitPnRActivity.class);
-
-    /** Field description */
-    private final String ERROR_CODE = "E003";
 
     /** Field description */
     private final XDSDocumentRepositoryClient repositoryClient;
@@ -106,8 +102,8 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
                 "Unable to parse repository response, exception follows. ");
             sb.append(e.getMessage());
 
-            sdrResponse.addResponse(document,
-                    ResponseTypeStatus.Failure, sb.toString());
+            sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                    sb.toString());
         }
 
         return result;
@@ -127,7 +123,7 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
         boolean result = false;
 
         // send PNR
-        XDSPnR pnr = context.getXdspnr();
+        XDSPnRMessage pnr = context.getXdspnr();
 
         try {
 
@@ -142,8 +138,8 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
 
             SubmitDocumentResponse resp = context.getSubmitDocumentResponse();
 
-            resp.addResponse(context.getDocument(), 
-                    ResponseTypeStatus.Failure, e.getMessage());
+            resp.addResponse(context.getDocument(), ResponseTypeStatus.Failure,
+                             e.getMessage());
         }
 
         return result;
@@ -158,6 +154,6 @@ public class SubmitPnRActivity implements ISubmitDocumentRequestActivity {
     @Override
     public String getName() {
 
-        return ClassUtils.getShortCanonicalName(getClass());
+        return ClassUtils.getShortClassName(getClass());
     }
 }

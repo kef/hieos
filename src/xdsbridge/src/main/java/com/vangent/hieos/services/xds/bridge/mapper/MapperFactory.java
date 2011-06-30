@@ -13,9 +13,13 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import java.util.EnumMap;
+import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig.ContentParserConfigName;
+import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
+    .ContentParserConfigName;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import org.apache.log4j.Logger;
 
 /**
  * Class description
@@ -27,7 +31,13 @@ import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 public class MapperFactory {
 
     /** Field description */
+    private static final Logger logger = Logger.getLogger(MapperFactory.class);
+
+    /** Field description */
     private final ContentParser contentParser;
+
+    /** Field description */
+    private final Map<ContentParserConfigName, IXDSMapper> xdsMappers;
 
     /** Field description */
     private final XDSBridgeConfig xdsbridgeConfig;
@@ -46,6 +56,8 @@ public class MapperFactory {
         super();
         this.xdsbridgeConfig = bridgeConfig;
         this.contentParser = tplGen;
+
+        this.xdsMappers = createXDSMappers();
     }
 
     /**
@@ -59,6 +71,38 @@ public class MapperFactory {
     public CDAToXDSMapper createCDAToXDSMapper(ContentParserConfig cfg) {
 
         return new CDAToXDSMapper(this.contentParser, cfg);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    private Map<ContentParserConfigName, IXDSMapper> createXDSMappers() {
+
+        Map<ContentParserConfigName, IXDSMapper> result =
+            new EnumMap<ContentParserConfigName,
+                        IXDSMapper>(ContentParserConfigName.class);
+
+        for (DocumentTypeMapping mapping :
+                this.xdsbridgeConfig.getDocumentTypeMappings()) {
+
+            ContentParserConfig config = mapping.getContentParserConfig();
+            ContentParserConfigName name = config.getName();
+
+            if (result.containsKey(name) == false) {
+
+                if (ContentParserConfigName.CDAToXDSMapper == name) {
+
+                    logger.debug(String.format("Creating %s mapper.",
+                                               name.toString()));
+                    result.put(name, createCDAToXDSMapper(config));
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -99,11 +143,7 @@ public class MapperFactory {
 
         if (parserConfig != null) {
 
-            if (ContentParserConfigName.CDAToXDSMapper
-                    == parserConfig.getName()) {
-
-                result = createCDAToXDSMapper(parserConfig);
-            }
+            result = this.xdsMappers.get(parserConfig.getName());
         }
 
         return result;

@@ -10,19 +10,18 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
+import java.util.List;
+import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
-import java.util.Map;
+import org.junit.Test;
 
 /**
  * Class description
@@ -49,7 +48,8 @@ public class XDSBridgeConfigTest {
 
         assertNotNull(cfgfile);
 
-        String tplfile = bridgeActor.getProperty(XDSBridgeConfig.TEMPLATE_PROP);
+        String tplfile =
+            bridgeActor.getProperty(XDSBridgeConfig.TEMPLATE_METADATA_PROP);
 
         assertNotNull(tplfile);
 
@@ -57,7 +57,7 @@ public class XDSBridgeConfigTest {
 
         assertNotNull(config);
 
-        assertNotNull(config.getXdsbridgeActor());
+        assertNotNull(config.getXdsBridgeActor());
         assertNotNull(config.getDocumentTypeMappings());
 
         List<DocumentTypeMapping> mappings = config.getDocumentTypeMappings();
@@ -98,15 +98,31 @@ public class XDSBridgeConfigTest {
         assertEquals("Not applicable",
                      staticValues.get("PracticeSettingDisplayName"));
 
-        Map<String, String> expressions = parserConfig.getExpressionMap();
+        Map<String, List<String>> expressions = parserConfig.getExpressionMap();
 
+        List<String> list = expressions.get("ServiceStopTime");
+
+        assertNotNull(list);
         assertEquals("/hl7:ClinicalDocument/hl7:effectiveTime/@value",
-                     expressions.get("ServiceStopTime"));
+                     list.get(0));
+
+        list = expressions.get("AuthorInstitutionName");
+        assertNotNull(list);
         assertEquals(
             "/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/hl7:asOrganizationPartOf/hl7:wholeOrganization/hl7:name",
-            expressions.get("AuthorInstitutionName"));
-        assertEquals("/hl7:ClinicalDocument/hl7:title",
-                     expressions.get("DocumentTitle"));
+            list.get(0));
 
+        list = expressions.get("DocumentTitle");
+        assertNotNull(list);
+        assertEquals("/hl7:ClinicalDocument/hl7:title", list.get(0));
+        
+        list = expressions.get("PatientIdRoot");
+        assertNotNull(list);
+        assertEquals(2, list.size());
+        assertEquals("/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/hl7:asEntityIdentifier/hl7:id/@root",
+                list.get(0));
+        assertEquals("/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root",
+                list.get(1));
+        
     }
 }

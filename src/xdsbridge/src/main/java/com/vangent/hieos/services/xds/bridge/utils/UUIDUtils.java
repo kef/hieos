@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.bridge.utils;
 
 import java.math.BigInteger;
 import java.util.UUID;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
