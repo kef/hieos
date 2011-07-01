@@ -228,66 +228,6 @@ public class SubmitDocumentRequestBuilderTest {
      * @throws Exception
      */
     @Test
-    public void buildSDR3Test() throws Exception {
-
-        OMElement test =
-            JUnitHelper.fileToOMElement("messages/test-sdr3-cda.xml");
-
-        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
-
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
-
-        SubmitDocumentRequest sdr = builder.buildSubmitDocumentRequest(test);
-
-        assertNotNull(sdr);
-
-        SubjectIdentifier pid = sdr.getPatientId();
-
-        assertNotNull(pid);
-
-        SubjectIdentifierDomain domain = pid.getIdentifierDomain();
-
-        assertNotNull(domain);
-
-        assertEquals("1.3.6.1.4.1.21367.2005.3.7", domain.getUniversalId());
-        assertEquals("6fa11e467880478", pid.getIdentifier());
-
-        List<Document> docs = sdr.getDocuments();
-
-        assertNotNull(docs);
-        assertEquals(1, docs.size());
-
-        for (Document doc : docs) {
-
-            assertNull(doc.getId());
-
-            // assertNull(doc.getReplaceId());
-
-            CodedValue type = doc.getType();
-
-            assertNotNull(type);
-
-            assertEquals("51855-5", type.getCode());
-            assertEquals("2.16.840.1.113883.6.1", type.getCodeSystem());
-            assertNull(type.getCodeSystemName());
-            assertNull(type.getDisplayName());
-
-            byte[] content = doc.getContent();
-
-            assertNotNull(content);
-            assertTrue(content.length > 0);
-            logger.debug(new String(doc.getContent()));
-        }
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @throws Exception
-     */
-    @Test
     public void buildSDR4Test() throws Exception {
 
         OMElement test =
