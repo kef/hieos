@@ -45,6 +45,9 @@ public class Document implements Serializable {
     private String replaceId;
 
     /** Field description */
+    private String repositoryId;
+
+    /** Field description */
     private String symbolicId;
 
     /** Field description */
@@ -116,6 +119,16 @@ public class Document implements Serializable {
      */
     public String getReplaceId() {
         return replaceId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String getRepositoryId() {
+        return repositoryId;
     }
 
     /**
@@ -196,6 +209,16 @@ public class Document implements Serializable {
      */
     public void setReplaceId(String replaceId) {
         this.replaceId = replaceId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param repositoryId
+     */
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
     }
 
     /**

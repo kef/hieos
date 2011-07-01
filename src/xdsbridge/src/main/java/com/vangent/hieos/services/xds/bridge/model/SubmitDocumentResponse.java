@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Class description
@@ -103,7 +104,14 @@ public class SubmitDocumentResponse {
     public void addResponse(Document document, ResponseTypeStatus status,
                             String message) {
 
-        addResponse(new ResponseType(document.getId(), status, message));
+        if (document == null) {
+
+            addResponse(new ResponseType(status, message));
+
+        } else {
+
+            addResponse(new ResponseType(document.getId(), status, message));
+        }
     }
 
     /**
@@ -114,8 +122,16 @@ public class SubmitDocumentResponse {
      */
     public void addSuccess(Document document) {
 
-        addResponse(new ResponseType(document.getId(),
-                                     ResponseTypeStatus.Success));
+        if (document != null) {
+
+            String id = document.getRepositoryId();
+
+            if (StringUtils.isBlank(id)) {
+                id = document.getId();
+            }
+
+            addResponse(new ResponseType(id, ResponseTypeStatus.Success));
+        }
     }
 
     /**
@@ -142,9 +158,11 @@ public class SubmitDocumentResponse {
      * Method description
      *
      *
-     * @param status
+     *
+     * @param newStatus
      */
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(Status newStatus) {
+
+        this.status = ((newStatus == null) ? Status.Unknown : newStatus);
     }
 }

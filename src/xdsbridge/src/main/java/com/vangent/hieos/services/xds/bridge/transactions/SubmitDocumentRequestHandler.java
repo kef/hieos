@@ -153,7 +153,8 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
     public OMElement run(MessageContext messageContext, OMElement request)
             throws Exception {
 
-        SubmitDocumentResponse sdrResponse = new SubmitDocumentResponse();
+        SubmitDocumentResponse sdrResponse =
+            new SubmitDocumentResponse(Status.Failure);
 
         SubmitDocumentRequest sdrRequest = unmarshalRequest(request,
                                                sdrResponse);

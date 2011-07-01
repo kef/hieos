@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.transactions.activity;
 
+import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message
@@ -24,12 +24,13 @@ import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-
+import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.xml.XPathHelper;
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
 
 /**
  * Class description
@@ -72,33 +73,67 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
     private boolean checkForSuccess(MCCI_IN000002UV01_Message addPidResponse,
                                     SDRActivityContext context) {
 
-//      boolean result = false;
-//
-//      SubmitDocumentResponse sdrResponse =
-//          context.getSubmitDocumentResponse();
-//      Document document = context.getDocument();
-//
-//      try {
-//
-//       
-//
-//      }catch (XdsInternalException e) {
-//
-//        // log it
-//        logger.error(e, e);
-//
-//        // capture in response
-//        StringBuilder sb = new StringBuilder();
-//
-//        sb.append(
-//            "Unable to parse registry response, exception follows. ");
-//        sb.append(e.getMessage());
-//
-//        sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
-//                                sb.toString());
-//      }
+        boolean result = false;
 
-        return true;
+        SubmitDocumentResponse sdrResponse =
+            context.getSubmitDocumentResponse();
+
+        try {
+
+            OMElement msgNode = addPidResponse.getMessageNode();
+
+            String ackCode = XPathHelper.stringValueOf(msgNode,
+                                 "./ns:acknowledgement/ns:typeCode/@code",
+                                 BuilderHelper.HL7V3_NAMESPACE);
+
+            if ("CA".equals(ackCode)) {
+
+                result = true;
+
+            } else {
+
+                // there was a problem
+                String ackDetail =
+                    XPathHelper.stringValueOf(
+                        msgNode,
+                        "./ns:acknowledgement/ns:acknowledgementDetail/ns:text",
+                        BuilderHelper.HL7V3_NAMESPACE);
+
+                // TODO this is a clumsy way to handle this
+                if (StringUtils.contains(ackDetail,
+                                         "already exists - skipping ADD")) {
+
+                    // ignore this CE
+                    result = true;
+                    
+                } else {
+
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append(
+                        "Failed to add patient identifier to registry; error details to follow. ");
+                    sb.append(ackDetail);
+
+                    sdrResponse.addResponse(ResponseTypeStatus.Failure,
+                                            sb.toString());
+                }
+            }
+
+        } catch (XdsInternalException e) {
+
+            // log it
+            logger.error(e, e);
+
+            // capture in response
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("Unable to parse registry response, exception follows. ");
+            sb.append(e.getMessage());
+
+            sdrResponse.addResponse(ResponseTypeStatus.Failure, sb.toString());
+        }
+
+        return result;
     }
 
     /**
@@ -130,13 +165,6 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
             PRPA_IN201301UV02_Message msg301 =
                 builder301.buildPRPA_IN201301UV02_Message(pid);
 
-            if (logger.isDebugEnabled()) {
-
-                logger.debug("== Sending to Registry");
-                logger.debug(
-                    DebugUtils.toPrettyString(msg301.getMessageNode()));
-            }
-
             MCCI_IN000002UV01_Message registryResponse =
                 this.registryClient.addPatientIdentity(msg301);
 
@@ -147,8 +175,7 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
             SubmitDocumentResponse sdrResponse =
                 context.getSubmitDocumentResponse();
 
-            sdrResponse.addResponse(context.getDocument(),
-                                    ResponseTypeStatus.Failure, e.getMessage());
+            sdrResponse.addResponse(ResponseTypeStatus.Failure, e.getMessage());
         }
 
         return result;

@@ -11,9 +11,10 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import java.util.Map;
+import java.util.UUID;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
@@ -25,16 +26,10 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.template.TemplateUtil;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.json.XML;
-
-import java.util.Map;
-import java.util.UUID;
-
 
 /**
  * Class description
@@ -176,47 +171,55 @@ public class CDAToXDSMapper implements IXDSMapper {
         }
 
         // uniqueId
+        String uuidField = ContentVariableName.DocumentUniqueId.toString();
+
         if (StringUtils.isNotBlank(document.getId())) {
 
             // document id from SDR is preferred
-            String docId = document.getId();
+            String repoDocId = document.getId();
 
-            if (UUIDUtils.isUUID(docId)) {
+            if (UUIDUtils.isUUID(repoDocId)) {
 
                 // if UUID then we need to convert to OID
-                docId = UUIDUtils.toOIDFromUUIDString(docId);
+                repoDocId = UUIDUtils.toOIDFromUUIDString(repoDocId);
             }
 
-            result.put(ContentVariableName.DocumentUniqueId.toString(), docId);
+            result.put(uuidField, repoDocId);
+            document.setRepositoryId(repoDocId);
 
         } else {
 
             // if document content had internal id use that
             // else generate one
-            String uuidField = ContentVariableName.DocumentUniqueId.toString();
+
             String docId = result.get(uuidField);
 
             if (StringUtils.isBlank(docId)) {
 
-                UUID randUUID = UUID.randomUUID();
-
-                docId = randUUID.toString();
-
                 // TODO uses 2.25 prefix
-                result.put(uuidField, UUIDUtils.toOID(randUUID));
+                docId = UUIDUtils.toOID(UUID.randomUUID());
+
+                result.put(uuidField, docId);
+
+                // sync up with the document object
+                document.setId(docId);
+                document.setRepositoryId(docId);
 
             } else {
 
-                // if UUID then we need to convert
+                String repoDocId = docId;
+
+                // if inner document id is a UUID then we need to convert
                 if (UUIDUtils.isUUID(docId)) {
 
                     // TODO uses 2.25 prefix
-                    result.put(uuidField, UUIDUtils.toOIDFromUUIDString(docId));
+                    repoDocId = UUIDUtils.toOIDFromUUIDString(docId);
+                    result.put(uuidField, repoDocId);
                 }
-            }
 
-            // sync up with the document object
-            document.setId(docId);
+                // sync up with the document object
+                document.setRepositoryId(repoDocId);
+            }
         }
 
         // ///
@@ -322,6 +325,7 @@ public class CDAToXDSMapper implements IXDSMapper {
      * @param contentVariables
      * @param rootField
      * @param extensionField
+     * @param cxField
      */
     private void remapForCX(Map<String, String> contentVariables,
                             ContentVariableName rootField,

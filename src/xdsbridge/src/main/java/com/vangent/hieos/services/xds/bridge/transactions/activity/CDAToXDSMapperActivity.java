@@ -16,14 +16,12 @@ package com.vangent.hieos.services.xds.bridge.transactions.activity;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.IXDSMapper;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
+import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import org.apache.commons.lang.ClassUtils;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -75,15 +73,16 @@ public class CDAToXDSMapperActivity implements ISubmitDocumentRequestActivity {
 
             try {
 
-                XDSPnRMessage pnr = mapper.map(context.getPatientId(), document);
-
-                logger.debug(DebugUtils.toPrettyString(pnr.getMessageNode()));
+                XDSPnRMessage pnr = mapper.map(context.getPatientId(),
+                                               document);
 
                 context.setXdspnr(pnr);
 
                 result = true;
 
             } catch (Exception e) {
+
+                logger.error(e, e);
 
                 SubmitDocumentResponse resp =
                     context.getSubmitDocumentResponse();

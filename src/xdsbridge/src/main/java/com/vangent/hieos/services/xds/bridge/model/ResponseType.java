@@ -75,7 +75,7 @@ public class ResponseType {
 
         super();
         this.documentId = documentId;
-        this.status = status;
+        this.status = ((status == null) ? ResponseTypeStatus.Unknown : status);
         this.message = message;
     }
 

@@ -89,8 +89,8 @@ public class ContentParser {
             }
             
             if (found == false) {
-                // use null to indicate no value found
-                result.put(entry.getKey(), null);
+                // use blank to indicate no value found
+                result.put(entry.getKey(), "");
             }
         }
 

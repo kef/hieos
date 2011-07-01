@@ -14,6 +14,7 @@
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
+import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -85,9 +86,22 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
             boolean useMtom = true;
             boolean useWsa = soap12;
 
-            result = soap.soapCall(request.getMessageNode(), url, useMtom, useWsa,
-                                   soap12, PNR_REQUEST_ACTION,
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Sending to Repository");
+                logger.debug(
+                    DebugUtils.toPrettyString(request.getMessageNode()));
+            }
+
+            result = soap.soapCall(request.getMessageNode(), url, useMtom,
+                                   useWsa, soap12, PNR_REQUEST_ACTION,
                                    PNR_RESPONSE_ACTION);
+
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Received from Repository");
+                logger.debug(DebugUtils.toPrettyString(result));
+            }
 
         } catch (XdsException ex) {
 

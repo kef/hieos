@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -103,7 +102,7 @@ public class CDAToXDSMapperTest {
         // "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478"
         assertEquals("1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478",
                      repl.get(ContentVariableName.PatientIdRoot.toString()));
-        assertNull(repl.get(ContentVariableName.PatientIdExtension.toString()));
+        assertEquals("", repl.get(ContentVariableName.PatientIdExtension.toString()));
         assertEquals("6fa11e467880478^^^&1.3.6.1.4.1.21367.2005.3.7&ISO",
                      repl.get(ContentVariableName.PatientIdCX.toString()));
 
@@ -111,7 +110,7 @@ public class CDAToXDSMapperTest {
         assertEquals(
             "1.3.6.1.4.1.21367.2005.3.7.6fa11e467880478",
             repl.get(ContentVariableName.SourcePatientIdRoot.toString()));
-        assertNull(
+        assertEquals("",
             repl.get(ContentVariableName.SourcePatientIdExtension.toString()));
         assertEquals("6fa11e467880478^^^&1.3.6.1.4.1.21367.2005.3.7&ISO",
             repl.get(ContentVariableName.SourcePatientIdCX.toString()));

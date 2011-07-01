@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
+import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -88,10 +89,25 @@ public class XDSDocumentRegistryClient extends AbstractClient {
             boolean useMtom = false;
             boolean useWsa = soap12;
 
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Sending to Registry");
+                logger.debug(
+                    DebugUtils.toPrettyString(request.getMessageNode()));
+            }
+
             OMElement responseElem = soap.soapCall(request.getMessageNode(),
                                          url, useMtom, useWsa, soap12,
                                          PID_ADD_REQUEST_ACTION,
                                          PID_ADD_RESPONSE_ACTION);
+            
+
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Received from Registry");
+                logger.debug(
+                    DebugUtils.toPrettyString(responseElem));
+            }
             
             result = new MCCI_IN000002UV01_Message(responseElem);
 

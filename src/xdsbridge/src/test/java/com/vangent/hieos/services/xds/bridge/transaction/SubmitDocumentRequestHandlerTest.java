@@ -11,9 +11,41 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.transaction;
 
+import com.vangent.hieos.services.xds.bridge.client.MockRegistryClient;
+import com.vangent.hieos.services.xds.bridge.client.MockRepositoryClient;
+import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
+import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
+import com.vangent.hieos.services.xds.bridge.message
+    .SubmitDocumentRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
+    .Status;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.serviceimpl
+    .XDSBridgeServiceContext;
+import com.vangent.hieos.services.xds.bridge.transactions
+    .SubmitDocumentRequestHandler;
+import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
+import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import com.vangent.hieos.xutil.xml.XPathHelper;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.util.XMLUtils;
+import org.apache.log4j.Logger;
+
+import org.junit.Test;
+
+import org.w3c.dom.Element;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.InputStream;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
@@ -21,35 +53,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import com.vangent.hieos.services.xds.bridge.client.MockRegistryClient;
-import com.vangent.hieos.services.xds.bridge.client.MockRepositoryClient;
-import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
-import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParser;
-import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
-import com.vangent.hieos.services.xds.bridge.message
-    .SubmitDocumentRequestBuilder;
-import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
-    .Status;
-import com.vangent.hieos.services.xds.bridge.serviceimpl
-    .XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
-import com.vangent.hieos.services.xds.bridge.transactions
-    .SubmitDocumentRequestHandler;
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import com.vangent.hieos.xutil.xml.XPathHelper;
-import org.apache.axiom.om.OMElement;
-import org.apache.axis2.util.XMLUtils;
-import org.apache.log4j.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
-import org.w3c.dom.Element;
 
 /**
  * Class description
@@ -71,6 +75,197 @@ public class SubmitDocumentRequestHandlerTest {
      * @throws Exception
      */
     @Test
+    public void addPatientIdentifierExceptionTest() throws Exception {
+
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
+
+        XLogMessage logMessage = null;
+
+        OMElement existSample =
+            JUnitHelper.fileToOMElement(
+                "messages/AddPIDResponse-Sample-Failure.xml");
+
+        XDSDocumentRegistryClient regClient = new MockRegistryClient(true,
+                                                  false, existSample);
+
+        OMElement reporesp = JUnitHelper.fileToOMElement(
+                                 "messages/PnRResponse-Sample-Success.xml");
+
+        XDSDocumentRepositoryClient repoClient =
+            new MockRepositoryClient(false, false, reporesp);
+
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
+        SubmitDocumentRequestHandler handler =
+            new SubmitDocumentRequestHandler(logMessage, context);
+
+        String[] documentIds = new String[] { "1.2.3.4.5.1000" };
+
+        OMElement request =
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 1,
+                                        documentIds);
+
+        boolean exception = false;
+        OMElement response = null;
+
+        try {
+
+            response = handler.run(null, request);
+            logger.debug(DebugUtils.toPrettyString(response));
+
+        } catch (Exception e) {
+
+            logger.error(e, e);
+            exception = true;
+        }
+
+        assertFalse(exception);
+        assertNotNull(response);
+
+        validateStatus(response, Status.Failure);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws Exception
+     */
+    @Test
+    public void addPatientIdentifierFailureExistsTest() throws Exception {
+
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
+
+        XLogMessage logMessage = null;
+
+        OMElement existSample =
+            JUnitHelper.fileToOMElement(
+                "messages/AddPIDResponse-Sample-Failure-Exists.xml");
+
+        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
+                                                  false, existSample);
+
+        OMElement reporesp = JUnitHelper.fileToOMElement(
+                                 "messages/PnRResponse-Sample-Success.xml");
+
+        XDSDocumentRepositoryClient repoClient =
+            new MockRepositoryClient(false, false, reporesp);
+
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
+        SubmitDocumentRequestHandler handler =
+            new SubmitDocumentRequestHandler(logMessage, context);
+
+        String[] documentIds = new String[] { "1.2.3.4.5.1000" };
+
+        OMElement request =
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 1,
+                                        documentIds);
+
+        boolean exception = false;
+        OMElement response = null;
+
+        try {
+
+            response = handler.run(null, request);
+            logger.debug(DebugUtils.toPrettyString(response));
+
+        } catch (Exception e) {
+
+            logger.error(e, e);
+            exception = true;
+        }
+
+        assertFalse(exception);
+        assertNotNull(response);
+
+        validateStatus(response, Status.Success);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws Exception
+     */
+    @Test
+    public void addPatientIdentifierFailureTest() throws Exception {
+
+        XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
+
+        XLogMessage logMessage = null;
+
+        OMElement existSample =
+            JUnitHelper.fileToOMElement(
+                "messages/AddPIDResponse-Sample-Failure.xml");
+
+        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
+                                                  false, existSample);
+
+        OMElement reporesp = JUnitHelper.fileToOMElement(
+                                 "messages/PnRResponse-Sample-Success.xml");
+
+        XDSDocumentRepositoryClient repoClient =
+            new MockRepositoryClient(false, false, reporesp);
+
+        XDSBridgeServiceContext context = new XDSBridgeServiceContext(cfg,
+                                              regClient, repoClient);
+
+        SubmitDocumentRequestHandler handler =
+            new SubmitDocumentRequestHandler(logMessage, context);
+
+        String[] documentIds = new String[] { "1.2.3.4.5.1000" };
+
+        OMElement request =
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 1,
+                                        documentIds);
+
+        boolean exception = false;
+        OMElement response = null;
+
+        try {
+
+            response = handler.run(null, request);
+            logger.debug(DebugUtils.toPrettyString(response));
+
+        } catch (Exception e) {
+
+            logger.error(e, e);
+            exception = true;
+        }
+
+        assertFalse(exception);
+        assertNotNull(response);
+
+        validateStatus(response, Status.Failure);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     *
+     * @throws Exception
+     */
+    private XDSDocumentRegistryClient createSuccessRegistryClient()
+            throws Exception {
+
+        OMElement success = JUnitHelper.fileToOMElement(
+                                "messages/AddPIDResponse-Sample-Success.xml");
+
+        return new MockRegistryClient(false, false, success);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @throws Exception
+     */
+    @Test
     public void submitDocumentRequestAllFailureResponsesTest()
             throws Exception {
 
@@ -78,8 +273,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         XLogMessage logMessage = null;
 
-        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
-                                                  false, null);
+        XDSDocumentRegistryClient regClient = createSuccessRegistryClient();
 
         OMElement reporesp = JUnitHelper.fileToOMElement(
                                  "messages/PnRResponse-Sample-Failure.xml");
@@ -93,8 +287,13 @@ public class SubmitDocumentRequestHandlerTest {
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(logMessage, context);
 
+        String[] documentIds = new String[] { "1.2.3.4.5.1000",
+                "1.2.3.4.5.2000", "1.2.3.4.5.3000", "1.2.3.4.5.4000",
+                "1.2.3.4.5.5000" };
+
         OMElement request =
-            JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 5,
+                                        documentIds);
 
         boolean exception = false;
         OMElement response = null;
@@ -129,11 +328,8 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
 
-        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
-                                                  false, null);
+        XDSDocumentRegistryClient regClient = createSuccessRegistryClient();
 
         OMElement reporesp = JUnitHelper.fileToOMElement(
                                  "messages/PnRResponse-Sample-Success.xml");
@@ -147,8 +343,13 @@ public class SubmitDocumentRequestHandlerTest {
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(logMessage, context);
 
+        String[] documentIds = new String[] { "1.2.3.4.5.1000",
+                "1.2.3.4.5.2000", "1.2.3.4.5.3000", "1.2.3.4.5.4000",
+                "1.2.3.4.5.5000" };
+
         OMElement request =
-            JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 5,
+                                        documentIds);
 
         boolean exception = false;
         OMElement response = null;
@@ -182,13 +383,8 @@ public class SubmitDocumentRequestHandlerTest {
         XDSBridgeConfig cfg = JUnitHelper.createXDSBridgeConfig();
 
         XLogMessage logMessage = null;
-        SubmitDocumentRequestBuilder builder =
-            new SubmitDocumentRequestBuilder(cfg);
 
-        MapperFactory mapFactory = new MapperFactory(cfg, new ContentParser());
-
-        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
-                                                  false, null);
+        XDSDocumentRegistryClient regClient = createSuccessRegistryClient();
 
         OMElement reporesp = JUnitHelper.fileToOMElement(
                                  "messages/PnRResponse-Sample-Success.xml");
@@ -202,8 +398,13 @@ public class SubmitDocumentRequestHandlerTest {
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(logMessage, context);
 
+        String[] documentIds = new String[] { "1.2.3.4.5.1000",
+                "1.2.3.4.5.2000", "1.2.3.4.5.3000", "1.2.3.4.5.4000",
+                "1.2.3.4.5.5000" };
+
         OMElement request =
-            JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 5,
+                                        documentIds);
 
         boolean exception = false;
         OMElement response = null;
@@ -280,8 +481,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         XLogMessage logMessage = null;
 
-        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
-                                                  false, null);
+        XDSDocumentRegistryClient regClient = createSuccessRegistryClient();
 
         OMElement reporesp = JUnitHelper.fileToOMElement(
                                  "messages/PnRResponse-Sample-Success.xml");
@@ -295,8 +495,13 @@ public class SubmitDocumentRequestHandlerTest {
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(logMessage, context);
 
+        String[] documentIds = new String[] { "1.2.3.4.5.1000",
+                "1.2.3.4.5.2000", "1.2.3.4.5.3000", "1.2.3.4.5.4000",
+                "1.2.3.4.5.5000" };
+
         OMElement request =
-            JUnitHelper.fileToOMElement("messages/test-sdr5-multi-cda.xml");
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 5,
+                                        documentIds);
 
         boolean exception = false;
         OMElement response = null;
@@ -331,8 +536,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         XLogMessage logMessage = null;
 
-        XDSDocumentRegistryClient regClient = new MockRegistryClient(false,
-                                                  false, null);
+        XDSDocumentRegistryClient regClient = createSuccessRegistryClient();
 
         OMElement reporesp = JUnitHelper.fileToOMElement(
                                  "messages/PnRResponse-Sample-Success.xml");
@@ -347,7 +551,8 @@ public class SubmitDocumentRequestHandlerTest {
             new SubmitDocumentRequestHandler(logMessage, context);
 
         OMElement request =
-            JUnitHelper.fileToOMElement("messages/test-sdr3-cda.xml");
+            JUnitHelper.createOMRequest(JUnitHelper.SALLY_GRANT, 1,
+                                        new String[] { "1.2.3.4.5.1000" });
 
         boolean exception = false;
         OMElement response = null;

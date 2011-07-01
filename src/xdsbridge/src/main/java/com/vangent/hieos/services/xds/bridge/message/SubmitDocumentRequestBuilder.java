@@ -107,7 +107,7 @@ public class SubmitDocumentRequestBuilder
                                 XDSBRIDGE_URI);
 
         if (binelem != null) {
-
+            
             Mtom mtom = new Mtom();
 
             mtom.decode(binelem);
