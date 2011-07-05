@@ -51,7 +51,7 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
     public MockRegistryClient(boolean throwsAlways, boolean throwsEven,
                               OMElement response) {
 
-        super(null);
+        super(null, null);
         this.throwsExceptionAlways = throwsAlways;
         this.throwsExceptionOnEven = throwsEven;
         this.response = response;

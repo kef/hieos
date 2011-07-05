@@ -40,7 +40,7 @@ import org.json.XML;
  */
 public class CDAToXDSMapper implements IXDSMapper {
 
-    /** Field description */
+    /** The logger instance. */
     private static final Logger logger = Logger.getLogger(CDAToXDSMapper.class);
 
     /** Field description */

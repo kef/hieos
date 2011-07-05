@@ -75,9 +75,11 @@ public class XDSBridgeServiceContext {
         this.mapperFactory = new MapperFactory(bridgeConfig, conParser);
 
         this.repositoryClient =
-            new XDSDocumentRepositoryClient(repositoryActor);
+            new XDSDocumentRepositoryClient(this.xdsBridgeConfig,
+                repositoryActor);
 
-        this.registryClient = new XDSDocumentRegistryClient(registryActor);
+        this.registryClient =
+            new XDSDocumentRegistryClient(this.xdsBridgeConfig, registryActor);
     }
 
     /**

@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
@@ -26,14 +27,23 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
  */
 public abstract class AbstractClient extends Client {
 
+    /** Field description */
+    private final XDSBridgeConfig xdsBridgeConfig;
+
     /**
      * Constructs ...
      *
      *
+     *
+     *
+     * @param xdsBridgeConfig
      * @param config
      */
-    public AbstractClient(XConfigActor config) {
+    public AbstractClient(XDSBridgeConfig xdsBridgeConfig,
+                          XConfigActor config) {
+
         super(config);
+        this.xdsBridgeConfig = xdsBridgeConfig;
     }
 
     /**
@@ -64,15 +74,16 @@ public abstract class AbstractClient extends Client {
      */
     public DeviceInfo createSenderDeviceInfo() {
 
-        XConfigActor actor = getConfig();
-        String recId = actor.getProperty("ReceiverDeviceId");
-        String recName = actor.getProperty("ReceiverDeviceName");
+        return new DeviceInfo(getXdsBridgeConfig().getXdsBridgeActor());
+    }
 
-        DeviceInfo result = new DeviceInfo();
-
-        result.setId(recId);
-        result.setName(recName);
-
-        return result;
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public XDSBridgeConfig getXdsBridgeConfig() {
+        return xdsBridgeConfig;
     }
 }

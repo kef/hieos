@@ -46,6 +46,9 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
         Logger.getLogger(AddPatientIdActivity.class);
 
     /** Field description */
+    private final String EXISTS_DETAIL_TEXT = "already exists - skipping ADD";
+
+    /** Field description */
     private final XDSDocumentRegistryClient registryClient;
 
     /**
@@ -99,13 +102,11 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
                         "./ns:acknowledgement/ns:acknowledgementDetail/ns:text",
                         BuilderHelper.HL7V3_NAMESPACE);
 
-                // TODO this is a clumsy way to handle this
-                if (StringUtils.contains(ackDetail,
-                                         "already exists - skipping ADD")) {
+                if (StringUtils.contains(ackDetail, EXISTS_DETAIL_TEXT)) {
 
                     // ignore this CE
                     result = true;
-                    
+
                 } else {
 
                     StringBuilder sb = new StringBuilder();
@@ -158,7 +159,6 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
 
             DeviceInfo sndDevice = this.registryClient.createSenderDeviceInfo();
 
-            // TODO fix the sender / receiver device info
             PRPA_IN201301UV02_Message_Builder builder301 =
                 new PRPA_IN201301UV02_Message_Builder(sndDevice, recDevice);
 

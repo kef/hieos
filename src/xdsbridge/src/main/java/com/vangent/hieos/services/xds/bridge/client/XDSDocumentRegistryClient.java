@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
+import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
@@ -41,7 +42,7 @@ public class XDSDocumentRegistryClient extends AbstractClient {
     public static final String PID_ADD_RESPONSE_ACTION =
         "urn:hl7-org:v3:MCCI_IN000002UV01";
 
-    /** TODO fix this, needs to be in xconfig??? */
+    /** Name of Transaction for service endpoints in xconfig.xml */
     public static final String PID_ADD_TRANS = "RegisterDocumentSet-b";
 
     /** The logger instance. */
@@ -52,10 +53,13 @@ public class XDSDocumentRegistryClient extends AbstractClient {
      * Constructs ...
      *
      *
+     *
+     * @param xdsBridgeConfig
      * @param config
      */
-    public XDSDocumentRegistryClient(XConfigActor config) {
-        super(config);
+    public XDSDocumentRegistryClient(XDSBridgeConfig xdsBridgeConfig,
+                                     XConfigActor config) {
+        super(xdsBridgeConfig, config);
     }
 
     /**
@@ -100,15 +104,13 @@ public class XDSDocumentRegistryClient extends AbstractClient {
                                          url, useMtom, useWsa, soap12,
                                          PID_ADD_REQUEST_ACTION,
                                          PID_ADD_RESPONSE_ACTION);
-            
 
             if (logger.isDebugEnabled()) {
 
                 logger.debug("== Received from Registry");
-                logger.debug(
-                    DebugUtils.toPrettyString(responseElem));
+                logger.debug(DebugUtils.toPrettyString(responseElem));
             }
-            
+
             result = new MCCI_IN000002UV01_Message(responseElem);
 
         } catch (XdsException ex) {

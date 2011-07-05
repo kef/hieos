@@ -50,7 +50,7 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
     public MockRepositoryClient(boolean throwsAlways, boolean throwsEven,
                                 OMElement response) {
 
-        super(null);
+        super(null, null);
         this.throwsExceptionAlways = throwsAlways;
         this.throwsExceptionOnEven = throwsEven;
         this.response = response;
