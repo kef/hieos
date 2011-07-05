@@ -11,9 +11,11 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.message;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -28,16 +30,9 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * Class description
@@ -49,15 +44,15 @@ import java.util.List;
 public class SubmitDocumentRequestBuilder
         extends AbstractXdsBridgeMessageBuilder {
 
-    /** Field description */
+    /** The logger instance. */
     private static final Logger logger =
         Logger.getLogger(SubmitDocumentRequestBuilder.class);
 
     /**
-     * Constructs ...
+     * Sole constructor.
      *
      *
-     * @param xdsbridgeConfig
+     * @param xdsbridgeConfig xdsbridge configuration object
      */
     public SubmitDocumentRequestBuilder(XDSBridgeConfig xdsbridgeConfig) {
 
@@ -107,7 +102,7 @@ public class SubmitDocumentRequestBuilder
                                 XDSBRIDGE_URI);
 
         if (binelem != null) {
-            
+
             Mtom mtom = new Mtom();
 
             mtom.decode(binelem);
@@ -180,22 +175,6 @@ public class SubmitDocumentRequestBuilder
         if (mapping != null) {
 
             result.setFormat(mapping.getFormat());
-
-        } else {
-
-            // TODO just throw an exception in validation instead
-            // creating an empty one??
-
-            // log a warning
-            CodedValue type = result.getType();
-
-            logger.warn(
-                String.format(
-                    "Document type %s:%s does not have a mapping.",
-                    type.getCode(), type.getCodeSystem()));
-
-            // instantiate an empty codedvalue
-            result.setFormat(new CodedValue());
         }
 
         // TODO revisit how this gets populated
@@ -244,6 +223,8 @@ public class SubmitDocumentRequestBuilder
      * @param expr
      *
      * @return
+     *
+     * @throws XPathHelperException
      */
     private SubjectIdentifier parseSubjectIdentifier(OMElement elem,
             String expr)
@@ -347,9 +328,9 @@ public class SubmitDocumentRequestBuilder
         SubjectIdentifier pid = result.getPatientId();
 
         if ((pid == null)) {
-            
+
             errmsg.append("Request must contain a PatientId.\n");
-            
+
         } else {
 
             String pidRoot = pid.getIdentifierDomain().getUniversalId();
@@ -398,6 +379,13 @@ public class SubmitDocumentRequestBuilder
                             String.format(
                                 "Document %s must have a type/@codeSystem.%n",
                                 id));
+                    }
+
+                    if (doc.getFormat() == null) {
+
+                        String.format(
+                            "Document type %s:%s is unrecognized and does not have a mapping.",
+                            type.getCode(), type.getCodeSystem());
                     }
                 }
 
