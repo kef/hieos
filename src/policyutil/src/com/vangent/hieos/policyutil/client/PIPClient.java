@@ -13,9 +13,17 @@
 package com.vangent.hieos.policyutil.client;
 
 import com.vangent.hieos.hl7v3util.client.Client;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.policyutil.model.pip.PatientConsentDirectives;
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.model.pip.PIPRequest;
+import com.vangent.hieos.policyutil.model.pip.PIPRequestBuilder;
+import com.vangent.hieos.policyutil.model.pip.PIPRequestElement;
+import com.vangent.hieos.policyutil.model.pip.PIPResponse;
+import com.vangent.hieos.policyutil.model.pip.PIPResponseBuilder;
+import com.vangent.hieos.policyutil.model.pip.PIPResponseElement;
+import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
 /**
@@ -34,27 +42,68 @@ public class PIPClient extends Client {
 
     /**
      *
-     * @param patientId
+     * @param pipRequest
      * @return
      * @throws AxisFault
      */
-    public PatientConsentDirectives getPatientConsentDirectives(
-            SubjectIdentifier patientId) throws AxisFault {
+    public PIPResponse getPatientConsentDirectives(
+            PIPRequest pipRequest) throws PolicyException {
+        try {
+            // Get configuration.
+            XConfigActor config = this.getConfig();
+            XConfigTransaction txn = config.getTransaction("GetConsentDirectives");
+            // FIXME: Do not hard-wire.
+            String soapAction = "urn:hieos:policy:pip:GetConsentDirectivesRequest";
 
-        // FIXME: STUB
-        PatientConsentDirectives pcd = new PatientConsentDirectives();
-        String content = 
-                "<hieos-consent:ConsentDirectives xmlns:hieos-consent=\"urn:hieos:policy:1.0:consent\">"+
-                "  <hieos-consent:AllowedOrganizations>" +
-                "    <hieos-consent:Organization>1.1</hieos-consent:Organization>" +
-                "    <hieos-consent:Organization>1.2</hieos-consent:Organization>" +
-                "  </hieos-consent:AllowedOrganizations>" +
-                "  <hieos-consent:SensitiveDocumentTypes>" +
-                "    <hieos-consent:DocumentType code=\"1\" codeSystem=\"1\"/>" +
-                "    <hieos-consent:DocumentType code=\"2\" codeSystem=\"1\"/>" +
-                "  </hieos-consent:SensitiveDocumentTypes>" +
-                "</hieos-consent:ConsentDirectives>";
-        pcd.setContent(content);
-        return pcd;
+            // Perform SOAP call to PIP.
+            PIPResponse pipResponse = this.send(pipRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            return pipResponse;
+        } catch (Exception ex) {
+            throw new PolicyException("Unable to contact Policy Information Point: " + ex.getMessage());
+        }
+       
+    }
+
+    /**
+     * 
+     * @param pipRequest
+     * @param soapAction
+     * @param endpointURL
+     * @param soap12
+     * @return
+     * @throws PolicyException
+     */
+    private PIPResponse send(PIPRequest pipRequest, String soapAction, String endpointURL, boolean soap12) throws PolicyException {
+        try {
+            // Builder the request (in XML).
+            PIPRequestBuilder requestBuilder = new PIPRequestBuilder();
+            PIPRequestElement pipRequestElement = requestBuilder.buildPIPRequestElement(pipRequest);
+
+            // Make SOAP call to PIP.
+            Soap soap = new Soap();
+            OMElement pipResponseNode;
+            try {
+                pipResponseNode = soap.soapCall(
+                        pipRequestElement.getElement(),
+                        endpointURL,
+                        false /* MTOM */,
+                        soap12 /* Addressing - Only if SOAP 1.2 */,
+                        soap12 /* SOAP 1.2 */,
+                        soapAction, null);
+            } catch (Exception ex) {
+                throw new PolicyException(ex.getMessage());
+            }
+            if (pipResponseNode == null) {
+                throw new PolicyException("No SOAP Response!");
+            }
+
+            // Build the PIP Response.
+            PIPResponseBuilder responseBuilder = new PIPResponseBuilder();
+            PIPResponse pipResponse = responseBuilder.buildPIPResponse(new PIPResponseElement(pipResponseNode));
+            return pipResponse;
+
+        } catch (Exception ex) {
+            throw new PolicyException(ex.getMessage());
+        }
     }
 }
