@@ -105,11 +105,11 @@ public class Hl7Date {
         if (hl7date != null) {
             String formatString = "yyyyMMdd";
             int len = hl7date.length();
-            if (len > 12) {
+            if (len >= 12) {
                 hl7date = hl7date.substring(0, 12);
-                formatString = "yyyyMMddhhmm";
+                formatString = "yyyyMMddHHmm";
             } else if (len > 8) {
-                hl7date.substring(0, 8);
+                hl7date = hl7date.substring(0, 8);
             } else if (len < 8) {
                 hl7date = "00000101"; // FIXME: HACK TO STAND OUT
             }
