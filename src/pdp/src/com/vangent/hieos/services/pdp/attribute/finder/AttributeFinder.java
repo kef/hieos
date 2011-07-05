@@ -12,19 +12,26 @@
  */
 package com.vangent.hieos.services.pdp.attribute.finder;
 
-import com.vangent.hieos.policyutil.model.patientconsent.PatientConsentDirectives;
+import com.vangent.hieos.policyutil.model.pip.PatientConsentDirectives;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.policyutil.client.PIPClient;
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.model.pip.PIPRequest;
+import com.vangent.hieos.policyutil.model.pip.PIPResponse;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.policyutil.util.PolicyUtil;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import oasis.names.tc.xacml._2_0.context.schema.os.AttributeType;
+import oasis.names.tc.xacml._2_0.context.schema.os.AttributeValueType;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResourceContentType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResourceType;
-
-import org.apache.axis2.AxisFault;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,6 +42,7 @@ import org.w3c.dom.Element;
  */
 public class AttributeFinder {
 
+    private XConfigActor pipConfig;
     private ResourceType resourceType;
     private PatientConsentDirectives consentDirectives;
 
@@ -42,8 +50,8 @@ public class AttributeFinder {
      * 
      * @param requestType
      */
-    public AttributeFinder(RequestType requestType) {
-
+    public AttributeFinder(XConfigActor pipConfig, RequestType requestType) {
+        this.pipConfig = pipConfig;
         // FIXME: Guard here against no resources.
         // Only picks the first Resource
         this.resourceType = requestType.getResource().get(0);
@@ -54,12 +62,17 @@ public class AttributeFinder {
      * @throws PolicyException
      */
     public void addMissingAttributes() throws PolicyException {
-        SubjectIdentifier patientId = new SubjectIdentifier();
-        // FIXME: Should we just pull from resource-id???
-        // TODO: fill in patientId properly from "requestType".
+        // FIXME: What if a resourceId is not supplied (NHIN??)
+        
+        // Get the patient id.
+        String resourceId = this.getResourceId();  // The patientId (CX formatted).
+        SubjectIdentifier patientId = new SubjectIdentifier(resourceId);
 
-        // Get info from PIP... just pass XML to Policy engine?  May be more configurable????
-        this.consentDirectives = this.getPatientConsentDirectives(patientId);
+        // Go to the PIP and get the Consent Directives
+        PIPResponse pipResponse = this.getPatientConsentDirectives(patientId);
+
+        // Get the String to add as ResourceContent.
+        this.consentDirectives = pipResponse.getPatientConsentDirectives();
         this.addResourceContent();
     }
 
@@ -91,18 +104,23 @@ public class AttributeFinder {
     }
 
     /**
-     * 
+     *
      * @param patientId
      * @return
      * @throws PolicyException
      */
-    private PatientConsentDirectives getPatientConsentDirectives(SubjectIdentifier patientId) throws PolicyException {
-        try {
-            // FIXME: get configuration.
-            PIPClient pipClient = new PIPClient(null);
-            return pipClient.getPatientConsentDirectives(patientId);
-        } catch (AxisFault ex) {
-            throw new PolicyException("Unable to communicate with PIP: " + ex.getMessage());
-        }
+    private PIPResponse getPatientConsentDirectives(SubjectIdentifier patientId) throws PolicyException {
+        PIPClient pipClient = new PIPClient(this.pipConfig);
+        PIPRequest pipRequest = new PIPRequest();
+        pipRequest.setPatientId(patientId);
+        return pipClient.getPatientConsentDirectives(pipRequest);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private String getResourceId() {
+        return PolicyUtil.getResourceId(this.resourceType);
     }
 }

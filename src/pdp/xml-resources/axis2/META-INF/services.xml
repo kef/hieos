@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
-   <service name="PDP" class="com.vangent.hieos.services.pdp.serviceimpl.PDP">
+   <service name="pdp" class="com.vangent.hieos.services.pdp.serviceimpl.PDP">
         <description>Policy Decision Point (XACML)</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pdp.serviceimpl.PDP</parameter>
         <operation name="Authorize">
