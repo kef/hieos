@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="PIP" resourceRoot="" soapui-version="3.6.1" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="200508" name="PIPBindingSoap12" type="wsdl" bindingName="{urn:hieos:policy:pip}PIPBindingSoap12" soapVersion="1_2" anonymous="optional" definition="file:/C:/dev/hieos/src/pip/xml-resources/axis2/META-INF/PIP.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/dev/hieos/src/pip/xml-resources/axis2/META-INF/PIP.wsdl"><con:part><con:url>file:/C:/dev/hieos/src/pip/xml-resources/axis2/META-INF/PIP.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PIPService" targetNamespace="urn:hieos:policy:pip" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization" xmlns:pip="urn:hieos:policy:pip">
+  <wsdl:types>
+    <xsd:schema targetNamespace="urn:hieos:policy:pip">
+      <xsd:include schemaLocation="PIP.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="GetConsentDirectivesRequestMessage">
+    <wsdl:part name="body" element="pip:GetConsentDirectivesRequest"/>
+  </wsdl:message>
+  <wsdl:message name="GetConsentDirectivesResponseMessage">
+    <wsdl:part name="body" element="pip:GetConsentDirectivesResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="PIPPortType">
+    <wsdl:operation name="GetConsentDirectives">
+      <wsdl:input message="pip:GetConsentDirectivesRequestMessage" wsaw:Action="urn:hieos:policy:pip:GetConsentDirectivesRequest"/>
+      <wsdl:output message="pip:GetConsentDirectivesResponseMessage" wsaw:Action="urn:hieos:policy:pip:GetConsentDirectivesResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PIPBindingSoap12" type="pip:PIPPortType">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsaw:UsingAddressing wsdl:required="true"/>
+    <wsdl:operation name="GetConsentDirectives">
+      <soap12:operation soapAction="urn:hieos:policy:pip:GetConsentDirectivesRequest"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="pip">
+    <wsdl:port name="PIPEndpoint" binding="pip:PIPBindingSoap12">
+      <soap12:address location="http://localhost:8080/axis2/services/pip"/>
+    </wsdl:port>
+  </wsdl:service>
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">This is the WSDL for the HIEOS Policy Information Point (PIP) Service.</xsd:documentation>
+  </xsd:annotation>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>file:\C:\dev\hieos\src\pip\xml-resources\axis2\META-INF\PIP.xsd</con:url><con:content><![CDATA[<!--edited with XMLSpy v2011 rel. 3 (x64) (http://www.altova.com) by Bernie Thuman (Vangent, Inc.)-->
+<xsd:schema targetNamespace="urn:hieos:policy:pip" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pip="urn:hieos:policy:pip">
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">This is the schema definition for the HIEOS Policy Information Point (PIP) Service.</xsd:documentation>
+  </xsd:annotation>
+  <xsd:element name="GetConsentDirectivesRequest">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">TBA</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="PatientId" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <!--<hieos-consent:ConsentDirectives xmlns:hieos-consent="urn:hieos:policy:1.0:consent">
+       <hieos-consent:AllowedOrganizations>
+         <hieos-consent:Organization>1.1</hieos-consent:Organization>
+         <hieos-consent:Organization>1.2</hieos-consent:Organization>
+       </hieos-consent:AllowedOrganizations>
+       <hieos-consent:SensitiveDocumentTypes>
+         <hieos-consent:DocumentType code="1" codeSystem="1"/>
+         <hieos-consent:DocumentType code="2" codeSystem="1"/>
+       </hieos-consent:SensitiveDocumentTypes>
+     </hieos-consent:ConsentDirectives>-->
+  <xsd:element name="GetConsentDirectivesResponse">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">TBD</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ConsentDirectives" type="pip:ConsentDirectivesType" minOccurs="1" maxOccurs="1"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:complexType name="ConsentDirectivesType">
+    <xsd:sequence>
+      <xsd:element name="AllowedOrganizations" type="pip:OrganizationsType" minOccurs="0"/>
+      <xsd:element name="BlockedOrganizations" type="pip:OrganizationsType" minOccurs="0"/>
+      <xsd:element name="BlockedIndividuals" type="pip:IndividualsType" minOccurs="0"/>
+      <xsd:element name="AllowedRoles" type="pip:RolesType" minOccurs="0"/>
+      <xsd:element name="AllowedPurposeOfUse" type="pip:PurposeOfUseTypes" minOccurs="0"/>
+      <xsd:element name="SensitiveDocumentTypes" type="pip:SensitiveDocumentTypes" minOccurs="0"/>
+      <xsd:element name="SensitiveDocumentAccessList" type="pip:SensitiveDocumentAccessTypes" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="alwaysAuthorize" type="xsd:boolean" default="false"/>
+  </xsd:complexType>
+  <xsd:complexType name="SensitiveDocumentAccessType">
+    <xsd:sequence>
+      <xsd:element name="Organization" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="Individual" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="SensitiveDocumentAccessTypes">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="SensitiveDocumentAccess" type="pip:SensitiveDocumentAccessType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="OrganizationsType">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="Organization" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="IndividualsType">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="Individual" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="RolesType">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="Role" type="pip:CodeType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PurposeOfUseTypes">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="PurposeOfUse" type="pip:CodeType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="SensitiveDocumentTypes">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="DocumentType" type="pip:CodeType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="CodeType">
+    <xsd:attribute name="code" type="xsd:string" use="required"/>
+    <xsd:attribute name="codeSystem" type="xsd:string" use="required"/>
+    <xsd:attribute name="codeSystemName" type="xsd:string" use="optional"/>
+    <xsd:attribute name="displayName" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:9090/axis2/services/pip</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:hieos:policy:pip:GetConsentDirectivesRequest" name="GetConsentDirectives" bindingOperationName="GetConsentDirectives" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9090/axis2/services/pip</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:hieos:policy:pip">
+   <soap:Header/>
+   <soap:Body>
+      <urn:GetConsentDirectivesRequest>
+         <urn:PatientId>?</urn:PatientId>
+      </urn:GetConsentDirectivesRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:policy:pip:GetConsentDirectivesRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
