@@ -158,6 +158,9 @@
 
         <Property name="ConfigFile">xdsbridgeconfig.xml</Property>
         <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
+
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.418</Property>
+        <Property name="DeviceName">HIEOS_XDSBridge</Property>
   </Actor>
 
    <!-- List of Registries -->
