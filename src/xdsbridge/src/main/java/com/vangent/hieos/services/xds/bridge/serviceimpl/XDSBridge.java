@@ -142,8 +142,6 @@ public class XDSBridge extends AbstractHandlerService {
         }
 
         // grab registry from xdsbrige actor
-        // TODO verify this is correct, repo has a registry entry
-        // get the registry from repo actor... negate config out of sync issues??
         String regName = "registry";
         XConfigActor registryActor =
             (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(regName,
