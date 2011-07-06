@@ -13,11 +13,8 @@
 package com.vangent.hieos.services.pdp.test;
 
 import com.vangent.hieos.policyutil.client.PDPClient;
-import com.vangent.hieos.policyutil.model.attribute.Attribute;
 import com.vangent.hieos.policyutil.model.pdp.PDPRequest;
 import com.vangent.hieos.policyutil.model.pdp.PDPResponse;
-import com.vangent.hieos.policyutil.util.PolicyConstants;
-import com.vangent.hieos.policyutil.model.attribute.StringValueAttribute;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -36,11 +33,11 @@ import org.junit.Test;
  */
 public class PDPTest {
     //private String endpoint = "http://localhost:8127/axis2/services/PDP";
+
     private String issuer = "HIEOS TEST";
 
     @Test
-    public void testPDPClient()
-    {
+    public void testPDPClient() {
         XConfig xconf = null;
         try {
             xconf = XConfig.getInstance();
@@ -78,55 +75,30 @@ public class PDPTest {
         request.setAction("urn:ihe:iti:2007:CrossGatewayQuery");
 
         // Load up Subject attributes
-        List<Attribute> subjectAttributes = request.getSubjectAttributes();
 
         // subject-id
-        StringValueAttribute attrSubjectId = new StringValueAttribute();
-        attrSubjectId.setId("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
-        attrSubjectId.setValue("SUBJECT-ID");
+        request.addSubjectAttribute("urn:oasis:names:tc:xacml:1.0:subject:subject-id", "SUBJECT_ID");
 
         // organization
-        StringValueAttribute attrOrganization = new StringValueAttribute();
-        attrOrganization.setId("urn:oasis:names:tc:xspa:1.0:subject:organization");
-        attrOrganization.setValue("ORG");
+        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:organization", "ORG");
 
         // organization-id
-        StringValueAttribute attrOrganizationId = new StringValueAttribute();
-        attrOrganizationId.setId("urn:oasis:names:tc:xspa:1.0:subject:organization-id");
-        attrOrganizationId.setValue("1.1");
+        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:organization-id", "1.1");
 
         // role
-        StringValueAttribute attrRole = new StringValueAttribute();
-        attrRole.setId("urn:oasis:names:tc:xacml:2.0:subject:role");
-        attrRole.setValue("DOCTOR");
+        request.addSubjectAttribute("urn:oasis:names:tc:xacml:2.0:subject:role", "DOCTOR");
 
         // purposeofuse
-        StringValueAttribute attrPurposeOfUse = new StringValueAttribute();
-        attrPurposeOfUse.setId("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse");
-        attrPurposeOfUse.setValue("TREATMENT");
+        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse", "TREATMENT");
 
         // npi
-        StringValueAttribute attrNPI = new StringValueAttribute();
-        attrNPI.setId("urn:oasis:names:tc:xspa:2.0:subject:npi");
-        attrNPI.setValue("NPI");
-
-        // TODO: Test CodedValue Types.
-
-        subjectAttributes.add(attrSubjectId);
-        subjectAttributes.add(attrOrganization);
-        subjectAttributes.add(attrOrganizationId);
-        subjectAttributes.add(attrRole);
-        subjectAttributes.add(attrPurposeOfUse);
-        subjectAttributes.add(attrNPI);
+        request.addSubjectAttribute("urn:oasis:names:tc:xspa:2.0:subject:npi", "NPI");
 
         // Resource attributes:
-        List<Attribute> resourceAttributes = request.getResourceAttributes();
 
         // resource-id
-        StringValueAttribute attrResourceId = new StringValueAttribute();
-        attrResourceId.setId("urn:oasis:names:tc:xacml:1.0:resource:resource-id");
-        attrResourceId.setValue("RESOURCE-ID");
-        resourceAttributes.add(attrResourceId);
+        request.addResourceAttribute("urn:oasis:names:tc:xacml:1.0:resource:resource-id", 
+                "123456^^^&1.3.6.1.4.1.21367.2010.1.2.300&ISO");
 
         // FIXME: !!!! if resource-id is empty, always PERMITS????
 

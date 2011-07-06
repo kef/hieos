@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.policyutil.util;
 
 /**
@@ -18,23 +17,83 @@ package com.vangent.hieos.policyutil.util;
  * @author Bernie Thuman
  */
 public class AttributeConfig {
+
     private String id;
     private String type;
+    private String name;
 
+    /**
+     *
+     */
+    public enum AttributeType {
+
+        /**
+         * 
+         */
+        STRING,
+        /**
+         *
+         */
+        CODED_VALUE
+    };
+
+    /**
+     *
+     * @return
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     *
+     * @param type
+     */
     public void setType(String type) {
         this.type = type;
     }
-    
+
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public AttributeType getAttributeType() {
+        if (type.equalsIgnoreCase("codedvalue")) {
+            return AttributeType.CODED_VALUE;
+        }
+        // Default.
+        return AttributeType.STRING;
+    }
 }
