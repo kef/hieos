@@ -13,6 +13,7 @@
 package com.vangent.hieos.policyutil.exception;
 
 /**
+ * Policy Exception class.
  *
  * @author Bernie Thuman
  */

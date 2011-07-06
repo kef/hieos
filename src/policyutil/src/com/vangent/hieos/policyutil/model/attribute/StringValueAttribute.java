@@ -13,8 +13,6 @@
 
 package com.vangent.hieos.policyutil.model.attribute;
 
-import com.vangent.hieos.policyutil.model.attribute.Attribute;
-
 /**
  *
  * @author Bernie Thuman
@@ -27,6 +25,10 @@ public class StringValueAttribute extends Attribute {
         return value;
     }
 
+    /**
+     *
+     * @param value
+     */
     public void setValue(String value) {
         this.value = value;
     }

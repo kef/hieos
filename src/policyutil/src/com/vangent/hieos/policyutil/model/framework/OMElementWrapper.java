@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.policyutil.model.framework;
 
-import com.vangent.hieos.policyutil.model.pdp.*;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -27,10 +26,18 @@ public class OMElementWrapper {
         // Do not allow.
     }
 
+    /**
+     *
+     * @param element
+     */
     public OMElementWrapper(OMElement element) {
         this.element = element;
     }
 
+    /**
+     *
+     * @return
+     */
     public OMElement getElement() {
         return element;
     }

@@ -27,13 +27,15 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
 
 /**
+ * Client interface (proxy) to Policy Decision Point (PDP).
  *
  * @author Bernie Thuman
  */
 public class PDPClient extends Client {
 
     /**
-     * 
+     * PDPClient constructor.
+     *
      * @param config
      */
     public PDPClient(XConfigActor config) {
@@ -41,9 +43,10 @@ public class PDPClient extends Client {
     }
 
     /**
+     * Simple client interface for issuing PDP requests and receiving PDP responses.
      *
      * @param pdpRequest
-     * @return
+     * @return PDPResponse
      * @throws PolicyException
      */
     public PDPResponse authorize(PDPRequest pdpRequest) throws PolicyException {
@@ -62,16 +65,18 @@ public class PDPClient extends Client {
     }
 
     /**
+     * Issues SOAP request to PDP and returns PDP response.
      *
      * @param pdpRequest
      * @param soapAction
      * @param endpointURL
      * @param soap12
-     * @return
+     * @return PDPResponse
      * @throws PolicyException
      */
     private PDPResponse send(PDPRequest pdpRequest, String soapAction, String endpointURL, boolean soap12) throws PolicyException {
         try {
+            // Build XACML request.
             XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
             XACMLAuthzDecisionQueryElement authzDecisionQuery = requestBuilder.buildXACMLAuthzDecisionQuery(pdpRequest);
             OMElement authzDecisionQueryNode = authzDecisionQuery.getElement();
@@ -94,6 +99,7 @@ public class PDPClient extends Client {
                 throw new PolicyException("No SOAP Response!");
             }
 
+            // Build PDP response.
             XACMLResponseBuilder responseBuilder = new XACMLResponseBuilder();
             PDPResponse pdpResponse = responseBuilder.buildPDPResponse(new SAMLResponseElement(samlResponseNode));
             return pdpResponse;

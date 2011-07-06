@@ -216,6 +216,7 @@ public class XACMLRequestBuilder {
      *
      * @param pdpRequest
      * @return
+     * @throws PolicyException
      */
     public XACMLAuthzDecisionQueryElement buildXACMLAuthzDecisionQuery(PDPRequest pdpRequest) throws PolicyException {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
@@ -229,7 +230,7 @@ public class XACMLRequestBuilder {
         authzDecisionQueryNode.addAttribute("IssueInstant", (new DateTime()).toString(), null);
 
         // Build Issuer [FIXME: May need more ...]
-        OMElement issuerNode = omfactory.createOMElement(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer", "saml"));
+        OMElement issuerNode = omfactory.createOMElement(new QName(PolicyConstants.SAML2_NS, "Issuer", PolicyConstants.SAML2_NS_PREFIX));
         issuerNode.setText(pdpRequest.getIssuer());
         authzDecisionQueryNode.addChild(issuerNode);
 
@@ -265,6 +266,7 @@ public class XACMLRequestBuilder {
      * @param action
      * @param saml2Assertion
      * @return
+     * @throws PolicyException 
      */
     public PDPRequest buildPDPRequest(String action, SAML2Assertion saml2Assertion) throws PolicyException {
         PDPRequest request = new PDPRequest();
@@ -429,7 +431,7 @@ public class XACMLRequestBuilder {
     private ActionType buildAction(PDPRequest pdpRequest) {
         ActionType actionType = new ActionType();
         AttributeType attributeType = new AttributeType();
-        attributeType.setAttributeId("urn:oasis:names:tc:xacml:1.0:action:action-id");
+        attributeType.setAttributeId(PolicyConstants.XACML_ACTION_ID);
         attributeType.setDataType("http://www.w3.org/2001/XMLSchema#anyURI");
         attributeType.setIssuer(pdpRequest.getIssuer());
         AttributeValueType avt = new AttributeValueType();

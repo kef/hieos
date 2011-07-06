@@ -22,10 +22,18 @@ public class CodedValueAttribute extends Attribute {
 
     private CodedValue codedValue;
 
+    /**
+     * 
+     * @return
+     */
     public CodedValue getCodedValue() {
         return codedValue;
     }
 
+    /**
+     *
+     * @param codedValue
+     */
     public void setCodedValue(CodedValue codedValue) {
         this.codedValue = codedValue;
     }

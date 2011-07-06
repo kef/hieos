@@ -27,12 +27,14 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
 /**
+ * Client interface (proxy) to Policy Information Point (PIP).
  *
  * @author Bernie Thuman
  */
 public class PIPClient extends Client {
 
     /**
+     * PIPClient constructor.
      *
      * @param config
      */
@@ -41,10 +43,11 @@ public class PIPClient extends Client {
     }
 
     /**
+     * Simple client interface for issuing PIP requests and receiving PIP responses.
      *
      * @param pipRequest
-     * @return
-     * @throws AxisFault
+     * @return PIPResponse
+     * @throws PolicyException
      */
     public PIPResponse getPatientConsentDirectives(
             PIPRequest pipRequest) throws PolicyException {
@@ -65,12 +68,13 @@ public class PIPClient extends Client {
     }
 
     /**
-     * 
+     * Issues SOAP request to PIP and returns PIP response.
+     *
      * @param pipRequest
      * @param soapAction
      * @param endpointURL
      * @param soap12
-     * @return
+     * @return PIPResponse
      * @throws PolicyException
      */
     private PIPResponse send(PIPRequest pipRequest, String soapAction, String endpointURL, boolean soap12) throws PolicyException {

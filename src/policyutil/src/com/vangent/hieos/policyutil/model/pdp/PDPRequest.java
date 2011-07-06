@@ -13,7 +13,6 @@
 package com.vangent.hieos.policyutil.model.pdp;
 
 import com.vangent.hieos.policyutil.model.attribute.Attribute;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,52 +22,73 @@ import java.util.List;
  */
 public class PDPRequest {
 
-    private SubjectIdentifier patientId;
     private String issuer;
     private String action;
     private List<Attribute> subjectAttributes = new ArrayList<Attribute>();
     private List<Attribute> resourceAttributes = new ArrayList<Attribute>();
     private List<Attribute> environmentAttributes = new ArrayList<Attribute>();
 
-    // FIXME: Do we need this (since we should use resource-id - CX format!!!) ????
-    public SubjectIdentifier getPatientId() {
-        return patientId;
-    }
-
+    /**
+     * 
+     * @return
+     */
     public String getIssuer() {
         return issuer;
     }
 
+    /**
+     *
+     * @param issuer
+     */
     public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAction() {
         return action;
     }
 
+    /**
+     *
+     * @param action
+     */
     public void setAction(String action) {
         this.action = action;
     }
 
-    public void setPatientId(SubjectIdentifier patientId) {
-        this.patientId = patientId;
-    }
-
+    /**
+     *
+     * @return
+     */
     public List<Attribute> getResourceAttributes() {
         return resourceAttributes;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Attribute> getSubjectAttributes() {
         return subjectAttributes;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Attribute> getEnvironmentAttributes() {
         return environmentAttributes;
     }
 
+    /**
+     *
+     * @param environmentAttributes
+     */
     public void setEnvironmentAttributes(List<Attribute> environmentAttributes) {
         this.environmentAttributes = environmentAttributes;
     }
-
 }

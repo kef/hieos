@@ -18,6 +18,7 @@ package com.vangent.hieos.policyutil.util;
  */
 public class PolicyConstants {
     static public final String XACML_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    static public final String XACML_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
     static public final String XACML_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
 
     // Pulled from the PIP (FIXME: put somewhere in policyConfig.xml)

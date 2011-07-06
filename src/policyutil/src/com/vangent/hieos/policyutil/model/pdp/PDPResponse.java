@@ -24,18 +24,34 @@ public class PDPResponse {
     private RequestType requestType;
     private ResponseType responseType;
 
+    /**
+     *
+     * @return
+     */
     public RequestType getRequestType() {
         return requestType;
     }
 
+    /**
+     * 
+     * @param requestType
+     */
     public void setRequestType(RequestType requestType) {
         this.requestType = requestType;
     }
 
+    /**
+     *
+     * @return
+     */
     public ResponseType getResponseType() {
         return responseType;
     }
 
+    /**
+     *
+     * @param responseType
+     */
     public void setResponseType(ResponseType responseType) {
         this.responseType = responseType;
     }

@@ -20,13 +20,25 @@ public abstract class Attribute {
 
     private String id;
 
+    /**
+     * 
+     * @return
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public abstract String getValue();
 }
