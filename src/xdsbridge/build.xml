@@ -76,7 +76,7 @@
     <target name="-pre-compile">
         <mkdir dir="${build.generated.test-sources.dir}/wsimport" />
         <property name="wsdl-XDSBridge"
-            location="${src.resources.dir}/META-INF/XDSBridge.wsdl" />
+            location="${src.axis2.dir}/META-INF/XDSBridge.wsdl" />
 
 		<echo message="${java.home}/../bin/wsimport" />
 		<exec executable="${java.home}/../bin/wsimport">
