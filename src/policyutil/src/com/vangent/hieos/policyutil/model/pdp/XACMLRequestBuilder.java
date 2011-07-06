@@ -14,11 +14,10 @@ package com.vangent.hieos.policyutil.model.pdp;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
-import com.vangent.hieos.policyutil.model.attribute.Attribute;
-import com.vangent.hieos.policyutil.model.attribute.StringValueAttribute;
 import com.vangent.hieos.policyutil.model.saml.SAML2Assertion;
+import com.vangent.hieos.policyutil.util.AttributeConfig;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
-import com.vangent.hieos.policyutil.util.PolicyConfig.IdType;
+import com.vangent.hieos.policyutil.util.PolicyConfig.AttributeIdType;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
@@ -131,9 +130,11 @@ public class XACMLRequestBuilder {
 
         // Environment
         EnvironmentType envType = requestType.getEnvironment();
-        OMElement envNode = omfactory.createOMElement(new QName(nsURI, "Environment", nsPrefix));
-        this.addAttributes(envNode, omfactory, envType.getAttribute());
-        requestNode.addChild(envNode);
+        if (envType != null) {
+            OMElement envNode = omfactory.createOMElement(new QName(nsURI, "Environment", nsPrefix));
+            this.addAttributes(envNode, omfactory, envType.getAttribute());
+            requestNode.addChild(envNode);
+        }
 
         return new RequestTypeElement(requestNode);
     }
@@ -249,10 +250,10 @@ public class XACMLRequestBuilder {
      */
     public RequestType buildRequestType(PDPRequest pdpRequest) {
         RequestType requestType = new RequestType();
-        SubjectType subjectType = this.buildSubject(pdpRequest);
-        ResourceType resourceType = this.buildResource(pdpRequest);
-        ActionType actionType = this.buildAction(pdpRequest);
-        EnvironmentType envType = this.buildEnvironment(pdpRequest);
+        SubjectType subjectType = pdpRequest.getSubjectType();
+        ResourceType resourceType = pdpRequest.getResourceType();
+        ActionType actionType = pdpRequest.getActionType();
+        EnvironmentType envType = pdpRequest.getEnvironmentType();
         requestType.getSubject().add(subjectType);
         requestType.getResource().add(resourceType);
         requestType.setAction(actionType);
@@ -296,7 +297,7 @@ public class XACMLRequestBuilder {
             }
             rootNode.addChild(attributeNode);
             for (AttributeValueType attributeValueType : attributeType.getAttributeValue()) {
-                // FIXME: AttributeValue content - how to properly handle?
+                // FIXME: AttributeValue content - how to properly handle (coded value)?
                 String attributeValue = attributeValueType.getContent().get(0).toString();
                 OMElement attributeValueNode = omfactory.createOMElement(new QName(nsURI, "AttributeValue", nsPrefix));
                 attributeValueNode.setText(attributeValue);
@@ -325,6 +326,7 @@ public class XACMLRequestBuilder {
             Iterator<OMElement> attributeValueNodesIt = this.getAttributeValueNodes(attributeNode);
             while (attributeValueNodesIt.hasNext()) {
                 OMElement attributeValueNode = attributeValueNodesIt.next();
+                // FIXME: Deal with coded value types?
                 String attributeValueNodeContent = attributeValueNode.getText();
                 AttributeValueType avt = new AttributeValueType();
                 avt.getContent().add(attributeValueNodeContent);
@@ -366,7 +368,7 @@ public class XACMLRequestBuilder {
             for (OMElement attributeNode : attributeNodes) {
                 String attributeId = attributeNode.getAttributeValue(new QName("Name"));
                 // FIXME: Only handling single value String types ... need to also make
-                // IdType much smarter.
+                // AttributeIdType much smarter.
 
                 // Get attribute value (grab first one).
                 OMElement attributeValueNode = attributeNode.getFirstChildWithName(new QName(PolicyConstants.SAML2_NS, "AttributeValue"));
@@ -374,115 +376,29 @@ public class XACMLRequestBuilder {
                 if (attributeValueNode != null) {
                     attributeValueText = attributeValueNode.getText();
                 }
-                IdType idType = pConfig.getIdType(attributeId);
-                StringValueAttribute attr = new StringValueAttribute();
-                attr.setId(attributeId);
-                attr.setValue(attributeValueText);
+                AttributeIdType idType = pConfig.getAttributeIdType(attributeId);
+                //StringValueAttribute attr = new StringValueAttribute();
+                //attr.setId(attributeId);
+                //attr.setValue(attributeValueText);
+                AttributeConfig attributeConfig;  // FIXME: Finish logic here.
                 switch (idType) {
                     case SUBJECT_ID:
-                        pdpRequest.getSubjectAttributes().add(attr);
+                        attributeConfig = pConfig.getSubjectAttributeConfig(attributeId);
+                        pdpRequest.addSubjectAttribute(attributeId, attributeValueText);
                         break;
                     case RESOURCE_ID:
-                        pdpRequest.getResourceAttributes().add(attr);
+                        attributeConfig = pConfig.getResourceAttributeConfig(attributeId);
+                        pdpRequest.addResourceAttribute(attributeId, attributeValueText);
                         break;
                     default:
                         // Just treat all else as part of the Environment
-                        pdpRequest.getEnvironmentAttributes().add(attr);
+                        attributeConfig = pConfig.getEnvironmentAttributeConfig(attributeId);
+                        pdpRequest.addEnvironmentAttribute(attributeId, attributeValueText);
                         break;
                 }
             }
         } catch (XPathHelperException ex) {
             // Fixme: Do something?
         }
-    }
-
-    /**
-     * 
-     * @param pdpRequest
-     * @return
-     */
-    private SubjectType buildSubject(PDPRequest pdpRequest) {
-        // Create a subject type
-        SubjectType subjectType = new SubjectType();
-        subjectType.setSubjectCategory(PolicyConstants.XACML_SUBJECT_CATEGORY);
-        subjectType.getAttribute().addAll(
-                this.getAttributes(pdpRequest.getIssuer(), pdpRequest.getSubjectAttributes()));
-        return subjectType;
-    }
-
-    /**
-     *
-     * @param pdpRequest
-     * @return
-     */
-    private ResourceType buildResource(PDPRequest pdpRequest) {
-        // FIXME?: Not dealing with multi-valued attributes
-        ResourceType resourceType = new ResourceType();
-        resourceType.getAttribute().addAll(
-                this.getAttributes(pdpRequest.getIssuer(), pdpRequest.getResourceAttributes()));
-        return resourceType;
-    }
-
-    /**
-     *
-     * @param pdpRequest
-     * @return
-     */
-    private ActionType buildAction(PDPRequest pdpRequest) {
-        ActionType actionType = new ActionType();
-        AttributeType attributeType = new AttributeType();
-        attributeType.setAttributeId(PolicyConstants.XACML_ACTION_ID);
-        attributeType.setDataType("http://www.w3.org/2001/XMLSchema#anyURI");
-        attributeType.setIssuer(pdpRequest.getIssuer());
-        AttributeValueType avt = new AttributeValueType();
-        avt.getContent().add(pdpRequest.getAction());
-        attributeType.getAttributeValue().add(avt);
-        // TBD
-        //AttributeType attActionID = RequestAttributeFactory.createStringAttributeType(
-        //        "urn:oasis:names:tc:xacml:1.0:action:action-id", issuer, "read");
-        actionType.getAttribute().add(attributeType);
-        return actionType;
-    }
-
-    /**
-     *
-     * @param request
-     * @return
-     */
-    private EnvironmentType buildEnvironment(PDPRequest request) {
-        EnvironmentType env = new EnvironmentType();
-
-        // TBD: DO SOMETHING HERE
-        /*
-        AttributeType attFacility = RequestAttributeFactory.createStringAttributeType(
-        "urn:va:xacml:2.0:interop:rsa8:environment:locality", issuer, "Facility A");
-
-        env.getAttribute().add(attFacility);
-         *
-         */
-        return env;
-    }
-
-    /**
-     *
-     * @param attributes
-     * @return
-     */
-    private List<AttributeType> getAttributes(String issuer, List<Attribute> attributes) {
-        // FIXME?: Not dealing with multi-valued attributes
-        List<AttributeType> attrTypeList = new ArrayList<AttributeType>();
-
-        // Create attributes
-        for (Attribute attr : attributes) {
-            AttributeType attributeType = new AttributeType();
-            attributeType.setAttributeId(attr.getId());
-            attributeType.setDataType("http://www.w3.org/2001/XMLSchema#string");
-            attributeType.setIssuer(issuer);
-            AttributeValueType avt = new AttributeValueType();
-            avt.getContent().add(attr.getValue());
-            attributeType.getAttributeValue().add(avt);
-            attrTypeList.add(attributeType);
-        }
-        return attrTypeList;
     }
 }
