@@ -22,6 +22,8 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
+import org.apache.axis2.util.XMLUtils;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -84,5 +86,33 @@ public class XMLParser {
             throw new XMLParserException(ex.getMessage());
         }
         return builder.getDocumentElement();
+    }
+
+    /**
+     *
+     * @param element
+     * @return
+     * @throws XMLParserException
+     */
+    static public OMElement convertDOMtoOM(Element element) throws XMLParserException {
+        try {
+            return XMLUtils.toOM(element);
+        } catch (Exception ex) {
+            throw new XMLParserException("Unable to convert from Element to OMElement: " + ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param omElement
+     * @return
+     * @throws XMLParserException
+     */
+    static public Element convertOMToDOM(OMElement omElement) throws XMLParserException {
+        try {
+            return XMLUtils.toDOM(omElement);
+        } catch (Exception ex) {
+            throw new XMLParserException("Unable to convert OMElement to Element: " + ex.getMessage());
+        }
     }
 }
