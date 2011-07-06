@@ -15,7 +15,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**

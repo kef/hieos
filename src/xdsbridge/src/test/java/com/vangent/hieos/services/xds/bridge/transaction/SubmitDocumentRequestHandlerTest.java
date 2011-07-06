@@ -22,8 +22,8 @@ import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
-import com.vangent.hieos.services.xds.bridge.serviceimpl
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support
     .XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.transactions
     .SubmitDocumentRequestHandler;

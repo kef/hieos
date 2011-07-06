@@ -10,9 +10,9 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl.support;
 
-import com.vangent.hieos.services.xds.bridge.serviceimpl
+import com.vangent.hieos.services.xds.bridge.support
     .XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
@@ -42,7 +42,7 @@ public class XDSBridgeServiceContextFactory {
 
         try {
 
-            bridgeConfig = XDSBridgeConfig.parseConfigFile(xdsBridgeActor);
+            bridgeConfig = XDSBridgeConfig.newInstance(xdsBridgeActor);
 
         } catch (Exception e) {
 

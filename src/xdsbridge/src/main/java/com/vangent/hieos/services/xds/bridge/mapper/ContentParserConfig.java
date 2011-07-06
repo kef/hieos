@@ -11,15 +11,19 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
+
 
 /**
  * Class description
@@ -31,7 +35,7 @@ import org.apache.commons.io.FileUtils;
 public class ContentParserConfig {
 
     /** Field description */
-    private final Map<String, List<String>> expressionMap;
+    private final Map<String, String> expressions;
 
     /** Field description */
     private String initializationErrors;
@@ -52,7 +56,8 @@ public class ContentParserConfig {
      * Enum description
      *
      */
-    public enum ContentParserConfigName { CDAToXDSMapper }
+    public enum ContentParserConfigName { SharedHealthSummaryMapper,
+            DischargeSummaryMapper }
 
     /**
      * Constructs ...
@@ -66,26 +71,35 @@ public class ContentParserConfig {
      * @param staticValues
      * @param templFileName
      */
-    public ContentParserConfig(ContentParserConfigName name,
-                               Map<String, String> namespaces,
-                               Map<String, List<String>> expressions,
-                               Map<String, String> staticValues,
-                               String templFileName) {
+    public ContentParserConfig(ContentParserConfigName inName,
+                               Map<String, String> inNamespaces,
+                               Map<String, String> inExpressions,
+                               Map<String, String> inStaticValues,
+                               String inTemplateFileName) {
 
         super();
 
-        this.name = name;
+        this.name = inName;
 
         this.namespaces = new LinkedHashMap<String, String>();
-        this.namespaces.putAll(namespaces);
 
-        this.expressionMap = new LinkedHashMap<String, List<String>>();
-        this.expressionMap.putAll(expressions);
+        if (inNamespaces != null) {
+            this.namespaces.putAll(inNamespaces);
+        }
+
+        this.expressions = new LinkedHashMap<String, String>();
+
+        if (inExpressions != null) {
+            this.expressions.putAll(inExpressions);
+        }
 
         this.staticValues = new LinkedHashMap<String, String>();
-        this.staticValues.putAll(staticValues);
 
-        this.templateFileName = templFileName;
+        if (inStaticValues != null) {
+            this.staticValues.putAll(inStaticValues);
+        }
+
+        this.templateFileName = inTemplateFileName;
     }
 
     /**
@@ -94,8 +108,8 @@ public class ContentParserConfig {
      *
      * @return
      */
-    public Map<String, List<String>> getExpressionMap() {
-        return Collections.unmodifiableMap(expressionMap);
+    public Map<String, String> getExpressions() {
+        return Collections.unmodifiableMap(expressions);
     }
 
     /**
@@ -146,6 +160,31 @@ public class ContentParserConfig {
      */
     public String getTemplateFileName() {
         return templateFileName;
+    }
+
+    /**
+     * Takes the other's map data members and does a putAll onto
+     * this' map data members; overwriting at will.
+     *
+     *
+     * @param other the other config to merge on top of this one
+     */
+    public void merge(ContentParserConfig other) {
+
+        this.expressions.putAll(other.getExpressions());
+        this.namespaces.putAll(other.getNamespaces());
+        this.staticValues.putAll(other.getStaticValues());
+
+        if (StringUtils.isNotBlank(other.getInitializationErrors())) {
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(this.initializationErrors);
+            sb.append("\n");
+            sb.append(other.getInitializationErrors());
+
+            this.initializationErrors = sb.toString();
+        }
     }
 
     /**

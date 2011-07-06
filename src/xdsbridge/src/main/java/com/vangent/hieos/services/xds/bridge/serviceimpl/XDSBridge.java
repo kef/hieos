@@ -13,6 +13,8 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.support.AbstractHandlerService;
 import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.transactions
@@ -157,7 +159,7 @@ public class XDSBridge extends AbstractHandlerService {
 
         try {
 
-            bridgeConfig = XDSBridgeConfig.parseConfigFile(xdsBridgeActor);
+            bridgeConfig = XDSBridgeConfig.newInstance(xdsBridgeActor);
 
         } catch (Exception e) {
 

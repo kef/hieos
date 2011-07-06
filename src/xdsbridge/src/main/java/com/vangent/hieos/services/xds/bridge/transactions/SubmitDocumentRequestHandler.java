@@ -29,7 +29,7 @@ import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
-import com.vangent.hieos.services.xds.bridge.serviceimpl
+import com.vangent.hieos.services.xds.bridge.support
     .XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.transactions.activity

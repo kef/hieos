@@ -23,7 +23,7 @@ import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.Identifier;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
 import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
@@ -175,12 +175,8 @@ public class SubmitDocumentRequestBuilder
         if (mapping != null) {
 
             result.setFormat(mapping.getFormat());
+            result.setMimeType(mapping.getMimeType());
         }
-
-        // TODO revisit how this gets populated
-        // use xdsbridgeconfig.xml???
-        logger.warn("Setting mimeType to hard-coded value text/xml.");
-        result.setMimeType("text/xml");
 
         return result;
     }

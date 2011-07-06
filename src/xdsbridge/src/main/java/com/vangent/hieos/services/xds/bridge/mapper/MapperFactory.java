@@ -18,7 +18,7 @@ import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
     .ContentParserConfigName;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import org.apache.log4j.Logger;
 
 /**
@@ -93,11 +93,17 @@ public class MapperFactory {
 
             if (result.containsKey(name) == false) {
 
-                if (ContentParserConfigName.CDAToXDSMapper == name) {
+                switch (name) {
 
-                    logger.debug(String.format("Creating %s mapper.",
-                                               name.toString()));
-                    result.put(name, createCDAToXDSMapper(config));
+                    case SharedHealthSummaryMapper :
+                    case DischargeSummaryMapper :
+                        logger.debug(String.format("Creating %s mapper.",
+                                                   name.toString()));
+                        result.put(name, createCDAToXDSMapper(config));
+                        break;
+                    default:
+                        logger.warn(String.format("Unknown mapper %s.",
+                                                   name.toString()));
                 }
             }
         }

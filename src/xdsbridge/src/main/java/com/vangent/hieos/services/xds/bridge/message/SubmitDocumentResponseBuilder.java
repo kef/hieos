@@ -15,7 +15,7 @@ package com.vangent.hieos.services.xds.bridge.message;
 
 import com.vangent.hieos.services.xds.bridge.model.ResponseType;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -80,14 +80,27 @@ public class SubmitDocumentResponseBuilder
                 respTypeElem.addChild(docElem);
             }
 
+            // document id as oid is optional
+            String docIdAsOid = respType.getDocumentIdAsOID();
+
+            if (StringUtils.isNotBlank(docId)) {
+
+                OMElement docElem = fac.createOMElement("DocumentIdAsOID", ns);
+
+                docElem.setText(docIdAsOid);
+
+                respTypeElem.addChild(docElem);
+            }
+            
+            
             // message is optional
-            String msg = respType.getMessage();
+            String msg = respType.getErrorMessage();
 
             if (StringUtils.isNotBlank(msg)) {
 
                 OMElement msgElem = fac.createOMElement("ErrorMessage", ns);
 
-                msgElem.setText(respType.getMessage());
+                msgElem.setText(respType.getErrorMessage());
                 respTypeElem.addChild(msgElem);
             }
 

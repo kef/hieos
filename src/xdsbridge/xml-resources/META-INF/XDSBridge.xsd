@@ -95,6 +95,7 @@
     <xsd:complexType name="ResponseType">
         <xsd:sequence>
             <xsd:element name="DocumentId" type="xsd:string" minOccurs="0" />
+            <xsd:element name="DocumentIdAsOID" type="xsd:string" minOccurs="0" />
             <xsd:element name="ErrorMessage" type="xsd:string" minOccurs="0" />
         </xsd:sequence>
         <xsd:attribute name="status" use="required">

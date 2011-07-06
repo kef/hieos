@@ -14,7 +14,6 @@
 package com.vangent.hieos.services.xds.bridge.mapper;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
@@ -71,27 +70,14 @@ public class ContentParser {
         String[] prefixes = prefixUris[0];
         String[] uris = prefixUris[1];
 
-        Map<String, List<String>> expressions = config.getExpressionMap();
+        Map<String, String> expressions = config.getExpressions();
 
-        for (Map.Entry<String, List<String>> entry : expressions.entrySet()) {
+        for (Map.Entry<String, String> entry : expressions.entrySet()) {
 
-            boolean found = false;
-            for (String expression : entry.getValue()) {
+            String expression = entry.getValue();
+            String value = parseText(node, expression, prefixes, uris);
 
-                String value = parseText(node, expression, prefixes, uris);
-
-                if (StringUtils.isNotBlank(value)) {
-
-                    result.put(entry.getKey(), value);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found == false) {
-                // use blank to indicate no value found
-                result.put(entry.getKey(), "");
-            }
+            result.put(entry.getKey(), value);
         }
 
         return result;

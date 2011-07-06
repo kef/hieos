@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.support;
 
 import com.vangent.hieos.xutil.exception.XdsValidationException;
@@ -24,7 +25,9 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.AxisService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
 
 /**
  * Class description
@@ -265,14 +268,14 @@ public abstract class AbstractHandlerService extends XAbstractService {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
 
-        String serviceName = service.getName();
-
         super.shutDown(configctx, service);
 
-        configctx.removeProperty(serviceName);
+        String serviceName = service.getName();
+        String actorName = StringUtils.trimToEmpty(
+                               (String) service.getParameterValue("ActorName"));
 
         logger.info(String.format("%s::shutDown()::%s", serviceName,
-                                  service.getParameterValue("ActorName")));
+                                  actorName));
     }
 
     /**
@@ -288,9 +291,10 @@ public abstract class AbstractHandlerService extends XAbstractService {
         super.startUp(configctx, service);
 
         String serviceName = service.getName();
+        String actorName = StringUtils.trimToEmpty(
+                               (String) service.getParameterValue("ActorName"));
 
-        logger.info(String.format("%s::startUp()::%s", serviceName,
-                                  service.getParameterValue("ActorName")));
+        logger.info(String.format("%s::startUp()::%s", serviceName, actorName));
     }
 
     /**

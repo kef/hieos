@@ -33,6 +33,9 @@ public class Document implements Serializable {
     private CodedValue format;
 
     /** Field description */
+    private boolean generatedDocumentId;
+
+    /** Field description */
     private String id;
 
     /** Field description */
@@ -155,6 +158,16 @@ public class Document implements Serializable {
      * Method description
      *
      *
+     * @return
+     */
+    public boolean isGeneratedDocumentId() {
+        return generatedDocumentId;
+    }
+
+    /**
+     * Method description
+     *
+     *
      * @param content
      */
     public void setContent(byte[] content) {
@@ -169,6 +182,16 @@ public class Document implements Serializable {
      */
     public void setFormat(CodedValue format) {
         this.format = format;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param generatedDocumentId
+     */
+    public void setGeneratedDocumentId(boolean generatedDocumentId) {
+        this.generatedDocumentId = generatedDocumentId;
     }
 
     /**

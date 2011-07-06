@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.transactions.activity;
 
 import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
@@ -26,11 +27,12 @@ import com.vangent.hieos.services.xds.bridge.model.ResponseType
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
 
 /**
  * Class description
@@ -44,9 +46,6 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
     /** Field description */
     private static final Logger logger =
         Logger.getLogger(AddPatientIdActivity.class);
-
-    /** Field description */
-    private final String EXISTS_DETAIL_TEXT = "already exists - skipping ADD";
 
     /** Field description */
     private final XDSDocumentRegistryClient registryClient;
@@ -89,11 +88,10 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
                                  "./ns:acknowledgement/ns:typeCode/@code",
                                  BuilderHelper.HL7V3_NAMESPACE);
 
-            if ("CA".equals(ackCode)) {
+            // we always return true
+            result = true;
 
-                result = true;
-
-            } else {
+            if ("CE".equals(ackCode)) {
 
                 // there was a problem
                 String ackDetail =
@@ -102,22 +100,13 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
                         "./ns:acknowledgement/ns:acknowledgementDetail/ns:text",
                         BuilderHelper.HL7V3_NAMESPACE);
 
-                if (StringUtils.contains(ackDetail, EXISTS_DETAIL_TEXT)) {
+                String warning =
+                    String.format(
+                        "Failed to add patient identifier to registry: %s",
+                        ackDetail);
 
-                    // ignore this CE
-                    result = true;
-
-                } else {
-
-                    StringBuilder sb = new StringBuilder();
-
-                    sb.append(
-                        "Failed to add patient identifier to registry; error details to follow. ");
-                    sb.append(ackDetail);
-
-                    sdrResponse.addResponse(ResponseTypeStatus.Failure,
-                                            sb.toString());
-                }
+                // push warning to logger
+                logger.warn(warning);
             }
 
         } catch (XdsInternalException e) {

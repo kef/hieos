@@ -196,7 +196,7 @@ public class CDAToXDSMapper implements IXDSMapper {
 
             if (StringUtils.isBlank(docId)) {
 
-                // TODO uses 2.25 prefix
+                // uses 2.25 prefix
                 docId = UUIDUtils.toOID(UUID.randomUUID());
 
                 result.put(uuidField, docId);
@@ -204,6 +204,7 @@ public class CDAToXDSMapper implements IXDSMapper {
                 // sync up with the document object
                 document.setId(docId);
                 document.setRepositoryId(docId);
+                document.setGeneratedDocumentId(true);
 
             } else {
 
@@ -212,7 +213,7 @@ public class CDAToXDSMapper implements IXDSMapper {
                 // if inner document id is a UUID then we need to convert
                 if (UUIDUtils.isUUID(docId)) {
 
-                    // TODO uses 2.25 prefix
+                    // uses 2.25 prefix
                     repoDocId = UUIDUtils.toOIDFromUUIDString(docId);
                     result.put(uuidField, repoDocId);
                 }
@@ -243,7 +244,7 @@ public class CDAToXDSMapper implements IXDSMapper {
         result.put(ContentVariableName.SubmissionTime.toString(),
                    Hl7Date.now());
 
-        // TODO uses 2.25 prefix
+        // uses 2.25 prefix
         result.put(ContentVariableName.SubmissionSetUniqueId.toString(),
                    UUIDUtils.toOID(UUID.randomUUID()));
 

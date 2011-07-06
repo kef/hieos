@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.vangent.hieos.services.xds.bridge.serviceimpl;
+package com.vangent.hieos.services.xds.bridge.support;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;

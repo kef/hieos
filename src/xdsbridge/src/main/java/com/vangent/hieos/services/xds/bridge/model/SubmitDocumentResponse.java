@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Class description
@@ -110,7 +109,9 @@ public class SubmitDocumentResponse {
 
         } else {
 
-            addResponse(new ResponseType(document.getId(), status, message));
+            addResponse(new ResponseType(document.getId(),
+                                         document.getRepositoryId(), status,
+                                         message));
         }
     }
 
@@ -124,13 +125,9 @@ public class SubmitDocumentResponse {
 
         if (document != null) {
 
-            String id = document.getRepositoryId();
-
-            if (StringUtils.isBlank(id)) {
-                id = document.getId();
-            }
-
-            addResponse(new ResponseType(id, ResponseTypeStatus.Success));
+            addResponse(new ResponseType(document.getId(),
+                                         document.getRepositoryId(),
+                                         ResponseTypeStatus.Success));
         }
     }
 

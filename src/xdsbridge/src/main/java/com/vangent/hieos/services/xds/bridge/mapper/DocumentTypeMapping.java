@@ -31,6 +31,9 @@ public class DocumentTypeMapping {
     private final CodedValue format;
 
     /** Field description */
+    private final String mimeType;
+
+    /** Field description */
     private final CodedValue type;
 
     /**
@@ -39,14 +42,17 @@ public class DocumentTypeMapping {
      *
      * @param type
      * @param format
+     * @param mimeType
      * @param parserConfig
      */
     public DocumentTypeMapping(CodedValue type, CodedValue format,
+                               String mimeType,
                                ContentParserConfig parserConfig) {
 
         super();
         this.type = type;
         this.format = format;
+        this.mimeType = mimeType;
         this.contentParserConfig = parserConfig;
     }
 
@@ -68,6 +74,16 @@ public class DocumentTypeMapping {
      */
     public CodedValue getFormat() {
         return format;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String getMimeType() {
+        return mimeType;
     }
 
     /**

@@ -15,7 +15,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
@@ -43,7 +43,7 @@ public class XDSDocumentRegistryClient extends AbstractClient {
         "urn:hl7-org:v3:MCCI_IN000002UV01";
 
     /** Name of Transaction for service endpoints in xconfig.xml */
-    public static final String PID_ADD_TRANS = "RegisterDocumentSet-b";
+    public static final String PID_ADD_TRANS = "PatientIdentityFeed";
 
     /** The logger instance. */
     private static final Logger logger =

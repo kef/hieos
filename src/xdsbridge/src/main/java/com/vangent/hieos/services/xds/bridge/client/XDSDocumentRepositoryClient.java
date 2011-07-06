@@ -14,7 +14,7 @@
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;

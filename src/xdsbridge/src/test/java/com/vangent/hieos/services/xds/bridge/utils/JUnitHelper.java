@@ -25,7 +25,7 @@ import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
     .ContentParserConfigName;
 import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentRequestBuilder;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeConfig;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.serviceimpl.support
     .MockXConfigActor;
 import com.vangent.hieos.services.xds.bridge.transaction
@@ -90,7 +90,7 @@ public class JUnitHelper {
         XDSBridgeConfig cfg = createXDSBridgeConfig();
 
         return cfg.findContentParserConfig(
-            ContentParserConfigName.CDAToXDSMapper);
+            ContentParserConfigName.SharedHealthSummaryMapper);
     }
 
     /**
@@ -229,7 +229,7 @@ public class JUnitHelper {
 
         assertNotNull(tplfile);
 
-        return XDSBridgeConfig.parseConfigFile(bridgeActor);
+        return XDSBridgeConfig.newInstance(bridgeActor);
     }
 
     /**

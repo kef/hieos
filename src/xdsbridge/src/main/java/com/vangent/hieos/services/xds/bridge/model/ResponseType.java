@@ -26,7 +26,10 @@ public class ResponseType {
     private final String documentId;
 
     /** Field description */
-    private final String message;
+    private final String documentIdAsOID;
+
+    /** Field description */
+    private final String errorMessage;
 
     /** Field description */
     private final ResponseTypeStatus status;
@@ -47,7 +50,7 @@ public class ResponseType {
      */
     public ResponseType(ResponseTypeStatus status, String message) {
 
-        this(null, status, message);
+        this(null, null, status, message);
     }
 
     /**
@@ -57,9 +60,10 @@ public class ResponseType {
      * @param documentId
      * @param status
      */
-    public ResponseType(String documentId, ResponseTypeStatus status) {
+    public ResponseType(String documentId, String documentOID,
+            ResponseTypeStatus status) {
 
-        this(documentId, status, null);
+        this(documentId, documentOID, status, null);
     }
 
     /**
@@ -67,16 +71,18 @@ public class ResponseType {
      *
      *
      * @param documentId
+     * @param documentOID
      * @param status
      * @param message
      */
-    public ResponseType(String documentId, ResponseTypeStatus status,
-                        String message) {
+    public ResponseType(String documentId, String documentOID,
+                        ResponseTypeStatus status, String message) {
 
         super();
         this.documentId = documentId;
+        this.documentIdAsOID = documentOID;
         this.status = ((status == null) ? ResponseTypeStatus.Unknown : status);
-        this.message = message;
+        this.errorMessage = message;
     }
 
     /**
@@ -95,8 +101,18 @@ public class ResponseType {
      *
      * @return
      */
-    public String getMessage() {
-        return message;
+    public String getDocumentIdAsOID() {
+        return documentIdAsOID;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     /**

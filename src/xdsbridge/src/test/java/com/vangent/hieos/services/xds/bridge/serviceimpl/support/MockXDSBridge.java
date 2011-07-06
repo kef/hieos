@@ -14,7 +14,7 @@
 package com.vangent.hieos.services.xds.bridge.serviceimpl.support;
 
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridgeServiceContext;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.xlog.client.XLogger;
 
