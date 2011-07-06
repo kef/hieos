@@ -15,6 +15,6 @@
         <xspa:ClaimValue>Some Role</xspa:ClaimValue>
     </xspa:ClaimType>
     <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:resource:resource-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-        <xspa:ClaimValue>PID</xspa:ClaimValue>
+        <xspa:ClaimValue>123456^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</xspa:ClaimValue>
     </xspa:ClaimType>
 </wst:Claims>
