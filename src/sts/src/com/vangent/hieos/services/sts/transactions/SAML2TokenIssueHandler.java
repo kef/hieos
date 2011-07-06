@@ -17,19 +17,26 @@ import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
+import com.vangent.hieos.xutil.xml.XMLParser;
+
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+
 import java.util.List;
 import java.util.UUID;
+
 import javax.xml.namespace.QName;
+
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
+
 import org.joda.time.DateTime;
+
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -48,11 +55,14 @@ import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.SignatureException;
 import org.opensaml.xml.signature.Signer;
+
 import org.w3c.dom.Element;
+
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
+
 import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
 
 /**
@@ -183,8 +193,12 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         }
 
         // Convert the response to an OMElement (for subsequent processing).
-        OMElement assertionOMElement = STSUtil.convertElementToOMElement(assertionElement);
-        
+        OMElement assertionOMElement;
+        try {
+            assertionOMElement = XMLParser.convertDOMtoOM(assertionElement);
+        } catch (Exception ex) {
+            throw new STSException(ex.getMessage());
+        }
 
         // Return a properly formatted WS-Trust response.
         return this.getWSTrustResponse(assertionOMElement, createdDate, expiresDate);

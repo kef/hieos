@@ -12,10 +12,10 @@
  */
 package com.vangent.hieos.services.sts.util;
 
-import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.util.PolicyUtil;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.security.KeyStore;
@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.Configuration;
@@ -72,7 +71,6 @@ public class STSUtil {
             }
             _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
         }
-
         return _xmlObjectBuilderFactory;
     }
 
@@ -86,22 +84,10 @@ public class STSUtil {
     static public OMElement convertXMLObjectToOMElement(XMLObject xmlObject) throws STSException {
         // 2 step process.
         Element element = STSUtil.convertXMLObjectToElement(xmlObject);
-        OMElement omElement = STSUtil.convertElementToOMElement(element);
-        return omElement;
-    }
-
-      /**
-     *
-     * @param element
-     * @return
-     * @throws STSException
-     */
-    // TBD: Move to xutil?
-    static public OMElement convertElementToOMElement(Element element) throws STSException {
         try {
-            return XMLUtils.toOM(element);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert from Element to OMElement: " + ex.getMessage());
+            return XMLParser.convertDOMtoOM(element);
+        } catch (XMLParserException ex) {
+            throw new STSException(ex.getMessage());
         }
     }
 
@@ -143,30 +129,21 @@ public class STSUtil {
         }
     }
 
-   /**
-    * 
-    * @param omElement
-    * @return
-    * @throws STSException
-    */
-    static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
-        // Convert OMElement to Element.
-        Element element = STSUtil.convertOMElementToElement(omElement);
-        return STSUtil.convertElementToXMLObject(element);
-    }
-
     /**
      *
      * @param omElement
      * @return
      * @throws STSException
      */
-    static public Element convertOMElementToElement(OMElement omElement) throws STSException {
+    static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
+        // Convert OMElement to Element.
         try {
-            return XMLUtils.toDOM(omElement);
-        } catch (Exception ex) {
-            throw new STSException("Unable to convert OMElement to Element: " + ex.getMessage());
+            Element element = XMLParser.convertOMToDOM(omElement);
+            return STSUtil.convertElementToXMLObject(element);
+        } catch (XMLParserException ex) {
+            throw new STSException(ex.getMessage());
         }
+
     }
 
     /**
@@ -211,11 +188,8 @@ public class STSUtil {
             PKIXCertPathValidatorResult pkixCertPathValidatorResult = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
             System.out.println(pkixCertPathValidatorResult);
         } catch (Exception ex) {
-
             throw new STSException("Exception while validating Certificate: " + ex.getMessage());
         }
-
-
     }
 
     /**
@@ -300,6 +274,7 @@ public class STSUtil {
         return certificate;
     }
 
+    // TBD: Cache truststore/keystore usage!!!
     /**
      *
      * @param stsConfig
