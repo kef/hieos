@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.policyutil.model.saml;
 
-import com.vangent.hieos.policyutil.model.pdp.OMElementWrapper;
+import com.vangent.hieos.policyutil.model.framework.OMElementWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**

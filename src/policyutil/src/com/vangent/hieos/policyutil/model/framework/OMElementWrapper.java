@@ -10,24 +10,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.vangent.hieos.policyutil.model.framework;
 
-package com.vangent.hieos.policyutil.model.pdp;
-
-import com.vangent.hieos.policyutil.model.framework.OMElementWrapper;
+import com.vangent.hieos.policyutil.model.pdp.*;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class SAMLResponseElement extends OMElementWrapper {
+public class OMElementWrapper {
 
-    /**
-     * 
-     * @param element
-     */
-    public SAMLResponseElement(OMElement element) {
-        super(element);
+    private OMElement element;
+
+    private OMElementWrapper() {
+        // Do not allow.
     }
 
+    public OMElementWrapper(OMElement element) {
+        this.element = element;
+    }
+
+    public OMElement getElement() {
+        return element;
+    }
 }

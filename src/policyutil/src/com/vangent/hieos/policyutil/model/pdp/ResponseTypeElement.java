@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.policyutil.model.pdp;
 
+import com.vangent.hieos.policyutil.model.framework.OMElementWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
