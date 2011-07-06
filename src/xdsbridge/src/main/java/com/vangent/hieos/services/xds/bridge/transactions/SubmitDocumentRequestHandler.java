@@ -32,15 +32,15 @@ import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
 import com.vangent.hieos.services.xds.bridge.support
     .XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
-import com.vangent.hieos.services.xds.bridge.transactions.activity
+import com.vangent.hieos.services.xds.bridge.activity
     .AddPatientIdActivity;
-import com.vangent.hieos.services.xds.bridge.transactions.activity
+import com.vangent.hieos.services.xds.bridge.activity
     .CDAToXDSMapperActivity;
-import com.vangent.hieos.services.xds.bridge.transactions.activity
+import com.vangent.hieos.services.xds.bridge.activity
     .ISubmitDocumentRequestActivity;
-import com.vangent.hieos.services.xds.bridge.transactions.activity
+import com.vangent.hieos.services.xds.bridge.activity
     .SDRActivityContext;
-import com.vangent.hieos.services.xds.bridge.transactions.activity
+import com.vangent.hieos.services.xds.bridge.activity
     .SubmitPnRActivity;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;

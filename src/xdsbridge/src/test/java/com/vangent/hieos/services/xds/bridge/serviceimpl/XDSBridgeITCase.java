@@ -13,8 +13,8 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
-import com.vangent.hieos.services.xds.bridge.serviceimpl.support.MockXDSBridge;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.support
+import com.vangent.hieos.services.xds.bridge.mock.MockXDSBridge;
+import com.vangent.hieos.services.xds.bridge.mock
     .XDSBridgeServiceContextFactory;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.xml.XMLParser;

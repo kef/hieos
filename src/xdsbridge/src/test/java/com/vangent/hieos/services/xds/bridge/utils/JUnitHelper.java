@@ -26,7 +26,7 @@ import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
 import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
-import com.vangent.hieos.services.xds.bridge.serviceimpl.support
+import com.vangent.hieos.services.xds.bridge.mock
     .MockXConfigActor;
 import com.vangent.hieos.services.xds.bridge.transaction
     .SubmitDocumentRequestHandlerTest;
