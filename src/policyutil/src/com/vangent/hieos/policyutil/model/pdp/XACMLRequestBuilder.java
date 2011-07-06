@@ -20,6 +20,7 @@ import com.vangent.hieos.policyutil.model.saml.SAML2Assertion;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConfig.IdType;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ import oasis.names.tc.xacml._2_0.context.schema.os.SubjectType;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
-import org.apache.axis2.util.XMLUtils;
 
 import org.joda.time.DateTime;
 import org.w3c.dom.Element;
@@ -113,7 +113,7 @@ public class XACMLRequestBuilder {
                 Element contentElement = (Element) resourceContentType.getContent().get(0);
                 try {
                     // Convert to OMElement.
-                    OMElement contentNode = XMLUtils.toOM(contentElement);
+                    OMElement contentNode = XMLParser.convertDOMtoOM(contentElement);
                     resourceContentNode.addChild(contentNode);
                 } catch (Exception ex) {
                     throw new PolicyException("Unable to get ResourceContent: " + ex.getMessage());
@@ -181,7 +181,7 @@ public class XACMLRequestBuilder {
                     if (it.hasNext()) {
                         OMElement childNode = it.next();  // Just get first.
                         try {
-                            Element childElement = XMLUtils.toDOM(childNode);
+                            Element childElement = XMLParser.convertOMToDOM(childNode);
                             ResourceContentType resourceContentType = new ResourceContentType();
                             resourceContentType.getContent().add(childElement);
                             resourceType.setResourceContent(resourceContentType);

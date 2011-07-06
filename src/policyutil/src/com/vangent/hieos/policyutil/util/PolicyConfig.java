@@ -34,9 +34,7 @@ public class PolicyConfig {
     // TBD: Deal with coded value types in AttributeConfig (and throughout code).
 
     private final static Logger logger = Logger.getLogger(PolicyConfig.class);
-    
     static private PolicyConfig _instance = null;
-
     // Configuration.
     private List<String> policyFiles = new ArrayList<String>();
     private List<AttributeConfig> subjectAttributeConfigs = new ArrayList<AttributeConfig>();
@@ -45,9 +43,9 @@ public class PolicyConfig {
     private List<ClaimConfig> requiredClaimConfigs = new ArrayList<ClaimConfig>();
 
     public enum IdType {
+
         SUBJECT_ID, RESOURCE_ID, ENVIRONMENT_ID
     };
-
 
     // FUTURE(???):
     //private final static String[] XACML_CODED_IDS = {
@@ -70,7 +68,6 @@ public class PolicyConfig {
     //    "urn:oasis:names:tc:xacml:2.0:resource:resource-id", // Differs from XSPA.
     //    "urn:oasis:names:tc:xspa:2.0:subject:npi"
     //};
-
     /**
      *
      */
@@ -319,10 +316,8 @@ public class PolicyConfig {
      * @return
      */
     private boolean containsId(List<AttributeConfig> attributeConfigs, String id) {
-        for (AttributeConfig attributeConfig : attributeConfigs)
-        {
-            if (attributeConfig.getId().equalsIgnoreCase(id))
-            {
+        for (AttributeConfig attributeConfig : attributeConfigs) {
+            if (attributeConfig.getId().equalsIgnoreCase(id)) {
                 return true;
             }
         }
