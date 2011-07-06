@@ -32,6 +32,7 @@ import com.vangent.hieos.policyutil.model.pdp.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.services.pdp.resource.ResourceContentFinder;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -88,6 +89,7 @@ public class PDPRequestHandler extends XBaseTransaction {
             log_message.setPass(true); // Hope for the best.
             this.validate(request);
             RequestType requestType = this.getRequestType(request);
+            this.addResourceContent(requestType);
             SAMLResponseElement samlResponse = this.evaluate(requestType);
             if (log_message.isLogEnabled()) {
                 log_message.addOtherParam("Response", samlResponse.getElement());
@@ -147,7 +149,6 @@ public class PDPRequestHandler extends XBaseTransaction {
      */
     private SAMLResponseElement evaluate(RequestType requestType) throws PolicyException {
         try {
-            this.addMissingAttributes(requestType);
             PDPImpl pdp = this.getPDP();
             ResponseCtx responseCtx = pdp.evaluate(requestType);
             // DEBUG:
@@ -200,10 +201,10 @@ public class PDPRequestHandler extends XBaseTransaction {
      * @param requestType
      * @throws PolicyException
      */
-    private void addMissingAttributes(RequestType requestType) throws PolicyException {
-        AttributeFinder attrFinder = new AttributeFinder(this.getPIPConfig(), requestType);
-        // Get missing attributes from the PIP.
-        attrFinder.addMissingAttributes();
+    private void addResourceContent(RequestType requestType) throws PolicyException {
+        ResourceContentFinder resourceContentFinder = new ResourceContentFinder(PDPRequestHandler.getPIPConfig());
+        // Get ResourceContent from the PIP.
+        resourceContentFinder.addResourceContentToRequest(requestType);
     }
 
     /**
