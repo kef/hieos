@@ -18,7 +18,6 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.services.pdp.impl.PDPImpl;
-import com.vangent.hieos.services.pdp.attribute.finder.AttributeFinder;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
