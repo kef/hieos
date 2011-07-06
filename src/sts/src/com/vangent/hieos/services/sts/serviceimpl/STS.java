@@ -44,7 +44,7 @@ public class STS extends XAbstractService {
      */
     public OMElement RequestSecurityToken(OMElement requestSecurityTokenRequest) throws AxisFault {
         try {
-            this.setExcludedServiceFromXUA(true);
+            this.setExcludedServiceFromXUA(true);  // Do not use XUA here!
             OMElement startup_error = beginTransaction(
                     "STS:RST", requestSecurityTokenRequest, XAbstractService.ActorType.STS);
             if (startup_error != null) {
@@ -66,6 +66,8 @@ public class STS extends XAbstractService {
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
+     * @param configctx
+     * @param service
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
@@ -75,6 +77,8 @@ public class STS extends XAbstractService {
     /**
      * This will be called during the system shut down time. Irrespective
      * of the service scope this method will be called
+     * @param configctx
+     * @param service
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {

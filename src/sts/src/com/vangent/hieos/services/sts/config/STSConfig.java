@@ -19,15 +19,18 @@ import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
+ * Manages singleton instance of STS configuration.
  *
  * @author Bernie Thuman
  */
 public class STSConfig {
 
     private static final String DEFAULT_ISSUER_ALIAS = "s1as";
-    private static final long DEFAULT_TIME_TO_LIVE = 30000;
+    private static final long DEFAULT_TIME_TO_LIVE = 30000;  // milliseconds
+
     // Singleton.
     private static STSConfig _instance = null;
+
     // Configuration.
     private String issuerName;
     private String issuerAlias;
@@ -42,8 +45,10 @@ public class STSConfig {
     private XConfigObject configObject;
 
     /**
+     * Get singleton STS configuration.
      *
-     * @return
+     * @return STSConfig
+     * @throws STSException
      */
     static public synchronized STSConfig getInstance() throws STSException {
         if (_instance == null) {
@@ -55,6 +60,7 @@ public class STSConfig {
     }
 
     /**
+     * Pull configuration from xconfig and cache away.
      *
      * @param configObject
      */
@@ -102,8 +108,9 @@ public class STSConfig {
     }
 
     /**
-     * 
-     * @return
+     * Get configuration for STS.
+     *
+     * @return XConfigObject
      * @throws STSException
      */
     static private XConfigObject getXConfigObject() throws STSException {
@@ -118,50 +125,97 @@ public class STSConfig {
         }
     }
 
+    /**
+     * Do not allow since implemented as a Singleton.
+     */
     private STSConfig() {
         // Do not allow.
     }
 
+    /**
+     *
+     * @return
+     */
     public XConfigObject getConfigObject() {
         return configObject;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getIssuerName() {
         return issuerName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getIssuerAlias() {
         return issuerAlias;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getIssuerPassword() {
         return issuerPassword;
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeToLive() {
         return timeToLive;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getKeyStoreFileName() {
         return keyStore;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getKeyStorePassword() {
         return keyStorePassword;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTrustStoreFileName() {
         return trustStore;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTrustStorePassword() {
         return trustStorePassword;
     }
 
+    /**
+     * 
+     * @return
+     */
     public PolicyConstants.AuthenticationType getAuthenticationType() {
         return authenticationType;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean getComputeSubjectNameFromClaims() {
         return computeSubjectNameFromClaims;
     }

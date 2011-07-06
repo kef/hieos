@@ -15,6 +15,7 @@ package com.vangent.hieos.services.sts.model;
 import org.opensaml.saml2.core.Attribute;
 
 /**
+ * Abstract class representing a XACML Claim.
  *
  * @author Bernie Thuman
  */
@@ -22,15 +23,31 @@ public abstract class Claim {
 
     private String name;
 
+    /**
+     * 
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     abstract public Attribute getAttribute();
 
+    /**
+     *
+     * @return
+     */
     abstract public String getStringValue();
 }

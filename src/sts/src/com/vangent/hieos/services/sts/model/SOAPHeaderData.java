@@ -82,35 +82,68 @@ public class SOAPHeaderData {
         // Do not allow.
     }
 
+    /**
+     *
+     * @param stsConfig
+     * @param mCtx
+     */
     public SOAPHeaderData(STSConfig stsConfig, MessageContext mCtx) {
         this.stsConfig = stsConfig;
         this.mCtx = mCtx;
     }
 
+    /**
+     *
+     * @return
+     */
     public DateTime getTimestampCreated() {
         return timestampCreated;
     }
 
+    /**
+     *
+     * @return
+     */
     public DateTime getTimestampExpires() {
         return timestampExpires;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getUserName() {
         return userName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUserPassword() {
         return userPassword;
     }
 
+    /**
+     *
+     * @return
+     */
     public X509Certificate getClientCertificate() {
         return certificate;
     }
 
+    /**
+     *
+     * @return
+     */
     public PolicyConstants.AuthenticationType getAuthenticationType() {
         return authenticationType;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSoapAction() {
         return soapAction;
     }

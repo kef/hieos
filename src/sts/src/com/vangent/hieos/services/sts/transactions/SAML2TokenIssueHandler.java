@@ -292,6 +292,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // May need: urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
         // FIXME: code to handler properly.
+        // FIXME: Put in code to require https @ a minimum.
         // authCtxClassRef.setAuthnContextClassRef(AuthnContext.X509_AUTHN_CTX);
 
         authContext.setAuthnContextClassRef(authCtxClassRef);

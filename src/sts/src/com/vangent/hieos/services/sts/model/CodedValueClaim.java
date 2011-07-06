@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-// Examples:
 import javax.xml.namespace.QName;
 import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Attribute;
@@ -51,42 +50,82 @@ public class CodedValueClaim extends Claim {
     private String codeSystemName;
     private String displayName;
 
+    /**
+     *
+     * @return
+     */
     public String getNodeName() {
         return nodeName;
     }
 
+    /**
+     *
+     * @param nodeName
+     */
     public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     *
+     * @param code
+     */
     public void setCode(String code) {
         this.code = code;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCodeSystem() {
         return codeSystem;
     }
 
+    /**
+     *
+     * @param codeSystem
+     */
     public void setCodeSystem(String codeSystem) {
         this.codeSystem = codeSystem;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCodeSystemName() {
         return codeSystemName;
     }
 
+    /**
+     * 
+     * @param codeSystemName
+     */
     public void setCodeSystemName(String codeSystemName) {
         this.codeSystemName = codeSystemName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     *
+     * @param displayName
+     */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
@@ -96,6 +135,7 @@ public class CodedValueClaim extends Claim {
      * @return
      */
     @Override
+    // FIXME: Fully implement and implement based upon configuration.
     public Attribute getAttribute() {
         org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
         XMLObjectBuilder<XSAny> xsAnyBuilder = bf.getBuilder(XSAny.TYPE_NAME);
@@ -118,7 +158,7 @@ public class CodedValueClaim extends Claim {
 
     @Override
     public String getStringValue() {
-        // TBD: Provide concatenation of values
+        // TBD: Implement ...
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

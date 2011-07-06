@@ -13,12 +13,13 @@
 package com.vangent.hieos.services.sts.exception;
 
 /**
+ * STS Exception class.
  *
  * @author Bernie Thuman
  */
 /**
  *
- * @author thumbe
+ * @author Bernie Thuman
  */
 public class STSException extends Exception {
 

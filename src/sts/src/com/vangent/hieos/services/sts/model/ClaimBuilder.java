@@ -16,7 +16,6 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.ClaimConfig;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
-import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
@@ -26,12 +25,14 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class ClaimBuilder {
+    private final static Logger logger = Logger.getLogger(ClaimBuilder.class);
 
     /**
      *
@@ -52,7 +53,7 @@ public class ClaimBuilder {
      * @param claimsNode
      * @param claims
      */
-    private void parse(OMElement claimsNode, List<Claim> claims) {
+    private void parse(OMElement claimsNode, List<Claim> claims) throws STSException {
         try {
             // Get all ClaimType nodes.
             List<OMElement> claimTypeNodes = XPathHelper.selectNodes(claimsNode, "./ns:ClaimType", PolicyConstants.XSPA_CLAIMS_NS);
@@ -63,7 +64,7 @@ public class ClaimBuilder {
                 }
             }
         } catch (XPathHelperException ex) {
-            // FIXME: Do something here.
+            throw new STSException(ex.getMessage());  // Rethrow.
         }
     }
 
@@ -78,8 +79,7 @@ public class ClaimBuilder {
         try {
             pConfig = PolicyConfig.getInstance();
         } catch (PolicyException ex) {
-            // rethrow
-            throw new STSException(ex.getMessage());
+            throw new STSException(ex.getMessage()); // Rethrow.
         }
         List<ClaimConfig> requiredClaimConfigs = pConfig.getRequiredClaimConfigs();
         for (ClaimConfig requiredClaimConfig : requiredClaimConfigs) {
@@ -92,7 +92,7 @@ public class ClaimBuilder {
                 }
             }
             if (foundName == false) {
-                System.out.println("Missing " + nameToValidate + " attribute");
+                //logger.warn("Missing " + nameToValidate + " attribute");
                 throw new STSException("Missing " + nameToValidate + " attribute");
             }
         }
@@ -101,7 +101,7 @@ public class ClaimBuilder {
     /**
      *
      * @param claimTypeNode
-     * @return
+     * @return Claim
      */
     private Claim getClaim(OMElement claimTypeNode) {
         String claimTypeURI = claimTypeNode.getAttributeValue(new QName("Uri"));
@@ -116,7 +116,7 @@ public class ClaimBuilder {
         // Get the String value.
         String valueText = xspaClaimValueNode.getText();
 
-        // FIXME: Only dealing with simple single value string claims.
+        // FIXME: Only dealing with simple single value string claims; deal with codedvalue types.
         SimpleStringClaim claim = new SimpleStringClaim();
         claim.setName(claimTypeURI);
         claim.setValue(valueText);

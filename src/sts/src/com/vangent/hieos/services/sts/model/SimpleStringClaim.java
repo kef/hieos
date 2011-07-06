@@ -44,10 +44,18 @@ public class SimpleStringClaim extends Claim {
         return attribute;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     *
+     * @param value
+     */
     public void setValue(String value) {
         this.value = value;
     }

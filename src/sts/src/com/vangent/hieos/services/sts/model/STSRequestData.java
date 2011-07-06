@@ -124,7 +124,7 @@ public class STSRequestData {
             X500Name x500Name = new X500Name(principalDN);
 
             // Just override the CN using subject-id CLAIM
-            String newCN = this.getClaimStringValue("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
+            String newCN = this.getClaimStringValue(PolicyConstants.XACML_SUBJECT_ID);
             x500Name.replace("CN", newCN);
             
             String newSubjectName = x500Name.toString();
@@ -153,38 +153,74 @@ public class STSRequestData {
         return null;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Claim> getClaims() {
         return claims;
     }
 
+    /**
+     *
+     * @return
+     */
     public OMElement getRequest() {
         return request;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAppliesToAddress() {
         return appliesToAddress;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRequestType() {
         return requestType;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSoapAction() {
         return headerData.getSoapAction();
     }
 
+    /**
+     *
+     * @return
+     */
     public OMElement getClaimsNode() {
         return claimsNode;
     }
 
+    /**
+     *
+     * @return
+     */
     public SOAPHeaderData getHeaderData() {
         return headerData;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSubjectDN() {
         return subjectDN;
     }
 
+    /**
+     *
+     * @param subjectDN
+     */
     public void setSubjectDN(String subjectDN) {
         this.subjectDN = subjectDN;
     }
