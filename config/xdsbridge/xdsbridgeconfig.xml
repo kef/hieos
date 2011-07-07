@@ -93,19 +93,12 @@
             <Variable name="DocumentTitle" expression="/hl7:ClinicalDocument/hl7:title" /> 
             <Variable name="DocumentDisplayName" expression="/hl7:ClinicalDocument/hl7:code/@displayName" /> 
 
-            <Variable name="DocumentTypeCode" expression="/hl7:ClinicalDocument/hl7:code/@code" /> 
-            <Variable name="DocumentTypeCodeSystem" expression="/hl7:ClinicalDocument/hl7:code/@codeSystem" /> 
-            <Variable name="DocumentTypeDisplayName" expression="/hl7:ClinicalDocument/hl7:code/@displayName" /> 
-
             <Variable name="DocumentUniqueId" expression="/hl7:ClinicalDocument/hl7:id/@root" /> 
 
             <!-- SubmissionSet -->
-            <Variable name="ContentTypeCode" expression="/hl7:ClinicalDocument/hl7:code/@code" /> 
-            <Variable name="ContentTypeCodeSystem" expression="/hl7:ClinicalDocument/hl7:code/@codeSystem" /> 
-            <Variable name="ContentTypeDisplayName" expression="/hl7:ClinicalDocument/hl7:code/@displayName" /> 
-
             <Variable name="SourceIdRoot" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/ext:asEntityIdentifier/ext:id/@root" /> 
-            <Variable name="SourceIdExtension" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/ext:asEntityIdentifier/ext:id/@extension" /> 
+            <Variable name="SourceIdExtension" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/ext:asEntityIdentifier/ext:id/@extension" />
+
         </DocumentContentVariables>
         <StaticContentVariables>
             <Variable name="DocumentConfidentialityCode" value="N" /> 
