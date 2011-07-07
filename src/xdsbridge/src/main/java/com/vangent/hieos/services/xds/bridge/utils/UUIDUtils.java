@@ -11,12 +11,17 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.utils;
 
-import java.math.BigInteger;
-import java.util.UUID;
+import com.vangent.hieos.xutil.exception.XdsFormatException;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+
+import java.math.BigInteger;
+
+import java.util.UUID;
+
 
 /**
  * Class description
@@ -29,9 +34,6 @@ public class UUIDUtils {
 
     /** Field description */
     public static final String OID_ROOT = "2.25";
-
-    /** Field description */
-    private static final Logger logger = Logger.getLogger(UUIDUtils.class);
 
     /**
      * Method description
@@ -111,7 +113,8 @@ public class UUIDUtils {
      *
      * @return
      */
-    public static String toOIDFromUUIDString(String uuidstr) {
+    public static String toOIDFromUUIDString(String uuidstr)
+            throws XdsFormatException {
 
         return toOIDFromUUIDString(uuidstr, OID_ROOT);
     }
@@ -125,7 +128,8 @@ public class UUIDUtils {
      *
      * @return
      */
-    public static String toOIDFromUUIDString(String uuidstr, String prefix) {
+    public static String toOIDFromUUIDString(String uuidstr, String prefix)
+            throws XdsFormatException {
 
         String result = null;
 
@@ -137,7 +141,8 @@ public class UUIDUtils {
 
         } catch (IllegalArgumentException e) {
 
-            logger.warn(String.format("String[%s] is not a UUID.", uuidstr));
+            throw new XdsFormatException(
+                String.format("String[%s] is not a UUID.", uuidstr), e);
         }
 
         return result;

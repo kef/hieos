@@ -169,7 +169,7 @@ public class DocumentExistsCheckActivity
                     new GetDocumentsSQRequestBuilder();
 
                 GetDocumentsSQRequestMessage msg =
-                    builder.buildMessage(document.getRepositoryId());
+                    builder.buildMessage(document.getDocumentIdAsOID());
 
                 GetDocumentsSQResponseMessage registryResponse =
                     this.registryClient.getDocuments(msg);

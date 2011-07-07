@@ -110,7 +110,7 @@ public class SubmitDocumentResponse {
         } else {
 
             addResponse(new ResponseType(document.getId(),
-                                         document.getRepositoryId(), status,
+                                         document.getDocumentIdAsOID(), status,
                                          message));
         }
     }
@@ -126,7 +126,7 @@ public class SubmitDocumentResponse {
         if (document != null) {
 
             addResponse(new ResponseType(document.getId(),
-                                         document.getRepositoryId(),
+                                         document.getDocumentIdAsOID(),
                                          ResponseTypeStatus.Success));
         }
     }

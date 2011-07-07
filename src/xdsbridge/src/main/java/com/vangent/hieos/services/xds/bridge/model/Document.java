@@ -11,11 +11,14 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.model;
 
-import java.io.Serializable;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+
+import java.io.Serializable;
+
 
 /**
  * Class description
@@ -28,6 +31,9 @@ public class Document implements Serializable {
 
     /** Field description */
     private byte[] content;
+
+    /** Field description */
+    private String documentIdAsOID;
 
     /** Field description */
     private CodedValue format;
@@ -46,9 +52,6 @@ public class Document implements Serializable {
 
     /** Field description */
     private String replaceId;
-
-    /** Field description */
-    private String repositoryId;
 
     /** Field description */
     private String symbolicId;
@@ -72,6 +75,16 @@ public class Document implements Serializable {
      */
     public byte[] getContent() {
         return content;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String getDocumentIdAsOID() {
+        return documentIdAsOID;
     }
 
     /**
@@ -130,16 +143,6 @@ public class Document implements Serializable {
      *
      * @return
      */
-    public String getRepositoryId() {
-        return repositoryId;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
     public String getSymbolicId() {
         return symbolicId;
     }
@@ -172,6 +175,16 @@ public class Document implements Serializable {
      */
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param repositoryId
+     */
+    public void setDocumentIdAsOID(String repositoryId) {
+        this.documentIdAsOID = repositoryId;
     }
 
     /**
@@ -232,16 +245,6 @@ public class Document implements Serializable {
      */
     public void setReplaceId(String replaceId) {
         this.replaceId = replaceId;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param repositoryId
-     */
-    public void setRepositoryId(String repositoryId) {
-        this.repositoryId = repositoryId;
     }
 
     /**

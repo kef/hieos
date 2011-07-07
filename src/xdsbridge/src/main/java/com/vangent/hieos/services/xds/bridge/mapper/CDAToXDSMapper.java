@@ -11,10 +11,9 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import java.util.Map;
-import java.util.UUID;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
@@ -23,13 +22,20 @@ import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
 import com.vangent.hieos.services.xds.bridge.utils.UUIDUtils;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.template.TemplateUtil;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
 import org.json.XML;
+
+import java.util.Map;
+import java.util.UUID;
+
 
 /**
  * Class description
@@ -62,6 +68,29 @@ public class CDAToXDSMapper implements IXDSMapper {
         super();
         this.contentParser = parser;
         this.contentParserConfig = config;
+    }
+
+    /**
+     * This method will convert a uuid to an OID. It should be called
+     * after an UUIDUtils.isUUID() is called to ensure an exception
+     * will not occur... the exception is eaten in this method.
+     *
+     * @param uuid the uuid string to convert
+     *
+     * @return the uuid as an oid
+     */
+    private String convertUUIDToOID(String uuid) {
+
+        String result = null;
+
+        try {
+            result = UUIDUtils.toOIDFromUUIDString(uuid);
+        } catch (XdsFormatException e) {
+
+            logger.warn(e.getMessage());
+        }
+
+        return result;
     }
 
     /**
@@ -176,16 +205,16 @@ public class CDAToXDSMapper implements IXDSMapper {
         if (StringUtils.isNotBlank(document.getId())) {
 
             // document id from SDR is preferred
-            String repoDocId = document.getId();
+            String docIdAsOID = document.getId();
 
-            if (UUIDUtils.isUUID(repoDocId)) {
+            if (UUIDUtils.isUUID(docIdAsOID)) {
 
                 // if UUID then we need to convert to OID
-                repoDocId = UUIDUtils.toOIDFromUUIDString(repoDocId);
+                docIdAsOID = convertUUIDToOID(docIdAsOID);
             }
 
-            result.put(uuidField, repoDocId);
-            document.setRepositoryId(repoDocId);
+            result.put(uuidField, docIdAsOID);
+            document.setDocumentIdAsOID(docIdAsOID);
 
         } else {
 
@@ -203,23 +232,23 @@ public class CDAToXDSMapper implements IXDSMapper {
 
                 // sync up with the document object
                 document.setId(docId);
-                document.setRepositoryId(docId);
+                document.setDocumentIdAsOID(docId);
                 document.setGeneratedDocumentId(true);
 
             } else {
 
-                String repoDocId = docId;
+                String docIdAsOID = docId;
 
                 // if inner document id is a UUID then we need to convert
                 if (UUIDUtils.isUUID(docId)) {
 
                     // uses 2.25 prefix
-                    repoDocId = UUIDUtils.toOIDFromUUIDString(docId);
-                    result.put(uuidField, repoDocId);
+                    docIdAsOID = convertUUIDToOID(docIdAsOID);
+                    result.put(uuidField, docIdAsOID);
                 }
 
                 // sync up with the document object
-                document.setRepositoryId(repoDocId);
+                document.setDocumentIdAsOID(docIdAsOID);
             }
         }
 
