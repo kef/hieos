@@ -7,8 +7,8 @@
             -->
     <target name="axis2-aar" depends="compile">
         <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
-        <mkdir dir="${build.dir}/xml-resources/axis2/lib"/>
-        <copy todir="${build.dir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
+        <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
+        <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
                 <file file="${file.reference.commons-lang-2.3.jar}"/>
                 <file file="${file.reference.xutil.jar}"/>
@@ -17,14 +17,14 @@
         </copy>
         <jar destfile="${build.dir}/axis2/WEB-INF/services/${ant.project.name}.aar">
             <fileset excludes="**/Test.class" dir="${build.dir}/classes"/>
-            <fileset dir="${build.dir}/xml-resources/axis2">
+            <fileset dir="${basedir}/xml-resources/axis2">
                 <include name="**/*.wsdl"/>
                 <include name="**/*.xsd"/>
                 <include name="**/*.xml"/>
                 <include name="**/*.jar"/>
             </fileset>
         </jar>
-        <delete dir="${build.dir}/xml-resources/axis2/lib"/>
+         <delete dir="${basedir}/xml-resources/axis2/lib"/>
     </target>
     <target name="axis2-deploy-dir-check" depends="axis2-aar">
         <condition property="axis2-deploy-dir-required">
