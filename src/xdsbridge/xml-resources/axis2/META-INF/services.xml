@@ -8,6 +8,7 @@
         <operation name="SubmitDocumentRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <parameter name="enableMTOM" locked="false">true</parameter>
+            <actionMapping>urn:hieos:xds:bridge:SubmitDocumentRequest</actionMapping>
         </operation>
     </service>
 </serviceGroup>
