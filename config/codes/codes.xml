@@ -105,6 +105,12 @@
 			display="CYTOLOGY STUDIES" />
         <Code code="11502-2" codingScheme="2.16.840.1.113883.6.1"
 			display="LABORATORY REPORT.TOTAL" />
+                        
+                        <!-- Added for new content type 06/23/2011 -->
+        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1"
+			display="Shared Health Summary" />
+        <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1"
+                        displayName="Discharge Summarization Note" />
     </CodeType>
     <CodeType name="classCode" classScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a">
 		
@@ -1689,6 +1695,12 @@
 			display="CYTOLOGY STUDIES" />
         <Code code="11502-2" codingScheme="2.16.840.1.113883.6.1"
 			display="LABORATORY REPORT.TOTAL" />
+
+                        <!-- Added for new content type 06/23/2011 -->
+        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1"
+			display="Shared Health Summary" />
+        <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1"
+                        displayName="Discharge Summarization Note" />
     </CodeType>
 	<!--
 		This section is used to validate mime type requests and to map mime
