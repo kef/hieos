@@ -11,11 +11,18 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.transactions;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.services.xds.bridge.activity.AddPatientIdActivity;
+import com.vangent.hieos.services.xds.bridge.activity.CDAToXDSMapperActivity;
+import com.vangent.hieos.services.xds.bridge.activity
+    .DocumentExistsCheckActivity;
+import com.vangent.hieos.services.xds.bridge.activity
+    .ISubmitDocumentRequestActivity;
+import com.vangent.hieos.services.xds.bridge.activity.SDRActivityContext;
+import com.vangent.hieos.services.xds.bridge.activity.SubmitPnRActivity;
 import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.message
@@ -29,24 +36,18 @@ import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
-import com.vangent.hieos.services.xds.bridge.support
-    .XDSBridgeServiceContext;
 import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
-import com.vangent.hieos.services.xds.bridge.activity
-    .AddPatientIdActivity;
-import com.vangent.hieos.services.xds.bridge.activity
-    .CDAToXDSMapperActivity;
-import com.vangent.hieos.services.xds.bridge.activity
-    .ISubmitDocumentRequestActivity;
-import com.vangent.hieos.services.xds.bridge.activity
-    .SDRActivityContext;
-import com.vangent.hieos.services.xds.bridge.activity
-    .SubmitPnRActivity;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Class description
@@ -99,6 +100,8 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
             new ArrayList<ISubmitDocumentRequestActivity>();
         this.processActivities.add(
             new CDAToXDSMapperActivity(context.getMapperFactory()));
+        this.processActivities.add(
+            new DocumentExistsCheckActivity(context.getRegistryClient()));
         this.processActivities.add(
             new SubmitPnRActivity(context.getRepositoryClient()));
     }

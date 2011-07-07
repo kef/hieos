@@ -239,7 +239,9 @@ public class SubmitDocumentRequestHandlerTest {
         assertFalse(exception);
         assertNotNull(response);
 
-        validateStatus(response, Status.Failure);
+        // a PID failure no longer causes a full failure
+        // validateStatus(response, Status.Failure);
+        validateStatus(response, Status.Success);
     }
 
     /**

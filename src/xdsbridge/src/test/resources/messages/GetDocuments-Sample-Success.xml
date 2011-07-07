@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query:AdhocQueryResponse status="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success" xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+    <rim:RegistryObjectList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+        <rim:ObjectRef id="urn:uuid:24cd771a-aa0d-4067-8932-70f6e4aa7dde" home=""/>
+    </rim:RegistryObjectList>
+</query:AdhocQueryResponse>

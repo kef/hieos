@@ -11,19 +11,26 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQRequestMessage;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQResponseMessage;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
+
 
 /**
  * Class description
@@ -44,6 +51,17 @@ public class XDSDocumentRegistryClient extends AbstractClient {
 
     /** Name of Transaction for service endpoints in xconfig.xml */
     public static final String PID_ADD_TRANS = "PatientIdentityFeed";
+
+    /** Field description */
+    public static final String STORED_QUERY_REQUEST_ACTION =
+        "urn:ihe:iti:2007:RegistryStoredQuery";
+
+    /** Field description */
+    public static final String STORED_QUERY_RESPONSE_ACTION =
+        "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+
+    /** Name of Transaction for service endpoints in xconfig.xml */
+    public static final String STORED_QUERY_TRANS = "RegistryStoredQuery";
 
     /** The logger instance. */
     private static final Logger logger =
@@ -112,6 +130,66 @@ public class XDSDocumentRegistryClient extends AbstractClient {
             }
 
             result = new MCCI_IN000002UV01_Message(responseElem);
+
+        } catch (XdsException ex) {
+
+            logger.error(ex, ex);
+
+            throw new AxisFault(ex.getMessage(), ex);
+        }
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param request
+     *
+     * @return
+     *
+     * @throws AxisFault
+     */
+    public GetDocumentsSQResponseMessage getDocuments(
+            GetDocumentsSQRequestMessage request)
+            throws AxisFault {
+
+        GetDocumentsSQResponseMessage result = null;
+
+        try {
+
+            XConfigActor config = getConfig();
+            XConfigTransaction sqTrans =
+                config.getTransaction(STORED_QUERY_TRANS);
+            String url = sqTrans.getEndpointURL();
+            Soap soap = new Soap();
+
+            soap.setAsync(sqTrans.isAsyncTransaction());
+
+            boolean soap12 = sqTrans.isSOAP12Endpoint();
+            boolean useMtom = false;
+            boolean useWsa = soap12;
+
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Sending to Registry");
+                logger.debug(
+                    DebugUtils.toPrettyString(request.getMessageNode()));
+            }
+
+            OMElement responseElem = soap.soapCall(request.getMessageNode(),
+                                         url, useMtom, useWsa, soap12,
+                                         STORED_QUERY_REQUEST_ACTION,
+                                         STORED_QUERY_RESPONSE_ACTION);
+
+            if (logger.isDebugEnabled()) {
+
+                logger.debug("== Received from Registry");
+                logger.debug(DebugUtils.toPrettyString(responseElem));
+            }
+
+            result = new GetDocumentsSQResponseMessage(responseElem);
 
         } catch (XdsException ex) {
 

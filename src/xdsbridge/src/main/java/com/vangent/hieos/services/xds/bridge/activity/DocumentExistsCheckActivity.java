@@ -11,21 +11,134 @@
  * limitations under the License.
  */
 
-/*
-* To change this template, choose Tools | Templates
-* and open the template in the editor.
- */
 
 package com.vangent.hieos.services.xds.bridge.activity;
 
+import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQRequestMessage;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQResponseMessage;
+import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType
+    .ResponseTypeStatus;
+import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.response.RegistryResponseParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.log4j.Logger;
+
+import java.util.List;
+
 
 /**
+ * Class description
  *
- * @author hornja
+ *
+ * @version        v1.0, 2011-07-06
+ * @author         Jim Horner
  */
 public class DocumentExistsCheckActivity
         implements ISubmitDocumentRequestActivity {
+
+    /** Field description */
+    private static final Logger logger =
+        Logger.getLogger(DocumentExistsCheckActivity.class);
+
+    /** Field description */
+    private final XDSDocumentRegistryClient registryClient;
+
+    /**
+     * Constructs ...
+     *
+     *
+     * @param client
+     */
+    public DocumentExistsCheckActivity(XDSDocumentRegistryClient client) {
+
+        super();
+        this.registryClient = client;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param registryResponse
+     * @param context
+     *
+     * @return
+     */
+    private boolean checkForSuccess(
+            GetDocumentsSQResponseMessage registryResponse,
+            SDRActivityContext context) {
+
+        boolean result = false;
+
+        SubmitDocumentResponse sdrResponse =
+            context.getSubmitDocumentResponse();
+        Document document = context.getDocument();
+        OMElement rootNode = registryResponse.getMessageNode();
+
+        try {
+
+            RegistryResponseParser parser =
+                new RegistryResponseParser(rootNode);
+
+            if (parser.is_error()) {
+
+                String errmsg = parser.get_regrep_error_msg();
+
+                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                        errmsg);
+
+            } else {
+
+                // search for any nodes
+                String expr = "./ns:RegistryObjectList/ns:ObjectRef";
+                List<OMElement> docs =
+                    XPathHelper.selectNodes(
+                        rootNode, expr, GetDocumentsSQRequestBuilder.RIM_URI);
+
+                if (docs.isEmpty()) {
+                    
+                    result = true;
+                    
+                } else {
+
+                    String errmsg =
+                        "Document already exists in the registry. It will not be processed.";
+
+                    logger.error(errmsg);
+                    sdrResponse.addResponse(document,
+                                            ResponseTypeStatus.Failure, errmsg);
+                }
+            }
+
+        } catch (XdsInternalException e) {
+
+            // log it
+            logger.error(e, e);
+
+            // capture in response
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(
+                "Unable to parse repository response, exception follows. ");
+            sb.append(e.getMessage());
+
+            sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                    sb.toString());
+        }
+
+        return result;
+    }
 
     /**
      * Method description
@@ -37,7 +150,43 @@ public class DocumentExistsCheckActivity
      */
     @Override
     public boolean execute(SDRActivityContext context) {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        boolean result = false;
+
+        Document document = context.getDocument();
+
+        if (document.isGeneratedDocumentId()) {
+
+            // if we generated the document id then it is unique
+            // no need to check
+            result = true;
+
+        } else {
+
+            try {
+
+                GetDocumentsSQRequestBuilder builder =
+                    new GetDocumentsSQRequestBuilder();
+
+                GetDocumentsSQRequestMessage msg =
+                    builder.buildMessage(document.getRepositoryId());
+
+                GetDocumentsSQResponseMessage registryResponse =
+                    this.registryClient.getDocuments(msg);
+
+                result = checkForSuccess(registryResponse, context);
+
+            } catch (AxisFault e) {
+
+                SubmitDocumentResponse sdrResponse =
+                    context.getSubmitDocumentResponse();
+
+                sdrResponse.addResponse(ResponseTypeStatus.Failure,
+                                        e.getMessage());
+            }
+        }
+
+        return result;
     }
 
     /**
