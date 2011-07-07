@@ -131,6 +131,8 @@ public class CDAToXDSMapper implements IXDSMapper {
         // ////
         // apply business rules
 
+                CodedValue documentType = document.getType();
+
         // ///
         // ExtrinsicObject
 
@@ -147,6 +149,14 @@ public class CDAToXDSMapper implements IXDSMapper {
 
         result.put(ContentVariableName.EntryUUID.toString(), symbolicId);
         document.setSymbolicId(symbolicId);
+
+        // document type, pull from SDR
+        result.put(ContentVariableName.DocumentTypeCode.toString(),
+                documentType.getCode());
+        result.put(ContentVariableName.DocumentTypeCodeSystem.toString(),
+                documentType.getCodeSystem());
+        result.put(ContentVariableName.DocumentTypeDisplayName.toString(),
+                documentType.getDisplayName());
 
         // formatCode
         CodedValue format = document.getFormat();
@@ -254,6 +264,14 @@ public class CDAToXDSMapper implements IXDSMapper {
 
         // ///
         // Submission Set
+
+        // content type, pull from SDR
+        result.put(ContentVariableName.ContentTypeCode.toString(),
+                documentType.getCode());
+        result.put(ContentVariableName.ContentTypeCodeSystem.toString(),
+                documentType.getCodeSystem());
+        result.put(ContentVariableName.ContentTypeDisplayName.toString(),
+                documentType.getDisplayName());
 
         String sourceIdRoot =
             result.get(ContentVariableName.SourceIdRoot.toString());
