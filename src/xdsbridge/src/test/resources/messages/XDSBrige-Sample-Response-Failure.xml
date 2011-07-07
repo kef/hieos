@@ -5,7 +5,7 @@
     <soapenv:Body>
         <xdsb:SubmitDocumentResponse status="Failure">
             <xdsb:Response status="Failure">
-                <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
+                <xdsb:DocumentId>b830d8ab-a558-42b6-99be-619f5fdd2055</xdsb:DocumentId>
                 <xdsb:ErrorMessage>Invalid document type</xdsb:ErrorMessage>
             </xdsb:Response>
             <xdsb:Response status="Failure">

@@ -5,7 +5,8 @@
     <soapenv:Body>
         <xdsb:SubmitDocumentResponse status="PartialSuccess">
             <xdsb:Response status="Success">
-                <xdsb:DocumentId>2.25.123456</xdsb:DocumentId>
+                <xdsb:DocumentId>b830d8ab-a558-42b6-99be-619f5fdd2031</xdsb:DocumentId>
+                <xdsb:DocumentIdAsOID>2.25.1234567890078900</xdsb:DocumentIdAsOID>
             </xdsb:Response>
             <xdsb:Response status="Failure">
                 <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
