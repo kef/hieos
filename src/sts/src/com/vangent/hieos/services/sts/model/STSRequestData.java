@@ -15,6 +15,7 @@ package com.vangent.hieos.services.sts.model;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.security.cert.X509Certificate;
@@ -231,6 +232,8 @@ public class STSRequestData {
      * @throws STSException
      */
     private String getRequestType(OMElement request) throws STSException {
+        return STSUtil.getRequestType(request);
+        /*
         OMElement reqTypeElem = request.getFirstChildWithName(new QName(PolicyConstants.WSTRUST_NS,
                 "RequestType"));
         if (reqTypeElem == null
@@ -239,7 +242,7 @@ public class STSRequestData {
             throw new STSException("Unable to locate RequestType on request");
         } else {
             return reqTypeElem.getText().trim();
-        }
+        }*/
     }
 
     /**

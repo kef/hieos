@@ -12,7 +12,10 @@
  */
 package com.vangent.hieos.services.sts.serviceimpl;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.transactions.STSRequestHandler;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 import org.apache.log4j.Logger;
@@ -38,15 +41,15 @@ public class STS extends XAbstractService {
 
     /**
      *
-     * @param requestSecurityTokenRequest
+     * @param request
      * @return
      * @throws AxisFault
      */
-    public OMElement RequestSecurityToken(OMElement requestSecurityTokenRequest) throws AxisFault {
+    public OMElement RequestSecurityToken(OMElement request) throws AxisFault {
         try {
             this.setExcludedServiceFromXUA(true);  // Do not use XUA here!
             OMElement startup_error = beginTransaction(
-                    "STS:RST", requestSecurityTokenRequest, XAbstractService.ActorType.STS);
+                    this.getRequestType(request), request, XAbstractService.ActorType.STS);
             if (startup_error != null) {
                 // TBD: FIXUP (XUA should be returning a SOAP fault!)
                 return startup_error;
@@ -55,11 +58,31 @@ public class STS extends XAbstractService {
             validateNoMTOM();
             STSRequestHandler handler =
                     new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(requestSecurityTokenRequest);
+            OMElement result = handler.run(request);
             endTransaction(handler.getStatus());
             return result;
         } catch (Exception ex) {
             throw getAxisFault(ex);
+        }
+    }
+
+    /**
+     * 
+     * @param request
+     * @return
+     */
+    private String getRequestType(OMElement request) {
+        try {
+            String requestType = STSUtil.getRequestType(request);
+            if (requestType.equalsIgnoreCase(PolicyConstants.ISSUE_REQUEST_TYPE)) {
+                return "STS:RST:Issue";
+            } else if (requestType.equalsIgnoreCase(PolicyConstants.VALIDATE_REQUEST_TYPE)) {
+                return "STS:RST:Validate";
+            } else {
+                return "STS:RST:Unknown";
+            }
+        } catch (STSException ex) {
+            return "STS:RST:Unknown";
         }
     }
 
