@@ -127,11 +127,11 @@
     <xsd:attribute name="codeSystemName" type="xsd:string" use="optional"/>
     <xsd:attribute name="displayName" type="xsd:string" use="optional"/>
   </xsd:complexType>
-</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:9090/axis2/services/pip</con:endpoint><con:endpoint>http://localhost:8127/axis2/services/pip</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:hieos:policy:pip:GetConsentDirectivesRequest" name="GetConsentDirectives" bindingOperationName="GetConsentDirectives" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8127/axis2/services/pip</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:urn="urn:hieos:policy:pip">
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:9090/axis2/services/pip</con:endpoint><con:endpoint>http://localhost:8127/axis2/services/pip</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:hieos:policy:pip:GetConsentDirectivesRequest" name="GetConsentDirectives" bindingOperationName="GetConsentDirectives" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8127/axis2/services/pip</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" >
    
    <soap:Body>
-      <urn:GetConsentDirectivesRequest>
-         <urn:PatientId>?</urn:PatientId>
-      </urn:GetConsentDirectivesRequest>
+      <pip:GetConsentDirectivesRequest xmlns:pip="urn:hieos:policy:pip">
+         <pip:PatientId>?</pip:PatientId>
+      </pip:GetConsentDirectivesRequest>
    </soap:Body>
 </soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hieos:policy:pip:GetConsentDirectivesRequest" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>

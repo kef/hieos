@@ -15,7 +15,6 @@ package com.vangent.hieos.services.pip.serviceimpl;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xml.XMLParser;
-import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -39,7 +38,7 @@ public class PIP extends XAbstractService {
     public OMElement GetConsentDirectives(OMElement request) throws AxisFault {
         // FIXME (STUB):
         String content =
-        "<pip:GetConsentDirectivesResponse xsi:schemaLocation=\"urn:hieos:policy:pip PIP.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pip=\"urn:hieos:policy:pip\">" +
+        "<pip:GetConsentDirectivesResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pip=\"urn:hieos:policy:pip\">" +
 	"  <pip:ConsentDirectives alwaysAuthorize=\"false\">" +
         "     <pip:AllowedOrganizations>" +
         "        <pip:Organization>1.1</pip:Organization>" +
