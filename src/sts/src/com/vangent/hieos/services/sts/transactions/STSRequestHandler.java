@@ -143,7 +143,9 @@ public class STSRequestHandler extends XBaseTransaction {
         } catch (STSException ex) {
             throw new AxisFault(ex.getMessage());
         }
-
+        if (log_message.isLogEnabled()) {
+            log_message.addOtherParam("Response", result);
+        }
         return result;
         //return (result != null) ? result.getMessageNode() : null;
     }

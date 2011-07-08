@@ -12,8 +12,9 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.AttributeConfig;
-import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeClassType;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.exception.STSException;
@@ -76,9 +77,11 @@ public class ClaimBuilder {
      * @throws STSException
      */
     private void validate(List<Claim> claims) throws STSException {
+        // FIXME: REWRITE
         // Validate proper attributes are available.
-        PolicyConfig pConfig = STSUtil.getPolicyConfig();
-        List<AttributeConfig> claimAttributeConfigs = pConfig.getAttributeConfigs(AttributeConfig.AttributeIdType.CLAIM_ID);
+        //PolicyConfig pConfig = STSUtil.getPolicyConfig();
+        /*
+        List<AttributeConfig> claimAttributeConfigs = pConfig.getAttributeConfigs(AttributeConfig.AttributeClassType.CLAIM_ID);
         for (AttributeConfig claimAttributeConfig : claimAttributeConfigs) {
             String nameToValidate = claimAttributeConfig.getId();
             boolean foundName = false;
@@ -92,7 +95,7 @@ public class ClaimBuilder {
                 //logger.warn("Missing " + nameToValidate + " attribute");
                 throw new STSException("Missing " + nameToValidate + " attribute");
             }
-        }
+        }*/
     }
 
     /**
@@ -111,9 +114,14 @@ public class ClaimBuilder {
             return null; // Get out.
         }
         PolicyConfig pConfig = STSUtil.getPolicyConfig();
-        AttributeConfig claimConfig = pConfig.getAttributeConfig(AttributeIdType.CLAIM_ID, claimTypeURI);
+        AttributeConfig attributeConfig;
+        try {
+            attributeConfig = pConfig.getAttributeConfig(claimTypeURI);
+        } catch (PolicyException ex) {
+            throw new STSException(ex.getMessage());
+        }
         Claim claim;
-        switch (claimConfig.getAttributeType()) {
+        switch (attributeConfig.getType()) {
             case ANY:
                 AnyValueClaim anyValueClaim = new AnyValueClaim();
                 anyValueClaim.setName(claimTypeURI);

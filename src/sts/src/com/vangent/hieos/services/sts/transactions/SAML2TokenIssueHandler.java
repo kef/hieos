@@ -88,7 +88,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         Namespace xsins = new Namespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
         assertion.addNamespace(xsins);
         assertion.setVersion(SAMLVersion.VERSION_20);
-        assertion.setID(UUID.randomUUID().toString());
+        assertion.setID("ID_" + UUID.randomUUID().toString());  // Must prefix to be compliant with xs:ID type.
 
         // Set the instant the Assertion was created.
         DateTime createdDate = new DateTime();
@@ -125,7 +125,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         subjConf.setMethod("urn:oasis:names:tc:2.0:cm:holder-of-key");
         subj.getSubjectConfirmations().add(subjConf);
         SubjectConfirmationData subjData = (SubjectConfirmationData) STSUtil.createXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
-        subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "saml:KeyInfoConfirmationDataType");
+        subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "saml2:KeyInfoConfirmationDataType");
         subjConf.setSubjectConfirmationData(subjData);
 
         // Set the validity period.
