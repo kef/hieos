@@ -15,6 +15,7 @@ package com.vangent.hieos.services.pdp.test;
 import com.vangent.hieos.policyutil.client.PDPClient;
 import com.vangent.hieos.policyutil.model.pdp.PDPRequest;
 import com.vangent.hieos.policyutil.model.pdp.PDPResponse;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -77,27 +78,28 @@ public class PDPTest {
         // Load up Subject attributes
 
         // subject-id
-        request.addSubjectAttribute("urn:oasis:names:tc:xacml:1.0:subject:subject-id", "SUBJECT_ID");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xacml:1.0:subject:subject-id", "SUBJECT_ID");
 
         // organization
-        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:organization", "ORG");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xspa:1.0:subject:organization", "ORG");
 
         // organization-id
-        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:organization-id", "1.1");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xspa:1.0:subject:organization-id", "1.1");
 
         // role
-        request.addSubjectAttribute("urn:oasis:names:tc:xacml:2.0:subject:role", "DOCTOR");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xacml:2.0:subject:role", "DOCTOR");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xacml:2.0:subject:role", "FOO");
 
         // purposeofuse
-        request.addSubjectAttribute("urn:oasis:names:tc:xspa:1.0:subject:purposeofuse", "TREATMENT");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse", "TREATMENT");
 
         // npi
-        request.addSubjectAttribute("urn:oasis:names:tc:xspa:2.0:subject:npi", "NPI");
+        request.addAttribute(AttributeIdType.SUBJECT_ID, "urn:oasis:names:tc:xspa:2.0:subject:npi", "NPI");
 
         // Resource attributes:
 
         // resource-id
-        request.addResourceAttribute("urn:oasis:names:tc:xacml:1.0:resource:resource-id", 
+        request.addAttribute(AttributeIdType.RESOURCE_ID, "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
                 "123456^^^&1.3.6.1.4.1.21367.2010.1.2.300&ISO");
 
         // FIXME: !!!! if resource-id is empty, always PERMITS????

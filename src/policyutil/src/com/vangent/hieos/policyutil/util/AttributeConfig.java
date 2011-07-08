@@ -25,6 +25,29 @@ public class AttributeConfig {
     /**
      *
      */
+    public enum AttributeIdType {
+
+        /**
+         *
+         */
+        SUBJECT_ID,
+        /**
+         *
+         */
+        RESOURCE_ID,
+        /**
+         *
+         */
+        ENVIRONMENT_ID,
+        /**
+         *
+         */
+        CLAIM_ID
+    };
+
+    /**
+     *
+     */
     public enum AttributeType {
 
         /**

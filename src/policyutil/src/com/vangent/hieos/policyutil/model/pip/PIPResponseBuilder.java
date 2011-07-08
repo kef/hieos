@@ -77,7 +77,7 @@ public class PIPResponseBuilder {
             // ConsentDirectives
             OMElement consentDirectivesNode = XPathHelper.selectSingleNode(pipResponseNode,
                     "./ns:ConsentDirectives[1]", nsURI);
-            patientConsentDirectives.setContent(consentDirectivesNode.toString());
+            patientConsentDirectives.setContent(consentDirectivesNode);
 
             // TBD: Do more ... e.g. SensitiveDocumentTypes, etc.
 

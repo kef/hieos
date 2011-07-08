@@ -13,6 +13,7 @@
 package com.vangent.hieos.policyutil.util;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -40,26 +41,7 @@ public class PolicyConfig {
     private List<AttributeConfig> subjectAttributeConfigs = new ArrayList<AttributeConfig>();
     private List<AttributeConfig> resourceAttributeConfigs = new ArrayList<AttributeConfig>();
     private List<AttributeConfig> environmentAttributeConfigs = new ArrayList<AttributeConfig>();
-    private List<AttributeConfig> requiredClaimConfigs = new ArrayList<AttributeConfig>();
-
-    /**
-     *
-     */
-    public enum AttributeIdType {
-
-        /**
-         *
-         */
-        SUBJECT_ID,
-        /**
-         * 
-         */
-        RESOURCE_ID,
-        /**
-         *
-         */
-        ENVIRONMENT_ID
-    };
+    private List<AttributeConfig> claimAttributeConfigs = new ArrayList<AttributeConfig>();
 
     /**
      *
@@ -90,35 +72,22 @@ public class PolicyConfig {
     }
 
     /**
-     *
+     * 
+     * @param idType
      * @return
      */
-    public List<AttributeConfig> getSubjectAttributeConfigs() {
-        return subjectAttributeConfigs;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<AttributeConfig> getResourceAttributeConfigs() {
-        return resourceAttributeConfigs;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<AttributeConfig> getEnvironmentAttributeConfigs() {
-        return environmentAttributeConfigs;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<AttributeConfig> getRequiredClaimConfigs() {
-        return requiredClaimConfigs;
+    public List<AttributeConfig> getAttributeConfigs(AttributeIdType idType) {
+        switch (idType) {
+            case SUBJECT_ID:
+                return subjectAttributeConfigs;
+            case RESOURCE_ID:
+                return resourceAttributeConfigs;
+            case ENVIRONMENT_ID:
+                return environmentAttributeConfigs;
+            case CLAIM_ID:
+            default: // Fall-through
+                return claimAttributeConfigs;
+        }
     }
 
     /**
@@ -175,7 +144,7 @@ public class PolicyConfig {
         this.parseSubjectAttributeConfigs(rootNode);
         this.parseResourceAttributeConfigs(rootNode);
         this.parseEnvironmentAttributeConfigs(rootNode);
-        this.parseRequiredClaims(rootNode);
+        this.parseRequiredClaimAttributeConfigs(rootNode);
     }
 
     /**
@@ -220,19 +189,8 @@ public class PolicyConfig {
      *
      * @param rootNode
      */
-    private void parseRequiredClaims(OMElement rootNode) {
-        this.requiredClaimConfigs = this.parseClaimConfigs(rootNode, "RequiredClaims");
-    }
-
-    /**
-     *
-     * @param rootNode
-     * @param elementName
-     * @return
-     */
-    private List<AttributeConfig> parseClaimConfigs(OMElement rootNode, String elementName) {
-        OMElement claimsNode = rootNode.getFirstChildWithName(new QName(elementName));
-        return this.parseClaimConfigs(claimsNode);
+    private void parseRequiredClaimAttributeConfigs(OMElement rootNode) {
+        this.claimAttributeConfigs = this.parseAttributeConfigs(rootNode, "RequiredClaims");
     }
 
     /**
@@ -254,16 +212,6 @@ public class PolicyConfig {
     private List<AttributeConfig> parseAttributeConfigs(OMElement rootNode) {
         List<OMElement> attributeNodes = XConfig.parseLevelOneNode(rootNode, "Attribute");
         return this.parseAttributeConfigs(attributeNodes);
-    }
-
-    /**
-     *
-     * @param rootNode
-     * @return
-     */
-    private List<AttributeConfig> parseClaimConfigs(OMElement rootNode) {
-        List<OMElement> claimNodes = XConfig.parseLevelOneNode(rootNode, "Claim");
-        return this.parseAttributeConfigs(claimNodes);
     }
 
     /**
@@ -291,54 +239,42 @@ public class PolicyConfig {
      * @param id
      * @return
      */
-    public AttributeIdType getAttributeIdType(String id) {
+    public AttributeConfig.AttributeIdType getAttributeIdType(String id) {
         // FIXME: Rewrite (it is likely a very small list however - problably OK).
-        boolean found = this.containsId(this.subjectAttributeConfigs, id);
+        boolean found = this.containsId(subjectAttributeConfigs, id);
         if (found) {
-            return AttributeIdType.SUBJECT_ID;
+            return AttributeConfig.AttributeIdType.SUBJECT_ID;
         }
-        found = this.containsId(this.resourceAttributeConfigs, id);
+        found = this.containsId(resourceAttributeConfigs, id);
         if (found) {
-            return AttributeIdType.RESOURCE_ID;
+            return AttributeConfig.AttributeIdType.RESOURCE_ID;
+        }
+        found = this.containsId(environmentAttributeConfigs, id);
+        if (found) {
+            return AttributeConfig.AttributeIdType.ENVIRONMENT_ID;
         }
         // Default.
-        return AttributeIdType.ENVIRONMENT_ID;
+        return AttributeConfig.AttributeIdType.CLAIM_ID;
     }
 
     /**
      *
-     * @param uri
-     * @return
-     */
-    public AttributeConfig getClaimAttributeConfig(String uri) {
-        return this.getAttributeConfig(this.requiredClaimConfigs, uri);
-    }
-
-    /**
-     * 
+     * @param idType
      * @param id
      * @return
      */
-    public AttributeConfig getSubjectAttributeConfig(String id) {
-        return this.getAttributeConfig(this.subjectAttributeConfigs, id);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public AttributeConfig getResourceAttributeConfig(String id) {
-        return this.getAttributeConfig(this.resourceAttributeConfigs, id);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public AttributeConfig getEnvironmentAttributeConfig(String id) {
-        return this.getAttributeConfig(this.environmentAttributeConfigs, id);
+    public AttributeConfig getAttributeConfig(AttributeIdType idType, String id) {
+        switch (idType) {
+            case SUBJECT_ID:
+                return this.getAttributeConfig(this.subjectAttributeConfigs, id);
+            case RESOURCE_ID:
+                return this.getAttributeConfig(this.resourceAttributeConfigs, id);
+            case ENVIRONMENT_ID:
+                return this.getAttributeConfig(this.environmentAttributeConfigs, id);
+            case CLAIM_ID:
+            default: // Fall-through
+                return this.getAttributeConfig(this.claimAttributeConfigs, id);
+        }
     }
 
     /**

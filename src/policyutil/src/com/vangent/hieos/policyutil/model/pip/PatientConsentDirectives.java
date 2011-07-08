@@ -13,6 +13,7 @@
 package com.vangent.hieos.policyutil.model.pip;
 
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import org.apache.axiom.om.OMElement;
 
 /**
  *
@@ -21,13 +22,13 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 public class PatientConsentDirectives {
 
     private SubjectIdentifier patientId;
-    private String content;
+    private OMElement content;
 
-    public String getContent() {
+    public OMElement getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(OMElement content) {
         this.content = content;
     }
 

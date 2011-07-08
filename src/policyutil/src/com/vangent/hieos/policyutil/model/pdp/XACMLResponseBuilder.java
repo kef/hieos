@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2010 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,25 +46,8 @@ import org.apache.axiom.om.OMFactory;
  */
 public class XACMLResponseBuilder {
 
-    //<Response xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os">
-    //   <Result ResourceId="PID^^^1">
-    //      <Decision>Permit</Decision>
-    //      <Status>
-    //        <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-    //      </Status>
-    //      <ns2:Obligations>
-    //        <ns2:Obligation FulfillOn="Permit" ObligationId="test-obligation">
-    //            <ns2:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">&lt;SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" DataType="http://www.w3.org/2001/XMLSchema#string"/></ns2:AttributeAssignment>
-    //        </ns2:Obligation>
-    //        <ns2:Obligation FulfillOn="Permit" ObligationId="sensitive-doc-types-obligation">
-    //            <ns2:AttributeAssignment AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string">&lt;ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string"/></ns2:AttributeAssignment>
-    //            <ns2:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">Your medical record has been accessed</ns2:AttributeAssignment>
-    //        </ns2:Obligation>
-    //      </ns2:Obligations>
-    //   </Result>
-    // </Response>
     /**
-     * Builds an OASIS ResponseType from an OMElement(XML).
+     * Builds an OMElement(XML) from an OASIS ResponseType.
      *
      * @param responseType
      * @return
@@ -114,7 +97,7 @@ public class XACMLResponseBuilder {
                             OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(nsURI, "AttributeAssignment", nsPrefix));
                             attributeAssignmentNode.addAttribute("AttributeId", attributeId, null);
                             attributeAssignmentNode.addAttribute("DataType", dataType, null);
-                            // FIXME: Content????
+                            // FIXME: Need to return AttributeAssignment Content!!!
                             obligationNode.addChild(attributeAssignmentNode);
                         }
                         obligationsNode.addChild(obligationNode);
@@ -153,7 +136,6 @@ public class XACMLResponseBuilder {
                 case Result.DECISION_DENY:
                     resultType.setDecision(DecisionType.DENY);
                     break;
-
                 case Result.DECISION_NOT_APPLICABLE:
                     resultType.setDecision(DecisionType.NOT_APPLICABLE);
                     break;
@@ -163,7 +145,7 @@ public class XACMLResponseBuilder {
                     break;
             }
 
-            //Status
+            // Status
             Status status = result.getStatus();
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
@@ -175,7 +157,7 @@ public class XACMLResponseBuilder {
             statusType.setStatusCode(statusCodeType);
             resultType.setStatus(statusType);
 
-            //Obligations
+            // Obligations
             Set<Obligation> obligationsSet = result.getObligations();
             if (obligationsSet != null) {
                 ObligationsType obligationsType = new ObligationsType();
@@ -211,7 +193,7 @@ public class XACMLResponseBuilder {
      * @param samlResponse
      * @return
      */
-    public PDPResponse buildPDPResponse(SAMLResponseElement samlResponse) {
+    public PDPResponse buildPDPResponse(SAMLResponseElement samlResponse) throws PolicyException {
         PDPResponse pdpResponse = new PDPResponse();
         OMElement samlResponseNode = samlResponse.getElement();
 
@@ -246,21 +228,45 @@ public class XACMLResponseBuilder {
         return pdpResponse;
     }
 
-//    <xacml-context:Response xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
-//       <xacml-context:Result ResourceId="PID^^^1" Decision="Permit">
-//             <xacml-context:Status>
-//                 <xacml-context:StatusCode>urn:oasis:names:tc:xacml:1.0:status:ok</xacml-context:StatusCode>
-//             </xacml-context:Status>
-//             <xacml-context:Obligations>
-//                 <xacml-context:Obligation FulfillOn="Permit" ObligationId="test-obligation">
-//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-//                 </xacml-context:Obligation>
-//                 <xacml-context:Obligation FulfillOn="Permit" ObligationId="sensitive-doc-types-obligation">
-//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-//                     <xacml-context:AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-//                 </xacml-context:Obligation>
-//             </xacml-context:Obligations>
-//       </xacml-context:Result>
+    /**
+     * Builds an OMElement(XML) from OASIS RequestType/ResponseType.
+     *
+     * @param requestType
+     * @param responseType
+     * @return
+     * @throws PolicyException
+     */
+    public SAMLResponseElement buildSAMLResponse(RequestType requestType, ResponseType responseType) throws PolicyException {
+        OMFactory omfactory = OMAbstractFactory.getOMFactory();
+
+        // <saml2p:Response Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
+        OMElement saml2pResponseNode = omfactory.createOMElement(
+                new QName(PolicyConstants.SAML2_PROTOCOL_NS, "Response", PolicyConstants.SAML2_PROTOCOL_NS_PREFIX));
+        saml2pResponseNode.addAttribute("Version", "2.0", null);
+
+        // <saml2:Assertion ID="2607abfd-36d6-4260-9d7b-1c79a1bce458" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        OMElement assertionNode = omfactory.createOMElement(
+                new QName(PolicyConstants.SAML2_NS, "Assertion", PolicyConstants.SAML2_NS_PREFIX));
+        assertionNode.addAttribute("Version", "2.0", null);
+        assertionNode.addAttribute("ID", UUID.randomUUID().toString(), null);
+        saml2pResponseNode.addChild(assertionNode);
+
+        //<xacml-saml:XACMLAuthzDecisionStatement xmlns:xacml-saml="urn:oasis:names:tc:xacml:2.0:profile:saml2.0:v2:schema:assertion">
+        OMElement authzDecisionStatementNode = omfactory.createOMElement(
+                new QName(PolicyConstants.XACML_SAML_NS, "XACMLAuthzDecisionStatement", PolicyConstants.XACML_SAML_NS_PREFIX));
+        assertionNode.addChild(authzDecisionStatementNode);
+
+        // Convert RequestType to OMElement
+        XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+        OMElement requestNode = requestBuilder.buildRequestTypeElement(requestType).getElement();
+        authzDecisionStatementNode.addChild(requestNode);
+
+        // Convert ResponseType to OMElement
+        OMElement responseNode = this.buildResponseTypeElement(responseType).getElement();
+        authzDecisionStatementNode.addChild(responseNode);
+
+        return new SAMLResponseElement(saml2pResponseNode);
+    }
 
     /**
      * Builds an OASIS ResponseType from an OMElement(XML).
@@ -268,7 +274,7 @@ public class XACMLResponseBuilder {
      * @param responseTypeElement
      * @return
      */
-    public ResponseType buildResponseType(ResponseTypeElement responseTypeElement) {
+    private ResponseType buildResponseType(ResponseTypeElement responseTypeElement) {
         ResponseType responseType = new ResponseType();
         try {
             OMElement responseNode = responseTypeElement.getElement();
@@ -323,45 +329,5 @@ public class XACMLResponseBuilder {
             // FIXME: Do something?
         }
         return responseType;
-    }
-
-    /**
-     * Builds an OMElement(XML) from OASIS RequestType/ResponseType.
-     *
-     * @param requestType
-     * @param responseType
-     * @return
-     * @throws PolicyException
-     */
-    public SAMLResponseElement buildSAMLResponse(RequestType requestType, ResponseType responseType) throws PolicyException {
-        OMFactory omfactory = OMAbstractFactory.getOMFactory();
-
-        // <saml2p:Response Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
-        OMElement saml2pResponseNode = omfactory.createOMElement(
-                new QName(PolicyConstants.SAML2_PROTOCOL_NS, "Response", PolicyConstants.SAML2_PROTOCOL_NS_PREFIX));
-        saml2pResponseNode.addAttribute("Version", "2.0", null);
-
-        // <saml2:Assertion ID="2607abfd-36d6-4260-9d7b-1c79a1bce458" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
-        OMElement assertionNode = omfactory.createOMElement(
-                new QName(PolicyConstants.SAML2_NS, "Assertion", PolicyConstants.SAML2_NS_PREFIX));
-        assertionNode.addAttribute("Version", "2.0", null);
-        assertionNode.addAttribute("ID", UUID.randomUUID().toString(), null);
-        saml2pResponseNode.addChild(assertionNode);
-
-        //<xacml-saml:XACMLAuthzDecisionStatement xmlns:xacml-saml="urn:oasis:names:tc:xacml:2.0:profile:saml2.0:v2:schema:assertion">
-        OMElement authzDecisionStatementNode = omfactory.createOMElement(
-                new QName(PolicyConstants.XACML_SAML_NS, "XACMLAuthzDecisionStatement", PolicyConstants.XACML_SAML_NS_PREFIX));
-        assertionNode.addChild(authzDecisionStatementNode);
-
-        // Convert RequestType to OMElement
-        XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
-        OMElement requestNode = requestBuilder.buildRequestTypeElement(requestType).getElement();
-        authzDecisionStatementNode.addChild(requestNode);
-
-        // Convert ResponseType to OMElement
-        OMElement responseNode = this.buildResponseTypeElement(responseType).getElement();
-        authzDecisionStatementNode.addChild(responseNode);
-
-        return new SAMLResponseElement(saml2pResponseNode);
     }
 }
