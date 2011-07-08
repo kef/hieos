@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.util;
 
-import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;

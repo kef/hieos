@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.policyutil.util.AttributeConfig;
 import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
@@ -115,27 +114,27 @@ public class ClaimBuilder {
         AttributeConfig claimConfig = pConfig.getAttributeConfig(AttributeIdType.CLAIM_ID, claimTypeURI);
         Claim claim;
         switch (claimConfig.getAttributeType()) {
-            // FIXME: We need to be able handle any type here.
-            case CODED_VALUE:
-                CodedValueClaim codedValueClaim = new CodedValueClaim();
-                codedValueClaim.setName(claimTypeURI);
-                OMElement firstElement = xspaClaimValueNode.getFirstElement();
-                if (firstElement != null) {
+            case ANY:
+                AnyValueClaim anyValueClaim = new AnyValueClaim();
+                anyValueClaim.setName(claimTypeURI);
+                OMElement claimContentNode = xspaClaimValueNode.getFirstElement();
+                if (claimContentNode != null) {
+                    anyValueClaim.setContentNode(claimContentNode);
                     // Now, parse it.
-                    codedValueClaim.setNodeName(firstElement.getLocalName());
-                    CodedValue codedValue = codedValueClaim.getCodedValue();
-                    String code = firstElement.getAttributeValue(new QName("code"));
-                    String codeSystem = firstElement.getAttributeValue(new QName("codeSystem"));
-                    String codeSystemName = firstElement.getAttributeValue(new QName("codeSystemName"));
-                    String displayName = firstElement.getAttributeValue(new QName("displayName"));
-                    codedValue.setCode(code);
-                    codedValue.setCodeSystem(codeSystem);
-                    codedValue.setCodeSystemName(codeSystemName);
-                    codedValue.setDisplayName(displayName);
+                    //codedValueClaim.setNodeName(claimContentNode.getLocalName());
+                    //CodedValue codedValue = codedValueClaim.getCodedValue();
+                    //String code = claimContentNode.getAttributeValue(new QName("code"));
+                    //String codeSystem = claimContentNode.getAttributeValue(new QName("codeSystem"));
+                    //String codeSystemName = claimContentNode.getAttributeValue(new QName("codeSystemName"));
+                    //String displayName = claimContentNode.getAttributeValue(new QName("displayName"));
+                    //codedValue.setCode(code);
+                    //codedValue.setCodeSystem(codeSystem);
+                    //codedValue.setCodeSystemName(codeSystemName);
+                    //codedValue.setDisplayName(displayName);
                 } else {
-                    throw new STSException("CodedValue type expected for Claim URI = " + claimTypeURI);
+                    throw new STSException("Any element type expected for Claim URI = " + claimTypeURI);
                 }
-                claim = codedValueClaim;
+                claim = anyValueClaim;
                 break;
             case STRING:
             default:  // fall through

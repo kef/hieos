@@ -61,13 +61,13 @@
                <wsa:Address>http://www.vangent.com/X-ServiceProvider-HIEOS</wsa:Address>
             </wsa:EndpointReference>
          </wsp:AppliesTo>
-         <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims">
+         <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/" >
            <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>Joe Smith</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>
-  		  <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3"/>
+		 <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3"/>
                </xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
@@ -77,7 +77,7 @@
                <xspa:ClaimValue>HIP-O Organization Name</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-               <xspa:ClaimValue>Some Role</xspa:ClaimValue>
+               <xspa:ClaimValue>ROLE</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:resource:resource-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>PID</xspa:ClaimValue>
