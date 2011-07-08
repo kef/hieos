@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeValue;
@@ -31,13 +33,13 @@ public class SimpleStringClaim extends Claim {
      * @return
      */
     @Override
-    public Attribute getAttribute() {
+    public Attribute getAttribute() throws STSException {
 
         // Create SAML attribute from Claim.
-        org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
+        org.opensaml.xml.XMLObjectBuilderFactory bf = STSUtil.getXMLObjectBuilderFactory();
         Attribute attribute = (Attribute) bf.getBuilder(Attribute.DEFAULT_ELEMENT_NAME).buildObject(Attribute.DEFAULT_ELEMENT_NAME);
         attribute.setName(this.getName());
-        XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory().getBuilder(XSString.TYPE_NAME);
+        XSStringBuilder stringBuilder = (XSStringBuilder) bf.getBuilder(XSString.TYPE_NAME);
         XSString stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
         stringValue.setValue(this.getValue());
         attribute.getAttributeValues().add(stringValue);

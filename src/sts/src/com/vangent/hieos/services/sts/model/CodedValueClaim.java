@@ -12,12 +12,17 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import javax.xml.namespace.QName;
 import org.opensaml.Configuration;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.schema.XSAny;
+import org.opensaml.xml.schema.XSString;
+import org.opensaml.xml.schema.impl.XSStringBuilder;
 
 // Examples:
 //
@@ -45,10 +50,8 @@ import org.opensaml.xml.schema.XSAny;
 public class CodedValueClaim extends Claim {
 
     private String nodeName;
-    private String code;
-    private String codeSystem;
-    private String codeSystemName;
-    private String displayName;
+    private CodedValue codedValue = new CodedValue();
+   
 
     /**
      *
@@ -70,64 +73,8 @@ public class CodedValueClaim extends Claim {
      *
      * @return
      */
-    public String getCode() {
-        return code;
-    }
-
-    /**
-     *
-     * @param code
-     */
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getCodeSystem() {
-        return codeSystem;
-    }
-
-    /**
-     *
-     * @param codeSystem
-     */
-    public void setCodeSystem(String codeSystem) {
-        this.codeSystem = codeSystem;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getCodeSystemName() {
-        return codeSystemName;
-    }
-
-    /**
-     * 
-     * @param codeSystemName
-     */
-    public void setCodeSystemName(String codeSystemName) {
-        this.codeSystemName = codeSystemName;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     *
-     * @param displayName
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public CodedValue getCodedValue() {
+        return codedValue;
     }
 
     /**
@@ -135,19 +82,19 @@ public class CodedValueClaim extends Claim {
      * @return
      */
     @Override
-    // FIXME: Fully implement and implement based upon configuration.
-    public Attribute getAttribute() {
-        org.opensaml.xml.XMLObjectBuilderFactory bf = Configuration.getBuilderFactory();
+    public Attribute getAttribute() throws STSException {
+        org.opensaml.xml.XMLObjectBuilderFactory bf = STSUtil.getXMLObjectBuilderFactory();
+
         XMLObjectBuilder<XSAny> xsAnyBuilder = bf.getBuilder(XSAny.TYPE_NAME);
-        XSAny purposeOfUse = xsAnyBuilder.buildObject("urn:hl7-org:v3", this.getNodeName(), "hl7");
-        purposeOfUse.getUnknownAttributes().put(new QName("xsi:type"), "CE");
-        purposeOfUse.getUnknownAttributes().put(new QName("code"), this.getCode());
-        purposeOfUse.getUnknownAttributes().put(new QName("codeSystem"), this.getCodeSystem());
-        purposeOfUse.getUnknownAttributes().put(new QName("codeSystemName"), this.getCodeSystemName());
-        purposeOfUse.getUnknownAttributes().put(new QName("displayName"), this.getDisplayName());
+        XSAny xsAny = xsAnyBuilder.buildObject("urn:hl7-org:v3", this.getNodeName(), "hl7");
+        xsAny.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "CE");
+        xsAny.getUnknownAttributes().put(new QName("code"), codedValue.getCode());
+        xsAny.getUnknownAttributes().put(new QName("codeSystem"), codedValue.getCodeSystem());
+        xsAny.getUnknownAttributes().put(new QName("codeSystemName"), codedValue.getCodeSystemName());
+        xsAny.getUnknownAttributes().put(new QName("displayName"), codedValue.getDisplayName());
 
         XSAny attributeValue = xsAnyBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
-        attributeValue.getUnknownXMLObjects().add(purposeOfUse);
+        attributeValue.getUnknownXMLObjects().add(xsAny);
 
         Attribute attribute = (Attribute) bf.getBuilder(Attribute.DEFAULT_ELEMENT_NAME).buildObject(Attribute.DEFAULT_ELEMENT_NAME);
         attribute.setName(this.getName());
@@ -158,7 +105,7 @@ public class CodedValueClaim extends Claim {
 
     @Override
     public String getStringValue() {
-        // TBD: Implement ...
-        throw new UnsupportedOperationException("Not supported yet.");
+        return codedValue.getCode() + "@" + codedValue.getCodeSystem();
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 }

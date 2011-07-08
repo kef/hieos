@@ -59,8 +59,6 @@ public class STSRequestData {
         this.stsConfig = stsConfig;
         this.mCtx = mCtx;
         this.request = request;
-
-        // Just parse the SOAP header.
         this.headerData = new SOAPHeaderData(this.stsConfig, this.mCtx);
     }
 
@@ -143,6 +141,7 @@ public class STSRequestData {
      * @param name
      * @return
      */
+    // TBD: Move claim support to PolicyUtil?
     private String getClaimStringValue(String name) {
         for (Claim claim : claims) {
             String claimName = claim.getName();

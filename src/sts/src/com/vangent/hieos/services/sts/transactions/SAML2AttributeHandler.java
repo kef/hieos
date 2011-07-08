@@ -41,7 +41,7 @@ public class SAML2AttributeHandler {
      * @param claims
      * @return
      */
-    private List<Attribute> getAttributes(List<Claim> claims) {
+    private List<Attribute> getAttributes(List<Claim> claims) throws STSException {
         List<Attribute> attributes = new ArrayList<Attribute>();
         for (Claim claim : claims) {
             Attribute attribute = claim.getAttribute();

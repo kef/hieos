@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.util.ClaimConfig;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.policyutil.util.AttributeConfig;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -32,6 +34,7 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class ClaimBuilder {
+
     private final static Logger logger = Logger.getLogger(ClaimBuilder.class);
 
     /**
@@ -75,15 +78,10 @@ public class ClaimBuilder {
      */
     private void validate(List<Claim> claims) throws STSException {
         // Validate proper attributes are available.
-        PolicyConfig pConfig;
-        try {
-            pConfig = PolicyConfig.getInstance();
-        } catch (PolicyException ex) {
-            throw new STSException(ex.getMessage()); // Rethrow.
-        }
-        List<ClaimConfig> requiredClaimConfigs = pConfig.getRequiredClaimConfigs();
-        for (ClaimConfig requiredClaimConfig : requiredClaimConfigs) {
-            String nameToValidate = requiredClaimConfig.getId();
+        PolicyConfig pConfig = STSUtil.getPolicyConfig();
+        List<AttributeConfig> claimAttributeConfigs = pConfig.getAttributeConfigs(AttributeConfig.AttributeIdType.CLAIM_ID);
+        for (AttributeConfig claimAttributeConfig : claimAttributeConfigs) {
+            String nameToValidate = claimAttributeConfig.getId();
             boolean foundName = false;
             for (Claim claim : claims) {
                 if (claim.getName().equalsIgnoreCase(nameToValidate)) {
@@ -99,11 +97,12 @@ public class ClaimBuilder {
     }
 
     /**
-     *
+     * 
      * @param claimTypeNode
-     * @return Claim
+     * @return
+     * @throws STSException
      */
-    private Claim getClaim(OMElement claimTypeNode) {
+    private Claim getClaim(OMElement claimTypeNode) throws STSException {
         String claimTypeURI = claimTypeNode.getAttributeValue(new QName("Uri"));
 
         // Found ClaimType ... now, get its ClaimValue.
@@ -112,14 +111,41 @@ public class ClaimBuilder {
             // FIXME: PUT DEBUG/DEFAULT?
             return null; // Get out.
         }
-
-        // Get the String value.
-        String valueText = xspaClaimValueNode.getText();
-
-        // FIXME: Only dealing with simple single value string claims; deal with codedvalue types.
-        SimpleStringClaim claim = new SimpleStringClaim();
-        claim.setName(claimTypeURI);
-        claim.setValue(valueText);
+        PolicyConfig pConfig = STSUtil.getPolicyConfig();
+        AttributeConfig claimConfig = pConfig.getAttributeConfig(AttributeIdType.CLAIM_ID, claimTypeURI);
+        Claim claim;
+        switch (claimConfig.getAttributeType()) {
+            // FIXME: We need to be able handle any type here.
+            case CODED_VALUE:
+                CodedValueClaim codedValueClaim = new CodedValueClaim();
+                codedValueClaim.setName(claimTypeURI);
+                OMElement firstElement = xspaClaimValueNode.getFirstElement();
+                if (firstElement != null) {
+                    // Now, parse it.
+                    codedValueClaim.setNodeName(firstElement.getLocalName());
+                    CodedValue codedValue = codedValueClaim.getCodedValue();
+                    String code = firstElement.getAttributeValue(new QName("code"));
+                    String codeSystem = firstElement.getAttributeValue(new QName("codeSystem"));
+                    String codeSystemName = firstElement.getAttributeValue(new QName("codeSystemName"));
+                    String displayName = firstElement.getAttributeValue(new QName("displayName"));
+                    codedValue.setCode(code);
+                    codedValue.setCodeSystem(codeSystem);
+                    codedValue.setCodeSystemName(codeSystemName);
+                    codedValue.setDisplayName(displayName);
+                } else {
+                    throw new STSException("CodedValue type expected for Claim URI = " + claimTypeURI);
+                }
+                claim = codedValueClaim;
+                break;
+            case STRING:
+            default:  // fall through
+                // Get the String value.
+                String valueText = xspaClaimValueNode.getText();
+                SimpleStringClaim simpleStringClaim = new SimpleStringClaim();
+                simpleStringClaim.setName(claimTypeURI);
+                simpleStringClaim.setValue(valueText);
+                claim = simpleStringClaim;
+        }
         return claim;
     }
 }

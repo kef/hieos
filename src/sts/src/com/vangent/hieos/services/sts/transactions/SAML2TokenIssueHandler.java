@@ -125,8 +125,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         subjConf.setMethod("urn:oasis:names:tc:2.0:cm:holder-of-key");
         subj.getSubjectConfirmations().add(subjConf);
         SubjectConfirmationData subjData = (SubjectConfirmationData) STSUtil.createXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
-        subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"),
-                "saml:KeyInfoConfirmationDataType");
+        subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "saml:KeyInfoConfirmationDataType");
         subjConf.setSubjectConfirmationData(subjData);
 
         // Set the validity period.

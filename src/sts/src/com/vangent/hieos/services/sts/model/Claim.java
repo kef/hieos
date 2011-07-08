@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.sts.model;
 
+import com.vangent.hieos.services.sts.exception.STSException;
 import org.opensaml.saml2.core.Attribute;
 
 /**
@@ -42,8 +43,9 @@ public abstract class Claim {
     /**
      *
      * @return
+     * @throws STSException
      */
-    abstract public Attribute getAttribute();
+    abstract public Attribute getAttribute() throws STSException;
 
     /**
      *

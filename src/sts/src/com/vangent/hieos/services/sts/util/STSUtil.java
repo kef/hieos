@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.services.sts.util;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
@@ -61,7 +63,6 @@ public class STSUtil {
      * @throws STSException
      */
     public synchronized static XMLObjectBuilderFactory getXMLObjectBuilderFactory() throws STSException {
-
         if (_xmlObjectBuilderFactory == null) {
             try {
                 // OpenSAML 2.3
@@ -72,6 +73,19 @@ public class STSUtil {
             _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
         }
         return _xmlObjectBuilderFactory;
+    }
+
+    /**
+     *
+     * @return
+     * @throws STSException
+     */
+    public static PolicyConfig getPolicyConfig() throws STSException {
+        try {
+            return PolicyConfig.getInstance();
+        } catch (Exception ex) {
+            throw new STSException(ex.getMessage()); // Rethrow.
+        }
     }
 
     /**
