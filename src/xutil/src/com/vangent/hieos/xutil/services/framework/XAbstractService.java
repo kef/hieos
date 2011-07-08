@@ -256,7 +256,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param request
      * @return
      */
-    private OMElement validateXUA(OMElement request) {
+    private OMElement validateXUA(OMElement request) throws AxisFault {
         if (this.excludedServiceFromXUA) {
             // This service is not participating in XUA -- most notably the
             // Secure Token Service (STS).
@@ -265,25 +265,23 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         // Validate XUA constraints here:
         XServiceProvider xServiceProvider = new XServiceProvider(log_message);
-        XServiceProvider.Status response;
+        XServiceProvider.Status response = XServiceProvider.Status.ABORT;
+        MessageContext messageCtx = this.getMessageContext();
         try {
-            MessageContext messageCtx = this.getMessageContext();
             response = xServiceProvider.run(messageCtx);
-        } catch (Exception ex) {  // Catch everything here!!!
-            // We have to treat this as a failure to validate assertion
+        } catch (Exception ex) {
             String exText = "XUA SAML Validation Exception (ignoring request) " + ex.getMessage();
             log_message.addErrorParam("XUA:ERROR", exText);
-            return this.endTransaction(
-                    request, new XdsException(exText),
-                    this.mActor, this.serviceName);
+            throw new AxisFault("XUA:ERROR - " + exText);
         }
         if (response != XServiceProvider.Status.CONTINUE) {
             // The assertion has not been validated, discontinue with processing SOAP request.
             log_message.addErrorParam("XUA:ERROR", "XUA did not pass validation!");
-            return this.endTransaction(request,
-                    new XdsException("XUA did not pass validation!"),
-                    this.mActor,
-                    this.serviceName);
+            throw new AxisFault("XUA:ERROR - SAML Assertion did not pass validation!");
+            //return this.endTransaction(request,
+            //        new XdsException("XUA did not pass validation!"),
+            //        this.mActor,
+            //        this.serviceName);
         }
         return null;  // All is good.
     }
