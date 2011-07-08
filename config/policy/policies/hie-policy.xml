@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:hieos-consent="urn:hieos:policy:1.0:consent"
+           xmlns:pip="urn:hieos:policy:pip"
            xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
            xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
            PolicySetId="urn:hieos:policy:1.0:policyset:100"
@@ -37,7 +37,7 @@
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
                     <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
                     <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/hieos-consent:ConsentDirectives/hieos-consent:AllowedOrganizations/hieos-consent:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                 </Apply>
             </Condition>
 
