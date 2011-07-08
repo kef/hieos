@@ -80,14 +80,6 @@ public class ResourceContentFinder {
      */
     private void addResourceContent(ResourceType resourceType, OMElement resourceContent) throws PolicyException {
         try {
-            // Convert the content into a DOM node.
-            //DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            //documentBuilderFactory.setNamespaceAware(true);
-            //DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            //ByteArrayInputStream bais = new ByteArrayInputStream(resourceContent.getBytes());
-            //Document document = documentBuilder.parse(bais);
-            //Element node = document.getDocumentElement();
-            
             // First convert Axiom OMElement to DOM Element
             Element resourceContentElement;
             try {

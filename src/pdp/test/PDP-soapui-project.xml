@@ -205,7 +205,7 @@
                   <xacml-context:AttributeValue>DOCTOR</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-                  <xacml-context:AttributeValue>TREATMENT</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue><Foo xmlns="foo" attribute="fooattr"><Bar xmlns="bar">hello</Bar></Foo></xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:2.0:subject:npi">
                   <xacml-context:AttributeValue>NPI</xacml-context:AttributeValue>
