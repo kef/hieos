@@ -18,11 +18,14 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.axis2.util.XMLUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -68,6 +71,25 @@ public class XMLParser {
         try {
             return AXIOMUtil.stringToOM(xml);
         } catch (XMLStreamException ex) {
+            throw new XMLParserException(ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param xml
+     * @return
+     * @throws XMLParserException
+     */
+    public static Element stringToDOM(String xml) throws XMLParserException {
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
+            Document document = documentBuilder.parse(bais);
+            return document.getDocumentElement();
+        } catch (Exception ex) {
             throw new XMLParserException(ex.getMessage());
         }
     }
