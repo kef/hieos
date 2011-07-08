@@ -59,17 +59,15 @@ public class XACMLRequestBuilder {
      * @throws PolicyException
      */
     public RequestTypeElement buildRequestTypeElement(RequestType requestType) throws PolicyException {
-        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
-        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         // Request
-        OMElement requestNode = omfactory.createOMElement(new QName(nsURI, "Request", nsPrefix));
+        OMElement requestNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Request", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
 
         // Subject(s)
         for (SubjectType subjectType : requestType.getSubject()) {
             String subjectCategory = subjectType.getSubjectCategory();
-            OMElement subjectNode = omfactory.createOMElement(new QName(nsURI, "Subject", nsPrefix));
+            OMElement subjectNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Subject", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
             subjectNode.addAttribute("SubjectCategory", subjectCategory, null);
             this.buildAttributeTypes(subjectNode, omfactory, subjectType.getAttribute());
             requestNode.addChild(subjectNode);
@@ -77,13 +75,12 @@ public class XACMLRequestBuilder {
 
         // Resource(s)
         for (ResourceType resourceType : requestType.getResource()) {
-            OMElement resourceNode = omfactory.createOMElement(new QName(nsURI, "Resource", nsPrefix));
-            this.buildAttributeTypes(resourceNode, omfactory, resourceType.getAttribute());
-
+            OMElement resourceNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Resource", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+  
             // ResourceContent
             ResourceContentType resourceContentType = resourceType.getResourceContent();
             if (resourceContentType != null && !resourceContentType.getContent().isEmpty()) {
-                OMElement resourceContentNode = omfactory.createOMElement(new QName(nsURI, "ResourceContent", nsPrefix));
+                OMElement resourceContentNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "ResourceContent", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
                 Element contentValueElement = (Element) resourceContentType.getContent().get(0);
                 OMElement contentValueNode;
                 try {
@@ -94,17 +91,20 @@ public class XACMLRequestBuilder {
                 resourceContentNode.addChild(contentValueNode);
                 resourceNode.addChild(resourceContentNode);
             }
+
+            // Resource attributes.
+            this.buildAttributeTypes(resourceNode, omfactory, resourceType.getAttribute());
             requestNode.addChild(resourceNode);
         }
 
         // Action
         ActionType actionType = requestType.getAction();
-        OMElement actionNode = omfactory.createOMElement(new QName(nsURI, "Action", nsPrefix));
+        OMElement actionNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Action", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
         this.buildAttributeTypes(actionNode, omfactory, actionType.getAttribute());
         requestNode.addChild(actionNode);
 
         // Environment (at least an empty node is required).
-        OMElement envNode = omfactory.createOMElement(new QName(nsURI, "Environment", nsPrefix));
+        OMElement envNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Environment", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
         EnvironmentType envType = requestType.getEnvironment();
         if (envType != null) {
             this.buildAttributeTypes(envNode, omfactory, envType.getAttribute());
@@ -120,13 +120,11 @@ public class XACMLRequestBuilder {
      * @param attributeTypes
      */
     private void buildAttributeTypes(OMElement rootNode, OMFactory omfactory, List<AttributeType> attributeTypes) throws PolicyException {
-        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
-        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         for (AttributeType attributeType : attributeTypes) {
             String attributeId = attributeType.getAttributeId();
             String dataType = attributeType.getDataType();
             String issuer = attributeType.getIssuer();
-            OMElement attributeNode = omfactory.createOMElement(new QName(nsURI, "Attribute", nsPrefix));
+            OMElement attributeNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Attribute", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
             attributeNode.addAttribute("AttributeId", attributeId, null);
             attributeNode.addAttribute("DataType", dataType, null);
             if (issuer != null) {
@@ -134,7 +132,7 @@ public class XACMLRequestBuilder {
             }
             rootNode.addChild(attributeNode);
             for (AttributeValueType attributeValueType : attributeType.getAttributeValue()) {
-                OMElement attributeValueNode = omfactory.createOMElement(new QName(nsURI, "AttributeValue", nsPrefix));
+                OMElement attributeValueNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "AttributeValue", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
                 Object attributeValueContentObject = attributeValueType.getContent().get(0);
                 if (attributeValueContentObject instanceof String) {
                     String attributeValue = attributeValueContentObject.toString();
@@ -164,10 +162,9 @@ public class XACMLRequestBuilder {
         RequestType requestType = new RequestType();
         try {
             OMElement requestNode = requestTypeElement.getElement();
-            String nsURI = PolicyConstants.XACML_CONTEXT_NS;
 
             // Subjects
-            List<OMElement> subjectNodes = XPathHelper.selectNodes(requestNode, "./ns:Subject[1]", nsURI);
+            List<OMElement> subjectNodes = XPathHelper.selectNodes(requestNode, "./ns:Subject[1]", PolicyConstants.XACML_CONTEXT_NS);
             for (OMElement subjectNode : subjectNodes) {
                 String subjectCategory = subjectNode.getAttributeValue(new QName("SubjectCategory"));
                 List<AttributeType> attributeTypes = this.getAttributeTypes(subjectNode);
@@ -178,11 +175,11 @@ public class XACMLRequestBuilder {
             }
 
             // Resources
-            List<OMElement> resourceNodes = XPathHelper.selectNodes(requestNode, "./ns:Resource[1]", nsURI);
+            List<OMElement> resourceNodes = XPathHelper.selectNodes(requestNode, "./ns:Resource[1]", PolicyConstants.XACML_CONTEXT_NS);
             for (OMElement resourceNode : resourceNodes) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(resourceNode);
                 ResourceType resourceType = new ResourceType();
-                OMElement resourceContentNode = resourceNode.getFirstChildWithName(new QName(nsURI, "ResourceContent"));
+                OMElement resourceContentNode = resourceNode.getFirstChildWithName(new QName(PolicyConstants.XACML_CONTEXT_NS, "ResourceContent"));
                 if (resourceContentNode != null) {
                     Iterator<OMElement> it = resourceContentNode.getChildElements();
                     if (it.hasNext()) {  // Just use first child node (if exists).
@@ -202,7 +199,7 @@ public class XACMLRequestBuilder {
             }
 
             // Action
-            OMElement actionNode = XPathHelper.selectSingleNode(requestNode, "./ns:Action[1]", nsURI);
+            OMElement actionNode = XPathHelper.selectSingleNode(requestNode, "./ns:Action[1]", PolicyConstants.XACML_CONTEXT_NS);
             if (actionNode != null) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(actionNode);
                 ActionType actionType = new ActionType();
@@ -213,7 +210,7 @@ public class XACMLRequestBuilder {
             }
 
             // Environment
-            OMElement environmentNode = XPathHelper.selectSingleNode(requestNode, "./ns:Environment[1]", nsURI);
+            OMElement environmentNode = XPathHelper.selectSingleNode(requestNode, "./ns:Environment[1]", PolicyConstants.XACML_CONTEXT_NS);
             if (environmentNode != null) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(environmentNode);
                 EnvironmentType envType = new EnvironmentType();
@@ -293,20 +290,20 @@ public class XACMLRequestBuilder {
                 // Get attribute value.
                 OMElement attributeValueNode = attributeNode.getFirstChildWithName(new QName(PolicyConstants.SAML2_NS, "AttributeValue"));
 
-                AttributeConfig.AttributeIdType idType = pConfig.getAttributeIdType(attributeId);
-                //AttributeConfig attributeConfig = pConfig.getAttributeConfig(idType, attributeId);
+                AttributeConfig attributeConfig = pConfig.getAttributeConfig(attributeId);
+                AttributeConfig.AttributeClassType classType = attributeConfig.getClassType();
 
                 // Handles any type including CodedValue types.
                 OMElement attributeValueContentNode = attributeValueNode.getFirstElement();
                 if (attributeValueContentNode != null) {
-                    pdpRequest.addAttribute(idType, attributeId, attributeValueContentNode);
+                    pdpRequest.addAttribute(classType, attributeId, attributeValueContentNode);
                 } else {
                     // Assume STRING
                     String attributeValueContentText = "";
                     if (attributeValueNode != null) {
                         attributeValueContentText = attributeValueNode.getText();
                     }
-                    pdpRequest.addAttribute(idType, attributeId, attributeValueContentText);
+                    pdpRequest.addAttribute(classType, attributeId, attributeValueContentText);
                 }
             }
         } catch (XPathHelperException ex) {

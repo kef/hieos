@@ -13,7 +13,7 @@
 package com.vangent.hieos.policyutil.model.pdp;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeClassType;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.xml.XMLParser;
@@ -135,12 +135,12 @@ public class PDPRequest {
 
     /**
      *
-     * @param idType
+     * @param classType
      * @param id
      * @param value
      */
-    public void addAttribute(AttributeIdType idType, String id, String value) {
-        switch (idType) {
+    public void addAttribute(AttributeClassType classType, String id, String value) {
+        switch (classType) {
             case SUBJECT_ID:
                 if (subjectType == null) {
                     subjectType = new SubjectType();
@@ -166,12 +166,12 @@ public class PDPRequest {
 
     /**
      *
-     * @param idType
+     * @param classType
      * @param id
      * @param value
      */
-    public void addAttribute(AttributeIdType idType, String id, OMElement value) throws PolicyException {
-        switch (idType) {
+    public void addAttribute(AttributeClassType classType, String id, OMElement value) throws PolicyException {
+        switch (classType) {
             case SUBJECT_ID:
                 if (subjectType == null) {
                     subjectType = new SubjectType();

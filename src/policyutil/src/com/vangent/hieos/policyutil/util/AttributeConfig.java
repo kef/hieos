@@ -19,13 +19,14 @@ package com.vangent.hieos.policyutil.util;
 public class AttributeConfig {
 
     private String id;
-    private String type;
+    private AttributeClassType classType;
+    private AttributeType type;
     private String name;
 
     /**
      *
      */
-    public enum AttributeIdType {
+    public enum AttributeClassType {
 
         /**
          *
@@ -80,7 +81,23 @@ public class AttributeConfig {
      *
      * @return
      */
-    public String getType() {
+    public AttributeClassType getClassType() {
+        return classType;
+    }
+
+    /**
+     *
+     * @param classType
+     */
+    public void setClassType(AttributeClassType classType) {
+        this.classType = classType;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public AttributeType getType() {
         return type;
     }
 
@@ -88,7 +105,7 @@ public class AttributeConfig {
      *
      * @param type
      */
-    public void setType(String type) {
+    public void setType(AttributeType type) {
         this.type = type;
     }
 
@@ -106,17 +123,5 @@ public class AttributeConfig {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public AttributeType getAttributeType() {
-        if (type.equalsIgnoreCase("any")) {
-            return AttributeType.ANY;
-        }
-        // Default.
-        return AttributeType.STRING;
     }
 }

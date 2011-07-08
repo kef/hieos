@@ -54,47 +54,54 @@ public class XACMLResponseBuilder {
      * @throws PolicyException
      */
     public ResponseTypeElement buildResponseTypeElement(ResponseType responseType) throws PolicyException {
-        String nsURI = PolicyConstants.XACML_CONTEXT_NS;
-        String nsPrefix = PolicyConstants.XACML_CONTEXT_NS_PREFIX;
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         // Response
-        OMElement responseNode = omfactory.createOMElement(new QName(nsURI, "Response", nsPrefix));
+        OMElement responseNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Response", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
 
         // Result(s)
         for (ResultType resultType : responseType.getResult()) {
             String resourceId = resultType.getResourceId();
             String decision = resultType.getDecision().value();
             String statusCode = resultType.getStatus().getStatusCode().getValue();
-            OMElement resultNode = omfactory.createOMElement(new QName(nsURI, "Result", nsPrefix));
+
+            // Result.
+            OMElement resultNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Result", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+            responseNode.addChild(resultNode);
             if (resourceId != null) {
                 resultNode.addAttribute("ResourceId", resourceId, null);
             }
-            resultNode.addAttribute("Decision", decision, null);
-            OMElement statusNode = omfactory.createOMElement(new QName(nsURI, "Status", nsPrefix));
-            OMElement statusCodeNode = omfactory.createOMElement(new QName(nsURI, "StatusCode", nsPrefix));
-            statusCodeNode.setText(statusCode);
+
+            // Decision.
+            OMElement decisionNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Decision", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+            decisionNode.setText(decision);
+            resultNode.addChild(decisionNode);
+
+            // Status.
+            OMElement statusNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Status", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+            OMElement statusCodeNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "StatusCode", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+            statusCodeNode.addAttribute("Value", statusCode, null);
+
             statusNode.addChild(statusCodeNode);
             resultNode.addChild(statusNode);
-            responseNode.addChild(resultNode);
 
             // Obligation(s).
             ObligationsType obligationsType = resultType.getObligations();
             if (obligationsType != null) {
                 List<ObligationType> obligationTypes = resultType.getObligations().getObligation();
                 if (!obligationTypes.isEmpty()) {
-                    OMElement obligationsNode = omfactory.createOMElement(new QName(nsURI, "Obligations", nsPrefix));
+                    OMElement obligationsNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_NS, "Obligations", PolicyConstants.XACML_NS_PREFIX));
                     resultNode.addChild(obligationsNode);
                     for (ObligationType obligationType : obligationTypes) {
                         EffectType fulfillOn = obligationType.getFulfillOn();
                         String obligationId = obligationType.getObligationId();
-                        OMElement obligationNode = omfactory.createOMElement(new QName(nsURI, "Obligation", nsPrefix));
+                        OMElement obligationNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_NS, "Obligation", PolicyConstants.XACML_NS_PREFIX));
                         obligationNode.addAttribute("FulfillOn", fulfillOn.value(), null);
                         obligationNode.addAttribute("ObligationId", obligationId, null);
                         for (AttributeAssignmentType attributeAssignmentType : obligationType.getAttributeAssignment()) {
                             String attributeId = attributeAssignmentType.getAttributeId();
                             String dataType = attributeAssignmentType.getDataType();
-                            OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(nsURI, "AttributeAssignment", nsPrefix));
+                            OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_NS, "AttributeAssignment", PolicyConstants.XACML_NS_PREFIX));
                             attributeAssignmentNode.addAttribute("AttributeId", attributeId, null);
                             attributeAssignmentNode.addAttribute("DataType", dataType, null);
                             // FIXME: Need to return AttributeAssignment Content!!!
@@ -278,16 +285,18 @@ public class XACMLResponseBuilder {
         ResponseType responseType = new ResponseType();
         try {
             OMElement responseNode = responseTypeElement.getElement();
-            String nsURI = PolicyConstants.XACML_CONTEXT_NS;
 
             // Result(s)
             Iterator<OMElement> resultNodes = responseNode.getChildrenWithName(
-                    new QName(nsURI, "Result"));
+                    new QName(PolicyConstants.XACML_CONTEXT_NS, "Result"));
             while (resultNodes.hasNext()) {
                 // ResultType
                 OMElement resultNode = resultNodes.next();
                 String resourceId = resultNode.getAttributeValue(new QName("ResourceId"));
-                String decision = resultNode.getAttributeValue(new QName("Decision"));
+
+                // Decision
+                OMElement decisionNode = resultNode.getFirstChildWithName(new QName(PolicyConstants.XACML_CONTEXT_NS, "Decision"));
+                String decision = decisionNode.getText();
                 ResultType resultType = new ResultType();
                 resultType.setResourceId(resourceId);
 
@@ -296,10 +305,10 @@ public class XACMLResponseBuilder {
                 resultType.setDecision(decisionType);
 
                 // StatusType
-                OMElement statusCodeNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusCode[1]", nsURI);
+                OMElement statusCodeNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusCode[1]", PolicyConstants.XACML_CONTEXT_NS);
                 if (statusCodeNode != null) {
                     // FIXME: Handle status code messages, etc.
-                    String statusText = statusCodeNode.getText();
+                    String statusText = statusCodeNode.getAttributeValue(new QName("Value"));
                     StatusType statusType = new StatusType();
                     StatusCodeType statusCodeType = new StatusCodeType();
                     statusCodeType.setValue(statusText);
@@ -308,7 +317,7 @@ public class XACMLResponseBuilder {
                 }
 
                 // Obligation(s)
-                List<OMElement> obligationNodes = XPathHelper.selectNodes(resultNode, "./ns:Obligations/ns:Obligation", nsURI);
+                List<OMElement> obligationNodes = XPathHelper.selectNodes(resultNode, "./ns:Obligations/ns:Obligation", PolicyConstants.XACML_NS);
                 if (obligationNodes != null && !obligationNodes.isEmpty()) {
                     ObligationsType obligationsType = new ObligationsType();
                     resultType.setObligations(obligationsType);

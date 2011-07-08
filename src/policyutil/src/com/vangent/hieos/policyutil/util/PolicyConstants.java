@@ -38,6 +38,7 @@ public class PolicyConstants {
 
     public final static String XSPA_CLAIMS_NS = "urn:oasis:names:tc:xspa:1.0:claims";
 
+    public final static String XACML_NS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
     public final static String XACML_CONTEXT_NS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
     public final static String XACML_SAML_NS = "urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os";
     public final static String XACML_SAML_PROTOCOL_NS ="urn:oasis:names:tc:xacml:2.0:saml:protocol:schema:os";
@@ -46,6 +47,7 @@ public class PolicyConstants {
     public final static String SAML2_PROTOCOL_NS ="urn:oasis:names:tc:SAML:2.0:protocol";
 
     // Namespace prefixes.
+    public final static String XACML_NS_PREFIX = "xacml";
     public final static String XACML_CONTEXT_NS_PREFIX = "xacml-context";
     public final static String XACML_SAML_NS_PREFIX = "xacml-saml";
     public final static String XACML_SAML_PROTOCOL_NS_PREFIX ="xacml-samlp";

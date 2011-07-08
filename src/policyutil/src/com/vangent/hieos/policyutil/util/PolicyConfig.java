@@ -13,7 +13,7 @@
 package com.vangent.hieos.policyutil.util;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeIdType;
+import com.vangent.hieos.policyutil.util.AttributeConfig.AttributeClassType;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -22,7 +22,9 @@ import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -32,16 +34,12 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class PolicyConfig {
-    // TBD: Deal with coded value types in AttributeConfig (and throughout code).
-
     private final static Logger logger = Logger.getLogger(PolicyConfig.class);
     static private PolicyConfig _instance = null;
+
     // Configuration.
     private List<String> policyFiles = new ArrayList<String>();
-    private List<AttributeConfig> subjectAttributeConfigs = new ArrayList<AttributeConfig>();
-    private List<AttributeConfig> resourceAttributeConfigs = new ArrayList<AttributeConfig>();
-    private List<AttributeConfig> environmentAttributeConfigs = new ArrayList<AttributeConfig>();
-    private List<AttributeConfig> claimAttributeConfigs = new ArrayList<AttributeConfig>();
+    private Map<String, AttributeConfig> attributeConfigs = new HashMap<String, AttributeConfig>();
 
     /**
      *
@@ -69,25 +67,6 @@ public class PolicyConfig {
      */
     public List<String> getPolicyFiles() {
         return policyFiles;
-    }
-
-    /**
-     * 
-     * @param idType
-     * @return
-     */
-    public List<AttributeConfig> getAttributeConfigs(AttributeIdType idType) {
-        switch (idType) {
-            case SUBJECT_ID:
-                return subjectAttributeConfigs;
-            case RESOURCE_ID:
-                return resourceAttributeConfigs;
-            case ENVIRONMENT_ID:
-                return environmentAttributeConfigs;
-            case CLAIM_ID:
-            default: // Fall-through
-                return claimAttributeConfigs;
-        }
     }
 
     /**
@@ -131,7 +110,7 @@ public class PolicyConfig {
      * 
      * @return
      */
-    public static String getConfigDir() {
+    private static String getConfigDir() {
         return XConfig.getConfigLocation(ConfigItem.POLICY_DIR);
     }
 
@@ -139,12 +118,9 @@ public class PolicyConfig {
      *
      * @param rootNode
      */
-    private void buildInternalStructure(OMElement rootNode) {
+    private void buildInternalStructure(OMElement rootNode) throws PolicyException {
         this.parsePolicyFiles(rootNode);
-        this.parseSubjectAttributeConfigs(rootNode);
-        this.parseResourceAttributeConfigs(rootNode);
-        this.parseEnvironmentAttributeConfigs(rootNode);
-        this.parseRequiredClaimAttributeConfigs(rootNode);
+        this.parseAttributeConfigs(rootNode);
     }
 
     /**
@@ -162,148 +138,61 @@ public class PolicyConfig {
     }
 
     /**
-     *
-     * @param rootNode
-     */
-    private void parseSubjectAttributeConfigs(OMElement rootNode) {
-        this.subjectAttributeConfigs = this.parseAttributeConfigs(rootNode, "SubjectAttributes");
-    }
-
-    /**
-     *
-     * @param rootNode
-     */
-    private void parseResourceAttributeConfigs(OMElement rootNode) {
-        this.resourceAttributeConfigs = this.parseAttributeConfigs(rootNode, "ResourceAttributes");
-    }
-
-    /**
-     * 
-     * @param rootNode
-     */
-    private void parseEnvironmentAttributeConfigs(OMElement rootNode) {
-        this.environmentAttributeConfigs = this.parseAttributeConfigs(rootNode, "EnvironmentAttributes");
-    }
-
-    /**
-     *
-     * @param rootNode
-     */
-    private void parseRequiredClaimAttributeConfigs(OMElement rootNode) {
-        this.claimAttributeConfigs = this.parseAttributeConfigs(rootNode, "RequiredClaims");
-    }
-
-    /**
-     *
-     * @param rootNode
-     * @param elementName
-     * @return
-     */
-    private List<AttributeConfig> parseAttributeConfigs(OMElement rootNode, String elementName) {
-        OMElement attributesNode = rootNode.getFirstChildWithName(new QName(elementName));
-        return this.parseAttributeConfigs(attributesNode);
-    }
-
-    /**
      * 
      * @param rootNode
      * @return
      */
-    private List<AttributeConfig> parseAttributeConfigs(OMElement rootNode) {
-        List<OMElement> attributeNodes = XConfig.parseLevelOneNode(rootNode, "Attribute");
-        return this.parseAttributeConfigs(attributeNodes);
-    }
+    private void parseAttributeConfigs(OMElement rootNode) throws PolicyException {
+        OMElement attributesNode = rootNode.getFirstChildWithName(new QName("Attributes"));
+        List<OMElement> attributeNodes = XConfig.parseLevelOneNode(attributesNode, "Attribute");
+        attributeConfigs = new HashMap<String, AttributeConfig>();
 
-    /**
-     * 
-     * @param attributeNodes
-     * @return
-     */
-    private List<AttributeConfig> parseAttributeConfigs(List<OMElement> attributeNodes) {
-        List<AttributeConfig> configs = new ArrayList<AttributeConfig>();
         for (OMElement attributeNode : attributeNodes) {
+            // Pull out attributes.
+            String classType = attributeNode.getAttributeValue(new QName("classtype"));
+            String name = attributeNode.getAttributeValue(new QName("name"));
             String id = attributeNode.getAttributeValue(new QName("id"));
             String type = attributeNode.getAttributeValue(new QName("type"));
-            String name = attributeNode.getAttributeValue(new QName("name"));
-            AttributeConfig config = new AttributeConfig();
-            config.setId(id);
-            config.setType(type);
-            config.setName(name);
-            configs.add(config);
-        }
-        return configs;
-    }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public AttributeConfig.AttributeIdType getAttributeIdType(String id) {
-        // FIXME: Rewrite (it is likely a very small list however - problably OK).
-        boolean found = this.containsId(subjectAttributeConfigs, id);
-        if (found) {
-            return AttributeConfig.AttributeIdType.SUBJECT_ID;
-        }
-        found = this.containsId(resourceAttributeConfigs, id);
-        if (found) {
-            return AttributeConfig.AttributeIdType.RESOURCE_ID;
-        }
-        found = this.containsId(environmentAttributeConfigs, id);
-        if (found) {
-            return AttributeConfig.AttributeIdType.ENVIRONMENT_ID;
-        }
-        // Default.
-        return AttributeConfig.AttributeIdType.CLAIM_ID;
-    }
+            AttributeConfig attributeConfig = new AttributeConfig();
+            attributeConfig.setId(id);
+            attributeConfig.setName(name);
 
-    /**
-     *
-     * @param idType
-     * @param id
-     * @return
-     */
-    public AttributeConfig getAttributeConfig(AttributeIdType idType, String id) {
-        switch (idType) {
-            case SUBJECT_ID:
-                return this.getAttributeConfig(this.subjectAttributeConfigs, id);
-            case RESOURCE_ID:
-                return this.getAttributeConfig(this.resourceAttributeConfigs, id);
-            case ENVIRONMENT_ID:
-                return this.getAttributeConfig(this.environmentAttributeConfigs, id);
-            case CLAIM_ID:
-            default: // Fall-through
-                return this.getAttributeConfig(this.claimAttributeConfigs, id);
-        }
-    }
-
-    /**
-     *
-     * @param configs
-     * @param id
-     * @return
-     */
-    private AttributeConfig getAttributeConfig(List<AttributeConfig> configs, String id) {
-        for (AttributeConfig config : configs) {
-            if (config.getId().equalsIgnoreCase(id)) {
-                return config;
+            // Set type.
+            if (type.equalsIgnoreCase("string")) {
+                attributeConfig.setType(AttributeConfig.AttributeType.STRING);
+            } else if (type.equalsIgnoreCase("any")) {
+                attributeConfig.setType(AttributeConfig.AttributeType.ANY);
+            } else {
+                throw new PolicyException("Policy configuration type '" + type + "' is unknown for attribute '" + id + "'");
             }
+
+            // Set classType.
+            if (classType.equalsIgnoreCase("subject")) {
+                attributeConfig.setClassType(AttributeClassType.SUBJECT_ID);
+            } else if (classType.equalsIgnoreCase("resource")) {
+                attributeConfig.setClassType(AttributeClassType.RESOURCE_ID);
+            } else if (classType.equalsIgnoreCase("environment")) {
+                attributeConfig.setClassType(AttributeClassType.ENVIRONMENT_ID);
+            } else {
+                throw new PolicyException("Policy configuration classtype '" + classType + "' is unknown for attribute '" + id + "'");
+            }
+            attributeConfigs.put(id, attributeConfig);
         }
-        return null;
     }
 
     /**
      * 
-     * @param configs
      * @param id
      * @return
+     * @throws PolicyException
      */
-    private boolean containsId(List<AttributeConfig> configs, String id) {
-        for (AttributeConfig config : configs) {
-            if (config.getId().equalsIgnoreCase(id)) {
-                return true;
-            }
+    public AttributeConfig getAttributeConfig(String id) throws PolicyException {
+        AttributeConfig attributeConfig = attributeConfigs.get(id);
+        if (attributeConfig == null) {
+            throw new PolicyException("Policy configuration id '" + id + "' is unknown");
+        } else {
+            return attributeConfig;
         }
-        return false;
     }
 }
