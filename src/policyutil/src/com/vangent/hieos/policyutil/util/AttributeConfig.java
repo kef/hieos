@@ -57,7 +57,7 @@ public class AttributeConfig {
         /**
          *
          */
-        CODED_VALUE
+        ANY
     };
 
     /**
@@ -113,8 +113,8 @@ public class AttributeConfig {
      * @return
      */
     public AttributeType getAttributeType() {
-        if (type.equalsIgnoreCase("codedvalue")) {
-            return AttributeType.CODED_VALUE;
+        if (type.equalsIgnoreCase("any")) {
+            return AttributeType.ANY;
         }
         // Default.
         return AttributeType.STRING;
