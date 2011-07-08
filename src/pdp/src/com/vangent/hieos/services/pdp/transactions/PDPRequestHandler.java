@@ -154,6 +154,7 @@ public class PDPRequestHandler extends XBaseTransaction {
             responseCtx.encode(System.out);
             return this.createSAML2Response(requestType, responseCtx);
         } catch (Exception ex) {
+            ex.printStackTrace(System.out);
             throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
         }
     }

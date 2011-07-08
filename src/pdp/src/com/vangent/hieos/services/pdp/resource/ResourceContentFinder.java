@@ -19,16 +19,14 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.model.pip.PIPRequest;
 import com.vangent.hieos.policyutil.model.pip.PIPResponse;
 import com.vangent.hieos.policyutil.util.PolicyUtil;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import java.io.ByteArrayInputStream;
+import com.vangent.hieos.xutil.xml.XMLParser;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResourceContentType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResourceType;
-
-import org.w3c.dom.Document;
+import org.apache.axiom.om.OMElement;
 import org.w3c.dom.Element;
 
 /**
@@ -68,7 +66,7 @@ public class ResourceContentFinder {
 
         // Get the String (ConsentDirectives) to add as ResourceContent.
         PatientConsentDirectives consentDirectives = pipResponse.getPatientConsentDirectives();
-        String resourceContent = consentDirectives.getContent();
+        OMElement resourceContent = consentDirectives.getContent();
         if (resourceContent != null) {
             this.addResourceContent(resourceType, resourceContent);
         }
@@ -80,19 +78,27 @@ public class ResourceContentFinder {
      * @param resourceContent
      * @throws PolicyException
      */
-    private void addResourceContent(ResourceType resourceType, String resourceContent) throws PolicyException {
+    private void addResourceContent(ResourceType resourceType, OMElement resourceContent) throws PolicyException {
         try {
             // Convert the content into a DOM node.
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            ByteArrayInputStream bais = new ByteArrayInputStream(resourceContent.getBytes());
-            Document document = documentBuilder.parse(bais);
-            Element node = document.getDocumentElement();
+            //DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            //documentBuilderFactory.setNamespaceAware(true);
+            //DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            //ByteArrayInputStream bais = new ByteArrayInputStream(resourceContent.getBytes());
+            //Document document = documentBuilder.parse(bais);
+            //Element node = document.getDocumentElement();
+            
+            // First convert Axiom OMElement to DOM Element
+            Element resourceContentElement;
+            try {
+                resourceContentElement = XMLParser.convertOMToDOM(resourceContent);
+            } catch (XMLParserException ex) {
+                throw new PolicyException("Unable to convert OM to DOM: " + ex.getMessage());
+            }
 
             // Add node as ResourceContent to the Resource.
             ResourceContentType resourceContentType = new ResourceContentType();
-            resourceContentType.getContent().add(node);
+            resourceContentType.getContent().add(resourceContentElement);
             resourceType.setResourceContent(resourceContentType);
 
         } catch (Exception ex) {
