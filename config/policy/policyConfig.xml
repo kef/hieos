@@ -15,7 +15,7 @@
         <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
         <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
         <Attribute id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" />
+        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="codedvalue" name="PurposeForUse" />
         <Attribute id="urn:oasis:names:tc:xspa:2.0:subject:npi" type="string" />
         <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" type="string" />
     </SubjectAttributes>
@@ -33,12 +33,14 @@
 
     <!-- List of required claims -->
     <RequiredClaims>
-        <Claim id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
-        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
-        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
-        <Claim id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Claim id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" />
-        <Claim id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
+        <!-- TBD: Add datatype ... -->
+        <Attribute id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
+        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
+        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
+        <Attribute id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
+        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="codedvalue" name="PurposeForUse"/>
+        <!--<Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" />-->
+        <Attribute id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
     </RequiredClaims>
     
 </Config>
