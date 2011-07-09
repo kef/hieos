@@ -9,38 +9,36 @@
         -->
     </PolicyFiles>
 
-    <!-- List of supported Subject attributes. -->
-    <SubjectAttributes>
-        <Attribute id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
-        <Attribute id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="codedvalue" name="PurposeForUse" />
-        <Attribute id="urn:oasis:names:tc:xspa:2.0:subject:npi" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" type="string" />
-    </SubjectAttributes>
+     <Attributes>
 
-    <!-- List of supported Resource attributes. -->
-    <ResourceAttributes>
-        <Attribute id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" type="string" />
-    </ResourceAttributes>
+        <!-- Subjects -->
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="any" name="PurposeForUse" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:2.0:subject:npi" type="string" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" type="string" />
 
-    <!-- List of supported Resource attributes. -->
-    <EnvironmentAttributes>
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:environment:locality" type="string" />
-    </EnvironmentAttributes>
+        <!-- Resources -->
+        <Attribute classtype="resource" id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
+        <Attribute classtype="resource" id="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" type="string" />
+
+        <!-- Environment -->
+        <Attribute classtype="environment" id="urn:oasis:names:tc:xspa:1.0:environment:locality" type="string" />
+
+    </Attributes>
 
     <!-- List of required claims -->
+    <!-- NO LONGER USED -->
+<!--
     <RequiredClaims>
-        <!-- TBD: Add datatype ... -->
         <Attribute id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
         <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
         <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
         <Attribute id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="codedvalue" name="PurposeForUse"/>
-        <!--<Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" />-->
+        <Attribute id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="any" name="PurposeForUse"/>
         <Attribute id="urn:oasis:names:tc:xacml:1.0:resource:resource-id" type="string" />
     </RequiredClaims>
-    
+    -->
 </Config>
