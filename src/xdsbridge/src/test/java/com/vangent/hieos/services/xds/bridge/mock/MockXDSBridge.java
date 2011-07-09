@@ -49,15 +49,14 @@ public class MockXDSBridge extends XDSBridge {
      *
      * @param service_name
      * @param request
-     * @param actor
      *
      * @return
      *
      * @throws AxisFault
      */
     @Override
-    protected OMElement beginTransaction(String service_name,
-            OMElement request, ActorType actor)
+    protected void beginTransaction(String service_name,
+            OMElement request)
             throws AxisFault {
 
         String remoteIP = "127.0.0.2";
@@ -65,8 +64,6 @@ public class MockXDSBridge extends XDSBridge {
 
         log_message = xlogger.getNewMessage(remoteIP);
         log_message.setTestMessage("TEST");
-
-        return null;
     }
 
     /**

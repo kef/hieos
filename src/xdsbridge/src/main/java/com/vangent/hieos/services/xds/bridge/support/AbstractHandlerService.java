@@ -10,8 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package com.vangent.hieos.services.xds.bridge.support;
 
 import com.vangent.hieos.xutil.exception.XdsValidationException;
@@ -28,7 +26,6 @@ import org.apache.axis2.description.AxisService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-
 /**
  * Class description
  *
@@ -40,14 +37,11 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
     /** Field description */
     private static final Logger logger =
-        Logger.getLogger(AbstractHandlerService.class);
-
+            Logger.getLogger(AbstractHandlerService.class);
     /** Field description */
     private final ActorType actorType;
-
     /** Field description */
     private String handlerOperationName;
-
     /** Field description */
     private String handlerServiceName;
 
@@ -62,56 +56,6 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
         super();
         this.actorType = actorType;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     *
-     * @param serviceName
-     * @param request
-     * @param actor
-     *
-     * @return
-     *
-     * @throws AxisFault
-     */
-    @Override
-    protected OMElement beginTransaction(String serviceName, OMElement request,
-            ActorType actor)
-            throws AxisFault {
-
-        OMElement result = null;
-
-        try {
-
-            // this flow can throw NPE, let's wrap and make pretty
-            result = super.beginTransaction(serviceName, request, actor);
-
-        } catch (AxisFault e) {
-
-            throw e;
-
-        } catch (Exception e) {
-
-            // log exception
-            logger.error(e, e);
-
-            String msg =
-                "XDSBridge could not initialize to process the request. Check the XML for validity.";
-
-            result = start_up_error(request, null, getActorType(), msg);
-
-            if (result == null) {
-
-                // start_up_error ate an exception
-                // Last resort, THROW A FAULT!!!
-                throw getAxisFault(new IllegalStateException(msg));
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -167,54 +111,27 @@ public abstract class AbstractHandlerService extends XAbstractService {
      * @throws AxisFault
      */
     protected OMElement handleMessage(OMElement request,
-                                      IMessageHandler handler)
+            IMessageHandler handler)
             throws AxisFault {
-
         OMElement response = null;
-        OMElement startupError = null;
-
+        String servName = getHandlerServiceName();
+        String operName = getHandlerOperationName();
+        String beginMsg = String.format("%s::%s", servName, operName);
+        beginTransaction(beginMsg, request);
         try {
-
-            String servName = getHandlerServiceName();
-            String operName = getHandlerOperationName();
-
-            String beginMsg = String.format("%s::%s", servName, operName);
-
-            startupError = beginTransaction(beginMsg, request, getActorType());
-
-            if (startupError != null) {
-
-                response = startupError;
-
-            } else {
-
-                validate();
-
-                response = handler.run(getMessageContext(), request);
-            }
-
+            validate();
+            response = handler.run(getMessageContext(), request);
         } catch (Exception e) {
-
             logger.error(e.getMessage(), e);
-
             throw getAxisFault(e);
-
         } finally {
-
-            // if startupError is not null then
-            // endTransaction has already been called
-            if (startupError == null) {
-
-                XLogMessage lm = getLogMessage();
-
-                if (lm != null) {
-                    endTransaction(getLogMessage().isPass());
-                } else {
-                    endTransaction(false);
-                }
+            XLogMessage lm = getLogMessage();
+            if (lm != null) {
+                endTransaction(getLogMessage().isPass());
+            } else {
+                endTransaction(false);
             }
         }
-
         return response;
     }
 
@@ -272,10 +189,10 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
         String serviceName = service.getName();
         String actorName = StringUtils.trimToEmpty(
-                               (String) service.getParameterValue("ActorName"));
+                (String) service.getParameterValue("ActorName"));
 
         logger.info(String.format("%s::shutDown()::%s", serviceName,
-                                  actorName));
+                actorName));
     }
 
     /**
@@ -292,7 +209,7 @@ public abstract class AbstractHandlerService extends XAbstractService {
 
         String serviceName = service.getName();
         String actorName = StringUtils.trimToEmpty(
-                               (String) service.getParameterValue("ActorName"));
+                (String) service.getParameterValue("ActorName"));
 
         logger.info(String.format("%s::startUp()::%s", serviceName, actorName));
     }
