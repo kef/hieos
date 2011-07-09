@@ -13,9 +13,7 @@
 package com.vangent.hieos.services.pip.serviceimpl;
 
 import com.vangent.hieos.services.pip.transactions.PIPRequestHandler;
-import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
-import com.vangent.hieos.xutil.xml.XMLParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -38,23 +36,13 @@ public class PIP extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement GetConsentDirectives(OMElement request) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    "PIP:GetConsentDirectives", request, XAbstractService.ActorType.PIP);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            PIPRequestHandler handler =
-                    new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(request);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction("PIP:GetConsentDirectives", request);
+        validateWS();
+        validateNoMTOM();
+        PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+        OMElement result = handler.run(request);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
