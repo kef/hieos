@@ -27,6 +27,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+//import java.util.Vector;
 
 import javax.xml.namespace.QName;
 
@@ -49,9 +50,9 @@ import org.apache.axis2.description.AxisService;
 
 // XATNALogger
 import com.vangent.hieos.xutil.atna.XATNALogger;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.xua.client.XServiceProvider;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -61,12 +62,57 @@ import java.util.Vector;
 public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     private final static Logger logger = Logger.getLogger(XAbstractService.class);
+    /**
+     *
+     */
     protected XLogMessage log_message = null;
     private boolean excludedServiceFromXUA = false;
 
+    /**
+     *
+     */
     public enum ActorType {
 
-        REGISTRY, REPOSITORY, PIXMGR, PDS, XCPD_GW, DOCRECIPIENT, STS, PDP, PIP, XDSBRIDGE
+        /**
+         * 
+         */
+        REGISTRY,
+        /**
+         *
+         */
+        REPOSITORY,
+        /**
+         * 
+         */
+        PIXMGR,
+        /**
+         *
+         */
+        PDS,
+        /**
+         * 
+         */
+        XCPD_GW,
+        /**
+         *
+         */
+        DOCRECIPIENT,
+        /**
+         * 
+         */
+        STS,
+        /**
+         *
+         */
+        PDP,
+        /**
+         * 
+         */
+        PIP,
+        /**
+         *
+         */
+        XDSBRIDGE
     }
     private String serviceName;
     private ActorType mActor = ActorType.REGISTRY; // Default.
@@ -117,6 +163,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @return
+     * @throws AxisFault
      */
     protected MessageContext getResponseMessageContext() throws AxisFault {
         MessageContext messageContext = this.getMessageContext();
@@ -135,12 +182,12 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      * 
-     * @throws XdsWSException
+     * @throws AxisFault
      */
-    protected void validateWS() throws XdsWSException {
+    protected void validateWS() throws AxisFault {
         checkSOAP12();
         if (isAsync()) {
-            throw new XdsWSException("Asynchronous web service request not acceptable on this endpoint"
+            this.throwFault("Asynchronous web service request not acceptable on this endpoint"
                     + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
@@ -149,33 +196,33 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * This method ensures that an asynchronous request has been sent. It evaluates the message
      * context to dtermine if "ReplyTo" is non-null and is not anonymous. It also ensures that
      * "MessageID" is non-null. It throws an exception if that is not the case.
-     * @throws XdsWSException
+     * @throws AxisFault
      */
-    protected void validateAsyncWS() throws XdsWSException {
+    protected void validateAsyncWS() throws AxisFault {
         checkSOAP12();
         if (!isAsync()) {
-            throw new XdsWSException("Asynchronous web service required on this endpoint"
+            this.throwFault("Asynchronous web service required on this endpoint"
                     + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
 
     /**
      *
-     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     * @throws AxisFault
      */
-    protected void validateNoMTOM() throws XdsFormatException {
+    protected void validateNoMTOM() throws AxisFault {
         if (getMessageContext().isDoingMTOM()) {
-            throw new XdsFormatException("This transaction must use SIMPLE SOAP, MTOM found");
+            this.throwFault("This transaction must use SIMPLE SOAP, MTOM found");
         }
     }
 
     /**
      *
-     * @throws com.vangent.hieos.xutil.exception.XdsFormatException
+     * @throws AxisFault
      */
-    protected void validateMTOM() throws XdsFormatException {
+    protected void validateMTOM() throws AxisFault {
         if (!getMessageContext().isDoingMTOM()) {
-            throw new XdsFormatException("This transaction must use MTOM, SIMPLE SOAP found");
+            this.throwFault("This transaction must use MTOM, SIMPLE SOAP found");
         }
     }
 
@@ -183,26 +230,24 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param serviceName
      * @param request
-     * @param actor
-     * @return
+     * @throws AxisFault
      */
-    protected OMElement beginTransaction(String service_name, OMElement request, ActorType actor) throws AxisFault {
-
+    protected void beginTransaction(String serviceName, OMElement request) throws AxisFault {
         // This gets around a bug in Leopard (MacOS X 10.5) on Macs
-        System.setProperty("http.nonProxyHosts", "");
-        this.serviceName = service_name;
-        this.mActor = actor;
+        //System.setProperty("http.nonProxyHosts", "");
+        this.serviceName = serviceName;
+        //this.mActor = actor;
         MessageContext messageContext = this.getMessageContext();
 
         String remoteIP = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
         XLogger xlogger = XLogger.getInstance();
         log_message = xlogger.getNewMessage(remoteIP);
         log_message.setTestMessage(this.serviceName);
-        logger.info("Start " + service_name + " " + log_message.getMessageID() + " : " + remoteIP + " : " + messageContext.getTo().toString());
+        logger.info("Start " + serviceName + " " + log_message.getMessageID() + " : " + remoteIP + " : " + messageContext.getTo().toString());
 
         if (log_message.isLogEnabled()) {
             // Log basic parameters:
-            log_message.addOtherParam(Fields.service, service_name);
+            log_message.addOtherParam(Fields.service, serviceName);
             boolean is_secure = messageContext.getTo().toString().indexOf("https://") != -1;
             log_message.setSecureConnection(is_secure);
             log_message.addHTTPParam(Fields.isSecure, (is_secure) ? "true" : "false");
@@ -210,13 +255,14 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             if (request != null) {
                 log_message.addOtherParam("Request", request);
             } else {
-                log_message.addErrorParam("Error", "Cannot access request body in XBaseTransaction.beginTransaction()");
+                log_message.addErrorParam("Error", "Cannot access request body in XAbstractService");
             }
         }
 
         // Need to get out if request body is null.
         if (request == null) {
-            return start_up_error(request, null, this.mActor, "Request body is null");
+            this.throwFault("Request body is null");
+            //return start_up_error(request, null, this.mActor, "Request body is null");
         }
 
         if (log_message.isLogEnabled()) {
@@ -225,7 +271,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             for (Object o_key : transportHeaders.keySet()) {
                 String key = (String) o_key;
                 String value = (String) transportHeaders.get(key);
-                Vector<String> thdrs = new Vector<String>();
+                List<String> thdrs = new ArrayList<String>();
                 thdrs.add(key + " : " + value);
                 this.addHttp("HTTP Header", thdrs);
             }
@@ -248,7 +294,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
             log_message.addHTTPParam(Fields.endpoint, messageContext.getTo().toString());
         }
-        return this.validateXUA(request);  // Make sure we are good with XUA.
+        this.validateXUA(request);  // Make sure we are good with XUA.
     }
 
     /**
@@ -256,13 +302,12 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param request
      * @return
      */
-    private OMElement validateXUA(OMElement request) throws AxisFault {
+    private void validateXUA(OMElement request) throws AxisFault {
         if (this.excludedServiceFromXUA) {
             // This service is not participating in XUA -- most notably the
             // Secure Token Service (STS).
-            return null;
+            return;  // No checking here.
         }
-
         // Validate XUA constraints here:
         XServiceProvider xServiceProvider = new XServiceProvider(log_message);
         XServiceProvider.Status response = XServiceProvider.Status.ABORT;
@@ -270,20 +315,13 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         try {
             response = xServiceProvider.run(messageCtx);
         } catch (Exception ex) {
-            String exText = "XUA SAML Validation Exception (ignoring request) " + ex.getMessage();
-            log_message.addErrorParam("XUA:ERROR", exText);
-            throw new AxisFault("XUA:ERROR - " + exText);
+            this.throwFault("XUA:ERROR - SAML Validation Exception (ignoring request) " + ex.getMessage());
         }
         if (response != XServiceProvider.Status.CONTINUE) {
             // The assertion has not been validated, discontinue with processing SOAP request.
-            log_message.addErrorParam("XUA:ERROR", "XUA did not pass validation!");
-            throw new AxisFault("XUA:ERROR - SAML Assertion did not pass validation!");
-            //return this.endTransaction(request,
-            //        new XdsException("XUA did not pass validation!"),
-            //        this.mActor,
-            //        this.serviceName);
+            this.throwFault("XUA:ERROR - SAML Assertion did not pass validation!");
         }
-        return null;  // All is good.
+        // All is good.
     }
 
     /**
@@ -425,10 +463,10 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param title
      * @param t
      */
-    private void addHttp(String title, Vector<String> t) {
-        StringBuffer buffer = new StringBuffer();
+    private void addHttp(String title, List<String> t) {
+        StringBuilder buffer = new StringBuilder();
         for (String s : t) {
-            buffer.append(s + "  ");
+            buffer.append(s).append("  ");
         }
         log_message.addHTTPParam(title, buffer.toString());
     }
@@ -445,9 +483,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      *
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
+     * @throws AxisFault
      */
-    protected void checkSOAP12() throws XdsWSException {
+    protected void checkSOAP12() throws AxisFault {
         if (MessageContext.getCurrentMessageContext().isSOAP11()) {
             throwFault("SOAP 1.1 not supported");
         }
@@ -466,9 +504,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      *
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
+     * @throws AxisFault
      */
-    protected void checkSOAP11() throws XdsWSException {
+    protected void checkSOAP11() throws AxisFault {
 
         if (!MessageContext.getCurrentMessageContext().isSOAP11()) {
             throwFault("SOAP 1.2 not supported");
@@ -481,9 +519,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      *
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
+     * @throws AxisFault
      */
-    protected void checkSOAPAny() throws XdsWSException {
+    protected void checkSOAPAny() throws AxisFault {
         if (MessageContext.getCurrentMessageContext().isSOAP11()) {
             checkSOAP11();
         } else {
@@ -496,13 +534,13 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param msg
      * @throws com.vangent.hieos.xutil.exception.XdsWSException
      */
-    private void throwFault(String msg) throws XdsWSException {
+    private void throwFault(String msg) throws AxisFault {
         if (log_message != null) {
             log_message.addErrorParam("SOAPError", msg);
             log_message.addOtherParam("Response", "SOAPFault: " + msg);
         }
         endTransaction(false);
-        throw new XdsWSException(msg);
+        throw new AxisFault(msg);
     }
 
     /**
@@ -545,6 +583,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * This occurs in sync with session/ServiceContext creation. This method gives classes
      * a chance to do any setup work (grab resources, establish connections, etc) before
      * they are invoked by a service request.
+     * @param serviceContext 
+     * @throws AxisFault
      */
     public void init(ServiceContext serviceContext) throws AxisFault {
         //logger.info("XdsService:::init() - NOOP (not overridden)");
@@ -553,6 +593,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      * This is called when Axis2 decides that it is finished with a particular instance
      * of the back-end service class. It allows classes to clean up resources.
+     * @param serviceContext
      */
     public void destroy(ServiceContext serviceContext) {
         //logger.info("XdsService:::destroy() - NOOP (not overridden)");
@@ -561,6 +602,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
+     * @param configctx 
+     * @param service
      */
     public void startUp(ConfigurationContext configctx, AxisService service) {
         //logger.info("XdsService:::startUp() - NOOP (not overridden)");
@@ -569,6 +612,8 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      * This will be called during the system shut down time. Irrespective
      * of the service scope this method will be called
+     * @param configctx
+     * @param service
      */
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         //logger.info("XdsService:::shutDown() - NOOP (not overridden)");
