@@ -38,7 +38,6 @@ public class XDRRecipient extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDRRecipient.class);
 
-
     /**
      *
      */
@@ -53,19 +52,15 @@ public class XDRRecipient extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement XDRDocRecipientRequest(OMElement xdr) throws AxisFault {
-        try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("XDR Request Received: " + xdr.toString());
-            }
-            OMElement startup_error = beginTransaction(getXDRTransactionName(), xdr, XAbstractService.ActorType.DOCRECIPIENT);
-            if (startup_error != null) {
-                logger.info("Begin Trans Error: ");
-                return startup_error;
-            }
+        if (logger.isDebugEnabled()) {
+            logger.debug("XDR Request Received: " + xdr.toString());
+        }
+        beginTransaction(getXDRTransactionName(), xdr);
 
-            // Validate the XDR package
-            validateWS();
-            validateMTOM();
+        // Validate the XDR package
+        validateWS();
+        validateMTOM();
+        try {
             validateXDRTransaction(xdr);
 
             // Process the Request
@@ -74,8 +69,8 @@ public class XDRRecipient extends XAbstractService {
 
             endTransaction(s.getStatus());
             return result;
-        } catch (Exception e) {
-            return endTransaction(xdr, e, XAbstractService.ActorType.DOCRECIPIENT, "");
+        } catch (XdsValidationException ex) {
+            return endTransaction(xdr, ex, XAbstractService.ActorType.DOCRECIPIENT, "");
         }
     }
 
