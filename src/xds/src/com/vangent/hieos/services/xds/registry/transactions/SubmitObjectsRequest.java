@@ -83,7 +83,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param validater
      * @return
      */
-    public OMElement submitObjectsRequest(OMElement sor) {
+    public OMElement run(OMElement sor) {
         try {
             sor.build();
             SubmitObjectsRequestInternal(sor);

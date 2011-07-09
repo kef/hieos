@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
+import org.apache.axis2.AxisFault;
 
 /**
  * XDSbRepositoryAsync is a simple class that overrides a few methods in
@@ -29,7 +30,7 @@ public class XDSbRepositoryAsync extends XDSbRepository {
      * @throws XdsWSException
      */
     @Override
-    protected void validateWS() throws XdsWSException {
+    protected void validateWS() throws AxisFault {
         validateAsyncWS();
     }
 

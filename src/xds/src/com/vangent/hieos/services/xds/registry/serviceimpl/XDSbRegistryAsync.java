@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 
 /**
  * XDSbRegistryAsync is a simple class that overrides a few methods in
@@ -30,7 +31,7 @@ public class XDSbRegistryAsync extends XDSbRegistry {
      * @throws XdsWSException
      */
     @Override
-    protected void validateWS() throws XdsWSException {
+    protected void validateWS() throws AxisFault {
         validateAsyncWS();
     }
 

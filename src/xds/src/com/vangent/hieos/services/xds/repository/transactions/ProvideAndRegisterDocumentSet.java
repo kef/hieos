@@ -64,7 +64,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     /**
      *
      * @param log_message
-     * @param xds_version
      * @param messageContext
      */
     public ProvideAndRegisterDocumentSet(XLogMessage log_message, MessageContext messageContext) {
@@ -80,10 +79,9 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     /**
      *
      * @param pnr
-     * @param validater
      * @return
      */
-    public OMElement provideAndRegisterDocumentSet(OMElement pnr) {
+    public OMElement run(OMElement pnr) {
         try {
             pnr.build();
             handleProvideAndRegisterRequest(pnr);

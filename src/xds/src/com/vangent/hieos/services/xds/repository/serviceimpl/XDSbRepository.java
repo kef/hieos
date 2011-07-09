@@ -28,8 +28,14 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
+/**
+ *
+ * @author Bernie Thuman
+ */
 public class XDSbRepository extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
@@ -60,25 +66,19 @@ public class XDSbRepository extends XAbstractService {
      */
     public OMElement ProvideAndRegisterDocumentSetRequest(OMElement sor) throws AxisFault {
         long start = System.currentTimeMillis();
+        beginTransaction(getPnRTransactionName(), sor);
+        validateWS();
+        validateMTOM();
         try {
-            OMElement startup_error = beginTransaction(getPnRTransactionName(), sor, XAbstractService.ActorType.REPOSITORY);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            validateWS();
-            validateMTOM();
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
-            /*if (alternateRegistryEndpoint != null) {
-            s.setRegistryEndPoint(alternateRegistryEndpoint);
-            }*/
-            OMElement result = s.provideAndRegisterDocumentSet(sor);
+            OMElement result = s.run(sor);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
                 logger.debug("PNR TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return result;
-        } catch (Exception e) {
+        } catch (XdsValidationException e) {
             return endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
@@ -91,13 +91,10 @@ public class XDSbRepository extends XAbstractService {
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) throws AxisFault {
         long start = System.currentTimeMillis();
+        beginTransaction(getRetTransactionName(), rdsr);
+        validateWS();
+        validateMTOM();
         try {
-            OMElement startup_error = beginTransaction(getRetTransactionName(), rdsr, XAbstractService.ActorType.REPOSITORY);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            validateWS();
-            validateMTOM();
             validateRetTransaction(rdsr);
             OMNamespace ns = rdsr.getNamespace();
             String ns_uri = ns.getNamespaceURI();
@@ -107,21 +104,33 @@ public class XDSbRepository extends XAbstractService {
                 return res;
             }
             RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
-            OMElement result = s.retrieveDocumentSet(rdsr, true /* optimize */, this);
+            OMElement result = s.run(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
                 logger.debug("RETRIEVE DOC TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return result;
-        } catch (Exception e) {
-            return endTransaction(rdsr, e, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (XdsValidationException ex) {
+            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (SchemaValidationException ex) {
+            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (XdsInternalException ex) {
+            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
-    
+
+    /**
+     *
+     * @return
+     */
     protected String getPnRTransactionName() {
         return "PnR.b";
     }
 
+    /**
+     *
+     * @return
+     */
     protected String getRetTransactionName() {
         return "RET.b";
     }

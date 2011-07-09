@@ -12,6 +12,10 @@
  */
 package com.vangent.hieos.services.xds.registry.transactions;
 
+import com.vangent.hieos.policyutil.pep.PEPResponseContext;
+import com.vangent.hieos.policyutil.pep.PEPRequestContext;
+import com.vangent.hieos.policyutil.pep.PEP;
+import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -96,7 +100,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @param ahqr
      * @return
      */
-    public OMElement adhocQueryRequest(OMElement ahqr) {
+    public OMElement run(OMElement ahqr) {
         ahqr.build();
         OMNamespace ns = ahqr.getNamespace();
         String ns_uri = ns.getNamespaceURI();
@@ -163,13 +167,14 @@ public class AdhocQueryRequest extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param ahqr
      * @throws SQLException
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
      * @throws AxisFault
      * @throws XdsValidationException
+     * @throws XdsResultNotSinglePatientException
      */
     private void AdhocQueryRequestInternal(OMElement ahqr)
             throws SQLException, XdsException, XDSRegistryOutOfResourcesException, AxisFault,
@@ -183,7 +188,36 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
+/*
+                // POLICY ENFORCEMENT POINT:
+                PEPResponseContext pepResponseCtx = null;
+                try {
+                    pepResponseCtx = this.enforcePolicy();
+                    if (pepResponseCtx.isDenyDecision()) {
+                        // TBD: Check obligations ... for now, just deny
+                        response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                        return;  // Get out now!
+                    }
+                    // TBD: Need to find more ways to consolidate this logic for reuse ...
+                    // TBD: Just writing raw code now to get a sense for reuse pattern ...
+                } catch (PolicyException ex) {
+                    // We are unable to satisfy the Policy Evaluation request, so we must deny.
+                    response.add_error(MetadataSupport.XDSRegistryError, "Policy Exception: " + ex.getMessage(), this.getClass().getName(), log_message);
+                    return;  // Get out now!
+                }
+*/
+                // Run the Stored Query:
                 List<OMElement> results = this.storedQuery(ahqr);
+/*
+                // POLICY ENFORCEMENT POINT (round 2):
+                // If a LeafClass request, then make sure that results are for the same patient
+                // as in the PDP request (resource-id).
+                // Now, see if we need to filter results (based on policy):
+                if (pepResponseCtx.hasObligations()) {
+                    // TBD: Need to see what needs to be done here.
+                    // TBD: Filtering, etc.
+                }
+  */
                 if (results != null) {
                     ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
                 }
@@ -192,6 +226,18 @@ public class AdhocQueryRequest extends XBaseTransaction {
         if (!found_query) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
+    }
+
+    /**
+     * 
+     * @return
+     * @throws PolicyException
+     */
+    private PEPResponseContext enforcePolicy() throws PolicyException {
+        PEPRequestContext requestCtx = new PEPRequestContext();
+        requestCtx.setAction(this.getMessageContext().getSoapAction());
+        PEP pep = new PEP(requestCtx);
+        return pep.evaluate();
     }
 
     /**
@@ -246,8 +292,8 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @return
      */
     private boolean isMPQQuery(String queryId) {
-        return queryId.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients) ||
-                queryId.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients);
+        return queryId.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)
+                || queryId.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients);
     }
 
     /**

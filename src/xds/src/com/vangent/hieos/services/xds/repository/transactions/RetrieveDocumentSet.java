@@ -55,6 +55,11 @@ public class RetrieveDocumentSet extends XBaseTransaction {
     boolean optimize = true;
     private final static Logger logger = Logger.getLogger(RetrieveDocumentSet.class);
 
+    /**
+     *
+     * @param log_message
+     * @param messageContext
+     */
     public RetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
@@ -67,16 +72,15 @@ public class RetrieveDocumentSet extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param rds
-     * @param validater
      * @param optimize
      * @param service
      * @return
-     * @throws com.vangent.hieos.xutil.exception.SchemaValidationException
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws SchemaValidationException
+     * @throws XdsInternalException
      */
-    public OMElement retrieveDocumentSet(OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
+    public OMElement run(OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
         this.optimize = optimize;
         OMNamespace ns = rds.getNamespace();
         String ns_uri = ns.getNamespaceURI();
@@ -238,34 +242,66 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         private String contentType;
         private String name;
 
+        /**
+         *
+         * @param name
+         */
         public void setName(String name) {
             this.name = name;
         }
 
+        /**
+         *
+         * @return
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         *
+         * @param bytes
+         */
         public void setBytes(byte[] bytes) {
             this.bytes = bytes;
         }
 
+        /**
+         * 
+         * @return
+         */
         public byte[] getBytes() {
             return bytes;
         }
 
+        /**
+         *
+         * @param contentType
+         */
         public void setContentType(String contentType) {
             this.contentType = contentType;
         }
 
+        /**
+         *
+         * @return
+         */
         public String getContentType() {
             return contentType;
         }
 
+        /**
+         *
+         * @return
+         */
         public InputStream getInputStream() {
             return new ByteArrayInputStream(bytes);
         }
 
+        /**
+         *
+         * @return
+         */
         public OutputStream getOutputStream() {
             throw new UnsupportedOperationException();
         }
