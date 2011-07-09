@@ -5,9 +5,7 @@
     Created on : January 14, 2009, 4:52 PM (reworked structure on December 14, 2010).
     Author     : Bernie Thuman
     Description:
-        Master configuration file for HIEOS supported IHE profiles
-
-        This file is referenced via the URL: http://localhost:8080/xref/config/xconfig.xml
+        Master configuration file for HIEOS supported IHE profiles (and other standards).
 -->
 
 <Config>
@@ -32,18 +30,20 @@
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
+	    <Property name="ATNAsyslogHost">10.242.17.125</Property>
+        <Property name="ATNAsyslogPort">3110</Property> <!-- UDP Port 3110; TCP Port 3100-->
+	    
+        <!-- MIR SYSLOG -->
+	    <!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
+	    <!--<Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
+	    <Property name="ATNAsyslogPort">4001</Property>-->
 	
-	<!-- MIR SYSLOG -->
-	<!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
-	<!--<Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
-	<Property name="ATNAsyslogPort">4001</Property>-->
+	    <!-- MESA SYSLOG -->
+	    <!--<Property name="ATNAsyslogHost">localhost</Property>
+	    <Property name="ATNAsyslogPort">4001</Property> -->
 	
-	<!-- MESA SYSLOG -->
-	<!--<Property name="ATNAsyslogHost">localhost</Property>
-	<Property name="ATNAsyslogPort">4001</Property> -->
-	
-	<!-- NIST ATNA log -->
-	<!--NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
+	    <!-- NIST ATNA log -->
+	    <!--NIST syslog (browser URL: http://129.6.24.109:9080/SyslogBrowser/) -->
         <!--<Property name="ATNAsyslogHost">129.6.24.109</Property>
         <Property name="ATNAsyslogPort">8087</Property>-->
 
@@ -51,16 +51,13 @@
         <!--<Property name="ATNAsyslogHost">vangent1</Property>
         <Property name="ATNAsyslogPort">3110</Property>-->	<!-- UDP Port 3110; TCP Port 3100-->
 
-        <Property name="ATNAsyslogHost">10.242.17.125</Property>
-        <Property name="ATNAsyslogPort">3110</Property>
-
         <!-- SOAP configuration parameters. -->
-        <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
-        <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 120(10-connectathon) seconds -->
+        <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 10 seconds -->
+        <Property name="SOAPAsyncTimeOutInMilliseconds">10000</Property> <!-- 10 seconds -->
         <Property name="SOAPAsyncResponseHTTPPort">8091</Property>
 
         <!-- Log file parameters -->
-        <Property name="LogEnabled">true</Property>  <!-- set to false to turn logging off. -->
+        <Property name="LogEnabled">true</Property>  <!-- set to false to turn internal debug log off. -->
 
         <!-- Repository parameters (may want to move to repository configuration section). -->
         <Property name="RepoStorageClassImpl">com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorageSQL</Property>
@@ -69,22 +66,30 @@
         <ObjectReference name="pix" refname="localpix" reftype="PIXManagerType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
+        <!-- Secure Token Service -->
+        <ObjectReference name="sts" refname="localsts" reftype="SecureTokenServiceType"/>
+
+        <!-- Policy Decision Point (PDP) -->
+        <ObjectReference name="pdp" refname="localpdp" reftype="PolicyDecisionPointType"/>
+
         <!-- XDS Bridge -->
          <ObjectReference name="xdsbridge" refname="localxdsbridge" reftype="XDSBridgeType"/>
 
+        <!-- Other global properties will go here. -->
     </Object>
 
     <Object name="XUAProperties" type="XUAPropertiesType">
         <Property name="XUAEnabled">false</Property>
-        <!--<Property name="STSValidatorURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
-        <!--<Property name="STSValidatorURL">http://spirit0:8081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProviderValidator4Tivoli</Property>-->
-        <Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>
+        <!--<Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>-->
+        <Property name="STSValidatorURL">http://localhost:8127/axis2/services/STS</Property>
         <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
+        
+        <!-- Set SOAPActions to "ALL" to constrain all SOAP actions. -->
+        <Property name="SOAPActions">ALL</Property>
         <!--
         <Property name="SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
         -->
-        <Property name="SOAPActions">urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:CrossGatewayQuery</Property>
-        <!-- List of IP addresses to control - this is really here to support XUA testing
+         <!-- List of IP addresses to control - this is really here to support XUA testing
              at Connectathon; this allows other non-XUA testing (for other IP addresses) to
              continue on the same instance. The list of IP addresses below will be the
              only ones subject to SAML validation. Separate IPs with a semicolon. An empty
@@ -100,7 +105,7 @@
     <Object name="xdstest" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -108,7 +113,7 @@
     <Object name="IHENA1" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -116,7 +121,7 @@
     <Object name="IHENA2" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.2000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
     
@@ -124,7 +129,7 @@
     <Object name="IHENA3" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.3000&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
@@ -132,7 +137,7 @@
     <Object name="XCPD_Test" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.13.20.1300&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
     
@@ -140,9 +145,88 @@
     <Object name = "PAMX" type="AssigningAuthorityType">
         <UniqueId>&amp;1.3.6.1.4.1.21367.2010.1.2.315&amp;ISO</UniqueId>
         <ObjectReference refname="localregistry" reftype="DocumentRegistryType"/>  <!-- should only have one registry designated (for now). -->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
+
+    <!-- Secure Token Service (STS) (convert to ActorType?) -->
+    <Object name="localsts" type="SecureTokenServiceType">
+        <Property name="IssuerName">HIEOS STS</Property>
+
+        <!-- if IssuerAlias is not set, will use "s1as" as default value. -->
+        <Property name="IssuerAlias">wssip</Property>
+        
+        <!-- UNCOMMENT the below properties if desired and set accordingly. -->
+        
+        <!-- if IssuerPassword is not set, will use same password assocated with keyStore. -->
+        <!--
+        <Property name="IssuerPassword">changeit</Property>
+        -->
+        <!-- if TrustStore is not set, will use "javax.net.ssl.trustStore" system property. -->
+        <!-- if KeyStore is not set, will use "javax.net.ssl.keyStore" system property. -->
+        <!--
+        <Property name="TrustStore">C:/glassfish/domains/hieos-sts/config/cacerts.jks</Property>
+        <Property name="KeyStore">C:/glassfish/domains/hieos-sts/config/keystore.jks</Property>
+        -->
+        <!-- if TrustStorePassword is not set, will use "javax.net.ssl.trustStorePassword" system property. -->
+        <!-- if KeyStorePassword is not set, will use "javax.net.ssl.keyStorePassword" system property. -->
+        <!--
+        <Property name="TrustStorePassword">changeit</Property>
+        <Property name="KeyStorePassword">changeit</Property>
+        -->
+        <Property name="TimeToLiveInMilliseconds">100000</Property>
+
+        <!-- AuthenticationType (possible values) - used for token issuance:
+            UserNameToken
+            BinarySecurityToken [must supply X.509 cert]
+        -->
+        <Property name="AuthenticationType">UserNameToken</Property>
+
+        <!-- Configuration for UserNameToken w/ LDAP -->
+        <!-- Authentication Handler Configuration -->
+        <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
+        <!--<Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>-->
+
+        <!-- if using UserNameToken w/ LDAP ... -->
+        <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
+
+        <!-- ComputeSubjectNameFromClaims:
+            true - create SubjectName from XSPA subject-id claim.
+            false - extract SubjectName from X.509 Certificate when using BinarySecurityToken
+                    or from LDAP DistinguishedName when using UserNameToken
+        -->
+        <Property name="ComputeSubjectNameFromClaims">true</Property>
+
+    </Object>
+
+    <!-- Policy Decision Point (PDP) -->
+    <Actor name="localpdp" type="PolicyDecisionPointType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="Authorize" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8127/axis2/services/pdp</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8228/axis2/services/pdp</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+
+        <!-- The SOAP action to use when using the "Authorize" transaction. -->
+        <Property name="AuthorizeSOAPAction">urn:Authorize</Property>
+
+        <!-- Reference to Policy Information Point (PIP) to use. -->
+        <ObjectReference name="pip" refname="localpip" reftype="PolicyInformationPointType"/>
+    </Actor>
+
+     <!-- Policy Information Point (PIP) -->
+    <Actor name="localpip" type="PolicyInformationPointType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="GetConsentDirectives" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8127/axis2/services/pip</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8228/axis2/services/pip</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+    </Actor>
 
     <!-- XDS Bridge -->
     <Actor name="localxdsbridge" type="XDSBridgeType">
@@ -153,6 +237,8 @@
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
+        
+        <!-- FIXME: Consider getting registry configuration from "repo" configuration. -->
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
         <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
 
@@ -211,6 +297,7 @@
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
     </Actor>
 
+<!--
     <Actor name="vangent-repository-2" type="DocumentRepositoryType">
         <UniqueId>1.3.6.1.4.1.21367.13.1186</UniqueId>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
@@ -226,6 +313,7 @@
             <Endpoint secure="true"  async="true">https://localhost:8206/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
     </Actor>
+-->
 
    <!-- List of Gateways -->   
 
@@ -293,8 +381,8 @@
 
     <!-- Lists the XCPD Responding Gateways to connect to for CrossGatewayPatientDiscovery requests. -->
     <Object name="XCPDRespondingGateways" type="XCPDRespondingGatewaysType">
-        <!--<ObjectReference refname="localrg" reftype="RespondingGatewayType"/>-->
-        <ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>
+        <ObjectReference refname="localrg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="vangent2-rg" reftype="RespondingGatewayType"/>-->
     </Object>
 
     <Actor name="localrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
@@ -337,8 +425,9 @@
 
     </Actor>
 
-    <Actor name="vangent2-rg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3071</UniqueId>  <!-- Home Community ID -->
+<!--
+    <Actor name="vangent2-rg" type="RespondingGatewayType">
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3071</UniqueId>
         <Transaction name="CrossGatewayQuery" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8105/axis2/services/xcarg</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8206/axis2/services/xcarg</Endpoint>
@@ -368,6 +457,7 @@
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
 
     </Actor>
+-->
 
     <Actor name="localpix" type="PIXManagerType">
         <UniqueId>NA</UniqueId>
