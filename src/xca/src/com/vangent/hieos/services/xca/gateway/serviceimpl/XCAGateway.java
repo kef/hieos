@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
+import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
@@ -22,6 +23,7 @@ import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
+import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -69,13 +71,11 @@ public abstract class XCAGateway extends XAbstractService {
      *
      * @param request
      * @return
+     * @throws AxisFault
      */
-    public OMElement AdhocQueryRequest(OMElement request) {
+    public OMElement AdhocQueryRequest(OMElement request) throws AxisFault {
+        beginTransaction(getQueryTransactionName(), request);
         try {
-            OMElement startup_error = beginTransaction(getQueryTransactionName(), request, XAbstractService.ActorType.REGISTRY);
-            if (startup_error != null) {
-                return startup_error;
-            }
             OMElement ahq = MetadataSupport.firstChildWithLocalName(request, "AdhocQuery");
             if (ahq == null) {
                 endTransaction(false);
@@ -84,16 +84,18 @@ public abstract class XCAGateway extends XAbstractService {
             validateWS();
             validateNoMTOM();
             validateQueryTransaction(request);
-
             // Delegate all the hard work to the XCAAdhocQueryRequest class (follows same NIST patterns).
             XCAAdhocQueryRequest transaction = this.getAdHocQueryTransaction();
-
             // Now, do some work!
             OMElement result = transaction.run(request);
             endTransaction(transaction.getStatus());
             return result;
-        } catch (Exception e) {
-            return endTransaction(request, e, XAbstractService.ActorType.REGISTRY, "");
+        } catch (SchemaValidationException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
+        } catch (XdsInternalException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
+        } catch (XdsValidationException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
         }
     }
 
@@ -101,34 +103,32 @@ public abstract class XCAGateway extends XAbstractService {
      *
      * @param request
      * @return
+     * @throws AxisFault 
      */
-    public OMElement RetrieveDocumentSetRequest(OMElement request) {
+    public OMElement RetrieveDocumentSetRequest(OMElement request) throws AxisFault {
+        beginTransaction(getRetTransactionName(), request);
+        validateWS();
+        validateMTOM();
         try {
-            OMElement startup_error = beginTransaction(getRetTransactionName(), request, XAbstractService.ActorType.REPOSITORY);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            // Do some preliminary validation.
-            validateWS();
-            validateMTOM();
             validateRetrieveTransaction(request);
-
             // Delegate all the hard work to the XCARetrieveDocumentSet class (follows same NIST patterns).
             XCARetrieveDocumentSet transaction = this.getRetrieveDocumentSet();
-
-            // Now, do the work.
             OMElement result = transaction.run(request);
             endTransaction(transaction.getStatus());
             return result;
-        } catch (Exception e) {
-            return endTransaction(request, e, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (SchemaValidationException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (XdsInternalException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
+        } catch (XdsValidationException ex) {
+            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
         }
     }
 
-   /**
-    *
-    * @param request
-    * @throws XdsValidationException
+    /**
+     *
+     * @param request
+     * @throws XdsValidationException
      */
     protected void validateQueryTransaction(OMElement request)
             throws XdsValidationException {
