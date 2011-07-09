@@ -34,23 +34,14 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement CrossGatewayPatientDiscovery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.XCPD_GW);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
-            OMElement result = handler.run(PRPA_IN201305UV02_Message, 
-                    XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction(this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message);
+        validateWS();
+        validateNoMTOM();
+        XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+        OMElement result = handler.run(PRPA_IN201305UV02_Message,
+                XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
@@ -59,23 +50,14 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement PatientLocationQuery(OMElement plq) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    this.getTransactionName("PLQ (RG)"), plq, XAbstractService.ActorType.XCPD_GW);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
-            OMElement result =
-                    handler.run(plq,
-                    XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction(this.getTransactionName("PLQ (RG)"), plq);
+        validateWS();
+        validateNoMTOM();
+        XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+        OMElement result =
+                handler.run(plq,
+                XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
+        endTransaction(handler.getStatus());
+        return result;
     }
 }

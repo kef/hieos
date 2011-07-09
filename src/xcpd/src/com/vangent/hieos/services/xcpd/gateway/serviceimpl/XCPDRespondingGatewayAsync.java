@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.XdsWSException;
+import org.apache.axis2.AxisFault;
 
 import org.apache.log4j.Logger;
 
@@ -32,7 +33,7 @@ public class XCPDRespondingGatewayAsync extends XCPDRespondingGateway {
      * @throws XdsWSException
      */
     @Override
-    protected void validateWS() throws XdsWSException {
+    protected void validateWS() throws AxisFault {
         validateAsyncWS();
     }
 }

@@ -14,8 +14,6 @@ package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDInitiatingGatewayRequestHandler;
 
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -36,24 +34,15 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message, XAbstractService.ActorType.XCPD_GW);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
-            OMElement result = handler.run(
-                    PRPA_IN201305UV02_Message,
-                    XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction(this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message);
+        validateWS();
+        validateNoMTOM();
+        XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        OMElement result = handler.run(
+                PRPA_IN201305UV02_Message,
+                XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
@@ -63,24 +52,15 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message, XAbstractService.ActorType.XCPD_GW);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
-            OMElement result = handler.run(
-                    PRPA_IN201309UV02_Message,
-                    XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction(this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message);
+        validateWS();
+        validateNoMTOM();
+        XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        OMElement result = handler.run(
+                PRPA_IN201309UV02_Message,
+                XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
@@ -90,22 +70,14 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction(
-                    this.getTransactionName("PIDFEED.Add (IG)"), PRPA_IN201301UV02_Message, XAbstractService.ActorType.XCPD_GW);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
-            OMElement result = handler.run(
-                    PRPA_IN201301UV02_Message,
-                    XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction(this.getTransactionName("PIDFEED.Add (IG)"), PRPA_IN201301UV02_Message);
+        validateWS();
+        validateNoMTOM();
+        XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        OMElement result = handler.run(
+                PRPA_IN201301UV02_Message,
+                XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
+        endTransaction(handler.getStatus());
+        return result;
     }
 }
