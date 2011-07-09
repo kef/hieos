@@ -36,25 +36,13 @@ public class PDP extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement Authorize(OMElement authorizeRequest) throws AxisFault {
-        try {
-            //this.setExcludedServiceFromXUA(true);
-            OMElement startup_error = beginTransaction(
-                    "PDP:Authorize", authorizeRequest, XAbstractService.ActorType.PDP);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            PDPRequestHandler handler =
-                    new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(authorizeRequest);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw getAxisFault(ex);
-        }
+        beginTransaction("PDP:Authorize", authorizeRequest);
+        validateWS();
+        validateNoMTOM();
+        PDPRequestHandler handler = new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+        OMElement result = handler.run(authorizeRequest);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
