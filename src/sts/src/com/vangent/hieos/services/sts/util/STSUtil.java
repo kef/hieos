@@ -36,6 +36,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.ConfigurationException;
@@ -55,6 +56,18 @@ import org.w3c.dom.Element;
  */
 public class STSUtil {
 
+    private final static Logger logger = Logger.getLogger(STSUtil.class);
+
+    static {
+        try {
+            // OpenSAML 2.3
+            logger.info("Initializing OpenSAML library");
+            DefaultBootstrap.bootstrap();
+            logger.info("Initializing OpenSAML library - Success!");
+        } catch (ConfigurationException ex) {
+            logger.fatal("Failure initializing OpenSAML: " + ex.getMessage());
+        }
+    }
     private static XMLObjectBuilderFactory _xmlObjectBuilderFactory = null;
 
     /**
@@ -82,12 +95,12 @@ public class STSUtil {
      */
     public synchronized static XMLObjectBuilderFactory getXMLObjectBuilderFactory() throws STSException {
         if (_xmlObjectBuilderFactory == null) {
+            /*
             try {
-                // OpenSAML 2.3
                 DefaultBootstrap.bootstrap();
             } catch (ConfigurationException ex) {
                 throw new STSException("Failure initializing OpenSAML: " + ex.getMessage());
-            }
+            }*/
             _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
         }
         return _xmlObjectBuilderFactory;

@@ -61,13 +61,13 @@
                <wsa:Address>http://www.vangent.com/X-ServiceProvider-HIEOS</wsa:Address>
             </wsa:EndpointReference>
          </wsp:AppliesTo>
-         <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/" >
-           <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+         <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>Joe Smith</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>
-		 <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3"/>
+                  <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3"/>
                </xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
@@ -397,4 +397,4 @@ lZmUAuNVPCTBoNuWBX/tvvAw3a3jl+DXB+Fn2JbRpoUdvkgAWCAJ6hrKgA==</ds:X509Certificate
          <!--<wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey</wst:KeyType>-->
       </wst:RequestSecurityToken>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/><con:domain/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
+</soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/><con:domain/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties><con:property><con:name>saml_token</con:name></con:property></con:properties><con:wssContainer/></con:soapui-project>

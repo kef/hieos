@@ -46,24 +46,14 @@ public class STS extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement RequestSecurityToken(OMElement request) throws AxisFault {
-        try {
-            this.setExcludedServiceFromXUA(true);  // Do not use XUA here!
-            OMElement startup_error = beginTransaction(
-                    this.getRequestType(request), request, XAbstractService.ActorType.STS);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            STSRequestHandler handler =
-                    new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(request);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        this.setExcludedServiceFromXUA(true);  // Do not use XUA here!
+        beginTransaction(this.getRequestType(request), request);
+        validateWS();
+        validateNoMTOM();
+        STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+        OMElement result = handler.run(request);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
