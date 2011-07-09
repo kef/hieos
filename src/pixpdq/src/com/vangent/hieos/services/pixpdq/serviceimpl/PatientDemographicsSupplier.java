@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -32,22 +31,12 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
      * @return
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction("FindCandidatesQuery (PDQV3)", request, XAbstractService.ActorType.PDS);
-            if (startup_error != null) {
-                // TBD: FIXUP (XUA should be returning a SOAP fault!)
-                return startup_error;
-            }
+            beginTransaction("FindCandidatesQuery (PDQV3)", request);
             validateWS();
             validateNoMTOM();
             PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
-            OMElement result =
-                    handler.run(request,
-                    PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+            OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(handler.getStatus());
             return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
     }
 }

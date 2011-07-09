@@ -202,7 +202,7 @@
          </controlActProcess>
       </PRPA_IN201309UV02>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201309UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordAdded" name="PatientRegistryRecordAdded" bindingOperationName="PatientRegistryRecordAdded" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201309UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordAdded" name="PatientRegistryRecordAdded" bindingOperationName="PatientRegistryRecordAdded" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://208.81.185.143:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201301UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
@@ -232,15 +232,15 @@
                   <statusCode code="active"/>
                   <subject1 typeCode="SBJ">
                      <patient classCode="PAT">
-                        <id root="1.3.6.1.4.1.21367.2005.1.1" extension="Andrew_1"/>
+                        <id root="1.3.6.1.4.1.21367.2005.1.1" extension="Erick_LocalID"/>
                         <statusCode code="active"/>
                         <patientPerson>
                            <name>
-                              <given>Andrew</given>
+                              <given>Erick</given>
                               <!--<given>Henry</given>-->
-                              <family>Berry</family>
+                              <family>Peters</family>
                            </name>
-                           <administrativeGenderCode code="F"/>
+                           <administrativeGenderCode code="M"/>
                            <birthTime value="19640610"/>
                            <addr>
                               <streetAddressLine>321 RIVER ROAD</streetAddressLine>

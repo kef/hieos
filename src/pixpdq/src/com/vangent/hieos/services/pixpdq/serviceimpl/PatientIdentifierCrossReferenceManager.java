@@ -12,10 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
-import com.vangent.hieos.services.pixpdq.transactions.PIXPDSRequestHandler;
 import com.vangent.hieos.services.pixpdq.transactions.PIXRequestHandler;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -34,25 +31,13 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction("GetIdentifiersQuery (PIXV3)", request, XAbstractService.ActorType.PIXMGR);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-            OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (XdsFormatException ex) {
-            log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            //log_message.setPass(false);
-            endTransaction(false);
-            throw new AxisFault(ex.getMessage());
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction("GetIdentifiersQuery (PIXV3)", request);
+        validateWS();
+        validateNoMTOM();
+        PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+        OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+        endTransaction(handler.getStatus());
+        return result;
     }
 
     /**
@@ -61,19 +46,12 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
-        try {
-            OMElement startup_error = beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message, XAbstractService.ActorType.PIXMGR);
-            if (startup_error != null) {
-                return startup_error;
-            }
-            validateWS();
-            validateNoMTOM();
-            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-            OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
-            endTransaction(handler.getStatus());
-            return result;
-        } catch (Exception ex) {
-            throw getAxisFault(ex);
-        }
+        beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message);
+        validateWS();
+        validateNoMTOM();
+        PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+        OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
+        endTransaction(handler.getStatus());
+        return result;
     }
 }

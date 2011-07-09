@@ -87,7 +87,7 @@
       <http:address location="http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpEndpoint/"/>
     </wsdl:port>
   </wsdl:service>
-</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8126/axis2/services/pds</con:endpoint><con:endpoint>http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpSoap12Endpoint/</con:endpoint><con:endpoint>http://208.81.185.143:8080/axis2/services/pds</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:PatientRegistryFindCandidatesQuery" name="PatientRegistryFindCandidatesQuery" bindingOperationName="PatientRegistryFindCandidatesQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8126/axis2/services/pds</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8126/axis2/services/pds</con:endpoint><con:endpoint>http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpSoap12Endpoint/</con:endpoint><con:endpoint>http://208.81.185.143:8080/axis2/services/pds</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:PatientRegistryFindCandidatesQuery" name="PatientRegistryFindCandidatesQuery" bindingOperationName="PatientRegistryFindCandidatesQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://208.81.185.143:8080/axis2/services/pds</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201305UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
@@ -123,7 +123,7 @@
                <parameterList>
 
                   <livingSubjectAdministrativeGender>
-                     <value code="F"/>
+                     <value code="M"/>
                      <semanticsText>LivingSubject.administrativeGender</semanticsText>
                   </livingSubjectAdministrativeGender>
 		  <livingSubjectBirthTime>
@@ -150,8 +150,8 @@
  
                   <livingSubjectName>
                      <value>
-                        <given>Jordan</given>
-                        <family>Jackson</family>
+                        <given>Erick</given>
+                        <family>Peters</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
