@@ -1,0 +1,10 @@
+0. Install sts.aar into targeted Glassfish domain (referenced as <glassfish_domain_root> here).  You should see
+   a failure in the system log (look for "Initializing OpenSAML library") when exercising STS web service interface.
+1. Copy <hieos_root>\hieos\lib\opensaml\endorsed\*.* to <glassfish_domain_root>\lib\endorsed\*.*
+2. Configure Glassfish
+   a) go to Application Server->JVM Settings->JVM Options
+   b) Set "java.endorsed.dirs" to the following:
+      -Djava.endorsed.dirs=${com.sun.aas.installRoot}/lib/endorsed${path.separator}${com.sun.aas.instanceRoot}/lib/endorsed
+3) Restart Glassfish
+4) Failure in Step 0 above should go away when exercising STS web service interface. In the system
+   log, you should see "Initializing OpenSAML library - Success!"
