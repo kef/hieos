@@ -55,7 +55,6 @@ public class STS extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement RequestSecurityToken(OMElement request) throws AxisFault {
-        this.setExcludedServiceFromXUA(true);  // Do not use XUA here!
         beginTransaction(this.getRequestType(request), request);
         validateWS();
         validateNoMTOM();
