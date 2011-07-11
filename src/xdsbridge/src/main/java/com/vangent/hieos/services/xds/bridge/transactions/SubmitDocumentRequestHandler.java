@@ -11,9 +11,10 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.transactions;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.services.xds.bridge.activity.AddPatientIdActivity;
 import com.vangent.hieos.services.xds.bridge.activity.CDAToXDSMapperActivity;
@@ -36,18 +37,13 @@ import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
-import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * Class description
@@ -56,8 +52,7 @@ import java.util.List;
  * @version        v1.0, 2011-06-09
  * @author         Jim Horner
  */
-public class SubmitDocumentRequestHandler extends XBaseTransaction
-        implements IMessageHandler {
+public class SubmitDocumentRequestHandler extends XBaseTransaction {
 
     /** Field description */
     private static final Logger logger =
@@ -128,6 +123,25 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
      * Method description
      *
      *
+     * @return
+     */
+    protected XLogMessage getLogMessage() {
+        return this.log_message;
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public boolean getStatus() {
+        return getLogMessage().isPass();
+    }
+
+    /**
+     * Method description
+     *
+     *
      * @param sdrResponse
      *
      * @return
@@ -150,11 +164,11 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction
      *
      * @return
      *
-     * @throws Exception
+     *
+     * @throws AxisFault
      */
-    @Override
     public OMElement run(MessageContext messageContext, OMElement request)
-            throws Exception {
+            throws AxisFault {
 
         SubmitDocumentResponse sdrResponse =
             new SubmitDocumentResponse(Status.Failure);

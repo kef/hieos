@@ -15,12 +15,9 @@ package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.support.AbstractHandlerService;
-import com.vangent.hieos.services.xds.bridge.support.IMessageHandler;
 import com.vangent.hieos.services.xds.bridge.transactions
     .SubmitDocumentRequestHandler;
-import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-import com.vangent.hieos.xutil.exception.XdsValidationException;
+import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -37,7 +34,7 @@ import org.apache.log4j.Logger;
  * @version        v1.0, 2011-06-09
  * @author         Jim Horner
  */
-public class XDSBridge extends AbstractHandlerService {
+public class XDSBridge extends XAbstractService {
 
     /** Field description */
     private static final Logger logger = Logger.getLogger(XDSBridge.class);
@@ -51,8 +48,9 @@ public class XDSBridge extends AbstractHandlerService {
      */
     public XDSBridge() {
 
-        // FIXME: This is not correct ...
-        super(ActorType.DOCRECIPIENT);
+        super();
+
+        // ActorType.XDSBRIDGE
     }
 
     /**
@@ -73,7 +71,30 @@ public class XDSBridge extends AbstractHandlerService {
         // This method is named uncoventionally for the benefit of wsdl parsers
         // Axis2 will publish a "HIEOS convention" operation name
 
-        return submitDocumentRequest(request);
+        beginTransaction("xdsbridge:SubmitDocumentRequest", request);
+        validateWS();
+        validateMTOM();
+
+        SubmitDocumentRequestHandler handler =
+            new SubmitDocumentRequestHandler(this.log_message, serviceContext);
+
+        OMElement result = handler.run(getMessageContext(), request);
+
+        endTransaction(handler.getStatus());
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    @Override
+    protected XConfigActor getConfigActor() {
+
+        return serviceContext.getXdsBridgeConfig().getXdsBridgeActor();
     }
 
     /**
@@ -131,10 +152,10 @@ public class XDSBridge extends AbstractHandlerService {
                     "XDSBridge [%s] config is not found.", bridgeName));
         }
 
-        // FIXME: grab repository from xdsbridge actor
+        // grab repository from xdsbridge actor
         String repoName = "repo";
         XConfigActor repositoryActor =
-            (XConfigActor) homeCommunity.getXConfigObjectWithName("repo",
+            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName("repo",
                 XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
 
         if (repositoryActor == null) {
@@ -171,73 +192,7 @@ public class XDSBridge extends AbstractHandlerService {
         // create wiring
 
         // set context for this service
-        XDSBridge.serviceContext = new XDSBridgeServiceContext(
-                registryActor, repositoryActor, bridgeConfig);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param request
-     *
-     * @return
-     *
-     * @throws AxisFault
-     */
-    private OMElement submitDocumentRequest(OMElement request)
-            throws AxisFault {
-
-        OMElement response = null;
-
-        if (logger.isDebugEnabled()) {
-
-            logger.debug("-=> Recevied");
-            logger.debug(DebugUtils.toPrettyString(request));
-        }
-
-        IMessageHandler handler =
-            new SubmitDocumentRequestHandler(getLogMessage(), serviceContext);
-
-        response = handleMessage(request, handler);
-
-        if (logger.isDebugEnabled()) {
-
-            logger.debug("-=> Response");
-            logger.debug(DebugUtils.toPrettyString(response));
-        }
-
-        return response;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     *
-     * @throws XdsValidationException
-     */
-    @Override
-    protected void validate() throws XdsValidationException {
-
-        try {
-
-            validateWS();
-            validateMTOM();
-
-        } catch (Exception e) {
-
-            // log error
-            logger.error("Failed validation", e);
-
-            // rethrow
-            throw new XdsValidationException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    protected XConfigActor getConfigActor() {
-        // FIXME: Look @ other services for example
-        throw new UnsupportedOperationException("Not supported yet.");
+        XDSBridge.serviceContext = new XDSBridgeServiceContext(registryActor,
+                repositoryActor, bridgeConfig);
     }
 }

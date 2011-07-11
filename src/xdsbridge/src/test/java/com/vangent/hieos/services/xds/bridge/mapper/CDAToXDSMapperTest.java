@@ -79,6 +79,13 @@ public class CDAToXDSMapperTest {
 
         Document doc = new Document();
 
+        CodedValue type = new CodedValue();
+        type.setCode("51855-5");
+        type.setCodeSystem("2.16.840.1.113883.6.1");
+        type.setCodeSystemName("LOINC");
+
+        doc.setType(type);
+
         CodedValue format = new CodedValue();
 
         format.setCode("urn:ihe:pcc:xds-ms:2007");
@@ -142,6 +149,14 @@ public class CDAToXDSMapperTest {
         assertTrue(StringUtils.isNotBlank(xml));
 
         Document doc = new Document();
+
+        CodedValue type = new CodedValue();
+        type.setCode("51855-5");
+        type.setCodeSystem("2.16.840.1.113883.6.1");
+        type.setCodeSystemName("LOINC");
+
+        doc.setType(type);
+
         CodedValue format = new CodedValue();
 
         format.setCode("urn:ihe:pcc:xds-ms:2007");
