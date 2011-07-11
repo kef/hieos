@@ -148,7 +148,7 @@
 
         <Transaction name="ValidateToken" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8127/axis2/services/sts</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8227/axis2/services/sts</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8228/axis2/services/sts</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
