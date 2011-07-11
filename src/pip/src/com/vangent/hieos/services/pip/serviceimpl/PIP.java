@@ -14,6 +14,9 @@ package com.vangent.hieos.services.pip.serviceimpl;
 
 import com.vangent.hieos.services.pip.transactions.PIPRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -28,6 +31,12 @@ import org.apache.log4j.Logger;
 public class PIP extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(PIP.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -41,6 +50,7 @@ public class PIP extends XAbstractService {
         validateNoMTOM();
         PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
         OMElement result = handler.run(request);
+        handler.setConfigActor(config);
         endTransaction(handler.getStatus());
         return result;
     }
@@ -52,6 +62,14 @@ public class PIP extends XAbstractService {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("PIP::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pip", XConfig.PolicyInformationPoint_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
     }
 
     /**
