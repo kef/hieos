@@ -87,7 +87,7 @@
     </Object>
 
     <Object name="XUAProperties" type="XUAPropertiesType">
-        <Property name="XUAEnabled">true</Property>
+        <Property name="XUAEnabled">false</Property>
         <!--<Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>-->
         <Property name="STSValidatorURL">http://localhost:8127/axis2/services/STS</Property>
         <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
