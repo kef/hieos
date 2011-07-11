@@ -210,7 +210,7 @@
         -->
         <Property name="ComputeSubjectNameFromClaims">true</Property>
 
-    </Object>
+    </Actor>
 
     <!-- Policy Decision Point (PDP) -->
     <Actor name="localpdp" type="PolicyDecisionPointType">
