@@ -27,6 +27,8 @@ public class XConfigActor extends XConfigObject {
     private List<XConfigTransaction> transactions = new ArrayList<XConfigTransaction>();
     private boolean xuaEnabled = false;
     private List<String> xuaEnabledSOAPActions = new ArrayList<String>();
+    private boolean policyEnabled = false;
+    private List<String> policyEnabledSOAPActions = new ArrayList<String>();
 
     /**
      * Get the value of transactions
@@ -68,19 +70,46 @@ public class XConfigActor extends XConfigObject {
 
     /**
      *
+     * @return
+     */
+    public boolean isPolicyEnabled() {
+        return this.policyEnabled;
+    }
+
+    /**
+     *
      * @param soapAction
      * @return
      */
     public boolean isSOAPActionXUAEnabled(String soapAction) {
-        if (xuaEnabledSOAPActions.isEmpty()) {
+        return this.isSOAPActionEnabled(xuaEnabledSOAPActions, soapAction);
+    }
+
+    /**
+     *
+     * @param soapAction
+     * @return
+     */
+    public boolean isSOAPActionPolicyEnabled(String soapAction) {
+        return this.isSOAPActionEnabled(policyEnabledSOAPActions, soapAction);
+    }
+
+    /**
+     *
+     * @param actions
+     * @param soapAction
+     * @return
+     */
+    private boolean isSOAPActionEnabled(List<String> actions, String soapAction) {
+        if (actions.isEmpty()) {
             // Always constrain if the SOAP action list is empty.
             return true;
         }
-        if (xuaEnabledSOAPActions.contains("all")) {
+        if (actions.contains("all")) {
             // Constrain all SOAP actions.
             return true;
         }
-        return xuaEnabledSOAPActions.contains(soapAction.toLowerCase());
+        return actions.contains(soapAction.toLowerCase());
     }
 
     /**
@@ -97,6 +126,9 @@ public class XConfigActor extends XConfigObject {
 
         // Parse XUA properties.
         setXUAProperties();
+
+        // Parse Policy properties.
+        setPolicyProperties();
     }
 
     /**
@@ -116,6 +148,27 @@ public class XConfigActor extends XConfigObject {
         // Parse XUAEnabledSOAPActions
         if (xuaEnabled == true) {
             this.parseList("XUAEnabledSOAPActions", this.xuaEnabledSOAPActions);
+        }
+    }
+
+    /**
+     *
+     */
+    private void setPolicyProperties() {
+        // FIXME: Should we make sure that each SOAP action in the PolicyEnabledSOAPActions
+        // is in the XUAEnabledSOAPActions list?
+
+        // Set Policy Enabled flag.
+        String policyEnabledText = this.getProperty("PolicyEnabled");
+        if (policyEnabledText == null) {
+            policyEnabled = false;  // Default.
+        } else {
+            policyEnabled = this.getPropertyAsBoolean("PolicyEnabled");
+        }
+
+        // Parse PolicyEnabledSOAPActions
+        if (policyEnabled == true) {
+            this.parseList("PolicyEnabledSOAPActions", this.policyEnabledSOAPActions);
         }
     }
 
