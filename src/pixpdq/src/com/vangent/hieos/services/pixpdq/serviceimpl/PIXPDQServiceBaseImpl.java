@@ -16,44 +16,13 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 import org.apache.log4j.Logger;
 
-// Axis2 LifeCycle support.
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
-
 /**
  *
  * @author Bernie Thuman
  */
-public class PIXPDQServiceBaseImpl extends XAbstractService {
+abstract class PIXPDQServiceBaseImpl extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(PIXPDQServiceBaseImpl.class);
 
-    // BHT (ADDED Axis2 LifeCycle methods):
-    /**
-     * This will be called during the deployment time of the service.
-     * Irrespective of the service scope this method will be called
-     */
-    @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("PIXPDQ::startUp(): " + service.getParameterValue("ActorName"));
-        /*if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
-        this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
-        } else {
-        this.ATNAlogStart(XATNALogger.ActorType.RESPONDING_GATEWAY);
-        }*/
-    }
-
-    /**
-     * This will be called during the system shut down time. Irrespective
-     * of the service scope this method will be called
-     */
-    @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("PIXPDQ::shutDown(): " + service.getParameterValue("ActorName"));
-        /*if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
-        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
-        } else {
-        this.ATNAlogStop(XATNALogger.ActorType.RESPONDING_GATEWAY);
-        }*/
-    }
+   // FIXME: Remove class.
 }

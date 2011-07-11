@@ -13,8 +13,13 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,6 +29,12 @@ import org.apache.log4j.Logger;
 public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
 
     private final static Logger logger = Logger.getLogger(PatientDemographicsSupplier.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -31,12 +42,45 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
      * @return
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
-            beginTransaction("FindCandidatesQuery (PDQV3)", request);
-            validateWS();
-            validateNoMTOM();
-            PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
-            OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-            endTransaction(handler.getStatus());
-            return result;
+        beginTransaction("FindCandidatesQuery (PDQV3)", request);
+        validateWS();
+        validateNoMTOM();
+        PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
+        handler.setConfigActor(config);
+        OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+        endTransaction(handler.getStatus());
+        return result;
+    }
+
+    // BHT (ADDED Axis2 LifeCycle methods):
+    /**
+     * This will be called during the deployment time of the service.
+     * Irrespective of the service scope this method will be called
+     */
+    @Override
+    public void startUp(ConfigurationContext configctx, AxisService service) {
+        logger.info("PatientDemographicsSupplier::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pds", XConfig.PDS_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
+    }
+
+    /**
+     * This will be called during the system shut down time. Irrespective
+     * of the service scope this method will be called
+     */
+    @Override
+    public void shutDown(ConfigurationContext configctx, AxisService service) {
+        logger.info("PatientDemographicsSupplier::shutDown()");
+        /*if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
+        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
+        } else {
+        this.ATNAlogStop(XATNALogger.ActorType.RESPONDING_GATEWAY);
+        }*/
     }
 }

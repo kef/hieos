@@ -187,13 +187,4 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         SubjectSearchCriteria subjectSearchCriteria = builder.buildSubjectSearchCriteria(request);
         return subjectSearchCriteria;
     }
-
-    /**
-     * 
-     * @return
-     */
-    @Override
-    protected XConfigActor getConfig() {
-        return this.getConfig("pix", XConfig.PIX_MANAGER_TYPE);
-    }
 }

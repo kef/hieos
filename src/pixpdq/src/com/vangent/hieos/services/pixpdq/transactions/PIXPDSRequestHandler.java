@@ -22,12 +22,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 
-import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import org.apache.axis2.AxisFault;
@@ -40,7 +37,6 @@ import org.apache.log4j.Logger;
 public abstract class PIXPDSRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PIXPDSRequestHandler.class);
-    private boolean status = true;
 
     /**
      *
@@ -69,12 +65,6 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
 
     /**
      * 
-     * @return
-     */
-    protected abstract XConfigActor getConfig();
-
-    /**
-     * 
      * @param message
      * @throws AxisFault
      */
@@ -94,7 +84,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      */
     protected DeviceInfo getDeviceInfo() {
         DeviceInfo deviceInfo = new DeviceInfo();
-        XConfigObject config = this.getConfig();
+        XConfigObject config = this.getConfigActor();
         String deviceId = config.getProperty("DeviceId");
         String deviceName = config.getProperty("DeviceName");
         //String homeCommunityId = config.getUniqueId();
@@ -102,24 +92,6 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
         deviceInfo.setName(deviceName);
         //deviceInfo.setHomeCommunityId(homeCommunityId);
         return deviceInfo;
-    }
-
-    /**
-     *
-     * @param name
-     * @param type
-     * @return
-     */
-    protected XConfigActor getConfig(String name, String type) {
-        XConfigActor configActor = null;
-        try {
-            XConfig xconf = XConfig.getInstance();
-            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-            configActor = (XConfigActor) homeCommunityConfig.getXConfigObjectWithName(name, type);
-        } catch (XConfigException ex) {
-            // TBD: Do something.
-        }
-        return configActor;
     }
 
     /**

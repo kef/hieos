@@ -19,7 +19,6 @@
         <description>Patient Identifier Cross Reference Manager Interface</description>
         <parameter name="ServiceTCCL">composite</parameter>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager</parameter>
-        <parameter name="ActorName">PatientIdentifierCrossReferenceManager</parameter>
         <operation name="PatientRegistryGetIdentifiersQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201309UV02</actionMapping>
@@ -35,7 +34,6 @@
         <description>Patient Demographics Supplier Interface</description>
         <parameter name="ServiceTCCL">composite</parameter>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier</parameter>
-        <parameter name="ActorName">PatientDemographicsSupplier</parameter>
         <operation name="PatientRegistryFindCandidatesQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02</actionMapping>

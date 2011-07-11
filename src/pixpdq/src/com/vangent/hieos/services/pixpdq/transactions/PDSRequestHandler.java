@@ -22,8 +22,6 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
@@ -121,14 +119,5 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    @Override
-    protected XConfigActor getConfig() {
-        return this.getConfig("pds", XConfig.PDS_TYPE);
     }
 }
