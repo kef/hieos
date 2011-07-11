@@ -13,10 +13,16 @@
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDRespondingGatewayRequestHandler;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -27,6 +33,12 @@ import org.apache.log4j.Logger;
 public class XCPDRespondingGateway extends XCPDGateway {
 
     private final static Logger logger = Logger.getLogger(XCPDRespondingGateway.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -38,6 +50,7 @@ public class XCPDRespondingGateway extends XCPDGateway {
         validateWS();
         validateNoMTOM();
         XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+        handler.setConfigActor(config);
         OMElement result = handler.run(PRPA_IN201305UV02_Message,
                 XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
         endTransaction(handler.getStatus());
@@ -54,10 +67,40 @@ public class XCPDRespondingGateway extends XCPDGateway {
         validateWS();
         validateNoMTOM();
         XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+        handler.setConfigActor(config);
         OMElement result =
                 handler.run(plq,
                 XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
         endTransaction(handler.getStatus());
         return result;
+    }
+
+    // BHT (ADDED Axis2 LifeCycle methods):
+    /**
+     * This will be called during the deployment time of the service.
+     * Irrespective of the service scope this method will be called
+     */
+    @Override
+    public void startUp(ConfigurationContext configctx, AxisService service) {
+        logger.info("XCPDRespondingGateway::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
+        this.ATNAlogStart(XATNALogger.ActorType.RESPONDING_GATEWAY);
+    }
+
+    /**
+     * This will be called during the system shut down time. Irrespective
+     * of the service scope this method will be called
+     */
+    @Override
+    public void shutDown(ConfigurationContext configctx, AxisService service) {
+        logger.info("XCPDRespondingGateway::shutDown()");
+        this.ATNAlogStop(XATNALogger.ActorType.RESPONDING_GATEWAY);
     }
 }

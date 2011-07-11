@@ -585,7 +585,7 @@ public class XCPDGatewayRequestController {
         } else {
             // Now navigate through the list of configurations and cache them.
             List<XConfigObject> rgConfigs = xcpdConfig.getXConfigObjectsWithType(XConfig.XCA_RESPONDING_GATEWAY_TYPE);
-            if (rgConfigs.size() == 0) {
+            if (rgConfigs.isEmpty()) {
                 logger.warn("No target XCPD Responding Gateways configured.");
             } else {
                 for (XConfigObject rgConfig : rgConfigs) {

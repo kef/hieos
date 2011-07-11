@@ -28,11 +28,8 @@ import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -80,23 +77,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @throws AxisFault
      */
     public XConfigActor getGatewayConfig() throws AxisFault {
-        try {
-            XConfig xconf = XConfig.getInstance();
-            // Get the home community config.
-            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-            String gatewayConfigName = "ig";  // default.
-            String gatewayConfigType = XConfig.XCA_INITIATING_GATEWAY_TYPE;
-            if (this.gatewayType == GatewayType.RespondingGateway) {
-                gatewayConfigName = "rg";
-                gatewayConfigType = XConfig.XCA_RESPONDING_GATEWAY_TYPE;
-            }
-            XConfigObject gatewayConfig = homeCommunityConfig.getXConfigObjectWithName(
-                    gatewayConfigName, gatewayConfigType);
-            return (XConfigActor) gatewayConfig;
-        } catch (XdsInternalException ex) {
-            logger.fatal("Unable to load XConfig for XCPD Gateway", ex);
-            throw new AxisFault(ex.getMessage());
-        }
+        return this.getConfigActor();
     }
 
     /**

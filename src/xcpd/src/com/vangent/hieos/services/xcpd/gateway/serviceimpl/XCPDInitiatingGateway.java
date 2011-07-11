@@ -13,9 +13,15 @@
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDInitiatingGatewayRequestHandler;
+import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,6 +32,12 @@ import org.apache.log4j.Logger;
 public class XCPDInitiatingGateway extends XCPDGateway {
 
     private final static Logger logger = Logger.getLogger(XCPDInitiatingGateway.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -38,6 +50,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         validateWS();
         validateNoMTOM();
         XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        handler.setConfigActor(config);
         OMElement result = handler.run(
                 PRPA_IN201305UV02_Message,
                 XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
@@ -56,6 +69,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         validateWS();
         validateNoMTOM();
         XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        handler.setConfigActor(config);
         OMElement result = handler.run(
                 PRPA_IN201309UV02_Message,
                 XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
@@ -74,10 +88,40 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         validateWS();
         validateNoMTOM();
         XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
+        handler.setConfigActor(config);
         OMElement result = handler.run(
                 PRPA_IN201301UV02_Message,
                 XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
         endTransaction(handler.getStatus());
         return result;
+    }
+
+    // BHT (ADDED Axis2 LifeCycle methods):
+    /**
+     * This will be called during the deployment time of the service.
+     * Irrespective of the service scope this method will be called
+     */
+    @Override
+    public void startUp(ConfigurationContext configctx, AxisService service) {
+        logger.info("XCPDInitiatingGateway::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
+        this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
+    }
+
+    /**
+     * This will be called during the system shut down time. Irrespective
+     * of the service scope this method will be called
+     */
+    @Override
+    public void shutDown(ConfigurationContext configctx, AxisService service) {
+        logger.info("XCPDInitiatingGateway::shutDown()");
+        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
     }
 }
