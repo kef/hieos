@@ -51,6 +51,7 @@ public class XDSBridge extends AbstractHandlerService {
      */
     public XDSBridge() {
 
+        // FIXME: This is not correct ...
         super(ActorType.DOCRECIPIENT);
     }
 
@@ -130,7 +131,7 @@ public class XDSBridge extends AbstractHandlerService {
                     "XDSBridge [%s] config is not found.", bridgeName));
         }
 
-        // grab repository from xdsbridge actor
+        // FIXME: grab repository from xdsbridge actor
         String repoName = "repo";
         XConfigActor repositoryActor =
             (XConfigActor) homeCommunity.getXConfigObjectWithName("repo",
@@ -232,5 +233,11 @@ public class XDSBridge extends AbstractHandlerService {
             // rethrow
             throw new XdsValidationException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        // FIXME: Look @ other services for example
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
