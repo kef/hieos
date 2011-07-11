@@ -50,6 +50,7 @@ import org.apache.axis2.description.AxisService;
 
 // XATNALogger
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xua.client.XServiceProvider;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ import java.util.List;
  * @author NIST
  * @author Bernie Thuman (BHT) - Comments, rewrites, lifecycle logging, streamlining.
  */
-public class XAbstractService implements ServiceLifeCycle, Lifecycle {
+abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     private final static Logger logger = Logger.getLogger(XAbstractService.class);
     /**
@@ -67,6 +68,9 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected XLogMessage log_message = null;
     private boolean excludedServiceFromXUA = false;
+    private String serviceName;
+    //private XConfigActor configActor = null;
+    //private ActorType mActor = ActorType.REGISTRY;
 
     /**
      *
@@ -114,8 +118,7 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
          */
         XDSBRIDGE
     }
-    private String serviceName;
-    private ActorType mActor = ActorType.REGISTRY; // Default.
+ 
 
     /**
      *
@@ -124,6 +127,12 @@ public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     public boolean isExcludedServiceFromXUA() {
         return excludedServiceFromXUA;
     }
+
+    /**
+     *
+     * @return
+     */
+    abstract protected XConfigActor getConfigActor();
 
     /**
      *

@@ -77,7 +77,11 @@ public class XConfig {
     static final public String XCA_RESPONDING_GATEWAY_TYPE = "RespondingGatewayType";
     static final public String XUA_PROPERTIES_TYPE = "XUAPropertiesType";
     static final public String ASSIGNING_AUTHORITY_TYPE = "AssigningAuthorityType";
-    static final public String PDS_TYPE = "PDSType";
+    static final public String PDS_TYPE = "PDSType";  // Patient Demographics Service
+    static final public String PolicyDecisionPoint_TYPE = "PolicyDecisionPointType";
+    static final public String PolicyInformationPoint_TYPE = "PolicyInformationPointType";
+    static final public String STS_TYPE = "SecureTokenServiceType";
+    static final public String XDSBRIDGE_TYPE = "XDSBridgeType";
     static final public String PIX_MANAGER_TYPE = "PIXManagerType";
     static final public String XDR_DOCUMENT_RECIPIENT_TYPE = "DocumentRecipientType";
 

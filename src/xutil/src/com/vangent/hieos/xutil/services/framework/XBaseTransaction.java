@@ -18,6 +18,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
@@ -40,6 +41,23 @@ public class XBaseTransaction {
      */
     public XLogMessage log_message = null;
     private MessageContext messageContext = null;
+    private XConfigActor configActor = null;
+
+    /**
+     * 
+     * @return
+     */
+    public XConfigActor getConfigActor() {
+        return configActor;
+    }
+
+    /**
+     *
+     * @param configActor
+     */
+    public void setConfigActor(XConfigActor configActor) {
+        this.configActor = configActor;
+    }
 
     /**
      *
