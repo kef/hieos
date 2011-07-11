@@ -15,8 +15,7 @@ package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.transactions
-    .SubmitDocumentRequestHandler;
+import com.vangent.hieos.services.xds.bridge.transactions.SubmitDocumentRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -47,10 +46,7 @@ public class XDSBridge extends XAbstractService {
      *
      */
     public XDSBridge() {
-
         super();
-
-        // ActorType.XDSBRIDGE
     }
 
     /**
@@ -64,22 +60,14 @@ public class XDSBridge extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement SubmitDocumentRequest(OMElement request) throws AxisFault {
-
-        // THIS IS NOT A CONSTRUCTOR
-        // THIS IS NOT A CONSTRUCTOR
-        // THIS IS NOT A CONSTRUCTOR
-        // This method is named uncoventionally for the benefit of wsdl parsers
-        // Axis2 will publish a "HIEOS convention" operation name
-
         beginTransaction("xdsbridge:SubmitDocumentRequest", request);
         validateWS();
         validateMTOM();
 
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(this.log_message, serviceContext);
-
+        handler.setConfigActor(this.getConfigActor());
         OMElement result = handler.run(getMessageContext(), request);
-
         endTransaction(handler.getStatus());
 
         return result;
@@ -142,7 +130,7 @@ public class XDSBridge extends XAbstractService {
 
         String bridgeName = "xdsbridge";
         XConfigActor xdsBridgeActor =
-            (XConfigActor) homeCommunity.getXConfigObjectWithName("xdsbridge",
+            (XConfigActor) homeCommunity.getXConfigObjectWithName(bridgeName,
                 "XDSBridgeType");
 
         if (xdsBridgeActor == null) {
@@ -178,11 +166,8 @@ public class XDSBridge extends XAbstractService {
         }
 
         XDSBridgeConfig bridgeConfig = null;
-
         try {
-
             bridgeConfig = XDSBridgeConfig.newInstance(xdsBridgeActor);
-
         } catch (Exception e) {
 
             throw new IllegalStateException(

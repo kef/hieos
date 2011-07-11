@@ -186,7 +186,12 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
             }
         }
 
-        return marshalResponse(sdrResponse);
+        OMElement response = marshalResponse(sdrResponse);
+        if (this.log_message.isLogEnabled())
+        {
+            this.log_message.addOtherParam("Response", response);
+        }
+        return response;
     }
 
     /**
