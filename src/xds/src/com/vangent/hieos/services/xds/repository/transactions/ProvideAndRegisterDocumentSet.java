@@ -61,6 +61,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
 
+    private Repository repoConfig = null;
+
     /**
      *
      * @param log_message
@@ -82,6 +84,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      */
     public OMElement run(OMElement pnr) {
+        repoConfig = new Repository(this.getConfigActor());
         try {
             pnr.build();
             handleProvideAndRegisterRequest(pnr);
@@ -217,7 +220,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             }
 
             // Create the XDSDocument to hold relevant storage parameters.
-            XDSDocument doc = new XDSDocument(Repository.getRepositoryUniqueId());
+            XDSDocument doc = new XDSDocument(repoConfig.getRepositoryUniqueId());
             doc.setDocumentId(id);
             if (optimized) {
                 InputStream is = null;
@@ -262,7 +265,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("Register transaction endpoint", epr);
         log_message.addOtherParam("Register transaction", register_transaction);
         Soap soap = new Soap();
-        boolean isAsyncTxn = Repository.isRegisterTransactionAsync();
+        boolean isAsyncTxn = repoConfig.isRegisterTransactionAsync();
         String action = getRegistrySOAPAction();
         String expectedReturnAction = getRegistryExpectedReturnSOAPAction();
         soap.setAsync(isAsyncTxn);
@@ -326,7 +329,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
     private String getRegistryEndpoint() throws XdsInternalException {
-        return Repository.getRegisterTransactionEndpoint();
+        return repoConfig.getRegisterTransactionEndpoint();
     }
 
     /**
@@ -334,7 +337,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      */
     private boolean isRegisterTransactionSOAP12() throws XdsInternalException {
-        return Repository.isRegisterTransactionSOAP12();
+        return repoConfig.isRegisterTransactionSOAP12();
     }
 
     /**
@@ -547,7 +550,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      */
     private void setRepositoryUniqueId(Metadata m) throws MetadataException, XdsInternalException {
         for (OMElement eo : m.getExtrinsicObjects()) {
-            m.setSlot(eo, "repositoryUniqueId", Repository.getRepositoryUniqueId());
+            m.setSlot(eo, "repositoryUniqueId", repoConfig.getRepositoryUniqueId());
         }
     }
 

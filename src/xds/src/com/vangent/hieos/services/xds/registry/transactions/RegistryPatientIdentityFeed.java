@@ -22,9 +22,6 @@ import com.vangent.hieos.adt.db.AdtJdbcConnection;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 
-// XConfig.
-import com.vangent.hieos.xutil.xconfig.XConfig;
-
 // ATNA.
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
@@ -73,7 +70,6 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id[1]";
     private final static String XPATH_PRIOR_REGISTRATION_PATIENT_ALL_IDS =
             "//*/ns:controlActProcess/ns:subject/ns:registrationEvent/ns:replacementOf/ns:priorRegistration/ns:subject1/ns:priorRegisteredRole/ns:id";
-    private String xconfRegistryName = "localregistry";
     private boolean errorDetected = false;
     private String _patientId = "NOT ON REQUEST";
     private AdtJdbcConnection _adtConn = null;
@@ -82,9 +78,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      *
      * @param log_message
      */
-    public RegistryPatientIdentityFeed(String xconfRegistryName, XLogMessage log_message) {
+    public RegistryPatientIdentityFeed(XLogMessage log_message) {
         this.log_message = log_message;
-        this.xconfRegistryName = xconfRegistryName;
     }
 
     /**
@@ -446,8 +441,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             // Check if there is a record of prior registration (to be unmerged) patient id being merged into the surviving patient id
             // Also check that this is the most recent merge - only the most recent merge can be unmerged
             if (!this.adtCheckMergeHistory(survivingPatientId, unmergedPatientId)) {
-                throw this.logException("Invalid UnMerge Request for Surviving Patient ID " + survivingPatientId +
-                        " and UnMerged Patient: " + unmergedPatientId + "  - skipping UNMERGE!");
+                throw this.logException("Invalid UnMerge Request for Surviving Patient ID " + survivingPatientId
+                        + " and UnMerged Patient: " + unmergedPatientId + "  - skipping UNMERGE!");
             }
 
             // Patients IDs are valid, now perform the unmerge
@@ -1043,8 +1038,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         try {
             _adtConn.createMergeHistory(survivingPatientId, priorRegistrationPatientId, action, externalIdentifierIds);
         } catch (SQLException e) {
-            throw this.logInternalException(e, "ADT EXCEPTION: Problem creating merge history for Patient IDs = " +
-                    survivingPatientId + " / " + priorRegistrationPatientId);
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem creating merge history for Patient IDs = "
+                    + survivingPatientId + " / " + priorRegistrationPatientId);
         }
     }
 
@@ -1062,8 +1057,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         try {
             externalIdentifierIds = _adtConn.retrieveMergedRecords(survivingPatientId, priorRegistrationPatientId, "M");
         } catch (SQLException e) {
-            throw this.logInternalException(e, "ADT EXCEPTION: Problem retrieving merge history for Patient IDs = " +
-                    survivingPatientId + " / " + priorRegistrationPatientId);
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem retrieving merge history for Patient IDs = "
+                    + survivingPatientId + " / " + priorRegistrationPatientId);
         }
         return externalIdentifierIds;
     }
@@ -1081,8 +1076,8 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         try {
             merge = _adtConn.isPatientMerged(survivingPatientId, priorRegistrationPatientId);
         } catch (SQLException e) {
-            throw this.logInternalException(e, "ADT EXCEPTION: Problem checking merge history for Patient IDs = " +
-                    survivingPatientId + " / " + priorRegistrationPatientId);
+            throw this.logInternalException(e, "ADT EXCEPTION: Problem checking merge history for Patient IDs = "
+                    + survivingPatientId + " / " + priorRegistrationPatientId);
         }
         return merge;
     }
@@ -1214,16 +1209,9 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      */
     private String getXConfigRegistryProperty(String propertyName) {
         String propertyValue = null;
-        try {
-            // Get the registry's configuration (registry name came from axis2 "services.xml").
-            XConfig xconf = XConfig.getInstance();
-            XConfigActor registry = xconf.getRegistryConfigByName(this.xconfRegistryName);
-            if (registry != null) {
-                propertyValue = registry.getProperty(propertyName);
-            }
-        } catch (XdsInternalException e) {
-            // FIXME? - not forwarding along exception.
-            this.logInternalException(e, "Unable to get XConfig property");
+        XConfigActor registryConfig = this.getConfigActor();
+        if (registryConfig != null) {
+            propertyValue = registryConfig.getProperty(propertyName);
         }
         return propertyValue;
     }

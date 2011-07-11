@@ -31,6 +31,9 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  *
@@ -39,6 +42,13 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 public class XDSbRepository extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
+
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     //String alternateRegistryEndpoint = null;
     /**
@@ -72,6 +82,7 @@ public class XDSbRepository extends XAbstractService {
         try {
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
+            s.setConfigActor(this.getConfigActor());
             OMElement result = s.run(sor);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
@@ -104,6 +115,7 @@ public class XDSbRepository extends XAbstractService {
                 return res;
             }
             RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
+            s.setConfigActor(this.getConfigActor());
             OMElement result = s.run(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
@@ -158,7 +170,15 @@ public class XDSbRepository extends XAbstractService {
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("Repository::startUp()");
+        logger.info("DocumentRepository::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("repo", XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
         this.ATNAlogStart(XATNALogger.ActorType.REPOSITORY);
     }
 
@@ -168,7 +188,7 @@ public class XDSbRepository extends XAbstractService {
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("RepositoryB::shutDown()");
+        logger.info("DocumentRepository::shutDown()");
         this.ATNAlogStop(XATNALogger.ActorType.REPOSITORY);
     }
 }

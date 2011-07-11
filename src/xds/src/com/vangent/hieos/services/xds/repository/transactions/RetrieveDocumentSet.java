@@ -53,6 +53,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
     String registry_endpoint = null;
     MessageContext messageContext;
     boolean optimize = true;
+    private Repository repoConfig = null;
     private final static Logger logger = Logger.getLogger(RetrieveDocumentSet.class);
 
     /**
@@ -81,6 +82,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws XdsInternalException
      */
     public OMElement run(OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
+        repoConfig = new Repository(this.getConfigActor());
         this.optimize = optimize;
         OMNamespace ns = rds.getNamespace();
         String ns_uri = ns.getNamespaceURI();
@@ -178,12 +180,12 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
     private OMElement retrieveDocument(String rep_id, String doc_id) throws XdsException {
-        if (!rep_id.equals(Repository.getRepositoryUniqueId())) {
+        if (!rep_id.equals(repoConfig.getRepositoryUniqueId())) {
             response.add_error(MetadataSupport.XDSUnknownRepositoryId,
                     "Repository Unique ID in request " +
                     rep_id +
                     " does not match this repository's id " +
-                    Repository.getRepositoryUniqueId(),
+                    repoConfig.getRepositoryUniqueId(),
                     this.getClass().getName(), log_message);
             return null;
         }
@@ -199,7 +201,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                     "Document Unique ID in request " +
                     doc_id +
                     " not found in this repository " +
-                    Repository.getRepositoryUniqueId(),
+                    repoConfig.getRepositoryUniqueId(),
                     this.getClass().getName(), log_message);
             return null;
 

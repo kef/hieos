@@ -42,7 +42,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
@@ -192,15 +192,15 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 // Make sure that referenced objects are "APPROVED":
                 List<String> missing = rov.validateApproved(referencedObjects);
                 if (missing != null) {
-                    throw new XdsDeprecatedException("The following registry objects were referenced by this submission but are not present, as Approved documents, in the registry: " +
-                            missing);
+                    throw new XdsDeprecatedException("The following registry objects were referenced by this submission but are not present, as Approved documents, in the registry: "
+                            + missing);
                 }
 
                 // Make allowance for by reference inclusion
                 missing = rov.validateSamePatientId(m.getReferencedObjectsThatMustHaveSamePatientId(), patientId);
                 if (missing != null) {
-                    throw new XdsPatientIdDoesNotMatchException("The following registry objects were referenced by this submission but do not reference the same patient ID: " +
-                            missing);
+                    throw new XdsPatientIdDoesNotMatchException("The following registry objects were referenced by this submission but do not reference the same patient ID: "
+                            + missing);
                 }
             }
 
@@ -210,17 +210,17 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
             // Check that submission does not include any object ids that are already in registry
 /* DISABLED - In general, we should be OK here given prior checks.  Also, the underlying registry does
- * allow updates to occur based on prior submissions.
- *
+             * allow updates to occur based on prior submissions.
+             *
             List<String> idsInSubmission = m.getAllDefinedIds();
             List<String> idsAlreadyInRegistry = rov.validateNotExists(idsInSubmission);
             if (idsAlreadyInRegistry.size() != 0) {
-                response.add_error(MetadataSupport.XDSRegistryMetadataError,
-                        "The following UUIDs which are present in the submission are already present in registry: " + idsAlreadyInRegistry,
-                        this.getClass().getName(),
-                        log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError,
+            "The following UUIDs which are present in the submission are already present in registry: " + idsAlreadyInRegistry,
+            this.getClass().getName(),
+            log_message);
             }
-*/
+             */
             // Update any folders "lastUpdateTime" slot with the current time:
             m.updateFoldersLastUpdateTimeSlot();
 
@@ -252,8 +252,8 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             for (OMElement assoc : m.getAssociations()) {
                 if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(assoc))) {
                     String sourceId = m.getAssocSource(assoc);
-                    if (!m.getSubmissionSetId().equals(sourceId) &&
-                            !m.getFolderIds().contains(sourceId)) {
+                    if (!m.getSubmissionSetId().equals(sourceId)
+                            && !m.getFolderIds().contains(sourceId)) {
                         // Assoc src not part of the submission
                         logger.info("Adding to Folder (1)" + sourceId);
                         if (this.isFolder(sourceId)) {
@@ -301,8 +301,8 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 // validate that these are documents first
                 List<String> missing = rov.validateDocuments(deprecatableObjectIds);
                 if (missing != null) {
-                    throw new XdsException("The following documents were referenced by this submission but are not present in the registry: " +
-                            missing);
+                    throw new XdsException("The following documents were referenced by this submission but are not present in the registry: "
+                            + missing);
                 }
                 this.submitDeprecateObjectsRequest(backendRegistry, deprecatableObjectIds);
             }
@@ -347,7 +347,13 @@ public class SubmitObjectsRequest extends XBaseTransaction {
     private void validatePatientId(String patientId) throws SQLException,
             XdsException, XdsInternalException {
         //if (Properties.loader().getBoolean("validate_patient_id")) {
-        if (XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("validatePatientId")) {
+        XConfigActor registryConfig = this.getConfigActor();
+        String validatePatientIdAsString = registryConfig.getProperty("validatePatientId");
+        boolean validatePatientId = true;
+        if (validatePatientIdAsString != null) {
+            validatePatientId = registryConfig.getPropertyAsBoolean("validatePatientId");
+        }
+        if (validatePatientId) {
             Verify v = new Verify();
             boolean isValidPatientId = v.isValid(patientId);
             if (!isValidPatientId) {
@@ -365,7 +371,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
         submit_raw = val;
     }
 
-      /**
+    /**
      *
      * @param id
      * @return

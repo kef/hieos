@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.policyutil.pep.PEPResponseContext;
-import com.vangent.hieos.policyutil.pep.PEPRequestContext;
 import com.vangent.hieos.policyutil.pep.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
@@ -32,7 +31,6 @@ import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -57,18 +55,15 @@ public class AdhocQueryRequest extends XBaseTransaction {
     private String service_name = "";
     private boolean _isMPQRequest = false;
     private final static Logger logger = Logger.getLogger(AdhocQueryRequest.class);
-    private String xconfRegistryName = "localregistry";
 
     /**
      *
      * @param log_message
      * @param messageContext
-     * @param is_secure
      */
-    public AdhocQueryRequest(String xconfRegistryName, XLogMessage log_message, MessageContext messageContext) {
+    public AdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
         this.messageContext = messageContext;
-        this.xconfRegistryName = xconfRegistryName;
     }
 
     /**
@@ -188,13 +183,13 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
-/*
+
                 // POLICY ENFORCEMENT POINT:
                 PEPResponseContext pepResponseCtx = null;
                 try {
-                    pepResponseCtx = this.enforcePolicy();
+                    pepResponseCtx = PEP.evaluateCurrentRequest();
                     if (pepResponseCtx.isDenyDecision()) {
-                        // TBD: Check obligations ... for now, just deny
+                        // TBD: Check deny obligations ... for now, just deny
                         response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
                         return;  // Get out now!
                     }
@@ -205,10 +200,10 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     response.add_error(MetadataSupport.XDSRegistryError, "Policy Exception: " + ex.getMessage(), this.getClass().getName(), log_message);
                     return;  // Get out now!
                 }
-*/
+
                 // Run the Stored Query:
                 List<OMElement> results = this.storedQuery(ahqr);
-/*
+
                 // POLICY ENFORCEMENT POINT (round 2):
                 // If a LeafClass request, then make sure that results are for the same patient
                 // as in the PDP request (resource-id).
@@ -216,28 +211,20 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 if (pepResponseCtx.hasObligations()) {
                     // TBD: Need to see what needs to be done here.
                     // TBD: Filtering, etc.
-                }
-  */
-                if (results != null) {
-                    ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
+                    if (results != null) {
+                        ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
+                    }
+                } else {
+                    // No obligations - process as normal (no further policy evaluation).
+                    if (results != null) {
+                        ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
+                    }
                 }
             }
         }
         if (!found_query) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
         }
-    }
-
-    /**
-     * 
-     * @return
-     * @throws PolicyException
-     */
-    private PEPResponseContext enforcePolicy() throws PolicyException {
-        PEPRequestContext requestCtx = new PEPRequestContext();
-        requestCtx.setAction(this.getMessageContext().getSoapAction());
-        PEP pep = new PEP(requestCtx);
-        return pep.evaluate();
     }
 
     /**
@@ -248,14 +235,12 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     protected long getMaxLeafObjectsAllowedFromQuery() {
         long defaultMaxLeafObjectsAllowedFromQuery = 25;
-        XConfig xconfig;
-        try {
-            xconfig = XConfig.getInstance();
-        } catch (XdsInternalException ex) {
+        XConfigActor registryConfig = this.getConfigActor();
+        if (registryConfig == null)
+        {
             return defaultMaxLeafObjectsAllowedFromQuery;
         }
-        XConfigActor registry = xconfig.getRegistryConfigByName(this.xconfRegistryName);
-        String propValue = registry.getProperty("MaxLeafObjectsAllowedFromQuery");
+        String propValue = registryConfig.getProperty("MaxLeafObjectsAllowedFromQuery");
         long maxLeafObjectsAllowedFromQuery = defaultMaxLeafObjectsAllowedFromQuery;
         if (propValue != null) {
             maxLeafObjectsAllowedFromQuery = new Long(propValue);

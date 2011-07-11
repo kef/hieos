@@ -21,7 +21,6 @@ import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdent
 
 import org.apache.log4j.Logger;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 
@@ -31,6 +30,8 @@ import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
  *
@@ -39,6 +40,14 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 public class XDSbRegistry extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
+
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
+
 
     /**
      *
@@ -54,6 +63,7 @@ public class XDSbRegistry extends XAbstractService {
         try {
             validateSubmitTransaction(sor);
             SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
+            s.setConfigActor(this.getConfigActor());
             OMElement result = s.run(sor);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
@@ -78,7 +88,8 @@ public class XDSbRegistry extends XAbstractService {
         validateWS();
         validateNoMTOM();
         try {
-            AdhocQueryRequest a = new AdhocQueryRequest(this.getRegistryXConfigName(), log_message, getMessageContext());
+            AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
+            a.setConfigActor(this.getConfigActor());
             validateQueryTransaction(ahqr);
             //return endTransaction(ahqr, e, XAbstractService.ActorType.REGISTRY, "");
             a.setServiceName(this.getServiceName());
@@ -104,8 +115,8 @@ public class XDSbRegistry extends XAbstractService {
     public OMElement PatientFeedRequest(OMElement patientFeedRequest) throws AxisFault {
         beginTransaction("PIDFEED.V2", patientFeedRequest);
         logger.debug("*** PID Feed: SIMPLE ***");
-        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+        rpif.setConfigActor(this.getConfigActor());
         OMElement result = rpif.run_Simple(patientFeedRequest);
         endTransaction(rpif.getStatus());
         return result;
@@ -137,8 +148,8 @@ public class XDSbRegistry extends XAbstractService {
         validateNoMTOM();
 
         logger.debug("*** PID Feed: Patient Registry Record Added ***");
-        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+        rpif.setConfigActor(this.getConfigActor());
         OMElement result = rpif.run(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordAdded);
         //this.forceAnonymousReply();  // BHT (FIXME)
         endTransaction(rpif.getStatus());
@@ -157,8 +168,8 @@ public class XDSbRegistry extends XAbstractService {
         validateNoMTOM();
 
         logger.debug("*** PID Feed: Patient Registry Record Updated ***");
-        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+        rpif.setConfigActor(this.getConfigActor());
         OMElement result = rpif.run(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUpdated);
         //this.forceAnonymousReply();  // BHT (FIXME)
         endTransaction(rpif.getStatus());
@@ -177,8 +188,8 @@ public class XDSbRegistry extends XAbstractService {
         validateNoMTOM();
 
         logger.debug("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
-        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+        rpif.setConfigActor(this.getConfigActor());
         OMElement result = rpif.run(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryDuplicatesResolved);
         //this.forceAnonymousReply();  // BHT (FIXME)
         endTransaction(rpif.getStatus());
@@ -197,8 +208,8 @@ public class XDSbRegistry extends XAbstractService {
         validateNoMTOM();
 
         logger.debug("*** PID Feed: Patient Registry Record Unmerged ***");
-        logger.debug("*** XConfig Registry Name = " + this.getRegistryXConfigName());
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(this.getRegistryXConfigName(), log_message);
+        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+        rpif.setConfigActor(this.getConfigActor());
         OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
         //this.forceAnonymousReply();  // BHT (FIXME)
         endTransaction(rpif.getStatus());
@@ -280,14 +291,6 @@ public class XDSbRegistry extends XAbstractService {
     }
     }
      */
-    /**
-     * Return the name of the registry in XConfig.
-     *
-     * @return  The logical name stored in XConfig that represents the registry.
-     */
-    private String getRegistryXConfigName() {
-        return (String) this.getMessageContext().getParameter("XConfigName").getValue();
-    }
 
     // BHT (ADDED Axis2 LifeCycle methods):
     /**
@@ -296,7 +299,14 @@ public class XDSbRegistry extends XAbstractService {
      */
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("RegistryB::startUp()");
+        logger.info("DocumentRegistry::startUp()");
+        try {
+            XConfig xconf = XConfig.getInstance();
+            String xConfigName = (String) service.getParameter("XConfigName").getValue();
+            config = xconf.getRegistryConfigByName(xConfigName);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
         this.ATNAlogStart(XATNALogger.ActorType.REGISTRY);
     }
 
@@ -306,7 +316,7 @@ public class XDSbRegistry extends XAbstractService {
      */
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("RegistryB::shutDown()");
+        logger.info("DocumentRegistry::shutDown()");
         this.ATNAlogStop(XATNALogger.ActorType.REGISTRY);
     }
 }

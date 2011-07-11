@@ -17,26 +17,43 @@ package com.vangent.hieos.services.xds.repository.support;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 public class Repository {
+    private XConfigActor repositoryConfig = null;
+    
+    /**
+     * 
+     */
+    private Repository()
+    {
+        // Do not allow.
+    }
+
+    /**
+     *
+     * @param repositoryConfig
+     */
+    public Repository(XConfigActor repositoryConfig)
+    {
+        this.repositoryConfig = repositoryConfig;
+    }
 
     /**
      * This method returns an endpoint URL for the local registry.
      * @return a String representing the endpoint URL.
      * @throws XdsInternalException
      */
-    static public String getRegisterTransactionEndpoint() throws XdsInternalException {
+    public String getRegisterTransactionEndpoint() throws XdsInternalException {
         return getRegisterTransaction().getEndpointURL();
     }
 
     /**
      * This method returns whether the local Registry endpoint is asynchronous.
-     * @return a booolean value.
+     * @return a boolean value.
      * @throws XdsInternalException
      */
-    static public boolean isRegisterTransactionAsync() throws XdsInternalException {
+    public boolean isRegisterTransactionAsync() throws XdsInternalException {
         return getRegisterTransaction().isAsyncTransaction();
     }
 
@@ -46,7 +63,7 @@ public class Repository {
      * 
      * @return true if SOAP 1.2 should be used, otherwise SOAP1.1
      */
-    static public boolean isRegisterTransactionSOAP12() throws XdsInternalException {
+    public boolean isRegisterTransactionSOAP12() throws XdsInternalException {
         return getRegisterTransaction().isSOAP12Endpoint();
     }
 
@@ -55,25 +72,8 @@ public class Repository {
      * @return a String value.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    static public String getRepositoryUniqueId() throws XdsInternalException {
-        XConfigActor repository = Repository.getRepositoryConfig();
-        return repository.getUniqueId();
-    }
-
-    /**
-     * This private utility method returns the local repository.
-     * @return XConfigActor.
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     */
-    static private XConfigActor getRepositoryConfig() throws XdsInternalException {
-        try {
-            XConfig xconf = XConfig.getInstance();
-            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
-            XConfigActor repository = (XConfigActor) homeCommunity.getXConfigObjectWithName("repo", XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
-            return repository;
-        } catch (Exception e) {
-            throw new XdsInternalException("Unable to get Repository configuration + " + e.getMessage());
-        }
+    public String getRepositoryUniqueId() throws XdsInternalException {
+        return repositoryConfig.getUniqueId();
     }
 
     /**
@@ -82,10 +82,9 @@ public class Repository {
      * @return XConfigTransaction.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    static private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
-        XConfigActor repo = Repository.getRepositoryConfig();
-        XConfigActor localRegistry = (XConfigActor) repo.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
-        XConfigTransaction txn = localRegistry.getTransaction("RegisterDocumentSet-b");
+     private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
+        XConfigActor localRegistryConfig = (XConfigActor)repositoryConfig.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+        XConfigTransaction txn = localRegistryConfig.getTransaction("RegisterDocumentSet-b");
         return txn;
     }
 }
