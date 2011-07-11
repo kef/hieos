@@ -24,7 +24,11 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
+import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResultType;
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.context.MessageContext;
 
 /**
  *
@@ -32,6 +36,20 @@ import org.apache.axiom.om.OMElement;
  */
 public class PEP {
 
+    // Initialize singleton here.
+    private static final PEPResponseContext _defaultPermitPEPResponseContext = new PEPResponseContext();
+
+    static {
+        // If policy evaluation is not active, force a PERMIT w/ no obligations.
+        //_defaultPermitPEPResponseContext = new PEPResponseContext();
+        PDPResponse pdpResponse = new PDPResponse();
+        ResponseType responseType = new ResponseType();
+        ResultType resultType = new ResultType();
+        resultType.setDecision(DecisionType.PERMIT);
+        responseType.getResult().add(resultType);
+        pdpResponse.setResponseType(responseType);
+        _defaultPermitPEPResponseContext.setPDPResponse(pdpResponse);
+    }
     private PEPRequestContext evalContext;
 
     public PEP(PEPRequestContext evalContext) {
@@ -55,6 +73,10 @@ public class PEP {
         XACMLRequestBuilder builder = new XACMLRequestBuilder();
         OMElement assertionNode;
         try {
+            //
+            // May seem odd to place here, but we do not want a xutil->policyutil
+            // dependency.  We want to maintain a policyutil->xutil dependency.
+            //
             assertionNode = XAbstractService.getSAMLAssertionFromRequest();
         } catch (XdsException ex) {
             throw new PolicyException("Unable to get SAML Assertion: " + ex.getMessage());
@@ -72,7 +94,7 @@ public class PEP {
      * @return
      * @throws PolicyException
      */
-    public PEPResponseContext evaluate() throws PolicyException {
+    protected PEPResponseContext evaluate() throws PolicyException {
         XConfig xconf = null;
         try {
             xconf = XConfig.getInstance();
@@ -86,5 +108,40 @@ public class PEP {
         PEPResponseContext pepResponseCtx = new PEPResponseContext();
         pepResponseCtx.setPDPResponse(pdpResponse);
         return pepResponseCtx;
+    }
+
+    /**
+     *
+     * @return
+     * @throws PolicyException
+     */
+    public static PEPResponseContext evaluateCurrentRequest() throws PolicyException {
+        if (!PEP.isPolicyEvaluationActive()) {
+            // Permit if no evaluation.
+            return _defaultPermitPEPResponseContext;
+        }
+        PEPRequestContext requestCtx = new PEPRequestContext();
+        requestCtx.setAction(PEP.getCurrentSOAPAction());
+        PEP pep = new PEP(requestCtx);
+        return pep.evaluate();
+    }
+
+    /**
+     *
+     * @return
+     * @throws PolicyException
+     */
+    public static boolean isPolicyEvaluationActive() throws PolicyException {
+        // FIXME: Stub -- pull from configuration.
+        // Compare current soap action against configuration.
+        return false;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private static String getCurrentSOAPAction() {
+        return MessageContext.getCurrentMessageContext().getSoapAction();
     }
 }

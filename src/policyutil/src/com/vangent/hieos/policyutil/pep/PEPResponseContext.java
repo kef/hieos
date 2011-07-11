@@ -77,7 +77,6 @@ public class PEPResponseContext {
     public ResultType getResult() {
         ResponseType responseType = pdpResponse.getResponseType();
         List<ResultType> resultTypes = responseType.getResult();
-        // FIXME?
         // Although there may be many results, we will only use the first one.
         return resultTypes.get(0);
     }
@@ -87,12 +86,7 @@ public class PEPResponseContext {
      * @return
      */
     public boolean hasObligations() {
-        ResponseType responseType = pdpResponse.getResponseType();
-        List<ResultType> resultTypes = responseType.getResult();
-        // FIXME?
-        // Although there may be many results, we will only check the first one.
-        //
-        ResultType resultType = resultTypes.get(0);
+        ResultType resultType = this.getResult();
         ObligationsType obligationsType = resultType.getObligations();
         if (obligationsType != null) {
             List<ObligationType> obligationTypes = obligationsType.getObligation();
