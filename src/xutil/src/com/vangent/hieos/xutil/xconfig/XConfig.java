@@ -588,37 +588,6 @@ public class XConfig {
     }
 
     /**
-     * Return property value for XUA configuration.
-     *
-     * @param propKey Property key.
-     * @return String Property value.
-     */
-    public String getXUAConfigProperty(String propKey) {
-        XConfigObject configObject = this.getXUAConfigProperties();
-        return configObject.getProperty(propKey);
-    }
-
-    /**
-     * Return boolean property value for XUA configuration.
-     *
-     * @param propKey Property key.
-     * @return String Property value.
-     */
-    public boolean getXUAConfigPropertyAsBoolean(String propKey) {
-        XConfigObject configObject = this.getXUAConfigProperties();
-        return configObject.getPropertyAsBoolean(propKey);
-    }
-
-    /**
-     * Return "XUAProperties" object.
-     *
-     * @return XConfigObject
-     */
-    public XConfigObject getXUAConfigProperties() {
-        return this.getXConfigObjectByName("XUAProperties", XConfig.XUA_PROPERTIES_TYPE);
-    }
-
-    /**
      * Helper method to find all AXIOM nodes given a "root node" and "local name".
      *
      * @param rootNode  Starting point.

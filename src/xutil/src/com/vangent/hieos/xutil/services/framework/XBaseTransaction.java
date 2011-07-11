@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -70,9 +71,9 @@ public class XBaseTransaction {
     /**
      *
      * @return
-     * @throws XdsException
+     * @throws AxisFault
      */
-    public static OMElement getSAMLAssertionFromRequest() throws XdsException {
+    public static OMElement getSAMLAssertionFromRequest() throws AxisFault {
         return XAbstractService.getSAMLAssertionFromRequest();
     }
 

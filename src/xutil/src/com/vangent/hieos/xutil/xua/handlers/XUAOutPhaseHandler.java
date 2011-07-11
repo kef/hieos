@@ -95,9 +95,8 @@ public class XUAOutPhaseHandler extends AbstractHandler {
             logger.debug("XUA: XUAOutPhaseHandler::invoke - userName: " + userName);
             logger.debug("XUA: XUAOutPhaseHandler::invoke - password: " + password);
 
-
             // Get the SAML assertion from the STS provider (for the given user):
-            SOAPEnvelope responseEnvelope = xServiceUser.getSOAPResponseFromSts(
+            SOAPEnvelope responseEnvelope = xServiceUser.getToken(
                     stsUrl, serviceUri, userName, password, this.xuaObject.getClaims());
             if (logger.isDebugEnabled()) {
                 logger.debug("XUA: XUAOutPhaseHandler::invoke - STS Response: " + responseEnvelope.toString());

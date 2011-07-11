@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.xutil.services.framework;
 
-import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
@@ -67,7 +66,6 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      */
     protected XLogMessage log_message = null;
-    private boolean excludedServiceFromXUA = false;
     private String serviceName;
     //private XConfigActor configActor = null;
     //private ActorType mActor = ActorType.REGISTRY;
@@ -118,29 +116,12 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
          */
         XDSBRIDGE
     }
- 
-
-    /**
-     *
-     * @return
-     */
-    public boolean isExcludedServiceFromXUA() {
-        return excludedServiceFromXUA;
-    }
 
     /**
      *
      * @return
      */
     abstract protected XConfigActor getConfigActor();
-
-    /**
-     *
-     * @param excludedServiceFromXUA
-     */
-    public void setExcludedServiceFromXUA(boolean excludedServiceFromXUA) {
-        this.excludedServiceFromXUA = excludedServiceFromXUA;
-    }
 
     /**
      *
@@ -153,9 +134,9 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @return
-     * @throws XdsException
+     * @throws AxisFault
      */
-    public static OMElement getSAMLAssertionFromRequest() throws XdsException {
+    public static OMElement getSAMLAssertionFromRequest() throws AxisFault {
         // Can't rely on "messageContext" to be set above - should look to remove messageContext
         // variable (not sure the purpose).
         return XServiceProvider.getSAMLAssertionFromRequest(MessageContext.getCurrentMessageContext());
@@ -312,17 +293,21 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @return
      */
     private void validateXUA(OMElement request) throws AxisFault {
-        if (this.excludedServiceFromXUA) {
-            // This service is not participating in XUA -- most notably the
-            // Secure Token Service (STS).
-            return;  // No checking here.
+        XConfigActor configActor = this.getConfigActor();
+        if (configActor == null) {
+            this.throwFault("Configuration not established for Actor");
         }
+        if (!configActor.isXUAEnabled()) {
+            // Get out early - XUA is not enabled for this actor.
+            return;
+        }
+
         // Validate XUA constraints here:
         XServiceProvider xServiceProvider = new XServiceProvider(log_message);
         XServiceProvider.Status response = XServiceProvider.Status.ABORT;
         MessageContext messageCtx = this.getMessageContext();
         try {
-            response = xServiceProvider.run(messageCtx);
+            response = xServiceProvider.run(this.getConfigActor(), messageCtx);
         } catch (Exception ex) {
             this.throwFault("XUA:ERROR - SAML Validation Exception (ignoring request) " + ex.getMessage());
         }

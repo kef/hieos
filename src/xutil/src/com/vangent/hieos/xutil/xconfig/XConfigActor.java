@@ -25,6 +25,8 @@ import org.apache.axiom.om.OMElement;
 public class XConfigActor extends XConfigObject {
 
     private List<XConfigTransaction> transactions = new ArrayList<XConfigTransaction>();
+    private boolean xuaEnabled = false;
+    private List<String> xuaEnabledSOAPActions = new ArrayList<String>();
 
     /**
      * Get the value of transactions
@@ -57,15 +59,80 @@ public class XConfigActor extends XConfigObject {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isXUAEnabled() {
+        return this.xuaEnabled;
+    }
+
+    /**
+     *
+     * @param soapAction
+     * @return
+     */
+    public boolean isSOAPActionXUAEnabled(String soapAction) {
+        if (xuaEnabledSOAPActions.isEmpty()) {
+            // Always constrain if the SOAP action list is empty.
+            return true;
+        }
+        if (xuaEnabledSOAPActions.contains("all")) {
+            // Constrain all SOAP actions.
+            return true;
+        }
+        return xuaEnabledSOAPActions.contains(soapAction.toLowerCase());
+    }
+
+    /**
      * Fills in the instance from a given AXIOM node.
      *
      * @param rootNode Starting point.
      */
+    @Override
     protected void parse(OMElement rootNode, XConfig xconf) {
         super.parse(rootNode, xconf);
 
         // Now deal with specialized parts.
         parseTransactions(rootNode);
+
+        // Parse XUA properties.
+        setXUAProperties();
+    }
+
+    /**
+     *
+     */
+    private void setXUAProperties() {
+        // Not really having to parse as XUA are simply properties (already parsed).
+
+        // Set XUA Enabled flag.
+        String xuaEnabledText = this.getProperty("XUAEnabled");
+        if (xuaEnabledText == null) {
+            xuaEnabled = false;  // Default.
+        } else {
+            xuaEnabled = this.getPropertyAsBoolean("XUAEnabled");
+        }
+
+        // Parse XUAEnabledSOAPActions
+        if (xuaEnabled == true) {
+            this.parseList("XUAEnabledSOAPActions", this.xuaEnabledSOAPActions);
+        }
+    }
+
+    /**
+     *
+     * @param propKey
+     * @param targetList
+     */
+    private void parseList(String propKey, List targetList) {
+        // Load IP addresses to control.
+        String listUnParsed = this.getProperty(propKey);
+        String[] listParsed = listUnParsed.split(";");
+        for (int i = 0; i < listParsed.length; i++) {
+            if (listParsed[i].length() != 0) {
+                targetList.add(listParsed[i].toLowerCase());
+            }
+        }
     }
 
     /**

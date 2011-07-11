@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
-import com.vangent.hieos.xutil.exception.XdsException;
 import java.net.URI;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -47,7 +46,7 @@ public class SOAPSenderImpl {
      * 
      * @throws AxisFault
      */
-    public SOAPSenderImpl() throws XdsException {
+    public SOAPSenderImpl() throws AxisFault {
         try {
             // Prepare axis2 to be able act as a SOAP client.
             mOptions = new Options();
@@ -55,7 +54,7 @@ public class SOAPSenderImpl {
             mServiceClient.setOptions(mOptions);
             mSoapFactory = OMAbstractFactory.getSOAP12Factory();
         } catch (AxisFault ex) {
-            throw new XdsException(
+            throw new AxisFault(
                     "XUA:Exception: Failure initializing SOAP/STS client - " + ex.getMessage());
         }
     }
@@ -68,9 +67,9 @@ public class SOAPSenderImpl {
      * @param message A well-formed SOAP Envelope to send
      * @param action SOAP Action to use for the transaction
      * @return responseEnvelope A well-formed SOAP Envelope representing the response
-     * @throws XdsException, handling exception.
+     * @throws AxisFault, handling exception.
      */
-    public SOAPEnvelope send(URI endpointURI, SOAPEnvelope message, String action) throws XdsException {
+    public SOAPEnvelope send(URI endpointURI, SOAPEnvelope message, String action) throws AxisFault {
         if (logger.isDebugEnabled()) {
             logger.debug("SOAP Envelope: " + message.toString());
         }
@@ -94,9 +93,8 @@ public class SOAPSenderImpl {
 
             return responseEnvelope;
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error("XUA EXCEPTION: " + ex.getMessage());
-            throw new XdsException("XUA:Exception: Failure contacting STS - " + ex.getMessage());
+            throw new AxisFault("XUA:Exception: Failure contacting STS - " + ex.getMessage());
         }
     }
 
