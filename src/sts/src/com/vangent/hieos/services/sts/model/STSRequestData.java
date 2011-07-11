@@ -17,11 +17,11 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
-import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
@@ -41,7 +41,8 @@ public class STSRequestData {
     private SOAPHeaderData headerData;
     private String subjectDN;
     private MessageContext mCtx;
-    private STSConfig stsConfig;
+    private XConfigActor stsConfigActor;
+    private static STSConfig _stsConfig = null;
 
     /**
      * 
@@ -52,23 +53,27 @@ public class STSRequestData {
 
     /**
      *
-     * @param stsConfig
+     * @param stsConfigActor
      * @param mCtx
      * @param request
      */
-    public STSRequestData(STSConfig stsConfig, MessageContext mCtx, OMElement request) {
-        this.stsConfig = stsConfig;
+    public STSRequestData(XConfigActor stsConfigActor, MessageContext mCtx, OMElement request) {
         this.mCtx = mCtx;
         this.request = request;
-        this.headerData = new SOAPHeaderData(this.stsConfig, this.mCtx);
+        this.stsConfigActor = stsConfigActor;
+        this.headerData = new SOAPHeaderData(this.getSTSConfig(), this.mCtx);
     }
 
     /**
      *
+     * @param stsConfigActor
      * @return
      */
-    public STSConfig getSTSConfig() {
-        return stsConfig;
+    public synchronized STSConfig getSTSConfig() {
+        if (_stsConfig == null) {
+            _stsConfig = new STSConfig(stsConfigActor);
+        }
+        return _stsConfig;
     }
 
     /**
@@ -92,7 +97,7 @@ public class STSRequestData {
             this.claimsNode = this.getClaimsNode(request);
             ClaimBuilder claimBuilder = new ClaimBuilder();
             this.claims = claimBuilder.parse(this);
-            if (stsConfig.getComputeSubjectNameFromClaims()) {
+            if (this.getSTSConfig().getComputeSubjectNameFromClaims()) {
                 // Override any previously set SubjectName
                 this.setSubjectDN(this.getComputedSubjectName());
             }
@@ -116,8 +121,7 @@ public class STSRequestData {
         // Only override if using a CERT.
 
         X509Certificate clientCert = headerData.getClientCertificate();
-        if (clientCert != null)
-        {
+        if (clientCert != null) {
             X500Principal principal = clientCert.getSubjectX500Principal();
             String principalDN = principal.getName();
             X500Name x500Name = new X500Name(principalDN);
@@ -125,11 +129,11 @@ public class STSRequestData {
             // Just override the CN using subject-id CLAIM
             String newCN = this.getClaimStringValue(PolicyConstants.XACML_SUBJECT_ID);
             x500Name.replace("CN", newCN);
-            
+
             String newSubjectName = x500Name.toString();
             System.out.println("+++ newSubjectName = " + newSubjectName);
             return newSubjectName;
-            
+
         } else {
             // Assume userName/userPassword
             // Do not override existing value
@@ -235,13 +239,13 @@ public class STSRequestData {
         return STSUtil.getRequestType(request);
         /*
         OMElement reqTypeElem = request.getFirstChildWithName(new QName(PolicyConstants.WSTRUST_NS,
-                "RequestType"));
+        "RequestType"));
         if (reqTypeElem == null
-                || reqTypeElem.getText() == null
-                || reqTypeElem.getText().trim().length() == 0) {
-            throw new STSException("Unable to locate RequestType on request");
+        || reqTypeElem.getText() == null
+        || reqTypeElem.getText().trim().length() == 0) {
+        throw new STSException("Unable to locate RequestType on request");
         } else {
-            return reqTypeElem.getText().trim();
+        return reqTypeElem.getText().trim();
         }*/
     }
 

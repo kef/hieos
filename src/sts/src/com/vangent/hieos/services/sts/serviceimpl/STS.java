@@ -26,6 +26,9 @@ import org.apache.axis2.description.AxisService;
 
 // XATNA
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
@@ -38,6 +41,12 @@ import org.apache.axis2.context.MessageContext;
 public class STS extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(STS.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -51,6 +60,7 @@ public class STS extends XAbstractService {
         validateWS();
         validateNoMTOM();
         STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+        handler.setConfigActor(config);
         OMElement result = handler.run(request);
         endTransaction(handler.getStatus());
         return result;
@@ -85,6 +95,14 @@ public class STS extends XAbstractService {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("STS::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("sts", XConfig.STS_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
     }
 
     /**

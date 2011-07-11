@@ -13,10 +13,7 @@
 package com.vangent.hieos.services.sts.config;
 
 import com.vangent.hieos.policyutil.util.PolicyConstants;
-import com.vangent.hieos.services.sts.exception.STSException;
-import com.vangent.hieos.xutil.exception.XConfigException;
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
  * Manages singleton instance of STS configuration.
@@ -27,9 +24,6 @@ public class STSConfig {
 
     private static final String DEFAULT_ISSUER_ALIAS = "s1as";
     private static final long DEFAULT_TIME_TO_LIVE = 30000;  // milliseconds
-
-    // Singleton.
-    private static STSConfig _instance = null;
 
     // Configuration.
     private String issuerName;
@@ -42,102 +36,71 @@ public class STSConfig {
     private String issuerPassword;
     private boolean computeSubjectNameFromClaims;
     private PolicyConstants.AuthenticationType authenticationType;
-    private XConfigObject configObject;
+    private XConfigActor stsConfigActor;
 
     /**
-     * Get singleton STS configuration.
      *
-     * @return STSConfig
-     * @throws STSException
      */
-    static public synchronized STSConfig getInstance() throws STSException {
-        if (_instance == null) {
-            _instance = new STSConfig();
-            XConfigObject configObject = STSConfig.getXConfigObject();
-            _instance.loadConfig(configObject);
-        }
-        return _instance;
+    private STSConfig()
+    {
+        // Do not allow.
     }
 
     /**
-     * Pull configuration from xconfig and cache away.
+     *
+     * @param stsConfigActor
+     */
+    public STSConfig(XConfigActor stsConfigActor)
+    {
+        this.stsConfigActor = stsConfigActor;
+        this.loadConfig();
+    }
+
+    /**
+     * Pull configuration from "xconfig" and cache away.
      *
      * @param configObject
      */
-    private void loadConfig(XConfigObject configObject) {
-        this.configObject = configObject;
-        issuerName = configObject.getProperty("IssuerName");
-        issuerAlias = configObject.getProperty("IssuerAlias");
+    private void loadConfig() {
+        issuerName = stsConfigActor.getProperty("IssuerName");
+        issuerAlias = stsConfigActor.getProperty("IssuerAlias");
         if (issuerAlias == null) {
             issuerAlias = STSConfig.DEFAULT_ISSUER_ALIAS;  // Default.
         }
-        String timeToLiveAsString = configObject.getProperty("TimeToLiveInMilliseconds");
+        String timeToLiveAsString = stsConfigActor.getProperty("TimeToLiveInMilliseconds");
         if (timeToLiveAsString == null) {
             timeToLive = STSConfig.DEFAULT_TIME_TO_LIVE;  // DEFAULT.
         } else {
             timeToLive = new Long(timeToLiveAsString);
         }
-        keyStore = configObject.getProperty("KeyStore");
+        keyStore = stsConfigActor.getProperty("KeyStore");
         if (keyStore == null) {
             keyStore = System.getProperty("javax.net.ssl.keyStore");
         }
-        trustStore = configObject.getProperty("TrustStore");
+        trustStore = stsConfigActor.getProperty("TrustStore");
         if (trustStore == null) {
             trustStore = System.getProperty("javax.net.ssl.trustStore");
         }
-        keyStorePassword = configObject.getProperty("KeyStorePassword");
+        keyStorePassword = stsConfigActor.getProperty("KeyStorePassword");
         if (keyStorePassword == null) {
             keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
         }
-        trustStorePassword = configObject.getProperty("TrustStorePassword");
+        trustStorePassword = stsConfigActor.getProperty("TrustStorePassword");
         if (trustStorePassword == null) {
             trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
         }
-        issuerPassword = configObject.getProperty("IssuerPassword");
+        issuerPassword = stsConfigActor.getProperty("IssuerPassword");
         if (issuerPassword == null) {
             issuerPassword = keyStorePassword;
         }
-        String authenticationTypeText = configObject.getProperty("AuthenticationType");
+        String authenticationTypeText = stsConfigActor.getProperty("AuthenticationType");
         if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
             authenticationType = PolicyConstants.AuthenticationType.USER_NAME_TOKEN;
         } else {
             // Otherwise.
             authenticationType = PolicyConstants.AuthenticationType.X509_CERTIFICATE;
         }
-        computeSubjectNameFromClaims = configObject.getPropertyAsBoolean("ComputeSubjectNameFromClaims", false);
-    }
-
-    /**
-     * Get configuration for STS.
-     *
-     * @return XConfigObject
-     * @throws STSException
-     */
-    static private XConfigObject getXConfigObject() throws STSException {
-        try {
-            XConfig xconf = XConfig.getInstance();
-            XConfigObject configObject = null;
-            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-            configObject = homeCommunityConfig.getXConfigObjectWithName("sts", "SecureTokenServiceType");
-            return configObject;
-        } catch (XConfigException ex) {
-            throw new STSException("Unable to get XConfig: " + ex.getMessage());
-        }
-    }
-
-    /**
-     * Do not allow since implemented as a Singleton.
-     */
-    private STSConfig() {
-        // Do not allow.
-    }
-
-    /**
-     *
-     * @return
-     */
-    public XConfigObject getConfigObject() {
-        return configObject;
+        computeSubjectNameFromClaims = stsConfigActor.getPropertyAsBoolean("ComputeSubjectNameFromClaims", false);
     }
 
     /**

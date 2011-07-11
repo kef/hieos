@@ -22,6 +22,7 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.security.KeyStore;
@@ -96,17 +97,9 @@ public class STSRequestHandler extends XBaseTransaction {
         OMElement result = null;
         log_message.setPass(true);  // Hope for the best.
 
-        // Get configuration.
-        STSConfig stsConfig;
-        try {
-            stsConfig = STSConfig.getInstance();
-        } catch (STSException ex) {
-            throw new AxisFault(ex.getMessage());
-        }
-
         // First parse and validate the SOAP header.
         MessageContext mCtx = this.getMessageContext();
-        STSRequestData requestData = new STSRequestData(stsConfig, mCtx, request);
+        STSRequestData requestData = new STSRequestData(this.getConfigActor(), mCtx, request);
         try {
             SOAPHeaderData headerData = requestData.parseHeader();
             System.out.println("SOAP Header - " + headerData.toString());
@@ -188,8 +181,7 @@ public class STSRequestHandler extends XBaseTransaction {
         if (headerData.getAuthenticationType() == PolicyConstants.AuthenticationType.USER_NAME_TOKEN) {
             String userName = headerData.getUserName();
             String userPassword = headerData.getUserPassword();
-            XConfigObject configObject = stsConfig.getConfigObject();
-            AuthenticationService authService = new AuthenticationService(configObject);
+            AuthenticationService authService = new AuthenticationService(this.getConfigActor());
             Credentials authCredentials = new Credentials(userName, userPassword);
             AuthenticationContext authCtxt = authService.authenticate(authCredentials);
             authenticated = authCtxt.hasSuccessStatus();
