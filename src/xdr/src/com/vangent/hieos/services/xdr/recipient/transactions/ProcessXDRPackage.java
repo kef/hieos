@@ -28,17 +28,16 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.soap.Soap;
-import com.vangent.hieos.services.xdr.recipient.support.Recipient;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.xutil.exception.XDSRepositoryMetadataError;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import java.io.IOException;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
-
 
 /**
  *
@@ -46,10 +45,8 @@ import org.apache.log4j.Logger;
  */
 public class ProcessXDRPackage extends XBaseTransaction {
 
-    String xdrEndpoint = null;
     MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(ProcessXDRPackage.class);
-
 
     /**
      *
@@ -140,7 +137,7 @@ public class ProcessXDRPackage extends XBaseTransaction {
 
         logger.info("In sendXDRPackage");
         OMElement sor = find_sor(pnr);
-        if(logger.isDebugEnabled()){
+        if (logger.isDebugEnabled()) {
             logger.debug("SOR in XDR Request: " + sor.toString());
         }
         Metadata m = new Metadata(sor);
@@ -156,7 +153,7 @@ public class ProcessXDRPackage extends XBaseTransaction {
                 XATNALogger.OutcomeIndicator.SUCCESS);
 
         String intendedRecipient = m.getSlotValue(m.getRegistryPackages().get(0), "intendedRecipient", 0);
-        if (intendedRecipient == null){
+        if (intendedRecipient == null) {
             // default to spaces 
             intendedRecipient = "";
         }
@@ -168,21 +165,22 @@ public class ProcessXDRPackage extends XBaseTransaction {
         // Call PNR End Point
         Soap soap = new Soap();
 
+        XConfigTransaction txn = this.getConfigActor().getTransaction("ProvideAndRegisterDocumentSet-b");
+        String epr = txn.getEndpointURL();
         // Retrieve the PNR URL to use from the XConfig file
-        // Modify logic to retrieve the endpoint based on intendedRecipient value
-        String epr = xdr_endpoint();
+        // FIXME: Modify logic to retrieve the endpoint based on intendedRecipient value
         logger.info("XDR PNR transaction endpoint" + epr);
-
         log_message.addOtherParam("XDR PNR transaction endpoint", epr);
-        boolean isAsyncTxn = Recipient.isDocRecipientTransactionAsync();
         String action = getAction();
         String expectedReturnAction = getExpectedReturnAction();
-        soap.setAsync(isAsyncTxn);
+        soap.setAsync(txn.isAsyncTransaction());
+
+        
 
         try {
             OMElement result;
             try {
-                soap.soapCall(pnr, epr, true, true, true, action, expectedReturnAction);
+                soap.soapCall(pnr, epr, true, txn.isSOAP12Endpoint(), txn.isSOAP12Endpoint(), action, expectedReturnAction);
                 //AUDIT:POINT
                 //call to audit message for document repository
                 //for Transaction id = ITI-41. (Provide and Register Document set-b)
@@ -216,7 +214,7 @@ public class ProcessXDRPackage extends XBaseTransaction {
                     response.add_error(MetadataSupport.XDSRepositoryError, "Null status from XDR PnR: ", this.getClass().getName(), log_message);
                 } else {
                     status = m.stripNamespace(status);
-                    
+
                     if (!status.equals("Success")) {
                         OMElement registry_error_list = MetadataSupport.firstChildWithLocalName(result, "RegistryErrorList");
                         if (registry_error_list != null) {
@@ -224,21 +222,12 @@ public class ProcessXDRPackage extends XBaseTransaction {
                         } else {
                             response.add_error(MetadataSupport.XDSRepositoryError, "Registry returned Failure but no error list", this.getClass().getName(), log_message);
                         }
-                    } 
+                    }
                 }
             }
         } catch (Exception e) {
             response.add_error(MetadataSupport.XDRRecipientError, e.getMessage(), this.getClass().getName(), log_message);
         }
-    }
-
-    /**
-     *
-     * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     */
-    private String xdr_endpoint() throws XdsInternalException {
-        return (xdrEndpoint == null) ? Recipient.getDocRecipientTransactionEndpoint() : xdrEndpoint;
     }
 
     /**
@@ -263,18 +252,10 @@ public class ProcessXDRPackage extends XBaseTransaction {
         OMElement sor;
         sor = pnr.getFirstElement();
         if (sor == null || !sor.getLocalName().equals("SubmitObjectsRequest")) {
-            throw new MetadataValidationException("Cannot find SubmitObjectsRequest element in submission - top level element is " +
-                    pnr.getLocalName());
+            throw new MetadataValidationException("Cannot find SubmitObjectsRequest element in submission - top level element is "
+                    + pnr.getLocalName());
         }
         return sor;
-    }
-
-    /**
-     *
-     * @param endpoint
-     */
-    public void setRegistryEndPoint(String endpoint) {
-        this.xdrEndpoint = endpoint;
     }
 
     /**

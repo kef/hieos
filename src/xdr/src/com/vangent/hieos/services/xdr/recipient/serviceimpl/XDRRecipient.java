@@ -28,6 +28,9 @@ import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  * Processes XDR Transactions 
@@ -37,6 +40,12 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 public class XDRRecipient extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDRRecipient.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -65,6 +74,7 @@ public class XDRRecipient extends XAbstractService {
 
             // Process the Request
             ProcessXDRPackage s = new ProcessXDRPackage(log_message, getMessageContext());
+            s.setConfigActor(config);
             OMElement result = s.processXDRPackage(xdr);
 
             endTransaction(s.getStatus());
@@ -98,6 +108,14 @@ public class XDRRecipient extends XAbstractService {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("XDRRecipient::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("docrecipient", XConfig.XDR_DOCUMENT_RECIPIENT_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
         this.ATNAlogStart(XATNALogger.ActorType.DOCRECIPIENT);
     }
 
