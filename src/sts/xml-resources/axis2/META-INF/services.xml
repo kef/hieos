@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serviceGroup>
-    <service name="STS" class="com.vangent.hieos.services.sts.serviceimpl.STS">
+    <service name="sts" class="com.vangent.hieos.services.sts.serviceimpl.STS">
         <description>Secure Token Service</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.sts.serviceimpl.STS</parameter>
         <operation name="RequestSecurityToken">
