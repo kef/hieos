@@ -14,6 +14,9 @@ package com.vangent.hieos.services.pdp.serviceimpl;
 
 import com.vangent.hieos.services.pdp.transactions.PDPRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -28,6 +31,12 @@ import org.apache.log4j.Logger;
 public class PDP extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(PDP.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      *
@@ -40,6 +49,7 @@ public class PDP extends XAbstractService {
         validateWS();
         validateNoMTOM();
         PDPRequestHandler handler = new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+        handler.setConfigActor(config);
         OMElement result = handler.run(authorizeRequest);
         endTransaction(handler.getStatus());
         return result;
@@ -52,6 +62,14 @@ public class PDP extends XAbstractService {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("PDP::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pdp", XConfig.PolicyDecisionPoint_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
     }
 
     /**

@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.pdp.transactions;
 
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
@@ -32,9 +31,7 @@ import com.vangent.hieos.policyutil.model.pdp.XACMLResponseBuilder;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.pdp.resource.ResourceContentFinder;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.List;
 
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
@@ -202,38 +199,17 @@ public class PDPRequestHandler extends XBaseTransaction {
      * @throws PolicyException
      */
     private void addResourceContent(RequestType requestType) throws PolicyException {
-        ResourceContentFinder resourceContentFinder = new ResourceContentFinder(PDPRequestHandler.getPIPConfig());
+        ResourceContentFinder resourceContentFinder = new ResourceContentFinder(this.getPIPConfig());
         // Get ResourceContent from the PIP.
         resourceContentFinder.addResourceContentToRequest(requestType);
-    }
-
-    /**
-     *
-     * @return
-     */
-    private static synchronized XConfigActor getPDPConfig() {
-        try {
-            if (_pdpConfig == null) {
-                XConfig xconf = XConfig.getInstance();
-                // Get the home community config.
-                XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-                _pdpConfig = (XConfigActor) homeCommunityConfig.getXConfigObjectWithName("pdp", "PolicyDecisionPointType");
-            }
-        } catch (XConfigException ex) {
-            // FIXME: Do something.
-        }
-        return _pdpConfig;
     }
 
     /**
      * 
      * @return
      */
-    private static synchronized XConfigActor getPIPConfig() {
-        if (_pipConfig == null) {
-            XConfigActor pdpConfig = PDPRequestHandler.getPDPConfig();
-            _pipConfig = (XConfigActor) pdpConfig.getXConfigObjectWithName("pip", "PolicyInformationPointType");
-        }
-        return _pipConfig;
+    private XConfigActor getPIPConfig() {
+        XConfigActor pdpConfig = this.getConfigActor();
+        return (XConfigActor) pdpConfig.getXConfigObjectWithName("pip", "PolicyInformationPointType");
     }
 }
