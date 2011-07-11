@@ -36,6 +36,12 @@ import org.apache.log4j.Logger;
 public class XCAInitiatingGateway extends XCAGateway {
 
     private final static Logger logger = Logger.getLogger(XCAInitiatingGateway.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      * 
@@ -43,7 +49,9 @@ public class XCAInitiatingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
-        return new XCAIGAdhocQueryRequest(this.getGatewayConfig(), log_message, getMessageContext());
+        XCAAdhocQueryRequest request = new XCAIGAdhocQueryRequest(log_message, getMessageContext());
+        request.setConfigActor(config);
+        return request;
     }
 
     /**
@@ -52,26 +60,9 @@ public class XCAInitiatingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
-        return new XCAIGRetrieveDocumentSet(this.getGatewayConfig(), log_message, getMessageContext());
-    }
-
-    /**
-     *
-     * @return
-     * @throws AxisFault
-     */
-    protected XConfigActor getGatewayConfig() throws XdsInternalException {
-        try {
-            XConfig xconf = XConfig.getInstance();
-            // Get the home community config.
-            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-            XConfigObject gatewayConfig = homeCommunityConfig.getXConfigObjectWithName(
-                    "ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
-            return (XConfigActor) gatewayConfig;
-        } catch (XdsInternalException ex) {
-            logger.fatal("Unable to load XConfig for XCA Initiating Gateway", ex);
-            throw ex;  // Rethrow.
-        }
+        XCARetrieveDocumentSet request = new XCAIGRetrieveDocumentSet(log_message, getMessageContext());
+        request.setConfigActor(config);
+        return request;
     }
 
     /**
@@ -98,6 +89,14 @@ public class XCAInitiatingGateway extends XCAGateway {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("XCAInitiatingGateway::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
         this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
     }
 

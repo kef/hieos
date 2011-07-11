@@ -20,7 +20,6 @@ import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSe
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.AxisFault;
@@ -47,13 +46,6 @@ public abstract class XCAGateway extends XAbstractService {
      * @throws XdsInternalException
      */
     abstract XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException;
-
-    /**
-     *
-     * @return
-     * @throws XdsInternalException
-     */
-    abstract XConfigActor getGatewayConfig() throws XdsInternalException;
 
     /**
      *

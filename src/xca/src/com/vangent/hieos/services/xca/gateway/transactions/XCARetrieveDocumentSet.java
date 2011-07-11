@@ -53,14 +53,13 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
     abstract void processRemoteCommunityRequest(OMElement docRequest, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException;
 
     /**
-     *
-     * @param gatewayConfig
+     * 
      * @param log_message
      * @param messageContext
      */
-    public XCARetrieveDocumentSet(XConfigActor gatewayConfig, XLogMessage log_message, MessageContext messageContext) {
+    public XCARetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         try {
-            super.init(gatewayConfig, log_message, new RetrieveMultipleResponse(), messageContext);
+            super.init(log_message, new RetrieveMultipleResponse(), messageContext);
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRepositoryError,

@@ -32,12 +32,11 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
 
     /**
      * 
-     * @param gatewayConfig
      * @param log_message
      * @param messageContext
      */
-    public XCARGAdhocQueryRequest(XConfigActor gatewayConfig, XLogMessage log_message, MessageContext messageContext) {
-        super(gatewayConfig, log_message, messageContext);
+    public XCARGAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
+        super(log_message, messageContext);
     }
 
     /**
@@ -93,14 +92,5 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
      */
     protected void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
         // NOOP: for now ... could do chaining of gateways here.
-    }
-
-    /**
-     *
-     * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     */
-    protected XConfigActor getLocalRegistry() throws XdsInternalException {
-        return this.getLocalRegistry("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
     }
 }

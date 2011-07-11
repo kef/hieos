@@ -50,14 +50,13 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
     };
     private static XConfigActor _xcpdIGConfig = null;
 
-    /**
-     * 
-     * @param gatewayConfig
-     * @param log_message
-     * @param messageContext
-     */
-    public XCAIGAdhocQueryRequest(XConfigActor gatewayConfig, XLogMessage log_message, MessageContext messageContext) {
-        super(gatewayConfig, log_message, messageContext);
+   /**
+    * 
+    * @param log_message
+    * @param messageContext
+    */
+    public XCAIGAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
+        super(log_message, messageContext);
     }
 
     /**
@@ -407,15 +406,6 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
                 }
             }
         }
-    }
-
-    /**
-     * 
-     * @return
-     * @throws XdsInternalException
-     */
-    protected XConfigActor getLocalRegistry() throws XdsInternalException {
-        return this.getLocalRegistry("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
     }
 
     /**

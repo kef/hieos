@@ -31,12 +31,11 @@ public class XCARGRetrieveDocumentSet extends XCARetrieveDocumentSet {
 
     /**
      * 
-     * @param gatewayConfig
      * @param log_message
      * @param messageContext
      */
-    public XCARGRetrieveDocumentSet(XConfigActor gatewayConfig, XLogMessage log_message, MessageContext messageContext) {
-        super(gatewayConfig, log_message, messageContext);
+    public XCARGRetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
+        super(log_message, messageContext);
     }
 
     /**

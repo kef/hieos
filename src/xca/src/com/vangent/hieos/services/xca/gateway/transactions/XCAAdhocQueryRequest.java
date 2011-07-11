@@ -29,7 +29,6 @@ import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -68,20 +67,12 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
 
     /**
      *
-     * @return
-     * @throws XdsInternalException
-     */
-    abstract XConfigActor getLocalRegistry() throws XdsInternalException;
-
-    /**
-     * 
-     * @param gatewayConfig
      * @param log_message
      * @param messageContext
      */
-    public XCAAdhocQueryRequest(XConfigActor gatewayConfig, XLogMessage log_message, MessageContext messageContext) {
+    public XCAAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
         try {
-            super.init(gatewayConfig, log_message, new XCAAdhocQueryResponse(), messageContext);
+            super.init(log_message, new XCAAdhocQueryResponse(), messageContext);
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRegistryError,
@@ -160,7 +151,7 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         }
     }
 
-     /**
+    /**
      *
      * @param queryRequest
      * @param responseOption
@@ -264,16 +255,13 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @return
      * @throws XdsInternalException
      */
-    protected XConfigActor getLocalRegistry(String gatewayName, String gatewayType) throws XdsInternalException {
-        // Get the gateway configuration.
-        XConfig xconfig = XConfig.getInstance();
-        XConfigObject homeCommunity = xconfig.getHomeCommunityConfig();
+    protected XConfigActor getLocalRegistry() throws XdsInternalException {
 
         // Return the proper registry configuration based upon the gateway configuration.
-        XConfigActor gateway = (XConfigActor) homeCommunity.getXConfigObjectWithName(gatewayName, gatewayType);
+        XConfigActor gatewayConfig = this.getGatewayConfig();
 
         // Get the gateway's local registry.
-        XConfigActor registry = (XConfigActor) gateway.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+        XConfigActor registry = (XConfigActor) gatewayConfig.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         if (registry == null) {
             response.add_error(MetadataSupport.XDSRegistryNotAvailable,
                     "Can not find local registry endpoint",

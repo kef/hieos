@@ -36,6 +36,12 @@ import org.apache.log4j.Logger;
 public class XCARespondingGateway extends XCAGateway {
 
     private final static Logger logger = Logger.getLogger(XCARespondingGateway.class);
+    private static XConfigActor config = null;  // Singleton.
+
+    @Override
+    protected XConfigActor getConfigActor() {
+        return config;
+    }
 
     /**
      * 
@@ -43,7 +49,9 @@ public class XCARespondingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
-       return new XCARGAdhocQueryRequest(this.getGatewayConfig(), log_message, getMessageContext());
+        XCAAdhocQueryRequest request = new XCARGAdhocQueryRequest(log_message, getMessageContext());
+        request.setConfigActor(config);
+        return request;
     }
 
     /**
@@ -52,26 +60,9 @@ public class XCARespondingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
-        return new XCARGRetrieveDocumentSet(this.getGatewayConfig(), log_message, getMessageContext());
-    }
-
-    /**
-     *
-     * @return
-     * @throws AxisFault
-     */
-    protected XConfigActor getGatewayConfig() throws XdsInternalException {
-        try {
-            XConfig xconf = XConfig.getInstance();
-            // Get the home community config.
-            XConfigObject homeCommunityConfig = xconf.getHomeCommunityConfig();
-            XConfigObject gatewayConfig = homeCommunityConfig.getXConfigObjectWithName(
-                    "rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
-            return (XConfigActor) gatewayConfig;
-        } catch (XdsInternalException ex) {
-            logger.fatal("Unable to load XConfig for XCA Responding Gateway", ex);
-            throw ex;  // Rethrow.
-        }
+        XCARetrieveDocumentSet request = new XCARGRetrieveDocumentSet(log_message, getMessageContext());
+        request.setConfigActor(config);
+        return request;
     }
 
     /**
@@ -98,6 +89,14 @@ public class XCARespondingGateway extends XCAGateway {
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("XCARespondingGateway::startUp()");
+        try {
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("rg", XConfig.XCA_RESPONDING_GATEWAY_TYPE);
+        } catch (Exception ex) {
+            logger.fatal("Unable to get configuration for service", ex);
+        }
         this.ATNAlogStart(XATNALogger.ActorType.RESPONDING_GATEWAY);
     }
 

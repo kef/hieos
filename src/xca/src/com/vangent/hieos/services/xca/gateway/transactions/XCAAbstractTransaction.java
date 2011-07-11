@@ -40,7 +40,7 @@ import org.apache.axiom.om.OMElement;
 abstract public class XCAAbstractTransaction extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(XCAAbstractTransaction.class);
-    private XConfigActor gatewayConfig = null;
+    //private XConfigActor gatewayConfig = null;
     private XCARequestController requestController = null;
     private boolean errorDetected = false;
 
@@ -71,18 +71,16 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
      * @return
      */
     protected XConfigActor getGatewayConfig() {
-        return this.gatewayConfig;
+        return this.getConfigActor();
     }
 
     /**
      *
-     * @param gatewayConfig
      * @param log_message
      * @param response
      * @param messageContext
      */
-    protected void init(XConfigActor gatewayConfig, XLogMessage log_message, Response response, MessageContext messageContext) {
-        this.gatewayConfig = gatewayConfig;
+    protected void init(XLogMessage log_message, Response response, MessageContext messageContext) {
         this.log_message = log_message;
         this.requestController = new XCARequestController(response, this.log_message);
         super.init(response, messageContext); // Initialize superclass whole.
