@@ -187,7 +187,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 // POLICY ENFORCEMENT POINT:
                 PEPResponseContext pepResponseCtx = null;
                 try {
-                    pepResponseCtx = PEP.evaluateCurrentRequest();
+                    pepResponseCtx = PEP.evaluateCurrentRequest(this.getConfigActor());
                     if (pepResponseCtx.isDenyDecision()) {
                         // TBD: Check deny obligations ... for now, just deny
                         response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
@@ -211,6 +211,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 if (pepResponseCtx.hasObligations()) {
                     // TBD: Need to see what needs to be done here.
                     // TBD: Filtering, etc.
+                    // FIXME: For now, returning everything (stub).
                     if (results != null) {
                         ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
                     }
@@ -236,8 +237,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
     protected long getMaxLeafObjectsAllowedFromQuery() {
         long defaultMaxLeafObjectsAllowedFromQuery = 25;
         XConfigActor registryConfig = this.getConfigActor();
-        if (registryConfig == null)
-        {
+        if (registryConfig == null) {
             return defaultMaxLeafObjectsAllowedFromQuery;
         }
         String propValue = registryConfig.getProperty("MaxLeafObjectsAllowedFromQuery");
