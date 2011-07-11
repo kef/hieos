@@ -1,15 +1,14 @@
+
 <Config>
     <PolicyFiles>
         <!-- Note: must be relative to location of this file -->
         <PolicyFile name="policies/hie-policy.xml" />
         <PolicyFile name="policies/hie-policy-2.xml" />
-        <!--
-        <PolicyFile name="policies/XXX" />
-        <PolicyFile name="policies/ZZZ" />
+        <!-- other policy files would go here ... -->
         -->
     </PolicyFiles>
 
-     <Attributes>
+    <Attributes>
 
         <!-- Subjects -->
         <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" />
