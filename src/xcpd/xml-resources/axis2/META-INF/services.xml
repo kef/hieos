@@ -4,7 +4,6 @@
     <service name="xcpdig" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGateway">
         <description>XCPD Initiating Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGateway</parameter>
-        <parameter name="ActorName">InitiatingGateway</parameter>
         <operation name="PatientRegistryFindCandidatesQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02</actionMapping>
@@ -23,7 +22,6 @@
     <service name="xcpdrg" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGateway">
         <description>XCPD Responding Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGateway</parameter>
-        <parameter name="ActorName">RespondingGateway</parameter>
         <operation name="CrossGatewayPatientDiscovery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02:CrossGatewayPatientDiscovery</actionMapping>
@@ -39,7 +37,6 @@
     <service name="xcpdigas" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGatewayAsync">
         <description>Async XCPD Initiating Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDInitiatingGatewayAsync</parameter>
-        <parameter name="ActorName">InitiatingGateway</parameter>
         <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="PatientRegistryFindCandidatesQuery">
@@ -60,7 +57,6 @@
     <service name="xcpdrgas" class="com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGatewayAsync">
         <description>Async XCPD Responding Gateway Interface</description>
         <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.xcpd.gateway.serviceimpl.XCPDRespondingGatewayAsync</parameter>
-        <parameter name="ActorName">RespondingGateway</parameter>
          <!-- Set to true if a new thread should be created for the async request -->
         <parameter name="SpawnNewAsyncThread">true</parameter>
         <operation name="CrossGatewayPatientDiscovery">
