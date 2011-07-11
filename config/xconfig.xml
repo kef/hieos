@@ -21,7 +21,9 @@
         by using the "repositoryId" in the associated "Retrieve" requests. -->
         <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
 
-        <Property name="ValidatePatientId">true</Property>
+        <!-- Moved to Registry configuration -->
+        <!--
+        <Property name="ValidatePatientId">true</Property>-->
         <!-- Set this property to false to disable XML schema validation for all input messages
              recieved by HIEOS. -->
         <Property name="XMLSchemaValidationEnabled">true</Property>
@@ -30,7 +32,7 @@
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
-	    <Property name="ATNAsyslogHost">10.242.17.125</Property>
+        <Property name="ATNAsyslogHost">10.242.17.125</Property>
         <Property name="ATNAsyslogPort">3110</Property> <!-- UDP Port 3110; TCP Port 3100-->
 	    
         <!-- MIR SYSLOG -->
@@ -72,14 +74,20 @@
         <!-- Policy Decision Point (PDP) -->
         <ObjectReference name="pdp" refname="localpdp" reftype="PolicyDecisionPointType"/>
 
+         <!-- Policy Information Point (PIP) -->
+        <ObjectReference name="pip" refname="localpip" reftype="PolicyInformationPointType"/>
+
         <!-- XDS Bridge -->
-         <ObjectReference name="xdsbridge" refname="localxdsbridge" reftype="XDSBridgeType"/>
+        <ObjectReference name="xdsbridge" refname="localxdsbridge" reftype="XDSBridgeType"/>
+
+        <!-- XDR Document Recipient -->
+        <ObjectReference name="docrecipient" refname="localdocrecipient" reftype="DocumentRecipientType"/>
 
         <!-- Other global properties will go here. -->
     </Object>
 
     <Object name="XUAProperties" type="XUAPropertiesType">
-        <Property name="XUAEnabled">false</Property>
+        <Property name="XUAEnabled">true</Property>
         <!--<Property name="STSValidatorURL">http://tiani-cisco6:8088/SpiritIdentityProvider2/sts_validator</Property>-->
         <Property name="STSValidatorURL">http://localhost:8127/axis2/services/STS</Property>
         <Property name="STSValidatorServiceURI">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate</Property>
@@ -149,8 +157,12 @@
         <!--<ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>-->
     </Object>
 
-    <!-- Secure Token Service (STS) (convert to ActorType?) -->
-    <Object name="localsts" type="SecureTokenServiceType">
+    <!-- Secure Token Service (STS) -->
+    <Actor name="localsts" type="SecureTokenServiceType">
+        <UniqueId>NA</UniqueId>
+
+        <!-- TBD add Transactions -->
+
         <Property name="IssuerName">HIEOS STS</Property>
 
         <!-- if IssuerAlias is not set, will use "s1as" as default value. -->
@@ -204,8 +216,8 @@
     <Actor name="localpdp" type="PolicyDecisionPointType">
         <UniqueId>NA</UniqueId>
         <Transaction name="Authorize" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8127/axis2/services/pdp</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8228/axis2/services/pdp</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pdp</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/pdp</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
@@ -221,8 +233,8 @@
     <Actor name="localpip" type="PolicyInformationPointType">
         <UniqueId>NA</UniqueId>
         <Transaction name="GetConsentDirectives" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8127/axis2/services/pip</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8228/axis2/services/pip</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pip</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/pip</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
@@ -247,7 +259,7 @@
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.418</Property>
         <Property name="DeviceName">HIEOS_XDSBridge</Property>
-  </Actor>
+    </Actor>
 
    <!-- List of Registries -->
     <Actor name="localregistry" type="DocumentRegistryType">
@@ -270,6 +282,7 @@
             <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsregistrybas</Endpoint>
         </Transaction>
+        <Property name="ValidatePatientId">true</Property>
         
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
         <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
@@ -295,6 +308,17 @@
 
         <!-- This tells the repository what registry to utilize during "Provide and Register" -->
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
+    </Actor>
+
+<!-- XDR Document Recipient -->
+    <Actor name="localdocrecipient" type="DocumentRecipientType">
+        <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
+        <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
+        </Transaction>
     </Actor>
 
 <!--
