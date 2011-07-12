@@ -4,8 +4,8 @@
            xmlns:pip="urn:hieos:policy:pip"
            xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
            xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
-           PolicySetId="urn:hieos:policy:1.0:policyset:100"
-           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+           PolicySetId="hie-policy-set"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable">
     <Target>
         <Actions>
             <Action>
@@ -18,58 +18,104 @@
     </Target>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="urn:hieos:policy:1.0:id:100"
+         PolicyId="emergency-access-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Sample XACML policy</Description>
+        <Description>Emergency Access Policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="emergency-access-rule" Effect="Permit">
+            <Description>
+                Permit if the subject has an emergency access assertion.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">EMERGENCY</AttributeValue>
+                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                </Apply>
+            </Condition>
+        </Rule>
+
+         <!-- A final, "fall-through" Rule that always Denies -->
+        <!--<Rule RuleId="FinalRule" Effect="Deny"/>-->
+
+        <Obligations>
+            <Obligation
+	        ObligationId="granted-emergency-access"
+	        FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="subject-has-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+        <Description>Provider Access to Non-Sensitive Documents</Description>
 
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
         <Target/>
-           
-        <Rule RuleId="allowed-organizations-rule" Effect="Permit">
-          
+        
+        <Rule RuleId="blocked-organizations-rule" Effect="Deny">
             <Description>
-                Permit if subject's organization-id is in one of the designated set of allowed organizations
+                Deny if subject's organization-id is in one of the designated set of blocked organizations
             </Description>
-
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
                     <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
                     <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:BlockedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                 </Apply>
             </Condition>
-
         </Rule>
 
-        <Rule RuleId="deny-all-rule" Effect="Deny">
-            <Description>deny all access to documents. Since this rule is last, it will
-            be selected if no other rule applies, under the rule combining algorithm of first applicable.
+        <Rule RuleId="blocked-individuals-rule" Effect="Deny">
+            <Description>
+                Deny if subject's subject-id is in one of the designated set of blocked individuals
             </Description>
-            <!--<Target/>-->
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                    <AttributeSelector
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:BlockedIndividuals/pip:Individual/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
         </Rule>
+
+        <Rule RuleId="allowed-organizations-rule" Effect="Permit">
+            <Description>
+                Permit if subject's organization-id is in one of the designated set of allowed organizations.  Only
+                evaluated if the patient has designated a list.
+            </Description>
+            <!-- Pseudocode:
+                  AllowedOrganizations.size() > 0 AND AllowedOrganizations.contains(Subject.OrganizationId)
+            -->
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                            <AttributeSelector
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                    </Apply>
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                        <AttributeSelector
+                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+
         <Obligations>
-	      <!-- These obligations provide specific instructions to PEP in the response -->
-	      <!-- This obligation informs the PEP user granted emergency access      -->
             <Obligation
-	        ObligationId="permit-test-hie-policy"
-	        FulfillOn="Permit">
-                <AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">
-                    &lt;SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" DataType="http://www.w3.org/2001/XMLSchema#string"/&gt;
-                </AttributeAssignment>
-            </Obligation>
+	        ObligationId="granted-access-to-non-sensitive-document-types"
+	        FulfillOn="Permit"/>
             <Obligation
-	        ObligationId="sensitive-doc-types-obligation"
-	        FulfillOn="Permit">
-                <AttributeAssignment DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types">&lt;ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:sensitive-document-types" DataType="http://www.w3.org/2001/XMLSchema#string"/&gt;</AttributeAssignment>
-                <AttributeAssignment AttributeId="urn:oasis:names:tc:xacml:2.0:example:attribute:text" DataType="http://www.w3.org/2001/XMLSchema#string">
-                    Your medical record has been accessed
-                </AttributeAssignment>
-            </Obligation>
-            <Obligation
-	        ObligationId="deny-test-hie-policy"
-	        FulfillOn="Deny"/>
+	        ObligationId="evaluate-sensitive-document-types"
+	        FulfillOn="Permit"/>
         </Obligations>
     </Policy>
        

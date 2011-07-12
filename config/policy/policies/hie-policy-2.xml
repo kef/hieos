@@ -25,7 +25,7 @@
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
          PolicyId="urn:hieos:policy:1.0:id:200"
-        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
         <Description>Sample XACML policy</Description>
 
         <PolicyDefaults>
@@ -48,12 +48,6 @@
 
         </Rule>
 
-        <Rule RuleId="deny-all-rule" Effect="Deny">
-            <Description>deny all access to documents. Since this rule is last, it will
-            be selected if no other rule applies, under the rule combining algorithm of first applicable.
-            </Description>
-            <!--<Target/>-->
-        </Rule>
         <Obligations>
 	      <!-- These obligations provide specific instructions to PEP in the response -->
 	      <!-- This obligation informs the PEP user granted emergency access      -->
