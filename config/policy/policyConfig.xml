@@ -3,7 +3,7 @@
     <PolicyFiles>
         <!-- Note: must be relative to location of this file -->
         <PolicyFile name="policies/hie-policy.xml" />
-        <PolicyFile name="policies/hie-policy-2.xml" />
+        <!--<PolicyFile name="policies/hie-policy-2.xml" />-->
         <!-- other policy files would go here ... -->
         -->
     </PolicyFiles>
@@ -15,7 +15,8 @@
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" />
         <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="any" name="PurposeForUse" />
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string"/>
+        <!--<Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="any" name="PurposeForUse" />-->
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:2.0:subject:npi" type="string" />
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" type="string" />
 
