@@ -1,9 +1,15 @@
+
 <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
     <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
         <xspa:ClaimValue>Joe Smith</xspa:ClaimValue>
     </xspa:ClaimType>
     <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
         <xspa:ClaimValue>TREATMENT</xspa:ClaimValue>
+        <!--
+        <xspa:ClaimValue>
+            <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+        </xspa:ClaimValue>
+        -->
     </xspa:ClaimType>
     <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
         <xspa:ClaimValue>1.1</xspa:ClaimValue>
