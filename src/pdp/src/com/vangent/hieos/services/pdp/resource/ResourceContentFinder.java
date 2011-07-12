@@ -55,6 +55,7 @@ public class ResourceContentFinder {
 
         // FIXME: Guard here against no resources.
         // Only picks the first Resource
+        // FIXME: Only dealing with the first resource here ...
         ResourceType resourceType = requestType.getResource().get(0);
 
         // Get the patient id.

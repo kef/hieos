@@ -193,7 +193,7 @@
             <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
             <wsu:Expires>2011-07-25T20:45:49.881Z</wsu:Expires>
          </wsu:Timestamp>
-${#Project#samltoken}
+         ${#Project#samltoken}
       </wsse:Security>
    </soap-env:Header>
    <soap-env:Body>
@@ -202,7 +202,7 @@ ${#Project#samltoken}
          <xacml-context:Request xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd" xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
             <xacml-context:Subject SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id">
-                  <xacml-context:AttributeValue>SUBJECT-ID</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>3.8</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization">
                   <xacml-context:AttributeValue>ORGANIZATION</xacml-context:AttributeValue>
@@ -214,11 +214,7 @@ ${#Project#samltoken}
                   <xacml-context:AttributeValue>DOCTOR</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-                  <xacml-context:AttributeValue>
-                     <Foo attribute="fooattr" xmlns="foo">
-                        <Bar xmlns="bar">hello</Bar>
-                     </Foo>
-                  </xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>EMERGENCY</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:2.0:subject:npi">
                   <xacml-context:AttributeValue>NPI</xacml-context:AttributeValue>
@@ -229,7 +225,7 @@ ${#Project#samltoken}
             </xacml-context:Subject>
             <xacml-context:Resource>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id">
-                  <xacml-context:AttributeValue>123456^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO</xacml-context:AttributeValue>
                </xacml-context:Attribute>
             </xacml-context:Resource>
             <xacml-context:Action>
