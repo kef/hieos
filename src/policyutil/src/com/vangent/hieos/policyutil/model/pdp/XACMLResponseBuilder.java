@@ -63,7 +63,9 @@ public class XACMLResponseBuilder {
         for (ResultType resultType : responseType.getResult()) {
             String resourceId = resultType.getResourceId();
             String decision = resultType.getDecision().value();
-            String statusCode = resultType.getStatus().getStatusCode().getValue();
+            StatusType statusType = resultType.getStatus();
+            String statusCode = statusType.getStatusCode().getValue();
+            String statusMessage = statusType.getStatusMessage();
 
             // Result.
             OMElement resultNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Result", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
@@ -81,8 +83,12 @@ public class XACMLResponseBuilder {
             OMElement statusNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Status", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
             OMElement statusCodeNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "StatusCode", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
             statusCodeNode.addAttribute("Value", statusCode, null);
-
             statusNode.addChild(statusCodeNode);
+            if (statusMessage != null) {
+                OMElement statusMessageNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "StatusMessage", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
+                statusMessageNode.setText(statusMessage);
+                statusNode.addChild(statusMessageNode);
+            }
             resultNode.addChild(statusNode);
 
             // Obligation(s).
@@ -104,8 +110,20 @@ public class XACMLResponseBuilder {
                             OMElement attributeAssignmentNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_NS, "AttributeAssignment", PolicyConstants.XACML_NS_PREFIX));
                             attributeAssignmentNode.addAttribute("AttributeId", attributeId, null);
                             attributeAssignmentNode.addAttribute("DataType", dataType, null);
-                            // FIXME: Need to return AttributeAssignment Content!!!
-                            obligationNode.addChild(attributeAssignmentNode);
+                            // FIXME:
+                            //if (!attributeAssignmentType.getContent().isEmpty()) {
+                            //    System.out.println("++++ type: " +
+                            //            attributeAssignmentType.getContent().get(0).getClass().getCanonicalName());
+                            //    /*
+                            //    Element contentValueElement = (Element) attributeAssignmentType.getContent().get(0);
+                            //    try {
+                            //        OMElement contentValueNode = XMLParser.convertDOMtoOM(contentValueElement);
+                            //        attributeAssignmentNode.addChild(contentValueNode);
+                            //    } catch (XMLParserException ex) {
+                            //        throw new PolicyException("Unable to convert DOM to OM: " + ex.getMessage());
+                            //    }*/
+                            //}
+                            //obligationNode.addChild(attributeAssignmentNode);
                         }
                         obligationsNode.addChild(obligationNode);
                     }
@@ -130,6 +148,7 @@ public class XACMLResponseBuilder {
         ResponseType responseType = new ResponseType();
         Set<Result> results = responseCtx.getResults();
         Iterator<Result> it = results.iterator();
+
         // Loop through results.
         while (it.hasNext()) {
             Result result = it.next();
@@ -214,19 +233,20 @@ public class XACMLResponseBuilder {
             PolicyConstants.XACML_SAML_NS,
             PolicyConstants.XACML_CONTEXT_NS,
             PolicyConstants.SAML2_NS};
+
         try {
-            // Find the Response
+            // Find Response
             OMElement responseNode = XPathHelper.selectSingleNode(samlResponseNode,
                     "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Response[1]", nsPrefixes, nsURIs);
-
+            // Build ResponseType.
             ResponseType responseType = this.buildResponseType(new ResponseTypeElement(responseNode));
             pdpResponse.setResponseType(responseType);
 
-            // Find the Request
+            // Find Request
             OMElement requestNode = XPathHelper.selectSingleNode(samlResponseNode,
                     "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Request[1]", nsPrefixes, nsURIs);
-
             XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+            // Build RequestType.
             RequestType requestType = requestBuilder.buildRequestType(new RequestTypeElement(requestNode));
             pdpResponse.setRequestType(requestType);
         } catch (XPathHelperException ex) {
@@ -307,12 +327,19 @@ public class XACMLResponseBuilder {
                 // StatusType
                 OMElement statusCodeNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusCode[1]", PolicyConstants.XACML_CONTEXT_NS);
                 if (statusCodeNode != null) {
-                    // FIXME: Handle status code messages, etc.
                     String statusText = statusCodeNode.getAttributeValue(new QName("Value"));
                     StatusType statusType = new StatusType();
                     StatusCodeType statusCodeType = new StatusCodeType();
                     statusCodeType.setValue(statusText);
                     statusType.setStatusCode(statusCodeType);
+
+                    // Optional: StatusMessage
+                    OMElement statusMessageNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusMessage[1]", PolicyConstants.XACML_CONTEXT_NS);
+                    if (statusMessageNode != null)
+                    {
+                        String statusMessageText = statusMessageNode.getText();
+                        statusType.setStatusMessage(statusMessageText);
+                    }
                     resultType.setStatus(statusType);
                 }
 
@@ -333,7 +360,6 @@ public class XACMLResponseBuilder {
                 }
                 responseType.getResult().add(resultType);
             }
-
         } catch (XPathHelperException ex) {
             // FIXME: Do something?
         }

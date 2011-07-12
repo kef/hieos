@@ -164,7 +164,7 @@ public class XACMLRequestBuilder {
             OMElement requestNode = requestTypeElement.getElement();
 
             // Subjects
-            List<OMElement> subjectNodes = XPathHelper.selectNodes(requestNode, "./ns:Subject[1]", PolicyConstants.XACML_CONTEXT_NS);
+            List<OMElement> subjectNodes = XPathHelper.selectNodes(requestNode, "./ns:Subject", PolicyConstants.XACML_CONTEXT_NS);
             for (OMElement subjectNode : subjectNodes) {
                 String subjectCategory = subjectNode.getAttributeValue(new QName("SubjectCategory"));
                 List<AttributeType> attributeTypes = this.getAttributeTypes(subjectNode);
@@ -175,7 +175,7 @@ public class XACMLRequestBuilder {
             }
 
             // Resources
-            List<OMElement> resourceNodes = XPathHelper.selectNodes(requestNode, "./ns:Resource[1]", PolicyConstants.XACML_CONTEXT_NS);
+            List<OMElement> resourceNodes = XPathHelper.selectNodes(requestNode, "./ns:Resource", PolicyConstants.XACML_CONTEXT_NS);
             for (OMElement resourceNode : resourceNodes) {
                 List<AttributeType> attributeTypes = this.getAttributeTypes(resourceNode);
                 ResourceType resourceType = new ResourceType();
