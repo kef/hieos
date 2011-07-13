@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Config>
     <DocumentTypeMappings>
-        <Type code="51855-5" 
-                codeSystem="2.16.840.1.113883.6.1"
+        <Type code="51855-5" codeSystem="2.16.840.1.113883.6.1"
                 codeSystemName="LOINC" displayName="Shared Health Summary">
                 
             <Format code="urn:ihe:pcc:xds-ms:2007" 
@@ -16,9 +15,8 @@
                 with an ContentParserConfig below -->
             <ContentParserConfig name="SharedHealthSummaryMapper" />
         </Type>
-        <Type code="POCD_HD00040"
-                codeSystem="2.16.840.1.113883.1.3"
-                codeSystemName="LOINC" displayName="Discharge Summary">
+        <Type code="18842-5" codeSystem="2.16.840.1.113883.6.1" 
+                codeSystemName="LOINC" displayName="Discharge Summarization Note">
 
             <Format code="urn:ihe:pcc:xds-ms:2007"
                 codeSystem="1.3.6.1.4.1.19376.1.2.3"
