@@ -140,6 +140,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Add the issuer's KeyInfo to the Subject.
         //KeyInfo ki = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+        // FIXME: This is not correct - should be the originating client cert (or otherwise).
         subjData.getUnknownXMLObjects().add(issuerKeyInfo);
 
         // NO LONGER USED
