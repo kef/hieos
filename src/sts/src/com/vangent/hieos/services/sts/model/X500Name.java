@@ -102,11 +102,11 @@ public class X500Name {
         searchRdnName = searchRdnName.toLowerCase();
         int index = -1; // Not found.
         for (int i = 0; i < dn.size(); i++) {
-            System.out.println(dn.get(i));
+            //System.out.println(dn.get(i));
             Rdn rdn = dn.getRdn(i);
             String rdnAsString = rdn.toString().toLowerCase();
             if (rdnAsString.startsWith(searchRdnName)) {
-                System.out.println("+++ found " + searchRdnName);
+                //System.out.println("+++ found " + searchRdnName);
                 index = i;
                 break;
             }

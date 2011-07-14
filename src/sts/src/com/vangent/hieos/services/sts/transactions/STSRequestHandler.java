@@ -122,14 +122,14 @@ public class STSRequestHandler extends XBaseTransaction {
         // Now, either process an "Issue" or "Validate" token request.
         try {
             requestData.parseBody();
-            System.out.println("STSRequestData - " + requestData.toString());
+            //System.out.println("STSRequestData - " + requestData.toString());
             String requestType = requestData.getRequestType();
             if (requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
                 result = this.processIssueTokenRequest(requestData);
             } else if (requestType.equalsIgnoreCase(STSConstants.VALIDATE_REQUEST_TYPE)) {
                 result = this.processValidateTokenRequest(requestData);
             } else {
-                System.out.println("RequestType not understood by this service!");
+                throw new STSException("RequestType not understood by this service!");
             }
         } catch (STSException ex) {
             throw new AxisFault(ex.getMessage());
@@ -148,7 +148,7 @@ public class STSRequestHandler extends XBaseTransaction {
      * @throws STSException
      */
     private OMElement processIssueTokenRequest(STSRequestData requestData) throws STSException {
-        System.out.println("STS ISSUE action!");
+        //System.out.println("STS ISSUE action!");
         //this.runTest();
         SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler();
         return handler.handle(requestData);
@@ -161,7 +161,7 @@ public class STSRequestHandler extends XBaseTransaction {
      * @throws STSException
      */
     private OMElement processValidateTokenRequest(STSRequestData requestData) throws STSException {
-        System.out.println("STS VALIDATE action!");
+        //System.out.println("STS VALIDATE action!");
         SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler();
         return handler.handle(requestData);
     }
