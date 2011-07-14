@@ -186,7 +186,7 @@
          </ns7:Request>
       </ns9:XACMLAuthzDecisionQuery>
    </soap-env:Body>
-</soap-env:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:Authorize" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Clean Request" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pdp</con:endpoint><con:request><![CDATA[<soap-env:Envelope xmlns:soap-env="http://www.w3.org/2003/05/soap-envelope">
+</soap-env:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:Authorize" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Clean Request" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9090/axis2/services/pdp</con:endpoint><con:request><![CDATA[<soap-env:Envelope xmlns:soap-env="http://www.w3.org/2003/05/soap-envelope">
    <soap-env:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
       <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
          <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -202,19 +202,19 @@
          <xacml-context:Request xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd" xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
             <xacml-context:Subject SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id">
-                  <xacml-context:AttributeValue>3.8</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>3.3</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization">
                   <xacml-context:AttributeValue>ORGANIZATION</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
-                  <xacml-context:AttributeValue>1.1</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>1.2</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role">
                   <xacml-context:AttributeValue>DOCTOR</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-                  <xacml-context:AttributeValue>EMERGENCY</xacml-context:AttributeValue>
+                  <xacml-context:AttributeValue>TREATMENT</xacml-context:AttributeValue>
                </xacml-context:Attribute>
                <xacml-context:Attribute Issuer="testIssuer" DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="urn:oasis:names:tc:xspa:2.0:subject:npi">
                   <xacml-context:AttributeValue>NPI</xacml-context:AttributeValue>
