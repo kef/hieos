@@ -13,9 +13,9 @@
 package com.vangent.hieos.services.sts.util;
 
 import com.vangent.hieos.policyutil.util.PolicyConfig;
-import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.ByteArrayInputStream;
@@ -24,6 +24,7 @@ import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
@@ -48,6 +49,8 @@ import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.security.keyinfo.KeyInfoHelper;
+import org.opensaml.xml.signature.KeyInfo;
 import org.w3c.dom.Element;
 
 /**
@@ -57,18 +60,20 @@ import org.w3c.dom.Element;
 public class STSUtil {
 
     private final static Logger logger = Logger.getLogger(STSUtil.class);
+    private static XMLObjectBuilderFactory _xmlObjectBuilderFactory = null;
 
+    // Initialize OpenSAML library and other singletons.
     static {
         try {
             // OpenSAML 2.3
             logger.info("Initializing OpenSAML library");
             DefaultBootstrap.bootstrap();
+            _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
             logger.info("Initializing OpenSAML library - Success!");
         } catch (ConfigurationException ex) {
             logger.fatal("Failure initializing OpenSAML: " + ex.getMessage());
         }
     }
-    private static XMLObjectBuilderFactory _xmlObjectBuilderFactory = null;
 
     /**
      *
@@ -77,7 +82,7 @@ public class STSUtil {
      * @throws STSException
      */
     public static String getRequestType(OMElement request) throws STSException {
-        OMElement reqTypeElem = request.getFirstChildWithName(new QName(PolicyConstants.WSTRUST_NS,
+        OMElement reqTypeElem = request.getFirstChildWithName(new QName(STSConstants.WSTRUST_NS,
                 "RequestType"));
         if (reqTypeElem == null
                 || reqTypeElem.getText() == null
@@ -89,20 +94,10 @@ public class STSUtil {
     }
 
     /**
-     *
+     * 
      * @return
-     * @throws STSException
      */
-    public synchronized static XMLObjectBuilderFactory getXMLObjectBuilderFactory() throws STSException {
-        if (_xmlObjectBuilderFactory == null) {
-            /*
-            try {
-                DefaultBootstrap.bootstrap();
-            } catch (ConfigurationException ex) {
-                throw new STSException("Failure initializing OpenSAML: " + ex.getMessage());
-            }*/
-            _xmlObjectBuilderFactory = Configuration.getBuilderFactory();
-        }
+    public static XMLObjectBuilderFactory getXMLObjectBuilderFactory() {
         return _xmlObjectBuilderFactory;
     }
 
@@ -128,8 +123,10 @@ public class STSUtil {
     // FIXME: Any way to avoid double conversion?
     static public OMElement convertXMLObjectToOMElement(XMLObject xmlObject) throws STSException {
         // 2 step process.
-        Element element = STSUtil.convertXMLObjectToElement(xmlObject);
         try {
+            // Convert XMLObject to Element.
+            Element element = STSUtil.convertXMLObjectToElement(xmlObject);
+            // Convert Element to OMElement.
             return XMLParser.convertDOMtoOM(element);
         } catch (XMLParserException ex) {
             throw new STSException(ex.getMessage());
@@ -180,10 +177,13 @@ public class STSUtil {
      * @return
      * @throws STSException
      */
+    // FIXME: Any way to avoid double conversion?
     static public XMLObject convertOMElementToXMLObject(OMElement omElement) throws STSException {
-        // Convert OMElement to Element.
+        // 2 step process.
         try {
+            // Convert OMElement to Element.
             Element element = XMLParser.convertOMToDOM(omElement);
+            // Convert Element to XMLObject.
             return STSUtil.convertElementToXMLObject(element);
         } catch (XMLParserException ex) {
             throw new STSException(ex.getMessage());
@@ -198,8 +198,28 @@ public class STSUtil {
      * @throws STSException
      */
     static public XMLObject createXMLObject(QName qname) throws STSException {
-        //return Configuration.getBuilderFactory().getBuilder(qname).buildObject(qname);
         return STSUtil.getXMLObjectBuilderFactory().getBuilder(qname).buildObject(qname);
+    }
+
+    /**
+     * 
+     * @param certificate
+     * @param addPublicKey
+     * @return
+     * @throws STSException
+     */
+    static public KeyInfo getKeyInfo(X509Certificate certificate, boolean addPublicKey) throws STSException {
+        // Place the Certificate (public portion) for the issuer in the KeyInfo response.
+        KeyInfo keyInfo = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+        if (addPublicKey == true) {
+            KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+        }
+        try {
+            KeyInfoHelper.addCertificate(keyInfo, certificate);
+        } catch (CertificateEncodingException ex) {
+            throw new STSException("Unable to encode certificate: " + ex.getMessage());
+        }
+        return keyInfo;
     }
 
     /**
@@ -209,7 +229,6 @@ public class STSUtil {
      * @throws STSException
      */
     public static void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
-
         System.out.println("X509Certificate = " + cert);
         try {
             // To check the validity of the dates
@@ -319,7 +338,7 @@ public class STSUtil {
         return certificate;
     }
 
-    // TBD: Cache truststore/keystore usage!!!
+    // FIXME: Cache truststore/keystore usage!!!
     // TBD: Move to xutil?
     /**
      *

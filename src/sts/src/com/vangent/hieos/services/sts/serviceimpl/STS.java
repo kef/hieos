@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.services.sts.serviceimpl;
 
-import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.transactions.STSRequestHandler;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
@@ -73,9 +73,9 @@ public class STS extends XAbstractService {
     private String getRequestType(OMElement request) {
         try {
             String requestType = STSUtil.getRequestType(request);
-            if (requestType.equalsIgnoreCase(PolicyConstants.ISSUE_REQUEST_TYPE)) {
+            if (requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
                 return "STS:RST:Issue";
-            } else if (requestType.equalsIgnoreCase(PolicyConstants.VALIDATE_REQUEST_TYPE)) {
+            } else if (requestType.equalsIgnoreCase(STSConstants.VALIDATE_REQUEST_TYPE)) {
                 return "STS:RST:Validate";
             } else {
                 return "STS:RST:Unknown";

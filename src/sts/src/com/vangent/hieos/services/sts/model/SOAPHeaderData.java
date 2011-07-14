@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
@@ -72,7 +71,7 @@ public class SOAPHeaderData {
     private DateTime timestampExpires;
     private String userName;
     private String userPassword;
-    private PolicyConstants.AuthenticationType authenticationType;
+    private STSConstants.AuthenticationType authenticationType;
     private X509Certificate certificate;
     private String soapAction;
     private MessageContext mCtx;
@@ -136,7 +135,7 @@ public class SOAPHeaderData {
      *
      * @return
      */
-    public PolicyConstants.AuthenticationType getAuthenticationType() {
+    public STSConstants.AuthenticationType getAuthenticationType() {
         return authenticationType;
     }
 
@@ -159,7 +158,7 @@ public class SOAPHeaderData {
         if (header == null) {
             throw new STSException("No SOAP header found");
         }
-        OMElement securityHeader = header.getFirstChildWithName(new QName(PolicyConstants.WSSECURITY_NS, "Security"));
+        OMElement securityHeader = header.getFirstChildWithName(new QName(STSConstants.WSSECURITY_NS, "Security"));
         if (securityHeader == null) {
             throw new STSException("No Security header found");
         }
@@ -176,13 +175,13 @@ public class SOAPHeaderData {
      */
     private void getAuthenticationInfo(OMElement securityHeader) throws STSException {
         // Check to see if UserNameToken is present or BinarySecurityToken.
-        if (soapAction.equalsIgnoreCase(PolicyConstants.WSTRUST_ISSUE_ACTION)) {
+        if (soapAction.equalsIgnoreCase(STSConstants.WSTRUST_ISSUE_ACTION)) {
             switch (stsConfig.getAuthenticationType()) {
                 case USER_NAME_TOKEN:
                     if (!this.isUserNameToken(securityHeader)) {
                         throw new STSException("No UserNameToken found");
                     }
-                    authenticationType = PolicyConstants.AuthenticationType.USER_NAME_TOKEN;
+                    authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
                     userName = this.getUsername(securityHeader);
                     userPassword = this.getUserPassword(securityHeader);
                     if (userName == null || userPassword == null) {
@@ -193,7 +192,7 @@ public class SOAPHeaderData {
                     if (!this.isBinarySecurityToken(securityHeader)) {
                         throw new STSException("No BinarySecurityToken found");
                     }
-                    authenticationType = PolicyConstants.AuthenticationType.X509_CERTIFICATE;
+                    authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
                     certificate = this.getX509Certificate(securityHeader);
                     if (certificate == null) {
                         throw new STSException("No Certificate provided - rejecting request");
@@ -235,7 +234,7 @@ public class SOAPHeaderData {
             OMElement timeNode = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:Timestamp/ns:Created[1]",
-                    PolicyConstants.WSSECURITY_UTILITY_NS);
+                    STSConstants.WSSECURITY_UTILITY_NS);
             if (timeNode != null) {
                 String timeString = timeNode.getText();
                 DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -258,7 +257,7 @@ public class SOAPHeaderData {
             OMElement timeNode = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:Timestamp/ns:Expires[1]",
-                    PolicyConstants.WSSECURITY_UTILITY_NS);
+                    STSConstants.WSSECURITY_UTILITY_NS);
             if (timeNode != null) {
                 String timeString = timeNode.getText();
                 DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -281,7 +280,7 @@ public class SOAPHeaderData {
             OMElement node = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:UsernameToken[1]",
-                    PolicyConstants.WSSECURITY_NS);
+                    STSConstants.WSSECURITY_NS);
             if (node != null) {
                 result = true;
             }
@@ -302,7 +301,7 @@ public class SOAPHeaderData {
             OMElement node = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:BinarySecurityToken[1]",
-                    PolicyConstants.WSSECURITY_NS);
+                    STSConstants.WSSECURITY_NS);
             if (node != null) {
                 result = true;
             }
@@ -323,7 +322,7 @@ public class SOAPHeaderData {
             OMElement node = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:UsernameToken/ns:Username[1]",
-                    PolicyConstants.WSSECURITY_NS);
+                    STSConstants.WSSECURITY_NS);
             if (node != null) {
                 result = node.getText();
             }
@@ -344,7 +343,7 @@ public class SOAPHeaderData {
             OMElement node = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:UsernameToken/ns:Password[1]",
-                    PolicyConstants.WSSECURITY_NS);
+                    STSConstants.WSSECURITY_NS);
             if (node != null) {
                 result = node.getText();
             }
@@ -366,7 +365,7 @@ public class SOAPHeaderData {
             OMElement node = XPathHelper.selectSingleNode(
                     securityHeader,
                     "./ns:BinarySecurityToken[1]",
-                    PolicyConstants.WSSECURITY_NS);
+                    STSConstants.WSSECURITY_NS);
             if (node != null) {
                 String base64Text = node.getText();
                 cert = STSUtil.getCertificate(base64Text);

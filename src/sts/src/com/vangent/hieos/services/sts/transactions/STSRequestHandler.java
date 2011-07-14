@@ -20,10 +20,9 @@ import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.model.SOAPHeaderData;
 import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -89,7 +88,6 @@ public class STSRequestHandler extends XBaseTransaction {
     /**
      *
      * @param request
-     * @param messageType
      * @return
      * @throws AxisFault
      */
@@ -109,7 +107,7 @@ public class STSRequestHandler extends XBaseTransaction {
 
         // Authenticate user (for Issue requests).
         String soapAction = requestData.getSoapAction();
-        if (soapAction.equalsIgnoreCase(PolicyConstants.WSTRUST_ISSUE_ACTION)) {
+        if (soapAction.equalsIgnoreCase(STSConstants.WSTRUST_ISSUE_ACTION)) {
             boolean authenticated = false;
             try {
                 authenticated = this.authenticate(requestData);
@@ -126,9 +124,9 @@ public class STSRequestHandler extends XBaseTransaction {
             requestData.parseBody();
             System.out.println("STSRequestData - " + requestData.toString());
             String requestType = requestData.getRequestType();
-            if (requestType.equalsIgnoreCase(PolicyConstants.ISSUE_REQUEST_TYPE)) {
+            if (requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
                 result = this.processIssueTokenRequest(requestData);
-            } else if (requestType.equalsIgnoreCase(PolicyConstants.VALIDATE_REQUEST_TYPE)) {
+            } else if (requestType.equalsIgnoreCase(STSConstants.VALIDATE_REQUEST_TYPE)) {
                 result = this.processValidateTokenRequest(requestData);
             } else {
                 System.out.println("RequestType not understood by this service!");
@@ -178,7 +176,7 @@ public class STSRequestHandler extends XBaseTransaction {
         STSConfig stsConfig = requestData.getSTSConfig();
         boolean authenticated = false;
         SOAPHeaderData headerData = requestData.getHeaderData();
-        if (headerData.getAuthenticationType() == PolicyConstants.AuthenticationType.USER_NAME_TOKEN) {
+        if (headerData.getAuthenticationType() == STSConstants.AuthenticationType.USER_NAME_TOKEN) {
             String userName = headerData.getUserName();
             String userPassword = headerData.getUserPassword();
             AuthenticationService authService = new AuthenticationService(this.getConfigActor());

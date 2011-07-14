@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.model;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.xml.XMLParser;
@@ -54,10 +53,18 @@ public class AnyValueClaim extends Claim {
     private String nodeName;
     private OMElement contentNode;
 
+    /**
+     *
+     * @return
+     */
     public OMElement getContentNode() {
         return contentNode;
     }
 
+    /**
+     * 
+     * @param node
+     */
     public void setContentNode(OMElement node) {
         this.contentNode = node;
     }

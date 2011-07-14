@@ -66,7 +66,6 @@ public class STSRequestData {
 
     /**
      *
-     * @param stsConfigActor
      * @return
      */
     public synchronized STSConfig getSTSConfig() {
@@ -93,7 +92,7 @@ public class STSRequestData {
     public void parseBody() throws STSException {
         this.requestType = this.getRequestType(request);
         this.appliesToAddress = this.getAppliesToAddress(request);
-        if (this.requestType.equalsIgnoreCase(PolicyConstants.ISSUE_REQUEST_TYPE)) {
+        if (this.requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
             this.claimsNode = this.getClaimsNode(request);
             ClaimBuilder claimBuilder = new ClaimBuilder();
             this.claims = claimBuilder.parse(this);
@@ -258,7 +257,7 @@ public class STSRequestData {
         String result = null;
         try {
             String nameSpaceNames[] = {"wsp", "wsa"};
-            String nameSpaceURIs[] = {PolicyConstants.WSPOLICY_NS, PolicyConstants.WSADDRESSING_NS};
+            String nameSpaceURIs[] = {STSConstants.WSPOLICY_NS, STSConstants.WSADDRESSING_NS};
             OMElement addressNode = XPathHelper.selectSingleNode(
                     request,
                     "./wsp:AppliesTo/wsa:EndpointReference/wsa:Address[1]",
@@ -284,7 +283,7 @@ public class STSRequestData {
             node = XPathHelper.selectSingleNode(
                     request,
                     "./ns:Claims[1]",
-                    PolicyConstants.WSTRUST_NS);
+                    STSConstants.WSTRUST_NS);
         } catch (XPathHelperException ex) {
             System.out.println("Exception: " + ex.getMessage());
             logger.warn("No Claims found");
