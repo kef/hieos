@@ -147,7 +147,7 @@ public class PDPRequestHandler extends XBaseTransaction {
         try {
             PDPImpl pdp = this.getPDP();
             ResponseCtx responseCtx = pdp.evaluate(requestType);
-            // DEBUG:
+            // FIXME: DEBUG (remove)
             responseCtx.encode(System.out);
             return this.createSAML2Response(requestType, responseCtx);
         } catch (Exception ex) {
