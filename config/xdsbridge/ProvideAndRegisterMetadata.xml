@@ -2,7 +2,8 @@
 <xdsb:ProvideAndRegisterDocumentSetRequest xmlns:xdsb="urn:ihe:iti:xds-b:2007">
     <lcm:SubmitObjectsRequest xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
         <rim:RegistryObjectList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
-            <rim:ExtrinsicObject id="{EntryUUID}" mimeType="{DocumentMimeType}" 
+            <rim:ExtrinsicObject id="{DocumentSymbolicId}" 
+                mimeType="{DocumentMimeType}" 
                 objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1">
                 <rim:Slot name="creationTime">
                     <rim:ValueList>
@@ -38,7 +39,7 @@
                     <rim:LocalizedString value="{DocumentTitle}"/>
                 </rim:Name>
                 <rim:Description />
-                <rim:Classification classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="{EntryUUID}" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_1">
+                <rim:Classification classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="{DocumentSymbolicId}" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_1">
                     <rim:Slot name="authorPerson">
                         <rim:ValueList>
                             <rim:Value>{AuthorPersonExtension}^{AuthorPersonLastName}^{AuthorPersonFirstName}^^{AuthorPersonSuffix}^{AuthorPersonPrefix}^^^{AuthorPersonRoot}</rim:Value> 
@@ -56,7 +57,7 @@
                     </rim:Slot>
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{DocumentClassCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_2">
@@ -70,7 +71,7 @@
                     </rim:Name> 
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{DocumentConfidentialityCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_3">
@@ -84,7 +85,7 @@
                     </rim:Name> 
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{DocumentFormatCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_4">
@@ -98,7 +99,7 @@
                     </rim:Name> 
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{HealthcareFacilityTypeCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_5">
@@ -112,7 +113,7 @@
                     </rim:Name> 
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{PracticeSettingCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_6">
@@ -126,7 +127,7 @@
                     </rim:Name>
                 </rim:Classification>
                 <rim:Classification classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" 
-                    classifiedObject="{EntryUUID}" 
+                    classifiedObject="{DocumentSymbolicId}" 
                     nodeRepresentation="{DocumentTypeCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_7">
@@ -142,7 +143,7 @@
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" 
                     value="{PatientIdCX}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
-                    id="id_8" registryObject="{EntryUUID}">
+                    id="id_8" registryObject="{DocumentSymbolicId}">
                     <rim:Name>
                         <rim:LocalizedString value="XDSDocumentEntry.patientId" /> 
                     </rim:Name> 
@@ -150,13 +151,13 @@
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" 
                     value="{DocumentUniqueId}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
-                    id="id_9" registryObject="{EntryUUID}">
+                    id="id_9" registryObject="{DocumentSymbolicId}">
                     <rim:Name>
                         <rim:LocalizedString value="XDSDocumentEntry.uniqueId" /> 
                     </rim:Name> 
                 </rim:ExternalIdentifier>
             </rim:ExtrinsicObject>
-            <rim:RegistryPackage id="SubmissionSet{EntryUUID}" 
+            <rim:RegistryPackage id="SubmissionSet{DocumentSymbolicId}" 
                 objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
                 <rim:Slot name="submissionTime">
                     <rim:ValueList>
@@ -164,7 +165,7 @@
                     </rim:ValueList> 
                 </rim:Slot>
                 <rim:Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" 
-                    classifiedObject="SubmissionSet{EntryUUID}" 
+                    classifiedObject="SubmissionSet{DocumentSymbolicId}" 
                     nodeRepresentation="{ContentTypeCode}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" 
                     id="id_11">
@@ -180,7 +181,7 @@
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" 
                     value="{SubmissionSetUniqueId}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
-                    id="id_12" registryObject="SubmissionSet{EntryUUID}">
+                    id="id_12" registryObject="SubmissionSet{DocumentSymbolicId}">
                     <rim:Name>
                         <rim:LocalizedString value="XDSSubmissionSet.uniqueId" /> 
                     </rim:Name> 
@@ -188,7 +189,7 @@
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" 
                     value="{SourceId}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
-                    id="id_13" registryObject="SubmissionSet{EntryUUID}">
+                    id="id_13" registryObject="SubmissionSet{DocumentSymbolicId}">
                     <rim:Name>
                         <rim:LocalizedString value="XDSSubmissionSet.sourceId" /> 
                     </rim:Name> 
@@ -196,15 +197,15 @@
                 <rim:ExternalIdentifier identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" 
                     value="{PatientIdCX}" 
                     objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" 
-                    id="id_14" registryObject="SubmissionSet{EntryUUID}">
+                    id="id_14" registryObject="SubmissionSet{DocumentSymbolicId}">
                     <rim:Name>
                         <rim:LocalizedString value="XDSSubmissionSet.patientId" /> 
                     </rim:Name> 
                 </rim:ExternalIdentifier> 
             </rim:RegistryPackage>
             <rim:Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" 
-                sourceObject="SubmissionSet{EntryUUID}" 
-                targetObject="{EntryUUID}" id="assoc_id_16" 
+                sourceObject="SubmissionSet{DocumentSymbolicId}" 
+                targetObject="{DocumentSymbolicId}" id="assoc_id_16" 
                 objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
                 <rim:Slot name="SubmissionSetStatus">
                     <rim:ValueList>
@@ -212,7 +213,7 @@
                     </rim:ValueList> 
                 </rim:Slot> 
             </rim:Association>
-            <rim:Classification classifiedObject="SubmissionSet{EntryUUID}" 
+            <rim:Classification classifiedObject="SubmissionSet{DocumentSymbolicId}" 
                 classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd" 
                 id="class_id_17" 
                 objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" />
