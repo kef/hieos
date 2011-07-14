@@ -19,6 +19,7 @@ import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.util.STSUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
@@ -44,6 +45,9 @@ import org.opensaml.xml.signature.KeyInfo;
  * @author Bernie Thuman
  */
 public class SAML2TokenValidateHandler extends SAML2TokenHandler {
+
+    static private final String LOG_TOKEN_STATUS_PARAM = "Token Status";
+
     //
     //   <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
     //       <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
@@ -60,6 +64,13 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
     //       </wst:ValidateTarget>
     //    </wst:RequestSecurityToken>
     //
+    /**
+     *
+     * @param logMessage
+     */
+    public SAML2TokenValidateHandler(XLogMessage logMessage) {
+        super(logMessage);
+    }
 
     /**
      *
@@ -69,6 +80,8 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
      */
     @Override
     protected OMElement handle(STSRequestData requestData) throws STSException {
+        XLogMessage logMessage = this.getLogMessage();
+
         // Get Assertion (as OMElement) from requestData.
         OMElement assertionOMElement = this.getAssertionOMElement(requestData.getRequest());
 
@@ -93,15 +106,15 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             DateTime startDate = conditions.getNotBefore();
             DateTime endDate = conditions.getNotOnOrAfter();
             if (startDate.isAfterNow()) {
-                System.out.println("Assertion not valid yet");
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion not valid yet");
                 return this.getWSTrustResponse(false);
             }
             if (endDate.isBeforeNow() || endDate.isEqualNow()) {
-                System.out.println("Assertion expired");
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion expired");
                 return this.getWSTrustResponse(false);
             }
         } catch (ValidationException ex) {
-            System.out.println("Unable to validate Assertion: " + ex.getMessage());
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to validate Assertion: " + ex.getMessage());
             return this.getWSTrustResponse(false);
         }
 
@@ -113,15 +126,17 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             try {
                 certs = KeyInfoHelper.getCertificates(keyInfo);
             } catch (CertificateException ex) {
-                System.out.println("Unable to get Certificate used to sign Assertion from KeyInfo: " + ex.getMessage());
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to get Certificate used to sign Assertion from KeyInfo: " + ex.getMessage());
                 return this.getWSTrustResponse(false);
             }
             if ((certs != null) || !certs.isEmpty()) {
                 certificate = certs.get(0);  // Use the first one.
                 try {
+                    logMessage = this.getLogMessage();
+                    logMessage.addOtherParam("X509 Certificate (used to validate)", certificate);
                     STSUtil.validateCertificate(certificate, trustStore);
                 } catch (STSException ex) {
-                    System.out.println("STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
+                    logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
                     return this.getWSTrustResponse(false);
                 }
             }
@@ -140,10 +155,11 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
         try {
             sigValidator.validate(signature);
         } catch (ValidationException ex) {
-            System.out.println("Unable to validate Assertion: " + ex.getMessage());
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to validate Assertion: " + ex.getMessage());
             return this.getWSTrustResponse(false);
         }
         // Finally, a success!
+        logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Token is valid!");
         return this.getWSTrustResponse(true);
     }
 
@@ -206,10 +222,10 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
                     "./wst:ValidateTarget/saml2:Assertion[1]",
                     nameSpaceNames, nameSpaceURIs);
             if (assertionNode == null) {
-                throw new STSException("Unable to find Assertion to validate -- rejecting request");
+                throw new STSException("Unable to find Assertion to validate");
             }
         } catch (XPathHelperException ex) {
-            throw new STSException("Unable to find Assertion to validate -- rejecting request");
+            throw new STSException("Unable to find Assertion to validate: " + ex.getMessage());
         }
         return assertionNode;
     }

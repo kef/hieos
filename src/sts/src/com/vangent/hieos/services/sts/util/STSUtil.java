@@ -229,7 +229,7 @@ public class STSUtil {
      * @throws STSException
      */
     public static void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
-        System.out.println("X509Certificate = " + cert);
+        //System.out.println("X509 Certificate = " + cert);
         try {
             // To check the validity of the dates
             cert.checkValidity();

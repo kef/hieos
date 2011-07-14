@@ -15,7 +15,6 @@ package com.vangent.hieos.services.sts.transactions;
 import com.vangent.hieos.authutil.framework.AuthenticationService;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
-import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.model.SOAPHeaderData;
 import com.vangent.hieos.services.sts.config.STSConfig;
@@ -99,8 +98,7 @@ public class STSRequestHandler extends XBaseTransaction {
         MessageContext mCtx = this.getMessageContext();
         STSRequestData requestData = new STSRequestData(this.getConfigActor(), mCtx, request);
         try {
-            SOAPHeaderData headerData = requestData.parseHeader();
-            System.out.println("SOAP Header - " + headerData.toString());
+            requestData.parseHeader();
         } catch (STSException ex) {
             throw new AxisFault(ex.getMessage());
         }
@@ -122,7 +120,6 @@ public class STSRequestHandler extends XBaseTransaction {
         // Now, either process an "Issue" or "Validate" token request.
         try {
             requestData.parseBody();
-            //System.out.println("STSRequestData - " + requestData.toString());
             String requestType = requestData.getRequestType();
             if (requestType.equalsIgnoreCase(STSConstants.ISSUE_REQUEST_TYPE)) {
                 result = this.processIssueTokenRequest(requestData);
@@ -148,9 +145,7 @@ public class STSRequestHandler extends XBaseTransaction {
      * @throws STSException
      */
     private OMElement processIssueTokenRequest(STSRequestData requestData) throws STSException {
-        //System.out.println("STS ISSUE action!");
-        //this.runTest();
-        SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler();
+        SAML2TokenIssueHandler handler = new SAML2TokenIssueHandler(this.log_message);
         return handler.handle(requestData);
     }
 
@@ -161,8 +156,7 @@ public class STSRequestHandler extends XBaseTransaction {
      * @throws STSException
      */
     private OMElement processValidateTokenRequest(STSRequestData requestData) throws STSException {
-        //System.out.println("STS VALIDATE action!");
-        SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler();
+        SAML2TokenValidateHandler handler = new SAML2TokenValidateHandler(this.log_message);
         return handler.handle(requestData);
     }
 
@@ -190,13 +184,14 @@ public class STSRequestHandler extends XBaseTransaction {
             // Assume BinarySecurityToken.
             X509Certificate certificate = headerData.getClientCertificate();
             KeyStore trustStore = STSUtil.getTrustStore(stsConfig);
-            try {
-                STSUtil.validateCertificate(certificate, trustStore);
-                requestData.setSubjectDN(certificate.getSubjectX500Principal().getName());
-                authenticated = true;
-            } catch (STSException ex) {
-                System.out.println("Certificate not valid: " + ex.getMessage());
-            }
+            // try {
+            log_message.addOtherParam("Client X509 Certificate", certificate);
+            STSUtil.validateCertificate(certificate, trustStore);
+            requestData.setSubjectDN(certificate.getSubjectX500Principal().getName());
+            authenticated = true;
+            //} catch (STSException ex) {
+            //    System.out.println("Client Certificate not valid: " + ex.getMessage());
+            // }
         }
         return authenticated;
     }

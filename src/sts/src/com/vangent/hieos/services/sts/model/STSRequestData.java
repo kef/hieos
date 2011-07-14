@@ -77,12 +77,11 @@ public class STSRequestData {
 
     /**
      *
-     * @return
      * @throws STSException
      */
-    public SOAPHeaderData parseHeader() throws STSException {
+    public void parseHeader() throws STSException {
         this.headerData.parse();
-        return this.headerData;
+        //return this.headerData;
     }
 
     /**
@@ -130,7 +129,6 @@ public class STSRequestData {
             x500Name.replace("CN", newCN);
 
             String newSubjectName = x500Name.toString();
-            System.out.println("+++ newSubjectName = " + newSubjectName);
             return newSubjectName;
 
         } else {
@@ -285,8 +283,8 @@ public class STSRequestData {
                     "./ns:Claims[1]",
                     STSConstants.WSTRUST_NS);
         } catch (XPathHelperException ex) {
-            System.out.println("Exception: " + ex.getMessage());
-            logger.warn("No Claims found");
+            // OK - can process without claims without failure.
+            logger.warn("No Claims found: " + ex.getMessage());
         }
         return node;
     }

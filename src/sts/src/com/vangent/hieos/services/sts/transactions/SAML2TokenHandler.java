@@ -14,6 +14,7 @@ package com.vangent.hieos.services.sts.transactions;
 
 import com.vangent.hieos.services.sts.model.STSRequestData;
 import com.vangent.hieos.services.sts.exception.STSException;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -22,6 +23,8 @@ import org.apache.axiom.om.OMElement;
  */
 public abstract class SAML2TokenHandler {
 
+    private XLogMessage logMessage;
+
     /**
      *
      * @param requestData
@@ -29,4 +32,27 @@ public abstract class SAML2TokenHandler {
      * @throws STSException
      */
     abstract protected OMElement handle(STSRequestData requestData) throws STSException;
+
+    /**
+     * 
+     */
+    private SAML2TokenHandler() {
+        // Do not allow.
+    }
+
+    /**
+     *
+     * @param logMessage
+     */
+    protected SAML2TokenHandler(XLogMessage logMessage) {
+        this.logMessage = logMessage;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public XLogMessage getLogMessage() {
+        return logMessage;
+    }
 }

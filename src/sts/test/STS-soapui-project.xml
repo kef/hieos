@@ -399,7 +399,6 @@ lZmUAuNVPCTBoNuWBX/tvvAw3a3jl+DXB+Fn2JbRpoUdvkgAWCAJ6hrKgA==</ds:X509Certificate
                <xspa:ClaimValue>PID</xspa:ClaimValue>
             </xspa:ClaimType>
          </wst:Claims>
-         <!--<wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey</wst:KeyType>-->
       </wst:RequestSecurityToken>
    </soapenv:Body>
 </soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/><con:domain/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties><con:property><con:name>saml_token</con:name></con:property></con:properties><con:wssContainer/></con:soapui-project>

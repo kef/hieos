@@ -17,6 +17,7 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.util.STSUtil;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XMLParser;
 
 import java.security.KeyStore;
@@ -67,6 +68,14 @@ import org.opensaml.saml2.core.AuthnStatement;
  * @author Bernie Thuman
  */
 public class SAML2TokenIssueHandler extends SAML2TokenHandler {
+
+    /**
+     *
+     * @param logMessage
+     */
+    public SAML2TokenIssueHandler(XLogMessage logMessage) {
+        super(logMessage);
+    }
 
     /**
      *

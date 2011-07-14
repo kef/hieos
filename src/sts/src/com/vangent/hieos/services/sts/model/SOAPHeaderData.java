@@ -179,13 +179,16 @@ public class SOAPHeaderData {
             switch (stsConfig.getAuthenticationType()) {
                 case USER_NAME_TOKEN:
                     if (!this.isUserNameToken(securityHeader)) {
-                        throw new STSException("No UserNameToken found");
+                        throw new STSException("No UsernameToken found");
                     }
                     authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
                     userName = this.getUsername(securityHeader);
+                    if (userName == null) {
+                        throw new STSException("No Username provided on UsernameToken");
+                    }
                     userPassword = this.getUserPassword(securityHeader);
-                    if (userName == null || userPassword == null) {
-                        throw new STSException("No UserNameToken provided - rejecting request");
+                    if (userPassword == null) {
+                        throw new STSException("No Password provided on UsernameToken");
                     }
                     break;
                 case X509_CERTIFICATE:
@@ -195,7 +198,7 @@ public class SOAPHeaderData {
                     authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
                     certificate = this.getX509Certificate(securityHeader);
                     if (certificate == null) {
-                        throw new STSException("No Certificate provided - rejecting request");
+                        throw new STSException("No Certificate provided on BinarySecurityToken");
                     }
                     break;
                 default:
@@ -209,17 +212,21 @@ public class SOAPHeaderData {
      * @throws STSException
      */
     private void validateTimestamp() throws STSException {
-        if (this.timestampCreated == null || this.timestampExpires == null) {
-            throw new STSException("No timestamp provided - rejecting request");
+        if (this.timestampCreated == null) {
+            throw new STSException("No Timestamp 'Created' provided");
+        }
+
+        if (this.timestampExpires == null) {
+            throw new STSException("No Timestamp 'Expired' provided");
         }
         // Do some basic timestamp checking.
         if (this.timestampCreated.isAfter(this.timestampExpires)) {
-            throw new STSException("Timestamp created is > expires - rejecting request");
+            throw new STSException("Timestamp 'Created' is > 'Expires'");
         }
 
         // Now check for message expiration.
         if (this.timestampExpires.isBeforeNow()) {
-            throw new STSException("Timestamp is expired - rejecting request");
+            throw new STSException("Timestamp is expired");
         }
     }
 
@@ -241,7 +248,7 @@ public class SOAPHeaderData {
                 time = fmt.parseDateTime(timeString);
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/Timestamp/Created found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return time;
     }
@@ -264,7 +271,7 @@ public class SOAPHeaderData {
                 time = fmt.parseDateTime(timeString);
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/Timestamp/Expires found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return time;
     }
@@ -285,7 +292,7 @@ public class SOAPHeaderData {
                 result = true;
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/UsernameToken found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return result;
     }
@@ -306,7 +313,7 @@ public class SOAPHeaderData {
                 result = true;
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/BinarySecurityToken found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return result;
     }
@@ -327,7 +334,7 @@ public class SOAPHeaderData {
                 result = node.getText();
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/UsernameToken/Username found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return result;
     }
@@ -348,7 +355,7 @@ public class SOAPHeaderData {
                 result = node.getText();
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/UsernameToken/Password found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return result;
     }
@@ -371,7 +378,7 @@ public class SOAPHeaderData {
                 cert = STSUtil.getCertificate(base64Text);
             }
         } catch (XPathHelperException ex) {
-            System.out.println("No Security/BinarySecurityToken found: " + ex.getMessage());
+            // Do nothing - will be validated later.
         }
         return cert;
     }
