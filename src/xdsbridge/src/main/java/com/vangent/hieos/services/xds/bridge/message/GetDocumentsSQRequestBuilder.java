@@ -6,35 +6,26 @@
  * Copyright (c)2011
  */
 
-
 package com.vangent.hieos.services.xds.bridge.message;
 
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
-
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-07-06
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class GetDocumentsSQRequestBuilder {
 
     /** Field description */
     public static final String GET_DOCUMENTS_UUID =
         "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
-
-    /** Field description */
-    public static final String QUERY_URI =
-        "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0";
-
-    /** Field description */
-    public static final String RIM_URI =
-        "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
 
     /** Field description */
     private final OMFactory factory;
@@ -54,15 +45,18 @@ public class GetDocumentsSQRequestBuilder {
         super();
 
         this.factory = OMAbstractFactory.getOMFactory();
-        this.queryNamespace = this.factory.createOMNamespace(QUERY_URI,
-                "query");
-        this.rimNamespace = this.factory.createOMNamespace(RIM_URI, "rim");
+        this.queryNamespace =
+            this.factory.createOMNamespace(URIConstants.QUERY_URI, "query");
+        this.rimNamespace =
+            this.factory.createOMNamespace(URIConstants.RIM_URI, "rim");
     }
 
     /**
      * Method description
      *
      *
+     *
+     * @param node
      * @param queryUUID
      *
      * @return
@@ -104,6 +98,10 @@ public class GetDocumentsSQRequestBuilder {
      *
      *
      * @param queryElem
+     * @param name
+     * @param value
+     *
+     * @return
      */
     private OMElement addSlot(OMElement queryElem, String name, String value) {
 
@@ -131,6 +129,8 @@ public class GetDocumentsSQRequestBuilder {
      *
      *
      *
+     *
+     * @param uniqueId
      * @return
      */
     public GetDocumentsSQRequestMessage buildMessage(String uniqueId) {

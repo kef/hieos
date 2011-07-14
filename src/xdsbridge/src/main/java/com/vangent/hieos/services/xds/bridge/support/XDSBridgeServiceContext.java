@@ -24,8 +24,11 @@ import com.vangent.hieos.services.xds.bridge.message
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
+ * Class description
  *
- * @author hornja
+ *
+ * @version        v1.0, 2011-07-14
+ * @author         Vangent    
  */
 public class XDSBridgeServiceContext {
 

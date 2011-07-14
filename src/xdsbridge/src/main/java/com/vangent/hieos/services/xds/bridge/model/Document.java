@@ -11,21 +11,18 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.model;
 
+import java.io.Serializable;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-
-import java.io.Serializable;
-
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class Document implements Serializable {
 
@@ -51,7 +48,13 @@ public class Document implements Serializable {
     private SubjectIdentifier patientId;
 
     /** Field description */
+    private String replaceExtrinsicObjectId;
+
+    /** Field description */
     private String replaceId;
+
+    /** Field description */
+    private String replaceIdAsOID;
 
     /** Field description */
     private String symbolicId;
@@ -133,8 +136,28 @@ public class Document implements Serializable {
      *
      * @return
      */
+    public String getReplaceExtrinsicObjectId() {
+        return replaceExtrinsicObjectId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
     public String getReplaceId() {
         return replaceId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public String getReplaceIdAsOID() {
+        return replaceIdAsOID;
     }
 
     /**
@@ -241,10 +264,30 @@ public class Document implements Serializable {
      * Method description
      *
      *
+     * @param replaceExtrinsicObjectId
+     */
+    public void setReplaceExtrinsicObjectId(String replaceExtrinsicObjectId) {
+        this.replaceExtrinsicObjectId = replaceExtrinsicObjectId;
+    }
+
+    /**
+     * Method description
+     *
+     *
      * @param replaceId
      */
     public void setReplaceId(String replaceId) {
         this.replaceId = replaceId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param replaceIdAsOID
+     */
+    public void setReplaceIdAsOID(String replaceIdAsOID) {
+        this.replaceIdAsOID = replaceIdAsOID;
     }
 
     /**

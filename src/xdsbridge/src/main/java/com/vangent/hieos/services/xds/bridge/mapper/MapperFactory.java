@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  *
  *
  * @version        v1.0, 2011-06-13
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class MapperFactory {
 
@@ -57,7 +57,7 @@ public class MapperFactory {
         this.xdsbridgeConfig = bridgeConfig;
         this.contentParser = tplGen;
 
-        this.xdsMappers = createXDSMappers();
+        this.xdsMappers = initializeXDSMappers();
     }
 
     /**
@@ -71,44 +71,6 @@ public class MapperFactory {
     public CDAToXDSMapper createCDAToXDSMapper(ContentParserConfig cfg) {
 
         return new CDAToXDSMapper(this.contentParser, cfg);
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @return
-     */
-    private Map<ContentParserConfigName, IXDSMapper> createXDSMappers() {
-
-        Map<ContentParserConfigName, IXDSMapper> result =
-            new EnumMap<ContentParserConfigName,
-                        IXDSMapper>(ContentParserConfigName.class);
-
-        for (DocumentTypeMapping mapping :
-                this.xdsbridgeConfig.getDocumentTypeMappings()) {
-
-            ContentParserConfig config = mapping.getContentParserConfig();
-            ContentParserConfigName name = config.getName();
-
-            if (result.containsKey(name) == false) {
-
-                switch (name) {
-
-                    case SharedHealthSummaryMapper :
-                    case DischargeSummaryMapper :
-                        logger.debug(String.format("Creating %s mapper.",
-                                                   name.toString()));
-                        result.put(name, createCDAToXDSMapper(config));
-                        break;
-                    default:
-                        logger.warn(String.format("Unknown mapper %s.",
-                                                   name.toString()));
-                }
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -134,12 +96,11 @@ public class MapperFactory {
     }
 
     /**
-     * Method description
+     * Method to convert from a document type to a document mapper.
      *
+     * @param type document type
      *
-     * @param type
-     *
-     * @return
+     * @return a document mapper
      */
     public IXDSMapper getMapper(CodedValue type) {
 
@@ -150,6 +111,45 @@ public class MapperFactory {
         if (parserConfig != null) {
 
             result = this.xdsMappers.get(parserConfig.getName());
+        }
+
+        return result;
+    }
+
+    /**
+     * Initializes all mappers and stores them in a map.
+     *
+     * @return a map containing all known mappers
+     */
+    private Map<ContentParserConfigName, IXDSMapper> initializeXDSMappers() {
+
+        Map<ContentParserConfigName, IXDSMapper> result =
+            new EnumMap<ContentParserConfigName,
+                        IXDSMapper>(ContentParserConfigName.class);
+
+        for (DocumentTypeMapping mapping :
+                this.xdsbridgeConfig.getDocumentTypeMappings()) {
+
+            ContentParserConfig config = mapping.getContentParserConfig();
+            ContentParserConfigName name = config.getName();
+
+            if (result.containsKey(name) == false) {
+
+                switch (name) {
+
+                    case SharedHealthSummaryMapper :
+                    case DischargeSummaryMapper :
+                        logger.debug(String.format("Creating %s mapper.",
+                                                   name.toString()));
+                        result.put(name, createCDAToXDSMapper(config));
+
+                        break;
+
+                    default :
+                        logger.warn(String.format("Unknown mapper %s.",
+                                                  name.toString()));
+                }
+            }
         }
 
         return result;

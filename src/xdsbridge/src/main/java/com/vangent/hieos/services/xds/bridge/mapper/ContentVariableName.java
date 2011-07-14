@@ -33,7 +33,7 @@ public enum ContentVariableName {
     DocumentTitle, DocumentDisplayName,
     DocumentTypeCode, DocumentTypeCodeSystem,
     DocumentTypeDisplayName, DocumentUniqueId,
-    EntryUUID, HealthcareFacilityTypeCode,
+    DocumentSymbolicId, HealthcareFacilityTypeCode,
     HealthcareFacilityTypeDisplayName,
     HealthcareFacilityTypeCodeSystem, LanguageCode,
     LegalAuthenticatorLastName,

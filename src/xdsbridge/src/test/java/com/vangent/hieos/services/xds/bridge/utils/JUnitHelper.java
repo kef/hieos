@@ -11,9 +11,19 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import com.vangent.hieos.schemas.xdsbridge.CodeType;
 import com.vangent.hieos.schemas.xdsbridge.DocumentType;
 import com.vangent.hieos.schemas.xdsbridge.DocumentsType;
@@ -23,18 +33,15 @@ import com.vangent.hieos.schemas.xdsbridge.SubmitDocumentRequest;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
     .ContentParserConfigName;
-import com.vangent.hieos.services.xds.bridge.message
-    .SubmitDocumentRequestBuilder;
+import com.vangent.hieos.services.xds.bridge.mock.MockXConfigActor;
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
-import com.vangent.hieos.services.xds.bridge.mock
-    .MockXConfigActor;
 import com.vangent.hieos.services.xds.bridge.transaction
     .SubmitDocumentRequestHandlerTest;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
@@ -44,28 +51,12 @@ import org.apache.log4j.Logger;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.StringWriter;
-
-import java.net.URL;
-
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
-
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-06-22
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class JUnitHelper {
 
@@ -98,7 +89,13 @@ public class JUnitHelper {
      *
      *
      *
+     *
+     * @param file
+     * @param count
+     * @param documentIds
      * @return
+     *
+     * @throws Exception
      */
     public static OMElement createOMRequest(String file, int count,
             String[] documentIds)
@@ -146,7 +143,7 @@ public class JUnitHelper {
 
         sdr.setDocuments(documents);
 
-        QName qname = new QName(SubmitDocumentRequestBuilder.XDSBRIDGE_URI,
+        QName qname = new QName(URIConstants.XDSBRIDGE_URI,
                                 "SubmitDocumentRequest");
         JAXBContext jc = JAXBContext.newInstance(SubmitDocumentRequest.class);
         Marshaller marshaller = jc.createMarshaller();
@@ -168,7 +165,7 @@ public class JUnitHelper {
 
         List<OMElement> list = XPathHelper.selectNodes(result,
                                    "./ns:Documents/ns:Document/ns:Content",
-                                   SubmitDocumentRequestBuilder.XDSBRIDGE_URI);
+                                   URIConstants.XDSBRIDGE_URI);
 
         for (OMElement contentNode : list) {
 
@@ -178,7 +175,7 @@ public class JUnitHelper {
                 binaryNode.setOptimize(true);
             }
         }
-        
+
         return result;
     }
 

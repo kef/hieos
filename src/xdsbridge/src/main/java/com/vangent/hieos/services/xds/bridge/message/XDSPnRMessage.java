@@ -16,7 +16,9 @@ package com.vangent.hieos.services.xds.bridge.message;
 import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import org.apache.axiom.attachments.ByteArrayDataSource;
+import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMText;
@@ -26,12 +28,9 @@ import org.apache.axiom.om.OMText;
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class XDSPnRMessage extends AbstractXdsBridgeMessage {
-
-    /** Field description */
-    private static final String XDS_URI = "urn:ihe:iti:xds-b:2007";
 
     /**
      * Constructs ...
@@ -49,6 +48,49 @@ public class XDSPnRMessage extends AbstractXdsBridgeMessage {
      * Method description
      *
      *
+     * @param document
+     */
+    public void addReplaceAssociation(Document document) {
+
+        /*
+         *   <rim:Association associationType="urn:ihe:iti:2007:AssociationType:RPLC"
+         *       sourceObject="eo_id_0"
+         *       targetObject="__REPLACEEXTRINSICOBJECTID__"
+         *       id="__REPLACEASSOCIATIONID__"
+         *       objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+         *   </rim:Association>
+         */
+
+        OMFactory fac = OMAbstractFactory.getOMFactory();
+        QName assocQName = new QName(URIConstants.RIM_URI, "Association");
+        OMElement result = fac.createOMElement(assocQName);
+
+        result.addAttribute("associationType",
+                            "urn:ihe:iti:2007:AssociationType:RPLC", null);
+        result.addAttribute("sourceObject", document.getSymbolicId(), null);
+        result.addAttribute("targetObject",
+                            document.getReplaceExtrinsicObjectId(), null);
+        result.addAttribute("id",
+                            String.format("assoc_id_%s",
+                                          document.getSymbolicId()), null);
+        result.addAttribute(
+            "objectType",
+            "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association",
+            null);
+
+        OMElement registryObjectList =
+            getMessageNode().getFirstElement().getFirstElement();
+        QName classQName = new QName(URIConstants.RIM_URI, "Classification");
+        OMElement insertPoint =
+            registryObjectList.getFirstChildWithName(classQName);
+
+        insertPoint.insertSiblingBefore(result);
+    }
+
+    /**
+     * Method description
+     *
+     *
      *
      * @param document
      */
@@ -59,7 +101,7 @@ public class XDSPnRMessage extends AbstractXdsBridgeMessage {
         OMFactory fac = rootNode.getOMFactory();
 
         // create document messageNode <xdsb:Document id="eo_id_0"></xdsb:Document>
-        QName docQName = new QName(XDS_URI, "Document");
+        QName docQName = new QName(URIConstants.XDS_URI, "Document");
         OMElement docelem = fac.createOMElement(docQName);
 
         docelem.addAttribute("id", document.getSymbolicId(), null);

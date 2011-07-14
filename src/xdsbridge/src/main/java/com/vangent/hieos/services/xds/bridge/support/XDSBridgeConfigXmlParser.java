@@ -1,14 +1,25 @@
 /*
- * @(#)XDSBridgeConfigXmlParser.java
- * Date 2011-07-06
- * Version 1.0
- * Author Jim Horner
- * Copyright (c)2011
+ * This code is subject to the HIEOS License, Version 1.0
+ *
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 
 package com.vangent.hieos.services.xds.bridge.support;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.namespace.QName;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
@@ -20,27 +31,16 @@ import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-07-06
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class XDSBridgeConfigXmlParser {
 
@@ -59,6 +59,9 @@ public class XDSBridgeConfigXmlParser {
      *
      *
      * @param filename
+     * @param defaultTemplate
+     *
+     * @throws XMLParserException
      */
     public XDSBridgeConfigXmlParser(String filename, String defaultTemplate)
             throws XMLParserException {
@@ -74,6 +77,8 @@ public class XDSBridgeConfigXmlParser {
      *
      *
      * @return
+     *
+     * @throws XPathHelperException
      */
     public List<DocumentTypeMapping> parse() throws XPathHelperException {
 
@@ -89,6 +94,8 @@ public class XDSBridgeConfigXmlParser {
      * Method description
      *
      *
+     *
+     * @param name
      * @param parserConfigElem
      *
      * @return
@@ -149,6 +156,8 @@ public class XDSBridgeConfigXmlParser {
      *
      * @return
      *
+     *
+     * @throws XPathHelperException
      */
     private Map<String, ContentParserConfig> parseContentConfigs()
             throws XPathHelperException {
@@ -175,12 +184,12 @@ public class XDSBridgeConfigXmlParser {
             try {
 
                 name = ContentParserConfigName.valueOf(nameAttribute);
+                logger.info(String.format("Loaded config [%s].",
+                                          nameAttribute));
 
             } catch (IllegalArgumentException e) {
 
                 // ignore, probably a base config
-                logger.warn(String.format("Ignoring %s, probably a base.",
-                                          nameAttribute));
             }
 
             if (name != null) {

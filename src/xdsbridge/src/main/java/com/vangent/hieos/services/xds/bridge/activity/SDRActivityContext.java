@@ -24,7 +24,7 @@ import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
  *
  *
  * @version        v1.0, 2011-06-22
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class SDRActivityContext {
 

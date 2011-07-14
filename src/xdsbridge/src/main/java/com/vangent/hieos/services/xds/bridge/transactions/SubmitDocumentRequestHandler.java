@@ -22,6 +22,8 @@ import com.vangent.hieos.services.xds.bridge.activity
     .DocumentExistsCheckActivity;
 import com.vangent.hieos.services.xds.bridge.activity
     .ISubmitDocumentRequestActivity;
+import com.vangent.hieos.services.xds.bridge.activity
+    .RetrieveReplaceExtrinsicIdActivity;
 import com.vangent.hieos.services.xds.bridge.activity.SDRActivityContext;
 import com.vangent.hieos.services.xds.bridge.activity.SubmitPnRActivity;
 import com.vangent.hieos.services.xds.bridge.message
@@ -50,7 +52,7 @@ import org.apache.log4j.Logger;
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class SubmitDocumentRequestHandler extends XBaseTransaction {
 
@@ -98,6 +100,9 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
         this.processActivities.add(
             new DocumentExistsCheckActivity(context.getRegistryClient()));
         this.processActivities.add(
+            new RetrieveReplaceExtrinsicIdActivity(
+                context.getRegistryClient()));
+        this.processActivities.add(
             new SubmitPnRActivity(context.getRepositoryClient()));
     }
 
@@ -136,6 +141,24 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
     @Override
     public boolean getStatus() {
         return getLogMessage().isPass();
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    private boolean isLogMessageEnabled() {
+
+        boolean result = false;
+        XLogMessage logmsg = getLogMessage();
+
+        if ((logmsg != null) && logmsg.isLogEnabled()) {
+            result = true;
+        }
+
+        return result;
     }
 
     /**
@@ -186,12 +209,13 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
             }
         }
 
-        OMElement response = marshalResponse(sdrResponse);
-        if (this.log_message.isLogEnabled())
-        {
-            this.log_message.addOtherParam("Response", response);
+        OMElement result = marshalResponse(sdrResponse);
+
+        if (isLogMessageEnabled()) {
+            getLogMessage().addOtherParam("Response", result);
         }
-        return response;
+
+        return result;
     }
 
     /**

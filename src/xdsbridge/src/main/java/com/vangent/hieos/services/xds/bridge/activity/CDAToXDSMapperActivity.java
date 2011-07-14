@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  *
  *
  * @version        v1.0, 2011-06-22
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class CDAToXDSMapperActivity implements ISubmitDocumentRequestActivity {
 

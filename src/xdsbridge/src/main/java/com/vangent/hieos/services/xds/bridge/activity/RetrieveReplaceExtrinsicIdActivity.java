@@ -28,15 +28,15 @@ import org.apache.log4j.Logger;
  * Class description
  *
  *
- * @version        v1.0, 2011-07-06
+ * @version        v1.0, 2011-07-13
  * @author         Vangent
  */
-public class DocumentExistsCheckActivity
+public class RetrieveReplaceExtrinsicIdActivity
         extends AbstractGetDocumentsSQActivity {
 
     /** Field description */
     private static final Logger logger =
-        Logger.getLogger(DocumentExistsCheckActivity.class);
+        Logger.getLogger(RetrieveReplaceExtrinsicIdActivity.class);
 
     /**
      * Constructs ...
@@ -44,7 +44,8 @@ public class DocumentExistsCheckActivity
      *
      * @param client
      */
-    public DocumentExistsCheckActivity(XDSDocumentRegistryClient client) {
+    public RetrieveReplaceExtrinsicIdActivity(
+            XDSDocumentRegistryClient client) {
 
         super(client);
     }
@@ -70,14 +71,24 @@ public class DocumentExistsCheckActivity
 
         List<String> objectRefs = parseObjectRefs(registryResponse, context);
 
-        if (objectRefs.isEmpty()) {
+        if (objectRefs.isEmpty() == false) {
 
+            // sync with the document
+            String replExtObjId = objectRefs.get(0);
+
+            logger.debug(
+                String.format(
+                    "Setting replaceExtrinsicObjectId [%s].", replExtObjId));
+
+            document.setReplaceExtrinsicObjectId(replExtObjId);
             result = true;
 
         } else {
 
             String errmsg =
-                "Document already exists in the registry. It will not be processed.";
+                String.format(
+                    "Replace document id [%s] does not exist in the registry.",
+                    document.getId());
 
             logger.error(errmsg);
             sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
@@ -102,41 +113,22 @@ public class DocumentExistsCheckActivity
 
         Document document = context.getDocument();
 
-        if (isCheckDisabled(document)) {
+        if (StringUtils.isBlank(document.getReplaceId())) {
 
-            // if we generated the id
-            // or the docId and replId are the same
+            // no replace id, don't check
             result = true;
 
         } else {
 
             GetDocumentsSQResponseMessage getDocsResp =
-                callGetDocumentsSQ(context, document.getDocumentIdAsOID());
+                callGetDocumentsSQ(context, document.getReplaceIdAsOID());
 
             result = checkForSuccess(getDocsResp, context);
-        }
-
-        return result;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param doc
-     *
-     * @return
-     */
-    private boolean isCheckDisabled(Document doc) {
-
-        boolean result = false;
-
-        // if we generated the id
-        // or the docId and replId are the same
-        if (doc.isGeneratedDocumentId()
-                || StringUtils.equals(doc.getReplaceId(), doc.getId())) {
-
-            result = true;
+            
+            if (result) {
+                
+                context.getXdspnr().addReplaceAssociation(document);
+            }
         }
 
         return result;

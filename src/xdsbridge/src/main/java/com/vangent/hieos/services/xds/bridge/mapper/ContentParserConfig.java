@@ -11,26 +11,22 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.mapper;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-06-13
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class ContentParserConfig {
 
@@ -65,11 +61,12 @@ public class ContentParserConfig {
      *
      *
      *
-     * @param name
-     * @param namespaces
-     * @param expressions
-     * @param staticValues
-     * @param templFileName
+     *
+     * @param inName
+     * @param inNamespaces
+     * @param inExpressions
+     * @param inStaticValues
+     * @param inTemplateFileName
      */
     public ContentParserConfig(ContentParserConfigName inName,
                                Map<String, String> inNamespaces,

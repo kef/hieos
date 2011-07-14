@@ -49,7 +49,7 @@
                                         <!--
 					<ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601199896908"/>
                                         -->
-                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.2005.3.7.1a6fd7ff75144f6"/>
+                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.2005.3.7.1a6fd7ff75144f7"/>
                                         
                     <ext:assigningGeographicArea classCode="PLC">
                         <ext:name>National Identifier</ext:name>

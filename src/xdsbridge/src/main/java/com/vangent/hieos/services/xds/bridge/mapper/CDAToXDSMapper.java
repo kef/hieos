@@ -11,9 +11,10 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import java.util.Map;
+import java.util.UUID;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
@@ -26,23 +27,17 @@ import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.template.TemplateUtil;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.json.XML;
-
-import java.util.Map;
-import java.util.UUID;
-
 
 /**
  * Class description
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class CDAToXDSMapper implements IXDSMapper {
 
@@ -131,7 +126,7 @@ public class CDAToXDSMapper implements IXDSMapper {
         // ////
         // apply business rules
 
-                CodedValue documentType = document.getType();
+        CodedValue documentType = document.getType();
 
         // ///
         // ExtrinsicObject
@@ -144,19 +139,20 @@ public class CDAToXDSMapper implements IXDSMapper {
         remapForXON(result, ContentVariableName.AuthorPersonRoot,
                     ContentVariableName.AuthorPersonExtension);
 
-        // entryUUID, symbolic Document01
+        // symbolic Document01
         String symbolicId = createExtrinsicObjectId(1);
 
-        result.put(ContentVariableName.EntryUUID.toString(), symbolicId);
+        result.put(ContentVariableName.DocumentSymbolicId.toString(),
+                   symbolicId);
         document.setSymbolicId(symbolicId);
 
         // document type, pull from SDR
         result.put(ContentVariableName.DocumentTypeCode.toString(),
-                documentType.getCode());
+                   documentType.getCode());
         result.put(ContentVariableName.DocumentTypeCodeSystem.toString(),
-                documentType.getCodeSystem());
+                   documentType.getCodeSystem());
         result.put(ContentVariableName.DocumentTypeDisplayName.toString(),
-                documentType.getDisplayName());
+                   documentType.getDisplayName());
 
         // formatCode
         CodedValue format = document.getFormat();
@@ -262,16 +258,29 @@ public class CDAToXDSMapper implements IXDSMapper {
             }
         }
 
+        // convert the replace id to an OID from UUID (as necessary)
+        String replIdAsOID = document.getReplaceId();
+
+        if (StringUtils.isNotBlank(replIdAsOID)
+                && UUIDUtils.isUUID(replIdAsOID)) {
+
+            replIdAsOID = convertUUIDToOID(replIdAsOID);
+        }
+
+        logger.debug(String.format("Setting replaceIdAsOID: [%s].",
+                                   replIdAsOID));
+        document.setReplaceIdAsOID(replIdAsOID);
+
         // ///
         // Submission Set
 
         // content type, pull from SDR
         result.put(ContentVariableName.ContentTypeCode.toString(),
-                documentType.getCode());
+                   documentType.getCode());
         result.put(ContentVariableName.ContentTypeCodeSystem.toString(),
-                documentType.getCodeSystem());
+                   documentType.getCodeSystem());
         result.put(ContentVariableName.ContentTypeDisplayName.toString(),
-                documentType.getDisplayName());
+                   documentType.getDisplayName());
 
         String sourceIdRoot =
             result.get(ContentVariableName.SourceIdRoot.toString());

@@ -18,10 +18,9 @@ import com.vangent.hieos.services.xds.bridge.client.MockRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.MockRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
-import com.vangent.hieos.services.xds.bridge.message
-    .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
     .Status;
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.support
     .XDSBridgeServiceContext;
@@ -60,7 +59,7 @@ import javax.xml.validation.Validator;
  *
  *
  * @version        v1.0, 2011-06-13
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class SubmitDocumentRequestHandlerTest {
 
@@ -612,7 +611,7 @@ public class SubmitDocumentRequestHandlerTest {
         validator.validate(new DOMSource(w3element));
 
         // validate the status
-        String uri = SubmitDocumentRequestBuilder.XDSBRIDGE_URI;
+        String uri = URIConstants.XDSBRIDGE_URI;
         String expr = "/@status";
         String status = XPathHelper.stringValueOf(response, expr, uri);
 

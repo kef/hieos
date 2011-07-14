@@ -23,6 +23,7 @@ import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.Identifier;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
 import com.vangent.hieos.services.xds.bridge.utils.SubjectIdentifierUtils;
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class SubmitDocumentRequestBuilder
         extends AbstractXdsBridgeMessageBuilder {
@@ -99,7 +100,7 @@ public class SubmitDocumentRequestBuilder
         byte[] result = null;
 
         OMElement binelem = XPathHelper.selectSingleNode(elem, expr,
-                                XDSBRIDGE_URI);
+                                URIConstants.XDSBRIDGE_URI);
 
         if (binelem != null) {
 
@@ -135,7 +136,7 @@ public class SubmitDocumentRequestBuilder
 
         CodedValue result = null;
         OMElement cvelem = XPathHelper.selectSingleNode(elem, expr,
-                               XDSBRIDGE_URI);
+                               URIConstants.XDSBRIDGE_URI);
 
         if (cvelem != null) {
 
@@ -197,7 +198,7 @@ public class SubmitDocumentRequestBuilder
 
         Identifier result = null;
         OMElement idelem = XPathHelper.selectSingleNode(elem, expr,
-                               XDSBRIDGE_URI);
+                               URIConstants.XDSBRIDGE_URI);
 
         if (idelem != null) {
 
@@ -228,7 +229,7 @@ public class SubmitDocumentRequestBuilder
 
         SubjectIdentifier result = null;
         OMElement idelem = XPathHelper.selectSingleNode(elem, expr,
-                               XDSBRIDGE_URI);
+                               URIConstants.XDSBRIDGE_URI);
 
         if (idelem != null) {
 
@@ -257,7 +258,8 @@ public class SubmitDocumentRequestBuilder
     private String parseText(OMElement elem, String expr)
             throws XPathHelperException {
 
-        String result = XPathHelper.stringValueOf(elem, expr, XDSBRIDGE_URI);
+        String result = XPathHelper.stringValueOf(elem, expr,
+                            URIConstants.XDSBRIDGE_URI);
 
         return StringUtils.trimToNull(result);
     }
@@ -285,7 +287,7 @@ public class SubmitDocumentRequestBuilder
 
             List<OMElement> docelems = XPathHelper.selectNodes(elem,
                                            "./ns:Documents/ns:Document",
-                                           XDSBRIDGE_URI);
+                                           URIConstants.XDSBRIDGE_URI);
 
             if (docelems != null) {
 

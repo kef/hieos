@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.message;
 
+import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
@@ -23,13 +24,9 @@ import org.apache.axiom.om.OMNamespace;
  *
  *
  * @version        v1.0, 2011-06-29
- * @author         Jim Horner
+ * @author         Vangent
  */
 public abstract class AbstractXdsBridgeMessageBuilder {
-
-    /** Field description */
-    public static final String XDSBRIDGE_URI =
-        "http://schemas.hieos.vangent.com/xdsbridge";
 
     /** Field description */
     private final XDSBridgeConfig xdsBridgeConfig;
@@ -57,7 +54,7 @@ public abstract class AbstractXdsBridgeMessageBuilder {
 
         OMFactory fac = OMAbstractFactory.getOMFactory();
 
-        return fac.createOMNamespace(XDSBRIDGE_URI, "xdsbridge");
+        return fac.createOMNamespace(URIConstants.XDSBRIDGE_URI, "xdsbridge");
     }
 
     /**

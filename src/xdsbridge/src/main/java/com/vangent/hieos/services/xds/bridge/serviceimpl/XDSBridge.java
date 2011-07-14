@@ -13,13 +13,17 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
+import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
+import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.transactions.SubmitDocumentRequestHandler;
+import com.vangent.hieos.services.xds.bridge.transactions
+    .SubmitDocumentRequestHandler;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
@@ -31,7 +35,7 @@ import org.apache.log4j.Logger;
  *
  *
  * @version        v1.0, 2011-06-09
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class XDSBridge extends XAbstractService {
 
@@ -60,14 +64,18 @@ public class XDSBridge extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement SubmitDocumentRequest(OMElement request) throws AxisFault {
+
         beginTransaction("xdsbridge:SubmitDocumentRequest", request);
         validateWS();
         validateMTOM();
 
         SubmitDocumentRequestHandler handler =
             new SubmitDocumentRequestHandler(this.log_message, serviceContext);
+
         handler.setConfigActor(this.getConfigActor());
+
         OMElement result = handler.run(getMessageContext(), request);
+
         endTransaction(handler.getStatus());
 
         return result;
@@ -146,28 +154,22 @@ public class XDSBridge extends XAbstractService {
             (XConfigActor) xdsBridgeActor.getXConfigObjectWithName("repo",
                 XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
 
-        if (repositoryActor == null) {
-
-            throw new IllegalStateException(
-                String.format(
-                    "Repository [%s] config is not found.", repoName));
-        }
+        startUpValidateRepositoryActor(repoName, repositoryActor);
 
         // grab registry from xdsbrige actor
-        String regName = "registry";
+        String registryName = "registry";
         XConfigActor registryActor =
-            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(regName,
-                XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(
+                registryName, XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
 
-        if (registryActor == null) {
-
-            throw new IllegalStateException(
-                String.format("Registry [%s] config is not found.", regName));
-        }
+        startUpValidateRegistryActor(registryName, registryActor);
 
         XDSBridgeConfig bridgeConfig = null;
+
         try {
+
             bridgeConfig = XDSBridgeConfig.newInstance(xdsBridgeActor);
+
         } catch (Exception e) {
 
             throw new IllegalStateException(
@@ -179,5 +181,74 @@ public class XDSBridge extends XAbstractService {
         // set context for this service
         XDSBridge.serviceContext = new XDSBridgeServiceContext(registryActor,
                 repositoryActor, bridgeConfig);
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param regName
+     * @param registryActor
+     */
+    private void startUpValidateRegistryActor(String regName,
+            XConfigActor registryActor) {
+
+        if (registryActor == null) {
+
+            throw new IllegalStateException(
+                String.format("Registry [%s] config is not found.", regName));
+        }
+
+        String[] registryTransactions =
+            new String[] { XDSDocumentRegistryClient.PID_ADD_TRANS,
+                           XDSDocumentRegistryClient.STORED_QUERY_TRANS };
+
+        for (String transName : registryTransactions) {
+
+            XConfigTransaction trans = registryActor.getTransaction(transName);
+
+            if (trans == null) {
+
+                throw new IllegalStateException(
+                    String.format(
+                        "Registry [%s] config requires transation [%s].",
+                        regName, transName));
+            }
+        }
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param repoName
+     * @param repositoryActor
+     */
+    private void startUpValidateRepositoryActor(String repoName,
+            XConfigActor repositoryActor) {
+
+        if (repositoryActor == null) {
+
+            throw new IllegalStateException(
+                String.format(
+                    "Repository [%s] config is not found.", repoName));
+        }
+
+        String[] repositoryTransactions =
+            new String[] { XDSDocumentRepositoryClient.PNR_TRANS };
+
+        for (String transName : repositoryTransactions) {
+
+            XConfigTransaction trans =
+                repositoryActor.getTransaction(transName);
+
+            if (trans == null) {
+
+                throw new IllegalStateException(
+                    String.format(
+                        "Repository [%s] config requires transation [%s].",
+                        repoName, transName));
+            }
+        }
     }
 }

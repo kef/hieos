@@ -37,7 +37,7 @@ import java.util.List;
  *
  *
  * @version        v1.0, 2011-06-24
- * @author         Jim Horner
+ * @author         Vangent
  */
 public class XDSBridgeConfig {
 

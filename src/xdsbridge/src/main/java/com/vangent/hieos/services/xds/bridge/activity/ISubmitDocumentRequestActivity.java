@@ -18,7 +18,7 @@ package com.vangent.hieos.services.xds.bridge.activity;
  *
  *
  * @version        v1.0, 2011-06-22
- * @author         Jim Horner    
+ * @author         Vangent    
  */
 public interface ISubmitDocumentRequestActivity {
 
