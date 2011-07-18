@@ -37,6 +37,9 @@ import org.apache.axis2.engine.Phase;
 import com.vangent.hieos.xutil.xua.handlers.XUAOutPhaseHandler;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import java.util.Iterator;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
 
 public class Soap {
 
@@ -103,10 +106,23 @@ public class Soap {
                 options.setUseSeparateListener(async);
             }
             this.setupXUAOutPhaseHandler();
+
+            HttpConnectionManager connMgr =
+                    new XUtilSimpleHttpConnectionManager(true);
+            HttpClient httpClient = new HttpClient(connMgr);
+
+            // set the above created objects to re use.
+            options.setProperty(HTTPConstants.REUSE_HTTP_CLIENT,
+                    Constants.VALUE_TRUE);
+            options.setProperty(HTTPConstants.CACHED_HTTP_CLIENT,
+                    httpClient);
+
+            options.setCallTransportCleanup(true);
+
             OMElement result = serviceClient.sendReceive(body);
-            if (async) {
-                serviceClient.cleanupTransport();
-            }
+            //if (async) {
+            //    serviceClient.cleanupTransport();
+            //}
 
             Object in = serviceClient.getServiceContext().getLastOperationContext().getMessageContexts().get("In");
             if (!(in instanceof MessageContext)) {
