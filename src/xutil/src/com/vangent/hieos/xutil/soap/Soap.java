@@ -28,7 +28,6 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -39,10 +38,13 @@ import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import java.util.Iterator;
 import javax.xml.namespace.QName;
-import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -135,13 +137,20 @@ public class Soap {
             // Setup for XUA (if required).
             this.setupXUA(serviceClient);
 
+            HttpConnectionManager connMgr =
+                    new XUtilSimpleHttpConnectionManager(true);
+            HttpClient httpClient = new HttpClient(connMgr);
+
+            // set the above created objects to re use.
+            options.setProperty(HTTPConstants.REUSE_HTTP_CLIENT,
+                    Constants.VALUE_TRUE);
+            options.setProperty(HTTPConstants.CACHED_HTTP_CLIENT,
+                    httpClient);
+
+            options.setCallTransportCleanup(true);
+
             // Make the SOAP request (and save the result).
             this.result = serviceClient.sendReceive(body);
-
-            // Cleanup after "async" (if required).
-            if (this.async) {
-                serviceClient.cleanupTransport();
-            }
 
             // Make sure response is what is expected.
             this.validateSOAPResponse(this.serviceClient, mtom);
@@ -157,7 +166,7 @@ public class Soap {
             return this.result;
         } catch (AxisFault e) {
             // If an AxisFault ... turn into an XdsException and get out.
-            throw new XdsException(e.getMessage());
+            throw new XdsException(e.getMessage(), e);
         }
     }
 
