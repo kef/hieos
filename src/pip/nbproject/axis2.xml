@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<axis2 xmlns="http://www.netbeans.org/ns/axis2/1">
-    <service name="PIP">
-        <service-class>com.vangent.hieos.services.pip.serviceimpl.PIP</service-class>
-    </service>
-</axis2>
