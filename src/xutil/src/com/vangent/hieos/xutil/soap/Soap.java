@@ -137,20 +137,25 @@ public class Soap {
             // Setup for XUA (if required).
             this.setupXUA(serviceClient);
 
-            HttpConnectionManager connMgr =
-                    new XUtilSimpleHttpConnectionManager(true);
-            HttpClient httpClient = new HttpClient(connMgr);
-
-            // set the above created objects to re use.
-            options.setProperty(HTTPConstants.REUSE_HTTP_CLIENT,
-                    Constants.VALUE_TRUE);
-            options.setProperty(HTTPConstants.CACHED_HTTP_CLIENT,
-                    httpClient);
-
-            options.setCallTransportCleanup(true);
+//            HttpConnectionManager connMgr =
+//                    new XUtilSimpleHttpConnectionManager(true);
+//            HttpClient httpClient = new HttpClient(connMgr);
+//
+//            // set the above created objects to re use.
+//            options.setProperty(HTTPConstants.REUSE_HTTP_CLIENT,
+//                    Constants.VALUE_TRUE);
+//            options.setProperty(HTTPConstants.CACHED_HTTP_CLIENT,
+//                    httpClient);
+//
+//            options.setCallTransportCleanup(true);
 
             // Make the SOAP request (and save the result).
             this.result = serviceClient.sendReceive(body);
+
+            // Cleanup after "async" (if required).
+            if (this.async) {
+                serviceClient.cleanupTransport();
+            }
 
             // Make sure response is what is expected.
             this.validateSOAPResponse(this.serviceClient, mtom);
