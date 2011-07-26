@@ -12,9 +12,10 @@
  */
 package com.vangent.hieos.services.xds.registry.transactions;
 
-import com.vangent.hieos.policyutil.pep.PEPResponseContext;
-import com.vangent.hieos.policyutil.pep.PEP;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
+import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.pep.impl.PEPHandler;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -171,9 +172,8 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws XdsValidationException
      * @throws XdsResultNotSinglePatientException
      */
-    private void AdhocQueryRequestInternal(OMElement ahqr)
-            throws SQLException, XdsException, XDSRegistryOutOfResourcesException, AxisFault,
-            XdsValidationException, XdsResultNotSinglePatientException {
+    private void AdhocQueryRequestInternal(final OMElement ahqr)
+            throws SQLException, XdsException, AxisFault, XdsValidationException, Exception {
         boolean found_query = false;
         for (Iterator it = ahqr.getChildElements(); it.hasNext();) {
             OMElement ele = (OMElement) it.next();
@@ -183,43 +183,46 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 log_message.setTestMessage(service_name);
                 RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
                 found_query = true;
-
-                // POLICY ENFORCEMENT POINT:
-                PEPResponseContext pepResponseCtx = null;
                 try {
-                    pepResponseCtx = PEP.evaluateCurrentRequest(this.getConfigActor());
-                    if (pepResponseCtx.isDenyDecision()) {
-                        // TBD: Check deny obligations ... for now, just deny
-                        response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
-                        return;  // Get out now!
-                    }
-                    // TBD: Need to find more ways to consolidate this logic for reuse ...
-                    // TBD: Just writing raw code now to get a sense for reuse pattern ...
+                    final PEP pep = new PEP(this.getConfigActor());
+                    pep.run(new PEPHandler() {
+
+                        @Override
+                        public void doWorkOnPermitWithoutObligations() throws Exception {
+                            // Run the Stored Query.
+                            List<OMElement> results = storedQuery(ahqr);
+                            // FIXME: Should at least make sure that if this is a LeafClass request
+                            // that the PIDs returned are the same as what was evaluated as part
+                            // of policy evaluation.
+                            if (results != null) {
+                                // Place results in the response.
+                                ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
+                            }
+                        }
+
+                        @Override
+                        public void doWorkOnDeny() throws Exception {
+                            // TBD: Check deny obligations ... for now, just deny
+                            response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                        }
+
+                        @Override
+                        public void doWorkOnPermitWithObligations() throws Exception {
+                            // Run the Stored Query:
+                            List<OMElement> results = storedQuery(ahqr);
+                            DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
+                            List<OMElement> permittedResults = policyEvaluator.evaluate(this.getPDPResponse().getRequestType(), results);
+                            if (!permittedResults.isEmpty()) {
+                                // Place results in the response.
+                                AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
+                                ahqResponse.addQueryResults((ArrayList) permittedResults);
+                            }
+                        }
+                    });
                 } catch (PolicyException ex) {
                     // We are unable to satisfy the Policy Evaluation request, so we must deny.
                     response.add_error(MetadataSupport.XDSRegistryError, "Policy Exception: " + ex.getMessage(), this.getClass().getName(), log_message);
-                    return;  // Get out now!
-                }
-
-                // Run the Stored Query:
-                List<OMElement> results = this.storedQuery(ahqr);
-
-                // POLICY ENFORCEMENT POINT (round 2):
-                // If a LeafClass request, then make sure that results are for the same patient
-                // as in the PDP request (resource-id).
-                // Now, see if we need to filter results (based on policy):
-                if (pepResponseCtx.hasObligations()) {
-                    // TBD: Need to see what needs to be done here.
-                    // TBD: Filtering, etc.
-                    // FIXME: For now, returning everything (stub).
-                    if (results != null) {
-                        ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
-                    }
-                } else {
-                    // No obligations - process as normal (no further policy evaluation).
-                    if (results != null) {
-                        ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
-                    }
+                    return;  // Get out now.
                 }
             }
         }

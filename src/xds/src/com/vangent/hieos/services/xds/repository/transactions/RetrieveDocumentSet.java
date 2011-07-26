@@ -96,7 +96,10 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         }
         ArrayList<OMElement> retrieve_documents = null;
         try {
-            retrieve_documents = retrieveDocuments(rds);
+            // TBD: Policy Enforcement [2 pass]
+            // Pass 1: Base policy evaluation
+            // Pass 2: Evaluate @ the record level.
+            retrieve_documents = this.retrieveDocuments(rds);
 
             //AUDIT:POINT
             //call to audit message for document repository
