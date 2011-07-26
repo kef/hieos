@@ -48,9 +48,9 @@
     </Policy>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="subject-has-access-policy"
+         PolicyId="general-access-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
-        <Description>Provider Access to Non-Sensitive Documents</Description>
+        <Description>Determine if the request should be denied based upon Patient Consent Directives (first pass)</Description>
 
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
@@ -111,10 +111,7 @@
 
         <Obligations>
             <Obligation
-	        ObligationId="granted-access-to-non-sensitive-document-types"
-	        FulfillOn="Permit"/>
-            <Obligation
-	        ObligationId="evaluate-sensitive-document-types"
+	        ObligationId="evaluate-documents"
 	        FulfillOn="Permit"/>
         </Obligations>
     </Policy>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:pip="urn:hieos:policy:pip"
+           xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+           xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
+           PolicySetId="hie-document-policy-set"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable">
+    <Target>
+        <Actions>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">evaluate-document</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
+        </Actions>
+    </Target>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="sensitive-document-type-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Evaluate Sensitive Document Types</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <!-- Anything with a V or R confidentiality code is considered sensitive -->
+        <!-- Currently, we do not match against the coding scheme -->
+        <Rule RuleId="sensitive-document-type-rule" Effect="Permit">
+            <Description>
+                Permit if the subject access to this document
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                    </Apply>
+                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+        </Rule>
+        <Obligations>
+            <Obligation
+	        ObligationId="granted-sensitive-document-type-access"
+	        FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="non-sensitive-document-type-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Evaluate Non-Sensitive Document Types</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="non-sensitive-document-type-rule" Effect="Permit">
+            <Description>
+                Permit if the subject access to this document
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">N</AttributeValue>
+                    </Apply>
+                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Obligations>
+            <Obligation
+	        ObligationId="granted-non-sensitive-document-type-access"
+	        FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="deny-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Default deny policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="deny-rule" Effect="Deny">
+            <Description>
+                Deny the request.
+            </Description>
+        </Rule>
+    </Policy>
+       
+</PolicySet>
