@@ -25,6 +25,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
 
 /**
  * Client interface (proxy) to Policy Decision Point (PDP).
@@ -32,6 +33,8 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 public class PDPClient extends Client {
+
+    private final static Logger logger = Logger.getLogger(PDPClient.class);
 
     /**
      * PDPClient constructor.
@@ -51,6 +54,7 @@ public class PDPClient extends Client {
      */
     public PDPResponse authorize(PDPRequest pdpRequest) throws PolicyException {
         try {
+            long start = System.currentTimeMillis();
             // Get configuration.
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("Authorize");
@@ -58,6 +62,10 @@ public class PDPClient extends Client {
 
             // Perform SOAP call to PDP.
             PDPResponse pdpResponse = this.send(pdpRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            // FIXME: Change to debug
+            if (logger.isInfoEnabled()) {
+                logger.info("PDP CLIENT TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
             return pdpResponse;
         } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Decision Point: " + ex.getMessage());

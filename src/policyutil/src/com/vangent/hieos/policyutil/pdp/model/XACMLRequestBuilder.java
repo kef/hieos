@@ -76,19 +76,21 @@ public class XACMLRequestBuilder {
         // Resource(s)
         for (ResourceType resourceType : requestType.getResource()) {
             OMElement resourceNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "Resource", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
-  
+
             // ResourceContent
             ResourceContentType resourceContentType = resourceType.getResourceContent();
             if (resourceContentType != null && !resourceContentType.getContent().isEmpty()) {
                 OMElement resourceContentNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_CONTEXT_NS, "ResourceContent", PolicyConstants.XACML_CONTEXT_NS_PREFIX));
-                Element contentValueElement = (Element) resourceContentType.getContent().get(0);
-                OMElement contentValueNode;
-                try {
-                    contentValueNode = XMLParser.convertDOMtoOM(contentValueElement);
-                } catch (XMLParserException ex) {
-                    throw new PolicyException("Unable to convert DOM to OM: " + ex.getMessage());
+                for (Object contentValue : resourceContentType.getContent()) {
+                    Element contentValueElement = (Element) contentValue;
+                    //Element contentValueElement = (Element) resourceContentType.getContent().get(0);
+                    try {
+                        OMElement contentValueNode = XMLParser.convertDOMtoOM(contentValueElement);
+                        resourceContentNode.addChild(contentValueNode);
+                    } catch (XMLParserException ex) {
+                        throw new PolicyException("Unable to convert DOM to OM: " + ex.getMessage());
+                    }
                 }
-                resourceContentNode.addChild(contentValueNode);
                 resourceNode.addChild(resourceContentNode);
             }
 
@@ -181,14 +183,14 @@ public class XACMLRequestBuilder {
                 ResourceType resourceType = new ResourceType();
                 OMElement resourceContentNode = resourceNode.getFirstChildWithName(new QName(PolicyConstants.XACML_CONTEXT_NS, "ResourceContent"));
                 if (resourceContentNode != null) {
+                    ResourceContentType resourceContentType = new ResourceContentType();
+                    resourceType.setResourceContent(resourceContentType);
                     Iterator<OMElement> it = resourceContentNode.getChildElements();
-                    if (it.hasNext()) {  // Just use first child node (if exists).
+                    while (it.hasNext()) {
                         OMElement childNode = it.next();
                         try {
                             Element childElement = XMLParser.convertOMToDOM(childNode);
-                            ResourceContentType resourceContentType = new ResourceContentType();
                             resourceContentType.getContent().add(childElement);
-                            resourceType.setResourceContent(resourceContentType);
                         } catch (XMLParserException ex) {
                             throw new PolicyException("Unable to convert DOM to OM: " + ex.getMessage());
                         }

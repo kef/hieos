@@ -17,6 +17,7 @@ package com.vangent.hieos.policyutil.util;
  * @author Bernie Thuman
  */
 public class PolicyConstants {
+
     static public final String XACML_ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
     static public final String XACML_SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
     static public final String XACML_RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
@@ -26,17 +27,17 @@ public class PolicyConstants {
     public final static String XACML_NS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
     public final static String XACML_CONTEXT_NS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
     public final static String XACML_SAML_NS = "urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os";
-    public final static String XACML_SAML_PROTOCOL_NS ="urn:oasis:names:tc:xacml:2.0:saml:protocol:schema:os";
-    
+    public final static String XACML_SAML_PROTOCOL_NS = "urn:oasis:names:tc:xacml:2.0:saml:protocol:schema:os";
+    public final static String HIEOS_PIP_NS = "urn:hieos:policy:pip";
     public final static String SAML2_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
-    public final static String SAML2_PROTOCOL_NS ="urn:oasis:names:tc:SAML:2.0:protocol";
+    public final static String SAML2_PROTOCOL_NS = "urn:oasis:names:tc:SAML:2.0:protocol";
 
     // Namespace prefixes.
     public final static String XACML_NS_PREFIX = "xacml";
     public final static String XACML_CONTEXT_NS_PREFIX = "xacml-context";
     public final static String XACML_SAML_NS_PREFIX = "xacml-saml";
-    public final static String XACML_SAML_PROTOCOL_NS_PREFIX ="xacml-samlp";
-
+    public final static String XACML_SAML_PROTOCOL_NS_PREFIX = "xacml-samlp";
+    public final static String HIEOS_PIP_NS_PREFIX = "pip";
     public final static String SAML2_NS_PREFIX = "saml";
-    public final static String SAML2_PROTOCOL_NS_PREFIX ="samlp";
+    public final static String SAML2_PROTOCOL_NS_PREFIX = "samlp";
 }

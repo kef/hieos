@@ -1,7 +1,7 @@
 /*
  * This code is subject to the HIEOS License, Version 1.0
  *
- * Copyright(c) 2008-2009 Vangent, Inc.  All rights reserved.
+ * Copyright(c) 2011 Vangent, Inc.  All rights reserved.
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,10 +12,8 @@
  */
 package com.vangent.hieos.policyutil.pep.impl;
 
-import com.vangent.hieos.policyutil.pep.model.PEPResponseContext;
-import com.vangent.hieos.policyutil.pep.model.PEPRequestContext;
-import com.vangent.hieos.policyutil.pdp.client.PDPClient;
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.pdp.client.PDPClient;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
@@ -40,51 +38,159 @@ public class PEP {
 
     private final static Logger logger = Logger.getLogger(PEP.class);
     // Initialize singleton here.
-    private static final PEPResponseContext _defaultPermitPEPResponseContext = new PEPResponseContext();
+    private static final PDPResponse _defaultPermitPDPResponse = new PDPResponse();
 
     static {
         // If policy evaluation is not active, force a PERMIT w/ no obligations.
-        //_defaultPermitPEPResponseContext = new PEPResponseContext();
-        PDPResponse pdpResponse = new PDPResponse();
         ResponseType responseType = new ResponseType();
         ResultType resultType = new ResultType();
         resultType.setDecision(DecisionType.PERMIT);
         responseType.getResult().add(resultType);
-        pdpResponse.setResponseType(responseType);
-        _defaultPermitPEPResponseContext.setPDPResponse(pdpResponse);
+        _defaultPermitPDPResponse.setResponseType(responseType);
     }
-    private PEPRequestContext evalContext;
+    private XConfigActor configActor;
+    private PDPResponse pdpResponse;
 
     /**
-     * 
-     * @param evalContext
+     *
      */
-    public PEP(PEPRequestContext evalContext) {
-        this.evalContext = evalContext;
+    private PEP() {
+        // Do not allow.
+    }
+
+    /**
+     *
+     * @param configActor
+     */
+    public PEP(XConfigActor configActor) {
+        this.configActor = configActor;
     }
 
     /**
      *
      * @return
      */
-    public PEPRequestContext getEvalContext() {
-        return evalContext;
+    public XConfigActor getConfigActor() {
+        return configActor;
     }
 
     /**
      *
-     * @param evalContext
+     * @return
      */
-    public void setEvalContext(PEPRequestContext evalContext) {
-        this.evalContext = evalContext;
+    public PDPResponse getPDPResponse() {
+        return pdpResponse;
     }
 
     /**
      *
+     * @param pdpResponse
+     */
+    public void setPDPResponse(PDPResponse pdpResponse) {
+        this.pdpResponse = pdpResponse;
+    }
+
+    /**
+     *
+     * @param pepHandler 
+     * @throws PolicyException
+     * @throws Exception
+     */
+    public void run(PEPHandler pepHandler) throws PolicyException, Exception {
+        // Keep track of pdpResponse in the PEP and also set in the PEPHandler.
+        pdpResponse = this.doPolicyEvaluation();
+        pepHandler.setPDPResponse(pdpResponse);
+        if (pdpResponse.isDenyDecision()) {
+            pepHandler.doWorkOnDeny();
+            return;  // Get out.
+        }
+        // Permit gets you here..
+        if (!pdpResponse.hasObligations()) {
+            pepHandler.doWorkOnPermitWithoutObligations();
+        } else {
+            pepHandler.doWorkOnPermitWithObligations();
+        }
+    }
+
+    /**
+     *
+     */
+    private PDPResponse doPolicyEvaluation() throws PolicyException {
+        // First, see if we should conduct policy evaluation for the request.
+        if (!configActor.isPolicyEnabled()) {
+            if (logger.isInfoEnabled()) {
+                logger.info("++ Not evaluating policy for " + configActor.getName() + " actor ++");
+            }
+            // Permit if no evaluation.
+            return _defaultPermitPDPResponse;
+        } else {
+            // See if the current SOAP action is enabled for Policy evaluation.
+            String currentSOAPAction = PEP.getCurrentSOAPAction();
+            if (!configActor.isSOAPActionPolicyEnabled(currentSOAPAction)) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("++ Not evaluating policy for " + configActor.getName()
+                            + " actor (SOAP action: " + currentSOAPAction + ") ++");
+                }
+                // Permit if no evaluation.
+                return _defaultPermitPDPResponse;
+            }
+        }
+        // Otherwise, go through the evaluation.
+        String currentSOAPAction = PEP.getCurrentSOAPAction();
+        if (logger.isInfoEnabled()) {
+            logger.info("++ Evaluating policy for " + configActor.getName()
+                    + " actor (SOAP action: " + currentSOAPAction + ") ++");
+        }
+        PDPResponse response = this.evaluate(currentSOAPAction);
+        if (logger.isInfoEnabled()) {
+            logger.info("... DECISION: " + response.getDecision().toString());
+        }
+        return response;
+    }
+
+    /**
+     *
+     * @param action
      * @return
      * @throws PolicyException
      */
-    protected PDPRequest getPDPRequest() throws PolicyException {
+    private PDPResponse evaluate(String action) throws PolicyException {
+        // Get the request to send.
+        PDPRequest pdpRequest = this.getPDPRequest(action);
+
+        // Conduct the evaluation.
+        return this.evaluate(pdpRequest);
+    }
+
+    /**
+     * 
+     * @param pdpRequest
+     * @return
+     * @throws PolicyException
+     */
+    public PDPResponse evaluate(PDPRequest pdpRequest) throws PolicyException {
+        // Get the PDP configuration.
+        XConfig xconf = null;
+        try {
+            xconf = XConfig.getInstance();
+        } catch (XConfigException ex) {
+            throw new PolicyException("Can not get xconfig to support policy evaluation: " + ex.getMessage());
+        }
+        // FIXME: Cache PDPConfig.
+        XConfigObject pdpConfig = xconf.getHomeCommunityConfig().getXConfigObjectWithName("pdp", "PolicyDecisionPointType");
+        PDPClient pdpClient = new PDPClient((XConfigActor) pdpConfig);
+
+        // Issue the authorization request.
+        return pdpClient.authorize(pdpRequest);
+    }
+
+    /**
+     *
+     * @param action
+     * @return
+     * @throws PolicyException
+     */
+    private PDPRequest getPDPRequest(String action) throws PolicyException {
         XACMLRequestBuilder builder = new XACMLRequestBuilder();
         OMElement assertionNode;
         try {
@@ -100,79 +206,8 @@ public class PEP {
             throw new PolicyException("Unable to locate SAML Assertion");
         }
         SAML2Assertion assertion = new SAML2Assertion(assertionNode);
-        PDPRequest pdpRequest = builder.buildPDPRequest(evalContext.getAction(), assertion);
+        PDPRequest pdpRequest = builder.buildPDPRequest(action, assertion);
         return pdpRequest;
-    }
-
-    /**
-     *
-     * @return
-     * @throws PolicyException
-     */
-    protected PEPResponseContext evaluate() throws PolicyException {
-        // Get the PDP configuration.
-        XConfig xconf = null;
-        try {
-            xconf = XConfig.getInstance();
-        } catch (XConfigException ex) {
-            throw new PolicyException("Can not get xconfig to support policy evaluation: " + ex.getMessage());
-        }
-        // FIXME: Cache PDPConfig.
-        XConfigObject pdpConfig = xconf.getHomeCommunityConfig().getXConfigObjectWithName("pdp", "PolicyDecisionPointType");
-        PDPClient pdpClient = new PDPClient((XConfigActor) pdpConfig);
-
-        // Get the request to send.
-        PDPRequest pdpRequest = this.getPDPRequest();
-
-        // Issue the authorization request.
-        PDPResponse pdpResponse = pdpClient.authorize(pdpRequest);
-
-        // Return a PEPResponseContext (holds a PDPResponse).
-        PEPResponseContext pepResponseCtx = new PEPResponseContext();
-        pepResponseCtx.setPDPResponse(pdpResponse);
-        return pepResponseCtx;
-    }
-
-    /**
-     * 
-     * @param configActor
-     * @return
-     * @throws PolicyException
-     */
-    public static PEPResponseContext evaluateCurrentRequest(XConfigActor configActor) throws PolicyException {
-        // First, see if we should conduct policy evaluation for the request.
-        if (!configActor.isPolicyEnabled()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("++ Not evaluating policy for " + configActor.getName() + " actor ++");
-            }
-            // Permit if no evaluation.
-            return _defaultPermitPEPResponseContext;
-        } else {
-            // See if the current SOAP action is enabled for Policy evaluation.
-            String currentSOAPAction = PEP.getCurrentSOAPAction();
-            if (!configActor.isSOAPActionPolicyEnabled(currentSOAPAction)) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("++ Not evaluating policy for " + configActor.getName()
-                            + " actor (SOAP action: " + currentSOAPAction + ") ++");
-                }
-                // Permit if no evaluation.
-                return _defaultPermitPEPResponseContext;
-            }
-        }
-        // Otherwise, go through the evaluation.
-        PEPRequestContext requestCtx = new PEPRequestContext();
-        String currentSOAPAction = PEP.getCurrentSOAPAction();
-        if (logger.isInfoEnabled()) {
-            logger.info("++ Evaluating policy for " + configActor.getName()
-                    + " actor (SOAP action: " + currentSOAPAction + ") ++");
-        }
-        requestCtx.setAction(currentSOAPAction);
-        PEP pep = new PEP(requestCtx);
-        PEPResponseContext pepResponseCtx = pep.evaluate();
-        if (logger.isInfoEnabled()) {
-            logger.info("... DECISION: " + pepResponseCtx.getDecision().toString());
-        }
-        return pepResponseCtx;
     }
 
     /**

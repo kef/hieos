@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.policyutil.pip.model;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
@@ -66,8 +67,6 @@ public class PIPResponseBuilder {
      * @return
      */
     public PIPResponse buildPIPResponse(PIPResponseElement pipResponseElement) {
-        // FIXME: Do not hard-wire
-        String nsURI = "urn:hieos:policy:pip";
         PIPResponse pipResponse = new PIPResponse();
         PatientConsentDirectives patientConsentDirectives = new PatientConsentDirectives();
         pipResponse.setPatientConsentDirectives(patientConsentDirectives);
@@ -76,7 +75,7 @@ public class PIPResponseBuilder {
 
             // ConsentDirectives
             OMElement consentDirectivesNode = XPathHelper.selectSingleNode(pipResponseNode,
-                    "./ns:ConsentDirectives[1]", nsURI);
+                    "./ns:ConsentDirectives[1]", PolicyConstants.HIEOS_PIP_NS);
             patientConsentDirectives.setContent(consentDirectivesNode);
 
             // TBD: Do more ... e.g. SensitiveDocumentTypes, etc.

@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.policyutil.pip.model;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -32,16 +33,13 @@ public class PIPRequestBuilder {
      * @return
      */
     public PIPRequestElement buildPIPRequestElement(PIPRequest pipRequest) {
-        // FIXME: Do not hard-wire
-        String nsURI = "urn:hieos:policy:pip";
-        String nsPrefix = "pip";
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
 
         // Request
-        OMElement requestNode = omfactory.createOMElement(new QName(nsURI, "GetConsentDirectivesRequest", nsPrefix));
+        OMElement requestNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "GetConsentDirectivesRequest", PolicyConstants.HIEOS_PIP_NS_PREFIX));
 
         // PatientId
-        OMElement patientIdNode = omfactory.createOMElement(new QName(nsURI, "PatientId", nsPrefix));
+        OMElement patientIdNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "PatientId", PolicyConstants.HIEOS_PIP_NS_PREFIX));
         patientIdNode.setText(pipRequest.getPatientId().getCXFormatted());
         requestNode.addChild(patientIdNode);
         
