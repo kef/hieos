@@ -24,6 +24,7 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 import com.sun.xacml.ctx.ResponseCtx;
+import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.RequestTypeElement;
 import com.vangent.hieos.policyutil.pdp.model.SAMLResponseElement;
 import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
@@ -45,8 +46,6 @@ public class PDPRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PDPRequestHandler.class);
     private static PDPImpl _pdp = null;  // FIXME: Single instance (safe?)
-    private static XConfigActor _pdpConfig = null;
-    private static XConfigActor _pipConfig = null;
 
     /**
      *
@@ -201,7 +200,9 @@ public class PDPRequestHandler extends XBaseTransaction {
     private void addResourceContent(RequestType requestType) throws PolicyException {
         ResourceContentFinder resourceContentFinder = new ResourceContentFinder(this.getPIPConfig());
         // Get ResourceContent from the PIP.
-        resourceContentFinder.addResourceContentToRequest(requestType);
+        PDPRequest pdpRequest = new PDPRequest();
+        pdpRequest.setRequestType(requestType);
+        resourceContentFinder.addResourceContentToRequest(pdpRequest);
     }
 
     /**
