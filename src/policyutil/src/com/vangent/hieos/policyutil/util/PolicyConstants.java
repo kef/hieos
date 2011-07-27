@@ -40,4 +40,6 @@ public class PolicyConstants {
     public final static String HIEOS_PIP_NS_PREFIX = "pip";
     public final static String SAML2_NS_PREFIX = "saml";
     public final static String SAML2_PROTOCOL_NS_PREFIX = "samlp";
+
+    public final static String PIP_GET_CONSENT_DIRECTIVES_SOAP_ACTION = "urn:hieos:policy:pip:GetConsentDirectivesRequest";
 }

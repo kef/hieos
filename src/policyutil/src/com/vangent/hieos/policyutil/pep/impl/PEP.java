@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResultType;
@@ -37,10 +36,13 @@ import org.apache.log4j.Logger;
 public class PEP {
 
     private final static Logger logger = Logger.getLogger(PEP.class);
-    // Initialize singleton here.
+    // Singletons.
     private static final PDPResponse _defaultPermitPDPResponse = new PDPResponse();
+    private static XConfigActor _pdpConfig = null;
 
     static {
+        
+        // Initialize _defaultPermitPDPResponse here.
         // If policy evaluation is not active, force a PERMIT w/ no obligations.
         ResponseType responseType = new ResponseType();
         ResultType resultType = new ResultType();
@@ -114,6 +116,8 @@ public class PEP {
 
     /**
      *
+     * @return
+     * @throws PolicyException
      */
     private PDPResponse doPolicyEvaluation() throws PolicyException {
         // First, see if we should conduct policy evaluation for the request.
@@ -169,19 +173,32 @@ public class PEP {
      * @throws PolicyException
      */
     public PDPResponse evaluate(PDPRequest pdpRequest) throws PolicyException {
+        XConfigActor pdpConfig = this.getPDPConfig();
+        PDPClient pdpClient = new PDPClient(pdpConfig);
+
+        // Issue the authorization request.
+        return pdpClient.authorize(pdpRequest);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private synchronized XConfigActor getPDPConfig() {
+        if (_pdpConfig != null) {
+            return _pdpConfig;
+        }
+       // Initialize _pdpConfig singleton.
+
         // Get the PDP configuration.
         XConfig xconf = null;
         try {
             xconf = XConfig.getInstance();
         } catch (XConfigException ex) {
-            throw new PolicyException("Can not get xconfig to support policy evaluation: " + ex.getMessage());
+            throw new RuntimeException("Can not get xconfig to support policy evaluation: " + ex.getMessage());
         }
-        // FIXME: Cache PDPConfig.
-        XConfigObject pdpConfig = xconf.getHomeCommunityConfig().getXConfigObjectWithName("pdp", "PolicyDecisionPointType");
-        PDPClient pdpClient = new PDPClient((XConfigActor) pdpConfig);
-
-        // Issue the authorization request.
-        return pdpClient.authorize(pdpRequest);
+        _pdpConfig = (XConfigActor)xconf.getHomeCommunityConfig().getXConfigObjectWithName("pdp", "PolicyDecisionPointType");
+        return _pdpConfig;
     }
 
     /**

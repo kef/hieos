@@ -20,6 +20,7 @@ import com.vangent.hieos.policyutil.pip.model.PIPRequestElement;
 import com.vangent.hieos.policyutil.pip.model.PIPResponse;
 import com.vangent.hieos.policyutil.pip.model.PIPResponseBuilder;
 import com.vangent.hieos.policyutil.pip.model.PIPResponseElement;
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
@@ -55,11 +56,9 @@ public class PIPClient extends Client {
             // Get configuration.
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("GetConsentDirectives");
-            // FIXME: Do not hard-wire.
-            String soapAction = "urn:hieos:policy:pip:GetConsentDirectivesRequest";
 
             // Perform SOAP call to PIP.
-            PIPResponse pipResponse = this.send(pipRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            PIPResponse pipResponse = this.send(pipRequest, PolicyConstants.PIP_GET_CONSENT_DIRECTIVES_SOAP_ACTION, txn.getEndpointURL(), txn.isSOAP12Endpoint());
             return pipResponse;
         } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Information Point: " + ex.getMessage());

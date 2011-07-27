@@ -250,8 +250,7 @@ public class PDPRequest {
     public void addResourceContent(OMElement resourceContent, boolean clearAllButFirst) throws PolicyException {
         ResourceType resourceType = this.getResourceType();
         if (resourceType == null) {
-            // FIXME: Should we do something here?
-            return;  // Early exit!
+            throw new PolicyException("Attempted to add ResourceContent with no Resource");
         }
         try {
             // First convert Axiom OMElement to DOM Element
@@ -328,7 +327,7 @@ public class PDPRequest {
             // Not found.
             attributeType = new AttributeType();
             attributeType.setAttributeId(id);
-            // FIXME: Deal with data type!!!
+            // FIXME: Deal with data type - not always simply a string (resolve coded values) !!!
             attributeType.setDataType("http://www.w3.org/2001/XMLSchema#string");
             attributeType.setIssuer(issuer);
             AttributeValueType avt = new AttributeValueType();

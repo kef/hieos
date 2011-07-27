@@ -41,6 +41,7 @@ import oasis.names.tc.xacml._2_0.context.schema.os.SubjectType;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
+import org.apache.log4j.Logger;
 
 import org.joda.time.DateTime;
 import org.w3c.dom.Element;
@@ -50,6 +51,8 @@ import org.w3c.dom.Element;
  * @author Bernie Thuman
  */
 public class XACMLRequestBuilder {
+
+    private final static Logger logger = Logger.getLogger(XACMLRequestBuilder.class);
 
     /**
      * Builds an OMElement(XML) from an OASIS RequestType.
@@ -147,7 +150,8 @@ public class XACMLRequestBuilder {
                         throw new PolicyException("Unable to convert DOM to OM: " + ex.getMessage());
                     }
                 } else {
-                    // Do nothing - FIXME?
+                    logger.warn(
+                            "XACML attribute content type unknown (id=" + attributeId + ")");
                 }
                 attributeNode.addChild(attributeValueNode);
             }
@@ -222,7 +226,7 @@ public class XACMLRequestBuilder {
                 throw new PolicyException("An XACML Request 'Environment' node is required");
             }
         } catch (XPathHelperException ex) {
-            // FIXME: Do something?
+            throw new PolicyException("Failure to build XACML RequestType", ex);
         }
         return requestType;
     }
@@ -247,7 +251,7 @@ public class XACMLRequestBuilder {
         authzDecisionQueryNode.addAttribute("Version", "2.0", null);
         authzDecisionQueryNode.addAttribute("IssueInstant", (new DateTime()).toString(), null);
 
-        // Build Issuer [FIXME: May need more ...]
+        // Build Issuer [FIXME: May need to do more ...]
         OMElement issuerNode = omfactory.createOMElement(new QName(PolicyConstants.SAML2_NS, "Issuer", PolicyConstants.SAML2_NS_PREFIX));
         issuerNode.setText(pdpRequest.getIssuer());
         authzDecisionQueryNode.addChild(issuerNode);
@@ -309,7 +313,7 @@ public class XACMLRequestBuilder {
                 }
             }
         } catch (XPathHelperException ex) {
-            // Fixme: Do something?
+            throw new PolicyException("Failure to build PDP Request", ex);
         }
     }
 

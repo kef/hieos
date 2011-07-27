@@ -102,8 +102,6 @@ public class PDPTest {
         request.addAttribute(AttributeClassType.RESOURCE_ID, "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
                 "123456^^^&1.3.6.1.4.1.21367.2010.1.2.300&ISO");
 
-        // FIXME: !!!! if resource-id is empty, always PERMITS????
-
         return request;
     }
 
