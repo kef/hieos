@@ -45,7 +45,7 @@ import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
 public class PDPRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PDPRequestHandler.class);
-    private static PDPImpl _pdp = null;  // FIXME: Single instance (safe?)
+    private static PDPImpl _pdp = null;
 
     /**
      *
@@ -82,38 +82,18 @@ public class PDPRequestHandler extends XBaseTransaction {
     public OMElement run(OMElement request) throws AxisFault {
         try {
             log_message.setPass(true); // Hope for the best.
-            this.validate(request);
             RequestType requestType = this.getRequestType(request);
             this.addResourceContent(requestType);
             SAMLResponseElement samlResponse = this.evaluate(requestType);
             if (log_message.isLogEnabled()) {
                 log_message.addOtherParam("Response", samlResponse.getElement());
             }
-            this.validate(samlResponse.getElement());
             return samlResponse.getElement();
         } catch (Exception ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             log_message.setPass(false);
             throw new AxisFault(ex.getMessage());
         }
-    }
-
-    /**
-     * 
-     * @param node
-     */
-    private void validate(OMElement node) {
-        // FIXME: TBD
-        //try {
-        //    String schemaLocation =
-        //            PolicyConstants.XACML_SAML_PROTOCOL_NS
-        //            + " "
-        //            + "c:\\dev\\hieos\\config\\schema\\xacml\\access_control-xacml-2.0-saml-protocol-schema-os.xsd";
-        //    XMLSchemaValidator validator = new XMLSchemaValidator(schemaLocation);
-        //    validator.validate(request);
-        //} catch (XMLSchemaValidatorException ex) {
-        //    java.util.logging.Logger.getLogger(PDPRequestHandler.class.getName()).log(Level.SEVERE, null, ex);
-        //}
     }
 
     /**
