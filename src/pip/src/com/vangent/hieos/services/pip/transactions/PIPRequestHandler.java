@@ -12,10 +12,14 @@
  */
 package com.vangent.hieos.services.pip.transactions;
 
+import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfig.ConfigItem;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XMLParser;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
@@ -64,48 +68,26 @@ public class PIPRequestHandler extends XBaseTransaction {
     public OMElement run(OMElement request) throws AxisFault {
         try {
             log_message.setPass(true); // Hope for the best.
-            // FIXME (STUB):
-            String content =
-                    "<pip:GetConsentDirectivesResponse xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:pip=\"urn:hieos:policy:pip\">"
-                    + "  <pip:ConsentDirectives alwaysAuthorize=\"false\">"
-                    + "     <pip:AllowedOrganizations>"
-                    + "        <pip:Organization>1.1</pip:Organization>"
-                    + "        <pip:Organization>1.2</pip:Organization>"
-                    + "     </pip:AllowedOrganizations>"
-                    + "     <pip:BlockedOrganizations>"
-                    + "        <pip:Organization>1.5</pip:Organization>"
-                    + "        <pip:Organization>1.6</pip:Organization>"
-                    + "     </pip:BlockedOrganizations>"
-                    + "     <pip:BlockedIndividuals>"
-                    + "        <pip:Individual>3.1</pip:Individual>"
-                    + "        <pip:Individual>3.2</pip:Individual>"
-                    + "     </pip:BlockedIndividuals>"
-                    + "     <pip:AllowedRoles>"
-                    + "        <pip:Role codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "        <pip:Role codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "     </pip:AllowedRoles>"
-                    + "     <pip:AllowedPurposeOfUse>"
-                    + "        <pip:PurposeOfUse codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "        <pip:PurposeOfUse codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "     </pip:AllowedPurposeOfUse>"
-                    + "     <pip:SensitiveDocumentTypes>"
-                    + "        <pip:DocumentType codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "        <pip:DocumentType codeSystem=\"String\" displayName=\"String\" codeSystemName=\"String\" code=\"String\"/>"
-                    + "     </pip:SensitiveDocumentTypes>"
-                    + "     <pip:SensitiveDocumentAccessList>"
-                    + "        <pip:SensitiveDocumentAccess>"
-                    + "           <pip:Organization>String</pip:Organization>"
-                    + "           <pip:Individual>String</pip:Individual>"
-                    + "        </pip:SensitiveDocumentAccess>"
-                    + "        <pip:SensitiveDocumentAccess>"
-                    + "           <pip:Organization>String</pip:Organization>"
-                    + "           <pip:Individual>String</pip:Individual>"
-                    + "        </pip:SensitiveDocumentAccess>"
-                    + "     </pip:SensitiveDocumentAccessList>"
-                    + "  </pip:ConsentDirectives>"
-                    + "</pip:GetConsentDirectivesResponse>";
+            // FIXME: Stub.
             try {
-                OMElement pipResponse = XMLParser.stringToOM(content);
+                // Read everytime - so we don't have to restart server during testing.
+
+                // Load PIP stub data.
+                String policyDir = XConfig.getConfigLocation(ConfigItem.POLICY_DIR);
+                String pipStubDataFile = policyDir + "/pipstubdata/pip.xml";
+                OMElement pipStubData = XMLParser.fileToOM(pipStubDataFile);
+                OMElement requestedPidNode = XPathHelper.selectSingleNode(request, "./ns:PatientId", PolicyConstants.HIEOS_PIP_NS);
+                String pid = requestedPidNode.getText();
+                // Now lookup the patient id.
+                OMElement pipResponse =
+                        XPathHelper.selectSingleNode(pipStubData, "./ns:PIPEntry[@pid='" + pid + "']/ns:GetConsentDirectivesResponse[1]", PolicyConstants.HIEOS_PIP_NS);
+                if (pipResponse == null) {
+                    pid = "DEFAULT";
+                    pipResponse =
+                            XPathHelper.selectSingleNode(pipStubData, "./ns:PIPEntry[@pid='" + pid + "']/ns:GetConsentDirectivesResponse[1]", PolicyConstants.HIEOS_PIP_NS);
+
+                }
+                //OMElement pipResponse = XMLParser.stringToOM(content);
                 if (log_message.isLogEnabled()) {
                     log_message.addOtherParam("Response", pipResponse);
                 }
