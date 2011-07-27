@@ -1,0 +1,123 @@
+<!-- Just a stub for testing purposes until PIP is implemented. -->
+<pip:PIP xmlns:pip="urn:hieos:policy:pip">
+    <pip:PIPEntry pid = "DEFAULT">
+        <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <pip:ConsentDirectives alwaysAuthorize="false">
+                <pip:AllowedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                </pip:AllowedOrganizations>
+                <pip:BlockedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
+                </pip:BlockedOrganizations>
+                <pip:BlockedIndividuals>
+                    <pip:Individual>3.1</pip:Individual>
+                    <pip:Individual>3.2</pip:Individual>
+                </pip:BlockedIndividuals>
+                <pip:AllowedRoles>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:AllowedRoles>
+                <pip:AllowedPurposeOfUse>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:AllowedPurposeOfUse>
+                <pip:SensitiveDocumentTypes>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:SensitiveDocumentTypes>
+                <pip:SensitiveDocumentAccessList>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>DEFAULT TEST</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>String</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                </pip:SensitiveDocumentAccessList>
+            </pip:ConsentDirectives>
+        </pip:GetConsentDirectivesResponse>
+    </pip:PIPEntry>
+    <pip:PIPEntry pid = "1^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO">
+        <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <pip:ConsentDirectives alwaysAuthorize="false">
+                <pip:AllowedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                </pip:AllowedOrganizations>
+                <pip:BlockedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
+                </pip:BlockedOrganizations>
+                <pip:BlockedIndividuals>
+                    <pip:Individual>3.1</pip:Individual>
+                    <pip:Individual>3.2</pip:Individual>
+                </pip:BlockedIndividuals>
+                <pip:AllowedRoles>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:AllowedRoles>
+                <pip:AllowedPurposeOfUse>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:AllowedPurposeOfUse>
+                <pip:SensitiveDocumentTypes>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:SensitiveDocumentTypes>
+                <pip:SensitiveDocumentAccessList>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>String</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>String</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                </pip:SensitiveDocumentAccessList>
+            </pip:ConsentDirectives>
+        </pip:GetConsentDirectivesResponse>
+    </pip:PIPEntry>
+    <pip:PIPEntry pid = "2^^^&amp;1.3.6.1.4.1.21367.2010.1.2.300&amp;ISO">
+        <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <pip:ConsentDirectives alwaysAuthorize="false">
+                <pip:AllowedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                </pip:AllowedOrganizations>
+                <pip:BlockedOrganizations>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
+                </pip:BlockedOrganizations>
+                <pip:BlockedIndividuals>
+                    <pip:Individual>3.1</pip:Individual>
+                    <pip:Individual>3.2</pip:Individual>
+                </pip:BlockedIndividuals>
+                <pip:AllowedRoles>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="DOCTOR"/>
+                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="NURSE"/>
+                </pip:AllowedRoles>
+                <pip:AllowedPurposeOfUse>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:AllowedPurposeOfUse>
+                <pip:SensitiveDocumentTypes>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                </pip:SensitiveDocumentTypes>
+                <pip:SensitiveDocumentAccessList>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>String</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                    <pip:SensitiveDocumentAccess>
+                        <pip:Organization>String</pip:Organization>
+                        <pip:Individual>String</pip:Individual>
+                    </pip:SensitiveDocumentAccess>
+                </pip:SensitiveDocumentAccessList>
+            </pip:ConsentDirectives>
+        </pip:GetConsentDirectivesResponse>
+    </pip:PIPEntry>
+</pip:PIP>
