@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.policy;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.policyutil.util.PolicyUtil;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.ArrayList;
@@ -495,10 +496,20 @@ public class DocumentMetadataBuilder {
 
         // Author person (should only be one value and it is required).
         String authorPerson = this.getSlotSingleValue(authorClassification, "authorPerson");
-        documentAuthorMetadata.setAuthorPerson(authorPerson);
+
+        // Normalize author name XCN identifiers.
+        String xcnIdentifier = PolicyUtil.getXCN_Identifier(authorPerson);
+        documentAuthorMetadata.setAuthorPerson(xcnIdentifier);
 
         // Author organization (can be 0..n).
         List<String> authorOrganizations = this.getSlotMultiValue(authorClassification, "authorInstitution");
+
+        // Normalize author institution XON identifiers.
+        int i = 0;
+        for (String authorOrganization : authorOrganizations) {
+            String xonIdentifier = PolicyUtil.getXON_Identifier(authorOrganization);
+            authorOrganizations.set(i++, xonIdentifier);
+        }
         documentAuthorMetadata.setAuthorOrganizations(authorOrganizations);
 
         return documentAuthorMetadata;
