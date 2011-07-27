@@ -194,6 +194,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                             // FIXME: Should at least make sure that if this is a LeafClass request
                             // that the PIDs returned are the same as what was evaluated as part
                             // of policy evaluation.
+                            // FIXME: See below comments also.
                             if (results != null) {
                                 // Place results in the response.
                                 ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
@@ -208,6 +209,9 @@ public class AdhocQueryRequest extends XBaseTransaction {
 
                         @Override
                         public void doWorkOnPermitWithObligations() throws Exception {
+                            // FIXME: Check patient id, look @ obligation ids (e.g. emergency, etc.)
+                            // FIXME: Deal with author person and institution formatting ... XON/XCN so
+                            // proper policy evaluation can occur.
                             // Run the Stored Query:
                             List<OMElement> results = storedQuery(ahqr);
                             DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();

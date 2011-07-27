@@ -12,9 +12,6 @@
  */
 package com.vangent.hieos.services.xds.policy;
 
-import com.vangent.hieos.services.xds.policy.DocumentMetadataElement;
-import com.vangent.hieos.services.xds.policy.DocumentMetadataBuilder;
-import com.vangent.hieos.services.xds.policy.DocumentMetadata;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
