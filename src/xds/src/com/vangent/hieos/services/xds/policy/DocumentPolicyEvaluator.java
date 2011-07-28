@@ -27,6 +27,8 @@ import org.apache.axiom.om.OMElement;
  */
 public class DocumentPolicyEvaluator {
 
+    // FIXME: Can use higher level interface ... look @ callers.
+    
     /**
      *
      * @param requestType
@@ -34,18 +36,19 @@ public class DocumentPolicyEvaluator {
      * @return
      * @throws PolicyException
      */
-    public List<OMElement> evaluate(RequestType requestType, List<OMElement> registryObjects) throws PolicyException {
-        List<OMElement> permittedResults = new ArrayList<OMElement>();
+    public RegistryObjectElementList evaluate(RequestType requestType, RegistryObjectElementList registryObjectElementList) throws PolicyException {
+        List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
 
         // First convert registryObjects into DocumentMetadata instances.
         DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
-        List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(registryObjects);
+        List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(registryObjectElementList);
 
         // Now, filter results based upon policy evaluation.
         for (DocumentMetadata documentMetadata : documentMetadataList) {
             if (documentMetadata.isObjectRef()) {
+                // NOTE: THIS SHOULD NEVER BE THE CASE.
                 // We do not evaluate policy for object references.
-                permittedResults.add(documentMetadata.getRegistryObject());
+                permittedRegistryObjects.add(documentMetadata.getRegistryObject());
             } else {
                 // Create PDP request.
                 PDPRequest pdpRequest = new PDPRequest();
@@ -63,13 +66,13 @@ public class DocumentPolicyEvaluator {
                 // Evaluate results (Obligations are not used here).
                 if (pdpResponse.isPermitDecision()) {
                     System.out.println("... PERMIT");
-                    permittedResults.add(documentMetadata.getRegistryObject());
+                    permittedRegistryObjects.add(documentMetadata.getRegistryObject());
                 } else {
                     // Consider this as a deny
                     System.out.println("... DENY");
                 }
             }
         }
-        return permittedResults;
+        return new RegistryObjectElementList(permittedRegistryObjects);
     }
 }

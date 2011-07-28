@@ -15,7 +15,8 @@ package com.vangent.hieos.services.xds.registry.transactions;
 import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
-import com.vangent.hieos.policyutil.pep.impl.PEPHandler;
+import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
+import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -174,55 +175,48 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     private void AdhocQueryRequestInternal(final OMElement ahqr)
             throws SQLException, XdsException, AxisFault, XdsValidationException, Exception {
-        boolean found_query = false;
+        RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
+        boolean foundQuery = false;
         for (Iterator it = ahqr.getChildElements(); it.hasNext();) {
             OMElement ele = (OMElement) it.next();
             String ele_name = ele.getLocalName();
             if (ele_name.equals("AdhocQuery")) {
                 validateQuery(ele);
-                log_message.setTestMessage(service_name);
-                RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
-                found_query = true;
+                //log_message.setTestMessage(service_name);
+                foundQuery = true;
+                final boolean isLeafClassRequest = this.isLeafClassRequest(ahqr);
                 try {
-                    final PEP pep = new PEP(this.getConfigActor());
-                    pep.run(new PEPHandler() {
-
-                        @Override
-                        public void doWorkOnPermitWithoutObligations() throws Exception {
+                    // Policy Enforcement:
+                    PEP pep = new PEP(this.getConfigActor());
+                    boolean policyEnabled = pep.isPolicyEnabled();
+                    if (!policyEnabled) {
+                        // Run the Stored Query.
+                        List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
+                        if (registryObjects != null) {
+                            // Place results in the response.
+                            ((AdhocQueryResponse) response).addQueryResults((ArrayList) registryObjects);
+                        }
+                    } else {
+                        PDPResponse pdpResponse = pep.evaluate();
+                        if (pdpResponse.isDenyDecision()) {
+                            response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                        } else if (!pdpResponse.hasObligations()) {
                             // Run the Stored Query.
-                            List<OMElement> results = storedQuery(ahqr);
+                            List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
                             // FIXME: Should at least make sure that if this is a LeafClass request
                             // that the PIDs returned are the same as what was evaluated as part
                             // of policy evaluation.
-                            // FIXME: See below comments also.
-                            if (results != null) {
+                            // This may not work if policy evaluation is truely turned off (since we stub
+                            // the PDPResponse with a success)!
+                            if (registryObjects != null) {
                                 // Place results in the response.
-                                ((AdhocQueryResponse) response).addQueryResults((ArrayList) results);
+                                ((AdhocQueryResponse) response).addQueryResults((ArrayList) registryObjects);
                             }
+                        } else {
+                            // Has obligations.
+                            this.handleObligations(ahqr, pdpResponse, isLeafClassRequest);
                         }
-
-                        @Override
-                        public void doWorkOnDeny() throws Exception {
-                            // TBD: Check deny obligations ... for now, just deny
-                            response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
-                        }
-
-                        @Override
-                        public void doWorkOnPermitWithObligations() throws Exception {
-                            // FIXME: Check patient id, look @ obligation ids (e.g. emergency, etc.)
-                            // FIXME: Deal with author person and institution formatting ... XON/XCN so
-                            // proper policy evaluation can occur.
-                            // Run the Stored Query:
-                            List<OMElement> results = storedQuery(ahqr);
-                            DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
-                            List<OMElement> permittedResults = policyEvaluator.evaluate(this.getPDPResponse().getRequestType(), results);
-                            if (!permittedResults.isEmpty()) {
-                                // Place results in the response.
-                                AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
-                                ahqResponse.addQueryResults((ArrayList) permittedResults);
-                            }
-                        }
-                    });
+                    }
                 } catch (PolicyException ex) {
                     // We are unable to satisfy the Policy Evaluation request, so we must deny.
                     response.add_error(MetadataSupport.XDSRegistryError, "Policy Exception: " + ex.getMessage(), this.getClass().getName(), log_message);
@@ -230,8 +224,68 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 }
             }
         }
-        if (!found_query) {
+        if (!foundQuery) {
             response.add_error(MetadataSupport.XDSRegistryError, "Only AdhocQuery accepted", this.getClass().getName(), log_message);
+        }
+    }
+
+    /**
+     *
+     * @param ahqr
+     * @param pdpResponse
+     * @param isLeafClassRequest
+     * @throws XdsResultNotSinglePatientException
+     * @throws XdsException
+     * @throws XDSRegistryOutOfResourcesException
+     * @throws XdsValidationException
+     * @throws PolicyException
+     */
+    private void handleObligations(OMElement ahqr, PDPResponse pdpResponse, boolean isLeafClassRequest) throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException, PolicyException {
+        // Run the Stored Query:
+        List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
+        if (isLeafClassRequest == true) {
+            // Only evaluate policy at document-level if a LeafClass request.
+            DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
+            RegistryObjectElementList permittedRegistryObjectElementList = policyEvaluator.evaluate(
+                    pdpResponse.getRequestType(),
+                    new RegistryObjectElementList(registryObjects));
+            List<OMElement> permittedRegistryObjects = permittedRegistryObjectElementList.getElementList();
+            if (!permittedRegistryObjects.isEmpty()) {
+                // Place permitted documents in the response.
+                AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
+                ahqResponse.addQueryResults((ArrayList) permittedRegistryObjects);
+            }
+        } else {
+            // Place results in the response.
+            AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
+            ahqResponse.addQueryResults((ArrayList) registryObjects);
+        }
+    }
+
+    /**
+     *
+     * @param ahqr
+     * @return
+     * @throws XdsInternalException
+     * @throws XdsException
+     */
+    private boolean isLeafClassRequest(OMElement ahqr) throws XdsInternalException, XdsException {
+        OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
+        if (response_option == null) {
+            throw new XdsInternalException("Cannot find /AdhocQueryRequest/ResponseOption element");
+        }
+
+        String return_type = response_option.getAttributeValue(MetadataSupport.return_type_qname);
+
+        if (return_type == null) {
+            throw new XdsException("Attribute returnType not found on query request");
+        }
+        if (return_type.equals("LeafClass")) {
+            return true;
+        } else if (return_type.equals("ObjectRef")) {
+            return false;
+        } else {
+            throw new MetadataException("/AdhocQueryRequest/ResponseOption/@returnType must be LeafClass or ObjectRef. Found value " + return_type);
         }
     }
 
@@ -347,16 +401,19 @@ public class AdhocQueryRequest extends XBaseTransaction {
     /**
      *
      * @param ahqr
+     * @param isLeafClassRequest
      * @return
+     * @throws XdsResultNotSinglePatientException
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
      * @throws XdsValidationException
      */
-    private List<OMElement> storedQuery(OMElement ahqr)
+    private List<OMElement> storedQuery(OMElement ahqr, boolean isLeafClassRequest)
             throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
         StoredQueryFactory fact =
                 new StoredQueryFactory(
                 ahqr, // AdhocQueryRequest
+                isLeafClassRequest,
                 response, // The response object.
                 log_message, // For logging.
                 service_name);  // For logging.

@@ -12,6 +12,14 @@
  */
 package com.vangent.hieos.services.xds.repository.transactions;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
+import com.vangent.hieos.policyutil.pep.impl.PEP;
+import com.vangent.hieos.services.xds.policy.DocumentMetadata;
+import com.vangent.hieos.services.xds.policy.DocumentResponse;
+import com.vangent.hieos.services.xds.policy.DocumentResponseBuilder;
+import com.vangent.hieos.services.xds.policy.DocumentResponseElementList;
+import com.vangent.hieos.services.xds.policy.XDSRegistryClient;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -37,10 +45,12 @@ import javax.activation.DataHandler;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -81,25 +91,52 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws SchemaValidationException
      * @throws XdsInternalException
      */
-    public OMElement run(OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
+    public OMElement run(final OMElement rds, boolean optimize, XAbstractService service) throws SchemaValidationException, XdsInternalException {
         repoConfig = new Repository(this.getConfigActor());
         this.optimize = optimize;
         OMNamespace ns = rds.getNamespace();
-        String ns_uri = ns.getNamespaceURI();
-        if (ns_uri == null || !ns_uri.equals(MetadataSupport.xdsB.getNamespaceURI())) {
-            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.ActorType.REPOSITORY, "Invalid namespace on RetrieveDocumentSetRequest (" + ns_uri + ")", true);
+        String nsURI = ns.getNamespaceURI();
+        if (nsURI == null || !nsURI.equals(MetadataSupport.xdsB.getNamespaceURI())) {
+            return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.ActorType.REPOSITORY, "Invalid namespace on RetrieveDocumentSetRequest (" + nsURI + ")", true);
         }
         try {
             RegistryUtility.schema_validate_local(rds, MetadataTypes.METADATA_TYPE_RET);
         } catch (Exception e) {
             return service.start_up_error(rds, "RetrieveDocumentSet.java", XAbstractService.ActorType.REPOSITORY, "Schema validation errors:\n" + e.getMessage(), true);
         }
-        ArrayList<OMElement> retrieve_documents = null;
         try {
-            // TBD: Policy Enforcement [2 pass]
-            // Pass 1: Base policy evaluation
-            // Pass 2: Evaluate @ the record level.
-            retrieve_documents = this.retrieveDocuments(rds);
+            // Policy Enforcement:
+            PEP pep = new PEP(this.getConfigActor());
+            boolean policyEnabled = pep.isPolicyEnabled();
+            if (!policyEnabled) {
+                // Policy is not enabled .. so retrieve the documents.
+                ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
+                OMElement repoResponse = response.getResponse();
+                if (documentResponseNodes != null) {
+                    for (OMElement documentResponseNode : documentResponseNodes) {
+                        repoResponse.addChild(documentResponseNode);
+                    }
+                }
+            } else {
+                PDPResponse pdpResponse = pep.evaluate();
+                if (pdpResponse.isDenyDecision()) {
+                    response.add_error(MetadataSupport.XDSRepositoryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                } else if (!pdpResponse.hasObligations()) {
+                    // No obligations.
+                    ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
+                    // FIXME: Should we check to see if the PID (for each doc) is = resource-id?
+                    // FIXME: We will need to hook into the registry in this case?
+                    OMElement repoResponse = response.getResponse();
+                    if (documentResponseNodes != null) {
+                        for (OMElement documentResponseNode : documentResponseNodes) {
+                            repoResponse.addChild(documentResponseNode);
+                        }
+                    }
+                } else {
+                    // Has obligations.
+                    this.handleObligations(rds);
+                }
+            }
 
             //AUDIT:POINT
             //call to audit message for document repository
@@ -111,6 +148,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                     null,
                     XATNALogger.ActorType.REPOSITORY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
+
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (MetadataException e) {
@@ -118,25 +156,64 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         } catch (XdsException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
-        }
-        OMElement registry_response = null;
-        try {
-            registry_response = response.getResponse();
-        } catch (XdsInternalException e) {
+        } catch (PolicyException e) {
+            // We are unable to satisfy the Policy Evaluation request, so we must deny.
+            response.add_error(MetadataSupport.XDSRepositoryError, "Policy Exception: " + e.getMessage(), this.getClass().getName(), log_message);
+        } catch (Exception e) {
+            // Should never get here.
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
-            log_message.addErrorParam("Internal Error", "Error generating response from Ret.b");
-        }
-
-        //OMElement rdsr = MetadataSupport.om_factory.createOMElement("RetrieveDocumentSetResponse", MetadataSupport.xds_b);
-        //rdsr.addChild(registry_response);
-
-        if (retrieve_documents != null) {
-            for (OMElement ret_doc : retrieve_documents) {
-                registry_response.addChild(ret_doc);
-            }
         }
         this.log_response();
         return response.getRoot();
+    }
+
+    /**
+     * 
+     * @param rds
+     * @throws MetadataException
+     * @throws XdsException
+     * @throws AxisFault
+     */
+    private void handleObligations(OMElement rds) throws MetadataException, XdsException, AxisFault {
+        
+        // Retrieve the documents from the data store.
+        ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
+
+        // See if we have any documents.
+        if (documentResponseNodes != null && !documentResponseNodes.isEmpty()) {
+            DocumentResponseBuilder documentResponseBuilder = new DocumentResponseBuilder();
+            List<DocumentResponse> documentResponseList = documentResponseBuilder.buildDocumentResponseList(
+                    new DocumentResponseElementList(documentResponseNodes));
+            XDSRegistryClient registryClient = new XDSRegistryClient(repoConfig.getRegistryConfig());
+            List<DocumentMetadata> documentMetadataList =
+                    registryClient.getRegistryObjects(documentResponseList);
+            // FIXME: The registry could be checking policy, so we should not check twice!!!
+            // FIXME: How do we deal with this case?
+            //DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
+            //List<OMElement> permittedExtrinsicObjects = policyEvaluator.evaluate(this.getPDPResponse().getRequestType(), extrinsicObjects);
+            List<DocumentMetadata> permittedObjectList = documentMetadataList;
+            // Above line implies that registry policy checking already happened.
+            OMElement repoResponse = response.getResponse();
+            // Need to do filter ... may not be in identical order as registry response ...
+            for (DocumentResponse documentResponse : documentResponseList) {
+                String docResponseDocId = documentResponse.getDocumentId();
+                String docResponseRepoId = documentResponse.getRepositoryId();
+                // Brute force now (sequential search) ok for small lists ...
+                for (DocumentMetadata permittedObject : permittedObjectList) {
+                    String permittedObjectDocId = permittedObject.getDocumentId();
+                    String permittedObjectRepoId = permittedObject.getRepositoryId();
+                    // Compare against repoid/docid.
+                    if (docResponseDocId.equalsIgnoreCase(permittedObjectDocId)
+                            && docResponseRepoId.equalsIgnoreCase(permittedObjectRepoId)) {
+                        // Found match!
+                        OMElement documentResponseNode = documentResponse.getDocumentResponseObject();
+                        repoResponse.addChild(documentResponseNode);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -147,64 +224,64 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
     private ArrayList<OMElement> retrieveDocuments(OMElement rds) throws MetadataException, XdsException {
-        ArrayList<OMElement> document_responses = new ArrayList<OMElement>();
-        for (OMElement doc_request : MetadataSupport.childrenWithLocalName(rds, "DocumentRequest")) {
-            String rep_id = null;
-            String doc_id = null;
+        ArrayList<OMElement> documentResponseNodes = new ArrayList<OMElement>();
+        for (OMElement documentRequestNode : MetadataSupport.childrenWithLocalName(rds, "DocumentRequest")) {
+            String repositoryId = null;
+            String documentId = null;
             try {
-                rep_id = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
-                if (rep_id == null || rep_id.equals("")) {
+                repositoryId = MetadataSupport.firstChildWithLocalName(documentRequestNode, "RepositoryUniqueId").getText();
+                if (repositoryId == null || repositoryId.equals("")) {
                     throw new Exception("");
                 }
             } catch (Exception e) {
                 throw new MetadataException("Cannot extract RepositoryUniqueId from DocumentRequest");
             }
             try {
-                doc_id = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
-                if (doc_id == null || doc_id.equals("")) {
+                documentId = MetadataSupport.firstChildWithLocalName(documentRequestNode, "DocumentUniqueId").getText();
+                if (documentId == null || documentId.equals("")) {
                     throw new Exception("");
                 }
             } catch (Exception e) {
                 throw new MetadataException("Cannot extract DocumentUniqueId from DocumentRequest");
             }
-            OMElement document_response = retrieveDocument(rep_id, doc_id);
-            if (document_response != null) {
-                document_responses.add(document_response);
+            OMElement documentResponseNode = retrieveDocument(repositoryId, documentId);
+            if (documentResponseNode != null) {
+                documentResponseNodes.add(documentResponseNode);
             }
         }
-        return document_responses;
+        return documentResponseNodes;
     }
 
     /**
      *
-     * @param rep_id
-     * @param doc_id
+     * @param repositoryId
+     * @param documentId
      * @return
      * @throws com.vangent.hieos.xutil.exception.XdsException
      */
-    private OMElement retrieveDocument(String rep_id, String doc_id) throws XdsException {
-        if (!rep_id.equals(repoConfig.getRepositoryUniqueId())) {
+    private OMElement retrieveDocument(String repositoryId, String documentId) throws XdsException {
+        if (!repositoryId.equals(repoConfig.getRepositoryUniqueId())) {
             response.add_error(MetadataSupport.XDSUnknownRepositoryId,
-                    "Repository Unique ID in request " +
-                    rep_id +
-                    " does not match this repository's id " +
-                    repoConfig.getRepositoryUniqueId(),
+                    "Repository Unique ID in request "
+                    + repositoryId
+                    + " does not match this repository's id "
+                    + repoConfig.getRepositoryUniqueId(),
                     this.getClass().getName(), log_message);
             return null;
         }
 
         // Retrieve the document from disk.
-        XDSDocument doc = new XDSDocument(rep_id);
-        doc.setUniqueId(doc_id);
+        XDSDocument doc = new XDSDocument(repositoryId);
+        doc.setUniqueId(documentId);
         XDSRepositoryStorage repoStorage = XDSRepositoryStorage.getInstance();
         try {
             doc = repoStorage.retrieve(doc);
         } catch (XDSDocumentUniqueIdError e) {
             response.add_error(MetadataSupport.XDSDocumentUniqueIdError,
-                    "Document Unique ID in request " +
-                    doc_id +
-                    " not found in this repository " +
-                    repoConfig.getRepositoryUniqueId(),
+                    "Document Unique ID in request "
+                    + documentId
+                    + " not found in this repository "
+                    + repoConfig.getRepositoryUniqueId(),
                     this.getClass().getName(), log_message);
             return null;
 
@@ -218,24 +295,24 @@ public class RetrieveDocumentSet extends XBaseTransaction {
 
         OMText t = MetadataSupport.om_factory.createOMText(dataHandler, optimize);
         t.setOptimize(optimize);
-        OMElement document_response = MetadataSupport.om_factory.createOMElement("DocumentResponse", MetadataSupport.xdsB);
+        OMElement documentResponseNode = MetadataSupport.om_factory.createOMElement("DocumentResponse", MetadataSupport.xdsB);
 
-        OMElement repid_ele = MetadataSupport.om_factory.createOMElement("RepositoryUniqueId", MetadataSupport.xdsB);
-        repid_ele.addChild(MetadataSupport.om_factory.createOMText(rep_id));
-        document_response.addChild(repid_ele);
+        OMElement repositoryIdNode = MetadataSupport.om_factory.createOMElement("RepositoryUniqueId", MetadataSupport.xdsB);
+        repositoryIdNode.addChild(MetadataSupport.om_factory.createOMText(repositoryId));
+        documentResponseNode.addChild(repositoryIdNode);
 
-        OMElement docid_ele = MetadataSupport.om_factory.createOMElement("DocumentUniqueId", MetadataSupport.xdsB);
-        docid_ele.addChild(MetadataSupport.om_factory.createOMText(doc_id));
-        document_response.addChild(docid_ele);
+        OMElement documentIdNode = MetadataSupport.om_factory.createOMElement("DocumentUniqueId", MetadataSupport.xdsB);
+        documentIdNode.addChild(MetadataSupport.om_factory.createOMText(documentId));
+        documentResponseNode.addChild(documentIdNode);
 
-        OMElement mimetype_ele = MetadataSupport.om_factory.createOMElement("mimeType", MetadataSupport.xdsB);
-        mimetype_ele.addChild(MetadataSupport.om_factory.createOMText(doc.getMimeType()));
-        document_response.addChild(mimetype_ele);
+        OMElement mimeTypeNode = MetadataSupport.om_factory.createOMElement("mimeType", MetadataSupport.xdsB);
+        mimeTypeNode.addChild(MetadataSupport.om_factory.createOMText(doc.getMimeType()));
+        documentResponseNode.addChild(mimeTypeNode);
 
-        OMElement document_ele = MetadataSupport.om_factory.createOMElement("Document", MetadataSupport.xdsB);
-        document_ele.addChild(t);
-        document_response.addChild(document_ele);
-        return document_response;
+        OMElement documentNode = MetadataSupport.om_factory.createOMElement("Document", MetadataSupport.xdsB);
+        documentNode.addChild(t);
+        documentResponseNode.addChild(documentNode);
+        return documentResponseNode;
     }
 
     /**

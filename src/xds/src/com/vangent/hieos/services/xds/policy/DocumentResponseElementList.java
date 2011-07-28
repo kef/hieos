@@ -12,20 +12,21 @@
  */
 package com.vangent.hieos.services.xds.policy;
 
-import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
+import com.vangent.hieos.xutil.xml.OMElementListWrapper;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class DocumentMetadataElement extends OMElementNodeWrapper {
+public class DocumentResponseElementList extends OMElementListWrapper {
 
     /**
-     * 
+     *
      * @param element
      */
-    public DocumentMetadataElement(OMElement element) {
-        super(element, "DocumentMetadata");
+    public DocumentResponseElementList(List<OMElement> elementList) {
+        super(elementList, "DocumentResponseElementList");
     }
 }

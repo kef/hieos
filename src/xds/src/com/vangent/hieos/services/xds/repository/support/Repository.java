@@ -20,13 +20,13 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 public class Repository {
+
     private XConfigActor repositoryConfig = null;
-    
+
     /**
      * 
      */
-    private Repository()
-    {
+    private Repository() {
         // Do not allow.
     }
 
@@ -34,8 +34,7 @@ public class Repository {
      *
      * @param repositoryConfig
      */
-    public Repository(XConfigActor repositoryConfig)
-    {
+    public Repository(XConfigActor repositoryConfig) {
         this.repositoryConfig = repositoryConfig;
     }
 
@@ -77,13 +76,21 @@ public class Repository {
     }
 
     /**
+     *
+     * @return
+     */
+    public XConfigActor getRegistryConfig() {
+        return (XConfigActor) repositoryConfig.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+    }
+
+    /**
      * This private utility method returns a transaction configuration definition for
      * the "RegisterDocumentSet-b" transaction from the local registry.
      * @return XConfigTransaction.
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-     private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
-        XConfigActor localRegistryConfig = (XConfigActor)repositoryConfig.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+    private XConfigTransaction getRegisterTransaction() throws XdsInternalException {
+        XConfigActor localRegistryConfig = (XConfigActor) repositoryConfig.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
         XConfigTransaction txn = localRegistryConfig.getTransaction("RegisterDocumentSet-b");
         return txn;
     }

@@ -79,20 +79,21 @@ public class StoredQueryFactory {
     /**
      *
      * @param ahqr
+     * @param isLeafClassRequest
      * @param resp
      * @param lmsg
      * @param sname
-     * @param secure
      * @throws XdsInternalException
      * @throws MetadataException
      * @throws XdsException
      */
-    public StoredQueryFactory(OMElement ahqr, Response resp, XLogMessage lmsg, String sname) throws XdsInternalException, MetadataException, XdsException {
+    public StoredQueryFactory(OMElement ahqr, boolean isLeafClassRequest, Response resp, XLogMessage lmsg, String sname) throws XdsInternalException, MetadataException, XdsException {
         this.ahqr = ahqr;
         this.response = resp;
         this.log_message = lmsg;
         this.service_name = sname;
 
+        /*
         OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
         if (response_option == null) {
             throw new XdsInternalException("Cannot find /AdhocQueryRequest/ResponseOption element");
@@ -109,7 +110,8 @@ public class StoredQueryFactory {
             return_objects = false;
         } else {
             throw new MetadataException("/AdhocQueryRequest/ResponseOption/@returnType must be LeafClass or ObjectRef. Found value " + return_type);
-        }
+        }*/
+        return_objects = isLeafClassRequest;
 
         OMElement adhoc_query = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
         if (adhoc_query == null) {

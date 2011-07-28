@@ -48,10 +48,11 @@ public class DocumentMetadataBuilder {
      * @param registryObjects
      * @return
      */
-    public List<DocumentMetadata> buildDocumentMetadataList(List<OMElement> registryObjects) {
+    public List<DocumentMetadata> buildDocumentMetadataList(RegistryObjectElementList registryObjectElementList) {
         List<DocumentMetadata> documentMetadataList = new ArrayList<DocumentMetadata>();
         //System.out.println("QueryResult = " + queryResult.toString());
         // Go through each ExtrinsicObject (document).
+        List<OMElement> registryObjects = registryObjectElementList.getElementList();
         for (OMElement registryObject : registryObjects) {
             DocumentMetadata documentMetadata = this.buildDocumentMetadata(registryObject);
             documentMetadataList.add(documentMetadata);
@@ -91,9 +92,13 @@ public class DocumentMetadataBuilder {
         OMElement authorsNode = this.buildAuthorsNode(documentAuthorMetadataList);
         documentMetadataNode.addChild(authorsNode);
 
+        // TBD: Other ... we have more (e.g. repositoryid, documentid).
+
         // Return the OMElement (wrapped).
         return new DocumentMetadataElement(documentMetadataNode);
     }
+
+   
 
     //<pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
     // FIXME: Move this logic to hl7v3util?
@@ -171,11 +176,44 @@ public class DocumentMetadataBuilder {
     }
 
     /**
+     * 
+     * @param extrinsicObjects
+     * @return
+     */
+    public List<DocumentMetadata> buildDocumentIdentifiersList(RegistryObjectElementList extrinsicObjectsElementList) {
+        List<DocumentMetadata> documentMetadataList = new ArrayList<DocumentMetadata>();
+        List<OMElement> extrinsicObjects = extrinsicObjectsElementList.getElementList();
+        for (OMElement extrinsicObject : extrinsicObjects) {
+            DocumentMetadata documentMetadata = this.buildDocumentIdentifiers(extrinsicObject);
+            documentMetadataList.add(documentMetadata);
+        }
+        return documentMetadataList;
+    }
+
+    /**
+     *
+     * @param extrinsicObject
+     * @return
+     */
+    public DocumentMetadata buildDocumentIdentifiers(OMElement extrinsicObject) {
+
+        // Create the DocumentMetadata instance.
+        DocumentMetadata documentMetadata = new DocumentMetadata();
+        documentMetadata.setRegistryObject(extrinsicObject);
+        documentMetadata.setIsObjectRef(false);
+
+        // Build identifiers.
+        this.buildIdentifiers(documentMetadata, extrinsicObject);
+
+        return documentMetadata;
+    }
+
+    /**
      *
      * @param registryObject
      * @return
      */
-    private DocumentMetadata buildDocumentMetadata(OMElement registryObject) {
+    public DocumentMetadata buildDocumentMetadata(OMElement registryObject) {
 
         // Create the DocumentMetadata instance.
         DocumentMetadata documentMetadata = new DocumentMetadata();
@@ -188,17 +226,8 @@ public class DocumentMetadataBuilder {
         }
         documentMetadata.setIsObjectRef(false);
 
-        // Get list of ExternalIdentifiers (to use later).
-        List<OMElement> externalIdentifiers = this.getExternalIdentifiers(registryObject);
-
-        // Document id.
-        String documentId = this.getDocumentId(externalIdentifiers);
-        documentMetadata.setDocumentId(documentId);
-
-        // Patient id.
-        String patientIdCXFormatted = this.getPatientId(externalIdentifiers);
-        SubjectIdentifier patientId = new SubjectIdentifier(patientIdCXFormatted);
-        documentMetadata.setPatientId(patientId);
+        // Build identifiers.
+        this.buildIdentifiers(documentMetadata, registryObject);
 
         // Get list of Classifications (to use later).
         List<OMElement> classifications = this.getClassifications(registryObject);
@@ -219,16 +248,36 @@ public class DocumentMetadataBuilder {
         List<CodedValue> confidentialityCodes = this.getConfidentialityCode(classifications);
         documentMetadata.setConfidentialityCodes(confidentialityCodes);
 
-        // Repository id.
-        String repositoryId = this.getRepositoryId(registryObject);
-        documentMetadata.setRepositoryId(repositoryId);
-
         // Author(s).
         List<DocumentAuthorMetadata> documentAuthorMetadataList = this.getAuthors(classifications);
         documentMetadata.setDocumentAuthorMetadataList(documentAuthorMetadataList);
 
         // TBD (Other) ...
         return documentMetadata;
+    }
+
+    /**
+     *
+     * @param documentMetadata
+     * @param extrinsicObject
+     */
+    private void buildIdentifiers(DocumentMetadata documentMetadata, OMElement extrinsicObject)
+    {
+        // Get list of ExternalIdentifiers (to use below).
+        List<OMElement> externalIdentifiers = this.getExternalIdentifiers(extrinsicObject);
+
+        // Document id.
+        String documentId = this.getDocumentId(externalIdentifiers);
+        documentMetadata.setDocumentId(documentId);
+
+        // Patient id.
+        String patientIdCXFormatted = this.getPatientId(externalIdentifiers);
+        SubjectIdentifier patientId = new SubjectIdentifier(patientIdCXFormatted);
+        documentMetadata.setPatientId(patientId);
+
+        // Repository id.
+        String repositoryId = this.getRepositoryId(extrinsicObject);
+        documentMetadata.setRepositoryId(repositoryId);
     }
 
     /**
@@ -474,7 +523,7 @@ public class DocumentMetadataBuilder {
      * @param classifications
      * @return
      */
-    private List<DocumentAuthorMetadata> getAuthors(List<OMElement> classifications) {
+    public List<DocumentAuthorMetadata> getAuthors(List<OMElement> classifications) {
         List<DocumentAuthorMetadata> documentAuthorMetadataList = new ArrayList<DocumentAuthorMetadata>();
         List<OMElement> authorClassifications = this.getMatchedClassifications(classifications, XDS_AUTHOR_CLASS_SCHEME);
         for (OMElement authorClassification : authorClassifications) {
@@ -489,7 +538,7 @@ public class DocumentMetadataBuilder {
      * @param authorClassification
      * @return
      */
-    private DocumentAuthorMetadata buildDocumentAuthorMetadata(OMElement authorClassification) {
+    public DocumentAuthorMetadata buildDocumentAuthorMetadata(OMElement authorClassification) {
 
         // Create the DocumentMetadata instance.
         DocumentAuthorMetadata documentAuthorMetadata = new DocumentAuthorMetadata();
@@ -521,7 +570,7 @@ public class DocumentMetadataBuilder {
      * @param xpath
      * @return
      */
-    public List<OMElement> getNodes(OMElement rootNode, String xpath) {
+    private List<OMElement> getNodes(OMElement rootNode, String xpath) {
         List<OMElement> nodes = new ArrayList<OMElement>();
         try {
             nodes = XPathHelper.selectNodes(rootNode, xpath, EBXML_RIM_NS);
