@@ -22,6 +22,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
+import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
@@ -31,7 +32,7 @@ import org.apache.axis2.AxisFault;
  *
  * @author Bernie Thuman
  */
-public class PIXManagerClient extends Client {
+public class PIXManagerClient extends WebServiceClient {
     public final static String XREFMGR_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
     public final static String XREFMGR_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
 

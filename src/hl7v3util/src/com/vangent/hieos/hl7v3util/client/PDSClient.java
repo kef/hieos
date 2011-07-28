@@ -22,6 +22,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.soap.Soap;
+import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
@@ -32,7 +33,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PDSClient extends Client {
+public class PDSClient extends WebServiceClient {
 
     private final static Logger logger = Logger.getLogger(PDSClient.class);
     protected final static String PDS_PDQV3_ACTION = "urn:hl7-org:v3:PRPA_IN201305UV02";
