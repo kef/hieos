@@ -174,7 +174,7 @@ public class CDAToXDSMapperTest {
 
         assertNotNull(pnr);
 
-        String pnrstr = DebugUtils.toPrettyString(pnr.getMessageNode());
+        String pnrstr = DebugUtils.toPrettyString(pnr.getElement());
 
         logger.debug(pnrstr);
 
