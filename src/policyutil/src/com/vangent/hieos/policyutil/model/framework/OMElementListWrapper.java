@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.policyutil.model.framework;
 
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 // FIXME: This class should go into xutil.
@@ -20,27 +21,38 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-public class OMElementWrapper {
+public class OMElementListWrapper {
 
-    private OMElement element;
-
-    private OMElementWrapper() {
-        // Do not allow.
-    }
+    private List<OMElement> elementList;
 
     /**
      *
-     * @param element
      */
-    public OMElementWrapper(OMElement element) {
-        this.element = element;
+    private OMElementListWrapper() {
+        // Do not allow.
+    }
+
+   /**
+    * 
+    * @param elementList
+    */
+    public OMElementListWrapper(List<OMElement> elementList) {
+        this.elementList = elementList;
     }
 
     /**
      *
      * @return
      */
-    public OMElement getElement() {
-        return element;
+    public List<OMElement> getElementList() {
+        return elementList;
+    }
+
+    /**
+     *
+     * @param elementList
+     */
+    public void setElementList(List<OMElement> elementList) {
+        this.elementList = elementList;
     }
 }
