@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.policyutil.pip.client;
 
-import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pip.model.PIPRequest;
 import com.vangent.hieos.policyutil.pip.model.PIPRequestBuilder;
@@ -22,17 +21,17 @@ import com.vangent.hieos.policyutil.pip.model.PIPResponseBuilder;
 import com.vangent.hieos.policyutil.pip.model.PIPResponseElement;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.soap.Soap;
+import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 
 /**
  * Client interface (proxy) to Policy Information Point (PIP).
  *
  * @author Bernie Thuman
  */
-public class PIPClient extends Client {
+public class PIPClient extends WebServiceClient {
 
     /**
      * PIPClient constructor.

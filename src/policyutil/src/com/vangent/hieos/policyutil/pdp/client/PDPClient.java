@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.policyutil.pdp.client;
 
-import com.vangent.hieos.hl7v3util.client.Client;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
@@ -21,6 +20,7 @@ import com.vangent.hieos.policyutil.pdp.model.XACMLAuthzDecisionQueryElement;
 import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.pdp.model.XACMLResponseBuilder;
 import com.vangent.hieos.xutil.soap.Soap;
+import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PDPClient extends Client {
+public class PDPClient extends WebServiceClient {
 
     private final static Logger logger = Logger.getLogger(PDPClient.class);
 
