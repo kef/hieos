@@ -43,6 +43,7 @@ import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.log4j.Logger;
@@ -147,10 +148,33 @@ public class Soap {
             options.setProperty(HTTPConstants.CACHED_HTTP_CLIENT,
                     httpClient);
 
-            options.setCallTransportCleanup(true);
+            /*
+             * This cleanup option will call response.getEnvelope().build()
+             * However, envelope.build() does not build everything
+             * and any subsequent access to the atttachement(s) will
+             * throw a closed stream exception, 
+             * an explicit clean up is below
+             * 
+             * options.setCallTransportCleanup(true);
+             */
 
             // Make the SOAP request (and save the result).
             this.result = serviceClient.sendReceive(body);
+
+            // explicitly build the whole response and clean up
+            if (this.result != null) {
+
+                MessageContext mc = this.serviceClient.
+                        getLastOperationContext().
+                        getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+                if (mtom) {
+                    mc.getEnvelope().buildWithAttachments();
+                } else {
+                    mc.getEnvelope().build();
+                }
+
+                this.serviceClient.cleanupTransport();
+            }
 
             // Cleanup after "async" (if required).
 //            if (this.async) {
@@ -457,11 +481,12 @@ public class Soap {
             // Check to see if the envelope contains a Security header ... if so, propagate
             SOAPHeader header = env.getHeader();
             if (header != null) {
-                securityHeader = header.getFirstChildWithName(
+                OMElement securityHeaderFromRequest = header.getFirstChildWithName(
                         new QName(XUAConstants.WS_SECURITY_NS_URL, "Security"));
                 //if (securityHeader != null) {
                 //    System.out.println("+++++ FOUND +++++");
                 //}
+                securityHeader = Util.deep_copy(securityHeaderFromRequest);
             }
         }
         return securityHeader;
