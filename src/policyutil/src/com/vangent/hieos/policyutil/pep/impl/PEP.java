@@ -36,7 +36,6 @@ public class PEP {
     // Singletons.
     private static XConfigActor _pdpConfig = null;
     private XConfigActor configActor;
-    private PDPResponse pdpResponse;
 
     /**
      *
@@ -64,22 +63,6 @@ public class PEP {
     /**
      *
      * @return
-     */
-    public PDPResponse getPDPResponse() {
-        return pdpResponse;
-    }
-
-    /**
-     *
-     * @param pdpResponse
-     */
-    public void setPDPResponse(PDPResponse pdpResponse) {
-        this.pdpResponse = pdpResponse;
-    }
-
-    /**
-     *
-     * @return
      * @throws PolicyException
      */
     public PDPResponse evaluate() throws PolicyException {
@@ -94,9 +77,7 @@ public class PEP {
         if (logger.isInfoEnabled()) {
             logger.info("... DECISION: " + response.getDecision().toString());
         }
-        // Save the response.
-        this.setPDPResponse(pdpResponse);
-        return pdpResponse;
+        return response;
     }
 
     /**
@@ -130,7 +111,7 @@ public class PEP {
      * @return
      * @throws PolicyException
      */
-    private PDPResponse evaluate(String action) throws PolicyException {
+    public PDPResponse evaluate(String action) throws PolicyException {
         // Get the request to send.
         PDPRequest pdpRequest = this.getPDPRequest(action);
 
