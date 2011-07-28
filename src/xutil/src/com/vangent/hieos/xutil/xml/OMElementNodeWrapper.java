@@ -12,31 +12,31 @@
  */
 package com.vangent.hieos.xutil.xml;
 
+import org.apache.axiom.om.OMElement;
+
 /**
  *
  * @author Bernie Thuman
  */
-abstract public class OMElementWrapper {
+abstract public class OMElementNodeWrapper extends OMElementWrapper {
 
-    private String type;
-
-    private OMElementWrapper() {
-        // Do not allow.
-    }
+    private OMElement element;
 
     /**
      *
+     * @param element
      * @param type
      */
-    public OMElementWrapper(String type) {
-        this.type = type;
+    public OMElementNodeWrapper(OMElement element, String type) {
+        super(type);
+        this.element = element;
     }
 
     /**
      *
      * @return
      */
-    public String getType() {
-        return type;
+    public OMElement getElement() {
+        return element;
     }
 }

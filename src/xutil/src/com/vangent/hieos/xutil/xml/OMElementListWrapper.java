@@ -19,22 +19,17 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-public class OMElementListWrapper {
+abstract public class OMElementListWrapper extends OMElementWrapper {
 
     private List<OMElement> elementList;
 
     /**
      *
+     * @param elementList
+     * @param type
      */
-    private OMElementListWrapper() {
-        // Do not allow.
-    }
-
-   /**
-    * 
-    * @param elementList
-    */
-    public OMElementListWrapper(List<OMElement> elementList) {
+    public OMElementListWrapper(List<OMElement> elementList, String type) {
+        super(type);
         this.elementList = elementList;
     }
 
