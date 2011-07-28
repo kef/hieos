@@ -13,21 +13,21 @@
 
 package com.vangent.hieos.policyutil.pdp.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class SAMLResponseElement extends OMElementWrapper {
+public class SAMLResponseElement extends OMElementNodeWrapper {
 
     /**
      * 
      * @param element
      */
     public SAMLResponseElement(OMElement element) {
-        super(element);
+        super(element, "SAMLResponse");
     }
 
 }

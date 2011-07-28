@@ -10,23 +10,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.policyutil.pdp.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class RequestTypeElement extends OMElementWrapper {
+public class RequestTypeElement extends OMElementNodeWrapper {
 
     /**
      * 
      * @param element
      */
     public RequestTypeElement(OMElement element) {
-        super(element);
+        super(element, "RequestType");
     }
 }

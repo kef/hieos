@@ -12,20 +12,20 @@
  */
 package com.vangent.hieos.policyutil.pip.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class PIPResponseElement extends OMElementWrapper {
+public class PIPResponseElement extends OMElementNodeWrapper {
 
     /**
      * 
      * @param element
      */
     public PIPResponseElement(OMElement element) {
-        super(element);
+        super(element, "PIPResponse");
     }
 }

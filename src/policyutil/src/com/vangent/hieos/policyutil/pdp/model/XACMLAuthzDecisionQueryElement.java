@@ -12,20 +12,20 @@
  */
 package com.vangent.hieos.policyutil.pdp.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class XACMLAuthzDecisionQueryElement extends OMElementWrapper {
+public class XACMLAuthzDecisionQueryElement extends OMElementNodeWrapper {
 
     /**
      *
      * @param element
      */
     public XACMLAuthzDecisionQueryElement(OMElement element) {
-        super(element);
+        super(element, "XACMLAuthzDecisionQuery");
     }
 }

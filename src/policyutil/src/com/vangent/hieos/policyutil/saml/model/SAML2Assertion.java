@@ -12,20 +12,20 @@
  */
 package com.vangent.hieos.policyutil.saml.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class SAML2Assertion extends OMElementWrapper {
+public class SAML2Assertion extends OMElementNodeWrapper {
 
     /**
      *
      * @param element
      */
     public SAML2Assertion(OMElement element) {
-        super(element);
+        super(element, "SAML2Assertion");
     }
 }

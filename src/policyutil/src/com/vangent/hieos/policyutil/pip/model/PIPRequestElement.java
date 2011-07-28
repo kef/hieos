@@ -12,20 +12,20 @@
  */
 package com.vangent.hieos.policyutil.pip.model;
 
-import com.vangent.hieos.xutil.xml.OMElementWrapper;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class PIPRequestElement extends OMElementWrapper {
+public class PIPRequestElement extends OMElementNodeWrapper {
 
     /**
      * 
      * @param element
      */
     public PIPRequestElement(OMElement element) {
-        super(element);
+        super(element, "PIPRequest");
     }
 }
