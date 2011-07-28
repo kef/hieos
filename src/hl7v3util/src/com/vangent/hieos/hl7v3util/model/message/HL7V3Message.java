@@ -12,29 +12,23 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
+import com.vangent.hieos.xutil.xml.OMElementWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class HL7V3Message {
+public class HL7V3Message extends OMElementWrapper {
 
-    private OMElement messageNode;
     private String type;
-
-    /**
-     * 
-     */
-    private HL7V3Message() {
-    }
 
     /**
      *
      * @param messageNode
      */
     public HL7V3Message(OMElement messageNode, String type) {
-        this.messageNode = messageNode;
+        super(messageNode);
         this.type = type;
     }
 
@@ -43,7 +37,7 @@ public class HL7V3Message {
      * @return
      */
     public OMElement getMessageNode() {
-        return this.messageNode;
+        return this.getElement();
     }
 
     /**
