@@ -17,6 +17,7 @@ import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.support.URIConstants;
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.attachments.ByteArrayDataSource;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -30,7 +31,7 @@ import org.apache.axiom.om.OMText;
  * @version        v1.0, 2011-06-09
  * @author         Vangent
  */
-public class XDSPnRMessage extends AbstractXdsBridgeMessage {
+public class XDSPnRMessage extends OMElementNodeWrapper {
 
     /**
      * Constructs ...
@@ -79,7 +80,7 @@ public class XDSPnRMessage extends AbstractXdsBridgeMessage {
             null);
 
         OMElement registryObjectList =
-            getMessageNode().getFirstElement().getFirstElement();
+            getElement().getFirstElement().getFirstElement();
         QName classQName = new QName(URIConstants.RIM_URI, "Classification");
         OMElement insertPoint =
             registryObjectList.getFirstChildWithName(classQName);
@@ -96,7 +97,7 @@ public class XDSPnRMessage extends AbstractXdsBridgeMessage {
      */
     public void attachDocument(Document document) {
 
-        OMElement rootNode = getMessageNode();
+        OMElement rootNode = getElement();
 
         OMFactory fac = rootNode.getOMFactory();
 

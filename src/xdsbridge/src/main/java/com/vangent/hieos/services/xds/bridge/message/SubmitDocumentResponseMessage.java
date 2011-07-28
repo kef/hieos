@@ -13,6 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.message;
 
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -22,7 +23,7 @@ import org.apache.axiom.om.OMElement;
  * @version        v1.0, 2011-06-29
  * @author         Jim Horner
  */
-public class SubmitDocumentResponseMessage extends AbstractXdsBridgeMessage {
+public class SubmitDocumentResponseMessage extends OMElementNodeWrapper {
 
     public static final String MESSAGE_TYPE = "SubmitDocumentResponse";
     /**

@@ -175,10 +175,10 @@ public class XDSDocumentRegistryClient extends AbstractClient {
 
                 logger.debug("== Sending to Registry");
                 logger.debug(
-                    DebugUtils.toPrettyString(request.getMessageNode()));
+                    DebugUtils.toPrettyString(request.getElement()));
             }
 
-            OMElement responseElem = soap.soapCall(request.getMessageNode(),
+            OMElement responseElem = soap.soapCall(request.getElement(),
                                          url, useMtom, useWsa, soap12,
                                          STORED_QUERY_REQUEST_ACTION,
                                          STORED_QUERY_RESPONSE_ACTION);

@@ -139,7 +139,7 @@ public abstract class AbstractGetDocumentsSQActivity
         SubmitDocumentResponse sdrResponse =
             context.getSubmitDocumentResponse();
         Document document = context.getDocument();
-        OMElement rootNode = registryResponse.getMessageNode();
+        OMElement rootNode = registryResponse.getElement();
 
         try {
 

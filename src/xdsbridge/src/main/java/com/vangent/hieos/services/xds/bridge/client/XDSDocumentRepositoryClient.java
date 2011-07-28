@@ -94,10 +94,10 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
 
                 logger.debug("== Sending to Repository");
                 logger.debug(
-                    DebugUtils.toPrettyString(request.getMessageNode()));
+                    DebugUtils.toPrettyString(request.getElement()));
             }
 
-            result = soap.soapCall(request.getMessageNode(), url, useMtom,
+            result = soap.soapCall(request.getElement(), url, useMtom,
                                    useWsa, soap12, PNR_REQUEST_ACTION,
                                    PNR_RESPONSE_ACTION);
 

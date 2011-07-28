@@ -175,7 +175,7 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
         SubmitDocumentResponseMessage result =
             this.responseBuilder.buildMessage(sdrResponse);
 
-        return result.getMessageNode();
+        return result.getElement();
     }
 
     /**

@@ -9,6 +9,7 @@
 
 package com.vangent.hieos.services.xds.bridge.message;
 
+import com.vangent.hieos.xutil.xml.OMElementNodeWrapper;
 import org.apache.axiom.om.OMElement;
 
 
@@ -19,7 +20,7 @@ import org.apache.axiom.om.OMElement;
  * @version        v1.0, 2011-07-06
  * @author         Jim Horner    
  */
-public class GetDocumentsSQRequestMessage extends AbstractXdsBridgeMessage {
+public class GetDocumentsSQRequestMessage extends OMElementNodeWrapper {
 
     /**
      * Constructs ...
