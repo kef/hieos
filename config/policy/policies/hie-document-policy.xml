@@ -18,78 +18,97 @@
     </Target>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="sensitive-document-type-access-policy"
+         PolicyId="document-access-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Evaluate Sensitive Document Types</Description>
+        <Description>Evaluate Document against Patient Consent Directives</Description>
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
         <Target/>
-        <!-- Anything with a V or R confidentiality code is considered sensitive -->
-        <!-- Currently, we do not match against the coding scheme -->
-        <Rule RuleId="sensitive-document-type-rule" Effect="Permit">
+
+        <Rule RuleId="same-pid-rule" Effect="Deny">
             <Description>
-                Permit if the subject access to this document
+                Deny if the Document's patient id does not match the resource-id.
             </Description>
             <Condition>
-                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:PatientId/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
                     </Apply>
-                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                 </Apply>
             </Condition>
         </Rule>
-        <Obligations>
-            <Obligation
-	        ObligationId="granted-sensitive-document-type-access"
-	        FulfillOn="Permit"/>
-        </Obligations>
-    </Policy>
 
-    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="non-sensitive-document-type-access-policy"
-        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Evaluate Non-Sensitive Document Types</Description>
-        <PolicyDefaults>
-            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
-        </PolicyDefaults>
-        <Target/>
         <Rule RuleId="non-sensitive-document-type-rule" Effect="Permit">
             <Description>
-                Permit if the subject access to this document
+                Permit if this is a non-sensitive document and the subject's organization created the document.
             </Description>
+            <!-- Anything that is not a "V" or "R" confidentiality code is considered non-sensitive -->
+            <!-- Currently, we do not match against the coding scheme -->
+            <!-- Pseudocode:
+                  (Document.isSensitive == FALSE)
+                     AND (Document.authorOrganizations.contains(Subject.OrganizationId))
+            -->
             <Condition>
-                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">N</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                            </Apply>
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
                     </Apply>
-                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Authors/pip:Author/pip:Organizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
                 </Apply>
             </Condition>
         </Rule>
 
-        <Obligations>
-            <Obligation
-	        ObligationId="granted-non-sensitive-document-type-access"
-	        FulfillOn="Permit"/>
-        </Obligations>
-    </Policy>
-
-    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="deny-access-policy"
-        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Default deny policy</Description>
-        <PolicyDefaults>
-            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
-        </PolicyDefaults>
-        <Target/>
-        <Rule RuleId="deny-rule" Effect="Deny">
+        <Rule RuleId="sensitive-document-type-rule" Effect="Permit">
             <Description>
-                Deny the request.
+                Permit if this is a sensitive document and the subject's organization/provider created the document.
             </Description>
+             <!-- Anything with a "V" or "R" confidentiality code is considered sensitive -->
+             <!-- Currently, we do not match against the coding scheme -->
+             <!-- Pseudocode:
+                  (Document.isSensitive == TRUE)
+                     AND (Document.authorOrganizations.contains(Subject.OrganizationId)
+                     AND (Document.authorPersons.contains(Subject.Id))
+             -->
+             <!-- FIXME: Need to ensure that author person / organizations are compared jointly versus looking
+                  @ all nodes ... only an issue if more than one author for a given document .. -->
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                        </Apply>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Authors/pip:Author/pip:Organizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Authors/pip:Author/pip:Person/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                </Apply>
+            </Condition>
         </Rule>
+
+         <!-- Default Deny rule (if no Permit rules fired above) -->
+        <Rule RuleId="FinalRule" Effect="Deny"/>
     </Policy>
        
 </PolicySet>

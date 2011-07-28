@@ -14,6 +14,12 @@
                     <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
                 </ActionMatch>
             </Action>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">urn:ihe:iti:2007:RetrieveDocumentSet</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
         </Actions>
     </Target>
 
@@ -40,11 +46,11 @@
          <!-- A final, "fall-through" Rule that always Denies -->
         <!--<Rule RuleId="FinalRule" Effect="Deny"/>-->
 
-        <Obligations>
+        <!--<Obligations>
             <Obligation
 	        ObligationId="granted-emergency-access"
 	        FulfillOn="Permit"/>
-        </Obligations>
+        </Obligations>-->
     </Policy>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
@@ -83,13 +89,13 @@
             </Condition>
         </Rule>
 
-        <Rule RuleId="allowed-organizations-rule" Effect="Permit">
+        <Rule RuleId="allowed-organizations-rule" Effect="Deny">
             <Description>
-                Permit if subject's organization-id is in one of the designated set of allowed organizations.  Only
-                evaluated if the patient has designated a list.
+                Deny if subject's organization-id is not in one of the designated set of allowed organizations.
+                Only evaluated if the patient has designated a list.
             </Description>
             <!-- Pseudocode:
-                  AllowedOrganizations.size() > 0 AND AllowedOrganizations.contains(Subject.OrganizationId)
+                  AllowedOrganizations.size() > 0 AND NOT(AllowedOrganizations.contains(Subject.OrganizationId))
             -->
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
@@ -100,15 +106,21 @@
                         </Apply>
                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
                     </Apply>
-                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
-                        <AttributeSelector
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                            <AttributeSelector
                             RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
                     </Apply>
                 </Apply>
             </Condition>
         </Rule>
 
+        <!-- Default Permit rule (if no Deny rules fired above) -->
+        <Rule RuleId="FinalRule" Effect="Permit"/>
+
+        <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
         <Obligations>
             <Obligation
 	        ObligationId="evaluate-documents"
