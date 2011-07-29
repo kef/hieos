@@ -6,6 +6,7 @@
                 <pip:AllowedOrganizations>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.80036291666670709</pip:Organization>
                 </pip:AllowedOrganizations>
                 <pip:BlockedOrganizations>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
