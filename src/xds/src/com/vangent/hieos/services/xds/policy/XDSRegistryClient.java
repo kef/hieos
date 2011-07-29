@@ -53,7 +53,6 @@ public class XDSRegistryClient extends WebServiceClient {
             + "    </Slot>"
             + "</AdhocQuery>"
             + "</query:AdhocQueryRequest>";
-    
     private final static String STORED_QUERY_SOAP_ACTION = "urn:ihe:iti:2007:RegistryStoredQuery";
 
     /**
@@ -66,11 +65,12 @@ public class XDSRegistryClient extends WebServiceClient {
 
     /**
      *
-     * @param documentResponseNodes
+     * @param documentResponseList
+     * @param returnIdsOnly
      * @return
      * @throws AxisFault
      */
-    public List<DocumentMetadata> getRegistryObjects(List<DocumentResponse> documentResponseList) throws AxisFault {
+    public List<DocumentMetadata> getRegistryObjects(List<DocumentResponse> documentResponseList, boolean returnIdsOnly) throws AxisFault {
         // Build list of document ids suitable for query.
 
         // FIXME: Cleanup/refactor code.
@@ -106,9 +106,18 @@ public class XDSRegistryClient extends WebServiceClient {
 
             // Only return identifiers in this case.
             DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
-            List<DocumentMetadata> documentMetadataIdentifierList =
-                    documentMetadataBuilder.buildDocumentIdentifiersList(
-                    new RegistryObjectElementList(extrinsicObjects));
+            List<DocumentMetadata> documentMetadataIdentifierList;
+            if (returnIdsOnly) {
+                // Just get identifiers from the list.
+                documentMetadataIdentifierList =
+                        documentMetadataBuilder.buildDocumentIdentifiersList(
+                        new RegistryObjectElementList(extrinsicObjects));
+            } else {
+                // Get full meta-data set.
+                documentMetadataIdentifierList =
+                        documentMetadataBuilder.buildDocumentMetadataList(
+                        new RegistryObjectElementList(extrinsicObjects));
+            }
             return documentMetadataIdentifierList;
         } catch (XPathHelperException ex) {
             throw new AxisFault("Can not parse registry response", ex);

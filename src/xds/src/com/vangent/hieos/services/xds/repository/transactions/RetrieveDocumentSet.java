@@ -16,9 +16,12 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.services.xds.policy.DocumentMetadata;
+import com.vangent.hieos.services.xds.policy.DocumentMetadataBuilder;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.services.xds.policy.DocumentResponse;
 import com.vangent.hieos.services.xds.policy.DocumentResponseBuilder;
 import com.vangent.hieos.services.xds.policy.DocumentResponseElementList;
+import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.policy.XDSRegistryClient;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -177,14 +180,12 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws XdsException
      * @throws AxisFault
      */
-    private void handleObligations(PDPResponse pdpResponse, OMElement rds) throws MetadataException, XdsException, AxisFault {
-
+    private void handleObligations(PDPResponse pdpResponse, OMElement rds) throws MetadataException, XdsException, AxisFault, PolicyException {
         // Retrieve the documents from the data store.
         ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
 
         // See if we have any documents.
         if (documentResponseNodes != null && !documentResponseNodes.isEmpty()) {
-
             // Build List<DocumentResponse> from list of DocumentResponse OMElements.
             DocumentResponseBuilder documentResponseBuilder = new DocumentResponseBuilder();
             List<DocumentResponse> documentResponseList = documentResponseBuilder.buildDocumentResponseList(
@@ -192,18 +193,32 @@ public class RetrieveDocumentSet extends XBaseTransaction {
 
             // Go to the registry to get meta-data for the documents.
             XDSRegistryClient registryClient = new XDSRegistryClient(repoConfig.getRegistryConfig());
-            List<DocumentMetadata> documentMetadataList = registryClient.getRegistryObjects(documentResponseList);
 
-            // FIXME: The registry may not be checking policy!!
-            // FIXME: How do we deal with this case?
+            // See if document-level policy evaluation has been delegated to the registry.
+            boolean delegateDocumentLevelPolicyEval = this.getConfigActor().getPropertyAsBoolean("DelegateDocumentLevelPolicyEval", true);
+            List<DocumentMetadata> registryObjects = registryClient.getRegistryObjects(documentResponseList, delegateDocumentLevelPolicyEval);
 
-            //DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
-            //List<OMElement> permittedExtrinsicObjects = policyEvaluator.evaluate(this.getPDPResponse().getRequestType(), extrinsicObjects);
+            List<DocumentMetadata> permittedDocumentList;
+            if (delegateDocumentLevelPolicyEval) {
+                // Since we are delegating policy evaluation to the registry, the registry should
+                // only return permitted objects.
+                permittedDocumentList = registryObjects;
+            } else {
+                // Otherwise, we must evaluate policy here.
 
-            // Above line implies that registry policy checking already happened.
-            List<DocumentMetadata> permittedDocumentList = documentMetadataList;
+                // Get list of obligation ids to satisfy ... these will be used as the "action-id"
+                // when evaluating policy at the document-level
+                List<String> obligationIds = pdpResponse.getObligationIds();
+                // FIXME(?): Only satisfy the first obligation in the list!
 
-            // Add permitted documents to the response.
+                // Run policy evaluation to get permitted objects list (using obligation id as "action-id").
+                DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
+                permittedDocumentList = policyEvaluator.evaluate(
+                        obligationIds.get(0),
+                        pdpResponse.getRequestType(),
+                        registryObjects);
+            }
+            // Now, add list of permitted documents to the response.
             this.addPermittedDocumentsToResponse(documentResponseList, permittedDocumentList);
         }
     }

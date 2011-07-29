@@ -49,23 +49,50 @@ public class DocumentPolicyEvaluator {
      * 
      * @param action
      * @param requestType
-     * @param documentMetadataList
+     * @param registryObjectElementList
      * @return
      * @throws PolicyException
      */
     public RegistryObjectElementList evaluate(
+            String action, RequestType requestType, RegistryObjectElementList registryObjectElementList) throws PolicyException {
+
+        // First convert registryObjects into DocumentMetadata instances.
+        List<OMElement> registryObjects = registryObjectElementList.getElementList();
+        DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
+        List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(new RegistryObjectElementList(registryObjects));
+
+        // Conduct policy evaluation.
+        List<DocumentMetadata> permittedDocumentMetadataList = this.evaluate(action, requestType, documentMetadataList);
+
+        // Now, convert response.
+        // FIXME: Move to DocumentMetadataBuilder.
+        List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
+        for (DocumentMetadata permittedDocumentMetadata : permittedDocumentMetadataList) {
+            permittedRegistryObjects.add(permittedDocumentMetadata.getRegistryObject());
+        }
+        return new RegistryObjectElementList(permittedRegistryObjects);
+    }
+
+    /**
+     *
+     * @param action
+     * @param requestType
+     * @param documentMetadataList
+     * @return
+     * @throws PolicyException
+     */
+    public List<DocumentMetadata> evaluate(
             String action, RequestType requestType, List<DocumentMetadata> documentMetadataList) throws PolicyException {
 
         StringBuilder logsb = new StringBuilder();  // For debug logging.
-        
-        List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
+        List<DocumentMetadata> permittedDocumentMetadataList = new ArrayList<DocumentMetadata>();  // Holds result.
         DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
 
         // Now, filter results based upon "document-level" policy evaluation.
         for (DocumentMetadata documentMetadata : documentMetadataList) {
             if (!documentMetadata.isExtrinsicObject()) {
                 // We do not evaluate policy for anything other than ExtrinsicObjects
-                permittedRegistryObjects.add(documentMetadata.getRegistryObject());
+                permittedDocumentMetadataList.add(documentMetadata);
             } else {
                 // Create PDP request.
                 PDPRequest pdpRequest = new PDPRequest();
@@ -82,7 +109,7 @@ public class DocumentPolicyEvaluator {
                 // Evaluate results (Obligations are not used here).
                 boolean permittedAccessToDocument = pdpResponse.isPermitDecision();
                 if (permittedAccessToDocument) {
-                    permittedRegistryObjects.add(documentMetadata.getRegistryObject());
+                    permittedDocumentMetadataList.add(documentMetadata);
                 }
                 if (logMessage.isLogEnabled()) {
                     if (permittedAccessToDocument) {
@@ -96,6 +123,6 @@ public class DocumentPolicyEvaluator {
         if (logMessage.isLogEnabled()) {
             logMessage.addOtherParam("Policy:Note", logsb.toString());
         }
-        return new RegistryObjectElementList(permittedRegistryObjects);
+        return permittedDocumentMetadataList;
     }
 }
