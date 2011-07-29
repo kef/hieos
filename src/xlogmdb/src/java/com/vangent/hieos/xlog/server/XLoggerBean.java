@@ -31,7 +31,6 @@ import javax.jms.TextMessage;
 import javax.jms.ObjectMessage;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Vector;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -40,6 +39,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.ResultSet;
+import java.util.List;
 
 /**
  *
@@ -70,8 +70,8 @@ public class XLoggerBean implements MessageListener {
                 Object so = m.getObject();  // Serialized object.
                 if (so instanceof XLogMessage) {
                     XLogMessage logMessage = (XLogMessage) so;
-                    logger.info("SERVER logMessage id = " + logMessage.toString());
-                    logger.info("SERVER logMessage (computed id) = " + logMessage.getMessageID());
+                    //logger.info("SERVER logMessage id = " + logMessage.toString());
+                    //logger.info("SERVER logMessage (computed id) = " + logMessage.getMessageID());
                     this.persist(logMessage);
                 }
             } else if (message instanceof TextMessage) {
@@ -110,7 +110,7 @@ public class XLoggerBean implements MessageListener {
             conn.commit();
         } catch (SQLException ex) {
             logger.error("SQLException: ", ex);
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         } finally {
             try {
                 if (conn != null) {
@@ -192,7 +192,7 @@ public class XLoggerBean implements MessageListener {
             }
         } catch (SQLException ex) {
             logger.error("SQLException: ", ex);
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             throw ex;
         } finally {
             if (rs != null) {
@@ -244,7 +244,7 @@ public class XLoggerBean implements MessageListener {
             stmt.execute();
         } catch (SQLException ex) {
             logger.error("SQLException: ", ex);
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
             throw ex;
         } finally {
             if (stmt != null) {
@@ -265,7 +265,7 @@ public class XLoggerBean implements MessageListener {
      * @param logMessage
      */
     private void persistEntries(Connection conn, XLogMessage logMessage) {
-        HashMap<String, Vector<XLogMessageNameValue>> entries = logMessage.getEntries();
+        HashMap<String, List<XLogMessageNameValue>> entries = logMessage.getEntries();
 
         // Setup the prepared statement for the log entries
         String sql = "INSERT INTO LOGDETAIL (type,messageid,name,value,seqid) VALUES(?,?,?,?,?)";
@@ -283,7 +283,7 @@ public class XLoggerBean implements MessageListener {
                 String key = (String) it.next();
                 //logger.trace("Log processing - " + key);
                 // Now, process all entries.
-                Vector<XLogMessageNameValue> nameValues = entries.get(key);
+                List<XLogMessageNameValue> nameValues = entries.get(key);
                 Iterator nameValueIterator = nameValues.iterator();
                 int seqId = 0;
                 while (nameValueIterator.hasNext()) {
@@ -300,7 +300,7 @@ public class XLoggerBean implements MessageListener {
             }
         } catch (SQLException ex) {
             logger.error("SQLException: ", ex);
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         } finally {
             if (pstmt != null) {
                 try {
