@@ -199,8 +199,14 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     } else {
                         PDPResponse pdpResponse = pep.evaluate();
                         if (pdpResponse.isDenyDecision()) {
+                            if (log_message.isLogEnabled()) {
+                                log_message.addOtherParam("Policy:Note", "DENIED access to all content");
+                            }
                             response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
                         } else if (!pdpResponse.hasObligations()) {
+                            if (log_message.isLogEnabled()) {
+                                log_message.addOtherParam("Policy:Note", "PERMITTED access to all content [no obligations]");
+                            }
                             // Run the Stored Query.
                             List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
                             // FIXME: Should at least make sure that if this is a LeafClass request
@@ -241,9 +247,9 @@ public class AdhocQueryRequest extends XBaseTransaction {
     private void handleObligations(OMElement ahqr, PDPResponse pdpResponse, boolean isLeafClassRequest) throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException, PolicyException {
         // Run the Stored Query:
         List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
-        if (isLeafClassRequest == true) {
+        if (isLeafClassRequest) {
             // Only evaluate policy at document-level if a LeafClass request.
-            DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
+            DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
             RegistryObjectElementList permittedRegistryObjectElementList = policyEvaluator.evaluate(
                     pdpResponse.getRequestType(),
                     new RegistryObjectElementList(registryObjects));

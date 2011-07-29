@@ -119,8 +119,14 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             } else {
                 PDPResponse pdpResponse = pep.evaluate();
                 if (pdpResponse.isDenyDecision()) {
+                    if (log_message.isLogEnabled()) {
+                        log_message.addOtherParam("Policy:Note", "DENIED access to all content");
+                    }
                     response.add_error(MetadataSupport.XDSRepositoryError, "Request denied due to policy", this.getClass().getName(), log_message);
                 } else if (!pdpResponse.hasObligations()) {
+                    if (log_message.isLogEnabled()) {
+                        log_message.addOtherParam("Policy:Note", "PERMITTED access to all content [no obligations]");
+                    }
                     // No obligations.
                     ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
                     // FIXME: Should we check to see if the PID (for each doc) is = resource-id?
@@ -210,15 +216,27 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws XdsInternalException
      */
     private void addPermittedDocumentsToResponse(List<DocumentResponse> documentResponseList, List<DocumentMetadata> permittedDocumentList) throws XdsInternalException {
+        StringBuilder logsb = new StringBuilder();
         OMElement repoResponse = response.getResponse();
         // Go through each DocumentResponse.
         for (DocumentResponse documentResponse : documentResponseList) {
+            boolean permittedAccessToDocument = this.isPermittedAccessToDocument(documentResponse, permittedDocumentList);
             // If permitted.
-            if (this.isPermittedAccessToDocument(documentResponse, permittedDocumentList)) {
+            if (permittedAccessToDocument) {
                 // Add to the response.
                 OMElement documentResponseNode = documentResponse.getDocumentResponseObject();
                 repoResponse.addChild(documentResponseNode);
             }
+            if (log_message.isLogEnabled()) {
+                if (permittedAccessToDocument) {
+                    logsb.append("...PERMIT" + "[doc_id=").append(documentResponse.getDocumentId()).append(", repo_id=").append(documentResponse.getRepositoryId()).append("]");
+                } else {
+                    logsb.append("...DENY" + "[doc_id=").append(documentResponse.getDocumentId()).append(", repo_id=").append(documentResponse.getRepositoryId()).append("]");
+                }
+            }
+        }
+        if (log_message.isLogEnabled()) {
+            log_message.addOtherParam("Policy:Note", logsb.toString());
         }
     }
 
@@ -239,7 +257,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         for (DocumentMetadata permittedDocument : permittedDocumentList) {
             String permittedObjectDocId = permittedDocument.getDocumentId();
             String permittedObjectRepoId = permittedDocument.getRepositoryId();
-            
+
             // Compare against docId/repoId.
             if (docResponseDocId.equalsIgnoreCase(permittedObjectDocId)
                     && docResponseRepoId.equalsIgnoreCase(permittedObjectRepoId)) {

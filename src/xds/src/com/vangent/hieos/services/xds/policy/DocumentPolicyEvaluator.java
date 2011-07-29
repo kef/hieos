@@ -16,6 +16,7 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
@@ -27,16 +28,32 @@ import org.apache.axiom.om.OMElement;
  */
 public class DocumentPolicyEvaluator {
 
-    // FIXME: Can use higher level interface ... look @ callers.
-    
+    private XLogMessage logMessage;
+
+    /**
+     *
+     */
+    private DocumentPolicyEvaluator() {
+        // Do not allow.
+    }
+
+    /**
+     * 
+     * @param logMessage
+     */
+    public DocumentPolicyEvaluator(XLogMessage logMessage) {
+        this.logMessage = logMessage;
+    }
+
     /**
      *
      * @param requestType
-     * @param registryObjects
+     * @param registryObjectElementList
      * @return
      * @throws PolicyException
      */
     public RegistryObjectElementList evaluate(RequestType requestType, RegistryObjectElementList registryObjectElementList) throws PolicyException {
+        StringBuilder logsb = new StringBuilder();
         List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
 
         // First convert registryObjects into DocumentMetadata instances.
@@ -56,21 +73,28 @@ public class DocumentPolicyEvaluator {
                 DocumentMetadataElement documentMetadataElement = documentMetadataBuilder.buildDocumentMetadataElement(documentMetadata);
                 pdpRequest.addResourceContent(documentMetadataElement.getElement(), true);
                 pdpRequest.setAction("evaluate-document");
-                System.out.println("Document " + documentMetadata.getDocumentId());
+                //System.out.println("Document " + documentMetadata.getDocumentId());
 
                 // Run the policy evaluation.
                 PEP pep = new PEP(null);
                 PDPResponse pdpResponse = pep.evaluate(pdpRequest);
 
                 // Evaluate results (Obligations are not used here).
-                if (pdpResponse.isPermitDecision()) {
-                    System.out.println("... PERMIT");
+                boolean permittedAccessToDocument = pdpResponse.isPermitDecision();
+                if (permittedAccessToDocument) {
                     permittedRegistryObjects.add(documentMetadata.getRegistryObject());
-                } else {
-                    // Consider this as a deny
-                    System.out.println("... DENY");
+                }
+                if (logMessage.isLogEnabled()) {
+                    if (permittedAccessToDocument) {
+                        logsb.append("...PERMIT" + "[doc_id=").append(documentMetadata.getDocumentId()).append(", repo_id=").append(documentMetadata.getRepositoryId()).append("]");
+                    } else {
+                        logsb.append("...DENY" + "[doc_id=").append(documentMetadata.getDocumentId()).append(", repo_id=").append(documentMetadata.getRepositoryId()).append("]");
+                    }
                 }
             }
+        }
+        if (logMessage.isLogEnabled()) {
+            logMessage.addOtherParam("Policy:Note", logsb.toString());
         }
         return new RegistryObjectElementList(permittedRegistryObjects);
     }
