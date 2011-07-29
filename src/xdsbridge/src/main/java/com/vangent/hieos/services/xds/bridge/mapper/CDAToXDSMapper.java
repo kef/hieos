@@ -11,10 +11,9 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import java.util.Map;
-import java.util.UUID;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
@@ -27,10 +26,16 @@ import com.vangent.hieos.xutil.exception.XdsFormatException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.template.TemplateUtil;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
 import org.json.XML;
+
+import java.util.Map;
+import java.util.UUID;
+
 
 /**
  * Class description
@@ -63,6 +68,32 @@ public class CDAToXDSMapper implements IXDSMapper {
         super();
         this.contentParser = parser;
         this.contentParserConfig = config;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param cfg
+     * @param result
+     */
+    private void applyStaticValues(ContentParserConfig cfg,
+                                   Map<String, String> result) {
+
+        Map<String, Map<String, String>> staticValues = cfg.getStaticValues();
+
+        for (String key : staticValues.keySet()) {
+
+            if (StringUtils.isBlank(result.get(key))) {
+
+                Map<String, String> values = staticValues.get(key);
+
+                for (Map.Entry<String, String> entry : values.entrySet()) {
+
+                    result.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
     }
 
     /**
@@ -205,7 +236,32 @@ public class CDAToXDSMapper implements IXDSMapper {
                 result.get(ContentVariableName.DocumentDisplayName.toString()));
         }
 
-        // uniqueId
+        // confidentialityCode, rules:
+        // use SDR
+        // if null, use CDA (do nothing, already pulled/parsed using expressions)
+        // if null, let static content handle it (below)
+        CodedValue confidentialityCode = document.getConfidentialityCode();
+
+        if (confidentialityCode != null) {
+
+            // the SDR trumps all other values, use it
+            result.put(
+                ContentVariableName.DocumentConfidentialityCode.toString(),
+                confidentialityCode.getCode());
+            result.put(ContentVariableName.DocumentConfidentialityCodeSystem
+                .toString(), confidentialityCode.getCodeSystem());
+
+            String displayName =
+                StringUtils.trimToEmpty(confidentialityCode.getDisplayName());
+
+            result.put(ContentVariableName.DocumentConfidentialityDisplayName
+                .toString(), displayName);
+        }
+
+        // uniqueId, rules:
+        // use SDR id
+        // if null, use CDA id
+        // if null, generate one
         String uuidField = ContentVariableName.DocumentUniqueId.toString();
 
         if (StringUtils.isNotBlank(document.getId())) {
@@ -307,7 +363,7 @@ public class CDAToXDSMapper implements IXDSMapper {
         // ///
         // Static Values
         // set all the static values (or overrides)
-        result.putAll(cfg.getStaticValues());
+        applyStaticValues(cfg, result);
 
         return result;
     }

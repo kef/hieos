@@ -15,6 +15,9 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
+import com.vangent.hieos.services.xds.bridge.mock.MockXConfigTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
@@ -50,11 +53,26 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
     public MockRepositoryClient(boolean throwsAlways, boolean throwsEven,
                                 OMElement response) {
 
-        super(null, null);
+        super(null, createConfigActor());
         this.throwsExceptionAlways = throwsAlways;
         this.throwsExceptionOnEven = throwsEven;
         this.response = response;
         this.count = 0;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    private static XConfigActor createConfigActor() {
+
+        XConfigActor result = new XConfigActor();
+        XConfigTransaction trans = new MockXConfigTransaction(PNR_TRANS);
+        result.getTransactions().add(trans);
+        
+        return result;
     }
 
     /**

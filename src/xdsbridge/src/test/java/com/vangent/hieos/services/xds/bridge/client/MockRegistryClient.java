@@ -11,13 +11,23 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQRequestMessage;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQResponseMessage;
+import com.vangent.hieos.services.xds.bridge.mock.MockXConfigTransaction;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
+
 
 /**
  * Class description
@@ -51,11 +61,32 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
     public MockRegistryClient(boolean throwsAlways, boolean throwsEven,
                               OMElement response) {
 
-        super(null, null);
+        super(null, createConfigActor());
         this.throwsExceptionAlways = throwsAlways;
         this.throwsExceptionOnEven = throwsEven;
         this.response = response;
         this.count = 0;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    private static XConfigActor createConfigActor() {
+
+        XConfigActor result = new XConfigActor();
+        XConfigTransaction sqtrans =
+            new MockXConfigTransaction(STORED_QUERY_TRANS);
+
+        result.getTransactions().add(sqtrans);
+
+        XConfigTransaction patrans = new MockXConfigTransaction(PID_ADD_TRANS);
+
+        result.getTransactions().add(patrans);
+
+        return result;
     }
 
     /**
@@ -122,11 +153,51 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
      */
     @Override
     public DeviceInfo createSenderDeviceInfo() {
+
         DeviceInfo result = new DeviceInfo();
 
         result.setId("TEST");
         result.setName("TEST-Sender");
 
         return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param request
+     *
+     * @return
+     *
+     * @throws AxisFault
+     */
+    @Override
+    public GetDocumentsSQResponseMessage getDocuments(
+            GetDocumentsSQRequestMessage request)
+            throws AxisFault {
+
+        if (this.throwsExceptionAlways) {
+
+            throw new AxisFault("MockRegistryClient thows exception always.");
+
+        } else if (this.throwsExceptionOnEven) {
+
+            if ((this.count % 2) == 0) {
+
+                String msg =
+                    String.format(
+                        "Document %d: MockRegistryClient throws even exception.",
+                        this.count);
+
+                this.count++;
+
+                throw new AxisFault(msg);
+            }
+
+            this.count++;
+        }
+
+        return new GetDocumentsSQResponseMessage(this.response);
     }
 }

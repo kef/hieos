@@ -13,6 +13,9 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
@@ -119,6 +122,16 @@ public class XDSBridge extends XAbstractService {
     public void startUp(ConfigurationContext configctx, AxisService service) {
 
         super.startUp(configctx, service);
+
+//        try {
+//
+//            InitialContext ic = new InitialContext();
+//            DataSource source =
+//                (DataSource) ic.lookup("java:comp/env/jdbc/hieos-adt");
+//
+//        } catch (NamingException e) {
+//            logger.error(e,e);
+//        }
 
         // check environment
 

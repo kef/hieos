@@ -27,6 +27,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 public class Document implements Serializable {
 
     /** Field description */
+    private CodedValue confidentialityCode;
+
+    /** Field description */
     private byte[] content;
 
     /** Field description */
@@ -68,6 +71,16 @@ public class Document implements Serializable {
      */
     public Document() {
         super();
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @return
+     */
+    public CodedValue getConfidentialityCode() {
+        return confidentialityCode;
     }
 
     /**
@@ -188,6 +201,16 @@ public class Document implements Serializable {
      */
     public boolean isGeneratedDocumentId() {
         return generatedDocumentId;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param confidentialityCode
+     */
+    public void setConfidentialityCode(CodedValue confidentialityCode) {
+        this.confidentialityCode = confidentialityCode;
     }
 
     /**

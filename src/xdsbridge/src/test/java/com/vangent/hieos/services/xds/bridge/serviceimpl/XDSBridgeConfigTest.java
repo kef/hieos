@@ -10,16 +10,17 @@
 
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
-import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import java.util.List;
 import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
+import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.JUnitHelper;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
@@ -92,12 +93,27 @@ public class XDSBridgeConfigTest {
                      namespaces.get("ext"));
         assertEquals("urn:hl7-org:v3", namespaces.get("hl7"));
 
-        Map<String, String> staticValues = parserConfig.getStaticValues();
+        Map<String, Map<String, String>> staticValues =
+            parserConfig.getStaticValues();
 
-        assertEquals("WORK", staticValues.get("HealthcareFacilityTypeCode"));
-        assertEquals("N", staticValues.get("DocumentConfidentialityCode"));
-        assertEquals("Not applicable",
-                     staticValues.get("PracticeSettingDisplayName"));
+        Map<String, String> hcfcodes =
+            staticValues.get("HealthcareFacilityTypeCode");
+
+        assertNotNull(hcfcodes);
+        assertFalse(hcfcodes.isEmpty());
+
+        assertEquals("WORK", hcfcodes.get("HealthcareFacilityTypeCode"));
+        assertEquals("2.16.840.1.113883.5.11",
+                     hcfcodes.get("HealthcareFacilityTypeCodeSystem"));
+        assertEquals("work site",
+                     hcfcodes.get("HealthcareFacilityTypeDisplayName"));
+
+        Map<String, String> oneval = staticValues.get("DocumentTitle");
+
+        assertNotNull(oneval);
+        assertEquals(1, oneval.size());
+
+        assertEquals("BooFar", oneval.get("DocumentTitle"));
 
         Map<String, String> expressions = parserConfig.getExpressions();
 
@@ -116,11 +132,12 @@ public class XDSBridgeConfigTest {
         expression = expressions.get("DocumentTitle");
         assertNotNull(expression);
         assertEquals("/hl7:ClinicalDocument/hl7:title", expression);
-        
+
         expression = expressions.get("PatientIdRoot");
         assertNotNull(expression);
-        assertEquals("/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root",
-                expression);
-        
+        assertEquals(
+            "/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root",
+            expression);
+
     }
 }

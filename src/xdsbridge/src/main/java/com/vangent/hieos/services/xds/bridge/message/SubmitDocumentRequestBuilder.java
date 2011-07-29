@@ -167,6 +167,8 @@ public class SubmitDocumentRequestBuilder
         result.setId(parseText(docelem, "./ns:Id"));
         result.setReplaceId(parseText(docelem, "./ns:ReplaceId"));
         result.setType(parseCodedValue(docelem, "./ns:Type"));
+        result.setConfidentialityCode(parseCodedValue(docelem,
+                "./ns:ConfidentialityCode"));
         result.setContent(parseBinaryContent(docelem, "./ns:Content"));
 
         // use xdsbridgeconfig.xml to map and populate format
@@ -360,7 +362,7 @@ public class SubmitDocumentRequestBuilder
                 if (type == null) {
 
                     errmsg.append(
-                        String.format("Document %s must have a type.%n", id));
+                        String.format("Document %s must have a Type.%n", id));
 
                 } else {
 
@@ -368,14 +370,14 @@ public class SubmitDocumentRequestBuilder
 
                         errmsg.append(
                             String.format(
-                                "Document %s must have a type/@code.%n", id));
+                                "Document %s must have a Type/@code.%n", id));
                     }
 
                     if (StringUtils.isBlank(type.getCodeSystem())) {
 
                         errmsg.append(
                             String.format(
-                                "Document %s must have a type/@codeSystem.%n",
+                                "Document %s must have a Type/@codeSystem.%n",
                                 id));
                     }
 
@@ -384,6 +386,28 @@ public class SubmitDocumentRequestBuilder
                         String.format(
                             "Document type %s:%s is unrecognized and does not have a mapping.",
                             type.getCode(), type.getCodeSystem());
+                    }
+
+                }
+
+                CodedValue confCode = doc.getConfidentialityCode();
+
+                if (confCode != null) {
+
+                    if (StringUtils.isBlank(confCode.getCode())) {
+
+                        errmsg.append(
+                            String.format(
+                                "Document %s must have a ConfidentialityCode/@code%n",
+                                id));
+                    }
+
+                    if (StringUtils.isBlank(confCode.getCodeSystem())) {
+
+                        errmsg.append(
+                            String.format(
+                                "Document %s must have a ConfidentialityCode/@codeSystem%n",
+                                id));
                     }
                 }
 

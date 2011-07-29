@@ -52,6 +52,7 @@
         </xsd:annotation>
         <xsd:sequence>
             <xsd:element name="Type" type="tns:CodeType" />
+            <xsd:element name="ConfidentialityCode" type="tns:CodeType" minOccurs="0" />
             <xsd:element name="Id" type="xsd:string" minOccurs="0" />
             <xsd:element name="ReplaceId" type="xsd:string" minOccurs="0" />
             <xsd:element name="Content" type="xsd:base64Binary" />

@@ -119,8 +119,8 @@ public class XDSBridgeConfigXmlParser {
         if (namespacesElem != null) {
 
             // pull namespaces
-            namespaces = parseNameValuePairs(namespacesElem, "prefix", "uri",
-                                             false);
+            namespaces = parseNameValuePairs(namespacesElem, "Namespace",
+                                             "prefix", "uri", false);
         }
 
         OMElement dynamicElem = parserConfigElem.getFirstChildWithName(
@@ -130,19 +130,31 @@ public class XDSBridgeConfigXmlParser {
         if (dynamicElem != null) {
 
             // pull expressions
-            expressions = parseNameValuePairs(dynamicElem, "name",
+            expressions = parseNameValuePairs(dynamicElem, "Variable", "name",
                                               "expression", true);
         }
 
         OMElement staticElem = parserConfigElem.getFirstChildWithName(
                                    new QName("StaticContentVariables"));
-        Map<String, String> staticValues = null;
+        Map<String, Map<String, String>> staticValues = null;
 
         if (staticElem != null) {
 
+            // pull static groups
+            staticValues = parseStaticGroups(staticElem);
+
             // pull static values
-            staticValues = parseNameValuePairs(staticElem, "name", "value",
-                                               true);
+            Map<String, String> staticVariables =
+                parseNameValuePairs(staticElem, "Variable", "name", "value",
+                                    true);
+
+            for (Map.Entry<String, String> entry : staticVariables.entrySet()) {
+
+                Map<String, String> value = new HashMap<String, String>();
+
+                value.put(entry.getKey(), entry.getValue());
+                staticValues.put(entry.getKey(), value);
+            }
         }
 
         return new ContentParserConfig(name, namespaces, expressions,
@@ -299,6 +311,7 @@ public class XDSBridgeConfigXmlParser {
      *
      *
      * @param node
+     * @param localName
      * @param nameAttribute
      * @param valueAttribute
      * @param checkKey
@@ -306,18 +319,21 @@ public class XDSBridgeConfigXmlParser {
      * @return
      */
     private Map<String, String> parseNameValuePairs(OMElement node,
-            String nameAttribute, String valueAttribute, boolean checkKey) {
+            String localName, String nameAttribute, String valueAttribute,
+            boolean checkKey) {
 
         Map<String, String> result = new LinkedHashMap<String, String>();
 
         QName nameQName = new QName(nameAttribute);
         QName valueQName = new QName(valueAttribute);
 
-        Iterator<OMElement> iterator = node.getChildElements();
+        Iterator<OMElement> iterator =
+            node.getChildrenWithName(new QName(localName));
 
         while (iterator.hasNext()) {
 
             OMElement childNode = iterator.next();
+
             String key = childNode.getAttributeValue(nameQName);
 
             if (checkKey) {
@@ -342,6 +358,56 @@ public class XDSBridgeConfigXmlParser {
                 String value = childNode.getAttributeValue(valueQName);
 
                 result.put(key, value);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Method description
+     *
+     *
+     * @param node
+     *
+     * @return
+     */
+    private Map<String, Map<String, String>> parseStaticGroups(OMElement node) {
+
+        Map<String, Map<String, String>> result = new LinkedHashMap<String,
+                                                      Map<String, String>>();
+
+        QName nameQName = new QName("variableName");
+
+        Iterator<OMElement> iterator =
+            node.getChildrenWithName(new QName("StaticContentGroup"));
+
+        while (iterator.hasNext()) {
+
+            OMElement childNode = iterator.next();
+
+            String key = childNode.getAttributeValue(nameQName);
+
+            try {
+
+                ContentVariableName varName = ContentVariableName.valueOf(key);
+
+                key = varName.toString();
+
+            } catch (IllegalArgumentException e) {
+
+                logger.warn(String.format("%s is not valid.", key));
+                key = null;
+            }
+
+            // above check will null out a bad key
+            if (StringUtils.isNotBlank(key)) {
+
+                Map<String, String> staticVariables =
+                    parseNameValuePairs(childNode, "Variable", "name", "value",
+                                        true);
+
+                result.put(key, staticVariables);
             }
         }
 

@@ -9,7 +9,7 @@
     <templateId extension="1.0" root="1.2.36.1.2001.1001.101.100.20000"/>
     <code code="51855-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary"/>
     <effectiveTime value="201105271150"/>
-    <confidentialityCode nullFlavor="NA"/>
+    <confidentialityCode code="R" codeSystem="2.16.840.1.113883.5.25" displayName="Restricted" />
     <languageCode code="en-AU"/>
     <setId root="6C6BA56C-BC92-11DE-A170-D85556D89593"/>
     <versionNumber value="1"/>

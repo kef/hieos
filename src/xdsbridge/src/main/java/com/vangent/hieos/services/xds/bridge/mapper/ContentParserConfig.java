@@ -43,7 +43,7 @@ public class ContentParserConfig {
     private final Map<String, String> namespaces;
 
     /** Field description */
-    private final Map<String, String> staticValues;
+    private final Map<String, Map<String, String>> staticValues;
 
     /** Field description */
     private final String templateFileName;
@@ -71,7 +71,7 @@ public class ContentParserConfig {
     public ContentParserConfig(ContentParserConfigName inName,
                                Map<String, String> inNamespaces,
                                Map<String, String> inExpressions,
-                               Map<String, String> inStaticValues,
+                               Map<String, Map<String, String>> inStaticValues,
                                String inTemplateFileName) {
 
         super();
@@ -90,7 +90,7 @@ public class ContentParserConfig {
             this.expressions.putAll(inExpressions);
         }
 
-        this.staticValues = new LinkedHashMap<String, String>();
+        this.staticValues = new LinkedHashMap<String, Map<String, String>>();
 
         if (inStaticValues != null) {
             this.staticValues.putAll(inStaticValues);
@@ -145,7 +145,7 @@ public class ContentParserConfig {
      *
      * @return
      */
-    public Map<String, String> getStaticValues() {
+    public Map<String, Map<String, String>> getStaticValues() {
         return Collections.unmodifiableMap(staticValues);
     }
 

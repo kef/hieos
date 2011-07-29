@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 
 /**
  * Class description
@@ -33,19 +34,17 @@ public class CodedValueUtils {
      *
      * @return
      */
-    public static boolean equals(CodedValue type1, CodedValue type2) {
+    public static boolean equals(CodedValue cv1, CodedValue cv2) {
 
         boolean result = false;
 
-        if ((type1 != null) && (type2 != null)) {
+        if ((cv1 != null) && (cv2 != null)) {
 
-            if (StringUtils.equals(type1.getCode(), type2.getCode())
-                    && StringUtils.equals(type1.getCodeSystem(),
-                                          type2.getCodeSystem())) {
-
-                result = true;
-            }
-
+            EqualsBuilder eqbuilder = new EqualsBuilder();
+            eqbuilder.append(cv1.getCode(), cv2.getCode());
+            eqbuilder.append(cv1.getCodeSystem(), cv2.getCodeSystem());
+            
+            result = eqbuilder.isEquals();
         }
 
         return result;
@@ -65,14 +64,18 @@ public class CodedValueUtils {
 
         if (cvelem != null) {
 
-            result = new CodedValue();
-            result.setCode(cvelem.getAttributeValue(new QName("code")));
-            result.setCodeSystem(
-                cvelem.getAttributeValue(new QName("codeSystem")));
-            result.setCodeSystemName(
-                cvelem.getAttributeValue(new QName("codeSystemName")));
-            result.setDisplayName(
-                cvelem.getAttributeValue(new QName("displayName")));
+            String code = cvelem.getAttributeValue(new QName("code"));
+            if (StringUtils.isNotBlank(code)) {
+                
+                result = new CodedValue();
+                result.setCode(code);
+                result.setCodeSystem(
+                    cvelem.getAttributeValue(new QName("codeSystem")));
+                result.setCodeSystemName(
+                    cvelem.getAttributeValue(new QName("codeSystemName")));
+                result.setDisplayName(
+                    cvelem.getAttributeValue(new QName("displayName")));
+            }
         }
 
         return result;
