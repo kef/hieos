@@ -29,11 +29,9 @@ import com.vangent.hieos.policyutil.pdp.model.RequestTypeElement;
 import com.vangent.hieos.policyutil.pdp.model.SAMLResponseElement;
 import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.pdp.model.XACMLResponseBuilder;
-import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
-import com.vangent.hieos.services.pdp.resource.ResourceContentFinder;
+import com.vangent.hieos.policyutil.pdp.resource.PIPResourceContentFinder;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import java.util.List;
 
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
@@ -45,7 +43,6 @@ import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
 public class PDPRequestHandler extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(PDPRequestHandler.class);
-    private static PDPImpl _pdp = null;
 
     /**
      *
@@ -140,19 +137,9 @@ public class PDPRequestHandler extends XBaseTransaction {
      * @return
      * @throws PolicyException
      */
-    private synchronized PDPImpl getPDP() throws PolicyException {
-        if (_pdp == null) {
-            try {
-                PolicyConfig pConfig = PolicyConfig.getInstance();
-                List<String> policyFiles = pConfig.getPolicyFiles();
-                // FIXME: Cache the PDP ... is this safe?
-                // Invoke the PDP.
-                _pdp = new PDPImpl(policyFiles);
-            } catch (Exception ex) {
-                throw new PolicyException("Unable to create PDPImpl: " + ex.getMessage());
-            }
-        }
-        return _pdp;
+    private PDPImpl getPDP() throws PolicyException {
+        // Get singleton PDPImpl instance.
+        return PDPImpl.getPDPImplInstance();
     }
 
     /**
@@ -178,7 +165,7 @@ public class PDPRequestHandler extends XBaseTransaction {
      * @throws PolicyException
      */
     private void addResourceContent(RequestType requestType) throws PolicyException {
-        ResourceContentFinder resourceContentFinder = new ResourceContentFinder(this.getPIPConfig());
+        PIPResourceContentFinder resourceContentFinder = new PIPResourceContentFinder(this.getPIPConfig());
         // Get ResourceContent from the PIP.
         PDPRequest pdpRequest = new PDPRequest();
         pdpRequest.setRequestType(requestType);
