@@ -6,24 +6,28 @@
             <name>logbrowser</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries>
-                <library>
+                <library dirs="200">
                     <file>${file.reference.xutil.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${file.reference.axiom-api-1.2.8.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${file.reference.axiom-impl-1.2.8.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${file.reference.log4j-1.2.15.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${file.reference.commons-logging-1.1.1.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.javaee.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
