@@ -13,6 +13,14 @@
 
 package com.vangent.hieos.xwebtools.servlets.xviewer;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public interface OutputClass {
-	public void o(Object o);
+    /**
+     *
+     * @param o
+     */
+    public void o(Object o);
 }

@@ -17,13 +17,27 @@ import com.vangent.hieos.xwebtools.servlets.framework.HttpUtils;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class RetrieveBQueryContents extends QueryContents {
 
 	String content_type;
 	byte[] contents;
 	String id;
 	
-	public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
+        /**
+         *
+         * @param q_cntl
+         * @param index
+         * @param h
+         * @param xv
+         * @param cntl
+         * @throws MetadataValidationException
+         * @throws MetadataException
+         */
+        public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
 	throws MetadataValidationException, MetadataException {
 
 		displayStructureHeader(index, xv, this.initial_evidence);
@@ -35,20 +49,37 @@ public class RetrieveBQueryContents extends QueryContents {
 				);
 	}	
 	
-	public void set_contents(byte[] contents, String content_type) {
+        /**
+         *
+         * @param contents
+         * @param content_type
+         */
+        public void set_contents(byte[] contents, String content_type) {
 		this.contents = contents;
 		this.content_type = content_type;
 	}
 	
-	public void set_id(String id) {
+        /**
+         *
+         * @param id
+         */
+        public void set_id(String id) {
 		this.id = id;
 	}
 	
-	public String get_content_type() {
+        /**
+         *
+         * @return
+         */
+        public String get_content_type() {
 		return this.content_type;
 	}
 	
-	public byte[] get_content() {
+        /**
+         *
+         * @return
+         */
+        public byte[] get_content() {
 		return this.contents;
 	}
 	

@@ -15,9 +15,21 @@ package com.vangent.hieos.xwebtools.servlets.xviewer;
 
 import com.vangent.hieos.xwebtools.servlets.framework.HttpUtils;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class BasicQueryContents extends QueryContents {
 
-	@Override
+    /**
+     *
+     * @param q_cntl
+     * @param index
+     * @param h
+     * @param xv
+     * @param cntl
+     */
+    @Override
 	public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl) {
 		System.out.println("Basic QueryContents");
 

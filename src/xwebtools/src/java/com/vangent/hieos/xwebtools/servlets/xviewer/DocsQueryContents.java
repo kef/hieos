@@ -18,9 +18,23 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class DocsQueryContents extends PagedQueryContents {
 
-	public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
+    /**
+     *
+     * @param q_cntl
+     * @param index
+     * @param h
+     * @param xv
+     * @param cntl
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
+    public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
 	throws MetadataValidationException, MetadataException {
 		System.out.println("Docs QueryContents");
 

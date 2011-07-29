@@ -20,8 +20,22 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class RelatedQueryContents extends QueryContents {
 
+    /**
+     *
+     * @param q_cntl
+     * @param index
+     * @param h
+     * @param xv
+     * @param cntl
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
     public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
             throws MetadataValidationException, MetadataException {
         System.out.println("Related QueryContents");

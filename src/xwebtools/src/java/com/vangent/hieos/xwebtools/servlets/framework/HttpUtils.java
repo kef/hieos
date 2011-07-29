@@ -15,59 +15,107 @@ package com.vangent.hieos.xwebtools.servlets.framework;
 
 import java.io.PrintWriter;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class HttpUtils {
 	PrintWriter writer;
 	StringBuffer buf;
 
-	public HttpUtils(PrintWriter writer) {
+        /**
+         *
+         * @param writer
+         */
+        public HttpUtils(PrintWriter writer) {
 		this.writer = writer;
 		buf = new StringBuffer();
 	} 
 	
-	public void close() {
+        /**
+         *
+         */
+        public void close() {
 		writer.print(buf.toString());
 		writer.close();
 		writer = null;
 		buf = null;
 	}
 	
-	public void flush() {
+        /**
+         *
+         */
+        public void flush() {
 		writer.print(buf.toString());
 		buf = new StringBuffer();
 	}
 	
-	public void alert(String alert) {
+        /**
+         *
+         * @param alert
+         */
+        public void alert(String alert) {
 		writer.print("Alert: " + alert + "<br />");
 	}
 	
-	public void o(Object o)  {
+        /**
+         *
+         * @param o
+         */
+        public void o(Object o)  {
 		buf.append(o);
 		buf.append("\n");
 	}
 	
-	public void open(String s) {
+        /**
+         *
+         * @param s
+         */
+        public void open(String s) {
 		o("<" + s + ">");
 	}
 
-	public void open_w_att(String s, String attname, String attvalue) {
+        /**
+         *
+         * @param s
+         * @param attname
+         * @param attvalue
+         */
+        public void open_w_att(String s, String attname, String attvalue) {
 		o("<" + s + " " + attname + "=\"" + attvalue +  "\">");
 	}
 
-	public void clos(String s) {
+        /**
+         *
+         * @param s
+         */
+        public void clos(String s) {
 		o("</" + s + ">");
 	}
 	
-	public void tag(String s) {
+        /**
+         *
+         * @param s
+         */
+        public void tag(String s) {
 		o("<" + s + "/>");
 	}
 	
-	public void bold(String s) {
+        /**
+         *
+         * @param s
+         */
+        public void bold(String s) {
 		open("b");
 		o(s);
 		clos("b");
 	}
 	
-	public void head(String title)   {
+        /**
+         *
+         * @param title
+         */
+        public void head(String title)   {
 		o("<html><head><title>" + title + "</title>");
 		open("style");
 		o(".indent0 { text-indent: 0em; font-size: 100%}");
@@ -78,29 +126,57 @@ public class HttpUtils {
 		flush();
 	}
 	
-	public void indent0(String content) {
+        /**
+         *
+         * @param content
+         */
+        public void indent0(String content) {
 		div("indent0", content);
 	}
 	
-	public void indent1(String content) {
+        /**
+         *
+         * @param content
+         */
+        public void indent1(String content) {
 		div("indent1", content);
 	}
 	
-	public void indent2(String content) {
+        /**
+         *
+         * @param content
+         */
+        public void indent2(String content) {
 		div("indent2", content);
 	}
 	
-	public void div(String classx, String content) {
+        /**
+         *
+         * @param classx
+         * @param content
+         */
+        public void div(String classx, String content) {
 		open_w_att("div", "class", classx);
 		o(content);
 		clos("div");
 	}
 
-	public void tail()   {
+        /**
+         *
+         */
+        public void tail()   {
 		o("</body></html>");	
 	}
 
-	public void input(String type, String name, String value, String text, String other)   {
+        /**
+         *
+         * @param type
+         * @param name
+         * @param value
+         * @param text
+         * @param other
+         */
+        public void input(String type, String name, String value, String text, String other)   {
 		if (text == null || text.equals("")) {
 			o("<input type=\"" + type + "\" name = \"" + name + "\" value=\"" + value + "\" " + other + "/>");
 		} else {
@@ -108,30 +184,66 @@ public class HttpUtils {
 		}
 	}
 
-	public void label(String value)   {
+        /**
+         *
+         * @param value
+         */
+        public void label(String value)   {
 		o("<label>" + value + "</label>");
 	}
 
-	public void br()  { o("<br />"); }
+        /**
+         *
+         */
+        public void br()  { o("<br />"); }
 
-	public void get_form(String action)   {
+        /**
+         *
+         * @param action
+         */
+        public void get_form(String action)   {
 		o("<form action=\"" + action + "\" " + "method=\"get\">");
 	}
 
-	public void post_form(String action, String enc_type)   {
+        /**
+         *
+         * @param action
+         * @param enc_type
+         */
+        public void post_form(String action, String enc_type)   {
 		o("<form action=\"" + action + "\" " + "method=\"post\" " +
 				((enc_type != null) ? "enctype=\"" + enc_type + "\"" : "") +
 				">");
 	}
 
-	public void end_form()  { o("</form>"); }
+        /**
+         *
+         */
+        public void end_form()  { o("</form>"); }
 
-	public void hr()  { o("<hr />"); }
+        /**
+         *
+         */
+        public void hr()  { o("<hr />"); }
 
-	public void h1(String value)  { o("<h1>" + value + "</h1>"); }
+        /**
+         *
+         * @param value
+         */
+        public void h1(String value)  { o("<h1>" + value + "</h1>"); }
 
-	public void h2(String value)   { o("<h2>" + value + "</h2>"); }
+        /**
+         *
+         * @param value
+         */
+        public void h2(String value)   { o("<h2>" + value + "</h2>"); }
 	
-	public String link(String display, String target) { return("<a href=\"" + target + "\">" + display + "</a>"); }
+        /**
+         *
+         * @param display
+         * @param target
+         * @return
+         */
+        public String link(String display, String target) { return("<a href=\"" + target + "\">" + display + "</a>"); }
 
 }

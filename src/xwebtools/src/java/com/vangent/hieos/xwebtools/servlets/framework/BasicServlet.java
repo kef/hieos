@@ -20,13 +20,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class BasicServlet extends HttpServlet {
 
     PrintWriter _writer = null;
     HttpUtils _h = null;
+    /**
+     *
+     */
     public HttpServletResponse response;
+    /**
+     *
+     */
     public HttpServletRequest request;
 
+    /**
+     *
+     * @return
+     * @throws ServletException
+     */
     public HttpUtils h() throws ServletException {
         if (_h == null) {
             _h = new HttpUtils(get_writer());
@@ -34,6 +49,9 @@ public class BasicServlet extends HttpServlet {
         return _h;
     }
 
+    /**
+     *
+     */
     public void close() {
         if (_h != null) {
             _h.close();

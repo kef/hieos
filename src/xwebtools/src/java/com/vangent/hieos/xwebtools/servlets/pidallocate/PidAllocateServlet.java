@@ -24,10 +24,21 @@ import java.util.ArrayList;
 import javax.servlet.ServletException;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class PidAllocateServlet extends BasicServlet {
 
     private final static Logger logger = Logger.getLogger(PidAllocateServlet.class);
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     */
+    @Override
     public void doGet(
             javax.servlet.http.HttpServletRequest request,
             javax.servlet.http.HttpServletResponse response) throws ServletException {
@@ -97,6 +108,13 @@ public class PidAllocateServlet extends BasicServlet {
         close();
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     */
+    @Override
     public void doPost(
             javax.servlet.http.HttpServletRequest request,
             javax.servlet.http.HttpServletResponse response) throws ServletException {

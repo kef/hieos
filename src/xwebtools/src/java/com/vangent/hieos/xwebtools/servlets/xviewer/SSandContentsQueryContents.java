@@ -22,9 +22,23 @@ import java.util.ArrayList;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class SSandContentsQueryContents extends QueryContents {
 
-	public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
+    /**
+     *
+     * @param q_cntl
+     * @param index
+     * @param h
+     * @param xv
+     * @param cntl
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
+    public void displayStructure(QueryControl q_cntl, int index, HttpUtils h, XView xv, String cntl)
 	throws MetadataValidationException, MetadataException  {
 		System.out.println("SSandContents Query Contents");
 

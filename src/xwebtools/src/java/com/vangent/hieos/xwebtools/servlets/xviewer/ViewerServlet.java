@@ -14,11 +14,7 @@ package com.vangent.hieos.xwebtools.servlets.xviewer;
 
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xwebtools.servlets.framework.BasicServlet;
-import com.vangent.hieos.xutil.exception.MetadataException;
-import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -32,7 +28,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
@@ -40,6 +35,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author NIST (adapted)
+ */
 public class ViewerServlet extends BasicServlet implements OutputClass {
 
     boolean is_pid = false;
@@ -64,6 +63,9 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void init() {
         // This gets around a bug in Leopard (MacOS X 10.5) on Macs
@@ -232,6 +234,12 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
         session.setAttribute("query_control", qc);
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     */
     public void doPost(
             javax.servlet.http.HttpServletRequest request,
             javax.servlet.http.HttpServletResponse response) throws ServletException {
@@ -279,6 +287,7 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
         refresh();
     }
 
+    /*
     private Metadata parse_metadata(OMElement ele) {
         Metadata m = null;
         try {
@@ -294,7 +303,7 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
             message(error.getText());
         }
         return m;
-    }
+    }*/
 
     private void run_query(String query_type) throws ServletException {
         if (!query_type.equals("")) {
@@ -458,6 +467,12 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
         return part_a[part_a.length - 1];
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     */
     public void doGet(
             javax.servlet.http.HttpServletRequest request,
             javax.servlet.http.HttpServletResponse response) throws ServletException {
@@ -701,6 +716,10 @@ public class ViewerServlet extends BasicServlet implements OutputClass {
         }*/
     }
 
+    /**
+     *
+     * @param o
+     */
     public void o(Object o) {
         try {
             h().o(o);

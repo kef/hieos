@@ -25,7 +25,6 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xml.XmlFormatter;
 import com.vangent.hieos.xclient.xds.registry.Sq;
 
@@ -38,7 +37,11 @@ import java.util.Map;
 
 import org.apache.axiom.om.OMElement;
 
-public class QueryControl {
+/**
+ *
+ * @author NIST (adapted)
+ */
+public final class QueryControl {
 
     String endpoint;
     // uuid => <query_type, query_contents>
@@ -57,30 +60,52 @@ public class QueryControl {
     String home = "";
     boolean soap11 = false;
 
+    /**
+     *
+     * @param soap11
+     */
     public void setSoap11(boolean soap11) {
         this.soap11 = soap11;
     }
 
+    /**
+     *
+     * @param home
+     */
     public void setHome(String home) {
         this.home = home;
     }
 
+    /**
+     *
+     * @param newvalue
+     */
     public void leafClassQuery(boolean newvalue) {
         leafClassQuery = newvalue;
     }
 
+    /**
+     *
+     */
     public void crossGateway() {
         this.queryAction = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION;
         this.queryResultAction = SoapActionFactory.XCA_GATEWAY_CGQ_ACTION_RESPONSE;
         isXca = true;
     }
 
+    /**
+     *
+     */
     public QueryControl() {
         map = new HashMap<String, HashMap<String, QueryContents>>();
         metadata = new Metadata();
         query_contents = new ArrayList<QueryContents>();
     }
 
+    /**
+     *
+     * @param qc
+     */
     public QueryControl(QueryContents qc) {
         this.endpoint = null;
         map = null;
@@ -91,7 +116,7 @@ public class QueryControl {
 
     void log_exception(Exception e, QueryContents qc) {
         StackTraceElement[] st = e.getStackTrace();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (StackTraceElement ste : st) {
             buf.append(ste.toString());
             buf.append("\n");
@@ -99,6 +124,10 @@ public class QueryControl {
         qc.addFatalError(buf.toString());
     }
 
+    /**
+     *
+     * @param file_contents
+     */
     public QueryControl(String file_contents) {
         this.endpoint = null;
         this.map = null;
@@ -157,7 +186,7 @@ public class QueryControl {
                     if (result_1 == null) {
                         throw new Exception("Cannot find content of Result from step " + id);
                     }
-                    String result_status = result_1.getAttributeValue(MetadataSupport.status_qname);
+                    //String result_status = result_1.getAttributeValue(MetadataSupport.status_qname);
                     OMElement expected_status_ele = MetadataSupport.firstChildWithLocalName(ts, "ExpectedStatus");
                     String expected_status = "none";
                     if (expected_status_ele == null) {
@@ -211,6 +240,10 @@ public class QueryControl {
         }
     }
 
+    /**
+     *
+     * @param i
+     */
     public void deleteQueryContents(int i) {
         if (i < this.query_contents.size()) {
             this.query_contents.set(i, null);
@@ -228,10 +261,18 @@ public class QueryControl {
         return null;
     }
 
+    /**
+     *
+     * @param endpoint
+     */
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean hasEndpoint() {
         return endpoint != null;
     }
@@ -250,6 +291,12 @@ public class QueryControl {
         query_contents.add(contents);
     }
 
+    /**
+     *
+     * @param uuid
+     * @param query_type
+     * @return
+     */
     public QueryContents get_results_for_object(String uuid, String query_type) {
         HashMap<String, QueryContents> contents_map = map.get(uuid);
         if (contents_map == null) {
@@ -258,10 +305,19 @@ public class QueryControl {
         return contents_map.get(query_type);
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<QueryContents> getAllQueryContents() {
         return query_contents;
     }
 
+    /**
+     *
+     * @param i
+     * @return
+     */
     public QueryContents getQueryContents(int i) {
         if (i < 0 || i >= query_contents.size()) {
             return null;
@@ -269,6 +325,11 @@ public class QueryControl {
         return query_contents.get(i);
     }
 
+    /**
+     *
+     * @param contents
+     * @return
+     */
     public int getQueryContentsIndex(QueryContents contents) {
         for (int i = 0; i < query_contents.size(); i++) {
             if (query_contents.get(i) == contents) {
@@ -282,52 +343,70 @@ public class QueryControl {
         return endpoint.startsWith("https");
     }
 
+    /**
+     *
+     * @param pid
+     * @return
+     * @throws MetadataValidationException
+     */
     public QueryContents queryFindFol(String pid) throws MetadataValidationException {
-        FolQueryContents query_contents = new FolQueryContents();
-        query_contents.setQueryType("Find Fol for");
-        run_query(singleton(pid), new FindFolders(), query_contents, queryAction, queryResultAction, soap11);
+        FolQueryContents queryContents = new FolQueryContents();
+        queryContents.setQueryType("Find Fol for");
+        run_query(singleton(pid), new FindFolders(), queryContents, queryAction, queryResultAction, soap11);
 
 
-        Metadata m = query_contents.getMetadata();
+        Metadata m = queryContents.getMetadata();
         boolean object_refs = m.isObjectRefsOnly();
         if (object_refs) {
-            query_contents.init(this);
-            query_contents.type_ss();
-            query_contents.preload();
+            queryContents.init(this);
+            queryContents.type_ss();
+            queryContents.preload();
         }
 
-        return query_contents;
+        return queryContents;
     }
 
+    /**
+     *
+     * @param pid
+     * @return
+     * @throws MetadataValidationException
+     */
     public QueryContents queryFindSS(String pid) throws MetadataValidationException {
-        SSQueryContents query_contents = new SSQueryContents();
-        query_contents.setQueryType("Find SS for");
-        run_query(singleton(pid), new FindSubmissionSets(), query_contents, queryAction, queryResultAction, soap11);
-        Metadata m = query_contents.getMetadata();
+        SSQueryContents queryContents = new SSQueryContents();
+        queryContents.setQueryType("Find SS for");
+        run_query(singleton(pid), new FindSubmissionSets(), queryContents, queryAction, queryResultAction, soap11);
+        Metadata m = queryContents.getMetadata();
         boolean object_refs = m.isObjectRefsOnly();
         if (object_refs) {
-            query_contents.init(this);
-            query_contents.type_ss();
-            query_contents.preload();
+            queryContents.init(this);
+            queryContents.type_ss();
+            queryContents.preload();
         }
-        return query_contents;
+        return queryContents;
     }
 
+    /**
+     *
+     * @param pid
+     * @return
+     * @throws MetadataValidationException
+     */
     public QueryContents queryFindDoc(String pid) throws MetadataValidationException {
-        FindDocsQueryContents query_contents = new FindDocsQueryContents();
-        query_contents.setQueryType("Find Docs for");
+        FindDocsQueryContents queryContents = new FindDocsQueryContents();
+        queryContents.setQueryType("Find Docs for");
         if (leafClassQuery) {
-            run_query(singleton(pid), new FindDocuments(true), query_contents, queryAction, queryResultAction, soap11);
+            run_query(singleton(pid), new FindDocuments(true), queryContents, queryAction, queryResultAction, soap11);
         } else {
-            run_query(singleton(pid), new FindDocuments(false), query_contents, queryAction, queryResultAction, soap11);
+            run_query(singleton(pid), new FindDocuments(false), queryContents, queryAction, queryResultAction, soap11);
         }
 
-        Metadata m = query_contents.getMetadata();
+        Metadata m = queryContents.getMetadata();
         boolean object_refs = m.isObjectRefsOnly();
         if (object_refs) {
-            query_contents.init(this);
-            query_contents.type_doc();
-            query_contents.preload();
+            queryContents.init(this);
+            queryContents.type_doc();
+            queryContents.preload();
         }
 
         // remember returned homeCommunityId for later if it is present
@@ -340,56 +419,76 @@ public class QueryControl {
             }
         }
 
-        return query_contents;
+        return queryContents;
     }
 
     // id may be id or uid
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents queryGetDocuments(ArrayList<String> ids) {
-        QueryContents query_contents = new DocsQueryContents();
-        query_contents.setQueryType("Documents");
-        run_query(ids, new GetDocument(), query_contents, queryAction, queryResultAction, soap11);
+        QueryContents queryContents = new DocsQueryContents();
+        queryContents.setQueryType("Documents");
+        run_query(ids, new GetDocument(), queryContents, queryAction, queryResultAction, soap11);
 
-        return query_contents;
+        return queryContents;
 
     }
 
     // id may be id or uid
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents queryGetSSandContents(ArrayList<String> ids) {
-        QueryContents query_contents = new SSandContentsQueryContents();
-        query_contents.setQueryType("SSandContents");
-        run_query(ids, new GetSubmissionSetAndContents(), query_contents, queryAction, queryResultAction, soap11);
+        QueryContents queryContents = new SSandContentsQueryContents();
+        queryContents.setQueryType("SSandContents");
+        run_query(ids, new GetSubmissionSetAndContents(), queryContents, queryAction, queryResultAction, soap11);
 
-        return query_contents;
+        return queryContents;
     }
 
     // id may be id or uid
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents queryGetFolandContents(ArrayList<String> ids) {
-        QueryContents query_contents = new FolandContentsQueryContents();
-        query_contents.setQueryType("FolandContents");
-        run_query(ids, new GetFolderAndContents(), query_contents, queryAction, queryResultAction, soap11);
+        QueryContents queryContents = new FolandContentsQueryContents();
+        queryContents.setQueryType("FolandContents");
+        run_query(ids, new GetFolderAndContents(), queryContents, queryAction, queryResultAction, soap11);
 
-        return query_contents;
+        return queryContents;
     }
 
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents retrieve_b(ArrayList<String> ids) {
-        RetrieveBQueryContents query_contents = new RetrieveBQueryContents();
-        query_contents.setQueryType("Retrieve.b");
-        query_contents.secure(is_endpoint_secure());
-        query_contents.setInitialEvidence(ids);
-        query_contents.setEndpoint(this.endpoint);
+        RetrieveBQueryContents queryContents = new RetrieveBQueryContents();
+        queryContents.setQueryType("Retrieve.b");
+        queryContents.secure(is_endpoint_secure());
+        queryContents.setInitialEvidence(ids);
+        queryContents.setEndpoint(this.endpoint);
         RetrieveBEngine ret = new RetrieveBEngine();
         ret.setIsXca(isXca);
-        ret.retrieve(ids.get(0), query_contents, getMetadata(), repositories, home);
+        ret.retrieve(ids.get(0), queryContents, getMetadata(), repositories, home);
 
         try {
-            Metadata save = query_contents.getMetadata();
-            query_contents.setMetadata(null);
-            this.addQueryContents(query_contents);
-            query_contents.setMetadata(save);
+            Metadata save = queryContents.getMetadata();
+            queryContents.setMetadata(null);
+            this.addQueryContents(queryContents);
+            queryContents.setMetadata(save);
         } catch (Exception e) {
-            query_contents.addException(e);
+            queryContents.addException(e);
         }
-        return query_contents;
+        return queryContents;
     }
 
     private void run_query(ArrayList<String> ids, Sq query, QueryContents query_contents, String action, String returnAction, boolean soap11) {
@@ -422,34 +521,44 @@ public class QueryControl {
         query_contents.setReferenceId(uuid);
     }
 
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents queryGetSubmissionSets(ArrayList<String> ids) {
-        QueryContents query_contents = new SSQueryContents();
-        query_contents.setQueryType("Get SS of");
-        run_query(ids, new GetSubmissionSet(), query_contents, queryAction, queryResultAction, soap11);
+        QueryContents queryContents = new SSQueryContents();
+        queryContents.setQueryType("Get SS of");
+        run_query(ids, new GetSubmissionSet(), queryContents, queryAction, queryResultAction, soap11);
 
-        Metadata m = query_contents.getMetadata();
-        if (m.getSubmissionSets().size() == 0) {
-            query_contents.addError("No SubmissionSet returned");
+        Metadata m = queryContents.getMetadata();
+        if (m.getSubmissionSets().isEmpty()) {
+            queryContents.addError("No SubmissionSet returned");
         }
-        if (m.getAssociations().size() == 0) {
-            query_contents.addError("No Association returned");
+        if (m.getAssociations().isEmpty()) {
+            queryContents.addError("No Association returned");
         }
         if (m.getSubmissionSets().size() > 1) {
-            query_contents.addError("Multiple SubmissionSets returned");
+            queryContents.addError("Multiple SubmissionSets returned");
         }
         if (m.getAssociations().size() > 1) {
-            query_contents.addError("Multiple Associations returned");
+            queryContents.addError("Multiple Associations returned");
         }
 
-        return query_contents;
+        return queryContents;
     }
 
+    /**
+     *
+     * @param ids
+     * @return
+     */
     public QueryContents queryGetRelated(ArrayList<String> ids) {
-        QueryContents query_contents = new RelatedQueryContents();
-        query_contents.setQueryType("Get related to");
-        run_query(ids, new GetRelatedDocuments(), query_contents, queryAction, queryResultAction, soap11);
+        QueryContents queryContents = new RelatedQueryContents();
+        queryContents.setQueryType("Get related to");
+        run_query(ids, new GetRelatedDocuments(), queryContents, queryAction, queryResultAction, soap11);
 
-        return query_contents;
+        return queryContents;
     }
 
     void addQueryContents(QueryContents qc) throws MetadataValidationException, MetadataException {
@@ -461,23 +570,35 @@ public class QueryControl {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String structures() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
-        buf.append(metadata.structure() + "\n");
+        buf.append(metadata.structure()).append("\n");
 
         for (int i = 0; i < this.query_contents.size(); i++) {
             QueryContents qc = this.query_contents.get(i);
-            buf.append(i + " " + qc.getMetadata().structure() + "\n");
+            buf.append(i).append(" ").append(qc.getMetadata().structure()).append("\n");
         }
 
         return buf.toString();
     }
 
+    /**
+     *
+     * @return
+     */
     public String structure() {
         return metadata.structure();
     }
 
+    /**
+     *
+     * @return
+     */
     public Metadata getMetadata() {
         return metadata;
     }
@@ -513,7 +634,7 @@ public class QueryControl {
                 xv.end();
             } catch (Exception e) {
                 h.alert(e.getClass().getName() + ": " + e.getMessage());
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         } else if (verb.equals("errors") && cntl != null) {
             QueryContents qc = this.getQueryContents(Integer.parseInt(cntl));
