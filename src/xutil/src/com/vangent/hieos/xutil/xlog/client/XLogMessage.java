@@ -18,8 +18,9 @@
 package com.vangent.hieos.xutil.xlog.client;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.List;
 
 /**
  *
@@ -34,7 +35,7 @@ public class XLogMessage implements Serializable {
     private boolean secureConnection;   // True if secure transaction.
     private long timeStamp;     // Time when message was created (current time in milliseconds).
     private XLogger xlogger;    // Reference back to creator.
-    private HashMap<String, Vector<XLogMessageNameValue>> entries = new HashMap<String, Vector<XLogMessageNameValue>>();
+    private HashMap<String, List<XLogMessageNameValue>> entries = new HashMap<String, List<XLogMessageNameValue>>();
 
     /**
      *
@@ -213,7 +214,7 @@ public class XLogMessage implements Serializable {
      * 
      * @return
      */
-    public HashMap<String, Vector<XLogMessageNameValue>> getEntries() {
+    public HashMap<String, List<XLogMessageNameValue>> getEntries() {
         return this.entries;
     }
 
@@ -224,14 +225,14 @@ public class XLogMessage implements Serializable {
      * @param value
      */
     private void addParam(String messageType, String name, String value) {
-        Vector<XLogMessageNameValue> nameValues;
+        List<XLogMessageNameValue> nameValues;
         // Does the messageType (e.g. other, error, soap, http) exist?
         if (entries.containsKey(messageType)) {
             // Found the message type.
             nameValues = entries.get(messageType);
         } else {
             // Did not find the message type, create vector to hold name/value pairs.
-            nameValues = new Vector<XLogMessageNameValue>();
+            nameValues = new ArrayList<XLogMessageNameValue>();
             entries.put(messageType, nameValues);
         }
         // Now save the log entry.
