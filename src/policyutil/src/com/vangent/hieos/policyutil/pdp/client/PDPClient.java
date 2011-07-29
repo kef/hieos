@@ -76,9 +76,8 @@ public class PDPClient extends WebServiceClient {
                 String soapAction = config.getProperty("AuthorizeSOAPAction");
                 pdpResponse = this.send(pdpRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
             }
-            // FIXME: Change to debug
-            if (logger.isInfoEnabled()) {
-                logger.info("PDP CLIENT TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            if (logger.isDebugEnabled()) {
+                logger.debug("PDP CLIENT TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return pdpResponse;
         } catch (Exception ex) {

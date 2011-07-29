@@ -22,6 +22,7 @@ import com.vangent.hieos.policyutil.pip.model.PIPResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -29,6 +30,7 @@ import org.apache.axiom.om.OMElement;
  */
 public class PIPResourceContentFinder {
 
+    private final static Logger logger = Logger.getLogger(PIPResourceContentFinder.class);
     private XConfigActor pipConfig;
 
     /**
@@ -45,10 +47,11 @@ public class PIPResourceContentFinder {
      * @throws PolicyException
      */
     public void addResourceContentToRequest(PDPRequest pdpRequest) throws PolicyException {
-        if (pdpRequest.hasResourceContent())
-        {
+        if (pdpRequest.hasResourceContent()) {
             // Do nothing if resource content is already supplied.
-            System.out.println("Resource Content already supplied -- not going to PIP!");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Resource Content already supplied -- not going to PIP!");
+            }
             return;  // Early exit!
         }
         // FIXME: What if a resourceId is not supplied (NHIN??)

@@ -69,13 +69,13 @@ public class PEP {
 
         // Otherwise, go through the evaluation for the current SOAP action.
         String currentSOAPAction = PEP.getCurrentSOAPAction();
-        if (logger.isInfoEnabled()) {
-            logger.info("++ Evaluating policy for " + configActor.getName()
+        if (logger.isDebugEnabled()) {
+            logger.debug("++ Evaluating policy for " + configActor.getName()
                     + " actor (SOAP action: " + currentSOAPAction + ") ++");
         }
         PDPResponse response = this.evaluate(currentSOAPAction);
-        if (logger.isInfoEnabled()) {
-            logger.info("... DECISION: " + response.getDecision().toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("... DECISION: " + response.getDecision().toString());
         }
         return response;
     }
@@ -87,16 +87,16 @@ public class PEP {
     public boolean isPolicyEnabled() {
         // First, see if we should conduct policy evaluation for the request.
         if (!configActor.isPolicyEnabled()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("++ Not evaluating policy for " + configActor.getName() + " actor ++");
+            if (logger.isDebugEnabled()) {
+                logger.debug("++ Not evaluating policy for " + configActor.getName() + " actor ++");
             }
             return false;  // Not evaluating policy.
         } else {
             // See if the current SOAP action is enabled for Policy evaluation.
             String currentSOAPAction = PEP.getCurrentSOAPAction();
             if (!configActor.isSOAPActionPolicyEnabled(currentSOAPAction)) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("++ Not evaluating policy for " + configActor.getName()
+                if (logger.isDebugEnabled()) {
+                    logger.debug("++ Not evaluating policy for " + configActor.getName()
                             + " actor (SOAP action: " + currentSOAPAction + ") ++");
                 }
                 return false;  // Not evaluating policy.
