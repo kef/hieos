@@ -16,7 +16,6 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
 
 /**
@@ -25,8 +24,6 @@ import org.jaxen.JaxenException;
  * @author Bernie Thuman
  */
 public class XPathHelper {
-
-    private final static Logger logger = Logger.getLogger(XPathHelper.class);
 
     /**
      * Return a single OMElement given the XPATH expression.
@@ -61,21 +58,15 @@ public class XPathHelper {
         OMElement resultNode = null;
         try {
             AXIOMXPath xpath = new AXIOMXPath(xpathExpression);
-           for (int i = 0; i < namespacePrefixes.length; i++) {
+            for (int i = 0; i < namespacePrefixes.length; i++) {
                 xpath.addNamespace(namespacePrefixes[i], namespaceURIs[i]);
             }
             resultNode = (OMElement) xpath.selectSingleNode(rootNode);
-            if (resultNode != null) {
-                logger.debug("*** Found node for XPATH: " + xpathExpression);
-            } else {
-                logger.warn("*** Could not find node for XPATH: " + xpathExpression);
-            }
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
         }
         return resultNode;
     }
-
 
     /**
      * Return a List of OMElements given the XPATH expression.
@@ -113,11 +104,6 @@ public class XPathHelper {
                 xpath.addNamespace(namespacePrefixes[i], namespaceURIs[i]);
             }
             resultNodes = xpath.selectNodes(rootNode);
-            if (resultNodes != null) {
-                logger.debug("*** Found nodes for XPATH: " + xpathExpression);
-            } else {
-                logger.warn("*** Could not find nodes for XPATH: " + xpathExpression);
-            }
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
         }
@@ -133,12 +119,11 @@ public class XPathHelper {
      * @return String null if not found.
      */
     static public String stringValueOf(OMElement rootNode, String xpathExpression, String nameSpace) throws XPathHelperException {
-        
-        return stringValueOf(rootNode, xpathExpression, 
-                new String[]{"ns"}, 
+        return stringValueOf(rootNode, xpathExpression,
+                new String[]{"ns"},
                 new String[]{nameSpace});
     }
-    
+
     /**
      * Return a string result given the XPATH expression.
      *
@@ -150,34 +135,21 @@ public class XPathHelper {
      * @throws XPathHelperException
      */
     public static String stringValueOf(OMElement rootNode,
-                                       String xpathExpression,
-                                       String[] namespacePrefixes,
-                                       String[] namespaceURIs)
+            String xpathExpression,
+            String[] namespacePrefixes,
+            String[] namespaceURIs)
             throws XPathHelperException {
 
         String result = null;
-
         try {
-
             AXIOMXPath xpath = new AXIOMXPath(xpathExpression);
-
             for (int i = 0; i < namespacePrefixes.length; i++) {
                 xpath.addNamespace(namespacePrefixes[i], namespaceURIs[i]);
             }
-
             result = xpath.stringValueOf(rootNode);
-
-            if (result != null) {
-                logger.debug("*** Found nodes for XPATH: " + xpathExpression);
-            } else {
-                logger.warn("*** Could not find nodes for XPATH: " + xpathExpression);
-            }
-
         } catch (JaxenException e) {
             throw new XPathHelperException(e.getMessage());
         }
-
         return result;
     }
-    
 }
