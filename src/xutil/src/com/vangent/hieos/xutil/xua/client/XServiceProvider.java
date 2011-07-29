@@ -186,16 +186,15 @@ public class XServiceProvider {
      */
     /*
     private boolean IPAddressIsConstrained(MessageContext messageContext) throws AxisFault {
-        XUAConfig xuaConfig = XUAConfig.getInstance();
-        String sourceIPAddress = this.getSourceIPAddress(messageContext);
-        if (sourceIPAddress == null) {
-            // If for some reason, we can not get the source IP address - constrain anyway.
-            return true;
-        }
-        // Now see if we should constrain the IP address (based on the configuration).
-        return xuaConfig.IPAddressIsConstrained(sourceIPAddress);
+    XUAConfig xuaConfig = XUAConfig.getInstance();
+    String sourceIPAddress = this.getSourceIPAddress(messageContext);
+    if (sourceIPAddress == null) {
+    // If for some reason, we can not get the source IP address - constrain anyway.
+    return true;
+    }
+    // Now see if we should constrain the IP address (based on the configuration).
+    return xuaConfig.IPAddressIsConstrained(sourceIPAddress);
     }*/
-
     /**
      *
      * @param messageContext
@@ -246,8 +245,8 @@ public class XServiceProvider {
     public boolean validateToken(XConfigActor stsConfig, OMElement assertion) throws AxisFault {
         String assertionAsString = assertion.toString();
         String stsEndpointURL = stsConfig.getTransaction("ValidateToken").getEndpointURL();
-        if (logMessage.isLogEnabled()) {
-            logger.info("---- Validating the assertion againt STS (URL: " + stsEndpointURL + ") ----");
+        if (logger.isDebugEnabled()) {
+            logger.debug("---- Validating the assertion againt STS (URL: " + stsEndpointURL + ") ----");
         }
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         templateVariableValues.put("TOKEN", assertionAsString);
@@ -257,8 +256,8 @@ public class XServiceProvider {
 
         OMElement elementHeader = this.constructWsTrustRequestHeader();
         SOAPEnvelope response = this.send(stsEndpointURL, tokenValidateRequestBody, elementHeader, XUAConstants.SOAP_ACTION_VALIDATE_TOKEN);
-        if (logger.isInfoEnabled()) {
-            logger.info("---- Received validation status ---");
+        if (logger.isDebugEnabled()) {
+            logger.debug("---- Received validation status ---");
         }
         return this.getSAMLValidationStatus(response);
     }
@@ -298,7 +297,9 @@ public class XServiceProvider {
             OMElement codeEle = XPathHelper.selectSingleNode(responseBody, "./ns:RequestSecurityTokenResponseCollection/ns:RequestSecurityTokenResponse/ns:Status/ns:Code[1]", "http://docs.oasis-open.org/ws-sx/ws-trust/200512");
             if (codeEle != null) {
                 validateStr = codeEle.getText();
-                logger.debug("*** XUA: SAML Validation Response Found = validateStr" + validateStr);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("*** XUA: SAML Validation Response Found = validateStr" + validateStr);
+                }
             } else {
                 logger.error("*** XUA: SAML Validation Response = NULL");
             }

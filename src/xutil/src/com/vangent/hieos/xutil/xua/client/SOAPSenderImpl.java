@@ -88,7 +88,7 @@ public class SOAPSenderImpl {
                     logger.debug("SOAP Response: " + responseEnvelope.toString());
                 }
             } else {
-                logger.info("No SOAP Response!!!!!");
+                logger.error("No SOAP Response!!!!!");
             }
 
             return responseEnvelope;

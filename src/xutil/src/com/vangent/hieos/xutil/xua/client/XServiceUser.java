@@ -124,7 +124,9 @@ public class XServiceUser {
                     "XUA:Exception: You must specify a username, password, and service URI to use XUA.");
         }
         //logger.info("---Getting the response Token from the STS---");
-        logger.debug("---Getting the response Token from the STS---");
+        if (logger.isDebugEnabled()) {
+            logger.debug("---Getting the response Token from the STS---");
+        }
 
         SOAPEnvelope response = null;
         OMElement elementBody, elementHeader;
@@ -169,12 +171,14 @@ public class XServiceUser {
                 logger.error("XUA: SAML Assertion = NULL!!!!");
             }
         } else {
-            logger.debug("XUA: RequestedSecurityToken = NULL!!!!");
+            logger.error("XUA: RequestedSecurityToken = NULL!!!!");
         }
         if (assertionEle == null) {
             throw new AxisFault("XUA:Exception: Could not get assertion.");
         }
-        logger.info("Received SAML token from STS");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received SAML token from STS");
+        }
         return assertionEle;
     }
 
