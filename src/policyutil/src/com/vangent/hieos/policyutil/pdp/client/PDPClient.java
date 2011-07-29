@@ -26,6 +26,7 @@ import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import java.io.ByteArrayOutputStream;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
 
@@ -101,9 +102,11 @@ public class PDPClient extends WebServiceClient {
 
         // Conduct policy evaluation.
         ResponseCtx responseCtx = pdpImpl.evaluate(requestType);
-
-        // FIXME: DEBUG (remove)
-        responseCtx.encode(System.out);
+        if (logger.isDebugEnabled()) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            responseCtx.encode(baos);
+            logger.debug("XACML Engine Response: " + baos.toString());
+        }
 
         // Build PDPResponse.
         XACMLResponseBuilder builder = new XACMLResponseBuilder();
