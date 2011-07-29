@@ -42,15 +42,6 @@
                 </Apply>
             </Condition>
         </Rule>
-
-         <!-- A final, "fall-through" Rule that always Denies -->
-        <!--<Rule RuleId="FinalRule" Effect="Deny"/>-->
-
-        <!--<Obligations>
-            <Obligation
-	        ObligationId="granted-emergency-access"
-	        FulfillOn="Permit"/>
-        </Obligations>-->
     </Policy>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
@@ -119,13 +110,14 @@
 
         <!-- Default Permit rule (if no Deny rules fired above) -->
         <Rule RuleId="FinalRule" Effect="Permit"/>
-
-        <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
-        <Obligations>
-            <Obligation
-	        ObligationId="evaluate-documents"
-	        FulfillOn="Permit"/>
-        </Obligations>
+       
     </Policy>
+
+     <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
+    <Obligations>
+        <Obligation
+	        ObligationId="evaluate-document-policy"
+	        FulfillOn="Permit"/>
+    </Obligations>
        
 </PolicySet>
