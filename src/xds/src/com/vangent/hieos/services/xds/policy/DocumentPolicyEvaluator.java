@@ -46,21 +46,22 @@ public class DocumentPolicyEvaluator {
     }
 
     /**
-     *
+     * 
+     * @param action
      * @param requestType
-     * @param registryObjectElementList
+     * @param documentMetadataList
      * @return
      * @throws PolicyException
      */
-    public RegistryObjectElementList evaluate(RequestType requestType, RegistryObjectElementList registryObjectElementList) throws PolicyException {
-        StringBuilder logsb = new StringBuilder();
+    public RegistryObjectElementList evaluate(
+            String action, RequestType requestType, List<DocumentMetadata> documentMetadataList) throws PolicyException {
+
+        StringBuilder logsb = new StringBuilder();  // For debug logging.
+        
         List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
-
-        // First convert registryObjects into DocumentMetadata instances.
         DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
-        List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(registryObjectElementList);
 
-        // Now, filter results based upon policy evaluation.
+        // Now, filter results based upon "document-level" policy evaluation.
         for (DocumentMetadata documentMetadata : documentMetadataList) {
             if (!documentMetadata.isExtrinsicObject()) {
                 // We do not evaluate policy for anything other than ExtrinsicObjects
@@ -72,11 +73,10 @@ public class DocumentPolicyEvaluator {
                 // Pass in document meta-data as resource content.
                 DocumentMetadataElement documentMetadataElement = documentMetadataBuilder.buildDocumentMetadataElement(documentMetadata);
                 pdpRequest.addResourceContent(documentMetadataElement.getElement(), true);
-                pdpRequest.setAction("evaluate-document");
-                //System.out.println("Document " + documentMetadata.getDocumentId());
+                pdpRequest.setAction(action);
 
                 // Run the policy evaluation.
-                PEP pep = new PEP(null);
+                PEP pep = new PEP(null);  // Note: we don't need the configuration for the current actor.
                 PDPResponse pdpResponse = pep.evaluate(pdpRequest);
 
                 // Evaluate results (Obligations are not used here).

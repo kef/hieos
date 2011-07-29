@@ -129,15 +129,13 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                     }
                     // No obligations.
                     ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
-                    // FIXME: Should we check to see if the PID (for each doc) is = resource-id?
-                    // FIXME: We would need to hook into the registry in this case?
                     OMElement repoResponse = response.getResponse();
                     for (OMElement documentResponseNode : documentResponseNodes) {
                         repoResponse.addChild(documentResponseNode);
                     }
                 } else {
                     // Has obligations.
-                    this.handleObligations(rds);
+                    this.handleObligations(pdpResponse, rds);
                 }
             }
 
@@ -173,12 +171,13 @@ public class RetrieveDocumentSet extends XBaseTransaction {
 
     /**
      * 
+     * @param pdpResponse
      * @param rds
      * @throws MetadataException
      * @throws XdsException
      * @throws AxisFault
      */
-    private void handleObligations(OMElement rds) throws MetadataException, XdsException, AxisFault {
+    private void handleObligations(PDPResponse pdpResponse, OMElement rds) throws MetadataException, XdsException, AxisFault {
 
         // Retrieve the documents from the data store.
         ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);

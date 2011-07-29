@@ -16,6 +16,8 @@ import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
+import com.vangent.hieos.services.xds.policy.DocumentMetadata;
+import com.vangent.hieos.services.xds.policy.DocumentMetadataBuilder;
 import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import java.util.List;
+import oasis.names.tc.xacml._2_0.policy.schema.os.ObligationType;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.AxisFault;
@@ -209,16 +212,13 @@ public class AdhocQueryRequest extends XBaseTransaction {
                             }
                             // Run the Stored Query.
                             List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
-                            // FIXME: Should at least make sure that if this is a LeafClass request
-                            // that the PIDs returned are the same as what was evaluated as part
-                            // of policy evaluation.
                             if (registryObjects != null) {
                                 // Place results in the response.
                                 ((AdhocQueryResponse) response).addQueryResults((ArrayList) registryObjects);
                             }
                         } else {
                             // Has obligations.
-                            this.handleObligations(ahqr, pdpResponse, isLeafClassRequest);
+                            this.handleObligations(pdpResponse, ahqr, isLeafClassRequest);
                         }
                     }
                 } catch (PolicyException ex) {
@@ -234,9 +234,9 @@ public class AdhocQueryRequest extends XBaseTransaction {
     }
 
     /**
-     *
-     * @param ahqr
+     * 
      * @param pdpResponse
+     * @param ahqr
      * @param isLeafClassRequest
      * @throws XdsResultNotSinglePatientException
      * @throws XdsException
@@ -244,22 +244,36 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws XdsValidationException
      * @throws PolicyException
      */
-    private void handleObligations(OMElement ahqr, PDPResponse pdpResponse, boolean isLeafClassRequest) throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException, PolicyException {
+    private void handleObligations(PDPResponse pdpResponse, OMElement ahqr, boolean isLeafClassRequest) throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException, PolicyException {
         // Run the Stored Query:
         List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
         if (isLeafClassRequest) {
             // Only evaluate policy at document-level if a LeafClass request.
+
+            // First convert registryObjects into DocumentMetadata instances.
+            DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
+            List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(new RegistryObjectElementList(registryObjects));
+
+            // Get list of obligation ids to satisfy ... these will be used as the "action-id"
+            // when evaluating policy at the document-level
+            List<String> obligationIds = pdpResponse.getObligationIds();
+            // FIXME(?): Only satisfy the first obligation in the list!
+
+            // Run policy evaluation to get permitted objects list (using obligation id as "action-id".
             DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
             RegistryObjectElementList permittedRegistryObjectElementList = policyEvaluator.evaluate(
+                    obligationIds.get(0),
                     pdpResponse.getRequestType(),
-                    new RegistryObjectElementList(registryObjects));
+                    documentMetadataList);
+            
+            // Place permitted registry objects into the response.
             List<OMElement> permittedRegistryObjects = permittedRegistryObjectElementList.getElementList();
             if (!permittedRegistryObjects.isEmpty()) {
-                // Place permitted documents in the response.
                 AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
                 ahqResponse.addQueryResults((ArrayList) permittedRegistryObjects);
             }
         } else {
+            // We do not interrogate ObjectRef requests.
             // Place results in the response.
             AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
             ahqResponse.addQueryResults((ArrayList) registryObjects);
