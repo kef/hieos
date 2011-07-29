@@ -16,12 +16,10 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.services.xds.policy.DocumentMetadata;
-import com.vangent.hieos.services.xds.policy.DocumentMetadataBuilder;
 import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.services.xds.policy.DocumentResponse;
 import com.vangent.hieos.services.xds.policy.DocumentResponseBuilder;
 import com.vangent.hieos.services.xds.policy.DocumentResponseElementList;
-import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.policy.XDSRegistryClient;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -212,7 +210,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                 // FIXME(?): Only satisfy the first obligation in the list!
 
                 // Run policy evaluation to get permitted objects list (using obligation id as "action-id").
-                DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
+                DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(null); // Logged later.
                 permittedDocumentList = policyEvaluator.evaluate(
                         obligationIds.get(0),
                         pdpResponse.getRequestType(),

@@ -16,8 +16,6 @@ import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
-import com.vangent.hieos.services.xds.policy.DocumentMetadata;
-import com.vangent.hieos.services.xds.policy.DocumentMetadataBuilder;
 import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;

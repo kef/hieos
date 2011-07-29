@@ -111,7 +111,7 @@ public class DocumentPolicyEvaluator {
                 if (permittedAccessToDocument) {
                     permittedDocumentMetadataList.add(documentMetadata);
                 }
-                if (logMessage.isLogEnabled()) {
+                if (logMessage != null && logMessage.isLogEnabled()) {
                     if (permittedAccessToDocument) {
                         logsb.append("...PERMIT" + "[doc_id=").append(documentMetadata.getDocumentId()).append(", repo_id=").append(documentMetadata.getRepositoryId()).append("]");
                     } else {
@@ -120,7 +120,7 @@ public class DocumentPolicyEvaluator {
                 }
             }
         }
-        if (logMessage.isLogEnabled()) {
+        if (logMessage != null && logMessage.isLogEnabled()) {
             logMessage.addOtherParam("Policy:Note", logsb.toString());
         }
         return permittedDocumentMetadataList;

@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.serviceimpl;
 
-import com.vangent.hieos.xutil.exception.XdsWSException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
