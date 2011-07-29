@@ -131,7 +131,6 @@ public class XATNALogger {
      */
     public void performAudit(OMElement rootNode, String targetEndpoint, OutcomeIndicator outcome) throws Exception {
         if (!this.performAudit) {
-            this.logWarning();
             return;  // Early exit.
         }
         // Prep for audit.
@@ -171,7 +170,7 @@ public class XATNALogger {
      * @return
      */
     private String getAuditSourceId() {
-        return this.hostAddress + "@" + this.actorType + "_" + this.AUDIT_SRC_SUFFIX;
+        return this.hostAddress + "@" + this.actorType + "_" + AUDIT_SRC_SUFFIX;
     }
 
     /**
@@ -225,7 +224,6 @@ public class XATNALogger {
             String queryId, String queryByParameter,
             String targetEndpoint, OutcomeIndicator outcome) throws Exception {
         if (!this.performAudit) {
-            this.logWarning();
             return;  // Early exit.
         }
 
@@ -913,7 +911,6 @@ public class XATNALogger {
             String messageId, boolean updateMode, OutcomeIndicator outcome,
             String sourceIdentity, String sourceIP) {
         if (!this.performAudit) {
-            this.logWarning();
             return;  // Early exit.
         }
         // Prep for audit:
@@ -1136,12 +1133,5 @@ public class XATNALogger {
     private String getUserNameFromRequest() {
         XServiceProvider xServiceProvider = new XServiceProvider(null);
         return xServiceProvider.getUserNameFromRequest(this.getCurrentMessageContext());
-    }
-
-    /**
-     *
-     */
-    private void logWarning() {
-        logger.warn("WARNING: ATNA AUDIT LOGGING TURNED OFF. CHECK xconfig.xml settings.");
     }
 }
