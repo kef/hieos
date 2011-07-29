@@ -4,6 +4,7 @@
         <!-- Note: must be relative to location of this file -->
         <PolicyFile name="policies/hie-policy.xml" />
         <PolicyFile name="policies/hie-document-policy.xml"/>
+        <!--<PolicyFile name="policies/hie-same-pid-policy.xml"/>-->
         <!--<PolicyFile name="policies/hie-policy-2.xml" />-->
         <!-- other policy files would go here ... -->
         -->
