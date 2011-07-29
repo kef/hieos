@@ -21,7 +21,6 @@ import com.vangent.hieos.policyutil.pdp.impl.PDPImpl;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
-import org.apache.log4j.Logger;
 
 import com.sun.xacml.ctx.ResponseCtx;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
@@ -32,9 +31,11 @@ import com.vangent.hieos.policyutil.pdp.model.XACMLResponseBuilder;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.policyutil.pdp.resource.PIPResourceContentFinder;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import java.io.ByteArrayOutputStream;
 
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -123,8 +124,11 @@ public class PDPRequestHandler extends XBaseTransaction {
         try {
             PDPImpl pdp = this.getPDP();
             ResponseCtx responseCtx = pdp.evaluate(requestType);
-            // FIXME: DEBUG (remove)
-            responseCtx.encode(System.out);
+            if (logger.isDebugEnabled()) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                responseCtx.encode(baos);
+                logger.debug("XACML Engine Response: " + baos.toString());
+            }
             return this.createSAML2Response(requestType, responseCtx);
         } catch (Exception ex) {
             ex.printStackTrace(System.out);
