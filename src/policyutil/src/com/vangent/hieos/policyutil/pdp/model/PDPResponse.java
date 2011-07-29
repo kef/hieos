@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.policyutil.pdp.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import oasis.names.tc.xacml._2_0.context.schema.os.DecisionType;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
@@ -97,21 +98,43 @@ public class PDPResponse {
         return this.getDecision() == DecisionType.PERMIT;
     }
 
+    /**
+     *
+     * @return
+     */
+    public List<String> getObligationIds() {
+        List<String> obligationIds = new ArrayList<String>();
+        List<ObligationType> obligations = this.getObligations();
+        for (ObligationType obligation : obligations) {
+            obligationIds.add(obligation.getObligationId());
+        }
+        return obligationIds;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<ObligationType> getObligations() {
+        List<ObligationType> obligations = new ArrayList<ObligationType>();
+        ResultType resultType = this.getResult();
+        ObligationsType obligationsType = resultType.getObligations();
+        if (obligationsType != null) {
+            List<ObligationType> obligationTypes = obligationsType.getObligation();
+            boolean hasObligations = obligationTypes != null && !obligationTypes.isEmpty();
+            if (hasObligations) {
+                obligations.addAll(obligationTypes);
+            }
+        }
+        return obligations;
+    }
 
     /**
      *
      * @return
      */
     public boolean hasObligations() {
-        ResultType resultType = this.getResult();
-        ObligationsType obligationsType = resultType.getObligations();
-        if (obligationsType != null) {
-            List<ObligationType> obligationTypes = obligationsType.getObligation();
-            boolean hasObligations = obligationTypes != null && !obligationTypes.isEmpty();
-            if (hasObligations == true) {
-                return true;  // Get out.
-            }
-        }
-        return false;
+        List<ObligationType> obligations = this.getObligations();
+        return !obligations.isEmpty();
     }
 }

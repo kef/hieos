@@ -42,4 +42,8 @@ public class PolicyConstants {
     public final static String SAML2_PROTOCOL_NS_PREFIX = "samlp";
 
     public final static String PIP_GET_CONSENT_DIRECTIVES_SOAP_ACTION = "urn:hieos:policy:pip:GetConsentDirectivesRequest";
+
+    // Obligation names (same as policy set actions).
+    public final static String PEP_OBLIGATION_EVALUATE_SAME_PID_POLICY = "evaluate-same-pid-policy";
+    public final static String PEP_OBLIGATION_EVALUATE_DOCUMENT_POLICY = "evaluate-document-policy";
 }
