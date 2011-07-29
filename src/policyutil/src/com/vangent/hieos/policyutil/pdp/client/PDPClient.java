@@ -12,17 +12,22 @@
  */
 package com.vangent.hieos.policyutil.pdp.client;
 
+import com.sun.xacml.ctx.ResponseCtx;
 import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.pdp.impl.PDPImpl;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pdp.model.SAMLResponseElement;
 import com.vangent.hieos.policyutil.pdp.model.XACMLAuthzDecisionQueryElement;
 import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.pdp.model.XACMLResponseBuilder;
+import com.vangent.hieos.policyutil.pdp.resource.PIPResourceContentFinder;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
+import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -57,11 +62,19 @@ public class PDPClient extends WebServiceClient {
             long start = System.currentTimeMillis();
             // Get configuration.
             XConfigActor config = this.getConfig();
-            XConfigTransaction txn = config.getTransaction("Authorize");
-            String soapAction = config.getProperty("AuthorizeSOAPAction");
 
-            // Perform SOAP call to PDP.
-            PDPResponse pdpResponse = this.send(pdpRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            // See if we should use the embedded PDP.
+            boolean embeddedMode = config.getPropertyAsBoolean("EmbeddedMode", true);
+            PDPResponse pdpResponse;
+            if (embeddedMode) {
+                // Use embedded PDP (no SOAP call).
+                pdpResponse = this.evaluate(pdpRequest);
+            } else {
+                // Perform SOAP call to PDP.
+                XConfigTransaction txn = config.getTransaction("Authorize");
+                String soapAction = config.getProperty("AuthorizeSOAPAction");
+                pdpResponse = this.send(pdpRequest, soapAction, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            }
             // FIXME: Change to debug
             if (logger.isInfoEnabled()) {
                 logger.info("PDP CLIENT TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
@@ -70,6 +83,56 @@ public class PDPClient extends WebServiceClient {
         } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Decision Point: " + ex.getMessage());
         }
+    }
+
+    /**
+     * 
+     * @param pdpRequest
+     * @return
+     * @throws PolicyException
+     */
+    private PDPResponse evaluate(PDPRequest pdpRequest) throws PolicyException {
+        // Get PDPImpl singleton.
+        PDPImpl pdpImpl = PDPImpl.getPDPImplInstance();
+
+        // Add resource content (from PIP); if resource content does not exist.
+        this.addResourceContent(pdpRequest);
+        RequestType requestType = pdpRequest.getRequestType();
+
+        // Conduct policy evaluation.
+        ResponseCtx responseCtx = pdpImpl.evaluate(requestType);
+
+        // FIXME: DEBUG (remove)
+        responseCtx.encode(System.out);
+
+        // Build PDPResponse.
+        XACMLResponseBuilder builder = new XACMLResponseBuilder();
+        ResponseType responseType = builder.buildResponseType(responseCtx);
+        PDPResponse pdpResponse = new PDPResponse();
+        pdpResponse.setRequestType(requestType);
+        pdpResponse.setResponseType(responseType);
+
+        return pdpResponse;
+    }
+
+    /**
+     * 
+     * @param requestType
+     * @throws PolicyException
+     */
+    private void addResourceContent(PDPRequest pdpRequest) throws PolicyException {
+        PIPResourceContentFinder resourceContentFinder = new PIPResourceContentFinder(this.getPIPConfig());
+        // Get ResourceContent from the PIP.
+        resourceContentFinder.addResourceContentToRequest(pdpRequest);
+    }
+
+    /**
+     *
+     * @return
+     */
+    private XConfigActor getPIPConfig() {
+        XConfigActor pdpConfig = this.getConfig();
+        return (XConfigActor) pdpConfig.getXConfigObjectWithName("pip", "PolicyInformationPointType");
     }
 
     /**

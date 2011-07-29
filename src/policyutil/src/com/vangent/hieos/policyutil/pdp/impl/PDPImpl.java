@@ -72,6 +72,8 @@ import com.sun.xacml.finder.PolicyFinder;
 import com.sun.xacml.finder.impl.CurrentEnvModule;
 import com.sun.xacml.finder.impl.SelectorModule;
 import com.sun.xacml.support.finder.FilePolicyModule;
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.util.PolicyConfig;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -97,6 +99,7 @@ public class PDPImpl
 
     // this is the actual PDP object we'll use for evaluation
     private PDP pdp = null;
+    private static PDPImpl _pdpSingleton;
 
     /**
      * Default constructor. This creates a <code>SimplePDP</code> with a
@@ -112,6 +115,29 @@ public class PDPImpl
 
         // get the PDP configuration's and setup the PDP
         pdp = new PDP(store.getDefaultPDPConfig());
+    }
+
+    // HIEOS (ADDED)
+    /**
+     * Return a singleton instance of the PDPImpl.  This can be used optionally to "cache"
+     * a local PDPImpl.
+     *
+     * @return PDPImpl
+     * @throws PolicyException
+     */
+   static public synchronized PDPImpl getPDPImplInstance() throws PolicyException {
+        if (_pdpSingleton == null) {
+            try {
+                PolicyConfig pConfig = PolicyConfig.getInstance();
+                List<String> policyFiles = pConfig.getPolicyFiles();
+                // FIXME: Cache the PDP ... is this safe?
+                // Invoke the PDP.
+                _pdpSingleton = new PDPImpl(policyFiles);
+            } catch (Exception ex) {
+                throw new PolicyException("Unable to create PDPImpl: " + ex.getMessage());
+            }
+        }
+        return _pdpSingleton;
     }
 
     /**
