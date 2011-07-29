@@ -50,7 +50,6 @@ public class DocumentMetadataBuilder {
      */
     public List<DocumentMetadata> buildDocumentMetadataList(RegistryObjectElementList registryObjectElementList) {
         List<DocumentMetadata> documentMetadataList = new ArrayList<DocumentMetadata>();
-        //System.out.println("QueryResult = " + queryResult.toString());
         // Go through each ExtrinsicObject (document).
         List<OMElement> registryObjects = registryObjectElementList.getElementList();
         for (OMElement registryObject : registryObjects) {
