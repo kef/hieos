@@ -24,7 +24,7 @@ import org.apache.axiom.om.OMElement;
 public class DocumentMetadata {
 
     private OMElement registryObject;
-    private boolean isObjectRef;
+    private boolean isExtrinsicObject;
     private CodedValue typeCode;
     private CodedValue classCode;
     private CodedValue formatCode;
@@ -58,16 +58,16 @@ public class DocumentMetadata {
      *
      * @return
      */
-    public boolean isObjectRef() {
-        return isObjectRef;
+    public boolean isExtrinsicObject() {
+        return isExtrinsicObject;
     }
 
     /**
      *
-     * @param isObjectRef
+     * @param isExtrinsicObject
      */
-    public void setIsObjectRef(boolean isObjectRef) {
-        this.isObjectRef = isObjectRef;
+    public void setIsExtrinsicObject(boolean isObjectRef) {
+        this.isExtrinsicObject = isObjectRef;
     }
 
     /**

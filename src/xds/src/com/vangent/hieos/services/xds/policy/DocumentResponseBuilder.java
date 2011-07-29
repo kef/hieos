@@ -23,6 +23,8 @@ import org.apache.axiom.om.OMElement;
  */
 public class DocumentResponseBuilder {
 
+    private final static String XDSB_NS = "urn:ihe:iti:xds-b:2007";
+
     /**
      * 
      * @param documentResponseElementList
@@ -35,14 +37,13 @@ public class DocumentResponseBuilder {
             DocumentResponse documentResponse = new DocumentResponse();
             documentResponse.setDocumentResponseObject(documentResponseNode);
 
-            // FIXME: Do not hard-wire URIs.
             // Document id.
-            OMElement documentUniqueIdNode = documentResponseNode.getFirstChildWithName(new QName("urn:ihe:iti:xds-b:2007", "DocumentUniqueId"));
+            OMElement documentUniqueIdNode = documentResponseNode.getFirstChildWithName(new QName(XDSB_NS, "DocumentUniqueId"));
             String documentId = documentUniqueIdNode.getText();
             documentResponse.setDocumentId(documentId);
 
             // Repository id.
-            OMElement repositoryIdNode = documentResponseNode.getFirstChildWithName(new QName("urn:ihe:iti:xds-b:2007", "RepositoryUniqueId"));
+            OMElement repositoryIdNode = documentResponseNode.getFirstChildWithName(new QName(XDSB_NS, "RepositoryUniqueId"));
             String repositoryId = repositoryIdNode.getText();
             documentResponse.setRepositoryId(repositoryId);
 

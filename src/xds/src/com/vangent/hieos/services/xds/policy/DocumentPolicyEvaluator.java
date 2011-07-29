@@ -45,9 +45,8 @@ public class DocumentPolicyEvaluator {
 
         // Now, filter results based upon policy evaluation.
         for (DocumentMetadata documentMetadata : documentMetadataList) {
-            if (documentMetadata.isObjectRef()) {
-                // NOTE: THIS SHOULD NEVER BE THE CASE.
-                // We do not evaluate policy for object references.
+            if (!documentMetadata.isExtrinsicObject()) {
+                // We do not evaluate policy for anything other than ExtrinsicObjects
                 permittedRegistryObjects.add(documentMetadata.getRegistryObject());
             } else {
                 // Create PDP request.

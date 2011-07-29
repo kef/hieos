@@ -200,7 +200,7 @@ public class DocumentMetadataBuilder {
         // Create the DocumentMetadata instance.
         DocumentMetadata documentMetadata = new DocumentMetadata();
         documentMetadata.setRegistryObject(extrinsicObject);
-        documentMetadata.setIsObjectRef(false);
+        documentMetadata.setIsExtrinsicObject(true);
 
         // Build identifiers.
         this.buildIdentifiers(documentMetadata, extrinsicObject);
@@ -219,12 +219,12 @@ public class DocumentMetadataBuilder {
         DocumentMetadata documentMetadata = new DocumentMetadata();
         documentMetadata.setRegistryObject(registryObject);
 
-        // If this is an ObjectRef ... get out immediately
-        if (registryObject.getLocalName().equalsIgnoreCase("ObjectRef")) {
-            documentMetadata.setIsObjectRef(true);
+        // If this is not an ExtrinsicObject ... get out immediately
+        if (!registryObject.getLocalName().equalsIgnoreCase("ExtrinsicObject")) {
+            documentMetadata.setIsExtrinsicObject(false);
             return documentMetadata;  // Now, get out.
         }
-        documentMetadata.setIsObjectRef(false);
+        documentMetadata.setIsExtrinsicObject(true);
 
         // Build identifiers.
         this.buildIdentifiers(documentMetadata, registryObject);

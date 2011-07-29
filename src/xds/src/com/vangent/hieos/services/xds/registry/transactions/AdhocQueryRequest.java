@@ -206,8 +206,6 @@ public class AdhocQueryRequest extends XBaseTransaction {
                             // FIXME: Should at least make sure that if this is a LeafClass request
                             // that the PIDs returned are the same as what was evaluated as part
                             // of policy evaluation.
-                            // This may not work if policy evaluation is truely turned off (since we stub
-                            // the PDPResponse with a success)!
                             if (registryObjects != null) {
                                 // Place results in the response.
                                 ((AdhocQueryResponse) response).addQueryResults((ArrayList) registryObjects);

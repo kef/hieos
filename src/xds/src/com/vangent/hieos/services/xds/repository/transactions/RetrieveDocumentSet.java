@@ -111,11 +111,10 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             if (!policyEnabled) {
                 // Policy is not enabled .. so retrieve the documents.
                 ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
+                // Add documents to the response.
                 OMElement repoResponse = response.getResponse();
-                if (documentResponseNodes != null) {
-                    for (OMElement documentResponseNode : documentResponseNodes) {
-                        repoResponse.addChild(documentResponseNode);
-                    }
+                for (OMElement documentResponseNode : documentResponseNodes) {
+                    repoResponse.addChild(documentResponseNode);
                 }
             } else {
                 PDPResponse pdpResponse = pep.evaluate();
@@ -125,12 +124,10 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                     // No obligations.
                     ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
                     // FIXME: Should we check to see if the PID (for each doc) is = resource-id?
-                    // FIXME: We will need to hook into the registry in this case?
+                    // FIXME: We would need to hook into the registry in this case?
                     OMElement repoResponse = response.getResponse();
-                    if (documentResponseNodes != null) {
-                        for (OMElement documentResponseNode : documentResponseNodes) {
-                            repoResponse.addChild(documentResponseNode);
-                        }
+                    for (OMElement documentResponseNode : documentResponseNodes) {
+                        repoResponse.addChild(documentResponseNode);
                     }
                 } else {
                     // Has obligations.
@@ -176,44 +173,80 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @throws AxisFault
      */
     private void handleObligations(OMElement rds) throws MetadataException, XdsException, AxisFault {
-        
+
         // Retrieve the documents from the data store.
         ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
 
         // See if we have any documents.
         if (documentResponseNodes != null && !documentResponseNodes.isEmpty()) {
+
+            // Build List<DocumentResponse> from list of DocumentResponse OMElements.
             DocumentResponseBuilder documentResponseBuilder = new DocumentResponseBuilder();
             List<DocumentResponse> documentResponseList = documentResponseBuilder.buildDocumentResponseList(
                     new DocumentResponseElementList(documentResponseNodes));
+
+            // Go to the registry to get meta-data for the documents.
             XDSRegistryClient registryClient = new XDSRegistryClient(repoConfig.getRegistryConfig());
-            List<DocumentMetadata> documentMetadataList =
-                    registryClient.getRegistryObjects(documentResponseList);
-            // FIXME: The registry could be checking policy, so we should not check twice!!!
+            List<DocumentMetadata> documentMetadataList = registryClient.getRegistryObjects(documentResponseList);
+
+            // FIXME: The registry may not be checking policy!!
             // FIXME: How do we deal with this case?
+
             //DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator();
             //List<OMElement> permittedExtrinsicObjects = policyEvaluator.evaluate(this.getPDPResponse().getRequestType(), extrinsicObjects);
-            List<DocumentMetadata> permittedObjectList = documentMetadataList;
+
             // Above line implies that registry policy checking already happened.
-            OMElement repoResponse = response.getResponse();
-            // Need to do filter ... may not be in identical order as registry response ...
-            for (DocumentResponse documentResponse : documentResponseList) {
-                String docResponseDocId = documentResponse.getDocumentId();
-                String docResponseRepoId = documentResponse.getRepositoryId();
-                // Brute force now (sequential search) ok for small lists ...
-                for (DocumentMetadata permittedObject : permittedObjectList) {
-                    String permittedObjectDocId = permittedObject.getDocumentId();
-                    String permittedObjectRepoId = permittedObject.getRepositoryId();
-                    // Compare against repoid/docid.
-                    if (docResponseDocId.equalsIgnoreCase(permittedObjectDocId)
-                            && docResponseRepoId.equalsIgnoreCase(permittedObjectRepoId)) {
-                        // Found match!
-                        OMElement documentResponseNode = documentResponse.getDocumentResponseObject();
-                        repoResponse.addChild(documentResponseNode);
-                        break;
-                    }
-                }
+            List<DocumentMetadata> permittedDocumentList = documentMetadataList;
+
+            // Add permitted documents to the response.
+            this.addPermittedDocumentsToResponse(documentResponseList, permittedDocumentList);
+        }
+    }
+
+    /**
+     *
+     * @param documentResponseList
+     * @param permittedDocumentList
+     * @throws XdsInternalException
+     */
+    private void addPermittedDocumentsToResponse(List<DocumentResponse> documentResponseList, List<DocumentMetadata> permittedDocumentList) throws XdsInternalException {
+        OMElement repoResponse = response.getResponse();
+        // Go through each DocumentResponse.
+        for (DocumentResponse documentResponse : documentResponseList) {
+            // If permitted.
+            if (this.isPermittedAccessToDocument(documentResponse, permittedDocumentList)) {
+                // Add to the response.
+                OMElement documentResponseNode = documentResponse.getDocumentResponseObject();
+                repoResponse.addChild(documentResponseNode);
             }
         }
+    }
+
+    /**
+     *
+     * @param documentResponse
+     * @param permittedDocumentList
+     * @return
+     */
+    private boolean isPermittedAccessToDocument(DocumentResponse documentResponse, List<DocumentMetadata> permittedDocumentList) {
+        // Get DocumentResponse vitals (docId, repoId).
+        String docResponseDocId = documentResponse.getDocumentId();
+        String docResponseRepoId = documentResponse.getRepositoryId();
+
+        // See if the document was returned by the registry (Again, assuming that
+        // if document meta-data was returned by the registry, then the
+        // subject has been permitted access to the document).
+        for (DocumentMetadata permittedDocument : permittedDocumentList) {
+            String permittedObjectDocId = permittedDocument.getDocumentId();
+            String permittedObjectRepoId = permittedDocument.getRepositoryId();
+            
+            // Compare against docId/repoId.
+            if (docResponseDocId.equalsIgnoreCase(permittedObjectDocId)
+                    && docResponseRepoId.equalsIgnoreCase(permittedObjectRepoId)) {
+                return true;  // Found match -- permitted.
+            }
+        }
+        return false;  // No match found -- not permitted.
     }
 
     /**

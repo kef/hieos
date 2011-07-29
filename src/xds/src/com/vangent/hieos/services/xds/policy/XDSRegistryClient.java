@@ -27,7 +27,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 
 // FIXME: MOVE
-
 /**
  *
  * @author Bernie Thuman
@@ -54,6 +53,8 @@ public class XDSRegistryClient extends WebServiceClient {
             + "    </Slot>"
             + "</AdhocQuery>"
             + "</query:AdhocQueryRequest>";
+    
+    private final static String STORED_QUERY_SOAP_ACTION = "urn:ihe:iti:2007:RegistryStoredQuery";
 
     /**
      *
@@ -95,10 +96,10 @@ public class XDSRegistryClient extends WebServiceClient {
 
         // Make soap request.
         OMElement responseNode = this.send(requestNode,
-                "urn:ihe:iti:2007:RegistryStoredQuery",
+                STORED_QUERY_SOAP_ACTION,
                 txn.getEndpointURL(), txn.isSOAP12Endpoint());
 
-        // Return list of extrinsic objects.
+        // Return list of extrinsic objects (ids only).
         try {
             // FIXME: Error handling ...
             List<OMElement> extrinsicObjects = XPathHelper.selectNodes(responseNode, "./ns:RegistryObjectList/ns:ExtrinsicObject", DocumentMetadataBuilder.EBXML_RIM_NS);
@@ -107,7 +108,7 @@ public class XDSRegistryClient extends WebServiceClient {
             DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
             List<DocumentMetadata> documentMetadataIdentifierList =
                     documentMetadataBuilder.buildDocumentIdentifiersList(
-                        new RegistryObjectElementList(extrinsicObjects));
+                    new RegistryObjectElementList(extrinsicObjects));
             return documentMetadataIdentifierList;
         } catch (XPathHelperException ex) {
             throw new AxisFault("Can not parse registry response", ex);
