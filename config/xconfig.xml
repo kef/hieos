@@ -156,7 +156,7 @@
         <Property name="IssuerName">HIEOS STS</Property>
 
         <!-- if IssuerAlias is not set, will use "s1as" as default value. -->
-        <Property name="IssuerAlias">wssip</Property>
+        <Property name="IssuerAlias">s1as</Property>
         
         <!-- UNCOMMENT the below properties if desired and set accordingly. -->
         
@@ -205,6 +205,8 @@
     <!-- Policy Decision Point (PDP) -->
     <Actor name="localpdp" type="PolicyDecisionPointType">
         <UniqueId>NA</UniqueId>
+        <!-- Set EmbeddedMode to true to avoid web service calls to PDP. -->
+        <Property name="EmbeddedMode">false</Property>
         <Property name="XUAEnabled">false</Property>
         <Property name="XUAEnabledSOAPActions">ALL</Property>
         <!--
@@ -273,7 +275,6 @@
         <!-- FIXME: Consider getting registry configuration from "repo" configuration. -->
         <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
         <ObjectReference name="repo" refname="localrepository" reftype="DocumentRepositoryType"/>
-
         <Property name="ConfigFile">xdsbridgeconfig.xml</Property>
         <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
 
@@ -285,12 +286,18 @@
     <Actor name="localregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
         <Property name="XUAEnabled">false</Property>
+        <!--
         <Property name="XUAEnabledSOAPActions">ALL</Property>
+        -->
+        <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2009:MultiPatientStoredQuery;urn:hl7-org:v3:PRPA_IN201301UV02;urn:hl7-org:v3:PRPA_IN201302UV02;urn:hl7-org:v3:PRPA_IN201304UV02;urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE;urn:hieos:xds:PatientFeedRequest</Property>
         -->
         <Property name="PolicyEnabled">false</Property>
+        <!--
         <Property name="PolicyEnabledSOAPActions">ALL</Property>
+        -->
+        <Property name="PolicyEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
         <!--
         <Property name="PolicyEnabledSOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2009:MultiPatientStoredQuery;urn:hl7-org:v3:PRPA_IN201301UV02;urn:hl7-org:v3:PRPA_IN201302UV02;urn:hl7-org:v3:PRPA_IN201304UV02;urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE;urn:hieos:xds:PatientFeedRequest</Property>
         -->
@@ -320,23 +327,60 @@
         <Property name="MaxLeafObjectsAllowedFromQuery">25</Property>
     </Actor>
 
+     <Actor name="labregistry" type="DocumentRegistryType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="RegisterDocumentSet-b" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://208.81.185.143:8080/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://208.81.185.143:8181/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://208.81.185.143:8080/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://208.81.185.143:8181/axis2/services/xdsregistrybas</Endpoint>
+        </Transaction>
+        <Transaction name="RegistryStoredQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://208.81.185.143:8080/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://208.81.185.143:8181/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://208.81.185.143:8080/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://208.81.185.143:8181/axis2/services/xdsregistrybas</Endpoint>
+        </Transaction>
+        <Transaction name="PatientIdentityFeed" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://208.81.185.143:8080/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://208.81.185.143:8181/axis2/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://208.81.185.143:8080/axis2/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://208.81.185.143:8181/axis2/services/xdsregistrybas</Endpoint>
+        </Transaction>
+
+        <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
+        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="ReceiverDeviceName">GATEWAY_VANGENT_XDSbRegistry</Property>
+    </Actor>
+
    <!-- List of Repositories -->
     <Actor name="localrepository" type="DocumentRepositoryType">
         <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
         <Property name="XUAEnabled">false</Property>
-        <Property name="XUAEnabledSOAPActions">ALL</Property>
+        <!--<Property name="XUAEnabledSOAPActions">ALL</Property>-->
+        <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         -->
         <Property name="PolicyEnabled">false</Property>
-        <Property name="PolicyEnabledSOAPActions">ALL</Property>
+        <!--<Property name="PolicyEnabledSOAPActions">ALL</Property>-->
+        <Property name="PolicyEnabledSOAPActions">urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         <!--
         <Property name="PolicyEnabledSOAPActions">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         -->
+        <!-- Set DelegateDocumentLevelPolicyEval to "true" if the Repository should rely
+             on the Registry (when evaluating document-level policy) to only include
+             permitted documents.  If set to "false", the Repository will conduct its own
+             document-level policy evaluation (assuming that the configured Registry is not
+             able to conduct policy evaluation).  In an optimal configuration, this property
+             is set to "true" and the Document Registry is responsible for policy evaluation.
+          -->
+        <Property name="DelegateDocumentLevelPolicyEval">true</Property>
+
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:28081/axis2/services/xdsrepositorybas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
