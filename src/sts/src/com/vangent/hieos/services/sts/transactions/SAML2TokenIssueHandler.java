@@ -34,6 +34,7 @@ import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
+import org.apache.log4j.Logger;
 
 import org.joda.time.DateTime;
 
@@ -62,12 +63,16 @@ import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnStatement;
+import org.opensaml.saml2.core.impl.AssertionMarshaller;
+import org.opensaml.xml.util.XMLHelper;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class SAML2TokenIssueHandler extends SAML2TokenHandler {
+
+    private final static Logger logger = Logger.getLogger(SAML2TokenIssueHandler.class);
 
     /**
      *
@@ -204,10 +209,25 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
             throw new STSException("Unable to sign Assertion: " + ex.getMessage());
         }
 
+
+
         // Convert the response to an OMElement (for subsequent processing).
         OMElement assertionOMElement;
         try {
             assertionOMElement = XMLParser.convertDOMtoOM(assertionElement);
+            if (logger.isDebugEnabled()) {
+                // Print the assertion to standard output
+                AssertionMarshaller marshaller = new AssertionMarshaller();
+                Element element = marshaller.marshall(assertion);
+                logger.debug("++++++++++++++++++++++++++++ [formatted] SAML Assertion (BEGIN) ++++++++++++++++++++++++++++");
+                logger.debug(XMLHelper.prettyPrintXML(element));
+                //logger.debug(assertionOMElement.toString());
+                logger.debug("++++++++++++++++++++++++++++ [formatted] SAML Assertion (END) ++++++++++++++++++++++++++++");
+                logger.debug("++++++++++++++++++++++++++++ SAML Assertion (BEGIN) ++++++++++++++++++++++++++++");
+                logger.debug(XMLHelper.nodeToString(element));
+                //logger.debug(assertionOMElement.toString());
+                logger.debug("++++++++++++++++++++++++++++ SAML Assertion (END) ++++++++++++++++++++++++++++");
+            }
         } catch (Exception ex) {
             throw new STSException(ex.getMessage());
         }

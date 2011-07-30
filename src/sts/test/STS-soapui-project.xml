@@ -1,5 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project name="STSTests" resourceRoot="" soapui-version="3.6.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="STSBinding" type="wsdl" bindingName="{urn:picketlink:identity-federation:sts}STSBinding" soapVersion="1_2" anonymous="optional" definition="C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl"><con:part><con:url>file:/C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PicketLinkSTS" targetNamespace="urn:picketlink:identity-federation:sts" xmlns:tns="urn:picketlink:identity-federation:sts" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap10="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+<con:soapui-project name="STSTests" resourceRoot="" soapui-version="4.0.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.actions.iface.tools.soapui.LoadTestRunnerAction@values-local"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+  <con:entry key="TestSuite" value="&lt;all>"/>
+  <con:entry key="Global Properties" value=""/>
+  <con:entry key="Report to Generate" value=""/>
+  <con:entry key="Password" value=""/>
+  <con:entry key="soapui-setings.xml Password" value=""/>
+  <con:entry key="TestRunner Path" value="C:\Program Files\eviware\soapUI-4.0.0/bin"/>
+  <con:entry key="Tool Args" value=""/>
+  <con:entry key="LoadTest" value="&lt;all>"/>
+  <con:entry key="Host:Port" value=""/>
+  <con:entry key="WSS Password Type" value=""/>
+  <con:entry key="Save Project" value="false"/>
+  <con:entry key="System Properties" value=""/>
+  <con:entry key="Domain" value=""/>
+  <con:entry key="Open Report" value="false"/>
+  <con:entry key="Print Report Statistics" value="false"/>
+  <con:entry key="Project Properties" value=""/>
+  <con:entry key="Project Password" value=""/>
+  <con:entry key="Report Format(s)" value=""/>
+  <con:entry key="TestCase" value="&lt;all>"/>
+  <con:entry key="Username" value=""/>
+  <con:entry key="Root Folder" value=""/>
+  <con:entry key="Add Settings" value="false"/>
+  <con:entry key="Save After" value="false"/>
+  <con:entry key="Endpoint" value=""/>
+  <con:entry key="ThreadCount" value=""/>
+  <con:entry key="Limit" value=""/>
+</xml-fragment>]]></con:setting><con:setting id="com.eviware.soapui.impl.wsdl.actions.iface.tools.soapui.TestRunnerAction@values-local"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+  <con:entry key="Global Properties" value=""/>
+  <con:entry key="TestSuite" value="&lt;all>"/>
+  <con:entry key="Report to Generate" value=""/>
+  <con:entry key="Password" value=""/>
+  <con:entry key="soapui-setings.xml Password" value=""/>
+  <con:entry key="TestRunner Path" value=""/>
+  <con:entry key="Tool Args" value=""/>
+  <con:entry key="Ignore Errors" value="false"/>
+  <con:entry key="Host:Port" value=""/>
+  <con:entry key="WSS Password Type" value=""/>
+  <con:entry key="Save Project" value="false"/>
+  <con:entry key="Enable UI" value="false"/>
+  <con:entry key="System Properties" value=""/>
+  <con:entry key="Domain" value=""/>
+  <con:entry key="Coverage Report" value="false"/>
+  <con:entry key="Export JUnit Results" value="false"/>
+  <con:entry key="Open Report" value="false"/>
+  <con:entry key="Project Properties" value=""/>
+  <con:entry key="Project Password" value=""/>
+  <con:entry key="Export All" value="false"/>
+  <con:entry key="Report Format(s)" value=""/>
+  <con:entry key="TestCase" value="&lt;all>"/>
+  <con:entry key="Print Report" value="false"/>
+  <con:entry key="Username" value=""/>
+  <con:entry key="Root Folder" value=""/>
+  <con:entry key="Save After" value="false"/>
+  <con:entry key="Add Settings" value="false"/>
+  <con:entry key="Endpoint" value=""/>
+</xml-fragment>]]></con:setting><con:setting id="Port">9090</con:setting><con:setting id="Set endpoint for HTTP Tunnel:">https://</con:setting><con:setting id="HTTP tunnel - KeyStore"/><con:setting id="HTTP tunnel - Password"/><con:setting id="HTTP tunnel - KeyPassword"/><con:setting id="HTTP tunnel - TrustStore"/><con:setting id="HTTP tunnel - TrustStore Password"/><con:setting id="Reuse request state">false</con:setting><con:setting id="HTTP tunnel - Set SSL Client Key Store path"/><con:setting id="Content types to monitor">*/html, */xml, */soap+xml, */json, */x-json, */javascript, */x-amf</con:setting><con:setting id="HTTP tunnel - Set SSL Client Key Store Password"/></con:settings><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="STSBinding" type="wsdl" bindingName="{urn:picketlink:identity-federation:sts}STSBinding" soapVersion="1_2" anonymous="optional" definition="C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl"><con:part><con:url>file:/C:/dev/jboss-sts/picketlink-sts-1.0.3.SP1/picketlink-sts-1.0.3.SP1/WEB-INF/wsdl/PicketLinkSTS.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="PicketLinkSTS" targetNamespace="urn:picketlink:identity-federation:sts" xmlns:tns="urn:picketlink:identity-federation:sts" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsap10="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
   <wsdl:types>
     <xs:schema targetNamespace="urn:picketlink:identity-federation:sts" version="1.0" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="MessageBody">
@@ -40,12 +96,12 @@
       <soap12:address location="http://localhost:8080/picketlink-sts"/>
     </wsdl:port>
   </wsdl:service>
-</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:9090/picketlink-sts-1.0.3.SP1/PicketLinkSTS</con:endpoint><con:endpoint>http://localhost:8080/picketlink-sts</con:endpoint><con:endpoint>https://localhost:8228/picketlink-sts-1.0.3.SP1/PicketLinkSTS</con:endpoint><con:endpoint>http://localhost:8127/sts/STSService</con:endpoint><con:endpoint>https://localhost:8228/sts/STSService</con:endpoint><con:endpoint>http://localhost:8127/MySTSProject/MySTSService</con:endpoint><con:endpoint>https://localhost:8228/MySTSProject/MySTSService</con:endpoint><con:endpoint>http://localhost:8127/axis2/services/STSTokenIssuer</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/STSTokenIssuer</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/STS</con:endpoint></con:endpoints><con:operation isOneWay="false" action="http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue" name="IssueToken" bindingOperationName="IssueToken" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:9090/picketlink-sts-1.0.3.SP1/PicketLinkSTS</con:endpoint><con:endpoint>http://localhost:8080/picketlink-sts</con:endpoint><con:endpoint>https://localhost:8228/picketlink-sts-1.0.3.SP1/PicketLinkSTS</con:endpoint><con:endpoint>http://localhost:8127/sts/STSService</con:endpoint><con:endpoint>https://localhost:8228/sts/STSService</con:endpoint><con:endpoint>http://localhost:8127/MySTSProject/MySTSService</con:endpoint><con:endpoint>https://localhost:8228/MySTSProject/MySTSService</con:endpoint><con:endpoint>http://localhost:8127/axis2/services/STSTokenIssuer</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/STSTokenIssuer</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:endpoint>https://localhost:8228/axis2/services/STS</con:endpoint><con:endpoint>http://localhost:8127/axis2/services/sts</con:endpoint><con:endpoint>http://localhost:9090/axis2/services/sts</con:endpoint></con:endpoints><con:operation isOneWay="false" action="http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue" name="IssueToken" bindingOperationName="IssueToken" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
    <soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
       <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
          <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
             <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
-            <wsu:Expires>2011-07-25T20:45:49.881Z</wsu:Expires>
+            <wsu:Expires>2011-07-30T20:45:49.881Z</wsu:Expires>
          </wsu:Timestamp>
          <wsse:UsernameToken>
             <wsse:Username>stsclient</wsse:Username>
@@ -63,7 +119,7 @@
          </wsp:AppliesTo>
          <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
             <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-               <xspa:ClaimValue>Joe Smith</xspa:ClaimValue>
+               <xspa:ClaimValue>1.2.36.1.2001.1003.0.8003619166667440</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>EMERGENCY</xspa:ClaimValue>
@@ -76,10 +132,10 @@
             </xspa:ClaimType>
 -->
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-               <xspa:ClaimValue>HIP-O</xspa:ClaimValue>
+               <xspa:ClaimValue>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-               <xspa:ClaimValue>HIP-O Organization Name</xspa:ClaimValue>
+               <xspa:ClaimValue>Carina Day Centre</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>ROLE</xspa:ClaimValue>
@@ -401,4 +457,55 @@ lZmUAuNVPCTBoNuWBX/tvvAw3a3jl+DXB+Fn2JbRpoUdvkgAWCAJ6hrKgA==</ds:X509Certificate
          </wst:Claims>
       </wst:RequestSecurityToken>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/><con:domain/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties><con:property><con:name>saml_token</con:name></con:property></con:properties><con:wssContainer/></con:soapui-project>
+</soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/><con:domain/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:testSuite name="TestSuite 1"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestCase 1" searchProperties="true"><con:settings/><con:testStep type="request" name="Test Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>STSBinding</con:interface><con:operation>IssueToken</con:operation><con:request name="Test Request" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+   <soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+      <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+         <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+            <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
+            <wsu:Expires>2011-07-30T20:45:49.881Z</wsu:Expires>
+         </wsu:Timestamp>
+         <wsse:UsernameToken>
+            <wsse:Username>stsclient</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">xxxx</wsse:Password>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+         <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+         <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+            <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+               <wsa:Address>http://www.vangent.com/X-ServiceProvider-HIEOS</wsa:Address>
+            </wsa:EndpointReference>
+         </wsp:AppliesTo>
+         <wst:Claims Dialect="urn:oasis:names:tc:xspa:1.0:claims" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:subject:subject-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>1.2.36.1.2001.1003.0.8003619166667440</xspa:ClaimValue>
+            </xspa:ClaimType>
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>EMERGENCY</xspa:ClaimValue>
+            </xspa:ClaimType>
+<!--
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>
+                  <hl7:PurposeForUse code="FooCode" codeSystem="FooCodeSystem" codeSystemName="FooCodeSystemName" xsi:type="CE" xmlns:hl7="urn:hl7-org:v3"/>
+               </xspa:ClaimValue>
+            </xspa:ClaimType>
+-->
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</xspa:ClaimValue>
+            </xspa:ClaimType>
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xspa:1.0:subject:organization" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>Carina Day Centre</xspa:ClaimValue>
+            </xspa:ClaimType>
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>ROLE</xspa:ClaimValue>
+            </xspa:ClaimType>
+            <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:1.0:resource:resource-id" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>PID</xspa:ClaimValue>
+            </xspa:ClaimType>
+         </wst:Claims>
+         <!--<wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey</wst:KeyType>-->
+      </wst:RequestSecurityToken>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response"/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:loadTest name="LoadTest 1"><con:settings><con:setting id="HttpSettings@close-connections">false</con:setting></con:settings><con:threadCount>5</con:threadCount><con:startDelay>0</con:startDelay><con:sampleInterval>250</con:sampleInterval><con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed><con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange><con:historyLimit>-1</con:historyLimit><con:testLimit>60</con:testLimit><con:limitType>TIME</con:limitType><con:loadStrategy><con:type>Simple</con:type></con:loadStrategy><con:assertion type="Step Status" name="Step Status"/><con:maxAssertionErrors>100</con:maxAssertionErrors><con:cancelExcessiveThreads>true</con:cancelExcessiveThreads><con:strategyInterval>500</con:strategyInterval></con:loadTest><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties><con:property><con:name>saml_token</con:name></con:property></con:properties><con:wssContainer/></con:soapui-project>
