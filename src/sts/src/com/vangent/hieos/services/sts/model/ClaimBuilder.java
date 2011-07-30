@@ -75,25 +75,21 @@ public class ClaimBuilder {
      * @throws STSException
      */
     private void validate(List<Claim> claims) throws STSException {
-        // FIXME: REWRITE
-        // Validate proper attributes are available.
-        //PolicyConfig pConfig = STSUtil.getPolicyConfig();
-        /*
-        List<AttributeConfig> claimAttributeConfigs = pConfig.getAttributeConfigs(AttributeConfig.AttributeClassType.CLAIM_ID);
-        for (AttributeConfig claimAttributeConfig : claimAttributeConfigs) {
-        String nameToValidate = claimAttributeConfig.getId();
-        boolean foundName = false;
-        for (Claim claim : claims) {
-        if (claim.getName().equalsIgnoreCase(nameToValidate)) {
-        foundName = true;
-        break;
+        PolicyConfig pConfig = STSUtil.getPolicyConfig();
+        try {
+            // Validate that all claims are formatted according to configuration.
+            for (Claim claim : claims) {
+                AttributeConfig attributeConfig = pConfig.getAttributeConfig(claim.getName());
+                if (attributeConfig.getType() != AttributeConfig.AttributeType.ANY) {
+                    String claimValue = claim.getStringValue();
+                    if (!attributeConfig.isValidFormat(claimValue)) {
+                        throw new STSException("Bad format for Claim URI = " + claim.getName());
+                    }
+                }
+            }
+        } catch (PolicyException ex) {
+            throw new STSException(ex.getMessage());  // rethrow in another form.
         }
-        }
-        if (foundName == false) {
-        //logger.warn("Missing " + nameToValidate + " attribute");
-        throw new STSException("Missing " + nameToValidate + " attribute");
-        }
-        }*/
     }
 
     /**

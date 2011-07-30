@@ -60,9 +60,13 @@ public class STS extends XAbstractService {
         validateNoMTOM();
         STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
         handler.setConfigActor(config);
-        OMElement result = handler.run(request);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            return handler.run(request);
+        } catch (AxisFault ex) {
+            throw ex; // Rethrow.
+        } finally {
+            endTransaction(handler.getStatus());
+        }
     }
 
     /**
