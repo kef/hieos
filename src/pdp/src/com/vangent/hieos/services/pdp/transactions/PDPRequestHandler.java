@@ -90,7 +90,7 @@ public class PDPRequestHandler extends XBaseTransaction {
         } catch (Exception ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             log_message.setPass(false);
-            throw new AxisFault(ex.getMessage());
+            throw new AxisFault("PDP Handler Failure", ex);
         }
     }
 

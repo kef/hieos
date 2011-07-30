@@ -44,15 +44,19 @@ public class PDP extends XAbstractService {
      * @return
      * @throws AxisFault
      */
-    public OMElement Authorize(OMElement authorizeRequest) throws AxisFault {
-        beginTransaction("PDP:Authorize", authorizeRequest);
+    public OMElement Authorize(OMElement request) throws AxisFault {
+        beginTransaction("PDP:Authorize", request);
         validateWS();
         validateNoMTOM();
         PDPRequestHandler handler = new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
         handler.setConfigActor(config);
-        OMElement result = handler.run(authorizeRequest);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            return handler.run(request);
+        } catch (AxisFault ex) {
+            throw ex; // Rethrow.
+        } finally {
+            endTransaction(handler.getStatus());
+        }
     }
 
     /**
