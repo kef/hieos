@@ -77,9 +77,6 @@ public class PIPResponseBuilder {
             OMElement consentDirectivesNode = XPathHelper.selectSingleNode(pipResponseNode,
                     "./ns:ConsentDirectives[1]", PolicyConstants.HIEOS_PIP_NS);
             patientConsentDirectives.setContent(consentDirectivesNode);
-
-            // TBD: Do more ... e.g. SensitiveDocumentTypes, etc.
-
         } catch (XPathHelperException ex) {
             // FIXME: ? Do something ?
         }
