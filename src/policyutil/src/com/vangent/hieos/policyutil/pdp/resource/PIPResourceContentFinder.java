@@ -19,6 +19,7 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pip.model.PIPRequest;
 import com.vangent.hieos.policyutil.pip.model.PIPResponse;
+import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 import org.apache.axiom.om.OMElement;
@@ -58,6 +59,9 @@ public class PIPResourceContentFinder {
 
         // Get the patient id.
         String resourceId = pdpRequest.getResourceId();  // The patientId (CX formatted).
+        if (!HL7FormatUtil.isCXFormatted(resourceId)) {
+            throw new PolicyException("'resource-id' (patient id) not in CX format");
+        }
         SubjectIdentifier patientId = new SubjectIdentifier(resourceId);
 
         // Go to the PIP and get the ConsentDirectives

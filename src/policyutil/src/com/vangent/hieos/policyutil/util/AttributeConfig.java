@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.policyutil.util;
 
+import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
+
 /**
  *
  * @author Bernie Thuman
@@ -21,6 +23,7 @@ public class AttributeConfig {
     private String id;
     private AttributeClassType classType;
     private AttributeType type;
+    private AttributeFormat format;
     private String name;
 
     /**
@@ -55,6 +58,33 @@ public class AttributeConfig {
          * 
          */
         STRING,
+        /**
+         *
+         */
+        ANY
+    };
+
+    /**
+     *
+     */
+    public enum AttributeFormat {
+
+        /**
+         *
+         */
+        STRING,
+        /**
+         *
+         */
+        XON_ID_ONLY,
+        /**
+         *
+         */
+        XCN_ID_ONLY,
+        /**
+         *
+         */
+        CX,
         /**
          *
          */
@@ -123,5 +153,49 @@ public class AttributeConfig {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public AttributeFormat getFormat() {
+        return format;
+    }
+
+    /**
+     *
+     * @param format
+     */
+    public void setFormat(AttributeFormat format) {
+        this.format = format;
+    }
+
+    /**
+     * 
+     * @param value
+     * @return
+     */
+    public boolean isValidFormat(String value) {
+        switch (format) {
+            case XON_ID_ONLY:
+                if (!HL7FormatUtil.isXON_Identifier(value)) {
+                    return false;
+                }
+                break;
+            case XCN_ID_ONLY:
+                if (!HL7FormatUtil.isXCN_Identifier(value)) {
+                    return false;
+                }
+                break;
+            case CX:
+                if (!HL7FormatUtil.isCXFormatted(value)) {
+                    return false;
+                }
+                break;
+            default:
+                return true;
+        }
+        return true;
     }
 }

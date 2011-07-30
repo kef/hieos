@@ -34,9 +34,9 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class PolicyConfig {
+
     private final static Logger logger = Logger.getLogger(PolicyConfig.class);
     static private PolicyConfig _instance = null;
-
     // Configuration.
     private List<String> policyFiles = new ArrayList<String>();
     private Map<String, AttributeConfig> attributeConfigs = new HashMap<String, AttributeConfig>();
@@ -153,6 +153,7 @@ public class PolicyConfig {
             String name = attributeNode.getAttributeValue(new QName("name"));
             String id = attributeNode.getAttributeValue(new QName("id"));
             String type = attributeNode.getAttributeValue(new QName("type"));
+            String format = attributeNode.getAttributeValue(new QName("format"));
 
             AttributeConfig attributeConfig = new AttributeConfig();
             attributeConfig.setId(id);
@@ -165,6 +166,29 @@ public class PolicyConfig {
                 attributeConfig.setType(AttributeConfig.AttributeType.ANY);
             } else {
                 throw new PolicyException("Policy configuration type '" + type + "' is unknown for attribute '" + id + "'");
+            }
+
+            // Set format.
+            if (format == null) {
+                // If not specified (set based upon type above).
+                if (attributeConfig.getType() == AttributeConfig.AttributeType.ANY) {
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.ANY);
+                } else {
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
+                }
+            } else {
+                if (format.equalsIgnoreCase("XON_id_only")) {
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.XON_ID_ONLY);
+                } else if (format.equalsIgnoreCase("XCN_id_only")) {
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.XCN_ID_ONLY);
+                } else if (format.equalsIgnoreCase("CX")) {
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.CX);
+                } else if (format.equalsIgnoreCase("string")) {
+                    // Just in case.
+                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
+                } else {
+                    throw new PolicyException("Policy configuration format '" + format + "' is unknown for attribute '" + id + "'");
+                }
             }
 
             // Set classType.
