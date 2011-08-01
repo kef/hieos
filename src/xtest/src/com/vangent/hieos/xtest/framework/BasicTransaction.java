@@ -32,6 +32,7 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.iosupport.Io;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
@@ -793,7 +794,7 @@ public abstract class BasicTransaction extends OmLogger {
             long stopTime = System.currentTimeMillis();
             System.out.println("  ...SOAP call complete ("
                     + new Long(stopTime - startTime).toString() + " msecs)");
-        } catch (XdsException e) {
+        } catch (SOAPFaultException e) {
             s_ctx.set_error(e.getMessage());
             failed();
         }
