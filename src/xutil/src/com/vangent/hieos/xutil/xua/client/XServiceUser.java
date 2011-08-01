@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xml.XPathHelper;
@@ -27,7 +28,6 @@ import org.apache.axiom.om.util.ElementHelper;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeaderBlock;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,9 +55,9 @@ public class XServiceUser {
      * @param serviceUri STS service URI
      * @param claimsNode list of claims
      * @return requestBodyElement, converted OMElement
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
-    private OMElement constructTokenRequestBody(String userName, String serviceUri, OMElement claimsNode) throws AxisFault {
+    private OMElement constructTokenRequestBody(String userName, String serviceUri, OMElement claimsNode) throws SOAPFaultException {
         // Do template variable substitution.
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
@@ -81,9 +81,9 @@ public class XServiceUser {
      * @param password password
      * @param serviceUri STS service uri
      * @return reqHeaderElement, converted DOM element
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
-    private OMElement constructWsTrustRequestHeader(String userName, String password, String serviceUri) throws AxisFault {
+    private OMElement constructWsTrustRequestHeader(String userName, String password, String serviceUri) throws SOAPFaultException {
         // Do template variable substitution.
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
@@ -115,12 +115,12 @@ public class XServiceUser {
      * @param password
      * @param claimsNode optional list of claims (may be null)
      * @return response, received SOAP envelope from STS
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
     public SOAPEnvelope getToken(
-            String stsUrl, String serviceUri, String userName, String password, OMElement claimsNode) throws AxisFault {
+            String stsUrl, String serviceUri, String userName, String password, OMElement claimsNode) throws SOAPFaultException {
         if (userName == null || password == null || serviceUri == null) {
-            throw new AxisFault(
+            throw new SOAPFaultException(
                     "XUA:Exception: You must specify a username, password, and service URI to use XUA.");
         }
         //logger.info("---Getting the response Token from the STS---");
@@ -140,22 +140,22 @@ public class XServiceUser {
      * Get SAML token from the response SOAP Envelope
      * @param envelope soap Envelope
      * @return tokenElement, SAML token element
-     * @throws AxisFault, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
-    public OMElement getTokenFromResSOAPEnvelope(SOAPEnvelope envelope) throws AxisFault {
+    public OMElement getTokenFromResSOAPEnvelope(SOAPEnvelope envelope) throws SOAPFaultException {
         if (envelope == null) {
-            throw new AxisFault("XUA:Exception: Failed to get the response");
+            throw new SOAPFaultException("XUA:Exception: Failed to get the response");
         }
         // Verify the response body is not null
         SOAPBody responseBody = envelope.getBody();
         if (responseBody == null) {
-            throw new AxisFault("XUA:Exception: Response body should not be null");
+            throw new SOAPFaultException("XUA:Exception: Response body should not be null");
         }
         OMElement resElement = null;
         try {
             resElement = XPathHelper.selectSingleNode(responseBody, "./ns:RequestSecurityTokenResponseCollection/ns:RequestSecurityTokenResponse/ns:RequestedSecurityToken[1]", "http://docs.oasis-open.org/ws-sx/ws-trust/200512");
         } catch (XPathHelperException ex) {
-            throw new AxisFault("XUA:Exception: Could not get assertion - " + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Could not get assertion - " + ex.getMessage());
         }
         OMElement assertionEle = null;
         if (resElement != null) {
@@ -174,7 +174,7 @@ public class XServiceUser {
             logger.error("XUA: RequestedSecurityToken = NULL!!!!");
         }
         if (assertionEle == null) {
-            throw new AxisFault("XUA:Exception: Could not get assertion.");
+            throw new SOAPFaultException("XUA:Exception: Could not get assertion.");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Received SAML token from STS");
@@ -190,9 +190,9 @@ public class XServiceUser {
      * @param requestHeader, constracted WS-Trust Request Header
      * @param action SOAP action to be sent
      * @return responseEnvelope, reseponseEnvelope contains SAML assertion
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
-    private SOAPEnvelope send(String stsUrl, OMElement requestBody, OMElement requestHeader, String action) throws AxisFault {
+    private SOAPEnvelope send(String stsUrl, OMElement requestBody, OMElement requestHeader, String action) throws SOAPFaultException {
         // create empty envelope
         SOAPSenderImpl soapSender = new SOAPSenderImpl();
         SOAPEnvelope envelope = soapSender.createEmptyEnvelope();
@@ -205,7 +205,7 @@ public class XServiceUser {
         try {
             b = ElementHelper.toSOAPHeaderBlock(requestHeader, OMAbstractFactory.getSOAP12Factory());
         } catch (Exception ex) {
-            throw new AxisFault("XUA:Exception: Error creating header block" + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Error creating header block" + ex.getMessage());
         }
         envelope.getHeader().addChild(b);
 
@@ -214,7 +214,7 @@ public class XServiceUser {
         try {
             responseEnvelope = soapSender.send(new java.net.URI(stsUrl), envelope, action);
         } catch (URISyntaxException ex) {
-            throw new AxisFault("XUA:Exception: Could not interpret STS URL - " + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Could not interpret STS URL - " + ex.getMessage());
         }
         return responseEnvelope;
     }

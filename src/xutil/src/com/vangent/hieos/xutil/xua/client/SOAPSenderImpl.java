@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import java.net.URI;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -44,9 +45,9 @@ public class SOAPSenderImpl {
 
     /**
      * 
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public SOAPSenderImpl() throws AxisFault {
+    public SOAPSenderImpl() throws SOAPFaultException {
         try {
             // Prepare axis2 to be able act as a SOAP client.
             mOptions = new Options();
@@ -54,7 +55,7 @@ public class SOAPSenderImpl {
             mServiceClient.setOptions(mOptions);
             mSoapFactory = OMAbstractFactory.getSOAP12Factory();
         } catch (AxisFault ex) {
-            throw new AxisFault(
+            throw new SOAPFaultException(
                     "XUA:Exception: Failure initializing SOAP/STS client - " + ex.getMessage());
         }
     }
@@ -67,9 +68,9 @@ public class SOAPSenderImpl {
      * @param message A well-formed SOAP Envelope to send
      * @param action SOAP Action to use for the transaction
      * @return responseEnvelope A well-formed SOAP Envelope representing the response
-     * @throws AxisFault, handling exception.
+     * @throws SOAPFaultException, handling exception.
      */
-    public SOAPEnvelope send(URI endpointURI, SOAPEnvelope message, String action) throws AxisFault {
+    public SOAPEnvelope send(URI endpointURI, SOAPEnvelope message, String action) throws SOAPFaultException {
         if (logger.isDebugEnabled()) {
             logger.debug("SOAP Envelope: " + message.toString());
         }
@@ -94,7 +95,7 @@ public class SOAPSenderImpl {
             return responseEnvelope;
         } catch (Exception ex) {
             logger.error("XUA EXCEPTION: " + ex.getMessage());
-            throw new AxisFault("XUA:Exception: Failure contacting STS - " + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Failure contacting STS - " + ex.getMessage());
         }
     }
 
@@ -120,11 +121,15 @@ public class SOAPSenderImpl {
      * @return messageContext message Context
      * @throws Exception, handling exceptions
      */
-    private MessageContext constructMessageContext(URI endpoint, SOAPEnvelope envelope, String action) throws AxisFault {
+    private MessageContext constructMessageContext(URI endpoint, SOAPEnvelope envelope, String action) throws SOAPFaultException {
         // Create MC
         MessageContext messageContext = new MessageContext();
         // set envelope
-        messageContext.setEnvelope(envelope);
+        try {
+            messageContext.setEnvelope(envelope);
+        } catch (AxisFault ex) {
+            throw new SOAPFaultException("Unable to set SOAP envelope", ex);
+        }
         // set options
         messageContext.setOptions(mOptions);
         // set SOAP action
@@ -151,21 +156,25 @@ public class SOAPSenderImpl {
      * 
      * @param messageContext used to send
      * @return resMessageContext, response msg context contains out message
-     * @throws Exception, handling exceptions
+     * @throws SOAPFaultException, handling exceptions
      */
-    private MessageContext sendToTargetEndpoint(MessageContext messageContext) throws AxisFault {
-        MessageContext resMessageContext = null;
+    private MessageContext sendToTargetEndpoint(MessageContext messageContext) throws SOAPFaultException {
+        try {
+            MessageContext resMessageContext = null;
 
-        // create In-Out operation service client
-        OperationClient operationClient = mServiceClient.createClient(ServiceClient.ANON_OUT_IN_OP);
+            // create In-Out operation service client
+            OperationClient operationClient = mServiceClient.createClient(ServiceClient.ANON_OUT_IN_OP);
 
-        // add MC to the Operation client
-        operationClient.addMessageContext(messageContext);
+            // add MC to the Operation client
+            operationClient.addMessageContext(messageContext);
 
-        // call for execute
-        operationClient.execute(true);
+            // call for execute
+            operationClient.execute(true);
 
-        resMessageContext = operationClient.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-        return resMessageContext;
+            resMessageContext = operationClient.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            return resMessageContext;
+        } catch (AxisFault ex) {
+            throw new SOAPFaultException("Unable to send SOAP message", ex);
+        }
     }
 }

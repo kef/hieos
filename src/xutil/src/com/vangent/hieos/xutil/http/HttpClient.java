@@ -18,7 +18,6 @@
  */
 package com.vangent.hieos.xutil.http;
 
-import com.vangent.hieos.xutil.exception.HttpCodeException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.iosupport.Io;
 

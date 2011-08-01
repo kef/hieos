@@ -16,7 +16,6 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoMetadataException;
 import com.vangent.hieos.xutil.exception.NoSubmissionSetException;
-import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;

@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.xutil.xua.client;
 
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -32,7 +33,6 @@ import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axiom.soap.SOAPHeaderBlock;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -70,9 +70,9 @@ public class XServiceProvider {
      * @param configActor the current configuration for the running actor.
      * @param mc messageContext contains the soap envelope.
      * @return XServiceProvider.Status  CONTINUE or ABORT
-     * @throws AxisFault throws AxisFault
+     * @throws SOAPFaultException
      */
-    public XServiceProvider.Status run(XConfigActor configActor, MessageContext mc) throws AxisFault {
+    public XServiceProvider.Status run(XConfigActor configActor, MessageContext mc) throws SOAPFaultException {
 
         // Check to see if XUA is enabled (for this actor).
         boolean xuaEnabled = configActor.isXUAEnabled();
@@ -105,7 +105,7 @@ public class XServiceProvider {
         OMElement assertion = XServiceProvider.getSAMLAssertionFromRequest(mc);
         if (assertion == null) {
             logMessage.addErrorParam("XUA:ERROR", "No SAML Assertion found on request!");
-            throw new AxisFault("XUA:Exception: No SAML Assertion found on request!");
+            throw new SOAPFaultException("XUA:Exception: No SAML Assertion found on request!");
         }
         if (logMessage.isLogEnabled()) {
             logMessage.addSOAPParam("XUA:SAMLAssertion", assertion.toString());
@@ -124,9 +124,9 @@ public class XServiceProvider {
     /**
      * 
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    private static synchronized XConfigActor getSTSConfig() throws AxisFault {
+    private static synchronized XConfigActor getSTSConfig() throws SOAPFaultException {
         if (_stsConfig == null) {
             try {
                 XConfig xconf;
@@ -135,7 +135,7 @@ public class XServiceProvider {
                 _stsConfig = (XConfigActor) homeCommunity.getXConfigObjectWithName("sts", XConfig.STS_TYPE);
             } catch (Exception ex) {
                 logger.fatal("Unable to get configuration for service", ex);
-                throw new AxisFault("Unable to get configuration for service: " + ex.getMessage());
+                throw new SOAPFaultException("Unable to get configuration for service: " + ex.getMessage());
             }
         }
         return _stsConfig;
@@ -179,51 +179,17 @@ public class XServiceProvider {
     }
 
     /**
-     *
-     * @param messageContext
-     * @return
-     * @throws AxisFault
-     */
-    /*
-    private boolean IPAddressIsConstrained(MessageContext messageContext) throws AxisFault {
-    XUAConfig xuaConfig = XUAConfig.getInstance();
-    String sourceIPAddress = this.getSourceIPAddress(messageContext);
-    if (sourceIPAddress == null) {
-    // If for some reason, we can not get the source IP address - constrain anyway.
-    return true;
-    }
-    // Now see if we should constrain the IP address (based on the configuration).
-    return xuaConfig.IPAddressIsConstrained(sourceIPAddress);
-    }*/
-    /**
-     *
-     * @param messageContext
-     * @return
-     */
-    private String getSourceIPAddress(MessageContext messageContext) {
-        String sourceIPAddress = null;
-        try {
-            sourceIPAddress = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
-            logMessage.addSOAPParam("XUA:SourceIPAddress", sourceIPAddress);
-        } catch (Exception e) {
-            logMessage.addSOAPParam("XUA:SourceIPAddress", "Could not get source IP address; constraining source.");
-            logger.error("XUA:Exception: Could not get source IP address; constaining source.", e);
-        }
-        return sourceIPAddress;
-    }
-
-    /**
      * Get the assertion from the Ws-Security header.
      *
      * @param mc messageContext, received messageContext
      * @return OMElement, assertion element
      */
-    public static OMElement getSAMLAssertionFromRequest(MessageContext mc) throws AxisFault {
+    public static OMElement getSAMLAssertionFromRequest(MessageContext mc) throws SOAPFaultException {
         SOAPEnvelope envelope = mc.getEnvelope();
         // Verify the request header is not null
         SOAPHeader requestHeader = envelope.getHeader();
         if (requestHeader == null) {
-            throw new AxisFault("XUA:Exception: SOAP header should not be null.");
+            throw new SOAPFaultException("XUA:Exception: SOAP header should not be null.");
         }
         OMElement securityEle = requestHeader.getFirstChildWithName(new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                 "Security"));
@@ -239,10 +205,10 @@ public class XServiceProvider {
      * 
      * @param assertion, SAML assertion
      * @param stsUrl STS endpoint URL
-     * @throws AxisFault Handling the exceptions
+     * @throws SOAPFaultException Handling the exceptions
      * @return boolean true on success, false if SAML assertion is not validated.
      */
-    public boolean validateToken(XConfigActor stsConfig, OMElement assertion) throws AxisFault {
+    public boolean validateToken(XConfigActor stsConfig, OMElement assertion) throws SOAPFaultException {
         String assertionAsString = assertion.toString();
         String stsEndpointURL = stsConfig.getTransaction("ValidateToken").getEndpointURL();
         if (logger.isDebugEnabled()) {
@@ -265,9 +231,9 @@ public class XServiceProvider {
     /**
      * Construct Ws-Trust request header element
      *
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      */
-    private OMElement constructWsTrustRequestHeader() throws AxisFault {
+    private OMElement constructWsTrustRequestHeader() throws SOAPFaultException {
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         // Deal with CreatedTime and ExpiredTime.
         templateVariableValues.put("CREATEDTIME", XUAUtil.getCreatedTime());
@@ -283,14 +249,14 @@ public class XServiceProvider {
      * is valid or not
      * @param envelope, received SOAPEnvelope from STS
      * @return status, true or false
-     * @throws Exception, handling exceptions
+     * @throws SOAPFaultException, handling exceptions
      */
-    private boolean getSAMLValidationStatus(SOAPEnvelope envelope) throws AxisFault {
+    private boolean getSAMLValidationStatus(SOAPEnvelope envelope) throws SOAPFaultException {
         boolean status = false;
         // Verify the response body is not null
         SOAPBody responseBody = envelope.getBody();
         if (responseBody == null) {
-            throw new AxisFault("XUA:Exception: Response body should not be null.");
+            throw new SOAPFaultException("XUA:Exception: Response body should not be null.");
         }
         String validateStr = null;
         try {
@@ -309,7 +275,7 @@ public class XServiceProvider {
                 }
             }
         } catch (Exception ex) {
-            throw new AxisFault("XUA:Exception: Could not get token validation response: " + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Could not get token validation response: " + ex.getMessage());
         }
         return status;
     }
@@ -326,10 +292,10 @@ public class XServiceProvider {
      * @param requestBody , constructed WS-Trust Request
      * @param requestHeader
      * @param action SOAPAction
-     * @throws Exception, handling the exceptions
+     * @throws SOAPFaultException, handling the exceptions
      * @return responseSOAPEnvelope, responseSOAPEnvelope contains validation status
      */
-    private SOAPEnvelope send(String stsUrl, OMElement request, OMElement requestHeader, String action) throws AxisFault {
+    private SOAPEnvelope send(String stsUrl, OMElement request, OMElement requestHeader, String action) throws SOAPFaultException {
 
         // Create empty SOAP Envelope
         SOAPSenderImpl soapSender = new SOAPSenderImpl();
@@ -343,7 +309,7 @@ public class XServiceProvider {
         try {
             b = ElementHelper.toSOAPHeaderBlock(requestHeader, OMAbstractFactory.getSOAP12Factory());
         } catch (Exception ex) {
-            throw new AxisFault("XUA:Exception: Error creating header block" + ex.getMessage());
+            throw new SOAPFaultException("XUA:Exception: Error creating header block" + ex.getMessage());
         }
         requestSOAPEnvelope.getHeader().addChild(b);
 
@@ -360,7 +326,7 @@ public class XServiceProvider {
                 logMessage.addSOAPParam("XUA:STS_SOAPResponse", responseSOAPEnvelope);
             }
         } catch (URISyntaxException ex) {
-            throw new AxisFault(
+            throw new SOAPFaultException(
                     "XUA:Exception: Could not interpret STS URL - " + ex.getMessage());
         }
         return responseSOAPEnvelope;

@@ -12,10 +12,11 @@
  */
 package com.vangent.hieos.xutil.soap;
 
-import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsFormatException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+//import com.vangent.hieos.xutil.exception.XdsException;
+//import com.vangent.hieos.xutil.exception.XdsFormatException;
+//import com.vangent.hieos.xutil.exception.XdsInternalException;
+//import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xml.Util;
 
 import java.util.HashMap;
@@ -104,11 +105,12 @@ public class Soap {
      * @param action The SOAP action associated with the request.
      * @param expectedReturnAction The expected SOAP return action.
      * @return The SOAP body of the result.
-     * @throws XdsException
+     * @throws SOAPFaultException
      */
     public OMElement soapCall(OMElement body, String endpoint, boolean mtom,
             boolean addressing, boolean soap12, String action, String expectedReturnAction)
-            throws XdsException {
+            throws SOAPFaultException {
+
         try {
             // Get the AXIS2 ServiceClient.
             if (this.serviceClient == null) {
@@ -152,9 +154,9 @@ public class Soap {
              * This cleanup option will call response.getEnvelope().build()
              * However, envelope.build() does not build everything
              * and any subsequent access to the atttachement(s) will
-             * throw a closed stream exception, 
+             * throw a closed stream exception,
              * an explicit clean up is below
-             * 
+             *
              * options.setCallTransportCleanup(true);
              */
 
@@ -164,8 +166,7 @@ public class Soap {
             // explicitly build the whole response and clean up
             if (this.result != null) {
 
-                MessageContext mc = this.serviceClient.
-                        getLastOperationContext().
+                MessageContext mc = this.serviceClient.getLastOperationContext().
                         getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
                 if (mtom) {
                     mc.getEnvelope().buildWithAttachments();
@@ -190,13 +191,12 @@ public class Soap {
             } else if (addressing) {  // Only validate in this case.
                 verifySOAPReturnAction(expectedReturnAction, null);
             }
-
-            // Return the SOAP result.
-            return this.result;
-        } catch (AxisFault e) {
-            // If an AxisFault ... turn into an XdsException and get out.
-            throw new XdsException(e.getMessage(), e);
+        } catch (AxisFault ex) {
+            throw new SOAPFaultException(ex.getMessage());
         }
+
+        // Return the SOAP result.
+        return this.result;
     }
 
     /**
@@ -212,9 +212,8 @@ public class Soap {
      * Returns a deep copy of the SOAP "in" header.
      *
      * @return A deep copy of the SOAP "in" header.
-     * @throws XdsInternalException
      */
-    public OMElement getInHeader() throws XdsInternalException {
+    public OMElement getInHeader() {
         OperationContext oc = serviceClient.getLastOperationContext();
         HashMap<String, MessageContext> ocs = oc.getMessageContexts();
         MessageContext in = ocs.get("In");
@@ -234,9 +233,8 @@ public class Soap {
      * Returns a deep copy of the SOAP "out" header.
      *
      * @return A deep copy of the SOAP "out" header.
-     * @throws XdsInternalException
      */
-    public OMElement getOutHeader() throws XdsInternalException {
+    public OMElement getOutHeader() {
         OperationContext oc = serviceClient.getLastOperationContext();
         HashMap<String, MessageContext> ocs = oc.getMessageContexts();
         MessageContext out = ocs.get("Out");
@@ -358,20 +356,20 @@ public class Soap {
      *
      * @param sc The ServiceClient used to support SOAP request.
      * @param mtomExpected Set to true if MTOM is expected.
-     * @throws XdsFormatException
+     * @throws AxisFault
      */
-    private void validateSOAPResponse(ServiceClient sc, boolean mtomExpected) throws XdsFormatException, XdsInternalException {
+    private void validateSOAPResponse(ServiceClient sc, boolean mtomExpected) throws AxisFault {
         Object in = sc.getServiceContext().getLastOperationContext().getMessageContexts().get("In");
         if (!(in instanceof MessageContext)) {
-            throw new XdsInternalException("Soap: In MessageContext of type " + in.getClass().getName() + " instead of MessageContext");
+            throw new AxisFault("Soap: In MessageContext of type " + in.getClass().getName() + " instead of MessageContext");
         }
         MessageContext messageContext = (MessageContext) in;
         boolean responseMtom = messageContext.isDoingMTOM();
         if (mtomExpected != responseMtom) {
             if (mtomExpected) {
-                throw new XdsFormatException("Request was MTOM format but response was SIMPLE SOAP");
+                throw new AxisFault("Request was MTOM format but response was SIMPLE SOAP");
             } else {
-                throw new XdsFormatException("Request was SIMPLE SOAP but response was MTOM");
+                throw new AxisFault("Request was SIMPLE SOAP but response was MTOM");
             }
         }
     }
@@ -381,23 +379,23 @@ public class Soap {
      *
      * @param expectedReturnAction Expected SOAP return action.
      * @param alternateReturnAction Alternative expected SOAP return action.
-     * @throws XdsException
+     * @throws AxisFault
      */
-    private void verifySOAPReturnAction(String expectedReturnAction, String alternateReturnAction) throws XdsException {
+    private void verifySOAPReturnAction(String expectedReturnAction, String alternateReturnAction) throws AxisFault {
         if (expectedReturnAction == null) {
             return;  // None expected.
         }
         // First see if a SOAP header exists.
         OMElement soapHeader = this.getInHeader();
         if (soapHeader == null) {
-            throw new XdsInternalException(
+            throw new AxisFault(
                     "No SOAPHeader returned: expected header with action = " + expectedReturnAction);
         }
 
         // Now see if the SOAP action exists.
-        OMElement action = MetadataSupport.firstChildWithLocalName(soapHeader, "Action");
+        OMElement action = this.firstChildWithLocalName(soapHeader, "Action");
         if (action == null) {
-            throw new XdsInternalException(
+            throw new AxisFault(
                     "No action returned in SOAPHeader: expected action = " + expectedReturnAction);
         }
 
@@ -405,18 +403,37 @@ public class Soap {
         String soapActionValue = action.getText();
         if (alternateReturnAction == null) {
             if (soapActionValue == null || !soapActionValue.equals(expectedReturnAction)) {
-                throw new XdsInternalException(
+                throw new AxisFault(
                         "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction
                         + " returned action = " + soapActionValue);
             }
         } else {
             if (soapActionValue == null
                     || ((!soapActionValue.equals(expectedReturnAction)) && (!soapActionValue.equals(alternateReturnAction)))) {
-                throw new XdsInternalException(
+                throw new AxisFault(
                         "Wrong action returned in SOAPHeader: expected action = " + expectedReturnAction
                         + " returned action = " + soapActionValue);
             }
         }
+    }
+
+    /**
+     * Placed here to remove dependency on XDS classes.
+     *
+     * @param ele
+     * @param localName
+     * @return OMElement
+     *
+     * FIXME: Find better way.
+     */
+    private OMElement firstChildWithLocalName(OMElement ele, String localName) {
+        for (Iterator it = ele.getChildElements(); it.hasNext();) {
+            OMElement child = (OMElement) it.next();
+            if (child.getLocalName().equals(localName)) {
+                return child;
+            }
+        }
+        return null;
     }
 
     /**
@@ -458,7 +475,7 @@ public class Soap {
 
         } catch (Throwable t) {
             logger.error("Exception while initializing the XUA out phase handler", t);
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
         return phase;
     }

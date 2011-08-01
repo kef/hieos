@@ -13,7 +13,6 @@
 package com.vangent.hieos.xutil.services.framework;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
@@ -49,6 +48,7 @@ import org.apache.axis2.description.AxisService;
 
 // XATNALogger
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xua.client.XServiceProvider;
 import java.util.ArrayList;
@@ -134,9 +134,9 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public static OMElement getSAMLAssertionFromRequest() throws AxisFault {
+    public static OMElement getSAMLAssertionFromRequest() throws SOAPFaultException {
         // Can't rely on "messageContext" to be set above - should look to remove messageContext
         // variable (not sure the purpose).
         return XServiceProvider.getSAMLAssertionFromRequest(MessageContext.getCurrentMessageContext());
@@ -153,12 +153,16 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected MessageContext getResponseMessageContext() throws AxisFault {
-        MessageContext messageContext = this.getMessageContext();
-        MessageContext responseMessageContext = messageContext.getOperationContext().getMessageContext("Out");
-        return responseMessageContext;
+    protected MessageContext getResponseMessageContext() throws SOAPFaultException {
+        try {
+            MessageContext messageContext = this.getMessageContext();
+            MessageContext responseMessageContext = messageContext.getOperationContext().getMessageContext("Out");
+            return responseMessageContext;
+        } catch (AxisFault ex) {
+            throw new SOAPFaultException("Unable to get response message context", ex);
+        }
     }
 
     /**
@@ -172,12 +176,12 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      * 
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void validateWS() throws AxisFault {
+    protected void validateWS() throws SOAPFaultException {
         checkSOAP12();
         if (isAsync()) {
-            this.throwFault("Asynchronous web service request not acceptable on this endpoint"
+            this.throwSOAPFaultException("Asynchronous web service request not acceptable on this endpoint"
                     + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
@@ -186,33 +190,33 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * This method ensures that an asynchronous request has been sent. It evaluates the message
      * context to dtermine if "ReplyTo" is non-null and is not anonymous. It also ensures that
      * "MessageID" is non-null. It throws an exception if that is not the case.
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void validateAsyncWS() throws AxisFault {
+    protected void validateAsyncWS() throws SOAPFaultException {
         checkSOAP12();
         if (!isAsync()) {
-            this.throwFault("Asynchronous web service required on this endpoint"
+            this.throwSOAPFaultException("Asynchronous web service required on this endpoint"
                     + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
         }
     }
 
     /**
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void validateNoMTOM() throws AxisFault {
+    protected void validateNoMTOM() throws SOAPFaultException {
         if (getMessageContext().isDoingMTOM()) {
-            this.throwFault("This transaction must use SIMPLE SOAP, MTOM found");
+            this.throwSOAPFaultException("This transaction must use SIMPLE SOAP, MTOM found");
         }
     }
 
     /**
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void validateMTOM() throws AxisFault {
+    protected void validateMTOM() throws SOAPFaultException {
         if (!getMessageContext().isDoingMTOM()) {
-            this.throwFault("This transaction must use MTOM, SIMPLE SOAP found");
+            this.throwSOAPFaultException("This transaction must use MTOM, SIMPLE SOAP found");
         }
     }
 
@@ -220,9 +224,9 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param serviceName
      * @param request
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void beginTransaction(String serviceName, OMElement request) throws AxisFault {
+    protected void beginTransaction(String serviceName, OMElement request) throws SOAPFaultException {
         // This gets around a bug in Leopard (MacOS X 10.5) on Macs
         //System.setProperty("http.nonProxyHosts", "");
         this.serviceName = serviceName;
@@ -251,7 +255,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
         // Need to get out if request body is null.
         if (request == null) {
-            this.throwFault("Request body is null");
+            this.throwSOAPFaultException("Request body is null");
             //return start_up_error(request, null, this.mActor, "Request body is null");
         }
 
@@ -292,10 +296,10 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param request
      * @return
      */
-    private void validateXUA(OMElement request) throws AxisFault {
+    private void validateXUA(OMElement request) throws SOAPFaultException {
         XConfigActor configActor = this.getConfigActor();
         if (configActor == null) {
-            this.throwFault("Configuration not established for Actor");
+            this.throwSOAPFaultException("Configuration not established for Actor");
         }
         if (!configActor.isXUAEnabled()) {
             // Get out early - XUA is not enabled for this actor.
@@ -309,11 +313,11 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         try {
             response = xServiceProvider.run(this.getConfigActor(), messageCtx);
         } catch (Exception ex) {
-            this.throwFault("XUA:ERROR - SAML Validation Exception (ignoring request) " + ex.getMessage());
+            this.throwSOAPFaultException("XUA:ERROR - SAML Validation Exception (ignoring request) " + ex.getMessage());
         }
         if (response != XServiceProvider.Status.CONTINUE) {
             // The assertion has not been validated, discontinue with processing SOAP request.
-            this.throwFault("XUA:ERROR - SAML Assertion did not pass validation!");
+            this.throwSOAPFaultException("XUA:ERROR - SAML Assertion did not pass validation!");
         }
         // All is good.
     }
@@ -477,45 +481,45 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
 
     /**
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void checkSOAP12() throws AxisFault {
+    protected void checkSOAP12() throws SOAPFaultException {
         if (MessageContext.getCurrentMessageContext().isSOAP11()) {
-            throwFault("SOAP 1.1 not supported");
+            throwSOAPFaultException("SOAP 1.1 not supported");
         }
         SOAPEnvelope env = MessageContext.getCurrentMessageContext().getEnvelope();
         if (env == null) {
-            throwFault("No SOAP envelope found");
+            throwSOAPFaultException("No SOAP envelope found");
         }
         SOAPHeader hdr = env.getHeader();
         if (hdr == null) {
-            throwFault("No SOAP header found");
+            throwSOAPFaultException("No SOAP header found");
         }
         if (!hdr.getChildrenWithName(new QName("http://www.w3.org/2005/08/addressing", "Action")).hasNext()) {
-            throwFault("WS-Action required in header");
+            throwSOAPFaultException("WS-Action required in header");
         }
     }
 
     /**
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void checkSOAP11() throws AxisFault {
+    protected void checkSOAP11() throws SOAPFaultException {
 
         if (!MessageContext.getCurrentMessageContext().isSOAP11()) {
-            throwFault("SOAP 1.2 not supported");
+            throwSOAPFaultException("SOAP 1.2 not supported");
         }
         SOAPEnvelope env = MessageContext.getCurrentMessageContext().getEnvelope();
         if (env == null) {
-            throwFault("No SOAP envelope found");
+            throwSOAPFaultException("No SOAP envelope found");
         }
     }
 
     /**
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void checkSOAPAny() throws AxisFault {
+    protected void checkSOAPAny() throws SOAPFaultException {
         if (MessageContext.getCurrentMessageContext().isSOAP11()) {
             checkSOAP11();
         } else {
@@ -526,15 +530,15 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
     /**
      *
      * @param msg
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
+     * @throws SOAPFaultException
      */
-    private void throwFault(String msg) throws AxisFault {
+    private void throwSOAPFaultException(String msg) throws SOAPFaultException {
         if (log_message != null) {
             log_message.addErrorParam("SOAPError", msg);
             log_message.addOtherParam("Response", "SOAPFault: " + msg);
         }
         endTransaction(false);
-        throw new AxisFault(msg);
+        throw new SOAPFaultException(msg);
     }
 
     /**
@@ -542,6 +546,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param ex
      * @return
      */
+    /*
     public AxisFault getAxisFault(Exception ex) {
         if (log_message != null) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
@@ -549,7 +554,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         }
         endTransaction(false);
         return new AxisFault(ex.getMessage());
-    }
+    }*/
 
     /**
      *

@@ -12,8 +12,6 @@
  */
 package com.vangent.hieos.xutil.metadata.structure;
 
-import java.util.List;
-
 public abstract class SQCodedTerm {
 
 	public abstract boolean isEmpty();

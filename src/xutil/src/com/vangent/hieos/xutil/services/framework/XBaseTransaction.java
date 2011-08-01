@@ -16,13 +16,12 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -71,9 +70,9 @@ public class XBaseTransaction {
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public static OMElement getSAMLAssertionFromRequest() throws AxisFault {
+    public static OMElement getSAMLAssertionFromRequest() throws SOAPFaultException {
         return XAbstractService.getSAMLAssertionFromRequest();
     }
 
