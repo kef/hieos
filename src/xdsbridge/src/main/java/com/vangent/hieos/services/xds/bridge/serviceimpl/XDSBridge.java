@@ -10,15 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRepositoryClient;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
-import com.vangent.hieos.services.xds.bridge.transactions
-    .SubmitDocumentRequestHandler;
+import com.vangent.hieos.services.xds.bridge.transactions.SubmitDocumentRequestHandler;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -41,7 +40,6 @@ public class XDSBridge extends XAbstractService {
 
     /** Field description */
     private static final Logger logger = Logger.getLogger(XDSBridge.class);
-
     /** Field description */
     protected static XDSBridgeServiceContext serviceContext;
 
@@ -64,21 +62,24 @@ public class XDSBridge extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement SubmitDocumentRequest(OMElement request) throws AxisFault {
+        try {
+            beginTransaction("xdsbridge:SubmitDocumentRequest", request);
+            validateWS();
+            validateMTOM();
 
-        beginTransaction("xdsbridge:SubmitDocumentRequest", request);
-        validateWS();
-        validateMTOM();
+            SubmitDocumentRequestHandler handler =
+                    new SubmitDocumentRequestHandler(this.log_message, serviceContext);
 
-        SubmitDocumentRequestHandler handler =
-            new SubmitDocumentRequestHandler(this.log_message, serviceContext);
+            handler.setConfigActor(this.getConfigActor());
 
-        handler.setConfigActor(this.getConfigActor());
+            OMElement result = handler.run(getMessageContext(), request);
 
-        OMElement result = handler.run(getMessageContext(), request);
+            endTransaction(handler.getStatus());
 
-        endTransaction(handler.getStatus());
-
-        return result;
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -138,20 +139,20 @@ public class XDSBridge extends XAbstractService {
 
         String bridgeName = "xdsbridge";
         XConfigActor xdsBridgeActor =
-            (XConfigActor) homeCommunity.getXConfigObjectWithName(bridgeName,
+                (XConfigActor) homeCommunity.getXConfigObjectWithName(bridgeName,
                 "XDSBridgeType");
 
         if (xdsBridgeActor == null) {
 
             throw new IllegalStateException(
-                String.format(
+                    String.format(
                     "XDSBridge [%s] config is not found.", bridgeName));
         }
 
         // grab repository from xdsbridge actor
         String repoName = "repo";
         XConfigActor repositoryActor =
-            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName("repo",
+                (XConfigActor) xdsBridgeActor.getXConfigObjectWithName("repo",
                 XConfig.XDSB_DOCUMENT_REPOSITORY_TYPE);
 
         startUpValidateRepositoryActor(repoName, repositoryActor);
@@ -159,7 +160,7 @@ public class XDSBridge extends XAbstractService {
         // grab registry from xdsbrige actor
         String registryName = "registry";
         XConfigActor registryActor =
-            (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(
+                (XConfigActor) xdsBridgeActor.getXConfigObjectWithName(
                 registryName, XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
 
         startUpValidateRegistryActor(registryName, registryActor);
@@ -173,7 +174,7 @@ public class XDSBridge extends XAbstractService {
         } catch (Exception e) {
 
             throw new IllegalStateException(
-                "Unable to process xdsbridge config file.", e);
+                    "Unable to process xdsbridge config file.", e);
         }
 
         // create wiring
@@ -196,12 +197,12 @@ public class XDSBridge extends XAbstractService {
         if (registryActor == null) {
 
             throw new IllegalStateException(
-                String.format("Registry [%s] config is not found.", regName));
+                    String.format("Registry [%s] config is not found.", regName));
         }
 
         String[] registryTransactions =
-            new String[] { XDSDocumentRegistryClient.PID_ADD_TRANS,
-                           XDSDocumentRegistryClient.STORED_QUERY_TRANS };
+                new String[]{XDSDocumentRegistryClient.PID_ADD_TRANS,
+            XDSDocumentRegistryClient.STORED_QUERY_TRANS};
 
         for (String transName : registryTransactions) {
 
@@ -210,7 +211,7 @@ public class XDSBridge extends XAbstractService {
             if (trans == null) {
 
                 throw new IllegalStateException(
-                    String.format(
+                        String.format(
                         "Registry [%s] config requires transation [%s].",
                         regName, transName));
             }
@@ -230,22 +231,22 @@ public class XDSBridge extends XAbstractService {
         if (repositoryActor == null) {
 
             throw new IllegalStateException(
-                String.format(
+                    String.format(
                     "Repository [%s] config is not found.", repoName));
         }
 
         String[] repositoryTransactions =
-            new String[] { XDSDocumentRepositoryClient.PNR_TRANS };
+                new String[]{XDSDocumentRepositoryClient.PNR_TRANS};
 
         for (String transName : repositoryTransactions) {
 
             XConfigTransaction trans =
-                repositoryActor.getTransaction(transName);
+                    repositoryActor.getTransaction(transName);
 
             if (trans == null) {
 
                 throw new IllegalStateException(
-                    String.format(
+                        String.format(
                         "Repository [%s] config requires transation [%s].",
                         repoName, transName));
             }

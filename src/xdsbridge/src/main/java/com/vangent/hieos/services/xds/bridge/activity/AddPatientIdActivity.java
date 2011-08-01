@@ -25,6 +25,7 @@ import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -159,7 +160,7 @@ public class AddPatientIdActivity implements ISubmitDocumentRequestActivity {
 
             result = checkForSuccess(registryResponse, context);
 
-        } catch (AxisFault e) {
+        } catch (SOAPFaultException e) {
 
             SubmitDocumentResponse sdrResponse =
                 context.getSubmitDocumentResponse();

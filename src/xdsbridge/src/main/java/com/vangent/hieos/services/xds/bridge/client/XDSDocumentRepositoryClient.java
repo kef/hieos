@@ -16,12 +16,11 @@ package com.vangent.hieos.services.xds.bridge.client;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -69,14 +68,12 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
      *
      * @return
      *
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
     public OMElement submitProvideAndRegisterDocumentSet(XDSPnRMessage request)
-            throws AxisFault {
+            throws SOAPFaultException {
 
         OMElement result = null;
-
-        try {
 
             XConfigActor config = getConfig();
             XConfigTransaction pnrTrans = config.getTransaction(PNR_TRANS);
@@ -91,7 +88,6 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
             boolean useWsa = soap12;
 
             if (logger.isDebugEnabled()) {
-
                 logger.debug("== Sending to Repository");
                 logger.debug(
                     DebugUtils.toPrettyString(request.getElement()));
@@ -102,17 +98,9 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
                                    PNR_RESPONSE_ACTION);
 
             if (logger.isDebugEnabled()) {
-
                 logger.debug("== Received from Repository");
                 logger.debug(DebugUtils.toPrettyString(result));
             }
-
-        } catch (XdsException ex) {
-
-            logger.error(ex, ex);
-
-            throw new AxisFault(ex.getMessage(), ex);
-        }
 
         return result;
     }

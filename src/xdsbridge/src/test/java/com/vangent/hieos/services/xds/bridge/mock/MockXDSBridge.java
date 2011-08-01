@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.bridge.mock;
 
 import com.vangent.hieos.services.xds.bridge.serviceimpl.XDSBridge;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xlog.client.XLogger;
 
 import org.apache.axiom.om.OMElement;
@@ -56,7 +57,7 @@ public class MockXDSBridge extends XDSBridge {
     @Override
     protected void beginTransaction(String service_name,
             OMElement request)
-            throws AxisFault {
+            throws SOAPFaultException {
 
         String remoteIP = "127.0.0.2";
         XLogger xlogger = XLogger.getInstance();

@@ -28,11 +28,11 @@ import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.support.URIConstants;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
@@ -89,7 +89,7 @@ public abstract class AbstractGetDocumentsSQActivity
 
             result = getRegistryClient().getDocuments(msg);
 
-        } catch (AxisFault e) {
+        } catch (SOAPFaultException e) {
 
             SubmitDocumentResponse sdrResponse =
                 context.getSubmitDocumentResponse();
