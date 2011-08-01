@@ -19,7 +19,7 @@ import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.services.xds.bridge.activity.AddPatientIdActivity;
 import com.vangent.hieos.services.xds.bridge.activity.CDAToXDSMapperActivity;
 import com.vangent.hieos.services.xds.bridge.activity
-    .DocumentExistsCheckActivity;
+    .DocumentIdValidationActivity;
 import com.vangent.hieos.services.xds.bridge.activity
     .ISubmitDocumentRequestActivity;
 import com.vangent.hieos.services.xds.bridge.activity
@@ -98,7 +98,7 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
         this.processActivities.add(
             new CDAToXDSMapperActivity(context.getMapperFactory()));
         this.processActivities.add(
-            new DocumentExistsCheckActivity(context.getRegistryClient()));
+            new DocumentIdValidationActivity(context.getRegistryClient()));
         this.processActivities.add(
             new RetrieveReplaceExtrinsicIdActivity(
                 context.getRegistryClient()));

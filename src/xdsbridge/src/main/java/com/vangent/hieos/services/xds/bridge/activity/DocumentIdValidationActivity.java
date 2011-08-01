@@ -31,12 +31,12 @@ import org.apache.log4j.Logger;
  * @version        v1.0, 2011-07-06
  * @author         Vangent
  */
-public class DocumentExistsCheckActivity
+public class DocumentIdValidationActivity
         extends AbstractGetDocumentsSQActivity {
 
     /** Field description */
     private static final Logger logger =
-        Logger.getLogger(DocumentExistsCheckActivity.class);
+        Logger.getLogger(DocumentIdValidationActivity.class);
 
     /**
      * Constructs ...
@@ -44,7 +44,7 @@ public class DocumentExistsCheckActivity
      *
      * @param client
      */
-    public DocumentExistsCheckActivity(XDSDocumentRegistryClient client) {
+    public DocumentIdValidationActivity(XDSDocumentRegistryClient client) {
 
         super(client);
     }
@@ -100,43 +100,34 @@ public class DocumentExistsCheckActivity
 
         boolean result = false;
 
-        Document document = context.getDocument();
+        Document doc = context.getDocument();
 
-        if (isCheckDisabled(document)) {
+        if (doc.isGeneratedDocumentId()) {
 
-            // if we generated the id
-            // or the docId and replId are the same
+            // if we generated the id, nothing to check
             result = true;
 
+        } else if (StringUtils.equals(doc.getDocumentIdAsOID(),
+                                      doc.getReplaceIdAsOID())) {
+
+            // error condition
+            String errmsg =
+                String.format(
+                    "Document Id (OID) %s equals Replace Id (OID) %s. These IDs can not be the same.",
+                    doc.getDocumentIdAsOID(), doc.getReplaceIdAsOID());
+            
+            SubmitDocumentResponse sdrResponse =
+                context.getSubmitDocumentResponse();
+
+            logger.error(errmsg);
+            sdrResponse.addResponse(doc, ResponseTypeStatus.Failure, errmsg);
+            
         } else {
 
             GetDocumentsSQResponseMessage getDocsResp =
-                callGetDocumentsSQ(context, document.getDocumentIdAsOID());
+                callGetDocumentsSQ(context, doc.getDocumentIdAsOID());
 
             result = checkForSuccess(getDocsResp, context);
-        }
-
-        return result;
-    }
-
-    /**
-     * Method description
-     *
-     *
-     * @param doc
-     *
-     * @return
-     */
-    private boolean isCheckDisabled(Document doc) {
-
-        boolean result = false;
-
-        // if we generated the id
-        // or the docId and replId are the same
-        if (doc.isGeneratedDocumentId()
-                || StringUtils.equals(doc.getReplaceId(), doc.getId())) {
-
-            result = true;
         }
 
         return result;
