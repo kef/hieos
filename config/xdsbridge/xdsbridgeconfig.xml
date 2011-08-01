@@ -63,6 +63,10 @@
             <Variable name="AuthorPersonExtension" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:assignedPerson/ext:asEntityIdentifier/ext:id/@extension" /> 
             <Variable name="AuthorRole" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:code/@displayName" /> 
 
+            <Variable name="DocumentConfidentialityCode" expression="/hl7:ClinicalDocument/hl7:confidentialityCode/@code" />
+            <Variable name="DocumentConfidentialityCodeSystem" expression="/hl7:ClinicalDocument/hl7:confidentialityCode/@codeSystem" />
+            <Variable name="DocumentConfidentialityDisplayName" expression="/hl7:ClinicalDocument/hl7:confidentialityCode/@displayName" />
+            
             <Variable name="CreationTime" expression="/hl7:ClinicalDocument/hl7:effectiveTime/@value" /> 
 
             <Variable name="DocumentClassCode" expression="/hl7:ClinicalDocument/hl7:code/@code" /> 
@@ -99,17 +103,30 @@
 
         </DocumentContentVariables>
         <StaticContentVariables>
-            <Variable name="DocumentConfidentialityCode" value="N" /> 
-            <Variable name="DocumentConfidentialityCodeSystem" value="2.16.840.1.113883.5.25" /> 
-            <Variable name="DocumentConfidentialityDisplayName" value="Normal" /> 
+            
+            <!-- 
+            <Variable name="ExampleDefaultCode" value="N" /> 
+            -->
+            
+            <!-- StaticGroup, if variableName does not have a value
+                then all values w/in the group will be applied -->
+            <StaticContentGroup variableName="DocumentConfidentialityCode">
+                <Variable name="DocumentConfidentialityCode" value="N" /> 
+                <Variable name="DocumentConfidentialityCodeSystem" value="2.16.840.1.113883.5.25" /> 
+                <Variable name="DocumentConfidentialityDisplayName" value="Normal" /> 
+            </StaticContentGroup>
+            
+            <StaticContentGroup variableName="HealthcareFacilityTypeCode">
+                <Variable name="HealthcareFacilityTypeCode" value="WORK" /> 
+                <Variable name="HealthcareFacilityTypeCodeSystem" value="2.16.840.1.113883.5.11" /> 
+                <Variable name="HealthcareFacilityTypeDisplayName" value="work site" /> 
+            </StaticContentGroup>
 
-            <Variable name="HealthcareFacilityTypeCode" value="WORK" /> 
-            <Variable name="HealthcareFacilityTypeCodeSystem" value="2.16.840.1.113883.5.11" /> 
-            <Variable name="HealthcareFacilityTypeDisplayName" value="work site" /> 
-
-            <Variable name="PracticeSettingCode" value="385432009" /> 
-            <Variable name="PracticeSettingCodeSystem" value="2.16.840.1.113883.6.96" /> 
-            <Variable name="PracticeSettingDisplayName" value="Not applicable" /> 
+            <StaticContentGroup variableName="PracticeSettingCode">
+                <Variable name="PracticeSettingCode" value="385432009" /> 
+                <Variable name="PracticeSettingCodeSystem" value="2.16.840.1.113883.6.96" /> 
+                <Variable name="PracticeSettingDisplayName" value="Not applicable" /> 
+            </StaticContentGroup>
         </StaticContentVariables>
     </ContentParserConfig>    
 </Config>
