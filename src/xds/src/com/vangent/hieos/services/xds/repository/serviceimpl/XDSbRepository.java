@@ -28,6 +28,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
@@ -42,7 +43,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 public class XDSbRepository extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDSbRepository.class);
-
     private static XConfigActor config = null;  // Singleton.
 
     @Override
@@ -75,11 +75,11 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement ProvideAndRegisterDocumentSetRequest(OMElement sor) throws AxisFault {
-        long start = System.currentTimeMillis();
-        beginTransaction(getPnRTransactionName(), sor);
-        validateWS();
-        validateMTOM();
         try {
+            long start = System.currentTimeMillis();
+            beginTransaction(getPnRTransactionName(), sor);
+            validateWS();
+            validateMTOM();
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
             s.setConfigActor(this.getConfigActor());
@@ -89,6 +89,8 @@ public class XDSbRepository extends XAbstractService {
                 logger.debug("PNR TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (XdsValidationException e) {
             return endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
         }
@@ -101,11 +103,11 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) throws AxisFault {
-        long start = System.currentTimeMillis();
-        beginTransaction(getRetTransactionName(), rdsr);
-        validateWS();
-        validateMTOM();
         try {
+            long start = System.currentTimeMillis();
+            beginTransaction(getRetTransactionName(), rdsr);
+            validateWS();
+            validateMTOM();
             validateRetTransaction(rdsr);
             OMNamespace ns = rdsr.getNamespace();
             String ns_uri = ns.getNamespaceURI();
@@ -122,6 +124,8 @@ public class XDSbRepository extends XAbstractService {
                 logger.debug("RETRIEVE DOC TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (XdsValidationException ex) {
             return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (SchemaValidationException ex) {

@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsWSException;
-import org.apache.axis2.AxisFault;
 
 /**
  * XDSbRepositoryAsync is a simple class that overrides a few methods in
@@ -27,10 +27,10 @@ public class XDSbRepositoryAsync extends XDSbRepository {
      * This method ensures that an asynchronous request has been sent. It evaluates the message
      * context to dtermine if "ReplyTo" is non-null and is not anonymous. It also ensures that
      * "MessageID" is non-null. It throws an exception if that is not the case.
-     * @throws XdsWSException
+     * @throws SOAPFaultException
      */
     @Override
-    protected void validateWS() throws AxisFault {
+    protected void validateWS() throws SOAPFaultException {
         validateAsyncWS();
     }
 

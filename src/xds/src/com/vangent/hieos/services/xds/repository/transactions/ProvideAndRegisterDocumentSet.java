@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.exception.XDSRepositoryMetadataError;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
@@ -291,7 +292,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                         epr,
                         XATNALogger.ActorType.REPOSITORY,
                         XATNALogger.OutcomeIndicator.SUCCESS);
-            } catch (XdsException e) {
+            } catch (SOAPFaultException e) {
                 response.add_error(MetadataSupport.XDSRegistryNotAvailable, e.getMessage(), this.getClass().getName(), log_message);
                 return;  // Early exit!!
             }

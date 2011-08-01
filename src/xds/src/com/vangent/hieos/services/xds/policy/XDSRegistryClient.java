@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.policy;
 
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 
 // FIXME: MOVE
 /**
@@ -68,9 +68,9 @@ public class XDSRegistryClient extends WebServiceClient {
      * @param documentResponseList
      * @param returnIdsOnly
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public List<DocumentMetadata> getRegistryObjects(List<DocumentResponse> documentResponseList, boolean returnIdsOnly) throws AxisFault {
+    public List<DocumentMetadata> getRegistryObjects(List<DocumentResponse> documentResponseList, boolean returnIdsOnly) throws SOAPFaultException {
         // Build list of document ids suitable for query.
 
         // FIXME: Cleanup/refactor code.
@@ -120,7 +120,7 @@ public class XDSRegistryClient extends WebServiceClient {
             }
             return documentMetadataIdentifierList;
         } catch (XPathHelperException ex) {
-            throw new AxisFault("Can not parse registry response", ex);
+            throw new SOAPFaultException("Can not parse registry response", ex);
         }
     }
 
@@ -131,32 +131,22 @@ public class XDSRegistryClient extends WebServiceClient {
      * @param endpointURL
      * @param soap12
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    private OMElement send(OMElement requestNode, String soapAction, String endpointURL, boolean soap12) throws AxisFault {
-        try {
-            // Make SOAP call.
-            Soap soap = new Soap();
-            OMElement responseNode;
-            try {
-                responseNode = soap.soapCall(
-                        requestNode,
-                        endpointURL,
-                        false /* MTOM */,
-                        soap12 /* Addressing - Only if SOAP 1.2 */,
-                        soap12 /* SOAP 1.2 */,
-                        soapAction, null);
-            } catch (Exception ex) {
-                throw new AxisFault(ex.getMessage());
-            }
-            if (responseNode == null) {
-                throw new AxisFault("No SOAP Response!");
-            }
-
-            return responseNode;
-
-        } catch (Exception ex) {
-            throw new AxisFault(ex.getMessage());
+    private OMElement send(OMElement requestNode, String soapAction, String endpointURL, boolean soap12) throws SOAPFaultException {
+        // Make SOAP call.
+        Soap soap = new Soap();
+        OMElement responseNode;
+        responseNode = soap.soapCall(
+                requestNode,
+                endpointURL,
+                false /* MTOM */,
+                soap12 /* Addressing - Only if SOAP 1.2 */,
+                soap12 /* SOAP 1.2 */,
+                soapAction, null);
+        if (responseNode == null) {
+            throw new SOAPFaultException("No SOAP Response!");
         }
+        return responseNode;
     }
 }

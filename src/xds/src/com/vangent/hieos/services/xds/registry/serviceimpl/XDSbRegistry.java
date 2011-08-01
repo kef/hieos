@@ -29,6 +29,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -40,14 +41,12 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 public class XDSbRegistry extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(XDSbRegistry.class);
-
     private static XConfigActor config = null;  // Singleton.
 
     @Override
     protected XConfigActor getConfigActor() {
         return config;
     }
-
 
     /**
      *
@@ -56,11 +55,11 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement SubmitObjectsRequest(OMElement sor) throws AxisFault {
-        long start = System.currentTimeMillis();
-        beginTransaction(getRTransactionName(sor), sor);
-        validateWS();
-        validateNoMTOM();
         try {
+            long start = System.currentTimeMillis();
+            beginTransaction(getRTransactionName(sor), sor);
+            validateWS();
+            validateNoMTOM();
             validateSubmitTransaction(sor);
             SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
             s.setConfigActor(this.getConfigActor());
@@ -71,6 +70,8 @@ public class XDSbRegistry extends XAbstractService {
             }
             return result;
             //return endTransaction(sor, e, XAbstractService.ActorType.REGISTRY, "");
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (XdsValidationException ex) {
             return endTransaction(sor, ex, XAbstractService.ActorType.REGISTRY, "");
         }
@@ -83,11 +84,11 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement ahqr) throws AxisFault {
-        long start = System.currentTimeMillis();
-        beginTransaction(getRTransactionName(ahqr), ahqr);
-        validateWS();
-        validateNoMTOM();
         try {
+            long start = System.currentTimeMillis();
+            beginTransaction(getRTransactionName(ahqr), ahqr);
+            validateWS();
+            validateNoMTOM();
             AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
             a.setConfigActor(this.getConfigActor());
             validateQueryTransaction(ahqr);
@@ -100,6 +101,8 @@ public class XDSbRegistry extends XAbstractService {
                 logger.debug("ADHOC QUERY TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (XdsValidationException ex) {
             return endTransaction(ahqr, ex, XAbstractService.ActorType.REGISTRY, "");
         }
@@ -113,13 +116,17 @@ public class XDSbRegistry extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement PatientFeedRequest(OMElement patientFeedRequest) throws AxisFault {
-        beginTransaction("PIDFEED.V2", patientFeedRequest);
-        logger.debug("*** PID Feed: SIMPLE ***");
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
-        rpif.setConfigActor(this.getConfigActor());
-        OMElement result = rpif.run_Simple(patientFeedRequest);
-        endTransaction(rpif.getStatus());
-        return result;
+        try {
+            beginTransaction("PIDFEED.V2", patientFeedRequest);
+            logger.debug("*** PID Feed: SIMPLE ***");
+            RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+            rpif.setConfigActor(this.getConfigActor());
+            OMElement result = rpif.run_Simple(patientFeedRequest);
+            endTransaction(rpif.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -144,16 +151,20 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201301UV02(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
-        beginTransaction("PIDFEED.Add", PRPA_IN201301UV02_Message);
-        validateNoMTOM();
+        try {
+            beginTransaction("PIDFEED.Add", PRPA_IN201301UV02_Message);
+            validateNoMTOM();
 
-        logger.debug("*** PID Feed: Patient Registry Record Added ***");
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
-        rpif.setConfigActor(this.getConfigActor());
-        OMElement result = rpif.run(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordAdded);
-        //this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(rpif.getStatus());
-        return result;
+            logger.debug("*** PID Feed: Patient Registry Record Added ***");
+            RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+            rpif.setConfigActor(this.getConfigActor());
+            OMElement result = rpif.run(PRPA_IN201301UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordAdded);
+            //this.forceAnonymousReply();  // BHT (FIXME)
+            endTransaction(rpif.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -164,16 +175,20 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201302UV02(OMElement PRPA_IN201302UV02_Message) throws AxisFault {
-        beginTransaction("PIDFEED.Update", PRPA_IN201302UV02_Message);
-        validateNoMTOM();
+        try {
+            beginTransaction("PIDFEED.Update", PRPA_IN201302UV02_Message);
+            validateNoMTOM();
 
-        logger.debug("*** PID Feed: Patient Registry Record Updated ***");
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
-        rpif.setConfigActor(this.getConfigActor());
-        OMElement result = rpif.run(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUpdated);
-        //this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(rpif.getStatus());
-        return result;
+            logger.debug("*** PID Feed: Patient Registry Record Updated ***");
+            RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+            rpif.setConfigActor(this.getConfigActor());
+            OMElement result = rpif.run(PRPA_IN201302UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUpdated);
+            //this.forceAnonymousReply();  // BHT (FIXME)
+            endTransaction(rpif.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -184,16 +199,19 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201304UV02(OMElement PRPA_IN201304UV02_Message) throws AxisFault {
-        beginTransaction("PIDFEED.Merge", PRPA_IN201304UV02_Message);
-        validateNoMTOM();
-
-        logger.debug("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
-        rpif.setConfigActor(this.getConfigActor());
-        OMElement result = rpif.run(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryDuplicatesResolved);
-        //this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(rpif.getStatus());
-        return result;
+        try {
+            beginTransaction("PIDFEED.Merge", PRPA_IN201304UV02_Message);
+            validateNoMTOM();
+            logger.debug("*** PID Feed: Patient Registry Duplicates Resolved (MERGE) ***");
+            RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+            rpif.setConfigActor(this.getConfigActor());
+            OMElement result = rpif.run(PRPA_IN201304UV02_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryDuplicatesResolved);
+            //this.forceAnonymousReply();  // BHT (FIXME)
+            endTransaction(rpif.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -204,16 +222,20 @@ public class XDSbRegistry extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement DocumentRegistry_PRPA_IN201304UV02UNMERGE(OMElement PRPA_IN201304UV02UNMERGE_Message) throws AxisFault {
-        beginTransaction("PIDFEED.Unmerge", PRPA_IN201304UV02UNMERGE_Message);
-        validateNoMTOM();
+        try {
+            beginTransaction("PIDFEED.Unmerge", PRPA_IN201304UV02UNMERGE_Message);
+            validateNoMTOM();
 
-        logger.debug("*** PID Feed: Patient Registry Record Unmerged ***");
-        RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
-        rpif.setConfigActor(this.getConfigActor());
-        OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
-        //this.forceAnonymousReply();  // BHT (FIXME)
-        endTransaction(rpif.getStatus());
-        return result;
+            logger.debug("*** PID Feed: Patient Registry Record Unmerged ***");
+            RegistryPatientIdentityFeed rpif = new RegistryPatientIdentityFeed(log_message);
+            rpif.setConfigActor(this.getConfigActor());
+            OMElement result = rpif.run(PRPA_IN201304UV02UNMERGE_Message, RegistryPatientIdentityFeed.MessageType.PatientRegistryRecordUnmerged);
+            //this.forceAnonymousReply();  // BHT (FIXME)
+            endTransaction(rpif.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -291,7 +313,6 @@ public class XDSbRegistry extends XAbstractService {
     }
     }
      */
-
     // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.

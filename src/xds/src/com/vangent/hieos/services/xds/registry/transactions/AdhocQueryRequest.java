@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -169,12 +168,11 @@ public class AdhocQueryRequest extends XBaseTransaction {
      * @throws SQLException
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
-     * @throws AxisFault
      * @throws XdsValidationException
      * @throws XdsResultNotSinglePatientException
      */
     private void AdhocQueryRequestInternal(final OMElement ahqr)
-            throws SQLException, XdsException, AxisFault, XdsValidationException, Exception {
+            throws SQLException, XdsException, XdsValidationException, Exception {
         RegistryUtility.schema_validate_local(ahqr, MetadataTypes.METADATA_TYPE_SQ);
         boolean foundQuery = false;
         for (Iterator it = ahqr.getChildElements(); it.hasNext();) {

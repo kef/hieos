@@ -22,6 +22,7 @@ import com.vangent.hieos.services.xds.policy.DocumentResponseBuilder;
 import com.vangent.hieos.services.xds.policy.DocumentResponseElementList;
 import com.vangent.hieos.services.xds.policy.XDSRegistryClient;
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
@@ -51,7 +52,6 @@ import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -176,9 +176,8 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @param rds
      * @throws MetadataException
      * @throws XdsException
-     * @throws AxisFault
      */
-    private void handleObligations(PDPResponse pdpResponse, OMElement rds) throws MetadataException, XdsException, AxisFault, PolicyException {
+    private void handleObligations(PDPResponse pdpResponse, OMElement rds) throws MetadataException, XdsException, PolicyException, SOAPFaultException {
         // Retrieve the documents from the data store.
         ArrayList<OMElement> documentResponseNodes = retrieveDocuments(rds);
 
