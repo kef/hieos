@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pip.transactions;
 
 import com.vangent.hieos.policyutil.util.PolicyConstants;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -21,7 +22,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -63,9 +63,9 @@ public class PIPRequestHandler extends XBaseTransaction {
      *
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request) throws AxisFault {
+    public OMElement run(OMElement request) throws SOAPFaultException {
         try {
             log_message.setPass(true); // Hope for the best.
             // FIXME: Stub.
@@ -93,12 +93,14 @@ public class PIPRequestHandler extends XBaseTransaction {
                 }
                 return pipResponse;
             } catch (XMLParserException ex) {
-                throw new AxisFault(ex.getMessage());
+                log_message.addErrorParam("EXCEPTION", ex.getMessage());
+                log_message.setPass(false);
+                throw new SOAPFaultException(ex.getMessage());
             }
         } catch (Exception ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             log_message.setPass(false);
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
     }
 }

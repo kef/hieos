@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pip.serviceimpl;
 
 import com.vangent.hieos.services.pip.transactions.PIPRequestHandler;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -45,14 +46,18 @@ public class PIP extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement GetConsentDirectives(OMElement request) throws AxisFault {
-        beginTransaction("PIP:GetConsentDirectives", request);
-        validateWS();
-        validateNoMTOM();
-        PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-        OMElement result = handler.run(request);
-        handler.setConfigActor(config);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction("PIP:GetConsentDirectives", request);
+            validateWS();
+            validateNoMTOM();
+            PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+            OMElement result = handler.run(request);
+            handler.setConfigActor(config);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage()); // Rethrow.
+        }
     }
 
     /**
