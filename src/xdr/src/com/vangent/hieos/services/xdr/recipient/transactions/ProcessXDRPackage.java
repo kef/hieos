@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xdr.recipient.transactions;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XDSMissingDocumentException;
 import com.vangent.hieos.xutil.exception.XDSMissingDocumentMetadataException;
@@ -175,8 +176,6 @@ public class ProcessXDRPackage extends XBaseTransaction {
         String expectedReturnAction = getExpectedReturnAction();
         soap.setAsync(txn.isAsyncTransaction());
 
-        
-
         try {
             OMElement result;
             try {
@@ -191,7 +190,7 @@ public class ProcessXDRPackage extends XBaseTransaction {
                         epr,
                         XATNALogger.ActorType.REPOSITORY,
                         XATNALogger.OutcomeIndicator.SUCCESS);
-            } catch (XdsException e) {
+            } catch (SOAPFaultException e) {
                 logger.info("RETURNED FROM PNR TRANSACTION WITH ERROR" + e);
                 response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
                 return;  // Early exit!!

@@ -27,6 +27,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -64,12 +65,12 @@ public class XDRRecipient extends XAbstractService {
         if (logger.isDebugEnabled()) {
             logger.debug("XDR Request Received: " + xdr.toString());
         }
-        beginTransaction(getXDRTransactionName(), xdr);
-
-        // Validate the XDR package
-        validateWS();
-        validateMTOM();
         try {
+            beginTransaction(getXDRTransactionName(), xdr);
+
+            // Validate the XDR package
+            validateWS();
+            validateMTOM();
             validateXDRTransaction(xdr);
 
             // Process the Request
@@ -79,6 +80,8 @@ public class XDRRecipient extends XAbstractService {
 
             endTransaction(s.getStatus());
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (XdsValidationException ex) {
             return endTransaction(xdr, ex, XAbstractService.ActorType.DOCRECIPIENT, "");
         }
