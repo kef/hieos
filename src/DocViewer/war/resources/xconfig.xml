@@ -36,7 +36,7 @@
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
         <!--<Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>-->
-        <Property name="ContentURL">http://localhost:8888/docview</Property>
+        <Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
         <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
