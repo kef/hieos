@@ -82,7 +82,7 @@ public class RetrieveBEngine {
                 retrieve(id, qc, m, home);
                 // seems to have worked
                 return;
-            } catch (XdsWSException e) {
+            } catch (SOAPFaultException e) {
                 qc.addError(e.getMessage());
                 // endpoint failed - try next one in list
             }
@@ -99,7 +99,7 @@ public class RetrieveBEngine {
      * @param home
      * @throws XdsWSException
      */
-    public void retrieve(String id, RetrieveBQueryContents qc, Metadata m, String home) throws XdsWSException {
+    public void retrieve(String id, RetrieveBQueryContents qc, Metadata m, String home) throws SOAPFaultException {
         RetContext r_ctx = new RetContext();
         try {
             OMElement doc = m.getObjectById(id);
