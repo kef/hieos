@@ -182,7 +182,8 @@
             UserNameToken
             BinarySecurityToken [must supply X.509 cert]
         -->
-        <Property name="AuthenticationType">UserNameToken</Property>
+        <!-- no longer used 
+        <Property name="AuthenticationType">BinarySecurityToken</Property>-->
 
         <!-- Configuration for UserNameToken w/ LDAP -->
         <!-- Authentication Handler Configuration -->
@@ -193,12 +194,13 @@
         <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
         <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
 
-        <!-- ComputeSubjectNameFromClaims:
-            true - create SubjectName from XSPA subject-id claim.
-            false - extract SubjectName from X.509 Certificate when using BinarySecurityToken
-                    or from LDAP DistinguishedName when using UserNameToken
+        <!-- UseSubjectNameFromClaimURI
+            If property exists then create SubjectName from specified Claim URI value
+              In the case of UserNameToken, will replace subject name completely with Claim URI value.
+              In the case of BinarySecurityToken, will only override CN portion of supplied
+                 X.509 certificate with Claim URI value.
         -->
-        <Property name="ComputeSubjectNameFromClaims">true</Property>
+        <Property name="UseSubjectNameFromClaimURI">urn:oasis:names:tc:xacml:1.0:subject:subject-id</Property>
 
     </Actor>
 
@@ -358,7 +360,7 @@
         <UniqueId>1.3.6.1.4.1.21367.13.1185</UniqueId>
         <Property name="XUAEnabled">false</Property>
         <!--<Property name="XUAEnabledSOAPActions">ALL</Property>-->
-        <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RetrieveDocumentSet</Property>
+        <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RetrieveDocumentSet</Property>
         -->
