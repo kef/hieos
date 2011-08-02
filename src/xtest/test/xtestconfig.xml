@@ -19,33 +19,25 @@
         <Property name="DefaultRegistry">localregistry</Property>
         <Property name="DefaultRepository">1.3.6.1.4.1.21367.13.1185</Property>
         <Property name="DefaultInitiatingGateway">urn:oid:1.3.6.1.4.1.21367.13.3070</Property>
-        <Property name="XUA:Enabled">false</Property>
-        
-        <!--
-        <Property name="XUA:STSURL">http://openam.idp.ihs.hhs.gov:8139/openam/sts</Property>
-        <Property name="XUA:STSURL">https://localhost:1256/opensso/sts</Property>
-        -->
+        <Property name="XUA:Enabled">true</Property>
         
         <!--
         <Property name="XUA:STSURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProvider4Tivoli</Property>
         <Property name="XUA:ServiceURI">http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon</Property>
         -->
         
-        <Property name="XUA:STSURL">http://10.242.9.100:8088/SpiritIdentityProvider2/sts</Property>
-	<Property name="XUA:ServiceURI">http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon</Property>
+        <!--<Property name="XUA:STSURL">http://10.242.9.100:8088/SpiritIdentityProvider2/sts</Property>
+	<Property name="XUA:ServiceURI">http://www.vangent.com/X-ServiceProvider-HIEOS</Property>-->
+        <!--<Property name="XUA:STSURL">http://localhost:8127/axis2/services/sts</Property>-->
+        <Property name="XUA:STSURL">http://localhost:8127/axis2/services/sts</Property>
+	<Property name="XUA:ServiceURI">http://www.vangent.com/X-ServiceProvider-HIEOS</Property>
+        <Property name="XUA:UserName">stsclient</Property>
+        <Property name="XUA:Password">stsclient</Property>
+        <!-- Will use Cert (over UserName/Password) if specified. -->
+        <Property name="XUA:Cert">MIIC5DCCAk2gAwIBAgIETdzqTDANBgkqhkiG9w0BAQUFADCBpDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFDASBgNVBAcTC1NhbnRhIENsYXJhMRkwFwYDVQQKExBTdW4gTWljcm9zeXN0ZW1zMSgwJgYDVQQLEx9TdW4gR2xhc3NGaXNoIEVudGVycHJpc2UgU2VydmVyMSUwIwYDVQQDExxWR0VKSjM5NFExTEFSTC52YW5nZW50LmxvY2FsMB4XDTExMDUyNTExMzg1MloXDTIxMDUyMjExMzg1MlowgaQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRQwEgYDVQQHEwtTYW50YSBDbGFyYTEZMBcGA1UEChMQU3VuIE1pY3Jvc3lzdGVtczEoMCYGA1UECxMfU3VuIEdsYXNzRmlzaCBFbnRlcnByaXNlIFNlcnZlcjElMCMGA1UEAxMcVkdFSkozOTRRMUxBUkwudmFuZ2VudC5sb2NhbDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAmEJVoex2B8y9M9KN0/GImSyCppiIfiOj1kIdk7ConvXFQGpSoI6xVQ1Ke8CNlkKSGqNDRCUMrVtcAH61dVvxmYJ/KODVN1Av8x5Ww7rZFnn8UQXPWSmNCoqAfwZMTTk8ziIBrQwlLx8/yARunNvLL1YAEE3DskFUGpL7pU2NNZECAwEAAaMhMB8wHQYDVR0OBBYEFGwWYTUddvPurnFU/wIY2F7fDycoMA0GCSqGSIb3DQEBBQUAA4GBACma9tIT2qzlEd0ebRiRWlFM9n5rGXvV8b3qgpttXXYR/7zLyAjZMLU+LKwfqHQMODOVJ5OlGREQSrmTlRoLxuoDSaaEoLRMGcPYMT+RNG/xKuyfIQwl+2SJIX3DXmisrZ2mrHfLzfP0j7ARY3meG4e0rONgKAxPiE5E+OH6NPbq</Property>
 
-        <!--
-        <Property name="XUA:UserName">bthuman</Property>
-        <Property name="XUA:Password">foobar123</Property>
-        -->
-        
-        <!--
-        <Property name="XUA:UserName">admin@tiani-spirit.com</Property>
-        <Property name="XUA:Password">a</Property>
-        -->
-        <Property name="XUA:UserName">admin</Property>
-        <Property name="XUA:Password">a</Property>
-        <Property name="XUA:SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
+        <!-- These SOAP actions will be be subject to SAML Token validation via configured STS. -->
+        <Property name="XUA:SOAPActions">urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
 
    <!-- List of Registries -->
         <Registry name="localregistry">
