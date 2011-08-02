@@ -20,7 +20,7 @@ import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import java.io.IOException;
 import java.net.Socket;
@@ -86,7 +86,7 @@ public class HL7ADTPatientIdentityFeedMessageHandler extends HL7Application {
                     true /* SOAP12 */,
                     action,
                     expectedReturnAction);
-        } catch (XdsException e) {
+        } catch (SOAPFaultException e) {
             log.error("EXCEPTION: " + e.getMessage());
             throw new HL7Exception(e);
         }
