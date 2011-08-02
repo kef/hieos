@@ -14,13 +14,12 @@ package com.vangent.hieos.hl7v3util.client;
 
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -45,29 +44,23 @@ public class XCPDGatewayClient extends WebServiceClient {
      *
      * @param PRPA_IN201305UV02_Message
      * @return PRPA_IN201306UV02_Message
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public PRPA_IN201306UV02_Message findCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
-        PRPA_IN201306UV02_Message response = null;
+    public PRPA_IN201306UV02_Message findCandidatesQuery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
         // TBD: Validate against schema.
         Soap soap = new Soap();
-        try {
-            XConfigActor gatewayConfig = this.getConfig();
-            XConfigTransaction txn = gatewayConfig.getTransaction("CrossGatewayPatientDiscovery");
-            soap.setAsync(txn.isAsyncTransaction());
-            boolean soap12 = txn.isSOAP12Endpoint();
-            OMElement soapResponse = soap.soapCall(
-                    request.getMessageNode(),
-                    txn.getEndpointURL(),
-                    false   /* mtom */,
-                    soap12, /* Addressing - Only if SOAP 1.2 */
-                    soap12,
-                    XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION /* SOAP action */,
-                    XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION_RESPONSE /* SOAP action response */);
-            response = new PRPA_IN201306UV02_Message(soapResponse);
-        } catch (XdsException ex) {
-            throw new AxisFault(ex.getMessage());
-        }
-        return response;
+        XConfigActor gatewayConfig = this.getConfig();
+        XConfigTransaction txn = gatewayConfig.getTransaction("CrossGatewayPatientDiscovery");
+        soap.setAsync(txn.isAsyncTransaction());
+        boolean soap12 = txn.isSOAP12Endpoint();
+        OMElement soapResponse = soap.soapCall(
+                request.getMessageNode(),
+                txn.getEndpointURL(),
+                false /* mtom */,
+                soap12, /* Addressing - Only if SOAP 1.2 */
+                soap12,
+                XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION /* SOAP action */,
+                XCPDGatewayClient.XCPD_GATEWAY_CGPD_ACTION_RESPONSE /* SOAP action response */);
+        return new PRPA_IN201306UV02_Message(soapResponse);
     }
 }

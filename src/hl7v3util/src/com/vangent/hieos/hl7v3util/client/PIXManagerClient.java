@@ -20,19 +20,19 @@ import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class PIXManagerClient extends WebServiceClient {
+
     public final static String XREFMGR_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
     public final static String XREFMGR_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
 
@@ -48,44 +48,38 @@ public class PIXManagerClient extends WebServiceClient {
      *
      * @param PRPA_IN201309UV02_Message
      * @return PRPA_IN201310UV02_Message
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public PRPA_IN201310UV02_Message getIdentifiersQuery(PRPA_IN201309UV02_Message request) throws AxisFault {
-        PRPA_IN201310UV02_Message response = null;
+    public PRPA_IN201310UV02_Message getIdentifiersQuery(PRPA_IN201309UV02_Message request) throws SOAPFaultException {
         // TBD: Validate against schema.
         Soap soap = new Soap();
-        try {
-            XConfigActor config = this.getConfig();
-            XConfigTransaction txn = config.getTransaction("PatientRegistryGetIdentifiersQuery");
-            soap.setAsync(txn.isAsyncTransaction());
-            boolean soap12 = txn.isSOAP12Endpoint();
-            OMElement soapResponse = soap.soapCall(
-                    request.getMessageNode(),
-                    txn.getEndpointURL(),
-                    false,  /* MTOM */
-                    soap12, /* Addressing - Only if SOAP 1.2 */
-                    soap12,
-                    PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION /* SOAP action */,
-                    PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION_RESPONSE /* SOAP action response */);
-            response = new PRPA_IN201310UV02_Message(soapResponse);
-        } catch (XdsException ex) {
-            throw new AxisFault(ex.getMessage());
-        }
-        return response;
+        XConfigActor config = this.getConfig();
+        XConfigTransaction txn = config.getTransaction("PatientRegistryGetIdentifiersQuery");
+        soap.setAsync(txn.isAsyncTransaction());
+        boolean soap12 = txn.isSOAP12Endpoint();
+        OMElement soapResponse = soap.soapCall(
+                request.getMessageNode(),
+                txn.getEndpointURL(),
+                false, /* MTOM */
+                soap12, /* Addressing - Only if SOAP 1.2 */
+                soap12,
+                PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION /* SOAP action */,
+                PIXManagerClient.XREFMGR_PIXV3QUERY_ACTION_RESPONSE /* SOAP action response */);
+        return new PRPA_IN201310UV02_Message(soapResponse);
     }
 
-   /**
-    *
-    * @param senderDeviceInfo
-    * @param receiverDeviceInfo
-    * @param subjectSearchCriteria
-    * @return
-    * @throws AxisFault
-    */
+    /**
+     *
+     * @param senderDeviceInfo
+     * @param receiverDeviceInfo
+     * @param subjectSearchCriteria
+     * @return
+     * @throws SOAPFaultException
+     */
     public SubjectSearchResponse getIdentifiersQuery(
             DeviceInfo senderDeviceInfo,
             DeviceInfo receiverDeviceInfo,
-            SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
+            SubjectSearchCriteria subjectSearchCriteria) throws SOAPFaultException {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
         // Build the HL7v3 message.
@@ -102,7 +96,7 @@ public class PIXManagerClient extends WebServiceClient {
             }
 
         } catch (ModelBuilderException ex) {
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
         return subjectSearchResponse;
     }
