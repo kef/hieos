@@ -26,6 +26,7 @@ import org.apache.axis2.description.AxisService;
 
 // XATNA
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -55,17 +56,17 @@ public class STS extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement RequestSecurityToken(OMElement request) throws AxisFault {
-        beginTransaction(this.getRequestType(request), request);
-        validateWS();
-        validateNoMTOM();
-        STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-        handler.setConfigActor(config);
         try {
-            return handler.run(request);
-        } catch (AxisFault ex) {
-            throw ex; // Rethrow.
-        } finally {
+            beginTransaction(this.getRequestType(request), request);
+            validateWS();
+            validateNoMTOM();
+            STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+            handler.setConfigActor(config);
+            OMElement response = handler.run(request);
             endTransaction(handler.getStatus());
+            return response;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage()); // Rethrow.
         }
     }
 

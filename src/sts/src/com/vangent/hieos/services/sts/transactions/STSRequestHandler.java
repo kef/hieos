@@ -21,12 +21,12 @@ import com.vangent.hieos.services.sts.config.STSConfig;
 import com.vangent.hieos.services.sts.exception.STSException;
 import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.services.sts.util.STSUtil;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
@@ -88,9 +88,9 @@ public class STSRequestHandler extends XBaseTransaction {
      *
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request) throws AxisFault {
+    public OMElement run(OMElement request) throws SOAPFaultException {
         OMElement result = null;
         log_message.setPass(true);  // Hope for the best.
 
@@ -100,7 +100,7 @@ public class STSRequestHandler extends XBaseTransaction {
         try {
             requestData.parseHeader();
         } catch (STSException ex) {
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
 
         // Authenticate user (for Issue requests).
@@ -110,10 +110,10 @@ public class STSRequestHandler extends XBaseTransaction {
             try {
                 authenticated = this.authenticate(requestData);
             } catch (STSException ex) {
-                throw new AxisFault(ex.getMessage());
+                throw new SOAPFaultException(ex.getMessage());
             }
             if (!authenticated) {
-                throw new AxisFault("User not authenticated");
+                throw new SOAPFaultException("User not authenticated");
             }
         }
 
@@ -129,7 +129,7 @@ public class STSRequestHandler extends XBaseTransaction {
                 throw new STSException("RequestType not understood by this service!");
             }
         } catch (STSException ex) {
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
         if (log_message.isLogEnabled()) {
             log_message.addOtherParam("Response", result);
