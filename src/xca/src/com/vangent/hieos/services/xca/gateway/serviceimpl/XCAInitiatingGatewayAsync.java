@@ -13,8 +13,7 @@
 
 package com.vangent.hieos.services.xca.gateway.serviceimpl;
 
-import com.vangent.hieos.xutil.exception.XdsWSException;
-import org.apache.axis2.AxisFault;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 /**
  * XCAInitiatingGatewayAsync is a simple class that overrides a few methods in
@@ -31,7 +30,7 @@ public class XCAInitiatingGatewayAsync extends XCAInitiatingGateway {
      * @throws XdsWSException
      */
     @Override
-    protected void validateWS() throws AxisFault {
+    protected void validateWS() throws SOAPFaultException {
         validateAsyncWS();
     }
 

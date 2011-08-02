@@ -411,7 +411,7 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws XdsInternalException
      */
     private synchronized XConfigActor getXCPDInitiatingGatewayConfig() throws XdsInternalException {
         if (_xcpdIGConfig != null) {

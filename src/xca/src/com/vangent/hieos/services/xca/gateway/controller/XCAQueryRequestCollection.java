@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xca.gateway.controller;
 
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
@@ -21,8 +20,7 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.metadata.structure.HomeAttribute;
 
 // Exceptions.
-import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -33,6 +31,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
+import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
@@ -67,11 +66,10 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
 
     /**
      * 
-     * @return
-     * @throws XdsWSException
-     * @throws XdsException
+     * @return OMElement
+     * @throws SOAPFaultException
      */
-    public OMElement sendRequests() throws XdsWSException, XdsException {
+    public OMElement sendRequests() throws SOAPFaultException {
         OMElement rootRequest = MetadataSupport.om_factory.createOMElement("AdhocQueryRequest", MetadataSupport.ebQns3);
 
         // Now consolidate all requests to send out.
@@ -96,8 +94,8 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
                 this.setResult(null);
                 XCAErrorMessage errorMessage = new XCAErrorMessage(
                         MetadataSupport.XDSRepositoryMetadataError,
-                        "Remote Gateway or Registry response did not validate against schema  [id = " +
-                        this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
+                        "Remote Gateway or Registry response did not validate against schema  [id = "
+                        + this.getUniqueId() + ", endpoint = " + this.getEndpointURL() + "]",
                         this.getUniqueId());
                 this.addErrorMessage(errorMessage);
                 /*response.add_error(MetadataSupport.XDSRegistryMetadataError,
@@ -107,8 +105,12 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
             }
 
             if ((result != null) && this.isLocalRequest()) {
-                XConfigObject homeCommunity = XConfig.getInstance().getHomeCommunityConfig();
-                this.setHomeAttributeOnResult(result, homeCommunity.getUniqueId());
+                try {
+                    XConfigObject homeCommunity = XConfig.getInstance().getHomeCommunityConfig();
+                    this.setHomeAttributeOnResult(result, homeCommunity.getUniqueId());
+                } catch (XConfigException ex) {
+                    throw new SOAPFaultException("Unable to get home community configuration", ex);
+                }
             }
         }
         return result;
@@ -119,26 +121,25 @@ public class XCAQueryRequestCollection extends XCAAbstractRequestCollection {
      * @param request
      * @param xconfigTxn
      * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsWSException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
+     * @throws SOAPFaultException
      */
     private OMElement sendTransaction(OMElement request, XConfigTransaction xconfigTxn)
-            throws XdsWSException, XdsException {
+            throws SOAPFaultException {
 
         String endpoint = xconfigTxn.getEndpointURL();
         boolean isAsyncTxn = xconfigTxn.isAsyncTransaction();
         String action = getAction();
         String expectedReturnAction = getExpectedReturnAction();
 
-        logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction +
-                ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
+        logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction
+                + ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
         boolean soap12 = xconfigTxn.isSOAP12Endpoint();
         soap.soapCall(request, endpoint,
-                false,   /* mtom */
-                soap12,  /* addressing [only if SOAP1.2] */
+                false, /* mtom */
+                soap12, /* addressing [only if SOAP1.2] */
                 soap12,
                 action,
                 expectedReturnAction);

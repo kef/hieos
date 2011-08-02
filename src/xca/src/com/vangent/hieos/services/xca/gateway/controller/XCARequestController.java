@@ -17,8 +17,7 @@ import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 // Exceptions.
-import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 // Third-party.
 import java.util.ArrayList;
@@ -225,14 +224,7 @@ public class XCARequestController {
                 // Do nothing with result as it is cached in the RequestCollection.
 
                 // BHT (FIXUP) -- need to find proper exceptions to return.
-            } catch (XdsException e) {
-                logger.error("+++ EXCEPTION = " + e.getMessage());
-                XCAErrorMessage errorMessage = new XCAErrorMessage(
-                        MetadataSupport.XDSUnavailableCommunity,
-                        "Failure contacting community or repository = " + requestCollection.getUniqueId(),
-                        requestCollection.getUniqueId());
-                requestCollection.addErrorMessage(errorMessage);
-            } catch (XdsWSException e) {
+            } catch (SOAPFaultException e) {
                 logger.error("+++ EXCEPTION = " + e.getMessage());
                 XCAErrorMessage errorMessage = new XCAErrorMessage(
                         MetadataSupport.XDSUnavailableCommunity,

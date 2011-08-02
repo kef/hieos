@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 
@@ -66,8 +67,8 @@ public abstract class XCAGateway extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement request) throws AxisFault {
-        beginTransaction(getQueryTransactionName(), request);
         try {
+            beginTransaction(getQueryTransactionName(), request);
             OMElement ahq = MetadataSupport.firstChildWithLocalName(request, "AdhocQuery");
             if (ahq == null) {
                 endTransaction(false);
@@ -82,6 +83,8 @@ public abstract class XCAGateway extends XAbstractService {
             OMElement result = transaction.run(request);
             endTransaction(transaction.getStatus());
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (SchemaValidationException ex) {
             return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
         } catch (XdsInternalException ex) {
@@ -98,16 +101,18 @@ public abstract class XCAGateway extends XAbstractService {
      * @throws AxisFault 
      */
     public OMElement RetrieveDocumentSetRequest(OMElement request) throws AxisFault {
-        beginTransaction(getRetTransactionName(), request);
-        validateWS();
-        validateMTOM();
         try {
+            beginTransaction(getRetTransactionName(), request);
+            validateWS();
+            validateMTOM();
             validateRetrieveTransaction(request);
             // Delegate all the hard work to the XCARetrieveDocumentSet class (follows same NIST patterns).
             XCARetrieveDocumentSet transaction = this.getRetrieveDocumentSet();
             OMElement result = transaction.run(request);
             endTransaction(transaction.getStatus());
             return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
         } catch (SchemaValidationException ex) {
             return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (XdsInternalException ex) {

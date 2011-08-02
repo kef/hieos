@@ -22,8 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
 // Exceptions.
-import com.vangent.hieos.xutil.exception.XdsWSException;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 /**
  *
@@ -44,10 +43,9 @@ abstract public class XCAAbstractRequestCollection {
     /**
      * 
      * @return
-     * @throws XdsWSException
-     * @throws XdsException
+     * @throws SOAPFaultException
      */
-    abstract OMElement sendRequests() throws XdsWSException, XdsException;
+    abstract OMElement sendRequests() throws SOAPFaultException;
 
     /**
      * 
