@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsConfigurationException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -117,7 +118,7 @@ public class RetrieveB extends OmLogger {
     public OMElement run()
             throws XdsInternalException,
             XdsException, XdsIOException, MetadataException,
-            XdsConfigurationException, MetadataValidationException, XdsWSException {
+            XdsConfigurationException, MetadataValidationException, SOAPFaultException {
 
         OMElement result = null;
         OMElement request = r_ctx.getRequest();
@@ -125,7 +126,7 @@ public class RetrieveB extends OmLogger {
             r_ctx.setRequest(build_request(r_ctx));
         }
 
-        result = call(r_ctx.getRequest(), endpoint); // AxisFault will signal the caller that the endpoint did not work
+        result = call(r_ctx.getRequest(), endpoint); // SOAPFaultException will signal the caller that the endpoint did not work
         r_ctx.setResult(result);
 
         return result;
@@ -180,7 +181,7 @@ public class RetrieveB extends OmLogger {
     }
 
     private OMElement call(OMElement metadata_ele, String endpoint)
-            throws XdsWSException, XdsException {
+            throws SOAPFaultException {
         Soap soap = new Soap();
         soap.setAsync(async);
         //setting XUA object to soap call
