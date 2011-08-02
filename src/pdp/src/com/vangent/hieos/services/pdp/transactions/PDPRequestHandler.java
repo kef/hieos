@@ -17,9 +17,9 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.policyutil.pdp.impl.PDPImpl;
+import java.util.logging.Level;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 
 import com.sun.xacml.ctx.ResponseCtx;
@@ -30,6 +30,7 @@ import com.vangent.hieos.policyutil.pdp.model.XACMLRequestBuilder;
 import com.vangent.hieos.policyutil.pdp.model.XACMLResponseBuilder;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.policyutil.pdp.resource.PIPResourceContentFinder;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.io.ByteArrayOutputStream;
 
@@ -75,9 +76,9 @@ public class PDPRequestHandler extends XBaseTransaction {
      *
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request) throws AxisFault {
+    public OMElement run(OMElement request) throws SOAPFaultException {
         try {
             log_message.setPass(true); // Hope for the best.
             RequestType requestType = this.getRequestType(request);
@@ -90,7 +91,7 @@ public class PDPRequestHandler extends XBaseTransaction {
         } catch (Exception ex) {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             log_message.setPass(false);
-            throw new AxisFault("PDP Handler Failure", ex);
+            throw new SOAPFaultException(ex.getMessage());
         }
     }
 
