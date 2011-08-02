@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.sts.config;
 
-import com.vangent.hieos.services.sts.model.STSConstants;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
@@ -24,7 +23,6 @@ public class STSConfig {
 
     private static final String DEFAULT_ISSUER_ALIAS = "s1as";
     private static final long DEFAULT_TIME_TO_LIVE = 30000;  // milliseconds
-
     // Configuration.
     private String issuerName;
     private String issuerAlias;
@@ -34,15 +32,13 @@ public class STSConfig {
     private String keyStorePassword;
     private String trustStorePassword;
     private String issuerPassword;
-    private boolean computeSubjectNameFromClaims;
-    private STSConstants.AuthenticationType authenticationType;
+    private String useSubjectNameFromClaimURI;
     private XConfigActor stsConfigActor;
 
     /**
      *
      */
-    private STSConfig()
-    {
+    private STSConfig() {
         // Do not allow.
     }
 
@@ -50,8 +46,7 @@ public class STSConfig {
      *
      * @param stsConfigActor
      */
-    public STSConfig(XConfigActor stsConfigActor)
-    {
+    public STSConfig(XConfigActor stsConfigActor) {
         this.stsConfigActor = stsConfigActor;
         this.loadConfig();
     }
@@ -93,14 +88,7 @@ public class STSConfig {
         if (issuerPassword == null) {
             issuerPassword = keyStorePassword;
         }
-        String authenticationTypeText = stsConfigActor.getProperty("AuthenticationType");
-        if (authenticationTypeText.equalsIgnoreCase("UserNameToken")) {
-            authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
-        } else {
-            // Otherwise.
-            authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
-        }
-        computeSubjectNameFromClaims = stsConfigActor.getPropertyAsBoolean("ComputeSubjectNameFromClaims", false);
+        useSubjectNameFromClaimURI = stsConfigActor.getProperty("UseSubjectNameFromClaimURI");
     }
 
     /**
@@ -168,18 +156,10 @@ public class STSConfig {
     }
 
     /**
-     * 
-     * @return
-     */
-    public STSConstants.AuthenticationType getAuthenticationType() {
-        return authenticationType;
-    }
-
-    /**
      *
      * @return
      */
-    public boolean getComputeSubjectNameFromClaims() {
-        return computeSubjectNameFromClaims;
+    public String getUseSubjectNameFromClaimURI() {
+        return useSubjectNameFromClaimURI;
     }
 }

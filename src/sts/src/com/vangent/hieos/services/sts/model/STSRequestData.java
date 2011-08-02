@@ -95,9 +95,10 @@ public class STSRequestData {
             this.claimsNode = this.getClaimsNode(request);
             ClaimBuilder claimBuilder = new ClaimBuilder();
             this.claims = claimBuilder.parse(this);
-            if (this.getSTSConfig().getComputeSubjectNameFromClaims()) {
+            String useSubjectNameFromClaimURI = this.getSTSConfig().getUseSubjectNameFromClaimURI();
+            if (useSubjectNameFromClaimURI != null) {
                 // Override any previously set SubjectName
-                this.setSubjectDN(this.getComputedSubjectName());
+                this.setComputedSubjectName(useSubjectNameFromClaimURI);
             }
         }
     }
@@ -106,8 +107,9 @@ public class STSRequestData {
      *
      * @return
      */
-    private String getComputedSubjectName() {
+    private void setComputedSubjectName(String useSubjectNameFromClaimURI) {
         // PRECONDITION: Authentication already took place.
+        String newSubjectName;
 
         // CN=jack,OU=Sun GlassFish Enterprise Server,O=Sun Microsystems,L=Santa Clara,ST=California,C=US
         // CN=urn:oasis:names:tc:xacml:1.0:subject:subject-id
@@ -116,7 +118,6 @@ public class STSRequestData {
         // L=XXX
         // ST=XXX
         // C=XXX
-        // Only override if using a CERT.
 
         X509Certificate clientCert = headerData.getClientCertificate();
         if (clientCert != null) {
@@ -124,18 +125,15 @@ public class STSRequestData {
             String principalDN = principal.getName();
             X500Name x500Name = new X500Name(principalDN);
 
-            // Just override the CN using subject-id CLAIM
-            String newCN = this.getClaimStringValue(PolicyConstants.XACML_SUBJECT_ID);
+            // Just override the CN using value of configured claim URI (if using cert).
+            String newCN = this.getClaimStringValue(useSubjectNameFromClaimURI);
             x500Name.replace("CN", newCN);
-
-            String newSubjectName = x500Name.toString();
-            return newSubjectName;
-
+            newSubjectName = x500Name.toString();
         } else {
             // Assume userName/userPassword
-            // Do not override existing value
-            return this.getSubjectDN();
+            newSubjectName = this.getClaimStringValue(useSubjectNameFromClaimURI);
         }
+        this.setSubjectDN(newSubjectName);
     }
 
     /**

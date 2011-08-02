@@ -51,7 +51,6 @@ import org.opensaml.saml2.core.impl.ConditionsBuilder;
 import org.opensaml.xml.Namespace;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.KeyName;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.SignatureException;
@@ -92,6 +91,9 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
     protected OMElement handle(STSRequestData requestData) throws STSException {
         STSConfig stsConfig = requestData.getSTSConfig();
 
+        // Get the authentication type used.
+        STSConstants.AuthenticationType authenticationType = requestData.getHeaderData().getAuthenticationType();
+
         // Create the SAML2 Assertion.
         Assertion assertion = (Assertion) STSUtil.createXMLObject(Assertion.DEFAULT_ELEMENT_NAME);
         Namespace dsns = new Namespace("http://www.w3.org/2000/09/xmldsig#", "ds");
@@ -108,7 +110,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         assertion.setIssueInstant(createdDate);
 
         // Add an AuthnStatement.
-        assertion.getAuthnStatements().add(this.getAuthnStatement());
+        assertion.getAuthnStatements().add(this.getAuthnStatement(authenticationType));
 
         // Set the validity period (as Conditions).
         long ttl = stsConfig.getTimeToLive();
@@ -131,17 +133,29 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         nameId.setValue(requestData.getSubjectDN());
         subj.setNameID(nameId);
 
-        // Set the SubjectConfirmation method to "holder of key".
+        // Build subject confirmation.
         SubjectConfirmation subjConf = (SubjectConfirmation) STSUtil.createXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
-        subjConf.setMethod(STSConstants.HOLDER_OF_KEY_SUBJECT_CONFIRMATION_METHOD);
         subj.getSubjectConfirmations().add(subjConf);
+
+        // Build SubjectConfirmationData.
         SubjectConfirmationData subjData = (SubjectConfirmationData) STSUtil.createXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+        subjConf.setSubjectConfirmationData(subjData);  // Attach to SubjectConfirmation.
         subjData.getUnknownAttributes().put(new QName("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"), "saml2:KeyInfoConfirmationDataType");
-        subjConf.setSubjectConfirmationData(subjData);
 
         // Set the validity period.
         subjData.setNotBefore(createdDate);
         subjData.setNotOnOrAfter(expiresDate);
+
+        // Set confirmation method (and associated data).
+        if (authenticationType == STSConstants.AuthenticationType.BINARY_SECURITY_TOKEN) {
+            subjConf.setMethod(STSConstants.HOLDER_OF_KEY_SUBJECT_CONFIRMATION_METHOD);
+            // Get client certificate and add to SubjectConfirmationData.
+            X509Certificate clientCertificate = requestData.getHeaderData().getClientCertificate();
+            KeyInfo clientKeyInfo = STSUtil.getKeyInfo(clientCertificate, true);
+            subjData.getUnknownXMLObjects().add(clientKeyInfo);
+        } else {
+            subjConf.setMethod(STSConstants.BEARER_SUBJECT_CONFIRMATION_METHOD);
+        }
 
         // Get issuer's "private key" from KeyStore (used to "sign" the Assertion).
         KeyStore keyStore = STSUtil.getKeyStore(stsConfig);
@@ -150,12 +164,7 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Get issuer's X509Certificate and corresponding KeyInfo.
         X509Certificate issuerCertificate = (X509Certificate) pkEntry.getCertificate();
-        KeyInfo issuerKeyInfo = STSUtil.getKeyInfo(issuerCertificate, false);
-
-        // Add the issuer's KeyInfo to the Subject.
-        //KeyInfo ki = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-        // FIXME: This is not correct - should be the originating client cert (or otherwise).
-        subjData.getUnknownXMLObjects().add(issuerKeyInfo);
+        KeyInfo issuerKeyInfo = STSUtil.getKeyInfo(issuerCertificate, true);
 
         // NO LONGER USED
         //KeyName kn = (KeyName) STSUtil.createXMLObject(KeyName.DEFAULT_ELEMENT_NAME);
@@ -184,19 +193,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-        /*
-        KeyInfo keyInfo = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-        KeyInfoHelper.addPublicKey(keyInfo, issuerCertificate.getPublicKey());
-        try {
-        KeyInfoHelper.addCertificate(keyInfo, issuerCertificate);
-        } catch (CertificateEncodingException ex) {
-        throw new STSException("Unable to encode Issuer certificate: " + ex.getMessage());
-        }*/
-
-        // Place the Certificate for the issuer in the KeyInfo response (on the signature).
-        // NOTE: Need to create a new KeyInfo since issuerKeyInfo is already assocated with an entity.
-        KeyInfo signerKeyInfo = STSUtil.getKeyInfo(issuerCertificate, true);
-        signature.setKeyInfo(signerKeyInfo);
+        // Place the KeyInfo for the issuer in the assertion's Signature.
+        signature.setKeyInfo(issuerKeyInfo);
         assertion.setSignature(signature);
 
         // Fully marshall the Assertion - required in order for the signature to be applied
@@ -208,8 +206,6 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         } catch (SignatureException ex) {
             throw new STSException("Unable to sign Assertion: " + ex.getMessage());
         }
-
-
 
         // Convert the response to an OMElement (for subsequent processing).
         OMElement assertionOMElement;
@@ -306,24 +302,26 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
     }
 
     /**
-     * 
+     *
+     * @param authenticationType
      * @return
      * @throws STSException
      */
-    private AuthnStatement getAuthnStatement() throws STSException {
+    private AuthnStatement getAuthnStatement(STSConstants.AuthenticationType authenticationType) throws STSException {
         // Construct AuthnStatement.
         AuthnStatement authStmt = (AuthnStatement) STSUtil.createXMLObject(AuthnStatement.DEFAULT_ELEMENT_NAME);
 
         // Set the Authentication instant.
         authStmt.setAuthnInstant(new DateTime());
         AuthnContext authContext = (AuthnContext) STSUtil.createXMLObject(AuthnContext.DEFAULT_ELEMENT_NAME);
-
         AuthnContextClassRef authCtxClassRef = (AuthnContextClassRef) STSUtil.createXMLObject(AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
+        if (authenticationType == STSConstants.AuthenticationType.BINARY_SECURITY_TOKEN) {
+            authCtxClassRef.setAuthnContextClassRef(AuthnContext.X509_AUTHN_CTX);
+        } else {
+            // FIXME: May need: urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+            authCtxClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
+        }
 
-        authCtxClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
-
-        // May need: urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-        // FIXME: code to handler properly.
         // FIXME: Put in code to require https @ a minimum.
         // authCtxClassRef.setAuthnContextClassRef(AuthnContext.X509_AUTHN_CTX);
 

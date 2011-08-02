@@ -165,7 +165,7 @@ public class SOAPHeaderData {
         timestampCreated = this.getTimestampCreated(securityHeader);
         timestampExpires = this.getTimestampExpires(securityHeader);
         this.validateTimestamp();
-        this.getAuthenticationInfo(securityHeader);
+        this.setAuthenticationInfo(securityHeader);
     }
 
     /**
@@ -173,36 +173,30 @@ public class SOAPHeaderData {
      * @param securityHeader
      * @throws STSException
      */
-    private void getAuthenticationInfo(OMElement securityHeader) throws STSException {
-        // Check to see if UserNameToken is present or BinarySecurityToken.
+    private void setAuthenticationInfo(OMElement securityHeader) throws STSException {
+        // If this is an "Issue" request.
         if (soapAction.equalsIgnoreCase(STSConstants.WSTRUST_ISSUE_ACTION)) {
-            switch (stsConfig.getAuthenticationType()) {
-                case USER_NAME_TOKEN:
-                    if (!this.isUserNameToken(securityHeader)) {
-                        throw new STSException("No UsernameToken found");
-                    }
-                    authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
-                    userName = this.getUsername(securityHeader);
-                    if (userName == null) {
-                        throw new STSException("No Username provided on UsernameToken");
-                    }
-                    userPassword = this.getUserPassword(securityHeader);
-                    if (userPassword == null) {
-                        throw new STSException("No Password provided on UsernameToken");
-                    }
-                    break;
-                case X509_CERTIFICATE:
-                    if (!this.isBinarySecurityToken(securityHeader)) {
-                        throw new STSException("No BinarySecurityToken found");
-                    }
-                    authenticationType = STSConstants.AuthenticationType.X509_CERTIFICATE;
-                    certificate = this.getX509Certificate(securityHeader);
-                    if (certificate == null) {
-                        throw new STSException("No Certificate provided on BinarySecurityToken");
-                    }
-                    break;
-                default:
-                    throw new STSException("Unknown Authentication Type");
+            // Check to see if BinarySecurityToken or UserNameToken is present on request.
+            if (this.isBinarySecurityToken(securityHeader)) {
+                // BinarySecurityToken
+                authenticationType = STSConstants.AuthenticationType.BINARY_SECURITY_TOKEN;
+                certificate = this.getX509Certificate(securityHeader);
+                if (certificate == null) {
+                    throw new STSException("No Certificate provided on BinarySecurityToken");
+                }
+            } else if (this.isUserNameToken(securityHeader)) {
+                // UserNameToken
+                authenticationType = STSConstants.AuthenticationType.USER_NAME_TOKEN;
+                userName = this.getUsername(securityHeader);
+                if (userName == null) {
+                    throw new STSException("No Username provided on UsernameToken");
+                }
+                userPassword = this.getUserPassword(securityHeader);
+                if (userPassword == null) {
+                    throw new STSException("No Password provided on UsernameToken");
+                }
+            } else {
+                throw new STSException("Unknown Authentication Type");
             }
         }
     }
