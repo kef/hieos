@@ -17,6 +17,7 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xutil.xua.utils.XUAUtil;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -49,20 +50,19 @@ public class XServiceUser {
     }
 
     /**
-     * Construct Ws-Trust request body
-     * 
-     * @param userName username
-     * @param serviceUri STS service URI
-     * @param claimsNode list of claims
-     * @return requestBodyElement, converted OMElement
-     * @throws SOAPFaultException, handling the exceptions
+     * Build WS-Trust request body.
+     *
+     * @param serviceUri
+     * @param claimsNode
+     * @return
+     * @throws SOAPFaultException
      */
-    private OMElement constructTokenRequestBody(String userName, String serviceUri, OMElement claimsNode) throws SOAPFaultException {
+    private OMElement buildTokenRequestBody(String serviceUri, OMElement claimsNode) throws SOAPFaultException {
         // Do template variable substitution.
         Map<String, String> templateVariableValues = new HashMap<String, String>();
-        if (userName != null) {
-            templateVariableValues.put("USERNAME", userName);
-        }
+        //if (userName != null) {
+        //    templateVariableValues.put("USERNAME", userName);
+        //}
         if (serviceUri != null) {
             templateVariableValues.put("SERVICE", serviceUri);
         }
@@ -75,15 +75,14 @@ public class XServiceUser {
     }
 
     /**
-     * Construct Ws-Trust request header element
+     * Construct WS-Trust request header element (using UserNameToken).
      *
      * @param userName user Name
      * @param password password
-     * @param serviceUri STS service uri
      * @return reqHeaderElement, converted DOM element
      * @throws SOAPFaultException, handling the exceptions
      */
-    private OMElement constructWsTrustRequestHeader(String userName, String password, String serviceUri) throws SOAPFaultException {
+    private OMElement buildUserNameTokenRequestHeader(String userName, String password) throws SOAPFaultException {
         // Do template variable substitution.
         Map<String, String> templateVariableValues = new HashMap<String, String>();
         if (userName != null) {
@@ -92,8 +91,32 @@ public class XServiceUser {
         if (password != null) {
             templateVariableValues.put("PASSWORD", password);
         }
-        if (serviceUri != null) {
-            templateVariableValues.put("SERVICE", serviceUri);
+        //if (serviceUri != null) {
+        //    templateVariableValues.put("SERVICE", serviceUri);
+        //}
+
+        // Deal with CreatedTime and ExpiredTime.
+        templateVariableValues.put("CREATEDTIME", XUAUtil.getCreatedTime());
+        templateVariableValues.put("EXPIREDTIME", XUAUtil.getExpireTime());
+
+        OMElement reqHeaderElement = TemplateUtil.getOMElementFromTemplate(
+                XUAConstants.WS_TRUST_USERNAME_TOKEN_REQUEST_HEADER,
+                templateVariableValues);
+
+        return reqHeaderElement;
+    }
+
+    /**
+     *
+     * @param certBase64
+     * @return
+     * @throws SOAPFaultException
+     */
+    private OMElement buildBinaryTokenRequestHeader(String certBase64) throws SOAPFaultException {
+        // Do template variable substitution.
+        Map<String, String> templateVariableValues = new HashMap<String, String>();
+        if (certBase64 != null) {
+            templateVariableValues.put("CERT", certBase64);
         }
 
         // Deal with CreatedTime and ExpiredTime.
@@ -101,27 +124,43 @@ public class XServiceUser {
         templateVariableValues.put("EXPIREDTIME", XUAUtil.getExpireTime());
 
         OMElement reqHeaderElement = TemplateUtil.getOMElementFromTemplate(
-                XUAConstants.WS_TRUST_TOKEN_REQUEST_HEADER,
+                XUAConstants.WS_TRUST_BINARY_TOKEN_REQUEST_HEADER,
                 templateVariableValues);
 
         return reqHeaderElement;
     }
 
     /**
-     * get the SOAP response from STS
-     * @param stsUrl STS endpoint URl
-     * @param serviceUri STS service Uri
-     * @param userName
-     * @param password
-     * @param claimsNode optional list of claims (may be null)
-     * @return response, received SOAP envelope from STS
-     * @throws SOAPFaultException, handling the exceptions
+     * Get token from STS.
+     *
+     * @param xuaObject Holds relevant data.
+     * @return SOAPEnvelope holding response from STS.
+     * @throws SOAPFaultException
      */
-    public SOAPEnvelope getToken(
-            String stsUrl, String serviceUri, String userName, String password, OMElement claimsNode) throws SOAPFaultException {
-        if (userName == null || password == null || serviceUri == null) {
+    public SOAPEnvelope getToken(XUAObject xuaObject) throws SOAPFaultException {
+        String userName = xuaObject.getUserName();
+        String password = xuaObject.getPassword();
+        String serviceUri = xuaObject.getSTSUri();
+        String stsUrl = xuaObject.getSTSUrl();
+        String clientCert = xuaObject.getClientCertBase64Encoded();
+        OMElement claimsNode = xuaObject.getClaims();
+        if (logger.isDebugEnabled()) {
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - stsUrl: " + stsUrl);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - serviceUri: " + serviceUri);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - userName: " + userName);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - password: " + password);
+            logger.debug("XUA: XUAOutPhaseHandler::invoke - clientCert: " + clientCert);
+        }
+        if (serviceUri == null) {
+            // Do we really need this?
             throw new SOAPFaultException(
-                    "XUA:Exception: You must specify a username, password, and service URI to use XUA.");
+                    "XUA:Exception: You must specify a service URI to use XUA.");
+        }
+        if (clientCert == null) {
+            if (userName == null || password == null) {
+                throw new SOAPFaultException(
+                        "XUA:Exception: You must specify an X509 cert or (username/password) to use XUA.");
+            }
         }
         //logger.info("---Getting the response Token from the STS---");
         if (logger.isDebugEnabled()) {
@@ -130,8 +169,12 @@ public class XServiceUser {
 
         SOAPEnvelope response = null;
         OMElement elementBody, elementHeader;
-        elementBody = this.constructTokenRequestBody(userName, serviceUri, claimsNode);
-        elementHeader = this.constructWsTrustRequestHeader(userName, password, serviceUri);
+        elementBody = this.buildTokenRequestBody(serviceUri, claimsNode);
+        if (clientCert != null) {
+            elementHeader = this.buildBinaryTokenRequestHeader(clientCert);
+        } else {
+            elementHeader = this.buildUserNameTokenRequestHeader(userName, password);
+        }
         response = this.send(stsUrl, elementBody, elementHeader, XUAConstants.SOAP_ACTION_ISSUE_TOKEN);
         return response;
     }
@@ -142,7 +185,7 @@ public class XServiceUser {
      * @return tokenElement, SAML token element
      * @throws SOAPFaultException, handling the exceptions
      */
-    public OMElement getTokenFromResSOAPEnvelope(SOAPEnvelope envelope) throws SOAPFaultException {
+    public OMElement getTokenFromSTSResponse(SOAPEnvelope envelope) throws SOAPFaultException {
         if (envelope == null) {
             throw new SOAPFaultException("XUA:Exception: Failed to get the response");
         }

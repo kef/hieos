@@ -29,6 +29,7 @@ public class XUAObject {
     private boolean xuaEnabled = false;
     private String stsURL;
     private String stsURI;
+    private String clientCertBase64Encoded = null;
     private OMElement claims = null;
     private List soapActionsList = new ArrayList();
 
@@ -84,6 +85,22 @@ public class XUAObject {
      */
     public String getPassword() {
         return this.password;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getClientCertBase64Encoded() {
+        return clientCertBase64Encoded;
+    }
+
+    /**
+     *
+     * @param clientCertBase64Encoded
+     */
+    public void setClientCertBase64Encoded(String clientCertBase64Encoded) {
+        this.clientCertBase64Encoded = clientCertBase64Encoded;
     }
 
     /**

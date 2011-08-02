@@ -56,7 +56,7 @@ public class XUAOutPhaseHandler extends AbstractHandler {
     }
 
     /**
-     * Overriden method invoked by axis2 engine before soap call to target endpoint.
+     * Method invoked by axis2 engine before soap call to target endpoint.
      *
      * @param messageContext messageContext contains the soap envelope
      * @return InvocationResponse, invocation my be continue or abort
@@ -86,22 +86,12 @@ public class XUAOutPhaseHandler extends AbstractHandler {
         // Continue to get the assertion from the STS
         XServiceUser xServiceUser = new XServiceUser();
         try {
-            String stsUrl = this.xuaObject.getSTSUrl();
-            String serviceUri = this.xuaObject.getSTSUri();
-            String userName = this.xuaObject.getUserName();
-            String password = this.xuaObject.getPassword();
-            logger.debug("XUA: XUAOutPhaseHandler::invoke - stsUrl: " + stsUrl);
-            logger.debug("XUA: XUAOutPhaseHandler::invoke - serviceUri: " + serviceUri);
-            logger.debug("XUA: XUAOutPhaseHandler::invoke - userName: " + userName);
-            logger.debug("XUA: XUAOutPhaseHandler::invoke - password: " + password);
-
             // Get the SAML assertion from the STS provider (for the given user):
-            SOAPEnvelope responseEnvelope = xServiceUser.getToken(
-                    stsUrl, serviceUri, userName, password, this.xuaObject.getClaims());
+            SOAPEnvelope responseEnvelope = xServiceUser.getToken(this.xuaObject);
             if (logger.isDebugEnabled()) {
                 logger.debug("XUA: XUAOutPhaseHandler::invoke - STS Response: " + responseEnvelope.toString());
             }
-            OMElement samlTokenEle = xServiceUser.getTokenFromResSOAPEnvelope(responseEnvelope);
+            OMElement samlTokenEle = xServiceUser.getTokenFromSTSResponse(responseEnvelope);
             if (logger.isDebugEnabled()) {
                 logger.debug("XUA: XUAOutPhaseHandler::invoke - SAML Token: " + samlTokenEle.toString());
             }

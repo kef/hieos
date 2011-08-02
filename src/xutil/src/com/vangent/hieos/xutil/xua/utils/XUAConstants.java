@@ -21,7 +21,7 @@ public interface XUAConstants {
     public static final String STSURL_PROPERTY = "STSValidatorURL";
     public static final String SERVICEURI_PROPERTY = "STSValidatorServiceURI";
     /**
-     * WS-Security namespace URL
+     * WS-Security name space URL
      */
     public static final String WS_SECURITY_NS_URL = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
     /**
@@ -34,7 +34,7 @@ public interface XUAConstants {
      */
     public static final String WS_SECURITY_ELEMENT_NAME = "Security";
     /**
-     * WS-Security namespace prefix
+     * WS-Security name space prefix
      */
     public static final String WS_SECURITY_NS_PREFIX = "wsse";
     /**
@@ -63,7 +63,7 @@ public interface XUAConstants {
     /**
      * WS-Trust Token Request header template
      */
-    public static final String WS_TRUST_TOKEN_REQUEST_HEADER =
+    public static final String WS_TRUST_USERNAME_TOKEN_REQUEST_HEADER =
             "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
             + "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">"
             + "<wsu:Created>{CREATEDTIME}</wsu:Created>"
@@ -74,6 +74,17 @@ public interface XUAConstants {
             + "<wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">{PASSWORD}</wsse:Password>"
             + "</wsse:UsernameToken>"
             + "</wsse:Security>";
+
+
+     public static final String WS_TRUST_BINARY_TOKEN_REQUEST_HEADER =
+            "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
+            + "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">"
+            + "<wsu:Created>{CREATEDTIME}</wsu:Created>"
+            + "<wsu:Expires>{EXPIREDTIME}</wsu:Expires>"
+            + "</wsu:Timestamp>"
+            + "<wsse:BinarySecurityToken wsu:Id=\"binarytoken\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">{CERT}</wsse:BinarySecurityToken>"
+            + "</wsse:Security>";
+
     public static final String WS_TRUST_TOKEN_VALIDATE_HEADER =
             "<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">"
             + "<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-2\">"
