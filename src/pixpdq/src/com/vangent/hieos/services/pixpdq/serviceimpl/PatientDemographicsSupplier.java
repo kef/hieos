@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -42,14 +43,18 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
      * @return
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
-        beginTransaction("FindCandidatesQuery (PDQV3)", request);
-        validateWS();
-        validateNoMTOM();
-        PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
-        handler.setConfigActor(config);
-        OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction("FindCandidatesQuery (PDQV3)", request);
+            validateWS();
+            validateNoMTOM();
+            PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage()); // Rethrow.
+        }
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):

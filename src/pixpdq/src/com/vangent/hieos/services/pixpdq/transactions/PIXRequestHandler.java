@@ -29,17 +29,13 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message_Build
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.List;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,8 +66,9 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      * @param request
      * @param messageType
      * @return
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
+    public OMElement run(OMElement request, MessageType messageType) throws SOAPFaultException {
         HL7V3Message result = null;
         log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
@@ -92,8 +89,9 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      *
      * @param PRPA_IN201301UV02_Message
      * @return
+     * @throws SOAPFaultException
      */
-    private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws AxisFault {
+    private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         String errorText = null;
         try {
@@ -130,8 +128,9 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      *
      * @param PRPA_IN201309UV02_Message
      * @return
+     * @throws SOAPFaultException
      */
-    private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws AxisFault {
+    private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         SubjectSearchResponse subjectSearchResponse = null;
         String errorText = null;

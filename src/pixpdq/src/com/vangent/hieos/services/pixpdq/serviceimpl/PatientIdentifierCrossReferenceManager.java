@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PIXRequestHandler;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -42,14 +43,18 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
-        beginTransaction("GetIdentifiersQuery (PIXV3)", request);
-        validateWS();
-        validateNoMTOM();
-        PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-        handler.setConfigActor(config);
-        OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction("GetIdentifiersQuery (PIXV3)", request);
+            validateWS();
+            validateNoMTOM();
+            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage()); // Rethrow.
+        }
     }
 
     /**
@@ -58,14 +63,18 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
-        beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message);
-        validateWS();
-        validateNoMTOM();
-        PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
-        handler.setConfigActor(config);
-        OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message);
+            validateWS();
+            validateNoMTOM();
+            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage()); // Rethrow.
+        }
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):
@@ -76,7 +85,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
     @Override
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("PatientIdentifierCrossReferenceManager::startUp()");
-         try {
+        try {
             XConfig xconf;
             xconf = XConfig.getInstance();
             XConfigObject homeCommunity = xconf.getHomeCommunityConfig();

@@ -21,13 +21,13 @@ import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -66,15 +66,15 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
     /**
      * 
      * @param message
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected void validateHL7V3Message(HL7V3Message message) throws AxisFault {
+    protected void validateHL7V3Message(HL7V3Message message) throws SOAPFaultException {
         try {
             HL7V3SchemaValidator.validate(message.getMessageNode(), message.getType());
         } catch (XMLSchemaValidatorException ex) {
             //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
     }
 

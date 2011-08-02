@@ -22,9 +22,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -54,8 +54,9 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
      * @param request
      * @param messageType
      * @return
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
+    public OMElement run(OMElement request, MessageType messageType) throws SOAPFaultException {
         HL7V3Message result = null;
         log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
@@ -74,8 +75,9 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
      *
      * @param PRPA_IN201305UV02_Message
      * @return
+     * @throws SOAPFaultException
      */
-    private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
+    private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         SubjectSearchResponse subjectSearchResponse = null;
         String errorText = null;

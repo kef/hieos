@@ -14,9 +14,8 @@ package com.vangent.hieos.services.pixpdq.empi.api;
 
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
 
 /**
  *
