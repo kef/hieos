@@ -28,6 +28,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -71,7 +72,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param messageType
      * @return
      */
-    public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
+    public OMElement run(OMElement request, MessageType messageType) throws SOAPFaultException {
         HL7V3Message result = null;
         log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
@@ -93,7 +94,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param PRPA_IN201305UV02_Message
      * @return
      */
-    private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws AxisFault {
+    private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
         String errorText = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
 
@@ -196,10 +197,10 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
     @Override
-    protected synchronized XConfigActor getPDSConfig() throws AxisFault {
+    protected synchronized XConfigActor getPDSConfig() throws SOAPFaultException {
         if (_pdsConfig != null) {
             return _pdsConfig;
         }

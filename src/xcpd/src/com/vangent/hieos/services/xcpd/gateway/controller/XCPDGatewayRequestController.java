@@ -31,6 +31,7 @@ import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.exception.PatientCorrelationCacheException;
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.model.PatientCorrelationCacheEntry;
 import com.vangent.hieos.services.xcpd.patientcorrelationcache.service.PatientCorrelationCacheService;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -44,7 +45,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -463,7 +463,7 @@ public class XCPDGatewayRequestController {
                     break;  // No need to look further.
                 }
             }
-        } catch (AxisFault ex) {
+        } catch (SOAPFaultException ex) {
             logger.error("XCPD EXCEPTION ... continuing", ex);
         }
         return validRemoteSubject;
@@ -478,7 +478,7 @@ public class XCPDGatewayRequestController {
         PRPA_IN201306UV02_Message cgpdResponse = gatewayResponse.getResponse();
         try {
             requestHandler.validateHL7V3Message(cgpdResponse);
-        } catch (AxisFault ex) {
+        } catch (SOAPFaultException ex) {
             logMessage.setPass(false);
             if (logMessage.isLogEnabled()) {
                 logMessage.addErrorParam("EXCEPTION: " + gatewayResponse.getRequest().getVitals(), ex.getMessage());
@@ -562,7 +562,6 @@ public class XCPDGatewayRequestController {
     /**
      *
      * @return
-     * @throws AxisFault
      */
     private synchronized List<XConfigActor> getXCPDRespondingGateways() {
         if (_xcpdRespondingGateways != null) {
@@ -572,7 +571,7 @@ public class XCPDGatewayRequestController {
         XConfigObject gatewayConfig;
         try {
             gatewayConfig = requestHandler.getGatewayConfig();
-        } catch (AxisFault ex) {
+        } catch (SOAPFaultException ex) {
             logger.error("XCPD EXCEPTION: " + ex.getMessage());
             return new ArrayList<XConfigActor>();
         }

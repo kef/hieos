@@ -26,6 +26,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
@@ -34,7 +35,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -74,9 +74,9 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public XConfigActor getGatewayConfig() throws AxisFault {
+    public XConfigActor getGatewayConfig() throws SOAPFaultException {
         return this.getConfigActor();
     }
 
@@ -90,7 +90,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         try {
             XConfigActor gatewayConfig = this.getGatewayConfig();
             propertyValue = gatewayConfig.getProperty(propertyKey);
-        } catch (AxisFault ex) {
+        } catch (SOAPFaultException ex) {
             // TBD: Do something.
             logger.fatal("XCPD EXCEPTION: Unable to load XConfig for XCPD Gateway", ex);
         }
@@ -131,9 +131,9 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param senderDeviceInfo
      * @param subjectSearchCriteria
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws AxisFault {
+    public SubjectSearchResponse findCandidatesQuery(DeviceInfo senderDeviceInfo, SubjectSearchCriteria subjectSearchCriteria) throws SOAPFaultException {
         DeviceInfo receiverDeviceInfo = this.getDeviceInfo(this.getPDSConfig());
         XConfigActor pdsConfig = this.getPDSConfig();
         PDSClient pdsClient = new PDSClient(pdsConfig);
@@ -144,15 +144,15 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     /**
      * 
      * @param message
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public void validateHL7V3Message(HL7V3Message message) throws AxisFault {
+    public void validateHL7V3Message(HL7V3Message message) throws SOAPFaultException {
         try {
             HL7V3SchemaValidator.validate(message.getMessageNode(), message.getType());
         } catch (XMLSchemaValidatorException ex) {
             //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            throw new AxisFault(ex.getMessage());
+            throw new SOAPFaultException(ex.getMessage());
         }
     }
 
@@ -170,9 +170,9 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     /**
      * 
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    protected synchronized XConfigActor getPDSConfig() throws AxisFault {
+    protected synchronized XConfigActor getPDSConfig() throws SOAPFaultException {
         // Must be overwridden.
         return null;
     }
@@ -185,7 +185,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         try {
             XConfigActor gatewayConfig = this.getGatewayConfig();
             return this.getDeviceInfo(gatewayConfig);
-        } catch (AxisFault ex) {
+        } catch (SOAPFaultException ex) {
             logger.error("XCPD EXCEPTION: Can not get sender device info", ex);
             DeviceInfo deviceInfo = new DeviceInfo();
             deviceInfo.setId("UNKNOWN");

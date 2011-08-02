@@ -36,6 +36,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -45,7 +46,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**
@@ -79,9 +79,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @param request
      * @param messageType
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    public OMElement run(OMElement request, MessageType messageType) throws AxisFault {
+    public OMElement run(OMElement request, MessageType messageType) throws SOAPFaultException {
         HL7V3Message result = null;
         log_message.setPass(true);  // Hope for the best.
         switch (messageType) {
@@ -107,9 +107,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * 
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws AxisFault {
+    private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         PRPA_IN201306UV02_Message result = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
@@ -140,9 +140,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * 
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws AxisFault {
+    private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         PRPA_IN201310UV02_Message result = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
@@ -166,7 +166,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
                 // See if we only have one match (from PDS) for the patient.
                 List<Subject> subjects = pdqSearchResponse.getSubjects();
-                if (subjects.size() == 0) {
+                if (subjects.isEmpty()) {
                     errorText = "0 local subjects found for PIX query request";
                 } else if (subjects.size() > 1) {
                     // Should not be feasible, but check anyway.
@@ -204,9 +204,9 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      *
      * @param request
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
-    private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws AxisFault {
+    private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         String errorText = null;  // Hope for the best.
         try {
@@ -425,10 +425,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     /**
      *
      * @return
-     * @throws AxisFault
+     * @throws SOAPFaultException
      */
     @Override
-    protected synchronized XConfigActor getPDSConfig() throws AxisFault {
+    protected synchronized XConfigActor getPDSConfig() throws SOAPFaultException {
         if (_pdsConfig != null) {
             return _pdsConfig;
         }

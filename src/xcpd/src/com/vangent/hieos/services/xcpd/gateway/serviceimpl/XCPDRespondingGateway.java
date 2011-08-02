@@ -14,7 +14,7 @@ package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDRespondingGatewayRequestHandler;
 import com.vangent.hieos.xutil.atna.XATNALogger;
-import com.vangent.hieos.xutil.services.framework.XAbstractService;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -46,15 +46,19 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement CrossGatewayPatientDiscovery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
-        beginTransaction(this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message);
-        validateWS();
-        validateNoMTOM();
-        XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
-        handler.setConfigActor(config);
-        OMElement result = handler.run(PRPA_IN201305UV02_Message,
-                XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction(this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message);
+            validateWS();
+            validateNoMTOM();
+            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            OMElement result = handler.run(PRPA_IN201305UV02_Message,
+                    XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     /**
@@ -63,16 +67,20 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement PatientLocationQuery(OMElement plq) throws AxisFault {
-        beginTransaction(this.getTransactionName("PLQ (RG)"), plq);
-        validateWS();
-        validateNoMTOM();
-        XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
-        handler.setConfigActor(config);
-        OMElement result =
-                handler.run(plq,
-                XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
-        endTransaction(handler.getStatus());
-        return result;
+        try {
+            beginTransaction(this.getTransactionName("PLQ (RG)"), plq);
+            validateWS();
+            validateNoMTOM();
+            XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            OMElement result =
+                    handler.run(plq,
+                    XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
+            endTransaction(handler.getStatus());
+            return result;
+        } catch (SOAPFaultException ex) {
+            throw new AxisFault(ex.getMessage());
+        }
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):
