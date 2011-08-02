@@ -16,6 +16,7 @@ import com.vangent.hieos.xclient.xds.repository.RetrieveB;
 import com.vangent.hieos.xclient.xds.repository.RetContext;
 import com.vangent.hieos.xclient.xds.repository.RetInfo;
 import com.vangent.hieos.xutil.exception.MetadataException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -145,6 +146,9 @@ public class RetrieveBEngine {
         } catch (MetadataException e) {
             qc.setResultXML(r_ctx.getResult());
             qc.addException(e);
+        } catch (SOAPFaultException e) {
+            qc.setResultXML(r_ctx.getResult());
+            qc.addException(e);            
         } catch (XdsException e) {
             qc.setResultXML(r_ctx.getResult());
             qc.addException(e);
