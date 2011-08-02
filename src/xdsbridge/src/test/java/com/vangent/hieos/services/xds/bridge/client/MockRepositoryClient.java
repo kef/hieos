@@ -11,15 +11,18 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.mock.MockXConfigTransaction;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
+
 
 /**
  * Class description
@@ -70,8 +73,9 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
 
         XConfigActor result = new XConfigActor();
         XConfigTransaction trans = new MockXConfigTransaction(PNR_TRANS);
+
         result.getTransactions().add(trans);
-        
+
         return result;
     }
 
@@ -117,15 +121,15 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
      *
      * @return
      *
-     * @throws AxisFault
      */
     @Override
     public OMElement submitProvideAndRegisterDocumentSet(XDSPnRMessage request)
-            throws AxisFault {
+            throws SOAPFaultException {
 
         if (this.throwsExceptionAlways) {
 
-            throw new AxisFault("MockRepositoryClient thows exception always.");
+            throw new SOAPFaultException(
+                "MockRepositoryClient thows exception always.");
 
         } else if (this.throwsExceptionOnEven) {
 
@@ -138,7 +142,7 @@ public class MockRepositoryClient extends XDSDocumentRepositoryClient {
 
                 this.count++;
 
-                throw new AxisFault(msg);
+                throw new SOAPFaultException(msg);
             }
 
             this.count++;

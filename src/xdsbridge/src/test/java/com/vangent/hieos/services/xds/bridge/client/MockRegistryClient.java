@@ -22,11 +22,11 @@ import com.vangent.hieos.services.xds.bridge.message
 import com.vangent.hieos.services.xds.bridge.message
     .GetDocumentsSQResponseMessage;
 import com.vangent.hieos.services.xds.bridge.mock.MockXConfigTransaction;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 
 
 /**
@@ -97,16 +97,16 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
      *
      * @return
      *
-     * @throws AxisFault
      */
     @Override
     public MCCI_IN000002UV01_Message addPatientIdentity(
             PRPA_IN201301UV02_Message pif)
-            throws AxisFault {
+            throws SOAPFaultException {
 
         if (this.throwsExceptionAlways) {
 
-            throw new AxisFault("MockRegistryClient thows exception always.");
+            throw new SOAPFaultException(
+                "MockRegistryClient thows exception always.");
 
         } else if (this.throwsExceptionOnEven) {
 
@@ -119,7 +119,7 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
 
                 this.count++;
 
-                throw new AxisFault(msg);
+                throw new SOAPFaultException(msg);
             }
 
             this.count++;
@@ -170,16 +170,16 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
      *
      * @return
      *
-     * @throws AxisFault
      */
     @Override
     public GetDocumentsSQResponseMessage getDocuments(
             GetDocumentsSQRequestMessage request)
-            throws AxisFault {
+            throws SOAPFaultException {
 
         if (this.throwsExceptionAlways) {
 
-            throw new AxisFault("MockRegistryClient thows exception always.");
+            throw new SOAPFaultException(
+                "MockRegistryClient thows exception always.");
 
         } else if (this.throwsExceptionOnEven) {
 
@@ -192,7 +192,7 @@ public class MockRegistryClient extends XDSDocumentRegistryClient {
 
                 this.count++;
 
-                throw new AxisFault(msg);
+                throw new SOAPFaultException(msg);
             }
 
             this.count++;
