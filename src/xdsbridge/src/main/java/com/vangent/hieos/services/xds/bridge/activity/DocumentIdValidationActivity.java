@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.activity;
 
-import java.util.List;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.message
     .GetDocumentsSQResponseMessage;
@@ -21,8 +21,13 @@ import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
+import com.vangent.hieos.xutil.exception.XdsException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import java.util.List;
+
 
 /**
  * Class description
@@ -68,20 +73,37 @@ public class DocumentIdValidationActivity
             context.getSubmitDocumentResponse();
         Document document = context.getDocument();
 
-        List<String> objectRefs = parseObjectRefs(registryResponse, context);
+        List<String> objectRefs = null;
 
-        if (objectRefs.isEmpty()) {
+        try {
 
-            result = true;
+            objectRefs = parseObjectRefs(registryResponse, context);
 
-        } else {
+        } catch (XdsException e) {
 
-            String errmsg =
-                "Document already exists in the registry. It will not be processed.";
+            // Downstream XDS returned an error
+            String msg =
+                String.format("Document id can not be validated as unique: %s",
+                              e.getMessage());
 
-            logger.error(errmsg);
-            sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
-                                    errmsg);
+            sdrResponse.addResponse(document, ResponseTypeStatus.Failure, msg);
+        }
+
+        if (objectRefs != null) {
+
+            if (objectRefs.isEmpty()) {
+
+                result = true;
+
+            } else {
+
+                String errmsg =
+                    "Document already exists in the registry. It will not be processed.";
+
+                logger.error(errmsg);
+                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                        errmsg);
+            }
         }
 
         return result;
@@ -115,19 +137,22 @@ public class DocumentIdValidationActivity
                 String.format(
                     "Document Id (OID) %s equals Replace Id (OID) %s. These IDs can not be the same.",
                     doc.getDocumentIdAsOID(), doc.getReplaceIdAsOID());
-            
+
             SubmitDocumentResponse sdrResponse =
                 context.getSubmitDocumentResponse();
 
             logger.error(errmsg);
             sdrResponse.addResponse(doc, ResponseTypeStatus.Failure, errmsg);
-            
+
         } else {
 
             GetDocumentsSQResponseMessage getDocsResp =
                 callGetDocumentsSQ(context, doc.getDocumentIdAsOID());
 
-            result = checkForSuccess(getDocsResp, context);
+            if (getDocsResp != null) {
+
+                result = checkForSuccess(getDocsResp, context);
+            }
         }
 
         return result;

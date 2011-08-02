@@ -11,11 +11,9 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.namespace.QName;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.message
     .GetDocumentsSQRequestBuilder;
@@ -29,12 +27,20 @@ import com.vangent.hieos.services.xds.bridge.model.ResponseType
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
 import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
+import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
 
 /**
  * Class description
@@ -94,7 +100,14 @@ public abstract class AbstractGetDocumentsSQActivity
             SubmitDocumentResponse sdrResponse =
                 context.getSubmitDocumentResponse();
 
-            sdrResponse.addResponse(ResponseTypeStatus.Failure, e.getMessage());
+            String msg =
+                String.format(
+                    "%s:%s caused an error: %s.",
+                    XDSDocumentRegistryClient.STORED_QUERY_TRANS,
+                    XDSDocumentRegistryClient.STORED_QUERY_REQUEST_ACTION,
+                    e.getMessage());
+
+            sdrResponse.addResponse(ResponseTypeStatus.Failure, msg);
         }
 
         return result;
@@ -132,7 +145,8 @@ public abstract class AbstractGetDocumentsSQActivity
      */
     protected List<String> parseObjectRefs(
             GetDocumentsSQResponseMessage registryResponse,
-            SDRActivityContext context) {
+            SDRActivityContext context)
+            throws XdsException {
 
         List<String> result = new ArrayList<String>();
 
@@ -141,19 +155,17 @@ public abstract class AbstractGetDocumentsSQActivity
         Document document = context.getDocument();
         OMElement rootNode = registryResponse.getElement();
 
-        try {
+        RegistryResponseParser parser = new RegistryResponseParser(rootNode);
 
-            RegistryResponseParser parser =
-                new RegistryResponseParser(rootNode);
+        if (parser.is_error()) {
 
-            if (parser.is_error()) {
+            String errmsg = parser.get_regrep_error_msg();
 
-                String errmsg = parser.get_regrep_error_msg();
+            throw new XdsException(errmsg);
 
-                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
-                                        errmsg);
+        } else {
 
-            } else {
+            try {
 
                 // search for any nodes
                 String expr = "./ns:RegistryObjectList/ns:ObjectRef";
@@ -169,22 +181,22 @@ public abstract class AbstractGetDocumentsSQActivity
                         result.add(doc.getAttributeValue(idQName));
                     }
                 }
+                
+            } catch (XdsInternalException e) {
+
+                // log it
+                logger.error(e, e);
+
+                // capture in response
+                StringBuilder sb = new StringBuilder();
+
+                sb.append(
+                    "Unable to parse repository response, exception follows. ");
+                sb.append(e.getMessage());
+
+                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                        sb.toString());
             }
-
-        } catch (XdsInternalException e) {
-
-            // log it
-            logger.error(e, e);
-
-            // capture in response
-            StringBuilder sb = new StringBuilder();
-
-            sb.append(
-                "Unable to parse repository response, exception follows. ");
-            sb.append(e.getMessage());
-
-            sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
-                                    sb.toString());
         }
 
         return result;

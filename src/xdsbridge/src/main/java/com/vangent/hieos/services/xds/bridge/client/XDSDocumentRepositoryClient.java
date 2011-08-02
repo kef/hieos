@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
@@ -20,8 +21,10 @@ import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
+
 
 /**
  * Class description
@@ -75,32 +78,32 @@ public class XDSDocumentRepositoryClient extends AbstractClient {
 
         OMElement result = null;
 
-            XConfigActor config = getConfig();
-            XConfigTransaction pnrTrans = config.getTransaction(PNR_TRANS);
-            String url = pnrTrans.getEndpointURL();
+        XConfigActor config = getConfig();
+        XConfigTransaction pnrTrans = config.getTransaction(PNR_TRANS);
+        String url = pnrTrans.getEndpointURL();
 
-            Soap soap = new Soap();
+        Soap soap = new Soap();
 
-            soap.setAsync(pnrTrans.isAsyncTransaction());
+        soap.setAsync(pnrTrans.isAsyncTransaction());
 
-            boolean soap12 = pnrTrans.isSOAP12Endpoint();
-            boolean useMtom = true;
-            boolean useWsa = soap12;
+        boolean soap12 = pnrTrans.isSOAP12Endpoint();
+        boolean useMtom = true;
+        boolean useWsa = soap12;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("== Sending to Repository");
-                logger.debug(
-                    DebugUtils.toPrettyString(request.getElement()));
-            }
+        if (logger.isDebugEnabled()) {
 
-            result = soap.soapCall(request.getElement(), url, useMtom,
-                                   useWsa, soap12, PNR_REQUEST_ACTION,
-                                   PNR_RESPONSE_ACTION);
+            logger.debug("== Sending to Repository");
+            logger.debug(DebugUtils.toPrettyString(request.getElement()));
+        }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("== Received from Repository");
-                logger.debug(DebugUtils.toPrettyString(result));
-            }
+        result = soap.soapCall(request.getElement(), url, useMtom, useWsa,
+                               soap12, PNR_REQUEST_ACTION, PNR_RESPONSE_ACTION);
+
+        if (logger.isDebugEnabled()) {
+
+            logger.debug("== Received from Repository");
+            logger.debug(DebugUtils.toPrettyString(result));
+        }
 
         return result;
     }

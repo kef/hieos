@@ -10,12 +10,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
-import com.vangent.hieos.services.xds.bridge.message.GetDocumentsSQRequestMessage;
-import com.vangent.hieos.services.xds.bridge.message.GetDocumentsSQResponseMessage;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQRequestMessage;
+import com.vangent.hieos.services.xds.bridge.message
+    .GetDocumentsSQResponseMessage;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
 import com.vangent.hieos.services.xds.bridge.utils.DebugUtils;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
@@ -25,6 +29,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
+
 
 /**
  * Class description
@@ -37,23 +42,29 @@ public class XDSDocumentRegistryClient extends AbstractClient {
 
     /** Field description */
     public static final String PID_ADD_REQUEST_ACTION =
-            "urn:hl7-org:v3:PRPA_IN201301UV02";
+        "urn:hl7-org:v3:PRPA_IN201301UV02";
+
     /** Field description */
     public static final String PID_ADD_RESPONSE_ACTION =
-            "urn:hl7-org:v3:MCCI_IN000002UV01";
+        "urn:hl7-org:v3:MCCI_IN000002UV01";
+
     /** Name of Transaction for service endpoints in xconfig.xml */
     public static final String PID_ADD_TRANS = "PatientIdentityFeed";
+
     /** Field description */
     public static final String STORED_QUERY_REQUEST_ACTION =
-            "urn:ihe:iti:2007:RegistryStoredQuery";
+        "urn:ihe:iti:2007:RegistryStoredQuery";
+
     /** Field description */
     public static final String STORED_QUERY_RESPONSE_ACTION =
-            "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+        "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+
     /** Name of Transaction for service endpoints in xconfig.xml */
     public static final String STORED_QUERY_TRANS = "RegistryStoredQuery";
+
     /** The logger instance. */
     private static final Logger logger =
-            Logger.getLogger(XDSDocumentRegistryClient.class);
+        Logger.getLogger(XDSDocumentRegistryClient.class);
 
     /**
      * Constructs ...
@@ -64,7 +75,8 @@ public class XDSDocumentRegistryClient extends AbstractClient {
      * @param config
      */
     public XDSDocumentRegistryClient(XDSBridgeConfig xdsBridgeConfig,
-            XConfigActor config) {
+                                     XConfigActor config) {
+        
         super(xdsBridgeConfig, config);
     }
 
@@ -84,8 +96,7 @@ public class XDSDocumentRegistryClient extends AbstractClient {
             throws SOAPFaultException {
 
         XConfigActor config = getConfig();
-        XConfigTransaction pidAddTrans =
-                config.getTransaction(PID_ADD_TRANS);
+        XConfigTransaction pidAddTrans = config.getTransaction(PID_ADD_TRANS);
         String url = pidAddTrans.getEndpointURL();
         Soap soap = new Soap();
 
@@ -98,16 +109,16 @@ public class XDSDocumentRegistryClient extends AbstractClient {
         if (logger.isDebugEnabled()) {
 
             logger.debug("== Sending to Registry");
-            logger.debug(
-                    DebugUtils.toPrettyString(request.getMessageNode()));
+            logger.debug(DebugUtils.toPrettyString(request.getMessageNode()));
         }
 
-        OMElement responseElem = soap.soapCall(request.getMessageNode(),
-                url, useMtom, useWsa, soap12,
-                PID_ADD_REQUEST_ACTION,
-                PID_ADD_RESPONSE_ACTION);
+        OMElement responseElem = soap.soapCall(request.getMessageNode(), url,
+                                     useMtom, useWsa, soap12,
+                                     PID_ADD_REQUEST_ACTION,
+                                     PID_ADD_RESPONSE_ACTION);
 
         if (logger.isDebugEnabled()) {
+
             logger.debug("== Received from Registry");
             logger.debug(DebugUtils.toPrettyString(responseElem));
         }
@@ -129,34 +140,34 @@ public class XDSDocumentRegistryClient extends AbstractClient {
             GetDocumentsSQRequestMessage request)
             throws SOAPFaultException {
 
-            XConfigActor config = getConfig();
-            XConfigTransaction sqTrans =
-                    config.getTransaction(STORED_QUERY_TRANS);
-            String url = sqTrans.getEndpointURL();
-            Soap soap = new Soap();
+        XConfigActor config = getConfig();
+        XConfigTransaction sqTrans = config.getTransaction(STORED_QUERY_TRANS);
+        String url = sqTrans.getEndpointURL();
+        Soap soap = new Soap();
 
-            soap.setAsync(sqTrans.isAsyncTransaction());
+        soap.setAsync(sqTrans.isAsyncTransaction());
 
-            boolean soap12 = sqTrans.isSOAP12Endpoint();
-            boolean useMtom = false;
-            boolean useWsa = soap12;
+        boolean soap12 = sqTrans.isSOAP12Endpoint();
+        boolean useMtom = false;
+        boolean useWsa = soap12;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("== Sending to Registry");
-                logger.debug(
-                        DebugUtils.toPrettyString(request.getElement()));
-            }
+        if (logger.isDebugEnabled()) {
 
-            OMElement responseElem = soap.soapCall(request.getElement(),
-                    url, useMtom, useWsa, soap12,
-                    STORED_QUERY_REQUEST_ACTION,
-                    STORED_QUERY_RESPONSE_ACTION);
+            logger.debug("== Sending to Registry");
+            logger.debug(DebugUtils.toPrettyString(request.getElement()));
+        }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("== Received from Registry");
-                logger.debug(DebugUtils.toPrettyString(responseElem));
-            }
+        OMElement responseElem = soap.soapCall(request.getElement(), url,
+                                     useMtom, useWsa, soap12,
+                                     STORED_QUERY_REQUEST_ACTION,
+                                     STORED_QUERY_RESPONSE_ACTION);
 
-            return new GetDocumentsSQResponseMessage(responseElem);
+        if (logger.isDebugEnabled()) {
+
+            logger.debug("== Received from Registry");
+            logger.debug(DebugUtils.toPrettyString(responseElem));
+        }
+
+        return new GetDocumentsSQResponseMessage(responseElem);
     }
 }

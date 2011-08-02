@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
+
 package com.vangent.hieos.services.xds.bridge.activity;
 
-import java.util.List;
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
 import com.vangent.hieos.services.xds.bridge.message
     .GetDocumentsSQResponseMessage;
@@ -21,8 +21,13 @@ import com.vangent.hieos.services.xds.bridge.model.Document;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse;
+import com.vangent.hieos.xutil.exception.XdsException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import java.util.List;
+
 
 /**
  * Class description
@@ -69,30 +74,49 @@ public class RetrieveReplaceExtrinsicIdActivity
             context.getSubmitDocumentResponse();
         Document document = context.getDocument();
 
-        List<String> objectRefs = parseObjectRefs(registryResponse, context);
+        List<String> objectRefs = null;
 
-        if (objectRefs.isEmpty() == false) {
+        try {
 
-            // sync with the document
-            String replExtObjId = objectRefs.get(0);
+            objectRefs = parseObjectRefs(registryResponse, context);
 
-            logger.debug(
+        } catch (XdsException e) {
+
+            // Downstream XDS returned an error
+            String msg =
                 String.format(
-                    "Setting replaceExtrinsicObjectId [%s].", replExtObjId));
+                    "Unable to retrieve replacement document's extrinsic object id: %s",
+                    e.getMessage());
 
-            document.setReplaceExtrinsicObjectId(replExtObjId);
-            result = true;
+            sdrResponse.addResponse(document, ResponseTypeStatus.Failure, msg);
+        }
 
-        } else {
+        if (objectRefs != null) {
 
-            String errmsg =
-                String.format(
-                    "Replace document id [%s] does not exist in the registry.",
-                    document.getId());
+            if (objectRefs.isEmpty() == false) {
 
-            logger.error(errmsg);
-            sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
-                                    errmsg);
+                // sync with the document
+                String replExtObjId = objectRefs.get(0);
+
+                logger.debug(
+                    String.format(
+                        "Setting replaceExtrinsicObjectId [%s].",
+                        replExtObjId));
+
+                document.setReplaceExtrinsicObjectId(replExtObjId);
+                result = true;
+
+            } else {
+
+                String errmsg =
+                    String.format(
+                        "Replace document id [%s] does not exist in the registry.",
+                        document.getId());
+
+                logger.error(errmsg);
+                sdrResponse.addResponse(document, ResponseTypeStatus.Failure,
+                                        errmsg);
+            }
         }
 
         return result;
@@ -124,9 +148,9 @@ public class RetrieveReplaceExtrinsicIdActivity
                 callGetDocumentsSQ(context, document.getReplaceIdAsOID());
 
             result = checkForSuccess(getDocsResp, context);
-            
+
             if (result) {
-                
+
                 context.getXdspnr().addReplaceAssociation(document);
             }
         }
