@@ -15,7 +15,7 @@ package com.vangent.hieos.DocViewer.server.gateway;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
-import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
@@ -56,7 +56,7 @@ public abstract class InitiatingGateway {
 	 * @throws XdsException
 	 */
 	public OMElement soapCall(TransactionType txnType, OMElement request)
-			throws XdsException {
+			throws SOAPFaultException {
 		// Wrapper the message (if necessary) ...
 		OMElement outboundRequest = this
 				.getSOAPRequestMessage(txnType, request);

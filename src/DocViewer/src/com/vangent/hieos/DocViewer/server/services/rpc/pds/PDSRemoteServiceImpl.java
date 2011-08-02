@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.axis2.AxisFault;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
@@ -34,6 +32,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
@@ -140,7 +139,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			subjectSearchResponse = pdsClient
 					.findCandidatesQuery(senderDeviceInfo, receiverDeviceInfo,
 							subjectSearchCriteria);
-		} catch (AxisFault e) {
+		} catch (SOAPFaultException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

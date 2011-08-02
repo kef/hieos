@@ -33,6 +33,7 @@ import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -43,7 +44,7 @@ import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		DocumentRemoteService {
@@ -81,7 +82,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 			if (query != null) {
 				// Get the proper initiating gateway configuration.
 				String searchMode = criteria.getSearchMode();
-				InitiatingGateway ig = InitiatingGatewayFactory.getInitiatingGateway(searchMode, servletUtil);
+				InitiatingGateway ig = InitiatingGatewayFactory
+						.getInitiatingGateway(searchMode, servletUtil);
 
 				// Issue Document Retrieve ...
 				System.out.println("Doc Query ...");
@@ -95,6 +97,9 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 							response);
 				}
 			}
+		} catch (SOAPFaultException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (XdsException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
