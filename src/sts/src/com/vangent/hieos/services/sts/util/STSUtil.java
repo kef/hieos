@@ -250,7 +250,7 @@ public class STSUtil {
             CertPathValidator cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType());
             PKIXCertPathValidatorResult pkixCertPathValidatorResult = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
             if (logger.isDebugEnabled()) {
-                logger.debug("PKIXCertPathValidatorResult: " + pkixCertPathValidatorResult);
+                logger.debug(pkixCertPathValidatorResult);
             }
         } catch (Exception ex) {
             throw new STSException("Exception while validating Certificate: " + ex.getMessage());
