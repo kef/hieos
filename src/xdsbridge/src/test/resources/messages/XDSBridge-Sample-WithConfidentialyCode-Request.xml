@@ -1,0 +1,17 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:xds="http://schemas.hieos.vangent.com/xdsbridge">
+   <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing"><wsa:Action>urn:hieos:xds:bridge:SubmitDocumentRequest</wsa:Action><wsa:MessageID>uuid:6f483ff3-7f03-4039-8807-594f414ea664</wsa:MessageID></soap:Header>
+   <soap:Body>
+      <xds:SubmitDocumentRequest>
+         <!--1a6fd7ff75144f5^^^&1.3.6.1.4.1.21367.2005.3.7&ISO-->
+         <xds:PatientId root="1.3.6.1.4.1.21367.2005.3.7" extension="1a6fd7ff75144f5"/>
+         <xds:Documents>
+            <!--1 or more repetitions:-->
+            <xds:Document>
+               <xds:Type code="51855-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary"/>
+               <xds:ConfidentialityCode code="V" codeSystem="2.16.840.1.113883.5.25" codeSystemName="HL7" displayName="very restricted"/>
+               <xds:Content><inc:Include href="cid:shs_simon_carr_no-id.xml" xmlns:inc="http://www.w3.org/2004/08/xop/include"/></xds:Content>
+            </xds:Document>
+         </xds:Documents>
+      </xds:SubmitDocumentRequest>
+   </soap:Body>
+</soap:Envelope>
