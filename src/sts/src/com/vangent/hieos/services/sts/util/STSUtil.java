@@ -229,7 +229,6 @@ public class STSUtil {
      * @throws STSException
      */
     public static void validateCertificate(X509Certificate cert, KeyStore trustStore) throws STSException {
-        //System.out.println("X509 Certificate = " + cert);
         try {
             // To check the validity of the dates
             cert.checkValidity();
@@ -250,7 +249,9 @@ public class STSUtil {
             params.setRevocationEnabled(false);
             CertPathValidator cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType());
             PKIXCertPathValidatorResult pkixCertPathValidatorResult = (PKIXCertPathValidatorResult) cpv.validate(cp, params);
-            System.out.println(pkixCertPathValidatorResult);
+            if (logger.isDebugEnabled()) {
+                logger.debug("PKIXCertPathValidatorResult: " + pkixCertPathValidatorResult);
+            }
         } catch (Exception ex) {
             throw new STSException("Exception while validating Certificate: " + ex.getMessage());
         }

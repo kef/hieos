@@ -189,9 +189,6 @@ public class STSRequestHandler extends XBaseTransaction {
             STSUtil.validateCertificate(certificate, trustStore);
             requestData.setSubjectDN(certificate.getSubjectX500Principal().getName());
             authenticated = true;
-            //} catch (STSException ex) {
-            //    System.out.println("Client Certificate not valid: " + ex.getMessage());
-            // }
         }
         return authenticated;
     }

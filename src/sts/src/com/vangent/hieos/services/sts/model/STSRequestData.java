@@ -115,9 +115,9 @@ public class STSRequestData {
         // CN=urn:oasis:names:tc:xacml:1.0:subject:subject-id
         // OU=urn:oasis:names:tc:xspa:1.0:subject:organization-id
         // O=urn:oasis:names:tc:xspa:1.0:subject:organization
-        // L=XXX
-        // ST=XXX
-        // C=XXX
+        // L=Locale(?)
+        // ST=State
+        // C=Country
 
         X509Certificate clientCert = headerData.getClientCertificate();
         if (clientCert != null) {
