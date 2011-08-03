@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xdsb="http://schemas.hieos.vangent.com/xdsbridge">
+    <soapenv:Header />
+    <soapenv:Body>
+        <xdsb:SubmitDocumentResponse status="Failure">
+            <xdsb:Response status="Failure">
+                <xdsb:DocumentId>b830d8ab-a558-42b6-99be-619f5fdd2055</xdsb:DocumentId>
+                <xdsb:ErrorMessage>Invalid document type</xdsb:ErrorMessage>
+            </xdsb:Response>
+            <xdsb:Response status="Failure">
+                <xdsb:DocumentId>2.25.123457</xdsb:DocumentId>
+                <xdsb:ErrorMessage>Missing patient name</xdsb:ErrorMessage>
+            </xdsb:Response>
+        </xdsb:SubmitDocumentResponse>
+    </soapenv:Body>
+</soapenv:Envelope>
