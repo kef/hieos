@@ -20,8 +20,10 @@ import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.security.KeyException;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.PublicKey;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
 import java.security.cert.CertificateEncodingException;
@@ -202,24 +204,41 @@ public class STSUtil {
     }
 
     /**
-     * 
+     *
      * @param certificate
+     * @param addCertificate
      * @param addPublicKey
      * @return
      * @throws STSException
      */
-    static public KeyInfo getKeyInfo(X509Certificate certificate, boolean addPublicKey) throws STSException {
+    static public KeyInfo getKeyInfo(X509Certificate certificate, boolean addCertificate, boolean addPublicKey) throws STSException {
         // Place the Certificate (public portion) for the issuer in the KeyInfo response.
         KeyInfo keyInfo = (KeyInfo) STSUtil.createXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-        if (addPublicKey == true) {
+        if (addPublicKey) {
             KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
         }
         try {
-            KeyInfoHelper.addCertificate(keyInfo, certificate);
+            if (addCertificate) {
+                KeyInfoHelper.addCertificate(keyInfo, certificate);
+            }
         } catch (CertificateEncodingException ex) {
             throw new STSException("Unable to encode certificate: " + ex.getMessage());
         }
         return keyInfo;
+    }
+
+    /**
+     *
+     * @param keyInfo
+     * @return
+     * @throws STSException
+     */
+    static public List<PublicKey> getPublicKeys(KeyInfo keyInfo) throws STSException {
+        try {
+            return KeyInfoHelper.getPublicKeys(keyInfo);
+        } catch (KeyException ex) {
+            throw new STSException("Unable to get public keys from KeyInfo: " + ex.getMessage());
+        }
     }
 
     /**

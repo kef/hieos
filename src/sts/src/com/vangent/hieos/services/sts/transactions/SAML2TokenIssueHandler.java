@@ -105,16 +105,18 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         // Assign a uniquie id - prefix must be compliant with xs:ID type (reason for "ID_" prefix).
         assertion.setID("ID_" + UUID.randomUUID().toString());
 
-        // Set the instant the Assertion was created.
+        // Get created and expires date/times.
         DateTime createdDate = new DateTime();
+        long ttl = stsConfig.getTimeToLive();
+        DateTime expiresDate = new DateTime(createdDate.getMillis() + ttl);
+
+        // Set the instant the Assertion was created.
         assertion.setIssueInstant(createdDate);
 
         // Add an AuthnStatement.
         assertion.getAuthnStatements().add(this.getAuthnStatement(authenticationType));
 
         // Set the validity period (as Conditions).
-        long ttl = stsConfig.getTimeToLive();
-        DateTime expiresDate = new DateTime(createdDate.getMillis() + ttl);
         Conditions conditions = new ConditionsBuilder().buildObject();
         conditions.setNotBefore(createdDate);
         conditions.setNotOnOrAfter(expiresDate);
@@ -151,7 +153,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
             subjConf.setMethod(STSConstants.HOLDER_OF_KEY_SUBJECT_CONFIRMATION_METHOD);
             // Get client certificate and add to SubjectConfirmationData.
             X509Certificate clientCertificate = requestData.getHeaderData().getClientCertificate();
-            KeyInfo clientKeyInfo = STSUtil.getKeyInfo(clientCertificate, true);
+            KeyInfo clientKeyInfo = STSUtil.getKeyInfo(clientCertificate, 
+                    stsConfig.isEmitSubjectX509Data(), stsConfig.isEmitSubjectPublicKeyValue());
             subjData.getUnknownXMLObjects().add(clientKeyInfo);
         } else {
             subjConf.setMethod(STSConstants.BEARER_SUBJECT_CONFIRMATION_METHOD);
@@ -164,7 +167,8 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Get issuer's X509Certificate and corresponding KeyInfo.
         X509Certificate issuerCertificate = (X509Certificate) pkEntry.getCertificate();
-        KeyInfo issuerKeyInfo = STSUtil.getKeyInfo(issuerCertificate, true);
+        KeyInfo issuerKeyInfo = STSUtil.getKeyInfo(issuerCertificate,
+                stsConfig.isEmitIssuerX509Data(), stsConfig.isEmitIssuerPublicKeyValue());
 
         // NO LONGER USED
         //KeyName kn = (KeyName) STSUtil.createXMLObject(KeyName.DEFAULT_ELEMENT_NAME);
@@ -192,6 +196,10 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
         signature.setSigningCredential(credential);
         signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+
+        // FIXME: Do we have a problem here?
+        // <ec:InclusiveNamespaces PrefixList="dsig soap #default"
+        //xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 
         // Place the KeyInfo for the issuer in the assertion's Signature.
         signature.setKeyInfo(issuerKeyInfo);

@@ -33,6 +33,10 @@ public class STSConfig {
     private String trustStorePassword;
     private String issuerPassword;
     private String useSubjectNameFromClaimURI;
+    private boolean emitIssuerX509Data;
+    private boolean emitIssuerPublicKeyValue;
+    private boolean emitSubjectX509Data;
+    private boolean emitSubjectPublicKeyValue;
     private XConfigActor stsConfigActor;
 
     /**
@@ -89,6 +93,12 @@ public class STSConfig {
             issuerPassword = keyStorePassword;
         }
         useSubjectNameFromClaimURI = stsConfigActor.getProperty("UseSubjectNameFromClaimURI");
+
+        // Properties supporting public key and certificate output data.
+        emitIssuerX509Data = stsConfigActor.getPropertyAsBoolean("EmitIssuerX509Data", true);
+        emitIssuerPublicKeyValue = stsConfigActor.getPropertyAsBoolean("EmitIssuerPublicKeyValue", true);
+        emitSubjectX509Data = stsConfigActor.getPropertyAsBoolean("EmitSubjectX509Data", true);
+        emitSubjectPublicKeyValue = stsConfigActor.getPropertyAsBoolean("EmitSubjectPublicKeyValue", true);
     }
 
     /**
@@ -161,5 +171,37 @@ public class STSConfig {
      */
     public String getUseSubjectNameFromClaimURI() {
         return useSubjectNameFromClaimURI;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isEmitIssuerPublicKeyValue() {
+        return emitIssuerPublicKeyValue;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isEmitIssuerX509Data() {
+        return emitIssuerX509Data;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isEmitSubjectPublicKeyValue() {
+        return emitSubjectPublicKeyValue;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isEmitSubjectX509Data() {
+        return emitSubjectX509Data;
     }
 }
