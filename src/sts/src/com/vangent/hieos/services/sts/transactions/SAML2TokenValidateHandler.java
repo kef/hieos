@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.security.KeyStore;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -101,68 +102,176 @@ public class SAML2TokenValidateHandler extends SAML2TokenHandler {
             SAMLSignatureProfileValidator pv = new SAMLSignatureProfileValidator();
             pv.validate(signature);
 
-            // Validate time stamps
+            // Validate conditions (if they exist).
             Conditions conditions = assertion.getConditions();
-            DateTime startDate = conditions.getNotBefore();
-            DateTime endDate = conditions.getNotOnOrAfter();
-            if (startDate.isAfterNow()) {
-                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion not valid yet");
-                return this.getWSTrustResponse(false);
-            }
-            if (endDate.isBeforeNow() || endDate.isEqualNow()) {
-                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion expired");
-                return this.getWSTrustResponse(false);
+            if (conditions != null) {
+                DateTime startDate = conditions.getNotBefore();
+                if (startDate != null && startDate.isAfterNow()) {
+                    logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion not valid yet");
+                    return this.getWSTrustResponse(false);
+                }
+                DateTime endDate = conditions.getNotOnOrAfter();
+                if (endDate != null && (endDate.isBeforeNow() || endDate.isEqualNow())) {
+                    logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Assertion expired");
+                    return this.getWSTrustResponse(false);
+                }
             }
         } catch (ValidationException ex) {
             logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to validate Assertion: " + ex.getMessage());
             return this.getWSTrustResponse(false);
         }
 
-        // Get the Certificate (from Signature/KeyInfo) used to sign the assertion.
-        X509Certificate certificate = null;
+        // Get PublicKey that will be used to validate the signature on the assertion.
+        PublicKey publicKey = null;
         KeyInfo keyInfo = signature.getKeyInfo();
         if (keyInfo != null) {
-            List<X509Certificate> certs = null;
-            try {
-                certs = KeyInfoHelper.getCertificates(keyInfo);
-            } catch (CertificateException ex) {
-                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to get Certificate used to sign Assertion from KeyInfo: " + ex.getMessage());
-                return this.getWSTrustResponse(false);
-            }
-            if ((certs != null) || !certs.isEmpty()) {
-                certificate = certs.get(0);  // Use the first one.
-                try {
-                    logMessage = this.getLogMessage();
-                    logMessage.addOtherParam("X509 Certificate (used to validate)", certificate);
-                    STSUtil.validateCertificate(certificate, trustStore);
-                } catch (STSException ex) {
-                    logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
+            // See if a certificate is present.
+            X509Certificate certificate = this.getCertificateFromKeyInfo(keyInfo);
+            if (certificate != null) {
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Using supplied X.509 certificate to validate assertion signature");
+                logMessage.addOtherParam("X.509 Certificate (used to validate signature)", certificate);
+
+                // Validate the certificate.
+                boolean validCert = this.validateCertificate(certificate, trustStore);
+                if (!validCert) {
                     return this.getWSTrustResponse(false);
+                }
+                publicKey = certificate.getPublicKey();
+            } else {
+                // Look for KeyInfo/KeyValue [PublicKey]
+                publicKey = this.getPublicKeyFromKeyInfo(keyInfo);
+                if (publicKey != null) {
+                    logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Using supplied public key to validate assertion signature");
                 }
             }
         }
 
-        // Get the "issuer" Certificate if not present in Signature/KeyInfo
-        if (certificate == null) {
-            certificate = STSUtil.getIssuerCertificate(stsConfig, trustStore);
-            // Will validate using this.
+        // If no public key is specified, use the issuer certificate to validate.
+        if (publicKey == null) {
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Using issuer X.509 certificate to validate assertion signature");
+            X509Certificate certificate = STSUtil.getIssuerCertificate(stsConfig, trustStore);
+            publicKey = certificate.getPublicKey();
         }
 
-        // Now, validate the signature on the Assertion using chosen Certificate.
+        // Now, validate the signature with PublicKey
+        boolean valid = this.validateSignature(signature, publicKey);
+        if (logMessage.isLogEnabled()) {
+            if (valid) {
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Token is valid!");
+            } else {
+                logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Token is NOT valid!");
+            }
+        }
+        return this.getWSTrustResponse(valid);
+    }
+
+    /**
+     *
+     * @param keyInfo
+     * @return
+     */
+    private X509Certificate getCertificateFromKeyInfo(KeyInfo keyInfo) {
+        XLogMessage logMessage = this.getLogMessage();
+        List<X509Certificate> certs = null;
+        try {
+            certs = KeyInfoHelper.getCertificates(keyInfo);
+        } catch (CertificateException ex) {
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to get Certificate used to sign Assertion from KeyInfo: " + ex.getMessage());
+            certs = null;
+        }
+        if (certs == null || certs.isEmpty()) {
+            return null;
+        } else {
+            return certs.get(0);  // Use the first one.
+        }
+    }
+
+    /**
+     * 
+     * @param certificate
+     * @param trustStore
+     * @return
+     */
+    private boolean validateCertificate(X509Certificate certificate, KeyStore trustStore) {
+        XLogMessage logMessage = this.getLogMessage();
+        try {
+            STSUtil.validateCertificate(certificate, trustStore);
+        } catch (STSException ex) {
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "STS does not trust the Certificate used to sign Assertion: " + ex.getMessage());
+            return false;  // Invalid.
+        }
+        return true; // Valid.
+    }
+
+    /**
+     * 
+     * @param keyInfo
+     * @return
+     * @throws STSException
+     */
+    private PublicKey getPublicKeyFromKeyInfo(KeyInfo keyInfo) {
+        XLogMessage logMessage = this.getLogMessage();
+        List<PublicKey> publicKeys = null;
+        try {
+            publicKeys = STSUtil.getPublicKeys(keyInfo);
+        } catch (STSException ex) {
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to get PublicKey used to sign Assertion from KeyInfo: " + ex.getMessage());
+            publicKeys = null;
+        }
+        if (publicKeys == null || publicKeys.isEmpty()) {
+            return null;
+        } else {
+            return publicKeys.get(0);  // Just pick first one.
+        }
+    }
+
+    /**
+     * 
+     * @param signature
+     * @param publicKey
+     * @return
+     */
+    private boolean validateSignature(Signature signature, PublicKey publicKey) {
+        XLogMessage logMessage = this.getLogMessage();
+        if (logMessage.isLogEnabled()) {
+            logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Validating signature using public key: " + publicKey);
+        }
+        // Now, validate the signature on the Assertion using given public key.
         BasicX509Credential credential = new BasicX509Credential();
-        credential.setEntityCertificate(certificate);
+        credential.setPublicKey(publicKey);
         SignatureValidator sigValidator = new SignatureValidator(credential);
         try {
             sigValidator.validate(signature);
+            return true;  // Valid.
         } catch (ValidationException ex) {
             logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to validate Assertion: " + ex.getMessage());
-            return this.getWSTrustResponse(false);
+            return false;  // Not valid.
         }
-        // Finally, a success!
-        logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Token is valid!");
-        return this.getWSTrustResponse(true);
     }
 
+    /**
+     *
+     * @param signature
+     * @param certificate
+     * @return
+     */
+    //private boolean validateSignatureUsingCertificate(Signature signature, X509Certificate certificate) {
+    //    XLogMessage logMessage = this.getLogMessage();
+    //    if (logMessage.isLogEnabled()) {
+    //        logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Validating signature using certificate: " + certificate);
+    //    }
+    // Now, validate the signature on the Assertion using chosen Certificate.
+    //    BasicX509Credential credential = new BasicX509Credential();
+    //    credential.setEntityCertificate(certificate);
+    //    SignatureValidator sigValidator = new SignatureValidator(credential);
+    //    try {
+    //        sigValidator.validate(signature);
+    //    } catch (ValidationException ex) {
+    //        logMessage.addOtherParam(LOG_TOKEN_STATUS_PARAM, "Unable to validate Assertion: " + ex.getMessage());
+    //        return false;  // Not valid.
+    //    }
+    //    return true;  // Valid.
+    //}
     /**
      * 
      * @param assertionOMElement
