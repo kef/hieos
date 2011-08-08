@@ -155,9 +155,9 @@ CREATE TABLE participantobject (
   typecoderole INT,           -- values 1 through 24
   datalifecycle INT,          -- values 1 through 15
   sensitivity VARCHAR(50),
-  id NVARCHAR(MAX) NOT NULL,		-- can contain multiple IDs
+  id image NOT NULL,		-- can contain multiple IDs
   poname VARCHAR(100),
-  query NVARCHAR(MAX),                   -- binary data
+  query image,                   -- binary data
   CONSTRAINT participantobject_pkey PRIMARY KEY (uniqueid),
   CONSTRAINT participantobject_am_fkey FOREIGN KEY (amid)
       REFERENCES auditmessage (uniqueid) ON DELETE CASCADE
@@ -191,7 +191,7 @@ CREATE TABLE potypevalue (
   attributename CHAR(1) NOT NULL,
   seqno INT NOT NULL,
   codetype VARCHAR(100) NOT NULL,
-  codevalue NVARCHAR(MAX) NOT NULL,
+  codevalue image NOT NULL,
   CONSTRAINT potypevalue_pkey PRIMARY KEY (parentid, attributename, seqno),
   CONSTRAINT potypevalue_po_fkey FOREIGN KEY (parentid)
       REFERENCES participantobject (uniqueid) ON DELETE CASCADE
@@ -208,7 +208,7 @@ CREATE TABLE auditlog (
   clientipaddress VARCHAR(100),
   clientport VARCHAR(100),
   receiveddatetime DATETIME NOT NULL,
-  xml NVARCHAR(MAX),
+  xml image,
   protocol VARCHAR(10),
   errormessage VARCHAR(500),
   CONSTRAINT auditlog_pkey PRIMARY KEY (uniqueid)
