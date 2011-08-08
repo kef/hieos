@@ -842,6 +842,7 @@ public abstract class BasicTransaction extends OmLogger {
             xuaObject.setSTSUri(TestConfig.xtestConfig.getSiteProperty(site, "XUA:ServiceURI"));
             xuaObject.setPassword(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Password"));
             xuaObject.setSTSUrl(TestConfig.xtestConfig.getSiteProperty(site, "XUA:STSURL"));
+            xuaObject.setClientCertBase64Encoded(TestConfig.xtestConfig.getSiteProperty(site, "XUA:Cert"));
             xuaObject.setXUASupportedSOAPActions(TestConfig.xtestConfig.getSiteProperty(site, "XUA:SOAPActions"));
             xuaObject.setClaims(this.getClaims().cloneOMElement());
         } else {
