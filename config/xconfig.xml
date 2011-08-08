@@ -176,14 +176,27 @@
         <Property name="TrustStorePassword">changeit</Property>
         <Property name="KeyStorePassword">changeit</Property>
         -->
-        <Property name="TimeToLiveInMilliseconds">100000</Property>
 
-        <!-- AuthenticationType (possible values) - used for token issuance:
-            UserNameToken
-            BinarySecurityToken [must supply X.509 cert]
+
+        <!-- Token issuance properties. -->
+
+        <!-- UseSubjectNameFromClaimURI
+            If property exists then create SubjectName from specified Claim URI value
+              In the case of UserNameToken, will replace subject name completely with Claim URI value.
+              In the case of BinarySecurityToken, will only override CN portion of supplied
+                 X.509 certificate with Claim URI value.
         -->
-        <!-- no longer used 
-        <Property name="AuthenticationType">BinarySecurityToken</Property>-->
+        <Property name="UseSubjectNameFromClaimURI">urn:oasis:names:tc:xacml:1.0:subject:subject-id</Property>
+
+        <!-- When emitting signature KeyInfo data, these properties are applicable. -->
+        <Property name="EmitIssuerX509Data">true</Property>
+        <Property name="EmitIssuerPublicKeyValue">true</Property>
+
+        <!-- When emitting subject confirmation data, these properties are applicable. -->
+        <Property name="EmitSubjectX509Data">true</Property>
+        <Property name="EmitSubjectPublicKeyValue">true</Property>
+
+        <Property name="TimeToLiveInMilliseconds">600000</Property>  <!-- 600000 = 10 mins -->
 
         <!-- Configuration for UserNameToken w/ LDAP -->
         <!-- Authentication Handler Configuration -->
@@ -193,14 +206,6 @@
         <!-- if using UserNameToken w/ LDAP ... -->
         <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
         <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
-
-        <!-- UseSubjectNameFromClaimURI
-            If property exists then create SubjectName from specified Claim URI value
-              In the case of UserNameToken, will replace subject name completely with Claim URI value.
-              In the case of BinarySecurityToken, will only override CN portion of supplied
-                 X.509 certificate with Claim URI value.
-        -->
-        <Property name="UseSubjectNameFromClaimURI">urn:oasis:names:tc:xacml:1.0:subject:subject-id</Property>
 
     </Actor>
 
