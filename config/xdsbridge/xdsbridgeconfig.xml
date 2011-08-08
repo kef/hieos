@@ -33,8 +33,6 @@
     <ContentParserConfig name="SharedHealthSummaryMapper" base="CDAToXDSBaseMapper">
         <DocumentContentVariables>
             
-            <Variable name="AuthorInstitutionName" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/hl7:asOrganizationPartOf/hl7:wholeOrganization/hl7:name" /> 
-
             <Variable name="PatientIdRoot" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@root" />
             <Variable name="PatientIdExtension" expression="/hl7:ClinicalDocument/hl7:recordTarget/hl7:patientRole/hl7:patient/ext:asEntityIdentifier/ext:id/@extension" />
 
@@ -51,9 +49,9 @@
             <Namespace prefix="hl7" uri="urn:hl7-org:v3"/>
         </Namespaces>
         <DocumentContentVariables>
-            <Variable name="AuthorInstitutionName" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/hl7:name" />
-            <Variable name="AuthorInstitutionRoot" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/ext:asEntityIdentifier/ext:id/@root" /> 
-            <Variable name="AuthorInstitutionExtension" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:representedOrganization/ext:asEntityIdentifier/ext:id/@extension" /> 
+            <Variable name="AuthorInstitutionName" expression="/hl7:ClinicalDocument/hl7:custodian/hl7:assignedCustodian/hl7:representedCustodianOrganization/hl7:name" />
+            <Variable name="AuthorInstitutionRoot" expression="/hl7:ClinicalDocument/hl7:custodian/hl7:assignedCustodian/hl7:representedCustodianOrganization/ext:asEntityIdentifier/ext:id/@root" /> 
+            <Variable name="AuthorInstitutionExtension" expression="/hl7:ClinicalDocument/hl7:custodian/hl7:assignedCustodian/hl7:representedCustodianOrganization/ext:asEntityIdentifier/ext:id/@extension" /> 
 
             <Variable name="AuthorPersonLastName" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:assignedPerson/hl7:name/hl7:family" /> 
             <Variable name="AuthorPersonFirstName" expression="/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:assignedPerson/hl7:name/hl7:given" /> 
