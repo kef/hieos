@@ -65,6 +65,7 @@ public class XDRRecipient extends XAbstractService {
         if (logger.isDebugEnabled()) {
             logger.debug("XDR Request Received: " + xdr.toString());
         }
+        OMElement response = null;
         try {
             beginTransaction(getXDRTransactionName(), xdr);
 
@@ -76,15 +77,15 @@ public class XDRRecipient extends XAbstractService {
             // Process the Request
             ProcessXDRPackage s = new ProcessXDRPackage(log_message, getMessageContext());
             s.setConfigActor(config);
-            OMElement result = s.processXDRPackage(xdr);
+            response = s.processXDRPackage(xdr);
 
             endTransaction(s.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         } catch (XdsValidationException ex) {
-            return endTransaction(xdr, ex, XAbstractService.ActorType.DOCRECIPIENT, "");
+            response = endTransaction(xdr, ex, XAbstractService.ActorType.DOCRECIPIENT, "");
         }
+        return response;
     }
 
     protected String getXDRTransactionName() {

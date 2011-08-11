@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
 
 /**

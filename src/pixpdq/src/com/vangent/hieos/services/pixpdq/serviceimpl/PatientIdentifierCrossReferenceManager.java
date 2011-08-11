@@ -43,18 +43,20 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction("GetIdentifiersQuery (PIXV3)", request);
             validateWS();
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
+            response = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
+
     }
 
     /**
@@ -63,18 +65,19 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * @return
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message);
             validateWS();
             validateNoMTOM();
             PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
+            response = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):

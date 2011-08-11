@@ -56,18 +56,19 @@ public class STS extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement RequestSecurityToken(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getRequestType(request), request);
             validateWS();
             validateNoMTOM();
             STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
             handler.setConfigActor(config);
-            OMElement response = handler.run(request);
+            response = handler.run(request);
             endTransaction(handler.getStatus());
-            return response;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**

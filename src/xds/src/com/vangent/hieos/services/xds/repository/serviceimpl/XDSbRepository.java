@@ -75,6 +75,7 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement ProvideAndRegisterDocumentSetRequest(OMElement sor) throws AxisFault {
+        OMElement response = null;
         try {
             long start = System.currentTimeMillis();
             beginTransaction(getPnRTransactionName(), sor);
@@ -83,17 +84,17 @@ public class XDSbRepository extends XAbstractService {
             validatePnRTransaction(sor);
             ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
             s.setConfigActor(this.getConfigActor());
-            OMElement result = s.run(sor);
+            response = s.run(sor);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
                 logger.debug("PNR TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         } catch (XdsValidationException e) {
-            return endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(sor, e, XAbstractService.ActorType.REPOSITORY, "");
         }
+        return response;
     }
 
     /**
@@ -103,6 +104,7 @@ public class XDSbRepository extends XAbstractService {
      * @throws org.apache.axis2.AxisFault
      */
     public OMElement RetrieveDocumentSetRequest(OMElement rdsr) throws AxisFault {
+        OMElement response = null;
         try {
             long start = System.currentTimeMillis();
             beginTransaction(getRetTransactionName(), rdsr);
@@ -118,21 +120,21 @@ public class XDSbRepository extends XAbstractService {
             }
             RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
             s.setConfigActor(this.getConfigActor());
-            OMElement result = s.run(rdsr, true /* optimize */, this);
+            response = s.run(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());
             if (logger.isDebugEnabled()) {
                 logger.debug("RETRIEVE DOC TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
             }
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         } catch (XdsValidationException ex) {
-            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (SchemaValidationException ex) {
-            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (XdsInternalException ex) {
-            return endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(rdsr, ex, XAbstractService.ActorType.REPOSITORY, "");
         }
+        return response;
     }
 
     /**

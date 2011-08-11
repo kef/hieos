@@ -46,18 +46,19 @@ public class PDP extends XAbstractService {
      * @throws SOAPFaultException
      */
     public OMElement Authorize(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction("PDP:Authorize", request);
             validateWS();
             validateNoMTOM();
             PDPRequestHandler handler = new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
             handler.setConfigActor(config);
-            OMElement response = handler.run(request);
+            response = handler.run(request);
             endTransaction(handler.getStatus());
-            return response;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
