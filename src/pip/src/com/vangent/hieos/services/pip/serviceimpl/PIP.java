@@ -46,18 +46,19 @@ public class PIP extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement GetConsentDirectives(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction("PIP:GetConsentDirectives", request);
             validateWS();
             validateNoMTOM();
             PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
-            OMElement result = handler.run(request);
             handler.setConfigActor(config);
+            response = handler.run(request);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
