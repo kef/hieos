@@ -67,8 +67,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected XLogMessage log_message = null;
     private String serviceName;
-    //private XConfigActor configActor = null;
-    //private ActorType mActor = ActorType.REGISTRY;
+    private boolean active = true;
 
     /**
      *
@@ -288,15 +287,14 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
             log_message.addHTTPParam(Fields.fromIpAddress, remoteIP);
             log_message.addHTTPParam(Fields.endpoint, messageContext.getTo().toString());
         }
-        this.validateXUA(request);  // Make sure we are good with XUA.
+        this.validateXUA();  // Make sure we are good with XUA.
     }
 
     /**
      *
-     * @param request
-     * @return
+     * @throws SOAPFaultException
      */
-    private void validateXUA(OMElement request) throws SOAPFaultException {
+    private void validateXUA() throws SOAPFaultException {
         XConfigActor configActor = this.getConfigActor();
         if (configActor == null) {
             this.throwSOAPFaultException("Configuration not established for Actor");
@@ -327,9 +325,12 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param status
      */
     protected void endTransaction(boolean status) {
-        logger.info("End " + serviceName + " "
-                + ((log_message == null) ? "null" : log_message.getMessageID()) + " : "
-                + ((status) ? "Pass" : "Fail"));
+        if (active && logger.isInfoEnabled()) {
+            active = false;  // Only want to emit once.
+            logger.info("End " + serviceName + " "
+                    + ((log_message == null) ? "null" : log_message.getMessageID()) + " : "
+                    + ((status) ? "Pass" : "Fail"));
+        }
         stopXLogger();
     }
 
@@ -541,6 +542,20 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         throw new SOAPFaultException(msg);
     }
 
+     /**
+      * 
+      * @param ex
+      * @throws AxisFault
+      */
+    public void throwAxisFault(SOAPFaultException ex) throws AxisFault {
+        if (log_message != null) {
+            log_message.addErrorParam("SOAPError", ex.getMessage());
+            log_message.addOtherParam("Response", "SOAPFault: " + ex.getMessage());
+        }
+        endTransaction(false);
+        throw new AxisFault(ex.getMessage());
+    }
+
     /**
      *
      * @param ex
@@ -548,14 +563,13 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     /*
     public AxisFault getAxisFault(Exception ex) {
-        if (log_message != null) {
-            log_message.addErrorParam("EXCEPTION", ex.getMessage());
-            //log_message.setPass(false);
-        }
-        endTransaction(false);
-        return new AxisFault(ex.getMessage());
+    if (log_message != null) {
+    log_message.addErrorParam("EXCEPTION", ex.getMessage());
+    //log_message.setPass(false);
+    }
+    endTransaction(false);
+    return new AxisFault(ex.getMessage());
     }*/
-
     /**
      *
      * @return
