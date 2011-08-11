@@ -67,6 +67,7 @@ public abstract class XCAGateway extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(getQueryTransactionName(), request);
             OMElement ahq = MetadataSupport.firstChildWithLocalName(request, "AdhocQuery");
@@ -80,18 +81,18 @@ public abstract class XCAGateway extends XAbstractService {
             // Delegate all the hard work to the XCAAdhocQueryRequest class (follows same NIST patterns).
             XCAAdhocQueryRequest transaction = this.getAdHocQueryTransaction();
             // Now, do some work!
-            OMElement result = transaction.run(request);
+            response = transaction.run(request);
             endTransaction(transaction.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         } catch (SchemaValidationException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
         } catch (XdsInternalException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
         } catch (XdsValidationException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REGISTRY, "");
         }
+        return response;
     }
 
     /**
@@ -101,6 +102,7 @@ public abstract class XCAGateway extends XAbstractService {
      * @throws AxisFault 
      */
     public OMElement RetrieveDocumentSetRequest(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(getRetTransactionName(), request);
             validateWS();
@@ -108,18 +110,18 @@ public abstract class XCAGateway extends XAbstractService {
             validateRetrieveTransaction(request);
             // Delegate all the hard work to the XCARetrieveDocumentSet class (follows same NIST patterns).
             XCARetrieveDocumentSet transaction = this.getRetrieveDocumentSet();
-            OMElement result = transaction.run(request);
+            response = transaction.run(request);
             endTransaction(transaction.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         } catch (SchemaValidationException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (XdsInternalException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
         } catch (XdsValidationException ex) {
-            return endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
+            response = endTransaction(request, ex, XAbstractService.ActorType.REPOSITORY, "");
         }
+        return response;
     }
 
     /**
