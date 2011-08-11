@@ -43,18 +43,19 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
      * @return
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction("FindCandidatesQuery (PDQV3)", request);
             validateWS();
             validateNoMTOM();
             PDSRequestHandler handler = new PDSRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
+            response = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage()); // Rethrow.
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):
