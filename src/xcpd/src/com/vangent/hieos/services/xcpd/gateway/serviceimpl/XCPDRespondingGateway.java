@@ -46,19 +46,20 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement CrossGatewayPatientDiscovery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getTransactionName("CGPD (RG)"), PRPA_IN201305UV02_Message);
             validateWS();
             validateNoMTOM();
             XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(PRPA_IN201305UV02_Message,
+            response = handler.run(PRPA_IN201305UV02_Message,
                     XCPDRespondingGatewayRequestHandler.MessageType.CrossGatewayPatientDiscovery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
@@ -67,20 +68,21 @@ public class XCPDRespondingGateway extends XCPDGateway {
      * @return
      */
     public OMElement PatientLocationQuery(OMElement plq) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getTransactionName("PLQ (RG)"), plq);
             validateWS();
             validateNoMTOM();
             XCPDRespondingGatewayRequestHandler handler = new XCPDRespondingGatewayRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result =
+            response =
                     handler.run(plq,
                     XCPDRespondingGatewayRequestHandler.MessageType.PatientLocationQuery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):

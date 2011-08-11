@@ -47,20 +47,21 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement PRPA_IN201305UV02_Message) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getTransactionName("FindCandidatesQuery (IG)"), PRPA_IN201305UV02_Message);
             validateWS();
             validateNoMTOM();
             XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(
+            response = handler.run(
                     PRPA_IN201305UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
@@ -70,20 +71,21 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement PRPA_IN201309UV02_Message) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getTransactionName("GetIdentifiersQuery (IG)"), PRPA_IN201309UV02_Message);
             validateWS();
             validateNoMTOM();
             XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(
+            response = handler.run(
                     PRPA_IN201309UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
@@ -93,20 +95,21 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * @throws AxisFault
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
+        OMElement response = null;
         try {
             beginTransaction(this.getTransactionName("PIDFEED.Add (IG)"), PRPA_IN201301UV02_Message);
             validateWS();
             validateNoMTOM();
             XCPDInitiatingGatewayRequestHandler handler = new XCPDInitiatingGatewayRequestHandler(this.log_message);
             handler.setConfigActor(config);
-            OMElement result = handler.run(
+            response = handler.run(
                     PRPA_IN201301UV02_Message,
                     XCPDInitiatingGatewayRequestHandler.MessageType.PatientRegistryRecordAdded);
             endTransaction(handler.getStatus());
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     // BHT (ADDED Axis2 LifeCycle methods):
