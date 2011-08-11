@@ -66,11 +66,9 @@ public class XDSBridge extends XAbstractService {
      * @throws AxisFault
      */
     public OMElement SubmitDocumentRequest(OMElement request) throws AxisFault {
-
+        OMElement response = null;
         try {
-
             if (logger.isDebugEnabled()) {
-
                 logger.debug("== Received SubmitDocumentRequest");
                 logger.debug(DebugUtils.toPrettyString(request));
             }
@@ -84,21 +82,16 @@ public class XDSBridge extends XAbstractService {
                     serviceContext);
 
             handler.setConfigActor(this.getConfigActor());
-
-            OMElement result = handler.run(getMessageContext(), request);
-
+            response = handler.run(getMessageContext(), request);
             endTransaction(handler.getStatus());
-
             if (logger.isDebugEnabled()) {
-
                 logger.debug("== Sending SubmitDocumentResponse");
-                logger.debug(DebugUtils.toPrettyString(result));
+                logger.debug(DebugUtils.toPrettyString(response));
             }
-            
-            return result;
         } catch (SOAPFaultException ex) {
-            throw new AxisFault(ex.getMessage());
+            throwAxisFault(ex);
         }
+        return response;
     }
 
     /**
