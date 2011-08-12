@@ -1096,6 +1096,7 @@ public class XATNALogger {
 
             // Set userName on request (if available):
             this.userName = this.getUserNameFromRequest();
+            System.out.println("+++ userName=" + this.userName);
 
         } else {
             this.endpoint = null;
