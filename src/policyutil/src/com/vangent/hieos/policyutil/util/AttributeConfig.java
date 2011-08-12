@@ -61,6 +61,10 @@ public class AttributeConfig {
         /**
          *
          */
+        HL7V3_CODED_VALUE,
+        /**
+         *
+         */
         ANY
     };
 
@@ -81,6 +85,10 @@ public class AttributeConfig {
          *
          */
         XCN_ID_ONLY,
+        /**
+         *
+         */
+        CNE_CODE_ONLY,
         /**
          *
          */
@@ -188,8 +196,13 @@ public class AttributeConfig {
                     return false;
                 }
                 break;
+            case CNE_CODE_ONLY:
+                if (!HL7FormatUtil.isCNE_Code(value)) {
+                    return false;
+                }
+                break;
             case CX:
-                if (!HL7FormatUtil.isCXFormatted(value)) {
+                if (!HL7FormatUtil.isCX_Formatted(value)) {
                     return false;
                 }
                 break;

@@ -59,7 +59,7 @@ public class PIPResourceContentFinder {
 
         // Get the patient id.
         String resourceId = pdpRequest.getResourceId();  // The patientId (CX formatted).
-        if (!HL7FormatUtil.isCXFormatted(resourceId)) {
+        if (!HL7FormatUtil.isCX_Formatted(resourceId)) {
             throw new PolicyException("'resource-id' (patient id) not in CX format");
         }
         SubjectIdentifier patientId = new SubjectIdentifier(resourceId);

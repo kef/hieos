@@ -40,6 +40,20 @@ public class PolicyConfig {
     // Configuration.
     private List<String> policyFiles = new ArrayList<String>();
     private Map<String, AttributeConfig> attributeConfigs = new HashMap<String, AttributeConfig>();
+    // Attribute class types.
+    private static final String ATTRIBUTE_CLASS_TYPE_SUBJECT = "subject";
+    private static final String ATTRIBUTE_CLASS_TYPE_RESOURCE = "resource";
+    private static final String ATTRIBUTE_CLASS_TYPE_ENVIRONMENT = "environment";
+    // Attribute types.
+    private static final String ATTRIBUTE_TYPE_STRING = "string";
+    private static final String ATTRIBUTE_TYPE_ANY = "any";
+    private static final String ATTRIBUTE_TYPE_HL7V3_CODED_VALUE = "hl7v3_coded_value";
+    // Attribute formats.
+    private static final String ATTRIBUTE_FORMAT_XON_ID_ONLY = "XON_id_only";
+    private static final String ATTRIBUTE_FORMAT_XCN_ID_ONLY = "XCN_id_only";
+    private static final String ATTRIBUTE_FORMAT_CNE_CODE_ONLY = "CNE_code_only";
+    private static final String ATTRIBUTE_FORMAT_CX = "CX";
+    private static final String ATTRIBUTE_FORMAT_STRING = "string";
 
     /**
      *
@@ -70,7 +84,8 @@ public class PolicyConfig {
     }
 
     /**
-     *
+     * 
+     * @throws PolicyException
      */
     private void loadConfiguration() throws PolicyException {
         String policyDir = PolicyConfig.getConfigDir();
@@ -117,6 +132,7 @@ public class PolicyConfig {
     /**
      *
      * @param rootNode
+     * @throws PolicyException
      */
     private void buildInternalStructure(OMElement rootNode) throws PolicyException {
         this.parsePolicyFiles(rootNode);
@@ -140,7 +156,7 @@ public class PolicyConfig {
     /**
      * 
      * @param rootNode
-     * @return
+     * @throws PolicyException
      */
     private void parseAttributeConfigs(OMElement rootNode) throws PolicyException {
         OMElement attributesNode = rootNode.getFirstChildWithName(new QName("Attributes"));
@@ -159,49 +175,104 @@ public class PolicyConfig {
             attributeConfig.setId(id);
             attributeConfig.setName(name);
 
-            // Set type.
-            if (type.equalsIgnoreCase("string")) {
-                attributeConfig.setType(AttributeConfig.AttributeType.STRING);
-            } else if (type.equalsIgnoreCase("any")) {
-                attributeConfig.setType(AttributeConfig.AttributeType.ANY);
-            } else {
-                throw new PolicyException("Policy configuration type '" + type + "' is unknown for attribute '" + id + "'");
-            }
+            // Set the type.
+            this.setAttributeConfigType(attributeConfig, type);
 
             // Set format.
             if (format == null) {
-                // If not specified (set based upon type above).
-                if (attributeConfig.getType() == AttributeConfig.AttributeType.ANY) {
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.ANY);
-                } else {
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
-                }
+                // If not specified (set based upon type).
+                this.setDefaultAttributeConfigFormat(attributeConfig);
             } else {
-                if (format.equalsIgnoreCase("XON_id_only")) {
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.XON_ID_ONLY);
-                } else if (format.equalsIgnoreCase("XCN_id_only")) {
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.XCN_ID_ONLY);
-                } else if (format.equalsIgnoreCase("CX")) {
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.CX);
-                } else if (format.equalsIgnoreCase("string")) {
-                    // Just in case.
-                    attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
-                } else {
-                    throw new PolicyException("Policy configuration format '" + format + "' is unknown for attribute '" + id + "'");
-                }
+                this.setAttributeConfigFormat(attributeConfig, format);
             }
 
             // Set classType.
-            if (classType.equalsIgnoreCase("subject")) {
-                attributeConfig.setClassType(AttributeClassType.SUBJECT_ID);
-            } else if (classType.equalsIgnoreCase("resource")) {
-                attributeConfig.setClassType(AttributeClassType.RESOURCE_ID);
-            } else if (classType.equalsIgnoreCase("environment")) {
-                attributeConfig.setClassType(AttributeClassType.ENVIRONMENT_ID);
-            } else {
-                throw new PolicyException("Policy configuration classtype '" + classType + "' is unknown for attribute '" + id + "'");
-            }
+            this.setAttributeConfigClassType(attributeConfig, classType);
+
+            // Store the attribute configuration for later use.
             attributeConfigs.put(id, attributeConfig);
+        }
+    }
+
+    /**
+     * 
+     * @param attributeConfig
+     * @param type
+     * @throws PolicyException
+     */
+    private void setAttributeConfigType(AttributeConfig attributeConfig, String type) throws PolicyException {
+        if (type.equalsIgnoreCase(ATTRIBUTE_TYPE_STRING)) {
+            attributeConfig.setType(AttributeConfig.AttributeType.STRING);
+        } else if (type.equalsIgnoreCase(ATTRIBUTE_TYPE_HL7V3_CODED_VALUE)) {
+            attributeConfig.setType(AttributeConfig.AttributeType.HL7V3_CODED_VALUE);
+        } else if (type.equalsIgnoreCase(ATTRIBUTE_TYPE_ANY)) {
+            attributeConfig.setType(AttributeConfig.AttributeType.ANY);
+        } else {
+            throw new PolicyException(
+                    "Policy configuration type '"
+                    + type + "' is unknown for attribute '"
+                    + attributeConfig.getId() + "'");
+        }
+    }
+
+    /**
+     * 
+     * @param attributeConfig
+     */
+    private void setDefaultAttributeConfigFormat(AttributeConfig attributeConfig) {
+        switch (attributeConfig.getType()) {
+            case ANY:
+                attributeConfig.setFormat(AttributeConfig.AttributeFormat.ANY);
+                break;
+            case HL7V3_CODED_VALUE:
+                attributeConfig.setFormat(AttributeConfig.AttributeFormat.CNE_CODE_ONLY);
+                break;
+            case STRING:
+            // Fall through.
+            default:
+                attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
+                break;
+        }
+    }
+
+    /**
+     *
+     * @param attributeConfig
+     */
+    private void setAttributeConfigFormat(AttributeConfig attributeConfig, String format) throws PolicyException {
+        if (format.equalsIgnoreCase(ATTRIBUTE_FORMAT_XON_ID_ONLY)) {
+            attributeConfig.setFormat(AttributeConfig.AttributeFormat.XON_ID_ONLY);
+        } else if (format.equalsIgnoreCase(ATTRIBUTE_FORMAT_XCN_ID_ONLY)) {
+            attributeConfig.setFormat(AttributeConfig.AttributeFormat.XCN_ID_ONLY);
+        } else if (format.equalsIgnoreCase(ATTRIBUTE_FORMAT_CNE_CODE_ONLY)) {
+            attributeConfig.setFormat(AttributeConfig.AttributeFormat.CNE_CODE_ONLY);
+        } else if (format.equalsIgnoreCase(ATTRIBUTE_FORMAT_CX)) {
+            attributeConfig.setFormat(AttributeConfig.AttributeFormat.CX);
+        } else if (format.equalsIgnoreCase(ATTRIBUTE_FORMAT_STRING)) {
+            // Just in case.
+            attributeConfig.setFormat(AttributeConfig.AttributeFormat.STRING);
+        } else {
+            throw new PolicyException(
+                    "Policy configuration format '" + format
+                    + "' is unknown for attribute '" + attributeConfig.getId() + "'");
+        }
+    }
+
+    /**
+     *
+     * @param attributeConfig
+     * @param classType
+     */
+    private void setAttributeConfigClassType(AttributeConfig attributeConfig, String classType) throws PolicyException {
+        if (classType.equalsIgnoreCase(ATTRIBUTE_CLASS_TYPE_SUBJECT)) {
+            attributeConfig.setClassType(AttributeClassType.SUBJECT_ID);
+        } else if (classType.equalsIgnoreCase(ATTRIBUTE_CLASS_TYPE_RESOURCE)) {
+            attributeConfig.setClassType(AttributeClassType.RESOURCE_ID);
+        } else if (classType.equalsIgnoreCase(ATTRIBUTE_CLASS_TYPE_ENVIRONMENT)) {
+            attributeConfig.setClassType(AttributeClassType.ENVIRONMENT_ID);
+        } else {
+            throw new PolicyException("Policy configuration classtype '" + classType
+                    + "' is unknown for attribute '" + attributeConfig.getId() + "'");
         }
     }
 
