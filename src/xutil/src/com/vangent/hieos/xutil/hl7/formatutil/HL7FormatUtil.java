@@ -198,7 +198,7 @@ public class HL7FormatUtil {
      *
      * Only Example 1 & 2 are acceptable here.
      *   Example 1: TREATMENT
-     *   Example 2: TREATMENT^2.16.840.1.113883.3.18.7.1
+     *   Example 2: TREATMENT^^2.16.840.1.113883.3.18.7.1
      *
      * @param value CNE formatted string.
      * @return boolean
@@ -240,7 +240,7 @@ public class HL7FormatUtil {
         if (codeSystem == null || codeSystem.isEmpty()) {
             return code;
         }
-        return code + "^" + codeSystem;
+        return code + "^^" + codeSystem;
     }
 
     /**
@@ -251,7 +251,7 @@ public class HL7FormatUtil {
      *
      * Only Example 1 & 2 are acceptable here.
      *   Example 1: TREATMENT
-     *   Example 2: TREATMENT^2.16.840.1.113883.3.18.7.1
+     *   Example 2: TREATMENT^^2.16.840.1.113883.3.18.7.1
      *
      * @param value CNE formatted string.
      * @return CNE formatted string with ID portions only.
@@ -280,7 +280,7 @@ public class HL7FormatUtil {
             return code;
         } else {
             // Return code with coding system.
-            return code + "^" + codingSystem;
+            return code + "^^" + codingSystem;
         }
     }
 
