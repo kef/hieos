@@ -21,18 +21,18 @@
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:Role>code1^codingSystem</pip:Role>
-                    <pip:Role>code2^codingSystem</pip:Role>
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:PurposeOfUse>code1^codingSystem</pip:PurposeOfUse>
-                    <pip:PurposeOfUse>code2^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:DocumentType>code1^codingSystem</pip:DocumentType>
-                    <pip:DocumentType>code2^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
@@ -72,18 +72,18 @@
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:Role>code1^codingSystem</pip:Role>
-                    <pip:Role>code2^codingSystem</pip:Role>
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:PurposeOfUse>code1^codingSystem</pip:PurposeOfUse>
-                    <pip:PurposeOfUse>code2^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:DocumentType>code1^codingSystem</pip:DocumentType>
-                    <pip:DocumentType>code2^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
@@ -123,18 +123,18 @@
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:Role>code1^codingSystem</pip:Role>
-                    <pip:Role>code2^codingSystem</pip:Role>
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:PurposeOfUse>code1^codingSystem</pip:PurposeOfUse>
-                    <pip:PurposeOfUse>code2^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
                     <!-- Must be in CNE format [code or code/codingSystem components only] -->
-                    <pip:DocumentType>code1^codingSystem</pip:DocumentType>
-                    <pip:DocumentType>code2^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
