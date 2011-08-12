@@ -115,6 +115,6 @@ public class CodedValue {
         if (codeSystem == null || codeSystem.isEmpty()) {
             return code;
         }
-        return code + "^" + codeSystem;
+        return code + "^^" + codeSystem;
     }
 }
