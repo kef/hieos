@@ -13,9 +13,10 @@
         <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:1.0:subject:subject-id" type="string" format="XCN_id_only"/>
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization" type="string" />
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:organization-id" type="string" format="XON_id_only"/>
-        <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" />
-        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string"/>
-        <!--<Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="any" name="PurposeForUse" />-->
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xacml:2.0:subject:role" type="string" format="CNE_code_only"/>
+        <!--<Attribute classtype="subject" id="urn:oasis:names:tc:xacml:2.0:subject:role" type="hl7v3_coded_value" />-->
+        <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="string" format="CNE_code_only"/>
+        <!--<Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" type="hl7v3_coded_value" />-->
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:2.0:subject:npi" type="string" format="XCN_id_only"/>
         <Attribute classtype="subject" id="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" type="string" />
 
