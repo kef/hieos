@@ -79,6 +79,7 @@ public class DocumentMetadataBuilder {
         // Type code:
         CodedValue typeCode = documentMetadata.getTypeCode();
         OMElement typeCodeNode = this.buildCodedValueNode(typeCode, "Type");
+        //typeCodeNode.setText(typeCode.getCNEFormatted());
         documentMetadataNode.addChild(typeCodeNode);
 
         // Confidentiality codes (can be multiple):
@@ -126,13 +127,14 @@ public class DocumentMetadataBuilder {
     private OMElement buildCodedValueNode(CodedValue codedValue, String name) {
         OMFactory omfactory = OMAbstractFactory.getOMFactory();
         OMElement codeNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, name, PolicyConstants.HIEOS_PIP_NS_PREFIX));
-        codeNode.addAttribute("code", codedValue.getCode(), null);
+        /*codeNode.addAttribute("code", codedValue.getCode(), null);
         codeNode.addAttribute("displayName", codedValue.getDisplayName(), null);
         codeNode.addAttribute("codeSystem", codedValue.getCodeSystem(), null);
         if (codedValue.getCodeSystemName() != null) {
             //  May not be there.
             codeNode.addAttribute("codeSystemName", codedValue.getCodeSystemName(), null);
-        }
+        }*/
+        codeNode.setText(codedValue.getCNEFormatted());
         return codeNode;
     }
 
