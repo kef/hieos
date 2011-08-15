@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Config>
     <DocumentTypeMappings>
-        <Type code="51855-5" codeSystem="2.16.840.1.113883.6.1"
+        <Type code="60591-5" codeSystem="2.16.840.1.113883.6.1"
                 codeSystemName="LOINC" displayName="Shared Health Summary">
                 
             <Format code="urn:ihe:pcc:xds-ms:2007" 
