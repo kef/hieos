@@ -7,6 +7,59 @@
         <!-- other policy files would go here ... -->
     </PolicyFiles>
 
+    <!-- Attributes -->
+    <!-- Possible types:
+      string:
+        Any value [see possible formats]
+
+      hl7v3_coded_value (will be converted to "CNE_code_only" format):
+        Example 1:
+           <hl7:PurposeForUse xmlns="urn:hl7-org:v3"
+               xsi:type="CE" code="OPERATIONS"
+               codeSystem="2.16.840.1.113883.3.18.7.1"
+               codeSystemName="nhin-purpose"
+               displayName="Healthcare Operations"/>
+
+        Example 2:
+           <hl7:Role code="46255001"
+               codeSystem="2.16.840.1.113883.6.96"
+               codeSystemName="SNOMED_CT"
+               xsi:type="CE"
+               xmlns:hl7="urn:hl7-org:v3"/>
+
+      any:
+        Any XML node
+    -->
+
+    <!-- possible formats:
+      string:
+        Any value
+
+      XCN_id_only:
+        Component 1 (ID): REQUIRED
+        Component 9 (Assigning Authority): OPTIONAL
+        Other components: NOT ALLOWED
+        Example 1: 1.2.36.1.2001.1003.0.8003619166667440
+        Example 2: 8003619166667440^^^^^^^^1.2.36.1.2001.1003.0
+
+      XON_id_only:
+        Component 6 (Assigning Authority): OPTIONAL
+        Component 10 (ID): REQUIRED
+        Other components: NOT ALLOWED
+        Example 1: ^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
+        Example 2: ^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
+
+      CNE_code_only:
+        Component 1 (code): REQUIRED
+        Component 3 (codingSystem): OPTIONAL
+        Other components: NOT ALLOWED
+        Example 1: TREATMENT
+        Example 2: TREATMENT^^2.16.840.1.113883.3.18.7.1
+
+      CX:
+        Example: 1a6fd7ff75144f5^^^&1.3.6.1.4.1.21367.2005.3.7&ISO
+    -->
+
     <Attributes>
 
         <!-- Subjects -->
