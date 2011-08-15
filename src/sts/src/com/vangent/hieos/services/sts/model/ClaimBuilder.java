@@ -80,7 +80,7 @@ public class ClaimBuilder {
             // Validate that all claims are formatted according to configuration.
             for (Claim claim : claims) {
                 AttributeConfig attributeConfig = pConfig.getAttributeConfig(claim.getName());
-                if (attributeConfig.getType() != AttributeConfig.AttributeType.ANY) {
+                if (attributeConfig.getType() == AttributeConfig.AttributeType.STRING) {
                     String claimValue = claim.getStringValue();
                     if (!attributeConfig.isValidFormat(claimValue)) {
                         throw new STSException("Bad format for Claim URI = " + claim.getName());
@@ -116,6 +116,7 @@ public class ClaimBuilder {
         }
         Claim claim;
         switch (attributeConfig.getType()) {
+            case HL7V3_CODED_VALUE:
             case ANY:
                 AnyValueClaim anyValueClaim = new AnyValueClaim();
                 anyValueClaim.setName(claimTypeURI);
@@ -123,7 +124,7 @@ public class ClaimBuilder {
                 if (claimContentNode != null) {
                     anyValueClaim.setContentNode(claimContentNode);
                 } else {
-                    throw new STSException("Any element type expected for Claim URI = " + claimTypeURI);
+                    throw new STSException("XML node expected for Claim URI = " + claimTypeURI);
                 }
                 claim = anyValueClaim;
                 break;

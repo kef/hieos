@@ -19,6 +19,7 @@ import com.vangent.hieos.policyutil.util.AttributeConfig;
 import com.vangent.hieos.policyutil.util.PolicyConfig;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -299,10 +300,18 @@ public class XACMLRequestBuilder {
                 AttributeConfig attributeConfig = pConfig.getAttributeConfig(attributeId);
                 AttributeConfig.AttributeClassType classType = attributeConfig.getClassType();
 
-                // Handles any type including CodedValue types.
+                // Handles any type including HL7V3 CodedValue types.
                 OMElement attributeValueContentNode = attributeValueNode.getFirstElement();
                 if (attributeValueContentNode != null) {
-                    pdpRequest.addAttribute(classType, attributeId, attributeValueContentNode);
+                    AttributeConfig.AttributeType type = attributeConfig.getType();
+                    if (type == AttributeConfig.AttributeType.HL7V3_CODED_VALUE) {
+                        // Transform to HL7v2 CNE type.
+                        String formattedCode = HL7FormatUtil.getCNE_Code(attributeValueContentNode);
+                        pdpRequest.addAttribute(classType, attributeId, formattedCode);
+                    } else {
+                        // Just add the node.
+                        pdpRequest.addAttribute(classType, attributeId, attributeValueContentNode);
+                    }
                 } else {
                     // Assume STRING
                     String attributeValueContentText = "";

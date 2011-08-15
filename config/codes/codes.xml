@@ -107,7 +107,7 @@
 			display="LABORATORY REPORT.TOTAL" />
                         
                         <!-- Added for new content type 06/23/2011 -->
-        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1"
+        <Code code="60591-5" codeScheme="2.16.840.1.113883.6.1"
 			display="Shared Health Summary" />
         <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1"
                         displayName="Discharge Summarization Note" />
@@ -282,7 +282,7 @@
 			display="MPQ-classcode-2" />
 
 		<!-- Added for new content type 06/23/2011 -->
-        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1" 
+        <Code code="60591-5" codeScheme="2.16.840.1.113883.6.1"
 			display="Shared Health Summary" />
         <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1" 
                         displayName="Discharge Summarization Note" />
@@ -1697,7 +1697,7 @@
 			display="LABORATORY REPORT.TOTAL" />
 
                         <!-- Added for new content type 06/23/2011 -->
-        <Code code="51855-5" codeScheme="2.16.840.1.113883.6.1"
+        <Code code="60591-5" codeScheme="2.16.840.1.113883.6.1"
 			display="Shared Health Summary" />
         <Code code="18842-5" codeSystem="2.16.840.1.113883.6.1"
                         displayName="Discharge Summarization Note" />

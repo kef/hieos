@@ -4,38 +4,48 @@
         <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <pip:ConsentDirectives alwaysAuthorize="false">
                 <pip:AllowedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.80036291666670709</pip:Organization>
                 </pip:AllowedOrganizations>
                 <pip:BlockedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
                 </pip:BlockedOrganizations>
                 <pip:BlockedIndividuals>
+                    <!-- Must be in XCN format [id components only] -->
                     <pip:Individual>3.1</pip:Individual>
                     <pip:Individual>3.2</pip:Individual>
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>DEFAULT TEST</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>String</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                 </pip:SensitiveDocumentAccessList>
             </pip:ConsentDirectives>
@@ -45,37 +55,48 @@
         <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <pip:ConsentDirectives alwaysAuthorize="false">
                 <pip:AllowedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.80036291666670709</pip:Organization>
                 </pip:AllowedOrganizations>
                 <pip:BlockedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
                 </pip:BlockedOrganizations>
                 <pip:BlockedIndividuals>
+                    <!-- Must be in XCN format [id components only] -->
                     <pip:Individual>3.1</pip:Individual>
                     <pip:Individual>3.2</pip:Individual>
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>String</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>String</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                 </pip:SensitiveDocumentAccessList>
             </pip:ConsentDirectives>
@@ -85,37 +106,48 @@
         <pip:GetConsentDirectivesResponse xmlns:pip="urn:hieos:policy:pip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <pip:ConsentDirectives alwaysAuthorize="false">
                 <pip:AllowedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                    <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.80036291666670709</pip:Organization>
                 </pip:AllowedOrganizations>
                 <pip:BlockedOrganizations>
+                    <!-- Must be in XON format [id components only] -->
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660000</pip:Organization>
                     <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166660001</pip:Organization>
                 </pip:BlockedOrganizations>
                 <pip:BlockedIndividuals>
+                    <!-- Must be in XCN format [id components only] -->
                     <pip:Individual>3.1</pip:Individual>
                     <pip:Individual>3.2</pip:Individual>
                 </pip:BlockedIndividuals>
                 <pip:AllowedRoles>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="DOCTOR"/>
-                    <pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="NURSE"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:Role>code1^^codingSystem</pip:Role>
+                    <pip:Role>code2^^codingSystem</pip:Role>
                 </pip:AllowedRoles>
                 <pip:AllowedPurposeOfUse>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:PurposeOfUse codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:PurposeOfUse>code1^^codingSystem</pip:PurposeOfUse>
+                    <pip:PurposeOfUse>code2^^codingSystem</pip:PurposeOfUse>
                 </pip:AllowedPurposeOfUse>
                 <pip:SensitiveDocumentTypes>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
-                    <pip:DocumentType codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
+                    <!-- Must be in CNE format [code or code/codingSystem components only] -->
+                    <pip:DocumentType>code1^^codingSystem</pip:DocumentType>
+                    <pip:DocumentType>code2^^codingSystem</pip:DocumentType>
                 </pip:SensitiveDocumentTypes>
                 <pip:SensitiveDocumentAccessList>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>String</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                     <pip:SensitiveDocumentAccess>
-                        <pip:Organization>String</pip:Organization>
-                        <pip:Individual>String</pip:Individual>
+                        <!-- Must be in XON format [id components only] -->
+                        <pip:Organization>^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667071</pip:Organization>
+                         <!-- Must be in XCN format [id components only] -->
+                        <pip:Individual>XCN Formatted String</pip:Individual>
                     </pip:SensitiveDocumentAccess>
                 </pip:SensitiveDocumentAccessList>
             </pip:ConsentDirectives>

@@ -175,7 +175,12 @@ public class XServiceProvider {
                 userName = nameIDEle.getText();
             }
         }
-        return SPProviderID + "<" + userName + "@" + Issuer + ">";
+        StringBuilder sBuilder = new StringBuilder();
+        if (SPProviderID != null) {
+            sBuilder.append(SPProviderID);
+        }
+        sBuilder.append("<").append(userName).append("@").append(Issuer).append(">");
+        return sBuilder.toString();
     }
 
     /**

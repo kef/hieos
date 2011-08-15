@@ -61,7 +61,6 @@
                 Permit if this is a non-sensitive document and the subject's organization created the document.
             </Description>
             <!-- Anything that is not a "V" or "R" confidentiality code is considered non-sensitive -->
-            <!-- Currently, we do not match against the coding scheme -->
             <!-- Pseudocode:
                   (Document.isSensitive == FALSE)
                      AND (Document.authorOrganizations.contains(Subject.OrganizationId))
@@ -71,8 +70,8 @@
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
                             <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
-                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.2</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.2</AttributeValue>
                             </Apply>
                             <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
@@ -90,7 +89,6 @@
                 Permit if this is a sensitive document and the subject's organization/provider created the document.
             </Description>
              <!-- Anything with a "V" or "R" confidentiality code is considered sensitive -->
-             <!-- Currently, we do not match against the coding scheme -->
              <!-- Pseudocode:
                   (Document.isSensitive == TRUE)
                      AND (Document.authorOrganizations.contains(Subject.OrganizationId)
@@ -102,8 +100,8 @@
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R</AttributeValue>
-                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.2</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.2</AttributeValue>
                         </Apply>
                         <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </Apply>
