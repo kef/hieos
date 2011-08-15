@@ -126,8 +126,8 @@ public class HL7FormatUtil {
      *
      * Only Example 2 & 3 are acceptable here.
      *   Example 1: Some Hospital
-     *   Example 2: Some Hospital^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
-     *   Example 3: Some Hospital^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
+     *   Example 2: ^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
+     *   Example 3: ^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
      *
      * @param value XON formatted string.
      * @return boolean
@@ -159,8 +159,8 @@ public class HL7FormatUtil {
      *
      * Only Example 2 & 3 are acceptable here.
      *   Example 1: Some Hospital
-     *   Example 2: Some Hospital^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
-     *   Example 3: Some Hospital^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
+     *   Example 2: ^^^^^^^^^1.2.3.4.5.6.7.8.9.1789.45
+     *   Example 3: ^^^^^&1.2.3.4.5.6.7.8.9.1789&ISO^^^^45
      *
      * @param value XON formatted string.
      * @return XON formatted string with ID portions only.
