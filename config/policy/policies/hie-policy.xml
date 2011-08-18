@@ -56,26 +56,88 @@
         
         <Rule RuleId="blocked-organizations-rule" Effect="Deny">
             <Description>
-                Deny if subject's organization-id is in one of the designated set of blocked organizations
+               Deny if subject's organization is on the patient's list of denied organizations.
+
+               Possible ConsentRule attributes:
+                  !purposeofuse
+                  !individual
+                  !role
+                  !documenttype
+                  !documentid
+                  organization (XON_id_only)
+
+               NOTE: Tried to use a VariableReference to avoid duplication with no luck.
             </Description>
             <Condition>
-                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
-                    <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:BlockedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                            <!-- begin xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='deny'</AttributeValue>
+
+                            <!-- append consent directive rules -->
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                
+                                <!-- Organization -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+                               
+                            </Apply>
+                             <!-- End xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                        </Apply>
+                    </Apply>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
                 </Apply>
             </Condition>
         </Rule>
 
         <Rule RuleId="blocked-individuals-rule" Effect="Deny">
             <Description>
-                Deny if subject's subject-id is in one of the designated set of blocked individuals
+               Deny if subject's id is on the patient's list of denied individuals.
+
+               Possible ConsentRule attributes:
+                  !purposeofuse
+                  !role
+                  !documenttype
+                  !documentid
+                  !organization
+                  individual (XCN_id_only)
+
+               NOTE: Tried to use a VariableReference to avoid duplication with no luck.
             </Description>
             <Condition>
-                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
-                    <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:BlockedIndividuals/pip:Individual/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                            <!-- begin xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='deny'</AttributeValue>
+
+                            <!-- append consent directive rules -->
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@organization) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+
+                                <!-- Individual -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@individual='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                            </Apply>
+                             <!-- End xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                        </Apply>
+                    </Apply>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
                 </Apply>
             </Condition>
         </Rule>
@@ -84,25 +146,55 @@
             <Description>
                 Deny if subject's organization-id is not in one of the designated set of allowed organizations.
                 Only evaluated if the patient has designated a list.
-            </Description>
-            <!-- Pseudocode:
+
+                Pseudocode:
                   AllowedOrganizations.size() > 0 AND NOT(AllowedOrganizations.contains(Subject.OrganizationId))
-            -->
+            </Description>
+            
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+
+                    <!-- make sure a list exists -->
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
-                            <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- begin xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization) and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                <!-- End xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                            </Apply>
                         </Apply>
                         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
                     </Apply>
-                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"  />
-                            <AttributeSelector
-                            RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:AllowedOrganizations/pip:Organization/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+
+                    <!-- evaluate only if list exists -->
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- begin xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
+
+                                <!-- append consent directive rules -->
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+
+                                    <!-- Organization (may not be null attribute) -->
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization) and (@organization='</AttributeValue>
+                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                    </Apply>
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                </Apply>
+                                <!-- End xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                            </Apply>
                         </Apply>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
                     </Apply>
                 </Apply>
             </Condition>
