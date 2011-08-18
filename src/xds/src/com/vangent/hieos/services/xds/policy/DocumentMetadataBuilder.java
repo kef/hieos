@@ -76,6 +76,18 @@ public class DocumentMetadataBuilder {
         patientIdNode.setText(patientId);
         documentMetadataNode.addChild(patientIdNode);
 
+        // Document id:
+        String documentId = documentMetadata.getDocumentId();
+        OMElement documentIdNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "Id", PolicyConstants.HIEOS_PIP_NS_PREFIX));
+        documentIdNode.setText(documentId);
+        documentMetadataNode.addChild(documentIdNode);
+
+        // Repository id:
+        String repositoryId = documentMetadata.getRepositoryId();
+        OMElement repositoryIdNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "RepositoryId", PolicyConstants.HIEOS_PIP_NS_PREFIX));
+        repositoryIdNode.setText(repositoryId);
+        documentMetadataNode.addChild(repositoryIdNode);
+
         // Type code:
         CodedValue typeCode = documentMetadata.getTypeCode();
         OMElement typeCodeNode = this.buildCodedValueNode(typeCode, "Type");
@@ -91,8 +103,6 @@ public class DocumentMetadataBuilder {
         List<DocumentAuthorMetadata> documentAuthorMetadataList = documentMetadata.getDocumentAuthorMetadataList();
         OMElement authorsNode = this.buildAuthorsNode(documentAuthorMetadataList);
         documentMetadataNode.addChild(authorsNode);
-
-        // TBD: Other ... we have more (e.g. repositoryid, documentid).
 
         // Return the OMElement (wrapped).
         return new DocumentMetadataElement(documentMetadataNode);
