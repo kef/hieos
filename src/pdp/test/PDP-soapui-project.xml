@@ -137,7 +137,6 @@
                         <pip:ConsentRule action="permit" purposeofuse="MARKETINGX" individual="1.2.36.1.2001.1003.0.8003619166667440"/>
                         <pip:ConsentRule action="permit" documenttype="34108-1^^LOINC" purposeofuse="TREATMENT"/>
                         <pip:ConsentRule action="deny" purposeofuse="PUBLICHEALTH"/>
-                        <pip:SensitiveDocumentAccessRule action="permit" documenttype="34108-1^^LOINC" individual="3.1" organization="^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070"/>
                      </pip:ConsentRules>
                   </pip:ConsentDirectives>
                   <pip:DocumentMetadata xmlns:pip="urn:hieos:policy:pip">
