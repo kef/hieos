@@ -23,10 +23,10 @@
         <ObjectRef id="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427"/>
         <ObjectRef id="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d"/>
         <ObjectRef id="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d"/>
-        <ExtrinsicObject id="Document01" mimeType="text/plain"
+        <ExtrinsicObject id="Document01" mimeType="text/xml"
             objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1">
             <Name>
-                <LocalizedString value="Physical"/>
+                <LocalizedString value="Continuity of Care Document - CCD for TEJA MONTOYA at DEMO HOSPITAL"/>
             </Name>
             <Description/>
             <Slot name="creationTime">
@@ -51,12 +51,12 @@
             </Slot>
             <Slot name="sourcePatientId">
                 <ValueList>
-                    <Value>89765a87b^^^fj34r</Value>
+                    <Value>pid1^^^&amp;1.2.3&amp;ISO</Value>
                 </ValueList>
             </Slot>
             <Slot name="sourcePatientInfo">
                 <ValueList>
-                    <Value>PID-3|pid1^^^domain</Value>
+                    <Value>PID-3|pid1^^^&amp;1.2.3&amp;ISO</Value>
                     <Value>PID-5|Doe^John^^^</Value>
                     <Value>PID-7|19560527</Value>
                     <Value>PID-8|M</Value>
@@ -67,37 +67,12 @@
                 classifiedObject="Document01" nodeRepresentation="">
                 <Slot name="authorPerson">
                     <ValueList>
-                        <Value>^Smitty^Gerald^^^</Value>
+                        <Value>1.2.36.1.2001.1003.0.8003619166667440</Value>
                     </ValueList>
                 </Slot>
                 <Slot name="authorInstitution">
                     <ValueList>
-                        <Value>Cleveland Clinic</Value>
-                        <Value>Parma Community</Value>
-                    </ValueList>
-                </Slot>
-                <Slot name="authorRole">
-                    <ValueList>
-                        <Value>Attending</Value>
-                    </ValueList>
-                </Slot>
-                <Slot name="authorSpecialty">
-                    <ValueList>
-                        <Value>Orthopedic</Value>
-                    </ValueList>
-                </Slot>
-            </Classification>
-            <Classification classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d"
-                classifiedObject="Document01" nodeRepresentation="">
-                <Slot name="authorPerson">
-                    <ValueList>
-                        <Value>^Dopplemeyer^Sherry^^^</Value>
-                    </ValueList>
-                </Slot>
-                <Slot name="authorInstitution">
-                    <ValueList>
-                        <Value>Cleveland Clinic</Value>
-                        <Value>Berea Community</Value>
+                        <Value>Test^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</Value>
                     </ValueList>
                 </Slot>
                 <Slot name="authorRole">
@@ -112,9 +87,9 @@
                 </Slot>
             </Classification>
             <Classification classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a"
-                classifiedObject="Document01" nodeRepresentation="Communication">
+                classifiedObject="Document01" nodeRepresentation="Consult">
                 <Name>
-                    <LocalizedString value="Education"/>
+                    <LocalizedString value="Consult"/>
                 </Name>
                 <Slot name="codingScheme">
                     <ValueList>
@@ -123,9 +98,9 @@
                 </Slot>
             </Classification>
             <Classification classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f"
-                classifiedObject="Document01" nodeRepresentation="1.3.6.1.4.1.21367.2006.7.103">
+                classifiedObject="Document01" nodeRepresentation="1.3.6.1.4.1.21367.2006.7.104">
                 <Name>
-                    <LocalizedString value="Clinical-Staff"/>
+                    <LocalizedString value="Clinical-Spouse"/>
                 </Name>
                 <Slot name="codingScheme">
                     <ValueList>
@@ -134,9 +109,9 @@
                 </Slot>
             </Classification>
             <Classification classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d"
-                classifiedObject="Document01" nodeRepresentation="CDAR2/IHE 1.0">
+                classifiedObject="Document01" nodeRepresentation="1.3.6.1.4.1.19376.1.5.3.1.1.2">
                 <Name>
-                    <LocalizedString value="CDAR2/IHE 1.0"/>
+                    <LocalizedString value="XDS-MS"/>
                 </Name>
                 <Slot name="codingScheme">
                     <ValueList>
@@ -145,9 +120,9 @@
                 </Slot>
             </Classification>
             <Classification classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1"
-                classifiedObject="Document01" nodeRepresentation="Hospital Setting">
+                classifiedObject="Document01" nodeRepresentation="Outpatient">
                 <Name>
-                    <LocalizedString value="Hospital Setting"/>
+                    <LocalizedString value="Outpatient"/>
                 </Name>
                 <Slot name="codingScheme">
                     <ValueList>
@@ -156,7 +131,7 @@
                 </Slot>
             </Classification>
             <Classification classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead"
-                classifiedObject="Document01" nodeRepresentation="General Medicine">
+                classifiedObject="Document01" nodeRepresentation="Dialysis">
                 <Name>
                     <LocalizedString value="General Medicine"/>
                 </Name>
@@ -206,13 +181,12 @@
                 classifiedObject="SubmissionSet01" nodeRepresentation="">
                 <Slot name="authorPerson">
                     <ValueList>
-                        <Value>^Dopplemeyer^Sherry^^^</Value>
+                        <Value>1.2.36.1.2001.1003.0.8003619166667440</Value>
                     </ValueList>
                 </Slot>
                 <Slot name="authorInstitution">
                     <ValueList>
-                        <Value>Cleveland Clinic</Value>
-                        <Value>Berea Community</Value>
+                        <Value>Test^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</Value>
                     </ValueList>
                 </Slot>
                 <Slot name="authorRole">
