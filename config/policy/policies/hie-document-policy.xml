@@ -17,10 +17,13 @@
         </Actions>
     </Target>
 
+    <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
+         caller as to which rule fired -->
+
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="document-access-policy"
+         PolicyId="same-pid-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Evaluate Document against Patient Consent Directives</Description>
+        <Description>Deny if the Document's patient id does not match the resource-id.</Description>
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
@@ -43,10 +46,24 @@
                 </Apply>
             </Condition>
         </Rule>
+        <Obligations>
+            <Obligation ObligationId="same-pid-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="same-pid-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="emergency-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Permit if the subject has an EMERGENCY "purpose of use".</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
 
         <Rule RuleId="emergency-access-rule" Effect="Permit">
             <Description>
-                Permit if the subject has an emergency access assertion.
+                Permit if the subject has an EMERGENCY "purpose of use"
             </Description>
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
@@ -55,16 +72,29 @@
                 </Apply>
             </Condition>
         </Rule>
+        <Obligations>
+            <Obligation ObligationId="emergency-access-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="emergency-access-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
 
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="non-sensitive-document-type-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>non-sensitive document access policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
         <Rule RuleId="non-sensitive-document-type-rule" Effect="Permit">
             <Description>
                 Permit if this is a non-sensitive document and the subject's organization created the document.
-            </Description>
-            <!-- Anything that is not a "V" or "R" confidentiality code is considered non-sensitive -->
-            <!-- Pseudocode:
+
+                Anything that is not a "V" or "R" confidentiality code is considered non-sensitive
+                 Pseudocode:
                   (Document.isSensitive == FALSE)
                      AND (Document.authorOrganizations.contains(Subject.OrganizationId))
-            -->
+            </Description>
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
@@ -73,7 +103,7 @@
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.2</AttributeValue>
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.2</AttributeValue>
                             </Apply>
-                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
@@ -83,19 +113,37 @@
                 </Apply>
             </Condition>
         </Rule>
+        <Obligations>
+            <Obligation ObligationId="non-sensitive-document-type-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="non-sensitive-document-type-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
 
+    <!--
+     FIXME: Need to refine rules ... what happens if this policy does not fire or the one above?
+     Is a "fall-through" OK?
+     -->
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="sensitive-document-type-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>sensitive document access policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
         <Rule RuleId="sensitive-document-type-rule" Effect="Permit">
             <Description>
                 Permit if this is a sensitive document and the subject's organization/provider created the document.
-            </Description>
-             <!-- Anything with a "V" or "R" confidentiality code is considered sensitive -->
-             <!-- Pseudocode:
+
+                Anything with a "V" or "R" confidentiality code is considered sensitive
+                  Pseudocode:
                   (Document.isSensitive == TRUE)
                      AND (Document.authorOrganizations.contains(Subject.OrganizationId)
                      AND (Document.authorPersons.contains(Subject.Id))
-             -->
-             <!-- FIXME: Need to ensure that author person / organizations are compared jointly versus looking
-                  @ all nodes ... only an issue if more than one author for a given document .. -->
+
+                FIXME: Need to ensure that author person / organizations are compared jointly versus looking
+                  @ all nodes ... only an issue if more than one author for a given document ..
+            </Description>
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
@@ -103,7 +151,7 @@
                             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.2</AttributeValue>
                             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.2</AttributeValue>
                         </Apply>
-                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/@code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </Apply>
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
                         <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
@@ -116,9 +164,220 @@
                 </Apply>
             </Condition>
         </Rule>
+        <Obligations>
+            <Obligation ObligationId="sensitive-document-type-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="sensitive-document-type-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="patient-consent-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Evaluate document against Patient Consent Directives</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+
+        <!--
+        <pip:ConsentRule action="permit"
+                        documentid="oid"
+                        documenttype="code^^codingSystem"
+                        purposeofuse="code^^codingSystem"
+                        organization="^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070"
+                        role="code^^codingSystem"
+                        individual="3.1"/>
+        -->
+        <!--
+        <VariableDefinition VariableId="consent-match-permit-xpath-string">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentRules/pip:ConsentRule[@action='permit']/</AttributeValue>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">[not(@purposeofuse) or @purposeofuse='</AttributeValue>
+                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">']</AttributeValue>
+                </Apply>
+            </Apply>
+        </VariableDefinition>
+        -->
+
+        <Rule RuleId="patient-consent-deny-rule" Effect="Deny">
+            <Description>
+               TBD
+
+               Possible ConsentRule attributes:
+                  purposeofuse (CNE_code_only)
+                  organization (XON_id_only)
+                  individual (XCN_id_only)
+                  role (CNE_code_only)
+                  documenttype (CNE_code_only)
+                  documentid (OID)
+
+               NOTE: Tried to use a VariableReference to avoid duplication with no luck.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                            <!-- begin xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='deny'</AttributeValue>
+
+                            <!-- append consent directive rules -->
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- Purpose of Use -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@purposeofuse) or @purposeofuse='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Organization -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@organization) or @organization='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Individual -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@individual) or @individual='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Role -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@role) or @role='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Document Type -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@documenttype) or @documenttype='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Type/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Document Id -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@documentid) or @documentid='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Id/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                            </Apply>
+                             <!-- End xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                        </Apply>
+                    </Apply>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Rule RuleId="patient-consent-permit-rule" Effect="Permit">
+            <Description>
+               TBD
+
+               Possible ConsentRule attributes:
+                  purposeofuse (CNE_code_only)
+                  organization (XON_id_only)
+                  individual (XCN_id_only)
+                  role (CNE_code_only)
+                  documenttype (CNE_code_only)
+                  documentid (OID)
+
+               NOTE: Tried to use a VariableReference to avoid duplication with no luck.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                            <!-- begin xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
+
+                            <!-- append consent directive rules -->
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- Purpose of Use -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@purposeofuse) or @purposeofuse='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Organization -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@organization) or @organization='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Individual -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@individual) or @individual='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Role -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@role) or @role='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Document Type -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@documenttype) or @documenttype='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Type/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                <!-- Document Id -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (not(@documentid) or @documentid='</AttributeValue>
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:Id/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                                </Apply>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                            </Apply>
+                             <!-- End xpath statement -->
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                        </Apply>
+                    </Apply>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Obligations>
+            <Obligation ObligationId="patient-consent-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="patient-consent-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="final-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Deny if no other policies/rules fired.</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
 
          <!-- Default Deny rule (if no Permit rules fired above) -->
-        <Rule RuleId="FinalRule" Effect="Deny"/>
+        <Rule RuleId="final-rule" Effect="Deny"/>
+
+        <Obligations>
+            <Obligation ObligationId="final-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="final-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
     </Policy>
        
 </PolicySet>
