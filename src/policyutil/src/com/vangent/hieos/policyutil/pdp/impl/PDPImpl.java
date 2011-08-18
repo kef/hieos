@@ -10,14 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.policyutil.pdp.impl;
 
 /**
  *
  * @author Bernie Thuman
  */
-
 // Adapted from SimplePDP.java (see below notice):
 
 /*
@@ -54,13 +52,14 @@ package com.vangent.hieos.policyutil.pdp.impl;
  * You acknowledge that this software is not designed or intended for use in
  * the design, construction, operation or maintenance of any nuclear facility.
  */
-
-
 import com.sun.xacml.ConfigurationStore;
 import com.sun.xacml.Indenter;
 import com.sun.xacml.ParsingException;
 import com.sun.xacml.PDP;
 import com.sun.xacml.PDPConfig;
+import com.sun.xacml.cond.FunctionFactory;
+import com.sun.xacml.cond.FunctionFactoryProxy;
+import com.sun.xacml.cond.StandardFunctionFactory;
 
 import com.sun.xacml.ctx.RequestCtx;
 
@@ -84,7 +83,6 @@ import java.util.List;
 import java.util.Set;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 
-
 /**
  * This is a simple, command-line driven XACML PDP. It acts both as an example
  * of how to write a full-featured PDP and as a sample program that lets you
@@ -94,8 +92,7 @@ import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
  * @since 1.1
  * @author seth proctor
  */
-public class PDPImpl
-{
+public class PDPImpl {
 
     // this is the actual PDP object we'll use for evaluation
     private PDP pdp = null;
@@ -125,7 +122,7 @@ public class PDPImpl
      * @return PDPImpl
      * @throws PolicyException
      */
-   static public synchronized PDPImpl getPDPImplInstance() throws PolicyException {
+    static public synchronized PDPImpl getPDPImplInstance() throws PolicyException {
         if (_pdpSingleton == null) {
             try {
                 PolicyConfig pConfig = PolicyConfig.getInstance();
@@ -177,16 +174,14 @@ public class PDPImpl
         attributeModules.add(selectorAttributeModule);
         attributeFinder.setModules(attributeModules);
 
-        // Try to load the time-in-range function, which is used by several
-        // of the examples...see the documentation for this function to
-        // understand why it's provided here instead of in the standard
-        // code base.
-        /*
-        FunctionFactoryProxy proxy =
-            StandardFunctionFactory.getNewFactoryProxy();
+        // HIEOS (Bernie Thuman) -- ADDED:
+        FunctionFactoryProxy proxy = StandardFunctionFactory.getNewFactoryProxy();
         FunctionFactory factory = proxy.getConditionFactory();
-        factory.addFunction(new TimeInRangeFunction());
-        FunctionFactory.setDefaultFactory(proxy); */
+        factory.addFunction(new XPathNodeCountFunction());
+        FunctionFactory.setDefaultFactory(proxy);
+        //FunctionFactory factory = FunctionFactory.getTargetInstance();
+        //factory.addFunction(new XPathNodeCountFunction());
+
 
         // finally, initialize our pdp
         pdp = new PDP(new PDPConfig(attributeFinder, policyFinder, null));
@@ -204,11 +199,10 @@ public class PDPImpl
      * @throws ParsingException if the Request is invalid
      */
     public ResponseCtx evaluate(String requestFile)
-        throws IOException, ParsingException
-    {
+            throws IOException, ParsingException {
         // setup the request based on the file
         RequestCtx request =
-            RequestCtx.getInstance(new FileInputStream(requestFile));
+                RequestCtx.getInstance(new FileInputStream(requestFile));
 
         // evaluate the request
         return pdp.evaluate(request);
@@ -219,8 +213,7 @@ public class PDPImpl
      * @param request
      * @return
      */
-    public ResponseCtx evaluate(RequestType request)
-    {
+    public ResponseCtx evaluate(RequestType request) {
         return pdp.evaluate(request);
     }
 
@@ -235,7 +228,7 @@ public class PDPImpl
      *             file must be specified in the standard java property,
      *             com.sun.xacml.PDPConfigFile.
      */
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("Usage: -config <request>");
             System.out.println("       <request> <policy> [policies]");
@@ -267,5 +260,4 @@ public class PDPImpl
         // for this sample program, we'll just print out the response
         response.encode(System.out, new Indenter());
     }
-
 }
