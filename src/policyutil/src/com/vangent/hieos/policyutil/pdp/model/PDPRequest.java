@@ -39,6 +39,7 @@ public class PDPRequest {
 
     RequestType requestType;
     private String issuer = "";
+    private boolean returnContext = true;  // Default.
 
     /**
      * 
@@ -82,6 +83,22 @@ public class PDPRequest {
      */
     public void setIssuer(String issuer) {
         this.issuer = issuer;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isReturnContext() {
+        return returnContext;
+    }
+
+    /**
+     *
+     * @param returnContext
+     */
+    public void setReturnContext(boolean returnContext) {
+        this.returnContext = returnContext;
     }
 
     /**
@@ -184,6 +201,7 @@ public class PDPRequest {
      * @param classType
      * @param id
      * @param value
+     * @throws PolicyException
      */
     public void addAttribute(AttributeClassType classType, String id, OMElement value) throws PolicyException {
         switch (classType) {
@@ -245,6 +263,7 @@ public class PDPRequest {
     /**
      * 
      * @param resourceContent
+     * @param clearAllButFirst
      * @throws PolicyException
      */
     public void addResourceContent(OMElement resourceContent, boolean clearAllButFirst) throws PolicyException {

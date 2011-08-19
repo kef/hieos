@@ -246,8 +246,12 @@ public class XACMLRequestBuilder {
 
         // Build XACMLAuthzDecisionQueryElement
         OMElement authzDecisionQueryNode = omfactory.createOMElement(new QName(PolicyConstants.XACML_SAML_PROTOCOL_NS, "XACMLAuthzDecisionQuery", PolicyConstants.XACML_SAML_PROTOCOL_NS_PREFIX));
+
+        // FIXME: Should we allow InputContextOnly to be set?
         authzDecisionQueryNode.addAttribute("InputContextOnly", "false", null);
-        authzDecisionQueryNode.addAttribute("ReturnContext", "true", null);
+
+        boolean returnContext = pdpRequest.isReturnContext();
+        authzDecisionQueryNode.addAttribute("ReturnContext", returnContext ? "true" : "false", null);
         authzDecisionQueryNode.addAttribute("ID", UUID.randomUUID().toString(), null);
         authzDecisionQueryNode.addAttribute("Version", "2.0", null);
         authzDecisionQueryNode.addAttribute("IssueInstant", (new DateTime()).toString(), null);

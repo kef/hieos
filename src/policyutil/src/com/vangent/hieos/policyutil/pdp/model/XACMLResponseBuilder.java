@@ -245,10 +245,13 @@ public class XACMLResponseBuilder {
             // Find Request
             OMElement requestNode = XPathHelper.selectSingleNode(samlResponseNode,
                     "./saml:Assertion/xacml-saml:XACMLAuthzDecisionStatement/xacml-context:Request[1]", nsPrefixes, nsURIs);
-            XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
-            // Build RequestType.
-            RequestType requestType = requestBuilder.buildRequestType(new RequestTypeElement(requestNode));
-            pdpResponse.setRequestType(requestType);
+
+            if (requestNode != null) {
+                XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+                // Build RequestType.
+                RequestType requestType = requestBuilder.buildRequestType(new RequestTypeElement(requestNode));
+                pdpResponse.setRequestType(requestType);
+            }
         } catch (XPathHelperException ex) {
             throw new PolicyException("Failure to build PDP Response", ex);
         }
@@ -283,10 +286,12 @@ public class XACMLResponseBuilder {
                 new QName(PolicyConstants.XACML_SAML_NS, "XACMLAuthzDecisionStatement", PolicyConstants.XACML_SAML_NS_PREFIX));
         assertionNode.addChild(authzDecisionStatementNode);
 
-        // Convert RequestType to OMElement
-        XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
-        OMElement requestNode = requestBuilder.buildRequestTypeElement(requestType).getElement();
-        authzDecisionStatementNode.addChild(requestNode);
+        if (requestType != null) {
+            // Convert RequestType to OMElement
+            XACMLRequestBuilder requestBuilder = new XACMLRequestBuilder();
+            OMElement requestNode = requestBuilder.buildRequestTypeElement(requestType).getElement();
+            authzDecisionStatementNode.addChild(requestNode);
+        }
 
         // Convert ResponseType to OMElement
         OMElement responseNode = this.buildResponseTypeElement(responseType).getElement();
@@ -335,8 +340,7 @@ public class XACMLResponseBuilder {
 
                     // Optional: StatusMessage
                     OMElement statusMessageNode = XPathHelper.selectSingleNode(resultNode, "./ns:Status/ns:StatusMessage[1]", PolicyConstants.XACML_CONTEXT_NS);
-                    if (statusMessageNode != null)
-                    {
+                    if (statusMessageNode != null) {
                         String statusMessageText = statusMessageNode.getText();
                         statusType.setStatusMessage(statusMessageText);
                     }
