@@ -12,7 +12,7 @@
     <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3" />
     <templateId extension="1.0" root="1.2.36.1.2001.1001.101.100.20000" />
     <id root="8BC3406A-B93F-11DE-8A2B-6A1C56D89593" />
-    <code code="51855-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary" />
+    <code code="60591-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary" />
     <effectiveTime value="200910201235" />
     <confidentialityCode nullFlavor="NA" />
     <languageCode code="en-AU" />

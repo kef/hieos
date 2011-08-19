@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query:AdhocQueryResponse xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0" status="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure">
+    <rs:RegistryErrorList xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0">
+        <rs:RegistryError codeContext="Should be a replace id check???" errorCode="XDSRegistryError" location="Exception: com.vangent.hieos.xutil.exception.XdsValidationException Should be a replace id check???" severity="urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error"/>
+    </rs:RegistryErrorList>
+    <rim:RegistryObjectList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"/>
+</query:AdhocQueryResponse> 
