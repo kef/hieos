@@ -96,6 +96,7 @@ public class DocumentPolicyEvaluator {
             } else {
                 // Create PDP request.
                 PDPRequest pdpRequest = new PDPRequest();
+                pdpRequest.setReturnContext(false);  // Save some processing time here.
                 pdpRequest.setRequestType(requestType);
                 // Pass in document meta-data as resource content.
                 DocumentMetadataElement documentMetadataElement = documentMetadataBuilder.buildDocumentMetadataElement(documentMetadata);
