@@ -33,6 +33,7 @@ import com.vangent.hieos.policyutil.pdp.resource.PIPResourceContentFinder;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.io.ByteArrayOutputStream;
+import javax.xml.namespace.QName;
 
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import oasis.names.tc.xacml._2_0.context.schema.os.ResponseType;
@@ -83,7 +84,8 @@ public class PDPRequestHandler extends XBaseTransaction {
             log_message.setPass(true); // Hope for the best.
             RequestType requestType = this.getRequestType(request);
             this.addResourceContent(requestType);
-            SAMLResponseElement samlResponse = this.evaluate(requestType);
+            boolean returnContext = this.getReturnContext(request);
+            SAMLResponseElement samlResponse = this.evaluate(requestType, returnContext);
             if (log_message.isLogEnabled()) {
                 log_message.addOtherParam("Response", samlResponse.getElement());
             }
@@ -116,12 +118,33 @@ public class PDPRequestHandler extends XBaseTransaction {
     }
 
     /**
-     * 
-     * @param requestType
+     *
+     * @param request
      * @return
      * @throws PolicyException
      */
-    private SAMLResponseElement evaluate(RequestType requestType) throws PolicyException {
+    private boolean getReturnContext(OMElement request) throws PolicyException {
+        try {
+            // Locate Request node.
+            String returnContext = request.getAttributeValue(new QName("ReturnContext"));
+            if (returnContext == null || returnContext.equalsIgnoreCase("false")) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception ex) {
+            throw new PolicyException("Unable to marshall request: " + ex.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param requestType
+     * @param returnContext
+     * @return
+     * @throws PolicyException
+     */
+    private SAMLResponseElement evaluate(RequestType requestType, boolean returnContext) throws PolicyException {
         try {
             PDPImpl pdp = this.getPDP();
             ResponseCtx responseCtx = pdp.evaluate(requestType);
@@ -130,7 +153,7 @@ public class PDPRequestHandler extends XBaseTransaction {
                 responseCtx.encode(baos);
                 logger.debug("XACML Engine Response: " + baos.toString());
             }
-            return this.createSAML2Response(requestType, responseCtx);
+            return this.createSAML2Response(returnContext ? requestType : null, responseCtx);
         } catch (Exception ex) {
             ex.printStackTrace(System.out);
             throw new PolicyException("Exception creating PDP response: " + ex.getMessage());
