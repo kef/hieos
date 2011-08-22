@@ -199,8 +199,8 @@ public class CodeValidation {
             for (OMElement code_ele : MetadataSupport.childrenWithLocalName(code_type, "Code")) {
                 String code_name = code_ele.getAttributeValue(MetadataSupport.code_qname);
                 String code_scheme = code_ele.getAttributeValue(MetadataSupport.codingscheme_qname);
-                if (code_name.equals(code) &&
-                        (code_scheme == null || code_scheme.equals(coding_scheme))) {
+                if (code_name.equals(code)
+                        && (code_scheme == null || code_scheme.equals(coding_scheme))) {
                     val("Coding of " + code_scheme, null);
                     return;
                 }
@@ -280,6 +280,9 @@ public class CodeValidation {
                 if (codes == null) {
                     throw new XdsInternalException(
                             "CodeValidation: cannot parse code configuration file from " + from);
+                } else {
+                    // Make sure that the tree is built (to avoid concurrency problems).
+                    codes.build();
                 }
             } catch (XMLParserException ex) {
                 throw new XdsInternalException(
