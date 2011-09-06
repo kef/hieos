@@ -30,7 +30,6 @@ public class TCPHandler implements Runnable {
     private static final Logger log = Logger.getLogger(TCPHandler.class);
     private Socket clientConnection;
     private ServerProperties props;
-
     private final static String JMS_FACTORY = "jms_queue_mgr";
     private final static String JMS_QUEUE = "jms_queue";
     private final static String JMS_FACTORY_CLASS = "jms_factory_class";
@@ -78,11 +77,13 @@ public class TCPHandler implements Runnable {
                 //log.info("TCPMessage Line: " + inputLine);
                 message.append(inputLine);
             }
-            log.info("TCP Message From Client: ");
-            log.info(message);
+            if (log.isDebugEnabled()) {
+                log.debug("TCP Message From Client: ");
+                log.debug(message);
+            }
 
             auditMap.put("clientIP", clientConnection.getInetAddress().getHostAddress());
-            auditMap.put("clientPort",clientConnection.getLocalPort());
+            auditMap.put("clientPort", clientConnection.getLocalPort());
             auditMap.put("message", message);
 
             //Parse, Process and Save the Audit Message
@@ -97,7 +98,7 @@ public class TCPHandler implements Runnable {
             log.error("Audit Message Client Port: " + clientConnection.getLocalPort());
             log.error("Audit Message XML: " + message);
             ex.printStackTrace();
-        }finally {
+        } finally {
             // Close Streams & Connection
             jmsHandler.close();
             try {

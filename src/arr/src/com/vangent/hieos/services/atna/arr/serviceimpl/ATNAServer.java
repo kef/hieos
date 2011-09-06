@@ -14,7 +14,7 @@ package com.vangent.hieos.services.atna.arr.serviceimpl;
 
 import com.vangent.hieos.xutil.socket.ServerProperties;
 import java.io.IOException;
-
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -22,6 +22,7 @@ import java.io.IOException;
  */
 public class ATNAServer {
 
+    private static final Logger log = Logger.getLogger(ATNAServer.class);
     private static final String POOL_SIZE = "pool_size";
 
     /**
@@ -38,8 +39,8 @@ public class ATNAServer {
         }
 
         /*if (!args[2].equalsIgnoreCase("-protocol")) {
-            ATNAServer.printUsage();
-            System.exit(1);
+        ATNAServer.printUsage();
+        System.exit(1);
         }*/
 
         String propertyFilename = args[1];
@@ -48,21 +49,21 @@ public class ATNAServer {
 
         // Create server to process inbound messages.
         int poolSize = props.getIntegerProperty(POOL_SIZE);
-        System.out.println("Initializing Server Environment");
+        log.info("Initializing Server Environment");
         TCPServer tcpServer = new TCPServer(poolSize, props);
         UDPServer udpServer = new UDPServer(poolSize, props);
 
         // Start the servers
         udpServer.start();
-        System.out.println("Started UDP Server");
+        log.info("Started UDP Server");
         tcpServer.start();
-        System.out.println("Started TCP Server");
+        log.info("Started TCP Server");
 
         // Listen on both ports
         udpServer.listen();
-        System.out.println("UDP Server  Waiting");
+        log.info("UDP Server Waiting");
         tcpServer.listen();
-        System.out.println("TCP Server  Waiting");
+        log.info("TCP Server Waiting");
 
         // Close the sockets
         //udpServer.close();
@@ -70,15 +71,15 @@ public class ATNAServer {
 
         // Check which port to listen on
         /*if (protocol.equals("TCP")){
-            tcpServer.start();
-            tcpServer.serve();
-            // Close the socket
-            tcpServer.close();
+        tcpServer.start();
+        tcpServer.serve();
+        // Close the socket
+        tcpServer.close();
         } else {
-            udpServer.start();
-            udpServer.serve();
-            // Close the socket
-            udpServer.close();
+        udpServer.start();
+        udpServer.serve();
+        // Close the socket
+        udpServer.close();
         }*/
     }
 

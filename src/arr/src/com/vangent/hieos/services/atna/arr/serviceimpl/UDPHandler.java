@@ -67,8 +67,10 @@ public class UDPHandler implements Runnable {
             auditMap.put("clientIP", clientIP);
             auditMap.put("clientPort", clientPort);
             auditMap.put("message", message);
-            log.info("UDP MESSAGE RECEIVED FROM CLIENT: " + clientIP + ":" + clientPort + " Length: " + message.length());
-            //log.trace(message);
+            if (log.isDebugEnabled()) {
+                log.debug("UDP MESSAGE RECEIVED FROM CLIENT: " + clientIP + ":" + clientPort + " Length: " + message.length());
+                log.debug(message);
+            }
 
             //Place Audit Message on AuditMessageQueue
             jmsHandler.createConnectionFactoryFromProperties(jmsFactoryClass, jmsFactoryURL);
@@ -87,5 +89,4 @@ public class UDPHandler implements Runnable {
         }
 
     }
-
 }

@@ -16,7 +16,6 @@ import java.io.*;
 import java.net.*;
 
 import com.vangent.hieos.xutil.atna.SysLogAdapter;
-import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 
 /**
  *
@@ -32,10 +31,10 @@ public class ATNAClient {
                 ATNAClient.printUsage();
                 System.exit(1);
             }
-            if (!args[0].equalsIgnoreCase("-host") ||
-                    !args[2].equalsIgnoreCase("-port") ||
-                    !args[4].equalsIgnoreCase("-protocol") ||
-                    !args[6].equalsIgnoreCase("-secure")) {
+            if (!args[0].equalsIgnoreCase("-host")
+                    || !args[2].equalsIgnoreCase("-port")
+                    || !args[4].equalsIgnoreCase("-protocol")
+                    || !args[6].equalsIgnoreCase("-secure")) {
                 ATNAClient.printUsage();
                 System.exit(1);
             }
@@ -107,14 +106,14 @@ public class ATNAClient {
             for (int i = 1; i < 5; i++) {
                 String message = "|" + i + "|TEST MESSAGE FROM TLS CLIENT|" + i + "|";
                 syslog.write(message);
-                
+
                 /*System.out.println("TLS CLIENT Establishing Connection");
                 TLSSocketSupport tss = new TLSSocketSupport();
                 Socket clientSocket = tss.getSecureClientSocket(hostname, port);
                 PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true);
                 pw.print(message);
                 pw.close(); */
-                
+
                 System.out.println("TLS Message Sent to Server");
             }
         } catch (Exception ex) {
