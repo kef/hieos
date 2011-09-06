@@ -75,6 +75,7 @@ public class TCPServer extends BasicServer {
      *
      * @throws IOException
      */
+    @Override
     public void listen() throws IOException {
         try {
             // Start new Thread and Listen on the TCP Server
@@ -90,6 +91,7 @@ public class TCPServer extends BasicServer {
      *
      * @throws IOException
      */
+    @Override
     public void serve() throws IOException {
         //ServerSocket serverSocket = null;
         try {
@@ -111,6 +113,7 @@ public class TCPServer extends BasicServer {
     /**
      *
      */
+    @Override
     public void close() {
         log.info("Closing TCP ServerSocket");
         if (serverSocket != null) {
