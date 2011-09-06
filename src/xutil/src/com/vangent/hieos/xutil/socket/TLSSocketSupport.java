@@ -52,12 +52,20 @@ public class TLSSocketSupport {
     private static final String TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
     private static final String CIPHER_SUITE = "https.cipherSuites";
 
+    /**
+     * 
+     */
     public TLSSocketSupport() {
     }
 
+    /**
+     *
+     * @param hostname
+     * @param port
+     */
+    /*
     public TLSSocketSupport(String hostname, int port) {
-    }
-
+    }*/
     /**
      *
      * @param hostname
@@ -67,12 +75,12 @@ public class TLSSocketSupport {
      */
     public void sendNonSecureMessage(String hostname, int port, String message)
             throws IOException {
-        log.trace("Non TLS CLIENT Establishing Connection");
+        log.debug("Non TLS CLIENT Establishing Connection");
         Socket clientSocket = new Socket(hostname, port);
         PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true);
         pw.print(message);
         pw.close();
-        log.trace("Non TLS Message Sent to Server");
+        log.debug("Non TLS Message Sent to Server");
     }
 
     /**
@@ -84,20 +92,28 @@ public class TLSSocketSupport {
      */
     public void sendSecureMessage(String hostname, int port, String message)
             throws IOException {
+        PrintWriter pw = null;
         try {
-            log.trace("TLS CLIENT Establishing Connection");
+            log.debug("TLS CLIENT Establishing Connection");
             Socket clientSocket = getSecureClientSocket(hostname, port);
-            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true);
+            pw = new PrintWriter(clientSocket.getOutputStream(), true);
             pw.print(message);
-            pw.close();
-            log.trace("TLS Message Sent to Server");
+            //pw.close();
+            log.debug("TLS Message Sent to Server");
         } catch (Exception ex) {
             log.error(ex);
+        } finally {
+            if (pw != null) {
+                // Should close the socket ...
+                pw.close();
+            }
         }
     }
 
     /**
-     *
+     * 
+     * @param hostname
+     * @param port
      * @return
      * @throws Exception
      */
@@ -107,8 +123,9 @@ public class TLSSocketSupport {
         String keyStorePassword = System.getProperty(TLSSocketSupport.KEY_STORE_PASSWORD);
         String trustStoreFileName = System.getProperty(TLSSocketSupport.TRUST_STORE_FILE_NAME);
         String trustStorePassword = System.getProperty(TLSSocketSupport.TRUST_STORE_PASSWORD);
-        log.info("+++++ Key/Trust Stores :- " + keyStoreFileName + " and " + trustStoreFileName);
-
+        if (log.isTraceEnabled()) {
+            log.trace("+++++ Key/Trust Stores :- " + keyStoreFileName + " and " + trustStoreFileName);
+        }
         KeyManager[] keyManagers = TLSSocketSupport.createKeyManagers(keyStoreFileName, keyStorePassword, null /* alias */);
         TrustManager[] trustManagers = TLSSocketSupport.createTrustManagers(trustStoreFileName, trustStorePassword);
         SSLContext context = SSLContext.getInstance("TLS");
@@ -119,7 +136,9 @@ public class TLSSocketSupport {
         // Authenticate the client?
         //boolean requireClientAuthentication = false;  // FOR NOW
         //socket.setNeedClientAuth(requireClientAuthentication);
-        log.info("+++++ SSL CLIENT SOCKET CREATED ON :- " + hostname + ":" + port);
+        if (log.isDebugEnabled()) {
+            log.debug("+++++ SSL CLIENT SOCKET CREATED ON :- " + hostname + ":" + port);
+        }
         return socket;
     }
 
@@ -136,8 +155,9 @@ public class TLSSocketSupport {
         String keyStorePassword = System.getProperty(KEY_STORE_PASSWORD);
         String trustStoreFileName = System.getProperty(TRUST_STORE_FILE_NAME);
         String trustStorePassword = System.getProperty(TRUST_STORE_PASSWORD);
-        log.info("+++++ Key/Trust Stores :- " + keyStoreFileName + " and " + trustStoreFileName);
-
+        if (log.isTraceEnabled()) {
+            log.trace("+++++ Key/Trust Stores :- " + keyStoreFileName + " and " + trustStoreFileName);
+        }
         KeyManager[] keyManagers = TLSSocketSupport.createKeyManagers(keyStoreFileName, keyStorePassword, null /* alias */);
         TrustManager[] trustManagers = TLSSocketSupport.createTrustManagers(trustStoreFileName, trustStorePassword);
         SSLContext context = SSLContext.getInstance("TLS");
@@ -146,14 +166,11 @@ public class TLSSocketSupport {
         ServerSocketFactory serverSocketFactory = context.getServerSocketFactory();
         SSLServerSocket socket = (SSLServerSocket) serverSocketFactory.createServerSocket(port, backlog);
         socket.setNeedClientAuth(true);
-        /*if (debug) {
-        printCipherSuites(socket);
-        }*/
         TLSSocketSupport.enableAllSupportedCipherSuites(socket);
-        /*if (log.isDebugEnabled()) {
-        printCipherSuites(socket);
-        }*/
-        log.info("+++++ TLS SOCKET CREATED (port = " + port + ") +++++");
+        if (log.isTraceEnabled()) {
+            printCipherSuites(socket);
+        }
+        log.debug("+++++ TLS SOCKET CREATED (port = " + port + ") +++++");
         return socket;
     }
 
@@ -176,7 +193,9 @@ public class TLSSocketSupport {
         //create keystore object, load it with keystorefile data
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(inputStream, keyStorePassword == null ? null : keyStorePassword.toCharArray());
-        // printKeystoreInfo(keyStore);
+        if (log.isTraceEnabled()) {
+            printKeystoreInfo(keyStore);
+        }
 
         KeyManager[] managers;
         if (alias != null) {
@@ -211,8 +230,9 @@ public class TLSSocketSupport {
         //create keystore object, load it with truststorefile data
         KeyStore trustStore = KeyStore.getInstance("JKS");
         trustStore.load(inputStream, trustStorePassword == null ? null : trustStorePassword.toCharArray());
-        //DEBUG information should be removed
-        // printKeystoreInfo(trustStore);
+        if (log.isTraceEnabled()) {
+            printKeystoreInfo(trustStore);
+        }
         //create trustmanager factory and load the keystore object in it
         TrustManagerFactory trustManagerFactory =
                 TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -226,9 +246,11 @@ public class TLSSocketSupport {
      * @param socket
      */
     private static void enableAllSupportedCipherSuites(SSLServerSocket socket) {
-        log.info("Enabling required cipher suites...");
         String ciphers = System.getProperty(CIPHER_SUITE);
-        log.debug("Specified cipher suites:  " + ciphers);
+        if (log.isTraceEnabled()) {
+            log.trace("Enabling required cipher suites...");
+            log.trace("Specified cipher suites:  " + ciphers);
+        }
         //String[] suites = socket.getSupportedCipherSuites();
         String[] suites = ciphers.split(",");
         socket.setEnabledCipherSuites(suites);
@@ -240,13 +262,12 @@ public class TLSSocketSupport {
      * @throws KeyStoreException
      */
     private static void printKeystoreInfo(KeyStore keystore) throws KeyStoreException {
-        System.out.println("Provider : " + keystore.getProvider().getName());
-        System.out.println("Type : " + keystore.getType());
-        System.out.println("Size : " + keystore.size());
-
+        log.trace("Provider : " + keystore.getProvider().getName());
+        log.trace("Type : " + keystore.getType());
+        log.trace("Size : " + keystore.size());
         Enumeration en = keystore.aliases();
         while (en.hasMoreElements()) {
-            System.out.println("Alias: " + en.nextElement());
+            log.trace("Alias: " + en.nextElement());
         }
     }
 
@@ -257,11 +278,11 @@ public class TLSSocketSupport {
     private static void printCipherSuites(SSLServerSocket socket) {
         String[] enabledCipherSuites = socket.getEnabledCipherSuites();
         for (int i = 0; i < enabledCipherSuites.length; i++) {
-            System.out.println("enabledCipherSuite[" + i + "]: " + enabledCipherSuites[i]);
+            log.trace("enabledCipherSuite[" + i + "]: " + enabledCipherSuites[i]);
         }
         String[] supportedCipherSuites = socket.getSupportedCipherSuites();
         for (int i = 0; i < supportedCipherSuites.length; i++) {
-            System.out.println("supportedCipherSuite[" + i + "]: " + supportedCipherSuites[i]);
+            log.trace("supportedCipherSuite[" + i + "]: " + supportedCipherSuites[i]);
         }
     }
 

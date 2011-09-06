@@ -74,12 +74,12 @@ public class SysLogAdapter {
             udpSocket = new UDPSocketSupport(syslogHost, syslogPort);
 
         } else {
-            tlsSocket = new TLSSocketSupport(syslogHost, syslogPort);
+            tlsSocket = new TLSSocketSupport();
         }
     }
 
     /**
-     * Write the message using eith UDP or TLS.
+     * Write the message using either UDP or TLS.
      *
      * @param msg The message to write.
      */

@@ -38,9 +38,9 @@ public class AuditMessageBuilder {
     private CodedValueType eventType;
     private String eventAction;
     private String eventOutcome;
-    ArrayList apts = new ArrayList();
-    ArrayList pois = new ArrayList();
-    ArrayList ass = new ArrayList();
+    private ArrayList apts = new ArrayList();
+    private ArrayList pois = new ArrayList();
+    private ArrayList ass = new ArrayList();
     private static String syslogHost = null;
     private static int syslogPort = 0;
     private static String syslogProtocol = null;
@@ -97,7 +97,7 @@ public class AuditMessageBuilder {
             apt.setUserName(userName);
         }
         if (userIsRequestor != null) {
-            apt.setUserIsRequestor(new Boolean(userIsRequestor));
+            apt.setUserIsRequestor(Boolean.valueOf(userIsRequestor));
         }
         if (roleIDCode != null) {
             List rids = apt.getRoleIDCode();
