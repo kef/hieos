@@ -16,6 +16,7 @@ package com.vangent.hieos.services.xds.registry.transactions.hl7v2;
 import ca.uhn.hl7v2.app.Connection;
 import ca.uhn.hl7v2.app.HL7Service;
 import java.io.InterruptedIOException;
+import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -64,7 +65,7 @@ public class HL7SimpleServer extends HL7Service {
         try {
             ServerSocket ss;
             if (props.getProperty(TLS_ENABLED).equalsIgnoreCase("true")) {
-                TLSSocketSupport socketSupport = new TLSSocketSupport(props);
+                TLSSocketSupport socketSupport = new TLSSocketSupport();
                 ss = socketSupport.getSecureServerSocket(port, SO_BACKLOG);
             } else {
                 ss = new ServerSocket(port, SO_BACKLOG);
