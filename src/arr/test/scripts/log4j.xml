@@ -17,7 +17,7 @@
         </layout>
     </appender>
     <root>
-        <priority value="trace"></priority>
+        <priority value="info"></priority>
         <appender-ref ref="stdout"/>
         <appender-ref ref="logfile"/>
     </root>
