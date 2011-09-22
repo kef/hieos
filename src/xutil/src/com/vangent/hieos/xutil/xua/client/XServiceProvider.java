@@ -147,40 +147,56 @@ public class XServiceProvider {
      * @return
      */
     public String getUserNameFromRequest(MessageContext mc) {
+
+        String result = null;
+        
         OMElement assertion = null;
         try {
+            
             assertion = XServiceProvider.getSAMLAssertionFromRequest(mc);
+            
         } catch (Exception ex) {
             // Eat this.
             logger.error("Could not get SAML Assertion", ex);
-            return null;
         }
-        if (assertion == null) {
-            return null;
-        }
-        String userName = null;
-        String SPProviderID = null;
-        String Issuer = null;
-        // Get the Issuer element from the SAML Token.
-        OMElement issuerEle = assertion.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer"));
-        if (issuerEle != null) {
-            SPProviderID = issuerEle.getAttributeValue(new QName("SPProvidedID"));
-            Issuer = issuerEle.getText();
-        }
-        // Get the Subject element from the SAML Token.
-        OMElement subjectEle = assertion.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Subject"));
-        if (subjectEle != null) {
-            OMElement nameIDEle = subjectEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "NameID"));
-            if (nameIDEle != null) {
-                userName = nameIDEle.getText();
+        
+        if (assertion != null) {
+            
+            String strUserName = null;
+            String strSPProvidedID = null;
+            String strIssuer = null;
+            
+            // Get the Issuer element from the SAML Token.
+            OMElement issuerEle = assertion.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer"));
+            if (issuerEle != null) {
+                strIssuer = issuerEle.getText();
             }
+            
+            // Get the Subject element from the SAML Token.
+            OMElement subjectEle = assertion.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "Subject"));
+            if (subjectEle != null) {
+                OMElement nameIDEle = subjectEle.getFirstChildWithName(new QName("urn:oasis:names:tc:SAML:2.0:assertion", "NameID"));
+                if (nameIDEle != null) {
+                    strSPProvidedID = nameIDEle.getAttributeValue(new QName("SPProvidedID"));
+                    strUserName = nameIDEle.getText();
+                }
+            }
+            
+            StringBuilder sb = new StringBuilder();
+            if (strSPProvidedID != null) {
+                sb.append(strSPProvidedID);
+            }
+            
+            sb.append("<")
+                .append(strUserName)
+                .append("@")
+                .append(strIssuer)
+                .append(">");
+            
+            result = sb.toString();
         }
-        StringBuilder sBuilder = new StringBuilder();
-        if (SPProviderID != null) {
-            sBuilder.append(SPProviderID);
-        }
-        sBuilder.append("<").append(userName).append("@").append(Issuer).append(">");
-        return sBuilder.toString();
+        
+        return result;
     }
 
     /**
