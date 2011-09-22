@@ -15,6 +15,7 @@ package com.vangent.hieos.xutil.atna;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -30,6 +31,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.net.URL;
+import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
@@ -98,6 +100,7 @@ public class XATNALogger {
     private ActorType actorType = ActorType.UNKNOWN;
     private String transactionId;
     private boolean performAudit = false;
+    private boolean logSAMLAssertion = false;
     private AuditMessageBuilder amb = null;
     private OutcomeIndicator outcome = OutcomeIndicator.SUCCESS;
     //private String sourceId = "UNKNOWN";
@@ -119,7 +122,14 @@ public class XATNALogger {
     public XATNALogger(String transactionId, ActorType actorType) throws Exception {
         this.transactionId = transactionId;
         this.actorType = actorType;
-        this.performAudit = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("ATNAperformAudit");
+        
+        XConfig xconfig = XConfig.getInstance();
+        this.performAudit = xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNAPerformAudit");
+        if (this.performAudit) {
+            
+            this.logSAMLAssertion =
+                xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNALogSAMLAssertion", false);
+        }
     }
 
     /**
@@ -160,6 +170,9 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
+            
+            auditSAMLAssertion();
+            
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -239,6 +252,9 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
+                                    
+            auditSAMLAssertion();
+            
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -959,12 +975,54 @@ public class XATNALogger {
                 null, /* participantObjectQuery */
                 "Message Identifier", /* participantObjectDetailName */
                 podval); /* participantObjectDetailValue */
+            
+        auditSAMLAssertion();
 
         // Now, persist the audit message.
         amb.setAuditSource(this.getAuditSourceId(), null, null);
         amb.persistMessage();
     }
 
+    private void auditSAMLAssertion() {
+        
+        if (this.logSAMLAssertion) {
+            
+            OMElement assertionEle = null;
+            try {
+                
+                MessageContext mc = getCurrentMessageContext();
+                assertionEle = XServiceProvider.getSAMLAssertionFromRequest(mc);
+                
+            } catch (SOAPFaultException ex) {
+                 // Eat this.
+                logger.warn("Could not get SAML Assertion", ex);               
+            }
+            
+            if (assertionEle != null) {
+                
+                String assertionId = 
+                    assertionEle.getAttributeValue(new QName("ID"));
+
+                String assertionStr = assertionEle.toString();
+                
+                CodedValueType participantObjectIdentifier = 
+                        getCodedValueType("11", "RFC-3881", "User Identifier");
+                
+                amb.setParticipantObject(
+                        "2", /* participantObjectTypeCode */
+                        "14", /* participantObjectTypeCodeRole */
+                        null, /* participantObjectDataLifeCycle */
+                        participantObjectIdentifier, /* participantIDTypeCode */
+                        null, /* participantObjectSensitivity */
+                        assertionId, /* participantObjectId */
+                        null, /* participantObjectName */
+                        null, /* participantObjectQuery */
+                        "SAML Assertion", /* participantObjectDetailName */
+                        assertionStr.getBytes()); /* participantObjectDetailValue */
+            }
+        }
+    }
+    
     /**
      * 
      * @param queryRequest
