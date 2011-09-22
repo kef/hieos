@@ -125,7 +125,7 @@ CREATE TABLE activeparticipant (
   amid CHARACTER VARYING(50) NOT NULL,
   userid CHARACTER VARYING(200) NOT NULL,
   alternativeuserid CHARACTER VARYING(200),
-  username CHARACTER VARYING(200),
+  username CHARACTER VARYING(1024),
   userisrequestor CHAR(1),
   networkaccesspointtypecode INTEGER,  -- 1,2,3
   networkaccesspointid CHARACTER VARYING(100),

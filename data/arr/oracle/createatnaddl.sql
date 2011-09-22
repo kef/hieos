@@ -112,7 +112,7 @@ CREATE TABLE activeparticipant (
   amid VARCHAR2(50) NOT NULL,
   userid VARCHAR2(200) NOT NULL,
   alternativeuserid VARCHAR2(200),
-  username VARCHAR2(200),
+  username VARCHAR2(1024),
   userisrequestor CHAR(1),
   networkaccesspointtypecode NUMBER(3),  -- 1,2,3
   networkaccesspointid VARCHAR2(100),
