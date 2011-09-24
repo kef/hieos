@@ -170,9 +170,7 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
-            
             auditSAMLAssertion();
-            
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -252,9 +250,7 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
-                                    
             auditSAMLAssertion();
-            
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -983,31 +979,24 @@ public class XATNALogger {
         amb.persistMessage();
     }
 
+    /**
+     *
+     */
     private void auditSAMLAssertion() {
-        
         if (this.logSAMLAssertion) {
-            
             OMElement assertionEle = null;
             try {
-                
+                // Get SAML assertion from the current message context.
                 MessageContext mc = getCurrentMessageContext();
                 assertionEle = XServiceProvider.getSAMLAssertionFromRequest(mc);
-                
             } catch (SOAPFaultException ex) {
                  // Eat this.
                 logger.warn("Could not get SAML Assertion", ex);               
             }
-            
             if (assertionEle != null) {
-                
-                String assertionId = 
-                    assertionEle.getAttributeValue(new QName("ID"));
-
+                String assertionId = assertionEle.getAttributeValue(new QName("ID"));
                 String assertionStr = assertionEle.toString();
-                
-                CodedValueType participantObjectIdentifier = 
-                        getCodedValueType("11", "RFC-3881", "User Identifier");
-                
+                CodedValueType participantObjectIdentifier = getCodedValueType("11", "RFC-3881", "User Identifier");
                 amb.setParticipantObject(
                         "2", /* participantObjectTypeCode */
                         "14", /* participantObjectTypeCodeRole */
