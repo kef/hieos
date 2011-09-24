@@ -31,6 +31,7 @@
 
          <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
+        <Property name="ATNALogSAMLAssertion">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
         <Property name="ATNAsyslogHost">10.242.17.125</Property>
         <Property name="ATNAsyslogPort">3110</Property> <!-- UDP Port 3110; TCP Port 3100-->
