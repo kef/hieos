@@ -664,7 +664,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         receiverNode.addAttribute("typeCode", "RCV", null);
 
         // /MCCI_IN000002UV01/receiver/device
-        receiverNode.addChild(senderDeviceOnRequestNode);  // Sender is now receiver in ACK.
+        receiverNode.addChild(senderDeviceOnRequestNode.cloneOMElement());  // Sender is now receiver in ACK.
 
         // Build "Sender" (the Registry):
 
@@ -712,7 +712,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         // /MCCI_IN000002UV01/acknowledgement/targetMessage/id
         // Need to put in the "id" from the request in the ACK.
         OMElement idNodeOnRequest = MetadataSupport.firstChildWithLocalName(request, "id");
-        targetMessageNode.addChild(idNodeOnRequest);
+        targetMessageNode.addChild(idNodeOnRequest.cloneOMElement());
 
         // FOR ERROR REPORTING:
         if (errorString != null) {
