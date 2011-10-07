@@ -38,32 +38,44 @@
     <xsd:complexType name="ConsentDirectivesType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-                Type definition for holding the consent directives for a given patient.  This may go away
-                in a future release.
+                Type definition for holding the consent directives for a given patient.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
+            <xsd:element name="PatientId" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>PatientId must be in CX format as in this example: 7347efa58b364ec^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="Status" >
+                <xsd:annotation>
+                    <xsd:documentation>Status of the patient.</xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="Active" />
+                        <xsd:enumeration value="Inactive" />
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:element>
             <xsd:element name="ConsentRules" type="pip:ConsentRulesType" minOccurs="1" maxOccurs="1">
                 <xsd:annotation>
                     <xsd:documentation xml:lang="en">Holds list of ConsentRules applicable for the patient.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
+            <xsd:element name="ConsentOptions" type="pip:ConsentOptionsType" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">Holds list of ConsentOptions applicable for the patient.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="alwaysAuthorize" type="xsd:boolean" default="false">
-            <xsd:annotation>
-                <xsd:documentation xml:lang="en">
-                Attribute indicates that a provider must always get prior authorization
-				from the patient in order to grant access to their health record(s).
-                </xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
     </xsd:complexType>
     <xsd:complexType name="ConsentRulesType">
         <xsd:annotation>
             <xsd:documentation>Type definition for a list of ConsentRuleTypes.</xsd:documentation>
         </xsd:annotation>
         <xsd:sequence maxOccurs="unbounded">
-            <xsd:element name="ConsentRule" type="pip:ConsentRuleType" maxOccurs="unbounded" />
+            <xsd:element name="ConsentRule" type="pip:ConsentRuleType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="ConsentRuleType">
@@ -163,10 +175,29 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="confidentialitycode" type="xsd:string"
+			use="optional">
+            <xsd:annotation>
+                <xsd:documentation>Indicates the "confidentiality code" upon which the patient is permitting or denying access.
+                        
+                        Attribute value should be in HL7v2 CNE format as in this example: R^^2.16.840.1.113883.5.2
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
         <xsd:anyAttribute processContents="skip">
             <xsd:annotation>
                 <xsd:documentation>Allow additional "unspecified" attributes.</xsd:documentation>
             </xsd:annotation>
         </xsd:anyAttribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="ConsentOptionsType">
+        <xsd:annotation>
+            <xsd:documentation>Type definition for a list of ConsentOptionTypes.  Currently, this is
+            a list of ConsentOption elements containing strings.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence maxOccurs="unbounded">
+            <xsd:element name="ConsentOption" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
     </xsd:complexType>
 </xsd:schema>
