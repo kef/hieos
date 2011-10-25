@@ -23,6 +23,9 @@
         </Actions>
     </Target>
 
+   <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
+         caller as to which rule fired -->
+         
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
          PolicyId="emergency-access-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
@@ -45,17 +48,59 @@
     </Policy>
 
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-         PolicyId="general-access-policy"
-        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
-        <Description>Determine if the request should be denied based upon Patient Consent Directives (first pass)</Description>
-
+        PolicyId="explicit-authorization-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Evaluates patient's desire of ExplicitAuthorizationRequired</Description>
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
-        <Target/>
+        <Target/>       
         
-        <Rule RuleId="blocked-organizations-rule" Effect="Deny">
+        <Rule RuleId="explicit-authorization-deny-rule" Effect="Deny">
             <Description>
+                Evaluates patient's desire of ExplicitAuthorizationRequired
+                
+                Pseudocode:
+                (ExplicitAuthorizationRequired == TRUE
+                 AND (not(urn:oasis:names:tc:xspa:1.0:subject:hl7:permission)
+                     OR urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == NONE)
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ExplicitAuthorizationRequired</AttributeValue>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                    
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+                        
+                        <!-- Missing permission -->
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            </Apply>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                        </Apply>
+                            
+                        <!-- NONE permission -->
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NONE</AttributeValue>
+                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+        
+        <Obligations>
+            <Obligation ObligationId="explicit-authorization-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+ 
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="blocked-organizations-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>
                Deny if subject's organization is on the patient's list of denied organizations.
 
                Possible ConsentRule attributes:
@@ -64,10 +109,19 @@
                   !role
                   !documenttype
                   !documentid
+                  !homecommunityid
+                  !confidentialitycode
                   organization (XON_id_only)
 
                NOTE: Tried to use a VariableReference to avoid duplication with no luck.
-            </Description>
+        </Description>
+
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        
+        <Rule RuleId="blocked-organizations-rule" Effect="Deny">
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
@@ -80,6 +134,7 @@
                             <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
 
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode)</AttributeValue>
                                 
                                 <!-- Organization -->
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization='</AttributeValue>
@@ -98,8 +153,15 @@
             </Condition>
         </Rule>
 
-        <Rule RuleId="blocked-individuals-rule" Effect="Deny">
-            <Description>
+        <Obligations>
+            <Obligation ObligationId="blocked-organizations-policy-deny" FulfillOn="Deny"/>
+        </Obligations>    
+    </Policy>
+        
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="blocked-individuals-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>
                Deny if subject's id is on the patient's list of denied individuals.
 
                Possible ConsentRule attributes:
@@ -108,10 +170,23 @@
                   !documenttype
                   !documentid
                   !organization
+                  !homecommunityid
+                  !confidentialitycode
                   individual (XCN_id_only)
 
                NOTE: Tried to use a VariableReference to avoid duplication with no luck.
-            </Description>
+        </Description>
+
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>   
+        
+        <Rule RuleId="blocked-individuals-rule" Effect="Deny">
+            <PolicyDefaults>
+                <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+            </PolicyDefaults>
+            <Target/>      
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
@@ -124,7 +199,8 @@
                             <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
 
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@organization) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
-
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode)</AttributeValue>
+                                
                                 <!-- Individual -->
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@individual='</AttributeValue>
                                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
@@ -142,15 +218,28 @@
             </Condition>
         </Rule>
 
-        <Rule RuleId="allowed-organizations-rule" Effect="Deny">
-            <Description>
+        <Obligations>
+            <Obligation ObligationId="blocked-individuals-policy-deny" FulfillOn="Deny"/>
+        </Obligations>    
+    </Policy>
+        
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="allowed-organizations-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>
                 Deny if subject's organization-id is not in one of the designated set of allowed organizations.
                 Only evaluated if the patient has designated a list.
 
                 Pseudocode:
                   AllowedOrganizations.size() > 0 AND NOT(AllowedOrganizations.contains(Subject.OrganizationId))
-            </Description>
-            
+        </Description>        
+
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>   
+        
+        <Rule RuleId="allowed-organizations-rule" Effect="Deny">           
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
 
@@ -162,6 +251,7 @@
                                 <!-- begin xpath statement -->
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization) and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode)</AttributeValue>
                                 <!-- End xpath statement -->
                                 <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
                             </Apply>
@@ -181,6 +271,7 @@
                                 <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
 
                                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@individual) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode)</AttributeValue>
 
                                     <!-- Organization (may not be null attribute) -->
                                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@organization) and (@organization='</AttributeValue>
@@ -200,11 +291,97 @@
             </Condition>
         </Rule>
 
-        <!-- Default Permit rule (if no Deny rules fired above) -->
-        <Rule RuleId="FinalRule" Effect="Permit"/>
-       
+        <Obligations>
+            <Obligation ObligationId="allowed-organizations-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
     </Policy>
 
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="allowed-individuals-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>
+                Deny if subject's subject-id is not in one of the designated set of allowed indidivuals
+                Only evaluated if the patient has designated a list.
+
+                Pseudocode:
+                  AllowedIndividuals.size() > 0 AND NOT(AllowedIndividuals.contains(Subject.SubjectId))
+        </Description>        
+
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>   
+        
+        <Rule RuleId="allowed-individuals-rule" Effect="Deny">           
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+
+                    <!-- make sure a list exists -->
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-greater-than">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- begin xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@individual) and not(@purposeofuse) and not(@organization) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode)</AttributeValue>
+                                <!-- End xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                            </Apply>
+                        </Apply>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                    </Apply>
+
+                    <!-- evaluate only if list exists -->
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:xpath-node-count">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                <!-- begin xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">//*[local-name()='Resource']/*[local-name()='ResourceContent']/*[local-name()='ConsentDirectives']/*[local-name()='ConsentRules']/*[local-name()='ConsentRule'][@action='permit'</AttributeValue>
+
+                                <!-- append consent directive rules -->
+                                <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:string-concatenate">
+
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@purposeofuse) and not(@organization) and not(@role) and not(@documenttype) and not(@documentid)</AttributeValue>
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and not(@homecommunityid) and not(@confidentialitycode) </AttributeValue>
+
+                                    <!-- Individual (may not be null attribute) -->
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string"> and (@individual) and (@individual='</AttributeValue>
+                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                                    </Apply>
+                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">')</AttributeValue>
+
+                                </Apply>
+                                <!-- End xpath statement -->
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">]</AttributeValue>
+                            </Apply>
+                        </Apply>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Obligations>
+            <Obligation ObligationId="allowed-individuals-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+    
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="final-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Permit if no other policies/rules fired.</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+
+         <!-- Default Deny rule (if no Permit rules fired above) -->
+        <Rule RuleId="final-rule" Effect="Permit"/>
+    </Policy>
+    
      <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
     <Obligations>
         <Obligation
