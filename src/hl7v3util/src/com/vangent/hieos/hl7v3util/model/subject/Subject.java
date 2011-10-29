@@ -29,6 +29,27 @@ public class Subject {
     private Custodian custodian = null;
     private Date birthTime = null;
     private int matchConfidencePercentage = 0;
+    private String id = null;
+    private SubjectType type = SubjectType.ENTERPRISE; // Default.
+
+    /**
+     *
+     */
+    public enum SubjectType {
+
+        /**
+         *
+         */
+        ENTERPRISE,
+        /**
+         * 
+         */
+        SYSTEM,
+        /**
+         * 
+         */
+        VOIDED
+    };
 
     /**
      *
@@ -223,5 +244,37 @@ public class Subject {
             }
         }
         return false;  // No match.
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     *
+     * @param id
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public SubjectType getType() {
+        return type;
+    }
+
+    /**
+     *
+     * @param type
+     */
+    public void setType(SubjectType type) {
+        this.type = type;
     }
 }

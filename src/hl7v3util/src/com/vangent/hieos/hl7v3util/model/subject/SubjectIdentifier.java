@@ -18,6 +18,7 @@ package com.vangent.hieos.hl7v3util.model.subject;
  */
 public class SubjectIdentifier {
 
+    private String subjectId;
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
 
@@ -25,6 +26,22 @@ public class SubjectIdentifier {
      * 
      */
     public SubjectIdentifier() {
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getSubjectId() {
+        return subjectId;
+    }
+
+    /**
+     * 
+     * @param subjectId
+     */
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 
     /**
@@ -105,7 +122,7 @@ public class SubjectIdentifier {
      * @return
      */
     public boolean equals(SubjectIdentifier subjectIdentifier) {
-        return subjectIdentifier.getIdentifier().equals(this.identifier) &&
-                subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
+        return subjectIdentifier.getIdentifier().equals(this.identifier)
+                && subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
     }
 }

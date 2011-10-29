@@ -509,7 +509,8 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     protected void addAddresses(OMElement rootNode, Subject subject) {
         for (Address address : subject.getAddresses()) {
             OMElement addressNode = this.addChildOMElement(rootNode, "addr");
-            this.addChildOMElementWithValue(addressNode, "streetAddressLine", address.getStreetAddressLine());
+            // FIXME: Deal with more than one address line.
+            this.addChildOMElementWithValue(addressNode, "streetAddressLine", address.getStreetAddressLine1());
             this.addChildOMElementWithValue(addressNode, "city", address.getCity());
             this.addChildOMElementWithValue(addressNode, "state", address.getState());
             this.addChildOMElementWithValue(addressNode, "postalCode", address.getPostalCode());

@@ -18,41 +18,81 @@ package com.vangent.hieos.hl7v3util.model.subject;
  */
 public class SubjectIdentifierDomain {
 
+    private int id;
     private String namespaceId;
     private String universalId;
     private String universalIdType;
 
+    /**
+     *
+     * @return
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     *
+     * @param id
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     *
+     * @return
+     */
     public String getNamespaceId() {
         return namespaceId;
     }
 
+    /**
+     *
+     * @param namespaceId
+     */
     public void setNamespaceId(String namespaceId) {
         this.namespaceId = namespaceId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUniversalId() {
         return universalId;
     }
 
+    /**
+     *
+     * @param universalId
+     */
     public void setUniversalId(String universalId) {
         this.universalId = universalId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUniversalIdType() {
         return universalIdType;
     }
 
+    /**
+     * 
+     * @param universalIdType
+     */
     public void setUniversalIdType(String universalIdType) {
         this.universalIdType = universalIdType;
     }
 
-     /**
+    /**
      *
      * @param subjectIdentifierDomain
      * @return
      */
-    public boolean equals(SubjectIdentifierDomain subjectIdentifierDomain)
-    {
+    public boolean equals(SubjectIdentifierDomain subjectIdentifierDomain) {
         // FIXME?: Only looks at ID & Type since namespaceId could be problematic ...
         return subjectIdentifierDomain.getUniversalId().equals(this.universalId)
                 && subjectIdentifierDomain.getUniversalIdType().equals(this.universalIdType);

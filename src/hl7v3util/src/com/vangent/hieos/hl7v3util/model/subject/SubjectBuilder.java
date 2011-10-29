@@ -317,7 +317,8 @@ public class SubjectBuilder extends BuilderHelper {
      */
     public Address buildAddress(OMElement node) {
         Address address = new Address();
-        address.setStreetAddressLine(this.getFirstChildNodeValue(node, "streetAddressLine"));
+        // FIXME? - deal with more than one address line.
+        address.setStreetAddressLine1(this.getFirstChildNodeValue(node, "streetAddressLine"));
         address.setCity(this.getFirstChildNodeValue(node, "city"));
         address.setState(this.getFirstChildNodeValue(node, "state"));
         address.setPostalCode(this.getFirstChildNodeValue(node, "postalCode"));

@@ -23,6 +23,7 @@ public class SubjectName {
     private String middleName;
     private String prefix;
     private String suffix;
+    private String id = null;
 
     /**
      *
@@ -45,43 +46,99 @@ public class SubjectName {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFamilyName() {
         return familyName;
     }
 
+    /**
+     *
+     * @param familyName
+     */
     public void setFamilyName(String familyName) {
         this.familyName = familyName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getGivenName() {
         return givenName;
     }
 
+    /**
+     *
+     * @param givenName
+     */
     public void setGivenName(String givenName) {
         this.givenName = givenName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getPrefix() {
         return prefix;
     }
 
+    /**
+     *
+     * @param prefix
+     */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSuffix() {
         return suffix;
     }
 
+    /**
+     *
+     * @param suffix
+     */
     public void setSuffix(String suffix) {
         this.suffix = suffix;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getMiddleName() {
         return middleName;
     }
 
+    /**
+     *
+     * @param middleName
+     */
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     *
+     * @param id
+     */
+    public void setId(String id) {
+        this.id = id;
     }
 }
