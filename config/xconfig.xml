@@ -197,6 +197,7 @@
         <Property name="EmitSubjectX509Data">true</Property>
         <Property name="EmitSubjectPublicKeyValue">true</Property>
 
+        <Property name="TokenIssuanceNotBeforeSkewInMilliseconds">5000</Property>  <!-- 5000 = 5 secs -->
         <Property name="TimeToLiveInMilliseconds">600000</Property>  <!-- 600000 = 10 mins -->
 
         <!-- Configuration for UserNameToken w/ LDAP -->
