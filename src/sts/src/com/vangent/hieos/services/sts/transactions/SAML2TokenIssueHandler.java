@@ -104,11 +104,11 @@ public class SAML2TokenIssueHandler extends SAML2TokenHandler {
 
         // Assign a uniquie id - prefix must be compliant with xs:ID type (reason for "ID_" prefix).
         assertion.setID("ID_" + UUID.randomUUID().toString());
-
+        
         // Get created and expires date/times.
-        DateTime createdDate = new DateTime();
-        long ttl = stsConfig.getTimeToLive();
-        DateTime expiresDate = new DateTime(createdDate.getMillis() + ttl);
+        long nowInMillis = System.currentTimeMillis();
+        DateTime createdDate = new DateTime(nowInMillis - stsConfig.getNotBeforeSkew());
+        DateTime expiresDate = new DateTime(nowInMillis + stsConfig.getTimeToLive());
 
         // Set the instant the Assertion was created.
         assertion.setIssueInstant(createdDate);

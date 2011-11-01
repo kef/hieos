@@ -23,9 +23,11 @@ public class STSConfig {
 
     private static final String DEFAULT_ISSUER_ALIAS = "s1as";
     private static final long DEFAULT_TIME_TO_LIVE = 30000;  // milliseconds
+    private static final long DEFAULT_NOT_BEFORE_SKEW = 0; // milliseconds
     // Configuration.
     private String issuerName;
     private String issuerAlias;
+    private long notBeforeSkew;
     private long timeToLive;
     private String keyStore;
     private String trustStore;
@@ -66,11 +68,17 @@ public class STSConfig {
         if (issuerAlias == null) {
             issuerAlias = STSConfig.DEFAULT_ISSUER_ALIAS;  // Default.
         }
+        String notBeforeSkewAsString = stsConfigActor.getProperty("TokenIssuanceNotBeforeSkewInMilliseconds");
+        if (notBeforeSkewAsString == null) {
+            notBeforeSkew = STSConfig.DEFAULT_NOT_BEFORE_SKEW;  // DEFAULT.
+        } else {
+            notBeforeSkew = Long.valueOf(notBeforeSkewAsString);
+        }        
         String timeToLiveAsString = stsConfigActor.getProperty("TimeToLiveInMilliseconds");
         if (timeToLiveAsString == null) {
             timeToLive = STSConfig.DEFAULT_TIME_TO_LIVE;  // DEFAULT.
         } else {
-            timeToLive = new Long(timeToLiveAsString);
+            timeToLive = Long.valueOf(timeToLiveAsString);
         }
         keyStore = stsConfigActor.getProperty("KeyStore");
         if (keyStore == null) {
@@ -133,6 +141,14 @@ public class STSConfig {
         return timeToLive;
     }
 
+    /**
+     *
+     * @return
+     */
+    public long getNotBeforeSkew() {
+        return notBeforeSkew;
+    }
+    
     /**
      *
      * @return
