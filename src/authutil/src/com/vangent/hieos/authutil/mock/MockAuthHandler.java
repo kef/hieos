@@ -29,6 +29,10 @@ import org.apache.log4j.Logger;
  */
 public class MockAuthHandler implements AuthenticationHandler {
 
+    private static final String LDAP_URL = "AuthHandlerLDAP_URL";
+    private static final String LDAP_BASE_DN = "AuthHandlerLDAP_BASE_DN";
+    private static final String LDAP_USERNAME_FORMAT = "AuthHandlerLDAP_USERNAME_FORMAT";
+    private static final String USERNAME_REPLACE_STRING = "${UserName}";
     private static Logger log = Logger.getLogger(MockAuthHandler.class);
 
     private XConfigObject config;
@@ -42,6 +46,7 @@ public class MockAuthHandler implements AuthenticationHandler {
      * @return
      * @throws AuthUtilException
      */
+    @Override
     public AuthenticationContext authenticate(Credentials creds) throws AuthUtilException {
         AuthenticationContext authnCtx = new AuthenticationContext();
         if (validateInput(creds)) {
@@ -88,13 +93,14 @@ public class MockAuthHandler implements AuthenticationHandler {
         return true;
     }
 
+    @Override
     public void setConfig(XConfigObject config) {
         this.config = config;
-        if (log.isInfoEnabled())
-        {
+        if (log.isInfoEnabled()) {
             log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
-            log.info("AuthHandlerLDAP_URL: " + config.getProperty("AuthHandlerLDAP_URL"));
-            log.info("AuthHandlerLDAP_BASE_DN: " + config.getProperty("AuthHandlerLDAP_BASE_DN"));
+            log.info("AuthHandlerLDAP_URL: " + config.getProperty(LDAP_URL));
+            log.info("AuthHandlerLDAP_BASE_DN: " + config.getProperty(LDAP_BASE_DN));
+            log.info("AuthHandlerLDAP_USER_FORMAT: " + config.getProperty(LDAP_USERNAME_FORMAT));
         }
     }
 }

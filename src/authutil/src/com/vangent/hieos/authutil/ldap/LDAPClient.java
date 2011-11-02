@@ -96,11 +96,9 @@ public class LDAPClient {
             ldapContext.reconnect(ldapConnControls);
             return true; // all is well 
         } catch (AuthenticationException e) {
-            e.printStackTrace();
-            logger.error(user + " could not be authenticated using LDAPCLient - " + e);
+            logger.error(user + " could not be authenticated using LDAPCLient", e);
         } catch (NamingException e) {
-            e.printStackTrace();
-            logger.error(user + " could not be authenticated using LDAPCLient  - " + e);
+            logger.error(user + " could not be authenticated using LDAPCLient", e);
         }
         return false;
     }
@@ -197,19 +195,22 @@ public class LDAPClient {
     }
 
     /* Non-public supporting class representing a fast bind LDAP Control */
-    /* Based on material found on http://forums.oracle.com/forums/thread.jspa?threadID=1155584&tstart=0 */
+    /* Based on material found on c */
     class LDAPConnectionControl implements Control {
 
+        @Override
         public byte[] getEncodedValue() {
             return null;
         }
 
+        @Override
         public String getID() {
             return "1.2.840.113556.1.4.1781";  //  identifies LDAP fast bind
         }
 
+        @Override
         public boolean isCritical() {
-            return true;
+            return Control.NONCRITICAL;
         }
     }
 

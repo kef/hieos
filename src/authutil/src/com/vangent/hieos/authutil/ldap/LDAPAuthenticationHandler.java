@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.naming.NamingException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -32,11 +33,14 @@ import org.apache.log4j.Logger;
  */
 public class LDAPAuthenticationHandler implements AuthenticationHandler {
 
-    private static Logger log = Logger.getLogger(LDAPAuthenticationHandler.class);
+    private static final Logger log = Logger.getLogger(LDAPAuthenticationHandler.class);
     private static final String LDAP_URL = "AuthHandlerLDAP_URL";
     private static final String LDAP_BASE_DN = "AuthHandlerLDAP_BASE_DN";
-    private LDAPClient ldapClient = null;
+    private static final String LDAP_USERNAME_FORMAT = "AuthHandlerLDAP_USERNAME_FORMAT";
+    private static final String USERNAME_REPLACE_STRING = "${UserName}";
     private String ldapBaseDN = null;
+    private String ldapURL = null;
+    private String userNameFormat = null;
     private XConfigObject config;
 
     /**
@@ -52,29 +56,55 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      * @return
      * @throws AuthUtilException
      */
+    @Override
     public AuthenticationContext authenticate(Credentials creds) throws AuthUtilException {
         AuthenticationContext authnCtx = new AuthenticationContext();
         this.configure();
-        boolean status = false;
-        if (creds != null) {
-            // authenticate
-            status = ldapClient.bind(creds.getUserId(), creds.getPassword());
+        LDAPClient ldapClient = null;
+        try {
+            
+            ldapClient = new LDAPClient(this.ldapURL);
+            
+        } catch (NamingException e) {
+            log.error("Error accessing LDAP.", e);
+            throw new AuthUtilException("Error accessing LDAP." + e.getMessage());
         }
-        if (status == true) {
-            authnCtx.setStatus(AuthenticationContext.Status.SUCCESS);
-            if (log.isInfoEnabled()) {
-                log.info("LDAPAuthenticationHandler - User, " + creds.getUserId() + ", authenticated.");
+        
+        try {
+
+            boolean status = false;
+            String username = "";
+            if (creds != null) {
+                 username = creds.getUserId();
+                if (StringUtils.isNotBlank(this.userNameFormat)) {
+                    username = StringUtils.replace(this.userNameFormat, 
+                            USERNAME_REPLACE_STRING, username);
+                }
+
+                // authenticate
+                status = ldapClient.bind(username, creds.getPassword());
             }
-            // get attributes from LDAP
-            authnCtx.setUserProfile(getUserProfile(creds));
-        } else {
-            authnCtx.setStatus(AuthenticationContext.Status.FAILURE);
-            if (log.isInfoEnabled()) {
-                log.info("LDAPAuthenticationHandler - User, " + (creds != null ? creds.getUserId() : "") + ", could not be authenticated.");
+            if (status == true) {
+                authnCtx.setStatus(AuthenticationContext.Status.SUCCESS);
+                if (log.isInfoEnabled()) {
+                    log.info("LDAPAuthenticationHandler - User, " + username + ", authenticated.");
+                }
+                // get attributes from LDAP
+                authnCtx.setUserProfile(getUserProfile(ldapClient, creds));
+            } else {
+                authnCtx.setStatus(AuthenticationContext.Status.FAILURE);
+                if (log.isInfoEnabled()) {
+                    log.info("LDAPAuthenticationHandler - User, " + username + ", could not be authenticated.");
+                }
+            }
+        } finally {
+            
+            // disconnect, release resources!!!!
+            if (ldapClient != null) {
+                ldapClient.unbind();
             }
         }
-        //disconnect
-        ldapClient.unbind();
+        
         return authnCtx;
     }
 
@@ -82,14 +112,17 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      *
      * @throws AuthUtilException
      */
-    private void configure() throws AuthUtilException {
-        try {
-            String ldapURL = config.getProperty(LDAP_URL);
-            this.ldapBaseDN = config.getProperty(LDAP_BASE_DN);
-            ldapClient = new LDAPClient(ldapURL);
-        } catch (NamingException e) {
-            log.error("Error accessing LDAP.", e);
-            throw new AuthUtilException("Error accessing LDAP." + e.getMessage());
+    private void configure() {
+
+        this.ldapURL = config.getProperty(LDAP_URL);
+        this.ldapBaseDN = config.getProperty(LDAP_BASE_DN);
+        this.userNameFormat = config.getProperty(LDAP_USERNAME_FORMAT);
+
+        if (log.isInfoEnabled()) {
+            log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
+            log.info("AuthHandlerLDAP_URL: " + this.ldapURL);
+            log.info("AuthHandlerLDAP_BASE_DN: " + this.ldapBaseDN);
+            log.info("AuthHandlerLDAP_USERNAME_FORMAT: " + this.userNameFormat);
         }
     }
 
@@ -99,7 +132,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      * @param credentials
      * @return
      */
-    private UserProfile getUserProfile(Credentials credentials) {
+    private UserProfile getUserProfile(LDAPClient ldapClient, Credentials credentials) {
         String userName = extractUserName(credentials.getUserId());
         Map userAttrs = ldapClient.lookupUserAttributes(userName,
                 this.ldapBaseDN,
@@ -200,12 +233,8 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      * 
      * @param config
      */
+    @Override
     public void setConfig(XConfigObject config) {
         this.config = config;
-        if (log.isInfoEnabled()) {
-            log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
-            log.info("AuthHandlerLDAP_URL: " + config.getProperty("AuthHandlerLDAP_URL"));
-            log.info("AuthHandlerLDAP_BASE_DN: " + config.getProperty("AuthHandlerLDAP_BASE_DN"));
-        }
     }
 }
