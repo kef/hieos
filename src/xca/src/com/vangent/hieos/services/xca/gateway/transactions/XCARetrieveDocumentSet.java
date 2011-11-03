@@ -72,6 +72,7 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
      * 
      * @param request
      */
+    @Override
     protected void validateRequest(OMElement request) {
 
         // Validate namespace.
@@ -102,6 +103,7 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
      * @param request
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
+    @Override
     protected void prepareValidRequests(OMElement request) throws XdsInternalException {
 
         // Loop through each DocumentRequest
@@ -212,9 +214,12 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
      * @param allResponses
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    protected boolean consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException {
-        boolean atLeastOneSuccess = false;
-
+    @Override
+    protected XCAResponseStatusType consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException {
+        
+        int partialSuccessCount = 0;
+        int failureCount = 0;
+        
         // FIXME: Should we Util.deep_copy() here?
         OMElement rootResponseNode = response.getRoot();  // e.g. <RetrieveDocumentSetResponse>
         for (OMElement responseNode : allResponses) {
@@ -228,8 +233,10 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
             OMElement registryResponse = MetadataSupport.firstChildWithLocalName(responseNode, "RegistryResponse");
             String status = registryResponse.getAttributeValue(MetadataSupport.status_qname);
             this.logInfo("Note", "*** Response Status = " + status + " ***");
-            if (status.endsWith("Success")) {
-                atLeastOneSuccess = true;
+            if (status.endsWith("PartialSuccess")) {
+                ++partialSuccessCount;
+            } else if (status.endsWith("Failure")) {
+                ++failureCount;
             }
 
             // Consolidate all registry errors into the consolidated error list.
@@ -240,6 +247,14 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
                 response.addRegistryErrorList(registryErrorList, null);  // Place into the final list.
             }
         }
-        return atLeastOneSuccess;
+        
+        XCAResponseStatusType responseStatusType = XCAResponseStatusType.Success;
+        if (failureCount == allResponses.size()) {
+            responseStatusType = XCAResponseStatusType.Failure;
+        } else if (partialSuccessCount > 0 || failureCount > 0) {
+            responseStatusType = XCAResponseStatusType.PartialSuccess;
+        }
+        
+        return responseStatusType;
     }
 }

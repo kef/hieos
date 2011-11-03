@@ -217,6 +217,7 @@ public class XCARequestController {
          * @return
          * @throws Exception
          */
+        @Override
         public XCAAbstractRequestCollection call() throws Exception {
             try {
                 logger.debug("*** IN CALLABLE - " + requestCollection.getUniqueId());
@@ -226,9 +227,12 @@ public class XCARequestController {
                 // BHT (FIXUP) -- need to find proper exceptions to return.
             } catch (SOAPFaultException e) {
                 logger.error("+++ EXCEPTION = " + e.getMessage());
+                
+                String errorString = String.format("Failure contacting community or repository = %s and returned the following error message: %s.",
+                        requestCollection.getUniqueId(), e.getMessage());
                 XCAErrorMessage errorMessage = new XCAErrorMessage(
                         MetadataSupport.XDSUnavailableCommunity,
-                        "Failure contacting community or repository = " + requestCollection.getUniqueId(),
+                        errorString,
                         requestCollection.getUniqueId());
                 requestCollection.addErrorMessage(errorMessage);
             } finally {

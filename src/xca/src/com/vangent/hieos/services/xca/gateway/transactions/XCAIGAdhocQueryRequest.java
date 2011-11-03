@@ -81,6 +81,7 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @param queryRequest
      * @param responseOption
      */
+    @Override
     protected void processRequestWithPatientId(OMElement request, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
         // At this point, we know the following:
         //   We need to extract the patientId.
@@ -115,6 +116,7 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * @param gatewayConfig
      * @throws XdsInternalException
      */
+    @Override
     protected void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
         this.addRequest(queryRequest, responseOption, homeCommunityId, gatewayConfig, false);
     }

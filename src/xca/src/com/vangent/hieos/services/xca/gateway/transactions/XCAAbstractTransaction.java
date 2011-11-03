@@ -37,12 +37,14 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-abstract public class XCAAbstractTransaction extends XBaseTransaction {
+public abstract class XCAAbstractTransaction extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(XCAAbstractTransaction.class);
     //private XConfigActor gatewayConfig = null;
     private XCARequestController requestController = null;
     private boolean errorDetected = false;
+    
+    public enum XCAResponseStatusType {Success, PartialSuccess, Failure};
 
     // Subclass responsibilities:
     /**
@@ -64,7 +66,7 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
      * @return
      * @throws XdsInternalException
      */
-    abstract boolean consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException;
+    abstract XCAResponseStatusType consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException;
 
     /**
      *
@@ -146,8 +148,8 @@ abstract public class XCAAbstractTransaction extends XBaseTransaction {
     private void runInternal(OMElement request) throws XdsInternalException {
         prepareValidRequests(request);
         ArrayList<OMElement> allResponses = requestController.sendRequests();
-        boolean atLeastOneSuccess = consolidateResponses(allResponses);
-        if (response.has_errors() && atLeastOneSuccess) {
+        XCAResponseStatusType status = consolidateResponses(allResponses);
+        if (XCAResponseStatusType.PartialSuccess.equals(status)) {
             // This implies that we were able to successfully make at least one request.
             response.forcePartialSuccessStatus();
         }

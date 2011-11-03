@@ -63,6 +63,7 @@ public class XCAIGRetrieveDocumentSet extends XCARetrieveDocumentSet {
      * @param gatewayConfig
      * @throws XdsInternalException
      */
+    @Override
     protected void processRemoteCommunityRequest(OMElement docRequest, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException {
         this.addRequest(docRequest, homeCommunityId, gatewayConfig, false);
     }

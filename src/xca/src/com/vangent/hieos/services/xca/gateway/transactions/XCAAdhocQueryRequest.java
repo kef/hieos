@@ -84,6 +84,7 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      *
      * @param request
      */
+    @Override
     protected void validateRequest(OMElement request) {
 
         // Validate namespace.
@@ -114,6 +115,7 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param request
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
+    @Override
     protected void prepareValidRequests(OMElement request) throws XdsInternalException {
         // Get the AdhocQuery & ResponseOption nodes.
         OMElement queryRequest = MetadataSupport.firstChildWithLocalName(request, "AdhocQuery");
@@ -349,17 +351,22 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
      * @param allResponses
      * @throws com.vangent.hieos.xutil.exception.XdsInternalException
      */
-    protected boolean consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException {
-        boolean atLeastOneSuccess = false;
-
+    @Override
+    protected XCAResponseStatusType consolidateResponses(ArrayList<OMElement> allResponses) throws XdsInternalException {
+        
+        int partialSuccessCount = 0;
+        int failureCount = 0;
+        
         // FIXME: Should we Util.deep_copy() here?
         //OMElement rootResponseNode = response.getRawResponse();  // e.g. <AdhocQueryResponse>
         for (OMElement responseNode : allResponses) {
             // See if the registry response has a success status.
             String status = responseNode.getAttributeValue(MetadataSupport.status_qname);
             this.logInfo("Note", "*** Response Status = " + status + " ***");
-            if (status.endsWith("Success")) {
-                atLeastOneSuccess = true;
+            if (status.endsWith("PartialSuccess")) {
+                ++partialSuccessCount;
+            } else if (status.endsWith("Failure")) {
+                ++failureCount;
             }
 
             // Should only be one <RegistryObjectList> at most, but loop anyway.
@@ -396,6 +403,14 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
             }
 
         }
-        return atLeastOneSuccess;
+        
+        XCAResponseStatusType responseStatusType = XCAResponseStatusType.Success;
+        if (failureCount == allResponses.size()) {
+            responseStatusType = XCAResponseStatusType.Failure;
+        } else if (partialSuccessCount > 0 || failureCount > 0) {
+            responseStatusType = XCAResponseStatusType.PartialSuccess;
+        }
+        
+        return responseStatusType;
     }
 }
