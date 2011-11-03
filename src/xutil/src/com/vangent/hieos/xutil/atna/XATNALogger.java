@@ -988,7 +988,12 @@ public class XATNALogger {
             try {
                 // Get SAML assertion from the current message context.
                 MessageContext mc = getCurrentMessageContext();
-                assertionEle = XServiceProvider.getSAMLAssertionFromRequest(mc);
+                if (mc != null) {
+                    // if there isn't a MessageContext then there won't
+                    // be any SAML assertions, most likely to happen
+                    // during service start-up
+                    assertionEle = XServiceProvider.getSAMLAssertionFromRequest(mc);
+                }
             } catch (SOAPFaultException ex) {
                  // Eat this.
                 logger.warn("Could not get SAML Assertion", ex);               
