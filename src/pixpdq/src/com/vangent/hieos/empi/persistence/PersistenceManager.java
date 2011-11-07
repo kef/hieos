@@ -97,7 +97,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadSubjectBaseByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+    public Subject loadBaseSubjectByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.loadBaseSubjectByIdentifier(subjectIdentifier);
     }
