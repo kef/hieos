@@ -34,4 +34,12 @@ public class EMPIException extends Exception {
     public EMPIException(String msg, Throwable cause) {
         super(msg, cause);
     }
+
+    /**
+     *
+     * @param exception
+     */
+    public EMPIException (Exception exception){
+        super(exception);
+    }
 }
