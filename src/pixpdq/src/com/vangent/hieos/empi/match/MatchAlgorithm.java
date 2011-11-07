@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.match;
 
-import com.vangent.hieos.empi.persistence.EMPIPersistenceService;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
  */
 public abstract class MatchAlgorithm {
 
-    private EMPIPersistenceService persistenceService = null;
+    private PersistenceManager persistenceService = null;
 
     /**
      *
@@ -34,7 +34,7 @@ public abstract class MatchAlgorithm {
      *
      * @return
      */
-    public EMPIPersistenceService getPersistenceService() {
+    public PersistenceManager getPersistenceService() {
         return persistenceService;
     }
 
@@ -42,7 +42,7 @@ public abstract class MatchAlgorithm {
      * 
      * @param persistenceService
      */
-    public void setPersistenceService(EMPIPersistenceService persistenceService) {
+    public void setPersistenceService(PersistenceManager persistenceService) {
         this.persistenceService = persistenceService;
     }
 
