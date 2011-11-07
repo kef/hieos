@@ -36,8 +36,14 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
     private final static Logger logger = Logger.getLogger(PDSRequestHandler.class);
 
     // Type type of message received.
+    /**
+     *
+     */
     public enum MessageType {
 
+        /**
+         *
+         */
         PatientRegistryFindCandidatesQuery
     };
 

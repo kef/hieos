@@ -39,8 +39,9 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
 
     /**
      *
-     * @param PRPA_IN201309UV02_Message
+     * @param request
      * @return
+     * @throws AxisFault
      */
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
         OMElement response = null;
@@ -63,6 +64,7 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
      * 
      * @param PRPA_IN201301UV02_Message
      * @return
+     * @throws AxisFault
      */
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
         OMElement response = null;

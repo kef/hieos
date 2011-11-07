@@ -25,6 +25,7 @@ public abstract class ConfigItem {
      *
      * @param hc
      * @param empiConfig
+     * @throws EMPIException
      */
     abstract public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException;
 }

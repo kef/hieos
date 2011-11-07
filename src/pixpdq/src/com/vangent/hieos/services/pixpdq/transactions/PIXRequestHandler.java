@@ -47,9 +47,18 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
     private final static Logger logger = Logger.getLogger(PIXRequestHandler.class);
 
     // Type type of message received.
+    /**
+     *
+     */
     public enum MessageType {
 
+        /**
+         *
+         */
         PatientRegistryGetIdentifiersQuery,
+        /**
+         *
+         */
         PatientRegistryRecordAdded
     };
 

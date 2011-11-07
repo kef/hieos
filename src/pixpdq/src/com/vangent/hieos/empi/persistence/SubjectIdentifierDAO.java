@@ -78,6 +78,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
     /**
      *
      * @param parentSubject
+     * @return
      * @throws EMPIException
      */
     public List<SubjectIdentifier> load(Subject parentSubject) throws EMPIException {

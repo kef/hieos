@@ -39,8 +39,9 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
 
     /**
      *
-     * @param PRPA_IN201305UV02_Message
+     * @param request
      * @return
+     * @throws AxisFault
      */
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
         OMElement response = null;

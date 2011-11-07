@@ -133,6 +133,7 @@ public class MatchFieldConfig extends ConfigItem {
      * 
      * @param hc
      * @param empiConfig
+     * @throws EMPIException
      */
     @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {

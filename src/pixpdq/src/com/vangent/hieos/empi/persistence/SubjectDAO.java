@@ -25,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author thumbe
+ */
 public class SubjectDAO extends AbstractDAO {
 
     private static final Logger logger = Logger.getLogger(SubjectDAO.class);

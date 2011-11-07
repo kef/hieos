@@ -15,13 +15,35 @@ package com.vangent.hieos.xutil.soap;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * @author thumbe
+ */
 public class SoapActionFactory {
 
+    /**
+     *
+     */
     public final static String PIXPDQ_XREFMGR_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
+    /**
+     *
+     */
     public final static String PIXPDQ_XREFMGR_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
+    /**
+     *
+     */
     public final static String PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
+    /**
+     *
+     */
     public final static String PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    /**
+     *
+     */
     public final static String PIXPDQ_PDS_PDQQUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201305UV02";
+    /**
+     *
+     */
     public final static String PIXPDQ_PDS_PDQQUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201306UV02";
     private static final Map<String, String> actions =
             new HashMap<String, String>() {
