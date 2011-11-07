@@ -13,9 +13,10 @@
 package com.vangent.hieos.services.pixpdq.empi.factory;
 
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
+import com.vangent.hieos.services.pixpdq.empi.impl.base.BaseEMPIAdapter;
 
 // FIXME: Replace by Spring loaded or from xconfig file.
-import com.vangent.hieos.services.pixpdq.empi.impl.openempi.OpenEMPIAdapter;
+//import com.vangent.hieos.services.pixpdq.empi.impl.openempi.OpenEMPIAdapter;
 
 /**
  *
@@ -29,6 +30,7 @@ public class EMPIFactory {
      */
     static public EMPIAdapter getInstance() {
         // FIXME: Replace by Spring loaded or from xconfig file.
-        return new OpenEMPIAdapter();
+        //return new OpenEMPIAdapter();
+        return new BaseEMPIAdapter();
     }
 }
