@@ -247,6 +247,26 @@ public class Subject {
     }
 
     /**
+     * 
+     * @return
+     */
+    public boolean hasSubjectIdentifiers() {
+
+        return !this.getSubjectIdentifiers().isEmpty();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasSubjectDemographics() {
+        return (this.getGender() != null)
+                || (this.getBirthTime() != null)
+                || !this.getSubjectNames().isEmpty()
+                || !this.getAddresses().isEmpty();
+    }
+
+    /**
      *
      * @return
      */

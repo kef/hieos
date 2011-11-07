@@ -20,6 +20,7 @@ import java.util.List;
  * @author Bernie Thuman
  */
 public class SubjectSearchCriteria {
+
     private Subject subject = null;
     private int minimumDegreeMatchPercentage = 100;  // Default.
     private boolean specifiedMinimumDegreeMatchPercentage = false;
@@ -57,13 +58,7 @@ public class SubjectSearchCriteria {
      * @return
      */
     public boolean hasSubjectDemographics() {
-        if (subject == null) {
-            return false;
-        }
-        return (subject.getGender() != null) ||
-                (subject.getBirthTime() != null) ||
-                (subject.getSubjectNames().size() > 0) ||
-                (subject.getAddresses().size() > 0);
+        return (subject != null) && subject.hasSubjectDemographics();
     }
 
     /**
@@ -71,10 +66,7 @@ public class SubjectSearchCriteria {
      * @return
      */
     public boolean hasSubjectIdentifiers() {
-        if (subject == null) {
-            return false;
-        }
-        return subject.getSubjectIdentifiers().size() > 0;
+        return (subject != null) && subject.hasSubjectIdentifiers();
     }
 
     /**
@@ -82,7 +74,7 @@ public class SubjectSearchCriteria {
      * @return
      */
     public boolean hasScopingAssigningAuthorities() {
-        return scopingAssigningAuthorities.size() > 0;
+        return !scopingAssigningAuthorities.isEmpty();
     }
 
     /**
@@ -156,6 +148,4 @@ public class SubjectSearchCriteria {
     public void setSpecifiedMinimumDegreeMatchPercentage(boolean specifiedMinimumDegreeMatchPercentage) {
         this.specifiedMinimumDegreeMatchPercentage = specifiedMinimumDegreeMatchPercentage;
     }
-
-
 }
