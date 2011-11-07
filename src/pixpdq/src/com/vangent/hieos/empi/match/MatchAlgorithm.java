@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.List;
 
 /**

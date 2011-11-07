@@ -16,7 +16,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.Subject.SubjectType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

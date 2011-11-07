@@ -18,7 +18,7 @@ import com.vangent.hieos.empi.persistence.PersistenceHelper;
 import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainDAO;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.sql.Connection;
 import java.util.UUID;
 

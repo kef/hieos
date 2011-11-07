@@ -17,7 +17,7 @@ import com.vangent.hieos.empi.config.FieldConfig;
 import com.vangent.hieos.empi.config.TransformFunctionConfig;
 import com.vangent.hieos.empi.transform.TransformFunction;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 

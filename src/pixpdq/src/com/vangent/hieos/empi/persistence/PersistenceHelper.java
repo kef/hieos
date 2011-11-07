@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 import java.sql.Connection;
 import java.sql.SQLException;

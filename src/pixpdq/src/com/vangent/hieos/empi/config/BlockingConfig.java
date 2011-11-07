@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.config;
 
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

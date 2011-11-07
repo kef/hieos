@@ -18,7 +18,7 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.List;
 
 /**

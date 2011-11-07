@@ -19,7 +19,7 @@ import com.vangent.hieos.empi.config.MatchConfig;
 import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.Record;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

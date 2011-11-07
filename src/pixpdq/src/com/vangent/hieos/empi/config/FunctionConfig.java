@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.config;
 
 import com.vangent.hieos.empi.function.Function;
-import com.vangent.hieos.services.pixpdq.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 
