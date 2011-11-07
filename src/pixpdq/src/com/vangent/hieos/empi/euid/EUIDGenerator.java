@@ -52,6 +52,8 @@ public class EUIDGenerator {
      * @throws EMPIException
      */
     public static SubjectIdentifier getEUID(Connection connection) throws EMPIException {
+        // FIXME?: Would be nice to cache here.
+        
         // Get configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         EUIDConfig euidConfig = empiConfig.getEuidConfig();

@@ -53,9 +53,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
             stmt.setString(1, subjectIdentifierDomain.getUniversalId());
             // Execute query.
             rs = stmt.executeQuery();
-            if (!rs.next()) {
-                throw new EMPIException("universalid = " + subjectIdentifierDomain.getUniversalId() + " not found in subjectidentifierdomain table");
-            } else {
+            if (rs.next()) {
                 id = rs.getInt(1);
             }
         } catch (SQLException ex) {
@@ -114,5 +112,35 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
             this.close(rs);
         }
         return subjectIdentifierDomain;
+    }
+
+    /**
+     * 
+     * @param subjectIdentifierDomain
+     * @throws EMPIException
+     */
+    public void insert(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            String sql = "INSERT INTO subjectidentifierdomain(universalid,universalidtype,namespaceid) values(?,?,?)";
+            stmt = this.getPreparedStatement(sql);
+            //stmt.setString(1, subjectCrossReference.getEnterpriseSubjectId());
+            stmt.setString(1, subjectIdentifierDomain.getUniversalId());
+            stmt.setString(2, subjectIdentifierDomain.getUniversalIdType());
+            stmt.setString(3, subjectIdentifierDomain.getNamespaceId());
+            // FIXME: Why use batch?
+            stmt.addBatch();
+            long startTime = System.currentTimeMillis();
+            int[] insertCounts = stmt.executeBatch();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                logger.trace("SubjectIdentifierDomainDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime)
+                        + " Number Records Added: " + insertCounts.length);
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
     }
 }

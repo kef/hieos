@@ -51,6 +51,10 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         // First, get the SubjectIdentifierDomainId
         SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
         int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
+        if (subjectIdentifierDomainId == -1) {
+            // We have no knowledge of the identifier domain (so get out now).
+            return subjectId;
+        }
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -141,7 +145,15 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 stmt.setString(1, parentSubject.getId());
                 stmt.setString(2, subjectIdentifier.getIdentifier());
                 // Get foreign key reference to subjectidentifierdomain.
-                int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
+                SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+                int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
+                if (subjectIdentifierDomainId == -1) {
+                    // Now, store identifier domain (first time seen).
+                    sidDAO.insert(subjectIdentifierDomain);
+                    
+                    // Get the foreign key reference.
+                    subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
+                }
                 stmt.setInt(3, subjectIdentifierDomainId);
                 stmt.addBatch();
             }

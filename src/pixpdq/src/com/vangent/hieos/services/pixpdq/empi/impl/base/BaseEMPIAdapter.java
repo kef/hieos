@@ -29,6 +29,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -45,95 +46,102 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      *
      * @param classLoader
      */
+    @Override
     public void startup(ClassLoader classLoader) {
         // Do nothing here.
     }
 
     /**
-     *
-     * @param baseSubject
+     * 
+     * @param subject
      * @return
      * @throws EMPIException
      */
+    @Override
     public Subject addSubject(Subject subject) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
-        PersistenceManager persistenceManager = new PersistenceManager();
+        PersistenceManager pm = new PersistenceManager();
         try {
-            persistenceManager.open();  // Open transaction.
+            pm.open();  // Open transaction.
 
-            // See if the baseSubject exists (if it already has identifiers).
+            // See if the subject exists (if it already has identifiers).
             if (subject.hasSubjectIdentifiers()) {
 
-                // See if the baseSubject already exists.
-                if (persistenceManager.doesSubjectExist(subject.getSubjectIdentifiers())) {
+                // See if the subject already exists.
+                if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
                     throw new EMPIException("Subject already exists!");
                 }
             }
-            // Fall through: The baseSubject does not already exist.
+            // Fall through: The subject does not already exist.
+
+            // Store the subject @ system-level - will stamp with subjectId.
+            subject.setType(Subject.SubjectType.SYSTEM);
+            pm.insertSubject(subject);
+
+            // Get prepared for next steps ..
+            String systemSubjectId = subject.getId();
+            String enterpriseSubjectId = null;
+            int matchScore = 100;    // Default.
 
             // Find matching records.
             RecordBuilder rb = new RecordBuilder();
             Record searchRecord = rb.build(subject);
-            List<ScoredRecord> recordMatches = this.getRecordMatches(persistenceManager, searchRecord);
-
-            // Store the baseSubject (system-level) - will stamp with subjectId.
-            subject.setType(Subject.SubjectType.SYSTEM);
-            persistenceManager.insertSubject(subject);
+            List<ScoredRecord> recordMatches = this.getRecordMatches(pm, searchRecord);
 
             if (recordMatches.isEmpty()) { // No match.
 
-                // Get ready to store cross reference.
-                SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
-                subjectCrossReference.setMatchScore(100.0);
-                subjectCrossReference.setSystemSubjectId(subject.getId());
-
-                // Store the baseSubject (enterprise-level).
+                // Store the subject @ enterprise-level.
 
                 // Set type type to ENTERPRISE.
                 subject.setType(Subject.SubjectType.ENTERPRISE);
 
-                // Clear out the baseSubject's identifier list (since they are stored at the system-level).
+                // Clear out the subject's identifier list (since they are stored at the system-level).
                 subject.getSubjectIdentifiers().clear();
 
-                // Stamp the baseSubject with an enterprise id (if configured to do so).
+                // Stamp the subject with an enterprise id (if configured to do so).
                 EUIDConfig euidConfig = empiConfig.getEuidConfig();
                 if (euidConfig.isEuidAssignEnabled()) {
                     SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
                     subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
                 }
 
-                // Store the enterprise-level baseSubject and update cross-reference.
-                persistenceManager.insertSubject(subject);
-                subjectCrossReference.setEnterpriseSubjectId(subject.getId());
+                // Store the enterprise-level subject.
+                pm.insertSubject(subject);
+                enterpriseSubjectId = subject.getId();
 
                 // Store the match criteria.
-                searchRecord.setId(subject.getId());
-                persistenceManager.insertSubjectMatchRecord(searchRecord);
-
-                // Store cross-reference (between enterprise and system).
-                persistenceManager.insertSubjectCrossReference(subjectCrossReference);
+                searchRecord.setId(enterpriseSubjectId);
+                pm.insertSubjectMatchRecord(searchRecord);
             } else {
                 // >=1 matches
 
-                // Store cross reference to first matched record.
-                SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
+                // Cross reference will be to first matched record.  All other records will be merged later below.
                 ScoredRecord matchedRecord = recordMatches.get(0);
-                String enterpriseSubjectId = matchedRecord.getRecord().getId();
-                subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
-                subjectCrossReference.setSystemSubjectId(subject.getId());
-                subjectCrossReference.setMatchScore(this.getMatchConfidencePercentage(matchedRecord));
-                persistenceManager.insertSubjectCrossReference(subjectCrossReference);
-
-                // Merge all other matches (if any) into first matched record (surviving enterprise record).
-                for (int i = 1; i < recordMatches.size(); i++) {
-                    ScoredRecord scoredRecord = recordMatches.get(i);
-                    persistenceManager.mergeSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
-                }
+                enterpriseSubjectId = matchedRecord.getRecord().getId();
+                matchScore = this.getMatchScore(matchedRecord);
             }
-            persistenceManager.commit();  // Will close connection.
+
+            // Create and store cross-reference.
+            SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
+            subjectCrossReference.setMatchScore(matchScore);
+            subjectCrossReference.setSystemSubjectId(systemSubjectId);
+            subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
+            pm.insertSubjectCrossReference(subjectCrossReference);
+
+            // Merge all other matches (if any) into first matched record (surviving enterprise record).
+            for (int i = 1; i < recordMatches.size(); i++) {
+                ScoredRecord scoredRecord = recordMatches.get(i);
+                pm.mergeSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
+            }
+            pm.commit();
         } catch (EMPIException ex) {
-            persistenceManager.rollback();  // Will close connection.
+            pm.rollback();
             throw ex; // Rethrow.
+        } catch (Exception ex) {
+            pm.rollback();
+            throw new EMPIException(ex);
+        } finally {
+            pm.close();  // To be sure.
         }
         return subject;
     }
@@ -144,44 +152,138 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @return
      * @throws EMPIException
      */
+    @Override
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        // FIXME: LOOK AT OLD CODE AND REFINE
-        // Create response instance.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        PersistenceManager persistenceManager = new PersistenceManager();
+        PersistenceManager pm = new PersistenceManager();
         try {
-            persistenceManager.open();
-
-            // Run matching algorithm.
-            List<Subject> subjectMatches = this.getSubjectMatches(persistenceManager, subjectSearchCriteria);
-
-            for (Subject subject : subjectMatches) {
-                // Get cross references to the baseSubject ...
-                this.loadCrossReferencedIdentifiers(persistenceManager, subject);
+            pm.open();
+            // Determine which path to take.
+            if (subjectSearchCriteria.hasSubjectIdentifiers()) {
+                logger.debug("Searching based on identifiers ...");
+                subjectSearchResponse = this.findSubjectByIdentifier(pm, subjectSearchCriteria, false /* onlyLoadIdentifiers */);
+            } else if (subjectSearchCriteria.hasSubjectDemographics()) {
+                logger.debug("Searching based on demographics ...");
+                subjectSearchResponse = this.findSubjectMatches(pm, subjectSearchCriteria);
+            } else {
+                // Do nothing ...
+                logger.debug("Not searching at all!!");
             }
-
-            subjectSearchResponse.setSubjects(subjectMatches);
         } finally {
-            persistenceManager.close();  // No matter what.
+            pm.close();  // No matter what.
         }
         return subjectSearchResponse;
     }
 
     /**
      *
-     * @param baseSubject
+     * @param subjectSearchCriteria
+     * @return
      * @throws EMPIException
      */
-    private void loadCrossReferencedIdentifiers(PersistenceManager persistenceManager, Subject subject) throws EMPIException {
+    @Override
+    public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+        PersistenceManager pm = new PersistenceManager();
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        try {
+            pm.open();
+            subjectSearchResponse = this.findSubjectByIdentifier(pm, subjectSearchCriteria, true /* onlyLoadIdentifiers */);
+        } finally {
+            pm.close();
+        }
+        return subjectSearchResponse;
+    }
+
+    /**
+     *
+     * @param pm
+     * @param subjectSearchCriteria
+     * @param onlyLoadIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    private SubjectSearchResponse findSubjectByIdentifier(
+            PersistenceManager pm, SubjectSearchCriteria subjectSearchCriteria, boolean onlyLoadIdentifiers) throws EMPIException {
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+
+        // Make sure we at least have one identifier to search from.
+        Subject searchSubject = subjectSearchCriteria.getSubject();
+        List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
+        if (!searchSubjectIdentifiers.isEmpty()) {
+            // Pull the first identifier.
+            // FIXME: Need to deal with multiple search identifiers (for PDQ .. not sure about PIX) ....
+            SubjectIdentifier searchSubjectIdentifier = searchSubjectIdentifiers.get(0);
+
+            // Get the baseSubject (only base-level information) to determine type and internal id.
+            Subject baseSubject = pm.loadBaseSubjectByIdentifier(searchSubjectIdentifier);
+            Subject enterpriseSubject = null;
+            if (baseSubject != null) {  // Found a match.
+
+                // We now may have either an enterprise-level or system-level subject.
+                String enterpriseSubjectId = null;
+                if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
+                    enterpriseSubjectId = baseSubject.getId();
+                    enterpriseSubject = baseSubject;
+                } else {
+                    String systemSubjectId = baseSubject.getId();
+
+                    // Get enterpiseSubjectId for the system-level baseSubject.
+                    enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+
+                    // Create enterprise subject.
+                    enterpriseSubject = new Subject();
+                    enterpriseSubject.setId(enterpriseSubjectId);
+                    enterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
+                }
+
+                if (!onlyLoadIdentifiers) {
+                    // Load the complete subject.
+                    enterpriseSubject = pm.loadSubject(enterpriseSubjectId);
+                } else {
+                    // Load enterprise subject identifiers.
+                    List<SubjectIdentifier> enterpriseSubjectIdentifiers = pm.loadSubjectIdentifiers(enterpriseSubjectId);
+                    enterpriseSubject.getSubjectIdentifiers().addAll(enterpriseSubjectIdentifiers);
+                }
+                // Load cross references for the enterprise subject.
+                this.loadCrossReferencedIdentifiers(pm, enterpriseSubject);
+
+                // Now, filter identifiers based upon query.
+                if (!onlyLoadIdentifiers) {
+                    // Do not return the search identifier in this case.
+                    searchSubjectIdentifier = null;
+                }
+
+                // Now, strip out identifiers (if required).
+                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
+
+                if (!onlyLoadIdentifiers
+                        || !enterpriseSubject.getSubjectIdentifiers().isEmpty()) {
+
+                    // Put enterprise subject in the response.
+                    enterpriseSubject.setMatchConfidencePercentage(100);
+                    subjectSearchResponse.getSubjects().add(enterpriseSubject);
+                }
+            }
+        }
+        return subjectSearchResponse;
+    }
+
+    /**
+     *
+     * @param pm
+     * @param subject
+     * @throws EMPIException
+     */
+    private void loadCrossReferencedIdentifiers(PersistenceManager pm, Subject subject) throws EMPIException {
 
         // Load cross references for the baseSubject.
-        List<SubjectCrossReference> subjectCrossReferences = persistenceManager.loadSubjectCrossReferences(subject.getId());
+        List<SubjectCrossReference> subjectCrossReferences = pm.loadSubjectCrossReferences(subject.getId());
 
         // Get list of baseSubject identifiers (@ system-level).
         for (SubjectCrossReference subjectCrossReference : subjectCrossReferences) {
 
             // Load list of baseSubject identifiers for the cross reference.
-            List<SubjectIdentifier> subjectIdentifiers = persistenceManager.loadSubjectIdentifiers(subjectCrossReference.getSystemSubjectId());
+            List<SubjectIdentifier> subjectIdentifiers = pm.loadSubjectIdentifiers(subjectCrossReference.getSystemSubjectId());
 
             // Add all of this to the given baseSubject.
             subject.getSubjectIdentifiers().addAll(subjectIdentifiers);
@@ -190,18 +292,18 @@ public class BaseEMPIAdapter implements EMPIAdapter {
 
     /**
      *
-     * @param persistenceManager
+     * @param pm
      * @param searchRecord
      * @return
      * @throws EMPIException
      */
-    private List<ScoredRecord> getRecordMatches(PersistenceManager persistenceManager, Record searchRecord) throws EMPIException {
+    private List<ScoredRecord> getRecordMatches(PersistenceManager pm, Record searchRecord) throws EMPIException {
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
         // Get match algorithm (configurable).
         MatchAlgorithm matchAlgorithm = empiConfig.getMatchAlgorithm();
-        matchAlgorithm.setPersistenceService(persistenceManager);
+        matchAlgorithm.setPersistenceService(pm);
 
         // Run the algorithm to get matches.
         long startTime = System.currentTimeMillis();
@@ -215,42 +317,55 @@ public class BaseEMPIAdapter implements EMPIAdapter {
 
     /**
      *
-     * @param persistenceManager
+     * @param pm
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
      */
-    private List<Subject> getSubjectMatches(PersistenceManager persistenceManager, SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        // Get the search baseSubject.
+    private SubjectSearchResponse findSubjectMatches(PersistenceManager pm, SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         Subject searchSubject = subjectSearchCriteria.getSubject();
 
-        // Convert search baseSubject into a record that can be used for matching.
+        // Convert search subject into a record that can be used for matching.
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(searchSubject);
 
         // Run the matching algorithm.
-        List<ScoredRecord> recordMatches = this.getRecordMatches(persistenceManager, searchRecord);
+        List<ScoredRecord> recordMatches = this.getRecordMatches(pm, searchRecord);
 
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();
         long startTime = System.currentTimeMillis();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
-            Subject subject = persistenceManager.loadSubject(record.getId());
-            int matchConfidencePercentage = this.getMatchConfidencePercentage(scoredRecord);
+            Subject subject = pm.loadSubject(record.getId());
+            int matchConfidencePercentage = this.getMatchScore(scoredRecord);
             subject.setMatchConfidencePercentage(matchConfidencePercentage);
-            subjectMatches.add(subject);
+
             if (logger.isDebugEnabled()) {
                 logger.debug("match score = " + scoredRecord.getScore());
                 logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
                 logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
             }
+
+            // Get cross references to the subject ...
+            this.loadCrossReferencedIdentifiers(pm, subject);
+
+            // Filter unwanted results.
+            this.filterSubjectIdentifiers(subjectSearchCriteria, subject, null);
+
+            // If we kept at least one identifier ...
+            if (subject.hasSubjectIdentifiers()) {
+                subjectMatches.add(subject);
+            }
+
         }
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
-            logger.trace("BaseEMPIAdapter.findSubjects.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
+            logger.trace("BaseEMPIAdapter.getSubjectMatches.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
         }
-        return subjectMatches;
+        subjectSearchResponse.getSubjects().addAll(subjectMatches);
+        return subjectSearchResponse;
     }
 
     /**
@@ -258,76 +373,10 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @param scoredRecord
      * @return
      */
-    private int getMatchConfidencePercentage(ScoredRecord scoredRecord) {
-        // FIXME: Roundup.
-        return (int) (scoredRecord.getScore() * 100.0);
-    }
-
-    /**
-     *
-     * @param subjectSearchCriteria
-     * @return
-     * @throws EMPIException
-     */
-    public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        PersistenceManager persistenceManager = new PersistenceManager();
-        // Prepare default response.
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-        try {
-            persistenceManager.open();
-            // Make sure we at least have one identifier to search from.
-            Subject searchSubject = subjectSearchCriteria.getSubject();
-            List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
-            if (searchSubjectIdentifiers.size() > 0) {
-                // Pull the first identifier.
-                SubjectIdentifier searchSubjectIdentifier = searchSubjectIdentifiers.get(0);
-
-                // Get the baseSubject (only base-level information) to determine type and internal id.
-                Subject baseSubject = persistenceManager.loadBaseSubjectByIdentifier(searchSubjectIdentifier);
-                Subject enterpriseSubject = null;
-                if (baseSubject != null) {  // Found a match.
-
-                    // We now may have either an enterprise-level or system-level baseSubject.
-                    String enterpriseSubjectId = null;
-                    if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
-                        enterpriseSubjectId = baseSubject.getId();
-                        enterpriseSubject = baseSubject;
-                    } else {
-                        String systemSubjectId = baseSubject.getId();
-
-                        //  Get enterpiseSubjectId for the system-level baseSubject.
-                        enterpriseSubjectId = persistenceManager.getEnterpriseSubjectId(systemSubjectId);
-
-                        // Create enterprise baseSubject.
-                        enterpriseSubject = new Subject();
-                        enterpriseSubject.setId(enterpriseSubjectId);
-                        enterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
-                    }
-
-                    // Load enterprise baseSubject identifiers.
-                    List<SubjectIdentifier> enterpriseSubjectIdentifiers = persistenceManager.loadSubjectIdentifiers(enterpriseSubjectId);
-                    enterpriseSubject.getSubjectIdentifiers().addAll(enterpriseSubjectIdentifiers);
-
-                    // Load cross references for the enterprise baseSubject.
-                    this.loadCrossReferencedIdentifiers(persistenceManager, enterpriseSubject);
-
-                    // Now, filter identifiers based upon query.
-                    this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
-
-                    // Only return the enterprise subject if identifiers remain (after filtering).
-                    if (enterpriseSubject.getSubjectIdentifiers().size() > 0) {
-
-                        // Put enterprise baseSubject in the response.
-                        subjectSearchResponse.getSubjects().add(enterpriseSubject);
-                    }
-                }
-            }
-        } catch (EMPIException ex) {
-            throw ex; // Rethrow.
-        } finally {
-            persistenceManager.close();
-        }
-        return subjectSearchResponse;
+    private int getMatchScore(ScoredRecord scoredRecord) {
+        BigDecimal bd = new BigDecimal(scoredRecord.getScore() * 100.0);
+        bd = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
+        return bd.intValue();
     }
 
     /**
