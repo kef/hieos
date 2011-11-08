@@ -12,8 +12,6 @@
  */
 package com.vangent.hieos.xutil.response;
 
-import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
