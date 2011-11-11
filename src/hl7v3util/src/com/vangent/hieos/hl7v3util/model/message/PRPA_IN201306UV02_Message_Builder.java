@@ -70,8 +70,8 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //
         this.addCreationTime(responseNode);
         this.addInteractionId(messageName, responseNode);
-        this.addCode(responseNode, "processingCode", "T");
-        this.addCode(responseNode, "processingModeCode", "I");
+        this.addCode(responseNode, "processingCode", "P");
+        this.addCode(responseNode, "processingModeCode", "T");
         this.addCode(responseNode, "acceptAckCode", "NE");
 
         // PRPA_IN201306UV02/receiver
