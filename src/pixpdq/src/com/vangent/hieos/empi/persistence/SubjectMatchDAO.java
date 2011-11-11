@@ -89,7 +89,7 @@ public class SubjectMatchDAO extends AbstractDAO {
                 records.add(record);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading 'subjectmatch' records from database" + ex.getMessage());
+            throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -135,7 +135,7 @@ public class SubjectMatchDAO extends AbstractDAO {
     public void delete(String subjectId) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "DELETE FROM subjectmatch WHERE id=?";
+            String sql = "DELETE FROM subject_match WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             long startTime = System.currentTimeMillis();
@@ -184,7 +184,7 @@ public class SubjectMatchDAO extends AbstractDAO {
      */
     private PreparedStatement buildSQLInsertPreparedStatement() throws EMPIException {
         StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO subjectmatch(id,");
+        sb.append("INSERT INTO subject_match(id,");
 
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
@@ -247,7 +247,7 @@ public class SubjectMatchDAO extends AbstractDAO {
                 sb.append(",");
             }
         }
-        sb.append(" FROM subjectmatch WHERE ");
+        sb.append(" FROM subject_match WHERE ");
 
         // Build the where clause (on blocking fields).
         fieldIndex = 0;

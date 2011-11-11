@@ -49,7 +49,7 @@ public class SubjectAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,streetaddressline1,streetaddressline2,streetaddressline3,city,state,postalcode FROM subjectaddress WHERE subjectid = ?";
+            String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code FROM subject_address WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getId());
             // Execute query.
@@ -82,7 +82,7 @@ public class SubjectAddressDAO extends AbstractDAO {
     public void insert(List<Address> addresses, Subject parentSubject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subjectaddress(id,streetaddressline1,streetaddressline2,streetaddressline3,city,state,postalcode,subjectid) values(?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,subject_id) values(?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Address address : addresses) {
                 address.setId(PersistenceHelper.getUUID());

@@ -50,7 +50,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT systemsubjectid, matchscore FROM subjectxref WHERE enterprisesubjectid = ?";
+            String sql = "SELECT system_subject_id, match_score FROM subject_xref WHERE enterprise_subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, enterpriseSubjectId);
             // Execute query.
@@ -65,7 +65,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 subjectCrossReferences.add(subjectCrossReference);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subjectxref(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject_xref(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -85,7 +85,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT enterprisesubjectid FROM subjectxref WHERE systemsubjectid = ?";
+            String sql = "SELECT enterprise_subject_id FROM subject_xref WHERE system_subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, systemSubjectId);
             // Execute query.
@@ -94,7 +94,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 enterpriseSubjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subjectxref(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject_xref(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -110,7 +110,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
     public void insert(SubjectCrossReference subjectCrossReference) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subjectxref(enterprisesubjectid,systemsubjectid, matchscore) values(?,?,?)";
+            String sql = "INSERT INTO subject_xref(enterprise_subject_id,system_subject_id, match_score) values(?,?,?)";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectCrossReference.getEnterpriseSubjectId());
             stmt.setString(2, subjectCrossReference.getSystemSubjectId());
@@ -141,7 +141,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         // Move cross references from subsumedSubjectId to survivingSubjectId
         PreparedStatement stmt = null;
         try {
-            String sql = "UPDATE subjectxref SET enterprisesubjectid=? WHERE enterprisesubjectid=?";
+            String sql = "UPDATE subject_xref SET enterprise_subject_id=? WHERE enterprise_subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, survivingSubjectId);
             stmt.setString(2, subsumedSubjectId);

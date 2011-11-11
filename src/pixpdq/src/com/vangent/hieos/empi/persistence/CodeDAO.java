@@ -52,7 +52,7 @@ public abstract class CodeDAO extends AbstractDAO {
         String tableName = this.getTableName();
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("SELECT id FROM ").append(tableName).append(" WHERE code = ?");
+            sb.append("SELECT id FROM ").append(tableName).append(" WHERE code=?");
             stmt = this.getPreparedStatement(sb.toString());
             stmt.setString(1, code);
             // Execute query.
@@ -83,7 +83,7 @@ public abstract class CodeDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("SELECT code,displayname FROM ").append(tableName).append(" WHERE id = ?");
+            sb.append("SELECT code,display_name FROM ").append(tableName).append(" WHERE id=?");
             stmt = this.getPreparedStatement(sb.toString());
             stmt.setInt(1, id);
             // Execute query.

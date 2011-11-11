@@ -64,6 +64,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         try {
             pm.open();  // Open transaction.
 
+            // FIXME: This is not totally correct, how about "other ids"?
             // See if the subject exists (if it already has identifiers).
             if (subject.hasSubjectIdentifiers()) {
 
@@ -95,8 +96,8 @@ public class BaseEMPIAdapter implements EMPIAdapter {
                 // Set type type to ENTERPRISE.
                 subject.setType(Subject.SubjectType.ENTERPRISE);
 
-                // Clear out the subject's identifier list (since they are stored at the system-level).
-                subject.getSubjectIdentifiers().clear();
+                // Clear out the subject's identifier lists (since they are already stored at the system-level).
+                subject.clearIdentifiers();
 
                 // Stamp the subject with an enterprise id (if configured to do so).
                 EUIDConfig euidConfig = empiConfig.getEuidConfig();
@@ -158,6 +159,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         PersistenceManager pm = new PersistenceManager();
         try {
             pm.open();
+            // FIXME: This is not entirely accurate, how about "other ids"?
             // Determine which path to take.
             if (subjectSearchCriteria.hasSubjectIdentifiers()) {
                 logger.debug("Searching based on identifiers ...");
@@ -223,39 +225,26 @@ public class BaseEMPIAdapter implements EMPIAdapter {
                 String enterpriseSubjectId = null;
                 if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
                     enterpriseSubjectId = baseSubject.getId();
-                    enterpriseSubject = baseSubject;
                 } else {
-                    String systemSubjectId = baseSubject.getId();
-
-                    // Get enterpiseSubjectId for the system-level baseSubject.
-                    enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
-
-                    // Create enterprise subject.
-                    enterpriseSubject = new Subject();
-                    enterpriseSubject.setId(enterpriseSubjectId);
-                    enterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
+                    // Get enterpiseSubjectId for the system-level subject.
+                    enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject.getId());
                 }
 
                 if (!onlyLoadIdentifiers) {
                     // Load the complete subject.
-                    enterpriseSubject = pm.loadSubject(enterpriseSubjectId);
-                } else {
-                    // Load enterprise subject identifiers.
-                    List<SubjectIdentifier> enterpriseSubjectIdentifiers = pm.loadSubjectIdentifiers(enterpriseSubjectId);
-                    enterpriseSubject.getSubjectIdentifiers().addAll(enterpriseSubjectIdentifiers);
-                }
-                // Load cross references for the enterprise subject.
-                this.loadCrossReferencedIdentifiers(pm, enterpriseSubject);
+                    enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
 
-                // Now, filter identifiers based upon query.
-                if (!onlyLoadIdentifiers) {
                     // Do not return the search identifier in this case.
                     searchSubjectIdentifier = null;
+                } else {
+                    // Load enterprise subject (id's only).
+                    enterpriseSubject = pm.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId);
                 }
 
                 // Now, strip out identifiers (if required).
                 this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
 
+                // FIXME: What about "other ids"?
                 if (!onlyLoadIdentifiers
                         || !enterpriseSubject.getSubjectIdentifiers().isEmpty()) {
 
@@ -266,28 +255,6 @@ public class BaseEMPIAdapter implements EMPIAdapter {
             }
         }
         return subjectSearchResponse;
-    }
-
-    /**
-     *
-     * @param pm
-     * @param subject
-     * @throws EMPIException
-     */
-    private void loadCrossReferencedIdentifiers(PersistenceManager pm, Subject subject) throws EMPIException {
-
-        // Load cross references for the baseSubject.
-        List<SubjectCrossReference> subjectCrossReferences = pm.loadSubjectCrossReferences(subject.getId());
-
-        // Get list of baseSubject identifiers (@ system-level).
-        for (SubjectCrossReference subjectCrossReference : subjectCrossReferences) {
-
-            // Load list of baseSubject identifiers for the cross reference.
-            List<SubjectIdentifier> subjectIdentifiers = pm.loadSubjectIdentifiers(subjectCrossReference.getSystemSubjectId());
-
-            // Add all of this to the given baseSubject.
-            subject.getSubjectIdentifiers().addAll(subjectIdentifiers);
-        }
     }
 
     /**
@@ -312,6 +279,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         if (logger.isTraceEnabled()) {
             logger.trace("BaseEMPIAdapter.getRecordMatches.findMatches: elapedTimeMillis=" + (endTime - startTime));
         }
+        // Only return matches.
         return matchResults.getMatches();
     }
 
@@ -338,9 +306,9 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         long startTime = System.currentTimeMillis();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
-            Subject subject = pm.loadSubject(record.getId());
+            Subject enterpriseSubject = pm.loadEnterpriseSubject(record.getId());
             int matchConfidencePercentage = this.getMatchScore(scoredRecord);
-            subject.setMatchConfidencePercentage(matchConfidencePercentage);
+            enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("match score = " + scoredRecord.getScore());
@@ -348,15 +316,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
                 logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
             }
 
-            // Get cross references to the subject ...
-            this.loadCrossReferencedIdentifiers(pm, subject);
+            // Filter unwanted results (if required).
+            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
 
-            // Filter unwanted results.
-            this.filterSubjectIdentifiers(subjectSearchCriteria, subject, null);
-
+            // FIXME: What about "other ids"?
             // If we kept at least one identifier ...
-            if (subject.hasSubjectIdentifiers()) {
-                subjectMatches.add(subject);
+            if (enterpriseSubject.hasSubjectIdentifiers()) {
+                subjectMatches.add(enterpriseSubject);
             }
 
         }
@@ -374,6 +340,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @return
      */
     private int getMatchScore(ScoredRecord scoredRecord) {
+        // Round-up match score.
         BigDecimal bd = new BigDecimal(scoredRecord.getScore() * 100.0);
         bd = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
         return bd.intValue();

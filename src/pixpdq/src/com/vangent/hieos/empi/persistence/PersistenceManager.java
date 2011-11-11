@@ -93,6 +93,17 @@ public class PersistenceManager {
 
     /**
      *
+     * @param subjectId
+     * @return
+     * @throws EMPIException
+     */
+    public List<SubjectIdentifier> loadSubjectOtherIdentifiers(String subjectId) throws EMPIException {
+        SubjectOtherIdentifierDAO dao = new SubjectOtherIdentifierDAO(connection);
+        return dao.load(subjectId);
+    }
+
+    /**
+     *
      * @param subjectIdentifier
      * @return
      * @throws EMPIException
@@ -126,6 +137,78 @@ public class PersistenceManager {
 
     /**
      *
+     * @param enterpriseSubjectId
+     * @return
+     * @throws EMPIException
+     */
+    public Subject loadEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
+        // Load subject.
+        Subject enterpriseSubject = this.loadSubject(enterpriseSubjectId);
+
+        // Get cross references to the subject ...
+        this.loadSubjectCrossReferencedIdentifiers(enterpriseSubject);
+
+        return enterpriseSubject;
+    }
+
+    /**
+     *
+     * @param enterpriseSubjectId
+     * @return
+     * @throws EMPIException
+     */
+    public Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId) throws EMPIException {
+        // Create enterprise subject.
+        Subject enterpriseSubject = new Subject();
+        enterpriseSubject.setId(enterpriseSubjectId);
+        enterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
+
+        // Load enterprise subject identifiers.
+        List<SubjectIdentifier> enterpriseSubjectIdentifiers = this.loadSubjectIdentifiers(enterpriseSubjectId);
+        enterpriseSubject.getSubjectIdentifiers().addAll(enterpriseSubjectIdentifiers);
+
+        // Load cross references for the enterprise subject.
+        this.loadSubjectCrossReferencedIdentifiers(enterpriseSubject);
+        return enterpriseSubject;
+    }
+
+    /**
+     * 
+     * @param enterpriseSubject
+     * @throws EMPIException
+     */
+    public void loadSubjectCrossReferencedIdentifiers(Subject enterpriseSubject) throws EMPIException {
+
+        // Load cross references for the enterpriseSubject.
+        List<SubjectCrossReference> subjectCrossReferences = this.loadSubjectCrossReferences(enterpriseSubject.getId());
+
+        // Loop through each cross reference.
+        for (SubjectCrossReference subjectCrossReference : subjectCrossReferences) {
+
+            // Load list of subject identifiers for the cross reference.
+            List<SubjectIdentifier> subjectIdentifiers = this.loadSubjectIdentifiers(subjectCrossReference.getSystemSubjectId());
+
+            // FIXME: Can we have dups here (as we may in "other ids")???
+
+            // Add subject identifiers to the given enterprise subject.
+            enterpriseSubject.getSubjectIdentifiers().addAll(subjectIdentifiers);
+
+            // Load list of other identifiers for the cross reference.
+            List<SubjectIdentifier> subjectOtherIdentifiers = this.loadSubjectOtherIdentifiers(subjectCrossReference.getSystemSubjectId());
+
+            // NOTE: Duplicates (across system-level subjects) of other ids is allowed, yet we remove them here).
+            for (SubjectIdentifier subjectOtherIdentifier : subjectOtherIdentifiers)
+            {
+                if (!enterpriseSubject.hasSubjectOtherIdentifier(subjectOtherIdentifier))
+                {
+                    enterpriseSubject.getSubjectOtherIdentifiers().add(subjectOtherIdentifier);
+                }
+            }
+        }
+    }
+
+    /**
+     *
      * @param systemSubjectId
      * @return
      * @throws EMPIException
@@ -152,11 +235,10 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<Subject> findSubjectsByIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
-        SubjectDAO dao = new SubjectDAO(connection);
-        return dao.findSubjectsByIdentifiers(subjectIdentifiers);
-    }
-
+    /*public List<Subject> findSubjectsByIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    SubjectDAO dao = new SubjectDAO(connection);
+    return dao.findSubjectsByIdentifiers(subjectIdentifiers);
+    }*/
     /**
      *
      * @param subject

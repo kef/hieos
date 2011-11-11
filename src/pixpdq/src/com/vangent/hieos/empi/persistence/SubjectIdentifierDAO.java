@@ -60,7 +60,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             // Now, see if we can locate the subject/identifier within the given identifier domain.
-            String sql = "SELECT subjectid FROM subjectidentifier WHERE identifier = ? and subjectidentifierdomainid = ?";
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT subject_id FROM ").append(this.getTableName()).append(" WHERE identifier=? and subject_identifier_domain_id=?");
+            String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifier.getIdentifier());
             stmt.setInt(2, subjectIdentifierDomainId);
@@ -71,7 +73,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject identifier(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -101,7 +103,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT identifier,subjectidentifierdomainid FROM subjectidentifier WHERE subjectid = ?";
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT identifier,subject_identifier_domain_id FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
+            String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -121,7 +125,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectIdentifiers.add(subjectIdentifier);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject identifier(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -130,15 +134,18 @@ public class SubjectIdentifierDAO extends AbstractDAO {
     }
 
     /**
-     *
+     * 
      * @param subjectIdentifiers
      * @param parentSubject
+     * @param identifierType
      * @throws EMPIException
      */
     public void insert(List<SubjectIdentifier> subjectIdentifiers, Subject parentSubject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subjectidentifier(subjectid,identifier,subjectidentifierdomainid) values(?,?,?)";
+            StringBuilder sb = new StringBuilder();
+            sb.append("INSERT INTO ").append(this.getTableName()).append("(subject_id,identifier,subject_identifier_domain_id) values(?,?,?)");
+            String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
@@ -148,11 +155,12 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
                 int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
                 if (subjectIdentifierDomainId == -1) {
+                    throw new EMPIException(subjectIdentifierDomain.getUniversalId() + " is not a known identifier domain");
                     // Now, store identifier domain (first time seen).
-                    sidDAO.insert(subjectIdentifierDomain);
-                    
+                    //sidDAO.insert(subjectIdentifierDomain);
+
                     // Get the foreign key reference.
-                    subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
+                    //subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
                 }
                 stmt.setInt(3, subjectIdentifierDomainId);
                 stmt.addBatch();
@@ -169,5 +177,13 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getTableName() {
+        return "subject_identifier";
     }
 }

@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -55,7 +54,7 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         int genderCodeId;
         try {
-            String sql = "SELECT id,type,birthtime,gendercodeid FROM subject WHERE id = ?";
+            String sql = "SELECT id,type,birth_time,gender_code_id FROM subject WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -69,7 +68,7 @@ public class SubjectDAO extends AbstractDAO {
                 genderCodeId = rs.getInt(4);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -95,6 +94,12 @@ public class SubjectDAO extends AbstractDAO {
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
         List<SubjectIdentifier> subjectIdentifiers = subjectIdentifierDAO.load(subject);
         subject.setSubjectIdentifiers(subjectIdentifiers);
+
+        // Other identifiers.
+        SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
+        List<SubjectIdentifier> subjectOtherIdentifiers = subjectOtherIdentifierDAO.load(subject);
+        subject.setSubjectOtherIdentifiers(subjectOtherIdentifiers);
+
         return subject;
     }
 
@@ -104,29 +109,29 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
+    /*
     public List<Subject> findSubjectsByIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
-        List<Subject> subjects = new ArrayList<Subject>();
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
-            // Go through each identifier (assumes no duplicates across subjects).
-            for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-                // See if the identifier has a subject.
-                String subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
-                if (subjectId != null) {
-                    // Load the subject and add to list.
-                    Subject subject = this.load(subjectId);
-                    subjects.add(subject);
-                }
-            }
-        } finally {
-            this.close(stmt);
-            this.close(rs);
-        }
-        return subjects;
+    List<Subject> subjects = new ArrayList<Subject>();
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+    try {
+    SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
+    // Go through each identifier (assumes no duplicates across subjects).
+    for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+    // See if the identifier has a subject.
+    String subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
+    if (subjectId != null) {
+    // Load the subject and add to list.
+    Subject subject = this.load(subjectId);
+    subjects.add(subject);
     }
-
+    }
+    } finally {
+    this.close(stmt);
+    this.close(rs);
+    }
+    return subjects;
+    }*/
     /**
      *
      * @param subjectIdentifier
@@ -158,7 +163,7 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,type FROM subject WHERE id = ?";
+            String sql = "SELECT id,type FROM subject WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -169,7 +174,7 @@ public class SubjectDAO extends AbstractDAO {
                 subject.setType(this.getSubjectType(rs.getString(2)));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -214,7 +219,7 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
-            String sql = "INSERT INTO subject(id,type,birthtime,gendercodeid) values(?,?,?,?)";
+            String sql = "INSERT INTO subject(id,type,birth_time,gender_code_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             SubjectGenderDAO subjectGenderDAO = new SubjectGenderDAO(conn);
             for (Subject subject : subjects) {
@@ -246,12 +251,13 @@ public class SubjectDAO extends AbstractDAO {
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
             SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
+            SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             for (Subject subject : subjects) {
                 subjectNameDAO.insert(subject.getSubjectNames(), subject);
                 subjectAddressDAO.insert(subject.getAddresses(), subject);
                 subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
+                subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
-
         } catch (SQLException ex) {
             throw new EMPIException(ex);
         } finally {

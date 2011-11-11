@@ -49,7 +49,7 @@ public class SubjectNameDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,givenname,familyname,prefix,suffix,middlename FROM subjectname WHERE subjectid = ?";
+            String sql = "SELECT id,given_name,family_name,prefix,suffix,middle_name FROM subject_name WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getId());
             // Execute query.
@@ -65,7 +65,7 @@ public class SubjectNameDAO extends AbstractDAO {
                 subjectNames.add(subjectName);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectName(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject name(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -81,7 +81,7 @@ public class SubjectNameDAO extends AbstractDAO {
     public void insert(List<SubjectName> subjectNames, Subject parentSubject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subjectname(id,givenname,familyname,prefix,suffix,middlename,subjectid) values(?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_name(id,given_name,family_name,prefix,suffix,middle_name,subject_id) values(?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectName subjectName : subjectNames) {
                 subjectName.setId(PersistenceHelper.getUUID());

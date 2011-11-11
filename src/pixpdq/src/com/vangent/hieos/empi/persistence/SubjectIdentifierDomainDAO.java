@@ -48,7 +48,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             // FIXME: Just using universalid right now
-            String sql = "SELECT id FROM subjectidentifierdomain WHERE universalid = ?";
+            String sql = "SELECT id FROM subject_identifier_domain WHERE universal_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifierDomain.getUniversalId());
             // Execute query.
@@ -57,7 +57,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 id = rs.getInt(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subjectidentifierdomain from database .. " + ex.getMessage());
+            throw new EMPIException("Failure reading subject identifier domain from database .. " + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -92,13 +92,13 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT universalid,universalidtype,namespaceid FROM subjectidentifierdomain WHERE id = ?";
+            String sql = "SELECT universal_id,universal_id_type,namespace_id FROM subject_identifier_domain WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setInt(1, id);
             // Execute query.
             rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new EMPIException("id = " + id + " not found in subjectidentifierdomain table");
+                throw new EMPIException("id = " + id + " not found in subject_identifier_domain table");
             } else {
                 subjectIdentifierDomain.setId(id);
                 subjectIdentifierDomain.setUniversalId(rs.getString(1));
@@ -106,7 +106,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 subjectIdentifierDomain.setNamespaceId(rs.getString(3));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading from subjectidentifierdomain table .. " + ex.getMessage());
+            throw new EMPIException("Failure reading from subject_identifier_domain table .. " + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -119,6 +119,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
      * @param subjectIdentifierDomain
      * @throws EMPIException
      */
+    /*
     public void insert(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException {
         PreparedStatement stmt = null;
         try {
@@ -142,5 +143,5 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
         }
-    }
+    }*/
 }

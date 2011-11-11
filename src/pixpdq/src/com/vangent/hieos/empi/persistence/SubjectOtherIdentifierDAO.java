@@ -12,45 +12,28 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
-import com.vangent.hieos.empi.exception.EMPIException;
 import java.sql.Connection;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectGenderDAO extends CodeDAO {
-
-    private static final Logger logger = Logger.getLogger(SubjectGenderDAO.class);
+public class SubjectOtherIdentifierDAO extends SubjectIdentifierDAO {
 
     /**
      *
      * @param connection
      */
-    public SubjectGenderDAO(Connection connection) {
+    public SubjectOtherIdentifierDAO(Connection connection) {
         super(connection);
     }
 
     /**
-     * 
-     * @param id
-     * @return
-     * @throws EMPIException
-     */
-    public SubjectGender load(int id) throws EMPIException {
-        SubjectGender subjectGender = new SubjectGender();
-        this.load(id, subjectGender);
-        return subjectGender;
-    }
-
-    /**
-     * 
+     *
      * @return
      */
     @Override
     public String getTableName() {
-        return "gender_code";
+        return "subject_other_identifier";
     }
 }
