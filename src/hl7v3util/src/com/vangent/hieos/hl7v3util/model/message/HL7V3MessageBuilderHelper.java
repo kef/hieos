@@ -20,6 +20,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
+import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import java.util.List;
@@ -515,6 +516,19 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
             this.addChildOMElementWithValue(addressNode, "state", address.getState());
             this.addChildOMElementWithValue(addressNode, "postalCode", address.getPostalCode());
             this.addChildOMElementWithValue(addressNode, "country", address.getCountry());
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param subject
+     */
+    protected void addTelecomAddresses(OMElement rootNode, Subject subject) {
+        for (TelecomAddress telecomAddress : subject.getTelecomAddresses()) {
+            OMElement telecomAddressNode = this.addChildOMElement(rootNode, "telecom");
+            this.setAttribute(telecomAddressNode, "use", telecomAddress.getUse());
+            this.setAttribute(telecomAddressNode, "value", telecomAddress.getValue());
         }
     }
 

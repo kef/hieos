@@ -164,6 +164,9 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
         this.addSubjectNames(patientPersonNode, subject);
 
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/telecom[*]
+         this.addTelecomAddresses(patientPersonNode, subject);
+
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/administrativeGenderCode
         this.addCode(patientPersonNode, "administrativeGenderCode", subject.getGender().getCode());
 

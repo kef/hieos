@@ -26,6 +26,7 @@ public class Subject {
     private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectName> subjectNames = new ArrayList<SubjectName>();
     private List<Address> addresses = new ArrayList<Address>();
+    private List<TelecomAddress> telecomAddresses = new ArrayList<TelecomAddress>();
     private SubjectGender gender = null;
     private Custodian custodian = null;
     private Date birthTime = null;
@@ -90,6 +91,30 @@ public class Subject {
      */
     public void addAddress(Address address) {
         this.addresses.add(address);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public List<TelecomAddress> getTelecomAddresses() {
+        return telecomAddresses;
+    }
+
+    /**
+     *
+     * @param telecomAddresses
+     */
+    public void setTelecomAddresses(List<TelecomAddress> telecomAddresses) {
+        this.telecomAddresses = telecomAddresses;
+    }
+
+    /**
+     *
+     * @param telecomAddress
+     */
+    public void addTelecomAddress(TelecomAddress telecomAddress) {
+        this.telecomAddresses.add(telecomAddress);
     }
 
     /**

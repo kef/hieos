@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
-import com.vangent.hieos.hl7v3util.model.builder.*;
+import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
@@ -40,6 +40,8 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:controlActProcess/ns:subject/ns:registrationEvent/ns:subject1/ns:patient[1]";
     private final static String XPATH_PATIENT_ADDRESSES =
             "./ns:patientPerson/ns:addr";
+    private final static String XPATH_PATIENT_TELECOM_ADDRESSES =
+            "./ns:patientPerson/ns:telecom";
     private final static String XPATH_PATIENT_NAMES =
             "./ns:patientPerson/ns:name";
     private final static String XPATH_PATIENT_GENDER =
@@ -152,6 +154,7 @@ public class SubjectBuilder extends BuilderHelper {
         this.setGender(subject, patientNode);
         this.setBirthTime(subject, patientNode);
         this.setNames(subject, patientNode);
+        this.setTelecomAddresses(subject, patientNode);
         this.setAddresses(subject, patientNode);
         this.setIdentifiers(subject, patientNode);
         this.setOtherIdentifiers(subject, patientNode);
@@ -308,6 +311,36 @@ public class SubjectBuilder extends BuilderHelper {
         } catch (XPathHelperException ex) {
             // Just ignore here.
         }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     */
+    private void setTelecomAddresses(Subject subject, OMElement patientNode) {
+        try {
+            List<TelecomAddress> telecomAddresses = subject.getTelecomAddresses();
+            List<OMElement> telecomAddressNodes = this.selectNodes(patientNode, XPATH_PATIENT_TELECOM_ADDRESSES);
+            for (OMElement telecomAddressNode : telecomAddressNodes) {
+                TelecomAddress telecomAddress = this.buildTelecomAddress(telecomAddressNode);
+                telecomAddresses.add(telecomAddress);
+            }
+        } catch (XPathHelperException ex) {
+            // Just ignore here.
+        }
+    }
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    public TelecomAddress buildTelecomAddress(OMElement node) {
+        TelecomAddress telecomAddress = new TelecomAddress();
+        telecomAddress.setUse(node.getAttributeValue(new QName("use")));
+        telecomAddress.setValue(node.getAttributeValue(new QName("value")));
+        return telecomAddress;
     }
 
     /**
