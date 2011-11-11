@@ -465,8 +465,8 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
             queryAckNode.addChild(queryIdNode.cloneOMElement());
             String queryResponseCode = "OK";
             String quantity;
-            if (subjects == null || subjects.size() == 0) {
-                //queryResponseCode = "NF";
+            if (subjects == null || subjects.isEmpty()) {
+                queryResponseCode = "NF";
                 quantity = "0";
             } else {
                 //queryResponseCode = "OK";

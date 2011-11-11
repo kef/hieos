@@ -69,8 +69,8 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //
         this.addCreationTime(responseNode);
         this.addInteractionId(messageName, responseNode);
-        this.addCode(responseNode, "processingCode", "T");
-        this.addCode(responseNode, "processingModeCode", "I");
+        this.addCode(responseNode, "processingCode", "P");
+        this.addCode(responseNode, "processingModeCode", "T");
         this.addCode(responseNode, "acceptAckCode", "NE");
 
         // PRPA_IN201306UV02/receiver
@@ -91,7 +91,6 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
 
         List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
-
 
         // PRPA_IN201306UV02/controlActProcess/subject
         this.addSubjects(controlActProcessNode, subjects);
