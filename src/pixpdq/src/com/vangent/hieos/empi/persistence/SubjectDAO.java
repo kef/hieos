@@ -85,6 +85,10 @@ public class SubjectDAO extends AbstractDAO {
         SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(conn);
         subjectAddressDAO.load(subject);
 
+        // Telecom addresses.
+        SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
+        subjectTelecomAddressDAO.load(subject);
+
         // Gender.
         SubjectGenderDAO subjectGenderDAO = new SubjectGenderDAO(conn);
         SubjectGender subjectGender = subjectGenderDAO.load(genderCodeId);
@@ -250,11 +254,13 @@ public class SubjectDAO extends AbstractDAO {
             // Now, insert composed objects.
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
             SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(conn);
+            SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
             SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             for (Subject subject : subjects) {
                 subjectNameDAO.insert(subject.getSubjectNames(), subject);
                 subjectAddressDAO.insert(subject.getAddresses(), subject);
+                subjectTelecomAddressDAO.insert(subject.getTelecomAddresses(), subject);
                 subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
                 subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
