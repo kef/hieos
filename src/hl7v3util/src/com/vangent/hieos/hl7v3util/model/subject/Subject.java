@@ -23,6 +23,7 @@ import java.util.List;
 public class Subject {
 
     private List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
+    private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectName> subjectNames = new ArrayList<SubjectName>();
     private List<Address> addresses = new ArrayList<Address>();
     private SubjectGender gender = null;
@@ -105,6 +106,22 @@ public class Subject {
      */
     public void setSubjectIdentifiers(List<SubjectIdentifier> subjectIdentifiers) {
         this.subjectIdentifiers = subjectIdentifiers;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public List<SubjectIdentifier> getSubjectOtherIdentifiers() {
+        return subjectOtherIdentifiers;
+    }
+
+    /**
+     *
+     * @param subjectOtherIdentifiers
+     */
+    public void setSubjectOtherIdentifiers(List<SubjectIdentifier> subjectOtherIdentifiers) {
+        this.subjectOtherIdentifiers = subjectOtherIdentifiers;
     }
 
     /**
@@ -235,9 +252,28 @@ public class Subject {
      * @return
      */
     public boolean hasSubjectIdentifier(SubjectIdentifier identifier) {
+        return this.hasIdentifier(identifier, this.getSubjectIdentifiers());
+    }
+
+    /**
+     *
+     * @param identifier
+     * @return
+     */
+    public boolean hasSubjectOtherIdentifier(SubjectIdentifier identifier) {
+        return this.hasIdentifier(identifier, this.getSubjectOtherIdentifiers());
+    }
+
+    /**
+     *
+     * @param identifier
+     * @param subjectIdentifiers
+     * @return
+     */
+    private boolean hasIdentifier(SubjectIdentifier identifier, List<SubjectIdentifier> subjectIdentifiers) {
         SubjectIdentifierDomain identifierDomain = identifier.getIdentifierDomain();
         // See if we find our subject identifier.
-        for (SubjectIdentifier subjectIdentifier : this.getSubjectIdentifiers()) {
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
             SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
             if (subjectIdentifierDomain.getUniversalId().equals(identifierDomain.getUniversalId()) && subjectIdentifier.getIdentifier().equals(identifier.getIdentifier())) {
                 return true;  // Match.
@@ -296,5 +332,13 @@ public class Subject {
      */
     public void setType(SubjectType type) {
         this.type = type;
+    }
+
+    /**
+     *
+     */
+    public void clearIdentifiers() {
+        subjectIdentifiers.clear();
+        subjectOtherIdentifiers.clear();
     }
 }

@@ -546,6 +546,40 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param rootNode
      * @param subject
      */
+    protected void addSubjectOtherIdentifiers(OMElement rootNode, Subject subject) {
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIDs[*]
+        for (SubjectIdentifier subjectOtherIdentifier : subject.getSubjectOtherIdentifiers()) {
+            OMElement asOtherIdsNode = this.addChildOMElement(rootNode, "asOtherIDs");
+            this.setAttribute(asOtherIdsNode, "classCode", "CIT");
+            this.addSubjectOtherIdentifier(asOtherIdsNode, subjectOtherIdentifier);
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param subjectOtherIdentifier
+     */
+    protected void addSubjectOtherIdentifier(OMElement rootNode, SubjectIdentifier subjectOtherIdentifier) {
+        OMElement idNode = this.addChildOMElement(rootNode, "id");
+        this.setAttribute(idNode, "root", subjectOtherIdentifier.getIdentifierDomain().getUniversalId());
+        this.setAttribute(idNode, "extension", subjectOtherIdentifier.getIdentifier());
+        // <scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+        //   <id root="2.16.840.1.113883.4.1" />
+        // </scopingOrganization>
+        OMElement scopingOrganizationNode = this.addChildOMElement(rootNode, "scopingOrganization");
+        this.setAttribute(scopingOrganizationNode, "classCode", "ORG");
+        this.setAttribute(scopingOrganizationNode, "determinerCode", "INSTANCE");
+
+        OMElement scopingOrganizationIdNode = this.addChildOMElement(scopingOrganizationNode, "id");
+        this.setAttribute(scopingOrganizationIdNode, "root", subjectOtherIdentifier.getIdentifierDomain().getUniversalId());
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param subject
+     */
     protected void addSubjectNames(OMElement rootNode, Subject subject) {
         for (SubjectName subjectName : subject.getSubjectNames()) {
             OMElement nameNode = this.addChildOMElement(rootNode, "name");

@@ -167,6 +167,9 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
         this.setAttribute(nameNode, "nullFlavor", "NA");
 
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
+        this.addSubjectOtherIdentifiers(patientPersonNode, subject);
+
         // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
         this.addProviderOrganization(patientNode, subject);
 

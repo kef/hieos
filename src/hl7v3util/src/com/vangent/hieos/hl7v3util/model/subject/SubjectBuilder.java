@@ -347,13 +347,13 @@ public class SubjectBuilder extends BuilderHelper {
      * @param patientNode
      */
     private void setOtherIdentifiers(Subject subject, OMElement patientNode) {
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        List<SubjectIdentifier> subjectOtherIdentifiers = subject.getSubjectOtherIdentifiers();
         try {
             List<OMElement> asOtherIDs = this.selectNodes(patientNode, XPATH_PATIENT_AS_OTHER_IDS);
             for (OMElement asOtherID : asOtherIDs) {
                 OMElement idNode = this.getFirstChildNodeWithName(asOtherID, "id");
                 SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(idNode);
-                subjectIdentifiers.add(subjectIdentifier);
+                subjectOtherIdentifiers.add(subjectIdentifier);
             }
         } catch (XPathHelperException ex) {
             // Just ignore here.
