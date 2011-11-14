@@ -13,6 +13,7 @@
 package com.vangent.hieos.DocViewer.client.view.patient;
 
 import com.smartgwt.client.widgets.Canvas;
+import com.smartgwt.client.widgets.form.events.SubmitValuesEvent;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.form.DynamicForm;
@@ -22,10 +23,12 @@ import com.smartgwt.client.widgets.form.fields.RadioGroupItem;
 import com.smartgwt.client.types.DateDisplayFormat;
 import com.smartgwt.client.widgets.form.fields.DateTimeItem;
 import com.smartgwt.client.types.Alignment;
-import com.smartgwt.client.widgets.IButton;
-import com.smartgwt.client.widgets.events.ClickHandler;
-import com.smartgwt.client.widgets.events.ClickEvent;
+import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
+import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
+import com.smartgwt.client.widgets.form.events.SubmitValuesHandler;
+import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
+import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 
 /**
@@ -33,16 +36,14 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
  * @author Bernie Thuman
  *
  */
-public class PatientSearch extends Canvas implements ClickHandler {
+public class PatientSearch extends Canvas 
+    implements ClickHandler, SubmitValuesHandler {
 	private DocViewerController controller;
 	private final DynamicForm searchForm;
-	private final TextItem familyNameField = new TextItem("familyName",
-			"Family name");
-	private final TextItem givenNameField = new TextItem("givenName",
-			"Given name");
-	private final DateTimeItem dateOfBirthField = new DateTimeItem("DOB",
-			"Date of birth");
-	private final RadioGroupItem genderGroupItem = new RadioGroupItem();
+	private final TextItem familyNameField;
+	private final TextItem givenNameField;
+	private final DateTimeItem dateOfBirthField;
+	private final RadioGroupItem genderGroupItem;
 	//private final TextItem ssnLast4Field = new TextItem("ssn", "SSN(last 4)");
 	//private final TextItem hrnField = new TextItem("hrn", "HRN");
 
@@ -50,28 +51,40 @@ public class PatientSearch extends Canvas implements ClickHandler {
 	 * 
 	 */
 	public PatientSearch(DocViewerController mainController) {
+            
 		this.controller = mainController;
+                
+                Config config = this.controller.getConfig();
 
 		this.searchForm = new DynamicForm();
-		searchForm.setWidth(300);
+                this.searchForm.setIsGroup(true);
+                this.searchForm.setGroupTitle("<b>Search Criteria</b>");
+		this.searchForm.setWidth(300);
+                this.searchForm.setSaveOnEnter(true);
+                this.searchForm.addSubmitValuesHandler(this);
 
 		// Family name:
-		familyNameField.setRequired(true);
+                String familyNameLabel = config.get(Config.KEY_LABEL_FAMILY_NAME);
+                this.familyNameField = new TextItem("familyName", familyNameLabel);		
+                this.familyNameField.setRequired(true);
 
 		// Given name:
-		givenNameField.setRequired(true);
+                String givenNameLabel = config.get(Config.KEY_LABEL_GIVEN_NAME);
+                this.givenNameField = new TextItem("givenName", givenNameLabel);		
+                this.givenNameField.setRequired(true);
 
 		// Date of birth:
-		dateOfBirthField.setDisplayFormat(DateDisplayFormat.TOUSSHORTDATE);
-		dateOfBirthField.setRequired(false);
+                this.dateOfBirthField = new DateTimeItem("DOB", "Date of birth");		dateOfBirthField.setDisplayFormat(DateDisplayFormat.TOUSSHORTDATE);
+		this.dateOfBirthField.setRequired(false);
 
 		// Gender:
-		genderGroupItem.setVertical(false);
-		genderGroupItem.setStartRow(false);
-		genderGroupItem.setTitle("Gender");
-		genderGroupItem.setValueMap("male", "female", "unspecified");
-		genderGroupItem.setDefaultValue("unspecified");
-		genderGroupItem.setRequired(false);
+                this.genderGroupItem = new RadioGroupItem();
+                this.genderGroupItem.setVertical(false);
+		this.genderGroupItem.setStartRow(false);
+		this.genderGroupItem.setTitle("Gender");
+		this.genderGroupItem.setValueMap("male", "female", "unspecified");
+		this.genderGroupItem.setDefaultValue("unspecified");
+		this.genderGroupItem.setRequired(false);
 
 		/*
 		// HRN:
@@ -83,28 +96,29 @@ public class PatientSearch extends Canvas implements ClickHandler {
 		ssnLast4Field.setRequired(false);
 		*/
 
+		final ButtonItem btnFind = new ButtonItem("Find");
+		btnFind.setIcon("find.png");
+		btnFind.addClickHandler(this);
+                btnFind.setEndRow(true);
+                btnFind.setColSpan(2);
+                btnFind.setAlign(Alignment.CENTER);
+                
 		// Search fields:
-		searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
-				dateOfBirthField, genderGroupItem });
+		this.searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
+				dateOfBirthField, genderGroupItem, btnFind });
 		
 		//searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
 		//		dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
 
-		final IButton btnFind = new IButton("Find");
-		btnFind.setIcon("find.png");
-		btnFind.addClickHandler(this);
-		btnFind.setLayoutAlign(Alignment.CENTER);
+
 		
 		// Now, lay it out.
 		final VLayout layout = new VLayout();
-		layout.setShowEdges(true);
-		layout.setEdgeSize(3);
-		layout.addMember(searchForm);
-		layout.addMember(btnFind);
 
-		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setHeight(3);
-		layout.addMember(spacer);
+		//layout.setShowEdges(true);
+		//layout.setEdgeSize(3);
+		layout.addMember(searchForm);
+
 		addChild(layout);
 	}
 
@@ -113,6 +127,14 @@ public class PatientSearch extends Canvas implements ClickHandler {
 	 */
 	@Override
 	public void onClick(ClickEvent event) {
+            this.searchForm.submit();
+	}
+
+	/**
+	 * 
+	 */
+        @Override
+        public void onSubmitValues(SubmitValuesEvent event) {
 		boolean validatedOk = searchForm.validate();
 		if (validatedOk == true) {
 			// Pull values off of form.
@@ -120,7 +142,7 @@ public class PatientSearch extends Canvas implements ClickHandler {
 			// Conduct the search.
 			controller.findPatients(criteria);
 		}
-	}
+        }
 
 	/**
 	 * 

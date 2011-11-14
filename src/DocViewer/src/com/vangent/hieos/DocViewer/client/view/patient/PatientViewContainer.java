@@ -22,6 +22,7 @@ import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
+import com.smartgwt.client.widgets.layout.VLayout;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 
@@ -46,16 +47,20 @@ public class PatientViewContainer extends Canvas {
 		final DynamicForm optionsForm = this.getOptionsForm();
 	
 		// Now add to the layout.
+                final VLayout vlayout = new VLayout();
+                vlayout.addMember(optionsForm);
+                final LayoutSpacer spacer0 = new LayoutSpacer();
+                spacer0.setHeight(10);
+                vlayout.addMember(spacer0);
+                vlayout.addMember(this.patientSearch);
+                
 		final HLayout layout = new HLayout();
-		layout.addMember(this.patientSearch);
+		layout.addMember(vlayout);
 		final LayoutSpacer spacer1 = new LayoutSpacer();
-		spacer1.setWidth(5);
+		spacer1.setWidth(8);
 		layout.addMember(spacer1);
 		layout.addMember(this.patientList);
-		final LayoutSpacer spacer2 = new LayoutSpacer();
-		spacer2.setWidth(10);
-		layout.addMember(spacer2);
-		layout.addMember(optionsForm);
+
 		this.addChild(layout);
 	}
 	
@@ -68,11 +73,13 @@ public class PatientViewContainer extends Canvas {
 		final RadioGroupItem searchModeRadioGroupItem = new RadioGroupItem();
 		searchModeRadioGroupItem.setTitle("");
 		searchModeRadioGroupItem.setShowTitle(false);
+                
+                Config cfg = controller.getConfig();
 		LinkedHashMap<String, String> searchModeMap = new LinkedHashMap<String, String>();
-		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE, "HIE");
-		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE, "NHIN Exchange");
+		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE, cfg.get(Config.KEY_LABEL_HIE_MODE));
+		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE, cfg.get(Config.KEY_LABEL_NHIN_MODE));
 		searchModeRadioGroupItem.setValueMap(searchModeMap);
-		searchModeRadioGroupItem.setDefaultValue(controller.getConfig().get(Config.KEY_SEARCH_MODE));
+		searchModeRadioGroupItem.setDefaultValue(cfg.get(Config.KEY_SEARCH_MODE));
 		searchModeRadioGroupItem.addChangedHandler(new ChangedHandler() {
 			@Override
 			public void onChanged(ChangedEvent event) {
@@ -85,7 +92,7 @@ public class PatientViewContainer extends Canvas {
 		final DynamicForm optionsForm = new DynamicForm();
 		optionsForm.setIsGroup(true);
 		optionsForm.setHeight(40);
-		optionsForm.setWidth(110);
+		optionsForm.setWidth(300);
 		optionsForm.setNumCols(1);
 		optionsForm.setGroupTitle("<b>Search Mode</b>");
 		optionsForm.setFields(searchModeRadioGroupItem);

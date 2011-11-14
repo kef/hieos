@@ -93,7 +93,26 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
 		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
 		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
+                
+                // copy properties from xconfig to config
+                config.put(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON,
+                        servletUtil.getProperty(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON));
+                config.put(Config.KEY_SHOW_ORGANIZATION_COLUMN,
+                        servletUtil.getProperty(Config.KEY_SHOW_ORGANIZATION_COLUMN));
+                config.put(Config.KEY_SHOW_TITLE_BRANDING,
+                        servletUtil.getProperty(Config.KEY_SHOW_TITLE_BRANDING));
 
+                config.put(Config.KEY_LABEL_EUID,
+                        servletUtil.getProperty(Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID));
+                config.put(Config.KEY_LABEL_FAMILY_NAME,
+                        servletUtil.getProperty(Config.KEY_LABEL_FAMILY_NAME, Config.DEFAULT_LABEL_FAMILY_NAME));
+                config.put(Config.KEY_LABEL_GIVEN_NAME,
+                        servletUtil.getProperty(Config.KEY_LABEL_GIVEN_NAME, Config.DEFAULT_LABEL_GIVEN_NAME));
+                config.put(Config.KEY_LABEL_HIE_MODE,
+                        servletUtil.getProperty(Config.KEY_LABEL_HIE_MODE, Config.DEFAULT_LABEL_HIE_MODE));
+                config.put(Config.KEY_LABEL_NHIN_MODE,
+                        servletUtil.getProperty(Config.DEFAULT_LABEL_NHIN_MODE, Config.DEFAULT_LABEL_NHIN_MODE));
+                
 		this.loadDocumentTemplateConfigs(config);
 		return config;
 	}

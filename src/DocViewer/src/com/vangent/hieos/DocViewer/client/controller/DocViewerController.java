@@ -266,6 +266,7 @@ public class DocViewerController {
 		patientTabSet.setWidth100();
 		patientTabSet.setHeight100();
 		patientTabSet.addCloseClickHandler(new CloseClickHandler() {
+                        @Override
 			public void onCloseClick(TabCloseClickEvent event) {
 				// Tab tab = event.getTab();
 				int numTabs = patientTabSet.getTabs().length;

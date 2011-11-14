@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -64,6 +65,18 @@ public class ServletUtilMixin {
 		XConfigObject configObject = this.getConfig();
 		if (configObject != null) {
 			value = configObject.getProperty(key);
+		}
+		return value;
+	}
+
+        public String getProperty(String key, String defaultString) {
+		String value = null;
+		XConfigObject configObject = this.getConfig();
+		if (configObject != null) {
+			value = configObject.getProperty(key);
+                        if (StringUtils.isBlank(value)) {
+                            value = defaultString;
+                        }
 		}
 		return value;
 	}

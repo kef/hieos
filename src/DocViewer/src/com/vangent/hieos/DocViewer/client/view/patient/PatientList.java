@@ -24,6 +24,7 @@ import com.smartgwt.client.types.ListGridFieldType;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.SortDirection;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
+import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
@@ -42,7 +43,10 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 	 */
 	public PatientList(DocViewerController mainController)
 	{
-		this.controller = mainController;
+		
+                this.controller = mainController;
+                Config config = this.controller.getConfig();
+                
 		this.patientListGrid = new ListGrid();
 		patientListGrid.addDoubleClickHandler(this);
 		patientListGrid.setShowEmptyMessage(true);
@@ -51,19 +55,21 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setShowAllRecords(true);
 		patientListGrid.setSortField(PatientRecord.MATCH_CONFIDENCE_FIELD);
 		patientListGrid.setSortDirection(SortDirection.DESCENDING);
-		patientListGrid.setWidth(600);
+		patientListGrid.setWidth(720);
 		patientListGrid.setHeight(408);
 		patientListGrid.setWrapCells(true);
 		patientListGrid.setFixedRecordHeights(false);
 		patientListGrid.setTooltip("Double-click to find patient records");
 
 		// Given Name:
-		final ListGridField givenNameField = new ListGridField(PatientRecord.GIVEN_NAME_FIELD, "Given Name", 90);	
+                String givenNameLabel = config.get(Config.KEY_LABEL_GIVEN_NAME);
+		final ListGridField givenNameField = new ListGridField(PatientRecord.GIVEN_NAME_FIELD, givenNameLabel, 90);	
 		givenNameField.setType(ListGridFieldType.TEXT);
 
 		// Family Name:
+                String familyNameLabel = config.get(Config.KEY_LABEL_FAMILY_NAME);
 		final ListGridField familyNameField = new ListGridField(PatientRecord.FAMILY_NAME_FIELD,
-				"Family Name", 90);
+				familyNameLabel, 90);
 		familyNameField.setType(ListGridFieldType.TEXT);
 		
 		// Gender:
@@ -72,6 +78,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		genderField.setAlign(Alignment.LEFT);
 		genderField.setType(ListGridFieldType.TEXT);
 		genderField.setCellFormatter(new CellFormatter() {
+                        @Override
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
 				if (record == null)
@@ -97,6 +104,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		dateOfBirthField.setType(ListGridFieldType.DATE);
 		dateOfBirthField.setAlign(Alignment.LEFT);
 		dateOfBirthField.setCellFormatter(new CellFormatter() {
+                        @Override
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
 				if (record == null)
@@ -108,7 +116,8 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		
 		
 		// EUID:
-		final ListGridField euidField = new ListGridField(PatientRecord.EUID_FIELD, "EUID", 90);
+                String euidLabel = config.get(Config.KEY_LABEL_EUID);
+		final ListGridField euidField = new ListGridField(PatientRecord.EUID_FIELD, euidLabel, 90);
 		euidField.setType(ListGridFieldType.TEXT);
 		
 		// SSN:

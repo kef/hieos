@@ -22,14 +22,14 @@ import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
 import com.smartgwt.client.widgets.Canvas;
-import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.Img;
 import com.smartgwt.client.widgets.Label;
+import com.smartgwt.client.widgets.form.events.SubmitValuesEvent;
 import com.smartgwt.client.widgets.toolbar.ToolStrip;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.smartgwt.client.widgets.events.ClickEvent;
-import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.smartgwt.client.widgets.form.fields.HeaderItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
@@ -59,6 +59,7 @@ public class DocViewer implements EntryPoint {
 	/**
 	 * 
 	 */
+        @Override
 	public void onModuleLoad() {
 		// Load client configuration ...
 		this.loadConfig();
@@ -91,7 +92,7 @@ public class DocViewer implements EntryPoint {
 		final DynamicForm loginForm = new DynamicForm();
 		loginForm.setWidth100();
 		loginForm.setHeight100();
-
+                
 		HeaderItem header = new HeaderItem();
 		header.setDefaultValue(title);
 		header.setAlign(Alignment.CENTER);
@@ -111,16 +112,31 @@ public class DocViewer implements EntryPoint {
 		userIdItem.setRequired(true);
 		userIdItem.setRequiredMessage("Please specify User ID");
 		passwordItem.setRequired(true);
-		passwordItem.setRequiredMessage("Please specify Password");
-
-		final IButton loginButton = new IButton("Login");
+		passwordItem.setRequiredMessage("Please specify Password");                       
+                        
+                final ButtonItem loginButton = new ButtonItem("Login");
 		loginButton.setIcon("login-blue.png");
-		loginButton.setLayoutAlign(Alignment.CENTER);
+		loginButton.setAlign(Alignment.CENTER);
+                loginButton.setEndRow(true);
+                loginButton.setColSpan(2);
+		loginButton.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
+                        @Override
+			public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
+                        
+                            loginForm.submit();
+                        }
+                });
+                
+		loginForm.setFields(header, userIdItem, passwordItem, loginButton);
 
 		final DocViewer entryPoint = this;
+                
+                loginForm.setAutoFocus(true);
+                loginForm.setSaveOnEnter(true);
+                loginForm.addSubmitValuesHandler(new com.smartgwt.client.widgets.form.events.SubmitValuesHandler() {
 
-		loginButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+                    @Override
+                    public void onSubmitValues(SubmitValuesEvent event) {
 				boolean validatedOk = loginForm.validate();
 				if (validatedOk == true) {
 					AuthenticationObserver authObserver = new AuthenticationObserver(
@@ -129,11 +145,9 @@ public class DocViewer implements EntryPoint {
 							userIdItem.getValueAsString(),
 							passwordItem.getValueAsString());
 				}
-			}
-		});
-
-		loginForm.setFields(header, userIdItem, passwordItem);
-
+                    }
+                });               
+                
 		// Now, lay it out.
 		final VStack mainLayout = new VStack();
 		mainLayout.setWidth100();
@@ -152,11 +166,7 @@ public class DocViewer implements EntryPoint {
 		formLayout.setPadding(10);
 		formLayout.addMember(logo);
 		formLayout.addMember(loginForm);
-		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setHeight(4);
-		formLayout.addMember(spacer);
-		formLayout.addMember(loginButton);
-		
+                
 		mainLayout.addMember(formLayout);
 		this.addCanvasToRootPanel(mainLayout);
 	}
@@ -238,6 +248,9 @@ public class DocViewer implements EntryPoint {
 	 * @return
 	 */
 	private ToolStrip createToolStrip() {
+            
+            Config config = controller.getConfig();
+            
 		// Create the "Find Patient" button.
 		final ToolStripButton findPatientButton = new ToolStripButton();
 		findPatientButton.setTitle("Find Patients");
@@ -245,6 +258,7 @@ public class DocViewer implements EntryPoint {
 		findPatientButton.setIcon("person.png");
 		findPatientButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+                                        @Override
 					public void onClick(ClickEvent event) {
 						controller.showFindPatients();
 					}
@@ -258,6 +272,7 @@ public class DocViewer implements EntryPoint {
 		showDocumentsButton.setIcon("document.png");
 		showDocumentsButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+                                        @Override
 					public void onClick(ClickEvent event) {
 						controller.showPatients();
 					}
@@ -270,27 +285,13 @@ public class DocViewer implements EntryPoint {
 		patientConsentButton.setIcon("privacy.png");
 		patientConsentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+                                        @Override
 					public void onClick(ClickEvent event) {
 						SC.warn("Under construction!");
 					}
 				});
 
-		// Create "Find Documents" button.
-		final ToolStripButton findDocumentsButton = new ToolStripButton();
-		findDocumentsButton.setTooltip("Find documents given a patient id");
-		findDocumentsButton.setTitle("Find Documents");
-		findDocumentsButton.setIcon("document.png");
-		findDocumentsButton
-				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-					public void onClick(ClickEvent event) {
-						// SC.showConsole();
-						final PatientIDValueCallback callback = new PatientIDValueCallback(
-								controller);
-						SC.askforValue("Find Documents", "Patient ID:",
-								callback);
-					}
-				});
-
+                
 		// Create "Logout" button.
 		final ToolStripButton logoutButton = new ToolStripButton();
 		logoutButton.setTooltip("Logout");
@@ -298,6 +299,7 @@ public class DocViewer implements EntryPoint {
 		logoutButton.setIcon("logout.png");
 		logoutButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+                                        @Override
 					public void onClick(ClickEvent event) {
 						// Clear the authentication Context
 						controller.setAuthContext(null);
@@ -306,10 +308,6 @@ public class DocViewer implements EntryPoint {
 					}
 				});
 
-		// Title:
-		final Label title = new Label("HIEOS DocViewer");
-		title.setWidth(120);
-		title.setIcon("application.png");
 
 		// Now create the tool strip (that holds the buttons).
 		final ToolStrip toolStrip = new ToolStrip();
@@ -318,12 +316,43 @@ public class DocViewer implements EntryPoint {
 
 		// Layout the tool strip.
 		toolStrip.addSpacer(5);
-		toolStrip.addMember(title);
-		toolStrip.addSeparator();
+                
+                boolean showBranding = config.getAsBoolean(Config.KEY_SHOW_TITLE_BRANDING);
+                if (showBranding) {
+                    // Title:
+                    final Label title = new Label("HIEOS DocViewer");
+                    title.setWidth(120);
+                    title.setIcon("application.png");
+                    toolStrip.addMember(title);
+                    toolStrip.addSeparator();
+                }
+                
 		toolStrip.addButton(findPatientButton);
 		toolStrip.addButton(showDocumentsButton);
 		toolStrip.addButton(patientConsentButton);
-		toolStrip.addButton(findDocumentsButton);
+                
+		// Create "Find Documents" button.
+                boolean showFindDocuments = config.getAsBoolean(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+                if (showFindDocuments) {
+                    final ToolStripButton findDocumentsButton = new ToolStripButton();
+                    findDocumentsButton.setTooltip("Find documents given a patient id");
+                    findDocumentsButton.setTitle("Find Documents");
+                    findDocumentsButton.setIcon("document.png");
+                    findDocumentsButton
+                                    .addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+                                            @Override
+                                            public void onClick(ClickEvent event) {
+                                                    // SC.showConsole();
+                                                    final PatientIDValueCallback callback = new PatientIDValueCallback(
+                                                                    controller);
+                                                    SC.askforValue("Find Documents", "Patient ID:",
+                                                                    callback);
+                                            }
+                                    });
+                    
+                    toolStrip.addButton(findDocumentsButton);
+                }
+                
 		toolStrip.addFill();
 		toolStrip.addButton(logoutButton);
 

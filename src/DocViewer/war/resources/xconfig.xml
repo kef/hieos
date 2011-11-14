@@ -35,7 +35,6 @@
         <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
-        <!--<Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>-->
         <Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
@@ -51,19 +50,33 @@
         <Property name="TrimDocumentTabTitlesLength">20</Property>
 	<ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
 	
+        <!-- Custom Display Configuration -->
+        <Property name="ShowTitleBranding">true</Property>
+        <Property name="ShowFindDocumentsButton">true</Property>
+        <Property name="ShowOrganizationColumn">true</Property>
+        
+        <Property name="LabelGivenNameText">First Name</Property>
+        <Property name="LabelFamilyNameText">Last Name</Property>
+        <Property name="LabelEUIDText">MPI ID</Property>
+        <Property name="LabelHIEModeText">IHS Health Information Exchange</Property>
+        <Property name="LabelNHINModeText">National Health Information Network Exchange</Property>
+        
 	<!-- Permission Mappings  -->
 	<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
 	<Property name="PermittedRoles_ViewConsent">Role1</Property>
 	<Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 
-        <!-- Authenticaiton Handler Configuration -->
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
-        <!--<Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>-->
-
+        <!--
+        <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>
+        -->
 
         <!-- if using LDAP ... -->
-        <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
-        <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
+        <Property name="AuthHandlerLDAP_URL">ldap://localhost:10389</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc=example,dc=com</Property>
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property>
+        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property-->
+        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property-->
 
     </Object>
     
@@ -133,16 +146,16 @@
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:23080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:23081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:23080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:23081/axis2/services/xcaigas</Endpoint>
         </Transaction>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:23080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:23081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:23080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:23081/axis2/services/xcaigas</Endpoint>
         </Transaction>
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>

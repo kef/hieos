@@ -37,6 +37,22 @@ public class Config implements IsSerializable {
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
 	
+        public static final String KEY_SHOW_TITLE_BRANDING = "ShowTitleBranding";
+        public static final String KEY_SHOW_FIND_DOCUMENTS_BUTTON = "ShowFindDocumentsButton";
+        public static final String KEY_SHOW_ORGANIZATION_COLUMN = "ShowOrganizationColumn";
+        
+        public static final String KEY_LABEL_EUID = "LabelEUIDText";
+        public static final String KEY_LABEL_FAMILY_NAME = "LabelFamilyNameText";
+        public static final String KEY_LABEL_GIVEN_NAME = "LabelGivenNameText";
+        public static final String KEY_LABEL_HIE_MODE = "LabelHIEModeText";
+        public static final String KEY_LABEL_NHIN_MODE = "LabelNHINModeText";
+        
+        public static final String DEFAULT_LABEL_EUID = "EUID";
+        public static final String DEFAULT_LABEL_FAMILY_NAME = "Family name";
+        public static final String DEFAULT_LABEL_GIVEN_NAME = "Given name";
+        public static final String DEFAULT_LABEL_HIE_MODE = "HIE";
+        public static final String DEFAULT_LABEL_NHIN_MODE = "NHIN Exchange";
+        
 	/**
 	 * 
 	 */

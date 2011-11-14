@@ -143,6 +143,7 @@ public class DocumentViewContainer extends Canvas {
 		documentTemplateSelectItem.setWidth(105);
 		documentTemplateSelectItem.setValueMap(this.documentTemplateDisplayNames);   
 		documentTemplateSelectItem.addChangeHandler(new ChangeHandler() {   
+            @Override
             public void onChange(ChangeEvent event) {   
             	setDocumentTemplateFileName(event.getValue().toString());
             }   
@@ -335,6 +336,7 @@ public class DocumentViewContainer extends Canvas {
 		layout.addMember(htmlPane);
 		window.addItem(layout);
 		window.addCloseClickHandler(new CloseClickHandler() {  
+                @Override
 		public void onCloseClick(CloseClientEvent event) {  
 			window.destroy();  
 		}  
