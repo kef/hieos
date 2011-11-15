@@ -271,12 +271,12 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     }
 
     /**
-     *
+     * 
      * @param requestNode
      * @param rootNode
-     * @param errorText
+     * @param errorDetail
      */
-    protected void addAcknowledgementToRequest(OMElement requestNode, OMElement rootNode, String errorText) {
+    protected void addAcknowledgementToRequest(OMElement requestNode, OMElement rootNode, HL7V3ErrorDetail errorDetail) {
         //<acknowledgement>
         //    <typeCode code="CE"/>
         //    <targetMessage>
@@ -289,7 +289,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         OMElement ackNode = this.addChildOMElement(rootNode, "acknowledgement");
         OMElement typeCodeNode = this.addChildOMElement(ackNode, "typeCode");
 
-        if (errorText != null) {
+        if (errorDetail != null) {
             this.setAttribute(typeCodeNode, "code", "AE");
         } else {
             this.setAttribute(typeCodeNode, "code", "AA");
@@ -301,9 +301,15 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         } catch (XPathHelperException ex) {
             // FIXME: What to do?
         }
-        if (errorText != null) {
+        if (errorDetail != null) {
             OMElement ackDetailNode = this.addChildOMElement(ackNode, "acknowledgementDetail");
-            this.addChildOMElementWithValue(ackDetailNode, "text", errorText);
+            this.setAttribute(ackDetailNode, "typeCode", "E");
+            if (errorDetail.getCode() != null) {
+                OMElement codeNode = this.addChildOMElement(ackDetailNode, "code");
+                this.setAttribute(codeNode, "code", errorDetail.getCode());
+            }
+            this.addChildOMElementWithValue(ackDetailNode, "text", errorDetail.getText());
+            this.addChildOMElementWithValue(ackDetailNode, "location", this.getClass().getName());
         }
     }
 
@@ -378,7 +384,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         valueNode.addAttribute("type", "INT", xsiNS);
         this.setAttribute(valueNode, "value", new Integer(subject.getMatchConfidencePercentage()).toString());
     }
-    
+
     /**
      *
      * @param rootNode
@@ -441,13 +447,13 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param requestNode
      * @param rootNode
      * @param subjects
-     * @param errorText
+     * @param errorDetail
      */
     protected void addQueryAckToRequest(
             OMElement requestNode,
             OMElement rootNode,
             List<Subject> subjects,
-            String errorText) {
+            HL7V3ErrorDetail errorDetail) {
         //
         // EXAMPLE:
         //
@@ -473,9 +479,9 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
                 //queryResponseCode = "OK";
                 quantity = new Integer(subjects.size()).toString();
             }
-            if (errorText != null) {
+            if (errorDetail != null) {
                 // Overrides above code ... a bit ugly ...
-                queryResponseCode = "QE";  // FIXME: Should this be AE?
+                queryResponseCode = "AE";
             }
             // We only deal with full return of all data now (no continuation support).
             this.addCode(queryAckNode, "queryResponseCode", queryResponseCode);

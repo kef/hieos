@@ -43,13 +43,13 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
      *
      * @param PRPA_IN201309UV02_Message The request.
      * @param subjectSearchResponse [may be null]
-     * @param errorText [may be null]
+     * @param errorDetail [may be null]
      * @return PRPA_IN201310UV02_Message
      */
     public PRPA_IN201310UV02_Message buildPRPA_IN201310UV02_Message(
             PRPA_IN201309UV02_Message request,
             SubjectSearchResponse subjectSearchResponse,
-            String errorText) {
+            HL7V3ErrorDetail errorDetail) {
         OMElement requestNode = request.getMessageNode();
         String messageName = "PRPA_IN201310UV02";
 
@@ -73,32 +73,32 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         this.addCode(responseNode, "processingModeCode", "T");
         this.addCode(responseNode, "acceptAckCode", "NE");
 
-        // PRPA_IN201306UV02/receiver
-        // PRPA_IN201306UV02/sender
+        // PRPA_IN201310UV02/receiver
+        // PRPA_IN201310UV02/sender
         this.addReceiver(responseNode);
         this.addSender(responseNode);
 
-        // PRPA_IN201306UV02/acknowledgement
-        this.addAcknowledgementToRequest(requestNode, responseNode, errorText);
+        // PRPA_IN201310UV02/acknowledgement
+        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail);
 
-        // PRPA_IN201306UV02/controlActProcess
+        // PRPA_IN201310UV02/controlActProcess
         OMElement controlActProcessNode = this.addChildOMElement(responseNode, "controlActProcess");
         this.setAttribute(controlActProcessNode, "moodCode", "EVN");
         this.setAttribute(controlActProcessNode, "classCode", "CACT");
 
-        // PRPA_IN201306UV02/controlActProcess/code
+        // PRPA_IN201310UV02/controlActProcess/code
         OMElement codeNode = this.addCode(controlActProcessNode, "code", "PRPA_TE201310UV02");
         this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
 
         List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
 
-        // PRPA_IN201306UV02/controlActProcess/subject
+        // PRPA_IN201310UV02/controlActProcess/subject
         this.addSubjects(controlActProcessNode, subjects);
 
-        // PRPA_IN201306UV02/controlActProcess/queryAck
-        this.addQueryAckToRequest(requestNode, controlActProcessNode, subjects, errorText);
+        // PRPA_IN201310UV02/controlActProcess/queryAck
+        this.addQueryAckToRequest(requestNode, controlActProcessNode, subjects, errorDetail);
 
-        // PRPA_IN201306UV02/controlActProcess/queryByParameter
+        // PRPA_IN201310UV02/controlActProcess/queryByParameter
         this.addQueryByParameterFromRequest(requestNode, controlActProcessNode);
 
         return new PRPA_IN201310UV02_Message(responseNode);

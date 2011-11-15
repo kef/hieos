@@ -44,13 +44,13 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
      *
      * @param PRPA_IN201305UV02_Message The request.
      * @param subjectSearchResponse [may be null]
-     * @param errorText [may be null]
+     * @param errorDetail [may be null]
      * @return PRPA_IN201306UV02_Message
      */
     public PRPA_IN201306UV02_Message buildPRPA_IN201306UV02_Message(
             PRPA_IN201305UV02_Message request,
             SubjectSearchResponse subjectSearchResponse,
-            String errorText) {
+            HL7V3ErrorDetail errorDetail) {
         OMElement requestNode = request.getMessageNode();
         String messageName = "PRPA_IN201306UV02";
 
@@ -80,7 +80,7 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         this.addSender(responseNode);
 
         // PRPA_IN201306UV02/acknowledgement
-        this.addAcknowledgementToRequest(requestNode, responseNode, errorText);
+        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail);
 
         // PRPA_IN201306UV02/controlActProcess
         OMElement controlActProcessNode = this.addChildOMElement(responseNode, "controlActProcess");
@@ -97,7 +97,7 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         this.addSubjects(controlActProcessNode, subjects);
 
         // PRPA_IN201306UV02/controlActProcess/queryAck
-        this.addQueryAckToRequest(requestNode, controlActProcessNode, subjects, errorText);
+        this.addQueryAckToRequest(requestNode, controlActProcessNode, subjects, errorDetail);
 
         // PRPA_IN201306UV02/controlActProcess/queryByParameter
         this.addQueryByParameterFromRequest(requestNode, controlActProcessNode);
