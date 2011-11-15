@@ -155,12 +155,10 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
                 int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
                 if (subjectIdentifierDomainId == -1) {
-                    throw new EMPIException(subjectIdentifierDomain.getUniversalId() + " is not a known identifier domain");
-                    // Now, store identifier domain (first time seen).
-                    //sidDAO.insert(subjectIdentifierDomain);
-
-                    // Get the foreign key reference.
-                    //subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
+                    throw new EMPIException(
+                            subjectIdentifierDomain.getUniversalId()
+                            + " is not a known identifier domain",
+                            EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
                 }
                 stmt.setInt(3, subjectIdentifierDomainId);
                 stmt.addBatch();

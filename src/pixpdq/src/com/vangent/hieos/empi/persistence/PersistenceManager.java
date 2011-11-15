@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,10 +198,8 @@ public class PersistenceManager {
             List<SubjectIdentifier> subjectOtherIdentifiers = this.loadSubjectOtherIdentifiers(subjectCrossReference.getSystemSubjectId());
 
             // NOTE: Duplicates (across system-level subjects) of other ids is allowed, yet we remove them here).
-            for (SubjectIdentifier subjectOtherIdentifier : subjectOtherIdentifiers)
-            {
-                if (!enterpriseSubject.hasSubjectOtherIdentifier(subjectOtherIdentifier))
-                {
+            for (SubjectIdentifier subjectOtherIdentifier : subjectOtherIdentifiers) {
+                if (!enterpriseSubject.hasSubjectOtherIdentifier(subjectOtherIdentifier)) {
                     enterpriseSubject.getSubjectOtherIdentifiers().add(subjectOtherIdentifier);
                 }
             }
@@ -227,6 +226,51 @@ public class PersistenceManager {
     public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.doesSubjectExist(subjectIdentifiers);
+    }
+
+    /**
+     *
+     * @param subjectIdentifier
+     * @return
+     * @throws EMPIException
+     */
+    public int getSubjectIdentifierDomainId(SubjectIdentifier subjectIdentifier) throws EMPIException {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(connection);
+        SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+        return dao.getId(subjectIdentifierDomain);
+    }
+
+    /**
+     * 
+     * @param subjectIdentifierDomain
+     * @return
+     * @throws EMPIException
+     */
+    public int getSubjectIdentifierDomainId(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(connection);
+        return dao.getId(subjectIdentifierDomain);
+    }
+
+    /**
+     *
+     * @param subjectIdentifier
+     * @return
+     * @throws EMPIException
+     */
+    public boolean doesSubjectIdentifierDomainExist(SubjectIdentifier subjectIdentifier) throws EMPIException {
+        int subjectIdentifierDomainId = this.getSubjectIdentifierDomainId(subjectIdentifier);
+        return subjectIdentifierDomainId != -1;
+    }
+
+    /**
+     * 
+     * @param subjectIdentifierDomain
+     * @return
+     * @throws EMPIException
+     */
+    public boolean doesSubjectIdentifierDomainExist(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException {
+        int subjectIdentifierDomainId = this.getSubjectIdentifierDomainId(subjectIdentifierDomain);
+        return subjectIdentifierDomainId != -1;
     }
 
     /**

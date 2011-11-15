@@ -159,6 +159,10 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         PersistenceManager pm = new PersistenceManager();
         try {
             pm.open();
+
+            // First, make sure that we are configured to support supplied identifier domains.
+            this.validateSubjectIdentifierDomains(pm, subjectSearchCriteria);
+
             // FIXME: This is not entirely accurate, how about "other ids"?
             // Determine which path to take.
             if (subjectSearchCriteria.hasSubjectIdentifiers()) {
@@ -189,6 +193,11 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         try {
             pm.open();
+
+            // First, make sure that we are configured to support supplied identifier domains.
+            this.validateSubjectIdentifierDomains(pm, subjectSearchCriteria);
+
+            // Now, conduct lookup.
             subjectSearchResponse = this.findSubjectByIdentifier(pm, subjectSearchCriteria, true /* onlyLoadIdentifiers */);
         } finally {
             pm.close();
@@ -400,5 +409,39 @@ public class BaseEMPIAdapter implements EMPIAdapter {
             }
         }
         return shouldKeepSubjectIdentifier;
+    }
+
+    /**
+     * 
+     * @param pm
+     * @param subjectSearchCriteria
+     * @throws EMPIException
+     */
+    private void validateSubjectIdentifierDomains(PersistenceManager pm, SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+        Subject searchSubject = subjectSearchCriteria.getSubject();
+
+        // First validate identifier domains assocated with the search subject's identifiers.
+        List<SubjectIdentifier> subjectIdentifiers = searchSubject.getSubjectIdentifiers();
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(subjectIdentifier);
+            if (!subjectIdentifierDomainExists) {
+                SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+                throw new EMPIException(
+                        subjectIdentifierDomain.getUniversalId()
+                        + " is not a known identifier domain", 
+                        EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
+            }
+        }
+
+        // Now validate identifiers in any scoping organizations.
+        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(scopingIdentifierDomain);
+            if (!subjectIdentifierDomainExists) {
+                throw new EMPIException(
+                        scopingIdentifierDomain.getUniversalId()
+                        + " is not a known identifier domain",
+                        EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
+            }
+        }
     }
 }

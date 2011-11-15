@@ -28,6 +28,7 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
@@ -142,18 +143,22 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
     private PRPA_IN201310UV02_Message processPatientRegistryGetIdentifiersQuery(PRPA_IN201309UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         SubjectSearchResponse subjectSearchResponse = null;
-        String errorText = null;
+        HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
+        } catch (EMPIException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
-            errorText = ex.getMessage();
-            //log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
+            // Other exceptions.
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), null);
+        }
+        if (log_message.isLogEnabled() && errorDetail != null) {
+            log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
         PRPA_IN201310UV02_Message pixResponse =
                 this.getPatientRegistryGetIdentifiersQueryResponse(
-                request, subjectSearchResponse, errorText);
+                request, subjectSearchResponse, errorDetail);
         this.validateHL7V3Message(pixResponse);
         return pixResponse;
     }
@@ -171,17 +176,18 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
     }
 
     /**
-     *
-     * @param PRPA_IN201309UV02_Message
-     * @param errorText
-     * @return PRPA_IN201310UV02_Message
+     * 
+     * @param request
+     * @param subjectSearchResponse
+     * @param errorDetail
+     * @return
      */
-    private PRPA_IN201310UV02_Message getPatientRegistryGetIdentifiersQueryResponse(PRPA_IN201309UV02_Message request, SubjectSearchResponse subjectSearchResponse, String errorText) {
+    private PRPA_IN201310UV02_Message getPatientRegistryGetIdentifiersQueryResponse(PRPA_IN201309UV02_Message request, SubjectSearchResponse subjectSearchResponse, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201310UV02_Message_Builder builder =
                 new PRPA_IN201310UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorText);
+        return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorDetail);
     }
 
     /**

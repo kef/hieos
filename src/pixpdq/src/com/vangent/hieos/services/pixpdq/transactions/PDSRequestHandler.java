@@ -12,12 +12,14 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
@@ -86,17 +88,21 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
     private PRPA_IN201306UV02_Message processPatientRegistryFindCandidatesQuery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
         SubjectSearchResponse subjectSearchResponse = null;
-        String errorText = null;
+        HL7V3ErrorDetail errorDetail = null;
         try {
             // FIXME: Validate minimum fields required!!!!
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjects(subjectSearchCriteria);
+        } catch (EMPIException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
-            errorText = ex.getMessage();
-            //log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
+            // Other exceptions.
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), null);
         }
-        PRPA_IN201306UV02_Message queryResponse = this.getPatientRegistryFindCandidatesQueryResponse(request, subjectSearchResponse, errorText);
+        if (log_message.isLogEnabled() && errorDetail != null) {
+            log_message.addErrorParam("EXCEPTION", errorDetail.getText());
+        }
+        PRPA_IN201306UV02_Message queryResponse = this.getPatientRegistryFindCandidatesQueryResponse(request, subjectSearchResponse, errorDetail);
         this.validateHL7V3Message(queryResponse);
         return queryResponse;
     }
@@ -114,18 +120,18 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
     }
 
     /**
-     *
-     * @param PRPA_IN201305UV02_Message
+     * 
+     * @param request
      * @param subjectSearchResponse
-     * @param errorText
+     * @param errorDetail
      * @return
      */
     private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
-            SubjectSearchResponse subjectSearchResponse, String errorText) {
+            SubjectSearchResponse subjectSearchResponse, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
+        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorDetail);
     }
 }
