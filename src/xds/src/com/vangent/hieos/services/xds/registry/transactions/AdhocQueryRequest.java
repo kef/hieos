@@ -187,7 +187,9 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     // Policy Enforcement:
                     PEP pep = new PEP(this.getConfigActor());
                     boolean policyEnabled = pep.isPolicyEnabled();
-                    if (!policyEnabled) {
+                    // Note: Always let ObjectRef requests through since no detailed meta-data
+                    // is returned.
+                    if (!isLeafClassRequest || !policyEnabled) {
                         // Run the Stored Query.
                         List<OMElement> registryObjects = storedQuery(ahqr, isLeafClassRequest);
                         if (registryObjects != null) {
@@ -264,6 +266,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                 ahqResponse.addQueryResults((ArrayList) permittedRegistryObjects);
             }
         } else {
+            // Note: We should no longer get to this code.
             // We do not interrogate ObjectRef requests.
             // Place results in the response.
             AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
