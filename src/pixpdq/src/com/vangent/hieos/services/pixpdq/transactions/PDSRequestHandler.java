@@ -97,7 +97,7 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
             // Other exceptions.
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), null);
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());

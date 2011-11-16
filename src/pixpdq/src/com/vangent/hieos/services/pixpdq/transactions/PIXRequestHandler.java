@@ -103,18 +103,18 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
-        String errorText = null;
+        HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance();
             Subject subjectAdded = adapter.addSubject(subject);
         } catch (Exception ex) {
-            errorText = ex.getMessage();
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
             //log_message.setPass(false);
-            log_message.addErrorParam("EXCEPTION", errorText);
+            log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
-        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorDetail);
         this.validateHL7V3Message(ackResponse);
         return ackResponse;
     }
@@ -122,15 +122,15 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
     /**
      *
      * @param PRPA_IN201301UV02_Message
-     * @param errorText
+     * @param errorDetail
      * @return
      */
-    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, String errorText) {
+    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         MCCI_IN000002UV01_Message_Builder ackBuilder =
                 new MCCI_IN000002UV01_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        MCCI_IN000002UV01_Message ackResponse = ackBuilder.buildMCCI_IN000002UV01(request, errorText);
+        MCCI_IN000002UV01_Message ackResponse = ackBuilder.buildMCCI_IN000002UV01(request, errorDetail);
         return ackResponse;
     }
 
@@ -151,7 +151,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
             // Other exceptions.
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), null);
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
