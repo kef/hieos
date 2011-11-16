@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.transactions;
 
+import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 import com.vangent.hieos.services.xcpd.gateway.framework.XCPDGatewayRequestHandler;
 import com.vangent.hieos.services.xcpd.gateway.exception.XCPDException;
 
@@ -94,7 +95,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @return
      */
     private PRPA_IN201306UV02_Message processCrossGatewayPatientDiscovery(PRPA_IN201305UV02_Message request) throws SOAPFaultException {
-        String errorText = null;
+        HL7V3ErrorDetail errorDetail = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
 
         // Validate request against XML schema.
@@ -143,11 +144,11 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 subject.setCustodian(custodian);
             }
         } catch (Exception ex) {
-            errorText = ex.getMessage();
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         // Now prepare the XCPD response.
-        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
-        this.log(errorText);
+        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorDetail);
+        this.log(errorDetail);
         this.validateHL7V3Message(result);
         return result;
 
@@ -169,7 +170,7 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
         }
 
         // Check required fields (Subject + BirthTime).
-        if (subject.getSubjectNames().size() == 0) {
+        if (subject.getSubjectNames().isEmpty()) {
             throw new XCPDException("LivingSubjectName required");
         }
 
@@ -182,15 +183,15 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
      *
      * @param PRPA_IN201305UV02_Message
      * @param subjectSearchResponse
-     * @param errorText
+     * @param errorDetail
      * @return
      */
     private PRPA_IN201306UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201305UV02_Message request,
-            SubjectSearchResponse subjectSearchResponse, String errorText) {
+            SubjectSearchResponse subjectSearchResponse, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201306UV02_Message_Builder builder = new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
+        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorDetail);
     }
 
     /**

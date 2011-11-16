@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.xcpd.gateway.framework;
 
 import com.vangent.hieos.hl7v3util.client.PDSClient;
+import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
@@ -206,13 +207,13 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
 
     /**
      *
-     * @param errorText
+     * @param errorDetail
      */
-    protected void log(String errorText) {
-        if (errorText != null) {
+    protected void log(HL7V3ErrorDetail errorDetail) {
+        if (errorDetail != null) {
             log_message.setPass(false);
             if (log_message.isLogEnabled()) {
-                log_message.addErrorParam("EXCEPTION", errorText);
+                log_message.addErrorParam("EXCEPTION", errorDetail.getText());
             }
         }
     }

@@ -36,6 +36,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -113,7 +114,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         this.validateHL7V3Message(request);
         PRPA_IN201306UV02_Message result = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
-        String errorText = null;  // Hope for the best.
+        HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             this.validateSearchCriteriaRequest(subjectSearchCriteria);
@@ -128,10 +129,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Assume that PDQ request has valid patient id and demographics (skip PDQ validation).
             patientDiscoverySearchResponse = requestController.performCrossGatewayPatientDiscovery(subjectSearchCriteria);
         } catch (XCPDException ex) {
-            errorText = ex.getMessage();
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
-        result = this.getPatientRegistryFindCandidatesQueryResponse(request, patientDiscoverySearchResponse, errorText);
-        this.log(errorText);
+        result = this.getPatientRegistryFindCandidatesQueryResponse(request, patientDiscoverySearchResponse, errorDetail);
+        this.log(errorDetail);
         this.validateHL7V3Message(result);
         return result;
     }
@@ -146,7 +147,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         this.validateHL7V3Message(request);
         PRPA_IN201310UV02_Message result = null;
         SubjectSearchResponse patientDiscoverySearchResponse = null;
-        String errorText = null;  // Hope for the best.
+        HL7V3ErrorDetail errorDetail = null;  // Hope for the best.
         try {
             // Get SubjectSearchCriteria instance from PIX Query.
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
@@ -167,10 +168,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 // See if we only have one match (from PDS) for the patient.
                 List<Subject> subjects = pdqSearchResponse.getSubjects();
                 if (subjects.isEmpty()) {
-                    errorText = "0 local subjects found for PIX query request";
+                    errorDetail = new HL7V3ErrorDetail("0 local subjects found for PIX query request");
                 } else if (subjects.size() > 1) {
                     // Should not be feasible, but check anyway.
-                    errorText = "> 1 local subjects found for PIX query request";
+                    errorDetail = new HL7V3ErrorDetail("> 1 local subjects found for PIX query request");
                 } else {
                     // Get the first subject from the list.
                     Subject subject = subjects.get(0);
@@ -192,10 +193,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 patientDiscoverySearchResponse = requestController.getPatientDiscoverySearchResponse();
             }
         } catch (XCPDException ex) {
-            errorText = ex.getMessage();
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
-        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorText);
-        this.log(errorText);
+        result = this.getCrossGatewayPatientDiscoveryResponse(request, patientDiscoverySearchResponse, errorDetail);
+        this.log(errorDetail);
         this.validateHL7V3Message(result);
         return result;
     }
@@ -208,7 +209,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
-        String errorText = null;  // Hope for the best.
+        HL7V3ErrorDetail errorDetail = null;  // Hope for the best.
         try {
             // Get SubjectSearchCriteria instance from PID Feed.
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
@@ -228,10 +229,10 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             // Nothing more to do here ...
 
         } catch (XCPDException ex) {
-            errorText = ex.getMessage();
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
-        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorText);
-        this.log(errorText);
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorDetail);
+        this.log(errorDetail);
         this.validateHL7V3Message(ackResponse);
         return ackResponse;
     }
@@ -330,7 +331,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         }
 
         // Check required fields (Subject + BirthTime).
-        if (subject.getSubjectNames().size() == 0) {
+        if (subject.getSubjectNames().isEmpty()) {
             throw new XCPDException("LivingSubjectName required");
         }
 
@@ -380,46 +381,46 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     /**
      *
      * @param PRPA_IN201301UV02_Message
-     * @param errorText
+     * @param errorDetail
      * @return
      */
-    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, String errorText) {
+    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         MCCI_IN000002UV01_Message_Builder ackBuilder = new MCCI_IN000002UV01_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        MCCI_IN000002UV01_Message ackResponse = ackBuilder.buildMCCI_IN000002UV01(request, errorText);
+        MCCI_IN000002UV01_Message ackResponse = ackBuilder.buildMCCI_IN000002UV01(request, errorDetail);
         return ackResponse;
-    }
-
-    /**
-     *
-     * @param request
-     * @param subjectSearchResponse
-     * @param errorText
-     * @return
-     */
-    private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
-            SubjectSearchResponse subjectSearchResponse, String errorText) {
-        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
-        DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
-        PRPA_IN201306UV02_Message_Builder builder =
-                new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorText);
     }
 
     /**
      * 
      * @param request
      * @param subjectSearchResponse
-     * @param errorText
+     * @param errorDetail
+     * @return
+     */
+    private PRPA_IN201306UV02_Message getPatientRegistryFindCandidatesQueryResponse(PRPA_IN201305UV02_Message request,
+            SubjectSearchResponse subjectSearchResponse, HL7V3ErrorDetail errorDetail) {
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
+        DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
+        PRPA_IN201306UV02_Message_Builder builder =
+                new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
+        return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorDetail);
+    }
+
+    /**
+     * 
+     * @param request
+     * @param subjectSearchResponse
+     * @param errorDetail
      * @return
      */
     private PRPA_IN201310UV02_Message getCrossGatewayPatientDiscoveryResponse(PRPA_IN201309UV02_Message request,
-            SubjectSearchResponse subjectSearchResponse, String errorText) {
+            SubjectSearchResponse subjectSearchResponse, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         PRPA_IN201310UV02_Message_Builder builder = new PRPA_IN201310UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
-        return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorText);
+        return builder.buildPRPA_IN201310UV02_Message(request, subjectSearchResponse, errorDetail);
     }
 
     /**
