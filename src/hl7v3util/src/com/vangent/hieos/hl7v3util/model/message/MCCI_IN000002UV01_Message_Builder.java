@@ -42,13 +42,13 @@ public class MCCI_IN000002UV01_Message_Builder extends HL7V3MessageBuilderHelper
     /**
      *
      * @param request
-     * @param errorString
+     * @param errorDetail
      * @return
      */
     // FIXME: may want to be able to support other requests.
     public MCCI_IN000002UV01_Message buildMCCI_IN000002UV01(
             PRPA_IN201301UV02_Message request,
-            String errorString) {
+            HL7V3ErrorDetail errorDetail) {
         // MCCI_IN000002UV01:
         OMElement ackResponseNode = this.createOMElement("MCCI_IN000002UV01");
         this.setAttribute(ackResponseNode, "ITSVersion", "XML_1.0");
@@ -91,7 +91,7 @@ public class MCCI_IN000002UV01_Message_Builder extends HL7V3MessageBuilderHelper
         OMElement ackNode = this.addChildOMElement(ackResponseNode, "acknowledgement");
 
         // /MCCI_IN000002UV01/acknowledgement/typeCode
-        if ((errorString == null) || (errorString.length() == 0)) {
+        if ((errorDetail == null) || (errorDetail.getText() == null) || errorDetail.getText().isEmpty()) {
             // Accept Acknoweledgement Commit Accept
             this.addCode(ackNode, "typeCode", "CA");
         } else {
@@ -112,13 +112,14 @@ public class MCCI_IN000002UV01_Message_Builder extends HL7V3MessageBuilderHelper
         }
 
         // FOR ERROR REPORTING:
-        if ((errorString != null) && (errorString.length() > 0)) {
+        // FIXME: Add "code" from errorDetail ...
+        if ((errorDetail != null) && (errorDetail.getText() != null) && !errorDetail.getText().isEmpty()) {
 
             // /MCCI_IN000002UV01/acknowledgement/acknowledgementDetail
             OMElement acknowledgementDetail = this.addChildOMElement(ackNode, "acknowledgementDetail");
 
             // /MCCI_IN000002UV01/acknowledgement/acknowledgementDetail/text
-            this.addChildOMElementWithValue(acknowledgementDetail, "text", errorString);
+            this.addChildOMElementWithValue(acknowledgementDetail, "text", errorDetail.getText());
         }
         return new MCCI_IN000002UV01_Message(ackResponseNode);
     }

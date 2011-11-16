@@ -28,6 +28,15 @@ public class HL7V3ErrorDetail {
     /**
      *
      * @param text
+     */
+    public HL7V3ErrorDetail(String text) {
+        this.text = text;
+        this.code = null;
+    }
+
+    /**
+     *
+     * @param text
      * @param code
      */
     public HL7V3ErrorDetail(String text, String code) {
