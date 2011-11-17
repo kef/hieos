@@ -78,7 +78,8 @@ public class PatientSearch extends Canvas
                 
 		// SSN:
                 ssnLast4Field = new TextItem("ssn", "SSN");
-                ssnLast4Field.setLength(11);
+                ssnLast4Field.setLength(9);
+                ssnLast4Field.setMask("#########");
 		ssnLast4Field.setRequired(false);
 
                 // Gender:
