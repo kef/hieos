@@ -61,6 +61,14 @@
         <Property name="LabelHIEModeText">IHS Health Information Exchange</Property>
         <Property name="LabelNHINModeText">National Health Information Network Exchange</Property>
         
+        <Property name="ToolTipGivenNameColumn">Displays first name.</Property>
+        <Property name="ToolTipFamilyNameColumn">Displays last name.</Property>
+        <Property name="ToolTipDateOfBirthColumn">Displays date of birth.</Property>
+        <Property name="ToolTipGenderColumn">Displays gender.</Property>
+        <Property name="ToolTipSSNColumn">Displays SSN.</Property>
+        <Property name="ToolTipEUIDColumn">Displays master patient index identifier.</Property>
+        <Property name="ToolTipConfidenceColumn">Displays confidence.</Property>
+        
 	<!-- Permission Mappings  -->
 	<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
 	<Property name="PermittedRoles_ViewConsent">Role1</Property>
@@ -218,7 +226,7 @@
     <Actor name="localpds" type="PDSType">
         <UniqueId>NA</UniqueId>
         <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pds</Endpoint>
+            <Endpoint secure="false" async="false">http://10.24.196.208:8080/axis2/services/pds</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
