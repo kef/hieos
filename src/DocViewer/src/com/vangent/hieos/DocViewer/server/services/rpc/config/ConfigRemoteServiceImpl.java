@@ -95,28 +95,51 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
                 
                 // copy properties from xconfig to config
-                config.put(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON,
-                        servletUtil.getProperty(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON));
-                config.put(Config.KEY_SHOW_ORGANIZATION_COLUMN,
-                        servletUtil.getProperty(Config.KEY_SHOW_ORGANIZATION_COLUMN));
-                config.put(Config.KEY_SHOW_TITLE_BRANDING,
-                        servletUtil.getProperty(Config.KEY_SHOW_TITLE_BRANDING));
+                copyToConfig(config, Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+                copyToConfig(config, Config.KEY_SHOW_ORGANIZATION_COLUMN);
+                copyToConfig(config, Config.KEY_SHOW_TITLE_BRANDING);
 
-                config.put(Config.KEY_LABEL_EUID,
-                        servletUtil.getProperty(Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID));
-                config.put(Config.KEY_LABEL_FAMILY_NAME,
-                        servletUtil.getProperty(Config.KEY_LABEL_FAMILY_NAME, Config.DEFAULT_LABEL_FAMILY_NAME));
-                config.put(Config.KEY_LABEL_GIVEN_NAME,
-                        servletUtil.getProperty(Config.KEY_LABEL_GIVEN_NAME, Config.DEFAULT_LABEL_GIVEN_NAME));
-                config.put(Config.KEY_LABEL_HIE_MODE,
-                        servletUtil.getProperty(Config.KEY_LABEL_HIE_MODE, Config.DEFAULT_LABEL_HIE_MODE));
-                config.put(Config.KEY_LABEL_NHIN_MODE,
-                        servletUtil.getProperty(Config.DEFAULT_LABEL_NHIN_MODE, Config.DEFAULT_LABEL_NHIN_MODE));
+                copyToConfig(config,
+                        Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID);
+                copyToConfig(config,
+                        Config.KEY_LABEL_FAMILY_NAME, Config.DEFAULT_LABEL_FAMILY_NAME);
+                copyToConfig(config,
+                        Config.KEY_LABEL_GIVEN_NAME, Config.DEFAULT_LABEL_GIVEN_NAME);
+                copyToConfig(config,
+                        Config.KEY_LABEL_HIE_MODE, Config.DEFAULT_LABEL_HIE_MODE);
+                copyToConfig(config, 
+                        Config.KEY_LABEL_NHIN_MODE, Config.DEFAULT_LABEL_NHIN_MODE);
+                
+                copyToConfig(config, Config.KEY_TOOLTIP_CONFIDENCE);
+                copyToConfig(config, Config.KEY_TOOLTIP_DATE_OF_BIRTH);
+                copyToConfig(config, Config.KEY_TOOLTIP_EUID);
+                copyToConfig(config, Config.KEY_TOOLTIP_FAMILY_NAME);
+                copyToConfig(config, Config.KEY_TOOLTIP_GIVEN_NAME);
+                copyToConfig(config, Config.KEY_TOOLTIP_GENDER);
+                copyToConfig(config, Config.KEY_TOOLTIP_SSN);
                 
 		this.loadDocumentTemplateConfigs(config);
 		return config;
 	}
 
+        private void copyToConfig(Config config, String propertyName) {
+            copyToConfig(config, propertyName, null);
+        }
+        
+        private void copyToConfig(Config config, String propertyName, String defaultName) {
+            
+            if (defaultName != null) {
+                
+                config.put(propertyName,
+                        servletUtil.getProperty(propertyName, defaultName));
+                
+            } else {
+                
+                config.put(propertyName,
+                        servletUtil.getProperty(propertyName));            
+            }
+        }
+        
 	/**
 	 * 
 	 * @param config

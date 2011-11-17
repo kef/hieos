@@ -53,6 +53,14 @@ public class Config implements IsSerializable {
         public static final String DEFAULT_LABEL_HIE_MODE = "HIE";
         public static final String DEFAULT_LABEL_NHIN_MODE = "NHIN Exchange";
         
+        public static final String KEY_TOOLTIP_GIVEN_NAME = "ToolTipGivenNameColumn";
+        public static final String KEY_TOOLTIP_FAMILY_NAME = "ToolTipFamilyNameColumn";
+        public static final String KEY_TOOLTIP_DATE_OF_BIRTH = "ToolTipDateOfBirthColumn";
+        public static final String KEY_TOOLTIP_GENDER = "ToolTipGenderColumn";
+        public static final String KEY_TOOLTIP_SSN = "ToolTipSSNColumn";
+        public static final String KEY_TOOLTIP_EUID = "ToolTipEUIDColumn";
+        public static final String KEY_TOOLTIP_CONFIDENCE = "ToolTipConfidenceColumn";
+        
 	/**
 	 * 
 	 */

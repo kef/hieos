@@ -34,6 +34,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -100,7 +101,22 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 
 		// DOB:
 		subject.setBirthTime(patientSearchCriteria.getDateOfBirth());
+               
+                // SSN(last4)
+                String ssnValue = patientSearchCriteria.getSsnLast4();
+                if (StringUtils.isNotBlank(ssnValue)) {
+                    
+                    SubjectIdentifierDomain ssnDomain = new SubjectIdentifierDomain();
+                    ssnDomain.setUniversalId(SSN_IDENTIFIER_DOMAIN);
+                    ssnDomain.setUniversalIdType("ISO");
 
+                    SubjectIdentifier ssnId = new SubjectIdentifier();
+                    ssnId.setIdentifierDomain(ssnDomain);
+                    ssnId.setIdentifier(ssnValue);   
+
+                    subject.addSubjectIdentifier(ssnId);
+                }
+                
 		// Gender:
 		String genderCode = patientSearchCriteria.getGenderCode();
 		if (genderCode.equals("UN")) {

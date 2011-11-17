@@ -14,7 +14,6 @@ package com.vangent.hieos.DocViewer.client.view.patient;
 
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.form.events.SubmitValuesEvent;
-import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.FormItem;
@@ -44,7 +43,7 @@ public class PatientSearch extends Canvas
 	private final TextItem givenNameField;
 	private final DateTimeItem dateOfBirthField;
 	private final RadioGroupItem genderGroupItem;
-	//private final TextItem ssnLast4Field = new TextItem("ssn", "SSN(last 4)");
+	private final TextItem ssnLast4Field;
 	//private final TextItem hrnField = new TextItem("hrn", "HRN");
 
 	/**
@@ -54,7 +53,7 @@ public class PatientSearch extends Canvas
             
 		this.controller = mainController;
                 
-                Config config = this.controller.getConfig();
+                Config controllerConfig = this.controller.getConfig();
 
 		this.searchForm = new DynamicForm();
                 this.searchForm.setIsGroup(true);
@@ -64,20 +63,25 @@ public class PatientSearch extends Canvas
                 this.searchForm.addSubmitValuesHandler(this);
 
 		// Family name:
-                String familyNameLabel = config.get(Config.KEY_LABEL_FAMILY_NAME);
+                String familyNameLabel = controllerConfig.get(Config.KEY_LABEL_FAMILY_NAME);
                 this.familyNameField = new TextItem("familyName", familyNameLabel);		
                 this.familyNameField.setRequired(true);
-
+        
 		// Given name:
-                String givenNameLabel = config.get(Config.KEY_LABEL_GIVEN_NAME);
+                String givenNameLabel = controllerConfig.get(Config.KEY_LABEL_GIVEN_NAME);
                 this.givenNameField = new TextItem("givenName", givenNameLabel);		
                 this.givenNameField.setRequired(true);
 
 		// Date of birth:
                 this.dateOfBirthField = new DateTimeItem("DOB", "Date of birth");		dateOfBirthField.setDisplayFormat(DateDisplayFormat.TOUSSHORTDATE);
 		this.dateOfBirthField.setRequired(false);
+                
+		// SSN:
+                ssnLast4Field = new TextItem("ssn", "SSN");
+                ssnLast4Field.setLength(11);
+		ssnLast4Field.setRequired(false);
 
-		// Gender:
+                // Gender:
                 this.genderGroupItem = new RadioGroupItem();
                 this.genderGroupItem.setVertical(false);
 		this.genderGroupItem.setStartRow(false);
@@ -89,13 +93,8 @@ public class PatientSearch extends Canvas
 		/*
 		// HRN:
 		hrnField.setRequired(false);
-
-		// SSN:
-		ssnLast4Field.setLength(4);
-		ssnLast4Field.setWidth(40);
-		ssnLast4Field.setRequired(false);
-		*/
-
+                */
+		
 		final ButtonItem btnFind = new ButtonItem("Find");
 		btnFind.setIcon("find.png");
 		btnFind.addClickHandler(this);
@@ -104,13 +103,12 @@ public class PatientSearch extends Canvas
                 btnFind.setAlign(Alignment.CENTER);
                 
 		// Search fields:
-		this.searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
-				dateOfBirthField, genderGroupItem, btnFind });
+		this.searchForm.setFields(new FormItem[] { familyNameField, 
+                        givenNameField, dateOfBirthField,  
+                        ssnLast4Field, genderGroupItem, btnFind });
 		
 		//searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
 		//		dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
-
-
 		
 		// Now, lay it out.
 		final VLayout layout = new VLayout();
@@ -172,7 +170,8 @@ public class PatientSearch extends Canvas
 		//criteria.setHealthRecordNumber(hrnField.getValueAsString());
 
 		// SSN(last4):
-		//criteria.setSsnLast4(ssnLast4Field.getValueAsString());
+		criteria.setSsnLast4(ssnLast4Field.getValueAsString());
+                
 		return criteria;
 	}
 	
