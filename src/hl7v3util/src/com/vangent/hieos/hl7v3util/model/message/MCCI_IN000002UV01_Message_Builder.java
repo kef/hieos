@@ -47,7 +47,7 @@ public class MCCI_IN000002UV01_Message_Builder extends HL7V3MessageBuilderHelper
      */
     // FIXME: may want to be able to support other requests.
     public MCCI_IN000002UV01_Message buildMCCI_IN000002UV01(
-            PRPA_IN201301UV02_Message request,
+            HL7V3Message request,
             HL7V3ErrorDetail errorDetail) {
         // MCCI_IN000002UV01:
         OMElement ackResponseNode = this.createOMElement("MCCI_IN000002UV01");

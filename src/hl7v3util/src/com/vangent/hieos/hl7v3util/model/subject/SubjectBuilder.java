@@ -18,6 +18,7 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -59,11 +60,52 @@ public class SubjectBuilder extends BuilderHelper {
 
     /**
      *
-     * @param PRPA_IN201301UV02_Message
+     * @param message
      * @return
+     * @throws ModelBuilderException
      */
     public Subject buildSubject(PRPA_IN201301UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectFromMessage(message);
+    }
 
+    /**
+     *
+     * @param message
+     * @return
+     * @throws ModelBuilderException
+     */
+    public Subject buildSubject(PRPA_IN201302UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectFromMessage(message);
+    }
+
+    /**
+     *
+     * @param message
+     * @return
+     * @throws ModelBuilderException
+     */
+    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectSearchResponse(message, true);
+
+    }
+
+    /**
+     *
+     * @param message
+     * @return
+     * @throws ModelBuilderException
+     */
+    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201310UV02_Message message) throws ModelBuilderException {
+        return this.buildSubjectSearchResponse(message, false);
+    }
+
+    /**
+     * 
+     * @param message
+     * @return
+     * @throws ModelBuilderException
+     */
+    protected Subject buildSubjectFromMessage(HL7V3Message message) throws ModelBuilderException {
         // Get the patient.
         OMElement patientNode = null;
         try {
@@ -79,27 +121,6 @@ public class SubjectBuilder extends BuilderHelper {
         Subject subject = this.getSubject(patientNode, null);
 
         return subject;
-    }
-
-    /**
-     *
-     * @param PRPA_IN201306UV02_Message
-     * @return
-     * @throws ModelBuilderException
-     */
-    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201306UV02_Message message) throws ModelBuilderException {
-        return this.buildSubjectSearchResponse(message, true);
-
-    }
-
-    /**
-     *
-     * @param PRPA_IN201310UV02_Message
-     * @return
-     * @throws ModelBuilderException
-     */
-    public SubjectSearchResponse buildSubjectSearchResponse(PRPA_IN201310UV02_Message message) throws ModelBuilderException {
-        return this.buildSubjectSearchResponse(message, false);
     }
 
     /**
@@ -156,8 +177,8 @@ public class SubjectBuilder extends BuilderHelper {
         this.setNames(subject, patientNode);
         this.setTelecomAddresses(subject, patientNode);
         this.setAddresses(subject, patientNode);
-        this.setIdentifiers(subject, patientNode);
-        this.setOtherIdentifiers(subject, patientNode);
+        this.setSubjectIdentifiers(subject, patientNode);
+        this.setSubjectOtherIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
         this.setMatchConfidencePercentage(subject, patientNode);
         return subject;
@@ -171,8 +192,8 @@ public class SubjectBuilder extends BuilderHelper {
      */
     private Subject getSubjectWithIdentifiersOnly(OMElement patientNode, OMElement registrationEventNode) {
         Subject subject = new Subject();
-        this.setIdentifiers(subject, patientNode);
-        this.setOtherIdentifiers(subject, patientNode);
+        this.setSubjectIdentifiers(subject, patientNode);
+        this.setSubjectOtherIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
         return subject;
     }
@@ -269,7 +290,7 @@ public class SubjectBuilder extends BuilderHelper {
 
     /**
      *
-     * @param node
+     * @param rootNode
      * @return
      */
     public SubjectName buildSubjectName(OMElement rootNode) {
@@ -298,12 +319,12 @@ public class SubjectBuilder extends BuilderHelper {
     /**
      *
      * @param subject
-     * @param patientNode
+     * @param rootNode
      */
-    private void setAddresses(Subject subject, OMElement patientNode) {
+    private void setAddresses(Subject subject, OMElement rootNode) {
         try {
             List<Address> addresses = subject.getAddresses();
-            List<OMElement> addressNodes = this.selectNodes(patientNode, XPATH_PATIENT_ADDRESSES);
+            List<OMElement> addressNodes = this.selectNodes(rootNode, XPATH_PATIENT_ADDRESSES);
             for (OMElement addressNode : addressNodes) {
                 Address address = this.buildAddress(addressNode);
                 addresses.add(address);
@@ -316,12 +337,12 @@ public class SubjectBuilder extends BuilderHelper {
     /**
      *
      * @param subject
-     * @param patientNode
+     * @param rootNode
      */
-    private void setTelecomAddresses(Subject subject, OMElement patientNode) {
+    private void setTelecomAddresses(Subject subject, OMElement rootNode) {
         try {
             List<TelecomAddress> telecomAddresses = subject.getTelecomAddresses();
-            List<OMElement> telecomAddressNodes = this.selectNodes(patientNode, XPATH_PATIENT_TELECOM_ADDRESSES);
+            List<OMElement> telecomAddressNodes = this.selectNodes(rootNode, XPATH_PATIENT_TELECOM_ADDRESSES);
             for (OMElement telecomAddressNode : telecomAddressNodes) {
                 TelecomAddress telecomAddress = this.buildTelecomAddress(telecomAddressNode);
                 telecomAddresses.add(telecomAddress);
@@ -333,40 +354,40 @@ public class SubjectBuilder extends BuilderHelper {
 
     /**
      *
-     * @param node
+     * @param rootNode
      * @return
      */
-    public TelecomAddress buildTelecomAddress(OMElement node) {
+    public TelecomAddress buildTelecomAddress(OMElement rootNode) {
         TelecomAddress telecomAddress = new TelecomAddress();
-        telecomAddress.setUse(node.getAttributeValue(new QName("use")));
-        telecomAddress.setValue(node.getAttributeValue(new QName("value")));
+        telecomAddress.setUse(rootNode.getAttributeValue(new QName("use")));
+        telecomAddress.setValue(rootNode.getAttributeValue(new QName("value")));
         return telecomAddress;
     }
 
     /**
      *
-     * @param node
+     * @param rootNode
      * @return
      */
-    public Address buildAddress(OMElement node) {
+    public Address buildAddress(OMElement rootNode) {
         Address address = new Address();
         // FIXME? - deal with more than one address line.
-        address.setStreetAddressLine1(this.getFirstChildNodeValue(node, "streetAddressLine"));
-        address.setCity(this.getFirstChildNodeValue(node, "city"));
-        address.setState(this.getFirstChildNodeValue(node, "state"));
-        address.setPostalCode(this.getFirstChildNodeValue(node, "postalCode"));
-        address.setCountry(this.getFirstChildNodeValue(node, "country"));
+        address.setStreetAddressLine1(this.getFirstChildNodeValue(rootNode, "streetAddressLine"));
+        address.setCity(this.getFirstChildNodeValue(rootNode, "city"));
+        address.setState(this.getFirstChildNodeValue(rootNode, "state"));
+        address.setPostalCode(this.getFirstChildNodeValue(rootNode, "postalCode"));
+        address.setCountry(this.getFirstChildNodeValue(rootNode, "country"));
         return address;
     }
 
     /**
      * 
      * @param subject
-     * @param patientNode
+     * @param rootNode
      */
-    private void setIdentifiers(Subject subject, OMElement patientNode) {
+    protected void setSubjectIdentifiers(Subject subject, OMElement rootNode) {
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-        Iterator<OMElement> iter = patientNode.getChildrenWithName(new QName("id"));
+        Iterator<OMElement> iter = rootNode.getChildrenWithName(new QName("id"));
         while (iter.hasNext()) {
             OMElement idNode = iter.next();
             SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(idNode);
@@ -377,12 +398,12 @@ public class SubjectBuilder extends BuilderHelper {
     /**
      *
      * @param subject
-     * @param patientNode
+     * @param rootNode
      */
-    private void setOtherIdentifiers(Subject subject, OMElement patientNode) {
+    private void setSubjectOtherIdentifiers(Subject subject, OMElement rootNode) {
         List<SubjectIdentifier> subjectOtherIdentifiers = subject.getSubjectOtherIdentifiers();
         try {
-            List<OMElement> asOtherIDs = this.selectNodes(patientNode, XPATH_PATIENT_AS_OTHER_IDS);
+            List<OMElement> asOtherIDs = this.selectNodes(rootNode, XPATH_PATIENT_AS_OTHER_IDS);
             for (OMElement asOtherID : asOtherIDs) {
                 OMElement idNode = this.getFirstChildNodeWithName(asOtherID, "id");
                 SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(idNode);
@@ -396,9 +417,9 @@ public class SubjectBuilder extends BuilderHelper {
     /**
      * 
      * @param subject
-     * @param registrationEventNode
+     * @param rootNode
      */
-    private void setCustodian(Subject subject, OMElement registrationEventNode) {
+    private void setCustodian(Subject subject, OMElement rootNode) {
         // <custodian typeCode="CST">
         //   <assignedEntity classCode="ASSIGNED">
         //     <id root="1.2.840.114350.1.13.99998.8734"/>
@@ -406,10 +427,10 @@ public class SubjectBuilder extends BuilderHelper {
         //             codeSystem="1.3.6.1.4.1.19376.1.2.27.2"/>
         //   </assignedEntity>
         // </custodian>
-        if (registrationEventNode != null) {
+        if (rootNode != null) {
             try {
                 Custodian custodian = null;
-                OMElement idNode = this.selectSingleNode(registrationEventNode,
+                OMElement idNode = this.selectSingleNode(rootNode,
                         "./ns:custodian/ns:assignedEntity/ns:id[1]");
                 if (idNode != null) {
                     String custodianId = idNode.getAttributeValue(new QName("root"));
@@ -420,7 +441,7 @@ public class SubjectBuilder extends BuilderHelper {
                     }
                 }
                 if (custodian != null) {
-                    OMElement codeNode = this.selectSingleNode(registrationEventNode,
+                    OMElement codeNode = this.selectSingleNode(rootNode,
                             "./ns:custodian/ns:assignedEntity/ns:code[1]");
                     if (codeNode != null) {
                         String healthLocatorCodeValue = codeNode.getAttributeValue(new QName("code"));
@@ -442,9 +463,9 @@ public class SubjectBuilder extends BuilderHelper {
     /**
      * 
      * @param subject
-     * @param patientNode
+     * @param rootNode
      */
-    private void setMatchConfidencePercentage(Subject subject, OMElement patientNode) {
+    private void setMatchConfidencePercentage(Subject subject, OMElement rootNode) {
         // <subjectOf1>
         //   <queryMatchObservation classCode="COND" moodCode="EVN">
         //     <code code="IHE_PDQ"/>
@@ -452,7 +473,7 @@ public class SubjectBuilder extends BuilderHelper {
         //   </queryMatchObservation>
         // </subjectOf1>
         try {
-            OMElement valueNode = this.selectSingleNode(patientNode,
+            OMElement valueNode = this.selectSingleNode(rootNode,
                     "./ns:subjectOf1/ns:queryMatchObservation/ns:value[1]");
             if (valueNode != null) {
                 String value = valueNode.getAttributeValue(new QName("value"));
@@ -467,15 +488,15 @@ public class SubjectBuilder extends BuilderHelper {
 
     /**
      *
-     * @param node
+     * @param rootNode
      * @return
      */
-    public SubjectIdentifier buildSubjectIdentifier(OMElement node) {
+    public SubjectIdentifier buildSubjectIdentifier(OMElement rootNode) {
         SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
-        String root = node.getAttributeValue(new QName("root")); // Assigning Authority - required.
-        String extension = node.getAttributeValue(new QName("extension")); // PID - required.
+        String root = rootNode.getAttributeValue(new QName("root")); // Assigning Authority - required.
+        String extension = rootNode.getAttributeValue(new QName("extension")); // PID - required.
         // TBD: Validate root/extension exist!
-        String assigningAuthorityName = node.getAttributeValue(new QName("assigningAuthorityName")); // Optional.
+        String assigningAuthorityName = rootNode.getAttributeValue(new QName("assigningAuthorityName")); // Optional.
         subjectIdentifier.setIdentifier(extension);
         SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
         identifierDomain.setUniversalId(root);

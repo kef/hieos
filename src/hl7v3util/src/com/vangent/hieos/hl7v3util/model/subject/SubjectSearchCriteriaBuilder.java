@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
@@ -185,11 +186,11 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
     /**
      * 
      * @param subject
-     * @param patientIdNode
+     * @param rootNode
      */
-    private void setPatientIdentifier(Subject subject, OMElement patientIdNode) {
+    private void setPatientIdentifier(Subject subject, OMElement rootNode) {
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-        OMElement valueNode = this.getFirstChildNodeWithName(patientIdNode, "value");
+        OMElement valueNode = this.getFirstChildNodeWithName(rootNode, "value");
         SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(valueNode);
         subjectIdentifiers.add(subjectIdentifier);
     }
