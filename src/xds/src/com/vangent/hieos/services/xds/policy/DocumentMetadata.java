@@ -39,6 +39,25 @@ public class DocumentMetadata {
     private int size;
 
     /**
+     * 
+     */
+    public DocumentMetadata() {
+        super();
+    }
+
+    /**
+     * 
+     * @param docresp
+     */
+    public DocumentMetadata(DocumentResponse docresp) {
+        
+        super();
+        this.documentId = docresp.getDocumentId();
+        this.repositoryId = docresp.getRepositoryId();
+        this.homeCommunityId = docresp.getHomeCommunityId();
+    }
+
+    /**
      *
      * @return
      */
@@ -64,7 +83,7 @@ public class DocumentMetadata {
 
     /**
      *
-     * @param isExtrinsicObject
+     * @param isObjectRef 
      */
     public void setIsExtrinsicObject(boolean isObjectRef) {
         this.isExtrinsicObject = isObjectRef;

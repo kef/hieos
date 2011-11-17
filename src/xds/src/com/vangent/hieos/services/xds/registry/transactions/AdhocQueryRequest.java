@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyResult;
 import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.XATNALogger;
@@ -202,7 +203,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                             if (log_message.isLogEnabled()) {
                                 log_message.addOtherParam("Policy:Note", "DENIED access to all content");
                             }
-                            response.add_error(MetadataSupport.XDSRegistryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                            response.add_warning(MetadataSupport.XDSPolicyEvaluationWarning, "Request denied due to policy", this.getClass().getName(), log_message);                            
                         } else if (!pdpResponse.hasObligations()) {
                             if (log_message.isLogEnabled()) {
                                 log_message.addOtherParam("Policy:Note", "PERMITTED access to all content [no obligations]");
@@ -254,17 +255,21 @@ public class AdhocQueryRequest extends XBaseTransaction {
 
             // Run policy evaluation to get permitted objects list (using obligation id as "action-id").
             DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
-            RegistryObjectElementList permittedRegistryObjectElementList = policyEvaluator.evaluate(
+            DocumentPolicyResult policyResult = policyEvaluator.evaluate(
                     obligationIds.get(0),
                     pdpResponse.getRequestType(),
                     new RegistryObjectElementList(registryObjects));
             
             // Place permitted registry objects into the response.
-            List<OMElement> permittedRegistryObjects = permittedRegistryObjectElementList.getElementList();
+            List<OMElement> permittedRegistryObjects = policyResult.getPermittedRegistryObjects().getElementList();
             if (!permittedRegistryObjects.isEmpty()) {
                 AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
                 ahqResponse.addQueryResults((ArrayList) permittedRegistryObjects);
             }
+            
+            // emit denial warnings
+            policyResult.emitDocumentDenialWarnings(response, getClass(), log_message);
+            
         } else {
             // Note: We should no longer get to this code.
             // We do not interrogate ObjectRef requests.

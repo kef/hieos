@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="XDSbRepositoryTests" resourceRoot="" soapui-version="4.0.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.actions.iface.tools.soapui.TestRunnerAction@values-local"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+  <con:entry key="Global Properties" value=""/>
+  <con:entry key="TestSuite" value="TestSuite 1"/>
+  <con:entry key="Report to Generate" value=""/>
+  <con:entry key="Password" value=""/>
+  <con:entry key="soapui-setings.xml Password" value=""/>
+  <con:entry key="TestRunner Path" value=""/>
+  <con:entry key="Tool Args" value=""/>
+  <con:entry key="Ignore Errors" value="false"/>
+  <con:entry key="Host:Port" value=""/>
+  <con:entry key="WSS Password Type" value=""/>
+  <con:entry key="Save Project" value="false"/>
+  <con:entry key="Enable UI" value="false"/>
+  <con:entry key="System Properties" value=""/>
+  <con:entry key="Domain" value=""/>
+  <con:entry key="Coverage Report" value="false"/>
+  <con:entry key="Export JUnit Results" value="false"/>
+  <con:entry key="Open Report" value="false"/>
+  <con:entry key="Project Properties" value=""/>
+  <con:entry key="Project Password" value=""/>
+  <con:entry key="Export All" value="false"/>
+  <con:entry key="Report Format(s)" value=""/>
+  <con:entry key="TestCase" value="TestCase 1"/>
+  <con:entry key="Print Report" value="false"/>
+  <con:entry key="Username" value=""/>
+  <con:entry key="Root Folder" value=""/>
+  <con:entry key="Save After" value="false"/>
+  <con:entry key="Add Settings" value="false"/>
+  <con:entry key="Endpoint" value=""/>
+</xml-fragment>]]></con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="xdsrepositorybSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.repository.xds.services.hieos.vangent.com}xdsrepositorybSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/axis2/services/xdsrepositoryb?wsdl" id="b83b5401-c9b4-44fe-af70-0326ca4dc401" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/axis2/services/xdsrepositoryb?wsdl"><con:part><con:url>http://localhost:8080/axis2/services/xdsrepositoryb?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.repository.xds.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.repository.xds.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+  <wsdl:documentation>xdsrepositoryb</wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.repository.xds.services.hieos.vangent.com">
+      <xs:complexType name="Exception">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="SubmitObjectsRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="sor" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SubmitObjectsRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RetrieveDocumentSetRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="RetrieveDocumentSetRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RetrieveDocumentSetRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ProvideAndRegisterDocumentSetRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="ProvideAndRegisterDocumentSetRequest" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ProvideAndRegisterDocumentSetRequestResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="return" nillable="true" type="xs:anyType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="RetrieveDocumentSetRequestRequest">
+    <wsdl:part name="parameters" element="ns:RetrieveDocumentSetRequest"/>
+  </wsdl:message>
+  <wsdl:message name="RetrieveDocumentSetRequestResponse">
+    <wsdl:part name="parameters" element="ns:RetrieveDocumentSetRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ProvideAndRegisterDocumentSetRequestRequest">
+    <wsdl:part name="parameters" element="ns:ProvideAndRegisterDocumentSetRequest"/>
+  </wsdl:message>
+  <wsdl:message name="ProvideAndRegisterDocumentSetRequestResponse">
+    <wsdl:part name="parameters" element="ns:ProvideAndRegisterDocumentSetRequestResponse"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestRequest">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequest"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitObjectsRequestResponse">
+    <wsdl:part name="parameters" element="ns:SubmitObjectsRequestResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="xdsrepositorybPortType">
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <wsdl:input message="ns:RetrieveDocumentSetRequestRequest" wsaw:Action="urn:RetrieveDocumentSetRequest"/>
+      <wsdl:output message="ns:RetrieveDocumentSetRequestResponse" wsaw:Action="urn:RetrieveDocumentSetRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <wsdl:input message="ns:ProvideAndRegisterDocumentSetRequestRequest" wsaw:Action="urn:ProvideAndRegisterDocumentSetRequest"/>
+      <wsdl:output message="ns:ProvideAndRegisterDocumentSetRequestResponse" wsaw:Action="urn:ProvideAndRegisterDocumentSetRequestResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <wsdl:input message="ns:SubmitObjectsRequestRequest" wsaw:Action="urn:SubmitObjectsRequest"/>
+      <wsdl:output message="ns:SubmitObjectsRequestResponse" wsaw:Action="urn:SubmitObjectsRequestResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="xdsrepositorybSoap11Binding" type="ns:xdsrepositorybPortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <soap:operation soapAction="urn:RetrieveDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <soap:operation soapAction="urn:ProvideAndRegisterDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsrepositorybSoap12Binding" type="ns:xdsrepositorybPortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <soap12:operation soapAction="urn:RetrieveDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <soap12:operation soapAction="urn:ProvideAndRegisterDocumentSetRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <soap12:operation soapAction="urn:SubmitObjectsRequest" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="xdsrepositorybHttpBinding" type="ns:xdsrepositorybPortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="RetrieveDocumentSetRequest">
+      <http:operation location="xdsrepositoryb/RetrieveDocumentSetRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="RetrieveDocumentSetRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="RetrieveDocumentSetRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProvideAndRegisterDocumentSetRequest">
+      <http:operation location="xdsrepositoryb/ProvideAndRegisterDocumentSetRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="ProvideAndRegisterDocumentSetRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="ProvideAndRegisterDocumentSetRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitObjectsRequest">
+      <http:operation location="xdsrepositoryb/SubmitObjectsRequest"/>
+      <wsdl:input>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml" part="SubmitObjectsRequest"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="xdsrepositoryb">
+    <wsdl:port name="xdsrepositorybHttpsSoap11Endpoint" binding="ns:xdsrepositorybSoap11Binding">
+      <soap:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpSoap11Endpoint" binding="ns:xdsrepositorybSoap11Binding">
+      <soap:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpSoap12Endpoint" binding="ns:xdsrepositorybSoap12Binding">
+      <soap12:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpsSoap12Endpoint" binding="ns:xdsrepositorybSoap12Binding">
+      <soap12:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpsEndpoint" binding="ns:xdsrepositorybHttpBinding">
+      <http:address location="https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsEndpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="xdsrepositorybHttpEndpoint" binding="ns:xdsrepositorybHttpBinding">
+      <http:address location="http://VGE5KZ37H1LARL:8080/axis2/services/xdsrepositoryb.xdsrepositorybHttpEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://localhost:8228/axis2/services/sts</con:endpoint><con:endpoint>https://VGE5KZ37H1LARL:8443/axis2/services/xdsrepositoryb.xdsrepositorybHttpsSoap12Endpoint/</con:endpoint><con:endpoint>http://localhost:8080/axis2/services/xdsrepositoryb</con:endpoint><con:endpoint>http://localhost:28081/axis2/services/xdsrepositoryb</con:endpoint><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:endpoint>http://hie-server:8080/axis2/services/xdsrepositoryb</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:ProvideAndRegisterDocumentSetRequest" name="ProvideAndRegisterDocumentSetRequest" bindingOperationName="ProvideAndRegisterDocumentSetRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional" id="8f6fc78c-6c10-427c-af79-031de7eb57ac"><con:settings/></con:operation><con:operation isOneWay="false" action="urn:RetrieveDocumentSetRequest" name="RetrieveDocumentSetRequest" bindingOperationName="RetrieveDocumentSetRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional" id="8704aac3-ca16-4816-996d-549aa612f057"><con:settings/><con:call name="Request 1" useWsAddressing="true" id="219a7354-ad2f-4925-a88b-d176abce295d" outgoingWss=""><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xdsrepositoryb</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+<soapenv:Header xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="ID_df7efaa5-ca2b-4b0e-81a8-e6bd8654cf37" IssueInstant="2011-11-09T19:39:31.684Z" Version="2.0">
+      <saml2:Issuer Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">1.2.840.113549.1.9.1=#16186a616d65732e686f726e65724076616e67656e742e636f6d,CN=vangent.hornerscorners.lan,O=HornersCorners,L=Arlington,ST=Virginia,C=US</saml2:Issuer>
+      <ds:Signature>
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+          </ds:CanonicalizationMethod>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1">
+          </ds:SignatureMethod>
+          <ds:Reference URI="#ID_df7efaa5-ca2b-4b0e-81a8-e6bd8654cf37">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature">
+              </ds:Transform>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs">
+                </ec:InclusiveNamespaces>
+              </ds:Transform>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1">
+            </ds:DigestMethod>
+            <ds:DigestValue>B9SV8ZJCb/Dmqj4gqPEGc0KZbec=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>SuVCyZ9SQIOvzCErOaTAnioLixYwAnp0bEvtvh+hLeBkEijchSc0vx74wSaJonRC0+wGm+sx4kvaABjapXIidTtX2KJUtu74vw6TlfkSEJpi+kt0TcTPY9yU0ToTy+GSvaKGue+hOhrFg5UhemzN8XNmzosBwnwtYIAhNtuu0L4=</ds:SignatureValue>
+        <ds:KeyInfo>
+          <ds:KeyValue>
+            <ds:RSAKeyValue>
+              <ds:Modulus>kRF2d5UV583QJ7e1SbhQ2E+pgCzxW9iL8iltZepAgjA7w7tHDtqlGcEbVrGyqmUAdiom+JUQmtfq t7S6lHO4K5e8IiPk7Li4D4Th7nij/6j77JmppmM+nUTIApX/osOmeyatfiVX4R4Fxlm95fIc6caE RoFoxOitA+m9X+5dwjU=</ds:Modulus>
+              <ds:Exponent>AQAB</ds:Exponent>
+            </ds:RSAKeyValue>
+          </ds:KeyValue>
+          <ds:X509Data>
+            <ds:X509Certificate>MIIEPTCCA6agAwIBAgIBAjANBgkqhkiG9w0BAQUFADCBmzELMAkGA1UEBhMCVVMxETAPBgNVBAgT CFZpcmdpbmlhMRIwEAYDVQQHEwlBcmxpbmd0b24xFzAVBgNVBAoTDkhvcm5lcnNDb3JuZXJzMSMw IQYDVQQDExp2YW5nZW50Lmhvcm5lcnNjb3JuZXJzLmxhbjEnMCUGCSqGSIb3DQEJARYYamFtZXMu aG9ybmVyQHZhbmdlbnQuY29tMB4XDTExMDkxNTE5MTE1NVoXDTEyMDkxNDE5MTE1NVowgZ0xCzAJ BgNVBAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTESMBAGA1UEBxMJQXJsaW5ndG9uMRcwFQYDVQQK Ew5Ib3JuZXJzQ29ybmVyczElMCMGA1UEAxMcaGllb3Mtc3RzLmhvcm5lcnNjb3JuZXJzLmxhbjEn MCUGCSqGSIb3DQEJARYYamFtZXMuaG9ybmVyQHZhbmdlbnQuY29tMIGfMA0GCSqGSIb3DQEBAQUA A4GNADCBiQKBgQCREXZ3lRXnzdAnt7VJuFDYT6mALPFb2IvyKW1l6kCCMDvDu0cO2qUZwRtWsbKq ZQB2Kib4lRCa1+q3tLqUc7grl7wiI+TsuLgPhOHueKP/qPvsmammYz6dRMgClf+iw6Z7Jq1+JVfh HgXGWb3l8hzpxoRGgWjE6K0D6b1f7l3CNQIDAQABo4IBizCCAYcwCQYDVR0TBAIwADARBglghkgB hvhCAQEEBAMCBkAwKwYJYIZIAYb4QgENBB4WHFRpbnlDQSBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUw HQYDVR0OBBYEFNDay1kBL4OgeU5aN9BafARy6VzxMIHQBgNVHSMEgcgwgcWAFM1UFZ1Y5Ut9T+c/ A0M9sRo3iMn2oYGhpIGeMIGbMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2luaWExEjAQBgNV BAcTCUFybGluZ3RvbjEXMBUGA1UEChMOSG9ybmVyc0Nvcm5lcnMxIzAhBgNVBAMTGnZhbmdlbnQu aG9ybmVyc2Nvcm5lcnMubGFuMScwJQYJKoZIhvcNAQkBFhhqYW1lcy5ob3JuZXJAdmFuZ2VudC5j b22CCQCbrqiqqYuxATAjBgNVHRIEHDAagRhqYW1lcy5ob3JuZXJAdmFuZ2VudC5jb20wIwYDVR0R BBwwGoEYamFtZXMuaG9ybmVyQHZhbmdlbnQuY29tMA0GCSqGSIb3DQEBBQUAA4GBAF5j+Km/l3r1 8TjXFpE8Hl0kerrmKNqpiMODW8MxlJL6h0xezbkf1OA6IxDwvtV+F9g2rZo9Xs9WgyB+VETQE/mU zVBcKh++EFAMQs+z/9n7t9nWDGMLl+jQ8fHUQHXCYfwpoytE33EQFFd9mV+sfNi8Zijw0g+LqP5W mQjVtcw7</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </ds:Signature>
+      <saml2:Subject>
+        <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">1.2.36.1.2001.1003.0.8003619166667440</saml2:NameID>
+        <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+          <saml2:SubjectConfirmationData NotBefore="2011-11-09T19:39:31.684Z" NotOnOrAfter="2011-11-09T19:49:31.684Z" xsi:type="saml2:KeyInfoConfirmationDataType">
+          </saml2:SubjectConfirmationData>
+        </saml2:SubjectConfirmation>
+      </saml2:Subject>
+      <saml2:Conditions NotBefore="2011-11-09T19:39:31.684Z" NotOnOrAfter="2011-11-09T19:49:31.684Z">
+      </saml2:Conditions>
+      <saml2:AuthnStatement AuthnInstant="2011-11-09T19:39:31.684Z">
+        <saml2:AuthnContext>
+          <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml2:AuthnContextClassRef>
+        </saml2:AuthnContext>
+      </saml2:AuthnStatement>
+      <saml2:AttributeStatement>
+        <saml2:Attribute Name="urn:oasis:names:tc:xacml:1.0:subject:subject-id">
+          <saml2:AttributeValue xsi:type="xs:string">1.2.36.1.2001.1003.0.8003619166667440</saml2:AttributeValue>
+        </saml2:Attribute>
+        <saml2:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
+          <saml2:AttributeValue xsi:type="xs:string">TREATMENT</saml2:AttributeValue>
+        </saml2:Attribute>
+        <saml2:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
+          <saml2:AttributeValue xsi:type="xs:string">^^^^^^^^^1.2.36.1.2001.1003.0.8003629166667070</saml2:AttributeValue>
+        </saml2:Attribute>
+        <saml2:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization">
+          <saml2:AttributeValue xsi:type="xs:string">HIP-O Organization Name</saml2:AttributeValue>
+        </saml2:Attribute>
+        <saml2:Attribute Name="urn:oasis:names:tc:xacml:2.0:subject:role">
+          <saml2:AttributeValue xsi:type="xs:string">DOCTOR</saml2:AttributeValue>
+        </saml2:Attribute>
+        <saml2:Attribute Name="urn:oasis:names:tc:xacml:1.0:resource:resource-id">
+          <saml2:AttributeValue xsi:type="xs:string">${#Project#PATIENT_ID}</saml2:AttributeValue>
+        </saml2:Attribute>
+      </saml2:AttributeStatement>
+    </saml2:Assertion>
+  </wsse:Security>
+</soapenv:Header>
+   <soapenv:Body>
+      <xds:RetrieveDocumentSetRequest xmlns:xds="urn:ihe:iti:xds-b:2007">
+         <xds:DocumentRequest>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034242</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+         <xds:DocumentRequest>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034239</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+         <xds:DocumentRequest>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034241</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+         <xds:DocumentRequest>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034322</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+      </xds:RetrieveDocumentSetRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:username/><con:password/></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RetrieveDocumentSet" addDefaultTo="false" generateMessageId="true" addDefaultAction="false"/><con:wsrmConfig version="1.2"/></con:call><con:call name="XCA Request 1" useWsAddressing="true" id="e4048fd3-393d-4ab9-b207-7f47cdf55abe"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/xcaig</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+   <soapenv:Body>
+      <xds:RetrieveDocumentSetRequest xmlns:xds="urn:ihe:iti:xds-b:2007">
+         <xds:DocumentRequest>
+            <xds:HomeCommunityId>urn:oid:1.3.6.1.4.1.21367.13.3070</xds:HomeCommunityId>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034239</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+         <xds:DocumentRequest>
+            <xds:HomeCommunityId>urn:oid:1.3.6.1.4.1.21367.13.3071</xds:HomeCommunityId>
+            <xds:RepositoryUniqueId>1.3.6.1.4.1.21367.13.1185</xds:RepositoryUniqueId>
+            <xds:DocumentUniqueId>129.6.58.92.2034239</xds:DocumentUniqueId>
+         </xds:DocumentRequest>
+      </xds:RetrieveDocumentSetRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:ihe:iti:2007:RetrieveDocumentSet" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:SubmitObjectsRequest" name="SubmitObjectsRequest" bindingOperationName="SubmitObjectsRequest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional" id="4b18385b-83aa-4603-bdb3-f235d2fdc3d7"><con:settings/></con:operation></con:interface><con:properties><con:property><con:name>PATIENT_ID</con:name><con:value>dfdbd6addcc7496^^^&amp;amp;1.3.6.1.4.1.21367.2005.3.7&amp;amp;ISO</con:value></con:property></con:properties><con:wssContainer><con:crypto><con:source>/home/hornja/devtools/hieos-config/hieos-keystore.jks</con:source><con:password>changeit</con:password><con:defaultAlias/></con:crypto></con:wssContainer><con:sensitiveInformation/></con:soapui-project>

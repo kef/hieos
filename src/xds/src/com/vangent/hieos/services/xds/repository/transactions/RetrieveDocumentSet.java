@@ -17,6 +17,7 @@ import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.services.xds.policy.DocumentMetadata;
 import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyResult;
 import com.vangent.hieos.services.xds.policy.DocumentResponse;
 import com.vangent.hieos.services.xds.policy.DocumentResponseBuilder;
 import com.vangent.hieos.services.xds.policy.DocumentResponseElementList;
@@ -123,7 +124,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                     if (log_message.isLogEnabled()) {
                         log_message.addOtherParam("Policy:Note", "DENIED access to all content");
                     }
-                    response.add_error(MetadataSupport.XDSRepositoryError, "Request denied due to policy", this.getClass().getName(), log_message);
+                    response.add_warning(MetadataSupport.XDSPolicyEvaluationWarning, "Request denied due to policy", this.getClass().getName(), log_message);
                 } else if (!pdpResponse.hasObligations()) {
                     if (log_message.isLogEnabled()) {
                         log_message.addOtherParam("Policy:Note", "PERMITTED access to all content [no obligations]");
@@ -195,7 +196,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             boolean delegateDocumentLevelPolicyEval = this.getConfigActor().getPropertyAsBoolean("DelegateDocumentLevelPolicyEval", true);
             List<DocumentMetadata> registryObjects = registryClient.getRegistryObjects(documentResponseList, delegateDocumentLevelPolicyEval);
 
-            List<DocumentMetadata> permittedDocumentList;
+            List<DocumentMetadata> permittedDocumentList = null;
             if (delegateDocumentLevelPolicyEval) {
                 // Since we are delegating policy evaluation to the registry, the registry should
                 // only return permitted objects.
@@ -210,11 +211,13 @@ public class RetrieveDocumentSet extends XBaseTransaction {
 
                 // Run policy evaluation to get permitted objects list (using obligation id as "action-id").
                 DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(null); // Logged later.
-                permittedDocumentList = policyEvaluator.evaluate(
+                DocumentPolicyResult policyResult = policyEvaluator.evaluate(
                         obligationIds.get(0),
                         pdpResponse.getRequestType(),
                         registryObjects);
+                permittedDocumentList = policyResult.getPermittedDocuments();
             }
+            
             // Now, add list of permitted documents to the response.
             this.addPermittedDocumentsToResponse(documentResponseList, permittedDocumentList);
         }
@@ -225,6 +228,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
      * @param documentResponseList
      * @param permittedDocumentList
      * @throws XdsInternalException
+     * @return a list of denied document metadata (abbreviated - ids only)
      */
     private void addPermittedDocumentsToResponse(List<DocumentResponse> documentResponseList, List<DocumentMetadata> permittedDocumentList) throws XdsInternalException {
         StringBuilder logsb = new StringBuilder();
@@ -237,7 +241,11 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                 // Add to the response.
                 OMElement documentResponseNode = documentResponse.getDocumentResponseObject();
                 repoResponse.addChild(documentResponseNode);
+            } else {
+                DocumentPolicyResult.emitDocumentDenialWarning(new DocumentMetadata(documentResponse),
+                        response, getClass(), this.log_message);
             }
+            
             if (log_message.isLogEnabled()) {
                 if (permittedAccessToDocument) {
                     logsb.append("...PERMIT" + "[doc_id=").append(documentResponse.getDocumentId()).append(", repo_id=").append(documentResponse.getRepositoryId()).append("]");
@@ -247,8 +255,10 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             }
         }
         if (log_message.isLogEnabled()) {
+            log_message.addOtherParam("DelegateDocumentLevelPolicyEval",
+                    this.getConfigActor().getProperty("DelegateDocumentLevelPolicyEval"));
             log_message.addOtherParam("Policy:Note", logsb.toString());
-        }
+        }        
     }
 
     /**
@@ -398,6 +408,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
          *
          * @return
          */
+        @Override
         public String getName() {
             return name;
         }
@@ -430,6 +441,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
          *
          * @return
          */
+        @Override
         public String getContentType() {
             return contentType;
         }
@@ -438,6 +450,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
          *
          * @return
          */
+        @Override
         public InputStream getInputStream() {
             return new ByteArrayInputStream(bytes);
         }
@@ -446,6 +459,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
          *
          * @return
          */
+        @Override
         public OutputStream getOutputStream() {
             throw new UnsupportedOperationException();
         }

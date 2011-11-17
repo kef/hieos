@@ -17,7 +17,6 @@ import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.policyutil.pep.impl.PEP;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import java.util.ArrayList;
 import java.util.List;
 import oasis.names.tc.xacml._2_0.context.schema.os.RequestType;
 import org.apache.axiom.om.OMElement;
@@ -53,7 +52,7 @@ public class DocumentPolicyEvaluator {
      * @return
      * @throws PolicyException
      */
-    public RegistryObjectElementList evaluate(
+    public DocumentPolicyResult evaluate(
             String action, RequestType requestType, RegistryObjectElementList registryObjectElementList) throws PolicyException {
 
         // First convert registryObjects into DocumentMetadata instances.
@@ -62,15 +61,7 @@ public class DocumentPolicyEvaluator {
         List<DocumentMetadata> documentMetadataList = documentMetadataBuilder.buildDocumentMetadataList(new RegistryObjectElementList(registryObjects));
 
         // Conduct policy evaluation.
-        List<DocumentMetadata> permittedDocumentMetadataList = this.evaluate(action, requestType, documentMetadataList);
-
-        // Now, convert response.
-        // FIXME: Move to DocumentMetadataBuilder.
-        List<OMElement> permittedRegistryObjects = new ArrayList<OMElement>();
-        for (DocumentMetadata permittedDocumentMetadata : permittedDocumentMetadataList) {
-            permittedRegistryObjects.add(permittedDocumentMetadata.getRegistryObject());
-        }
-        return new RegistryObjectElementList(permittedRegistryObjects);
+        return this.evaluate(action, requestType, documentMetadataList);
     }
 
     /**
@@ -81,18 +72,19 @@ public class DocumentPolicyEvaluator {
      * @return
      * @throws PolicyException
      */
-    public List<DocumentMetadata> evaluate(
+    public DocumentPolicyResult evaluate(
             String action, RequestType requestType, List<DocumentMetadata> documentMetadataList) throws PolicyException {
 
         StringBuilder logsb = new StringBuilder();  // For debug logging.
-        List<DocumentMetadata> permittedDocumentMetadataList = new ArrayList<DocumentMetadata>();  // Holds result.
         DocumentMetadataBuilder documentMetadataBuilder = new DocumentMetadataBuilder();
 
+        DocumentPolicyResult policyResult = new DocumentPolicyResult();
+        
         // Now, filter results based upon "document-level" policy evaluation.
         for (DocumentMetadata documentMetadata : documentMetadataList) {
             if (!documentMetadata.isExtrinsicObject()) {
                 // We do not evaluate policy for anything other than ExtrinsicObjects
-                permittedDocumentMetadataList.add(documentMetadata);
+                policyResult.addPermittedDocument(documentMetadata);
             } else {
                 // Create PDP request.
                 PDPRequest pdpRequest = new PDPRequest();
@@ -110,7 +102,9 @@ public class DocumentPolicyEvaluator {
                 // Evaluate results (Obligations are not used here).
                 boolean permittedAccessToDocument = pdpResponse.isPermitDecision();
                 if (permittedAccessToDocument) {
-                    permittedDocumentMetadataList.add(documentMetadata);
+                    policyResult.addPermittedDocument(documentMetadata);
+                } else {
+                    policyResult.addDeniedDocument(documentMetadata);
                 }
                 if (logMessage != null && logMessage.isLogEnabled()) {
                     if (permittedAccessToDocument) {
@@ -124,6 +118,6 @@ public class DocumentPolicyEvaluator {
         if (logMessage != null && logMessage.isLogEnabled()) {
             logMessage.addOtherParam("Policy:Note", logsb.toString());
         }
-        return permittedDocumentMetadataList;
+        return policyResult;
     }
 }
