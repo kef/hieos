@@ -27,6 +27,10 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author Adapted from NIST
+ */
 public class RegistryErrorList extends ErrorLogger {
 
     String errors_and_warnings = "";
@@ -35,27 +39,53 @@ public class RegistryErrorList extends ErrorLogger {
     OMElement rel = null;
     StringBuffer validations = null;
     short version;
+    /**
+     * 
+     */
     protected OMNamespace ebRSns;
+    /**
+     * 
+     */
     protected OMNamespace ebRIMns;
+    /**
+     * 
+     */
     protected OMNamespace ebQns;
     boolean log = true;  // generate log entries?
     boolean format_for_html = false;
-    private final static Logger logger = Logger.getLogger(RegistryErrorList.class);
+    private static final Logger logger = Logger.getLogger(RegistryErrorList.class);
     boolean verbose = true;
     boolean partialSuccess = false;
 
+    /**
+     * 
+     * @param verbose
+     */
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
+    /**
+     * 
+     * @throws XdsInternalException
+     */
     public RegistryErrorList() throws XdsInternalException {
         init(true /* log */);
     }
 
+    /**
+     * 
+     * @param log
+     * @throws XdsInternalException
+     */
     public RegistryErrorList(boolean log) throws XdsInternalException {
         init(log);
     }
 
+    /**
+     * 
+     * @param value
+     */
     public void format_for_html(boolean value) {
         this.format_for_html = value;
     }
@@ -68,14 +98,25 @@ public class RegistryErrorList extends ErrorLogger {
         this.validations = new StringBuffer();
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean has_errors() {
         return has_errors;
     }
 
+    /**
+     * 
+     */
     public void forcePartialSuccessStatus() {
         partialSuccess = true;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getStatus() {
         if (partialSuccess) {
             return "PartialSuccess";
@@ -86,6 +127,10 @@ public class RegistryErrorList extends ErrorLogger {
         return "Success";
     }
 
+    /**
+     * 
+     * @return
+     */
     public OMElement getRegistryErrorList() {
         //System.out.println(this.validations.toString());
         return registryErrorList();
@@ -99,6 +144,10 @@ public class RegistryErrorList extends ErrorLogger {
     }
     static final QName codeContextQName = new QName("codeContext");
 
+    /**
+     * 
+     * @return
+     */
     public String getErrorsAndWarnings() {
         //		if ( !format_for_html)
         //			return errors_and_warnings;
@@ -115,6 +164,14 @@ public class RegistryErrorList extends ErrorLogger {
         return buf.toString();
     }
 
+    /**
+     * 
+     * @param code
+     * @param msg
+     * @param location
+     * @param log_message
+     */
+    @Override
     public void add_warning(String code, String msg, String location, XLogMessage log_message) {
         errors_and_warnings += "Warning: " + msg + "\n";
         warning(msg);
@@ -129,6 +186,12 @@ public class RegistryErrorList extends ErrorLogger {
         }
     }
 
+    /**
+     * 
+     * @param topic
+     * @param msg
+     * @param location
+     */
     public void add_validation(String topic, String msg, String location) {
         validations.append(topic + ": " +
                 ((msg != null) ? msg + " " : "") +
@@ -136,6 +199,14 @@ public class RegistryErrorList extends ErrorLogger {
                 "\n");
     }
 
+    /**
+     * 
+     * @param code
+     * @param msg
+     * @param location
+     * @param log_message
+     */
+    @Override
     public void add_error(String code, String msg, String location, XLogMessage log_message) {
         errors_and_warnings += "Error: " + code + " " + msg + "\n";
         error(msg);
@@ -165,6 +236,12 @@ public class RegistryErrorList extends ErrorLogger {
         return err;
     }
 
+    /**
+     * 
+     * @param rel
+     * @param log_message
+     * @throws XdsInternalException
+     */
     public void addRegistryErrorList(OMElement rel, XLogMessage log_message) throws XdsInternalException {
         for (Iterator it = rel.getChildElements(); it.hasNext();) {
             OMElement registry_error = (OMElement) it.next();
@@ -187,10 +264,20 @@ public class RegistryErrorList extends ErrorLogger {
         }
     }
 
+    /**
+     * 
+     * @return
+     */
     public boolean hasContent() {
         return this.has_errors || this.has_warnings;
     }
 
+    /**
+     * 
+     * @param context
+     * @param code
+     * @param location
+     */
     public void addError(String context, String code, String location) {
         if (context == null) {
             context = "";
@@ -210,6 +297,10 @@ public class RegistryErrorList extends ErrorLogger {
         this.has_errors = true;
     }
 
+    /**
+     * 
+     * @param context
+     */
     public void delError(String context) {
         OMElement errs = registryErrorList();
 
@@ -225,6 +316,12 @@ public class RegistryErrorList extends ErrorLogger {
         }
     }
 
+    /**
+     * 
+     * @param context
+     * @param code
+     * @param location
+     */
     public void addWarning(String context, String code, String location) {
         if (context == null) {
             context = "";
@@ -244,12 +341,20 @@ public class RegistryErrorList extends ErrorLogger {
         this.has_warnings = true;
     }
 
+    /**
+     * 
+     * @param msg
+     */
     public void error(String msg) {
         if (verbose) {
             System.out.println("ERROR: " + msg);
         }
     }
 
+    /**
+     * 
+     * @param msg
+     */
     public void warning(String msg) {
         if (verbose) {
             System.out.println("WARNING: " + msg);
