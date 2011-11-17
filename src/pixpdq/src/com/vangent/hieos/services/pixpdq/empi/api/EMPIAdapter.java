@@ -16,6 +16,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 
 /**
  *
@@ -36,6 +37,22 @@ public interface EMPIAdapter {
      * @throws EMPIException
      */
     public Subject addSubject(Subject subject) throws EMPIException;
+
+    /**
+     *
+     * @param subject
+     * @return
+     * @throws EMPIException
+     */
+    public Subject updateSubject(Subject subject) throws EMPIException;
+
+    /**
+     *
+     * @param subjectMergeRequest
+     * @return
+     * @throws EMPIException
+     */
+    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException;
 
     /**
      * 

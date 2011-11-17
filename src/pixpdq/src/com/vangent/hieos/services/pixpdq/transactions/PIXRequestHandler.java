@@ -29,7 +29,11 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201310UV02_Message_Build
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201304UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequestBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
@@ -60,7 +64,15 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         /**
          *
          */
-        PatientRegistryRecordAdded
+        PatientRegistryRecordAdded,
+        /**
+         *
+         */
+        PatientRegistryRecordRevised,
+        /**
+         *
+         */
+        PatientRegistryDuplicatesResolved
     };
 
     /**
@@ -88,6 +100,12 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             case PatientRegistryRecordAdded:
                 result = this.processPatientRegistryRecordAdded(new PRPA_IN201301UV02_Message(request));
                 break;
+            case PatientRegistryRecordRevised:
+                result = this.processPatientRegistryRecordRevised(new PRPA_IN201302UV02_Message(request));
+                break;
+            case PatientRegistryDuplicatesResolved:
+                result = this.processPatientRegistryDuplicatesResolved(new PRPA_IN201304UV02_Message(request));
+                break;
         }
         if (result != null) {
             log_message.addOtherParam("Response", result.getMessageNode());
@@ -114,18 +132,67 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
-        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorDetail);
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
         this.validateHL7V3Message(ackResponse);
         return ackResponse;
     }
 
     /**
      *
-     * @param PRPA_IN201301UV02_Message
+     * @param PRPA_IN201302UV02_Message
+     * @return
+     * @throws SOAPFaultException
+     */
+    private MCCI_IN000002UV01_Message processPatientRegistryRecordRevised(PRPA_IN201302UV02_Message request) throws SOAPFaultException {
+         this.validateHL7V3Message(request);
+        HL7V3ErrorDetail errorDetail = null;
+        try {
+            SubjectBuilder builder = new SubjectBuilder();
+            Subject subject = builder.buildSubject(request);
+            EMPIAdapter adapter = EMPIFactory.getInstance();
+            Subject subjectUpdated = adapter.updateSubject(subject);
+        } catch (Exception ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+            //log_message.setPass(false);
+            log_message.addErrorParam("EXCEPTION", errorDetail.getText());
+        }
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
+        this.validateHL7V3Message(ackResponse);
+        return ackResponse;
+    }
+
+     /**
+     *
+     * @param PRPA_IN201304UV02_Message
+     * @return
+     * @throws SOAPFaultException
+     */
+    private MCCI_IN000002UV01_Message processPatientRegistryDuplicatesResolved(PRPA_IN201304UV02_Message request) throws SOAPFaultException {
+        this.validateHL7V3Message(request);
+        HL7V3ErrorDetail errorDetail = null;
+        try {
+            SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
+            SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
+            EMPIAdapter adapter = EMPIFactory.getInstance();
+            Subject survivingSubject = adapter.mergeSubjects(subjectMergeRequest);
+        } catch (Exception ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+            //log_message.setPass(false);
+            log_message.addErrorParam("EXCEPTION", errorDetail.getText());
+        }
+        errorDetail = new HL7V3ErrorDetail("NOT YET IMPLEMENTED!");
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
+        this.validateHL7V3Message(ackResponse);
+        return ackResponse;
+    }
+
+    /**
+     *
+     * @param request
      * @param errorDetail
      * @return
      */
-    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, HL7V3ErrorDetail errorDetail) {
+    private MCCI_IN000002UV01_Message getPatientIdentityFeedResponse(HL7V3Message request, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         MCCI_IN000002UV01_Message_Builder ackBuilder =

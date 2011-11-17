@@ -17,41 +17,51 @@ import java.util.Map;
 
 /**
  *
- * @author thumbe
+ * @author Bernie Thuman
  */
 public class SoapActionFactory {
 
     /**
      *
      */
-    public final static String PIXPDQ_XREFMGR_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
+    public final static String XREFMGR_PIXV3QUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201309UV02";
     /**
      *
      */
-    public final static String PIXPDQ_XREFMGR_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
+    public final static String XREFMGR_PIXV3QUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201310UV02";
     /**
      *
      */
-    public final static String PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
+    public final static String XREFMGR_PIXV3PIDFEED_ADD_ACTION = "urn:hl7-org:v3:PRPA_IN201301UV02";
     /**
      *
      */
-    public final static String PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    public final static String XREFMGR_PIXV3PIDFEED_UPDATE_ACTION = "urn:hl7-org:v3:PRPA_IN201302UV02";
     /**
      *
      */
-    public final static String PIXPDQ_PDS_PDQQUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201305UV02";
+    public final static String XREFMGR_PIXV3PIDFEED_MERGE_ACTION = "urn:hl7-org:v3:PRPA_IN201304UV02";
     /**
      *
      */
-    public final static String PIXPDQ_PDS_PDQQUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201306UV02";
+    public final static String XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    /**
+     *
+     */
+    public final static String PDS_PDQQUERY_ACTION = "urn:hl7-org:v3:PRPA_IN201305UV02";
+    /**
+     *
+     */
+    public final static String PDS_PDQQUERY_ACTION_RESPONSE = "urn:hl7-org:v3:PRPA_IN201306UV02";
     private static final Map<String, String> actions =
             new HashMap<String, String>() {
 
                 {
-                    put(PIXPDQ_XREFMGR_PIXV3QUERY_ACTION, PIXPDQ_XREFMGR_PIXV3QUERY_ACTION_RESPONSE);
-                    put(PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION, PIXPDQ_XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE);
-                    put(PIXPDQ_PDS_PDQQUERY_ACTION, PIXPDQ_PDS_PDQQUERY_ACTION_RESPONSE);
+                    put(XREFMGR_PIXV3QUERY_ACTION, XREFMGR_PIXV3QUERY_ACTION_RESPONSE);
+                    put(XREFMGR_PIXV3PIDFEED_ADD_ACTION, XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE);
+                    put(XREFMGR_PIXV3PIDFEED_UPDATE_ACTION, XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE);
+                    put(XREFMGR_PIXV3PIDFEED_MERGE_ACTION, XREFMGR_PIXV3PIDFEED_ACTION_RESPONSE);
+                    put(PDS_PDQQUERY_ACTION, PDS_PDQQUERY_ACTION_RESPONSE);
                 }
             };
 

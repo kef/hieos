@@ -29,6 +29,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,6 +147,68 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         }
         return subject;
     }
+
+    /**
+     *
+     * @param subject
+     * @return
+     * @throws EMPIException
+     */
+    @Override
+    public Subject updateSubject(Subject subject) throws EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        PersistenceManager pm = new PersistenceManager();
+        try {
+            pm.open();  // Open transaction.
+
+            List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+
+            // Make sure that subject identifiers are present.
+            if (subjectIdentifiers.isEmpty()) {
+                throw new EMPIException("No identifiers provided for subject - skipping update.");
+            }
+
+            // Make sure that there is only one subject identifier to update.
+            if (subjectIdentifiers.size() > 1) {
+                throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
+            }
+
+            // Get the subject (using the first identifier).
+            Subject baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifiers.get(0));
+            if (baseSubject == null) {
+                throw new EMPIException("Subject does not exist - skipping update.");
+            }
+
+            // FIXME: Should we make sure that we know about the subject identifier domain?
+
+            // TBD ... do the work.
+
+            pm.commit();
+        } catch (EMPIException ex) {
+            pm.rollback();
+            throw ex; // Rethrow.
+        } catch (Exception ex) {
+            pm.rollback();
+            throw new EMPIException(ex);
+        } finally {
+            pm.close();  // To be sure.
+        }
+        return subject;
+    }
+
+    /**
+     * 
+     * @param subjectMergeRequest
+     * @return
+     * @throws EMPIException
+     */
+    @Override
+    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException
+    {
+        throw new EMPIException("Not yet implemented!!");
+        //return null;
+    }
+
 
     /**
      *
@@ -428,7 +491,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
                 throw new EMPIException(
                         subjectIdentifierDomain.getUniversalId()
-                        + " is not a known identifier domain", 
+                        + " is not a known identifier domain",
                         EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
             }
         }

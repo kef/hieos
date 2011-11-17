@@ -82,6 +82,50 @@ public class PatientIdentifierCrossReferenceManager extends PIXPDQServiceBaseImp
         return response;
     }
 
+     /**
+     *
+     * @param PRPA_IN201302UV02_Message
+     * @return
+     * @throws AxisFault
+     */
+    public OMElement PatientRegistryRecordRevised(OMElement PRPA_IN201302UV02_Message) throws AxisFault {
+        OMElement response = null;
+        try {
+            beginTransaction("PIDFEED.Update (PIXV3)", PRPA_IN201302UV02_Message);
+            validateWS();
+            validateNoMTOM();
+            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            response = handler.run(PRPA_IN201302UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordRevised);
+            endTransaction(handler.getStatus());
+        } catch (SOAPFaultException ex) {
+            throwAxisFault(ex);
+        }
+        return response;
+    }
+
+     /**
+     *
+     * @param PRPA_IN201304UV02_Message
+     * @return
+     * @throws AxisFault
+     */
+    public OMElement PatientRegistryDuplicatesResolved(OMElement PRPA_IN201304UV02_Message) throws AxisFault {
+        OMElement response = null;
+        try {
+            beginTransaction("PIDFEED.Merge (PIXV3)", PRPA_IN201304UV02_Message);
+            validateWS();
+            validateNoMTOM();
+            PIXRequestHandler handler = new PIXRequestHandler(this.log_message);
+            handler.setConfigActor(config);
+            response = handler.run(PRPA_IN201304UV02_Message, PIXRequestHandler.MessageType.PatientRegistryDuplicatesResolved);
+            endTransaction(handler.getStatus());
+        } catch (SOAPFaultException ex) {
+            throwAxisFault(ex);
+        }
+        return response;
+    }
+
     // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
