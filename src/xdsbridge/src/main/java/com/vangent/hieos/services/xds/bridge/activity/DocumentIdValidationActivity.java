@@ -11,7 +11,6 @@
  * limitations under the License.
  */
 
-
 package com.vangent.hieos.services.xds.bridge.activity;
 
 import com.vangent.hieos.services.xds.bridge.client.XDSDocumentRegistryClient;
@@ -27,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-
 
 /**
  * Class description

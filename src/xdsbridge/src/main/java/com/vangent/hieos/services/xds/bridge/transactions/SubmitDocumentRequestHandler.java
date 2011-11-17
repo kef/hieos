@@ -13,8 +13,6 @@
 
 package com.vangent.hieos.services.xds.bridge.transactions;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.services.xds.bridge.activity.AddPatientIdActivity;
 import com.vangent.hieos.services.xds.bridge.activity.CDAToXDSMapperActivity;
@@ -33,6 +31,7 @@ import com.vangent.hieos.services.xds.bridge.message
 import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentResponseMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
+import com.vangent.hieos.services.xds.bridge.model.ResponseType;
 import com.vangent.hieos.services.xds.bridge.model.ResponseType
     .ResponseTypeStatus;
 import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentRequest;
@@ -42,10 +41,14 @@ import com.vangent.hieos.services.xds.bridge.model.SubmitDocumentResponse
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeServiceContext;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class description
@@ -212,7 +215,29 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
         OMElement result = marshalResponse(sdrResponse);
 
         if (isLogMessageEnabled()) {
-            getLogMessage().addOtherParam("Response", result);
+
+            // let's push stats to logbrowser
+            XLogMessage xlogger = getLogMessage();
+
+            if (Status.Failure.equals(sdrResponse.getStatus())) {
+                xlogger.setPass(false);
+            }
+
+            xlogger.addOtherParam("Response", result);
+            xlogger.addOtherParam("PatientID", sdrRequest.getPatientId().getCXFormatted());
+            xlogger.addOtherParam("ResponseStatus", sdrResponse.getStatus());
+
+            for (ResponseType docResponse : sdrResponse.getResponses()) {
+
+                if (ResponseTypeStatus.Failure.equals(
+                        docResponse.getStatus())) {
+
+                    String param = String.format("Document[%s]",
+                                                 docResponse.getDocumentId());
+
+                    xlogger.addOtherParam(param, docResponse.getErrorMessage());
+                }
+            }
         }
 
         return result;

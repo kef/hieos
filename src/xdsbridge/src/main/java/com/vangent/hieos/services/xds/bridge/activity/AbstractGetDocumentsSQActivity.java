@@ -29,6 +29,7 @@ import com.vangent.hieos.services.xds.bridge.support.URIConstants;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.response.RegistryError;
 import com.vangent.hieos.xutil.response.RegistryResponseParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 
@@ -156,12 +157,26 @@ public abstract class AbstractGetDocumentsSQActivity
         OMElement rootNode = registryResponse.getElement();
 
         RegistryResponseParser parser = new RegistryResponseParser(rootNode);
+        
+        // The registry may return success even though there was
+        // a token or policy issue/problem so we can not rely on "Success"
+        List<RegistryError> registryErrors = parser.parseErrors();
+        
+        if (parser.is_error() || registryErrors.isEmpty() == false) {
 
-        if (parser.is_error()) {
+            // If there are any errors or warnings then
+            // propagate back to caller
+            StringBuilder errmsg = new StringBuilder();
+            errmsg.append("The XDS.b Registry returned the following errors/warnings: \n");
+            for (RegistryError error : registryErrors) {
+             
+                String msg = String.format("%s: %s%n",
+                        error.getCode(), error.getContext());
+                
+                errmsg.append(msg);
+            }
 
-            String errmsg = parser.get_regrep_error_msg();
-
-            throw new XdsException(errmsg);
+            throw new XdsException(errmsg.toString());
 
         } else {
 
