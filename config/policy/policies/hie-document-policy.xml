@@ -161,123 +161,288 @@
             <Obligation ObligationId="sensitive-document-type-policy-permit" FulfillOn="Permit"/>
         </Obligations>
     </Policy>
-
+    
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-        PolicyId="explicit-authorization-document-policy"
+        PolicyId="always-authorise-sensitive-document-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Evaluates patient's desire of ExplicitAuthorizationRequired</Description>
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
         <Target/>       
-        
-        <Rule RuleId="explicit-authorization-document-deny-rule" Effect="Deny">
+
+        <Rule RuleId="always-authorise-sensitve-document-deny-rule" Effect="Deny">
             <Description>
-                Evaluates patient's desire of ExplicitAuthorizationRequired
+                
+                Deny if PermitSensitiveAccessAssertions is selected,
+                the provider does -not- have on-the-fly RESTRICTED permission
+                and the document is sensitive
+
+                Always authorise: Explicit authorisation must accompany 
+                every access to clinical documents.
+                
+                Permit sensitive access assertions: A patient allows providers 
+                to assert that the patient has given permission for them to 
+                access sensitive documents. If this option is not selected, 
+                on-the-fly sensitive access assertions will be ignored 
+                by the system.
                 
                 Pseudocode:
-                (ExplicitAuthorizationRequired == TRUE
-                 AND (not(urn:oasis:names:tc:xspa:1.0:subject:hl7:permission)
-                     OR urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == NONE
-                     OR (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == NORMAL
-                        AND Document.isSensitive == TRUE))             
+                PermitSensitiveAccessAssertions == TRUE 
+                AND urn:oasis:names:tc:xspa:1.0:subject:hl7:permission != RESTRICTED
+                AND Document.isSensitive == TRUE
+                        
             </Description>
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ExplicitAuthorizationRequired</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitSensitiveAccessAssertions</AttributeValue>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RESTRICTED</AttributeValue>
+                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
+                            
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
+                        </Apply>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Rule RuleId="always-authorise-sensitve-document-permit-rule" Effect="Permit">
+            <Description>
+                
+                Permit if PermitSensitiveAccessAssertions is selected,
+                the provider has on-the-fly RESTRICTED permission
+                and the document is sensitive
+
+                Always authorise: Explicit authorisation must accompany 
+                every access to clinical documents.
+                
+                Permit sensitive access assertions: A patient allows providers 
+                to assert that the patient has given permission for them to 
+                access sensitive documents. If this option is not selected, 
+                on-the-fly sensitive access assertions will be ignored 
+                by the system.
+                
+                Pseudocode:
+                PermitSensitiveAccessAssertions == TRUE
+                AND urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == RESTRICTED
+                AND Document.isSensitive == TRUE
+                        
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitSensitiveAccessAssertions</AttributeValue>
                         <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </Apply>
                     
-                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RESTRICTED</AttributeValue>
+                        <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
                         
-                        <!-- Missing permission -->
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
-                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
-                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                            </Apply>
-                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
                         </Apply>
-                            
-                        <!-- NONE permission -->
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NONE</AttributeValue>
-                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </Apply>
-                        
-                        <!-- NORMAL permission and sensitive document -->
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
-                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NORMAL</AttributeValue>
-                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                            </Apply>
-                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
-                                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
-                                </Apply>
-                                <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                            </Apply>
-                        </Apply>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </Apply>
                 </Apply>
             </Condition>
         </Rule>
         
-        <Rule RuleId="explicit-authorization-document-permit-rule" Effect="Permit">
+        <Rule RuleId="always-authorise-insufficient-assertion-deny-rule" Effect="Deny">
             <Description>
-                Evaluates patient's desire of ExplicitAuthorizationRequired
+                              
+                Deny if PermitSensitiveAccessAssertions is *not* selected
+                and PermitAccessAssertions is selected,
+                and the document is sensitive
+
+                Always authorise: Explicit authorisation must accompany 
+                every access to clinical documents.
+                
+                Permit access assertions: A patient allows providers to assert 
+                that the patient has given permission for them to access 
+                documents. If this option is not selected, on-the-fly access 
+                assertions will be ignored by the system.  
                 
                 Pseudocode:
-                (ExplicitAuthorizationRequired == TRUE
-                 AND ((urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == RESTRICTED)
-                      OR (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == NORMAL
-                        AND Document.isSensitive == FALSE))
+                PermitSensitiveAccessAssertions == FALSE 
+                PermitAccessAssertions == TRUE 
+                AND Document.isSensitive == TRUE
+                        
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitSensitiveAccessAssertions</AttributeValue>
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
+                    
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitAccessAssertions</AttributeValue>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                            
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
+                        </Apply>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Obligations>
+            <Obligation ObligationId="always-authorise-sensitive-document-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="always-authorise-sensitive-document-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+    
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+        PolicyId="always-authorise-normal-document-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>       
+
+        <Rule RuleId="always-authorise-normal-document-deny-rule" Effect="Deny">
+            <Description>
+                
+                Deny if PermitAccessAssertions is selected,
+                the provider does *not* have on-the-fly RESTRICTED or NORMAL permission
+                and the document is not sensitive
+                
+                Always authorise: Explicit authorisation must accompany 
+                every access to clinical documents.
+                
+                Permit access assertions: A patient allows providers to assert 
+                that the patient has given permission for them to access 
+                documents. If this option is not selected, on-the-fly access 
+                assertions will be ignored by the system.                
+                
+                Pseudocode:
+                PermitAccessAssertions == TRUE
+                AND (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission != RESTRICTED
+                      AND (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission != NORMAL)
+                AND Document.isSensitive == FALSE
                         
             </Description>
             <Condition>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ExplicitAuthorizationRequired</AttributeValue>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitAccessAssertions</AttributeValue>
                         <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                     </Apply>
+
+                    <!-- TODO refactor to use bag in bag -->
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">                    
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RESTRICTED</AttributeValue>
+                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            </Apply>
+                        </Apply>
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NORMAL</AttributeValue>
+                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                            </Apply>
+                        </Apply>
+                    </Apply>
                     
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
+                            </Apply>
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+
+        <Rule RuleId="always-authorise-normal-document-permit-rule" Effect="Permit">
+            <Description>
+                
+                Permit if PermitAccessAssertions is selected,
+                the provider has on-the-fly RESTRICTED or NORMAL permission
+                and the document is not sensitive
+                
+                Always authorise: Explicit authorisation must accompany 
+                every access to clinical documents.
+                
+                Permit access assertions: A patient allows providers to assert 
+                that the patient has given permission for them to access 
+                documents. If this option is not selected, on-the-fly access 
+                assertions will be ignored by the system.                
+                
+                Pseudocode:
+                PermitAccessAssertions == TRUE
+                AND (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == RESTRICTED
+                      OR (urn:oasis:names:tc:xspa:1.0:subject:hl7:permission == NORMAL)
+                AND Document.isSensitive == FALSE
+                        
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PermitAccessAssertions</AttributeValue>
+                        <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Apply>
+
+                    <!-- TODO refactor to use bag in bag -->
                     <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
                         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
                             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RESTRICTED</AttributeValue>
                             <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                        
-                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
-                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NORMAL</AttributeValue>
-                                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                            </Apply>
-                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
-                                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
-                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
-                                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
-                                    </Apply>
-                                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                                </Apply>
-                            </Apply>
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NORMAL</AttributeValue>
+                            <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"/>
                         </Apply>
-                    </Apply>                
+                    </Apply>
+                    
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">R^^2.16.840.1.113883.5.25</AttributeValue>
+                                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">V^^2.16.840.1.113883.5.25</AttributeValue>
+                            </Apply>
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:ConfidentialityCodes/pip:Code/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
                 </Apply>
             </Condition>
         </Rule>
         
         <Obligations>
-            <Obligation ObligationId="explicit-authorization-document-policy-deny" FulfillOn="Deny"/>
-            <Obligation ObligationId="explicit-authorization-document-policy-permit" FulfillOn="Permit"/>
+            <Obligation ObligationId="always-authorise-normal-document-policy-deny" FulfillOn="Deny"/>
+            <Obligation ObligationId="always-authorise-normal-document-policy-permit" FulfillOn="Permit"/>
         </Obligations>
     </Policy>
-    
+   
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-        PolicyId="patient-consent-policy"
+        PolicyId="patient-consent-deny-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-        <Description>Evaluate document against Patient Consent Directives</Description>
         <PolicyDefaults>
             <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
         </PolicyDefaults>
@@ -369,6 +534,58 @@
             </Condition>
         </Rule>
 
+        <Obligations>
+            <Obligation ObligationId="patient-consent-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+    
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+        PolicyId="authorisation-not-required-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>       
+        
+        <Rule RuleId="authorisation-not-required-rule" Effect="Permit">
+            <Description>
+                
+                ** This must come after the explicit deny rule (patient-consent-deny-rule) **
+                
+                Permit if AuthorisationNotRequired is selected (mode 0)
+                
+                Mode 0: all providers in the community have access to patient 
+                documents unless explicitly blocked.                  
+                
+                Authorisation not required: Mode 0 is selected, that is, 
+                all providers in the community have access to patient 
+                documents unless explicitly blocked.                
+                
+                Pseudocode:
+                (ExplicitAuthorisationNotRequired exists)
+            </Description>
+            <Condition>
+                <!-- Consent Option Exists -->
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ExplicitAuthorisationNotRequired</AttributeValue>
+                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:ConsentOptions/pip:ConsentOption/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+        </Rule>
+        
+        <Obligations>
+            <Obligation ObligationId="authorisation-not-required-policy-permit" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+        PolicyId="patient-consent-permit-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>       
+
         <Rule RuleId="patient-consent-permit-rule" Effect="Permit">
             <Description>
                Evaluate document against Patient Consent Directives
@@ -456,7 +673,6 @@
         </Rule>
 
         <Obligations>
-            <Obligation ObligationId="patient-consent-policy-deny" FulfillOn="Deny"/>
             <Obligation ObligationId="patient-consent-policy-permit" FulfillOn="Permit"/>
         </Obligations>
 
