@@ -273,10 +273,13 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     /**
      * 
      * @param requestNode
-     * @param requestNode
+     * @param rootNode
      * @param errorDetail
      */
-    protected void addAcknowledgementToRequest(OMElement requestNode, OMElement rootNode, HL7V3ErrorDetail errorDetail) {
+    protected void addAcknowledgementToRequest(
+            OMElement requestNode,
+            OMElement rootNode,
+            HL7V3ErrorDetail errorDetail, String successCode, String errorCode) {
         //<acknowledgement>
         //    <typeCode code="CE"/>
         //    <targetMessage>
@@ -290,9 +293,9 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         OMElement typeCodeNode = this.addChildOMElement(ackNode, "typeCode");
 
         if (errorDetail != null) {
-            this.setAttribute(typeCodeNode, "code", "AE");
+            this.setAttribute(typeCodeNode, "code", errorCode);
         } else {
-            this.setAttribute(typeCodeNode, "code", "AA");
+            this.setAttribute(typeCodeNode, "code", successCode);
         }
         OMElement targetMessageNode = this.addChildOMElement(ackNode, "targetMessage");
         try {
@@ -763,5 +766,50 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         this.setAttribute(patientPersonNode, "classCode", "PSN");
         this.setAttribute(patientPersonNode, "determinerCode", "INSTANCE");
         return patientPersonNode;
+    }
+
+    /**
+     *
+     * @param controlActProcessNode
+     * @param subjects
+     * @param includeDemographics
+     */
+    protected void addSubjectsWithOnlyIds(OMElement controlActProcessNode, List<Subject> subjects) {
+        if (subjects != null) {
+            for (Subject subject : subjects) {
+                this.addSubjectWithIdsOnly(controlActProcessNode, subject);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param controlActProcessNode
+     * @param subject
+     */
+    protected void addSubjectWithIdsOnly(OMElement controlActProcessNode, Subject subject) {
+        // controlActProcess/subject/registrationEvent/subject1/patient
+        OMElement patientNode = this.addPatientNode(controlActProcessNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
+        this.addSubjectIdentifiers(patientNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/statusCode
+        OMElement statusCodeNode = this.addChildOMElement(patientNode, "statusCode");
+        this.setAttribute(statusCodeNode, "code", "active");
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson
+        OMElement patientPersonNode = this.addPatientPersonNode(patientNode);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
+        //<name nullFlavor="NA">
+        OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
+        this.setAttribute(nameNode, "nullFlavor", "NA");
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
+        this.addSubjectOtherIdentifiers(patientPersonNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
+        this.addProviderOrganization(patientNode, subject);
     }
 }

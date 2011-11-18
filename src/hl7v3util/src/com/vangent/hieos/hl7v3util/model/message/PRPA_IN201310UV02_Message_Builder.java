@@ -57,14 +57,14 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         OMElement responseNode = this.getResponseNode(messageName, "P", "T", "NE");
 
         // PRPA_IN201310UV02/acknowledgement
-        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail);
+        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail, "AA", "AE");
 
         // PRPA_IN201310UV02/controlActProcess
         OMElement controlActProcessNode = this.addControlActProcess(responseNode, "PRPA_TE201310UV02");
 
         // PRPA_IN201310UV02/controlActProcess/subject
         List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
-        this.addSubjects(controlActProcessNode, subjects);
+        this.addSubjectsWithOnlyIds(controlActProcessNode, subjects);
 
         // PRPA_IN201310UV02/controlActProcess/queryAck
         this.addQueryAckToRequest(requestNode, controlActProcessNode, subjects, errorDetail);
@@ -73,51 +73,5 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         this.addQueryByParameterFromRequest(requestNode, controlActProcessNode);
 
         return new PRPA_IN201310UV02_Message(responseNode);
-    }
-
-    /**
-     *
-     * @param controlActProcessNode
-     * @param subjects
-     * @param includeDemographics
-     */
-    protected void addSubjects(OMElement controlActProcessNode, List<Subject> subjects) {
-        if (subjects != null) {
-            for (Subject subject : subjects) {
-                this.addSubject(controlActProcessNode, subject);
-            }
-        }
-    }
-
-    /**
-     *
-     * @param controlActProcessNode
-     * @param subject
-     */
-    protected void addSubject(OMElement controlActProcessNode, Subject subject) {
-        // controlActProcess/subject/registrationEvent/subject1/patient
-        OMElement patientNode = this.addPatientNode(controlActProcessNode, subject);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
-        this.addSubjectIdentifiers(patientNode, subject);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/statusCode
-        OMElement statusCodeNode = this.addChildOMElement(patientNode, "statusCode");
-        this.setAttribute(statusCodeNode, "code", "active");
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson
-        OMElement patientPersonNode = this.addPatientPersonNode(patientNode);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
-        //<name nullFlavor="NA">
-        OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
-        this.setAttribute(nameNode, "nullFlavor", "NA");
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
-        this.addSubjectOtherIdentifiers(patientPersonNode, subject);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
-        this.addProviderOrganization(patientNode, subject);
-
     }
 }

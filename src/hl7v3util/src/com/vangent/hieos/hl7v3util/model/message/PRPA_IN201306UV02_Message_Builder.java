@@ -58,7 +58,7 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         OMElement responseNode = this.getResponseNode(messageName, "P", "T", "NE");
 
         // PRPA_IN201306UV02/acknowledgement
-        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail);
+        this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail, "AA", "AE");
 
         // PRPA_IN201306UV02/controlActProcess
         OMElement controlActProcessNode = this.addControlActProcess(responseNode, "PRPA_TE201306UV02");
