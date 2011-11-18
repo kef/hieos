@@ -127,9 +127,13 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance();
             Subject subjectAdded = adapter.addSubject(subject);
+        } catch (EMPIException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
+            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
-            //log_message.setPass(false);
+        }
+        if (log_message.isLogEnabled() && errorDetail != null) {
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
@@ -144,16 +148,20 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      * @throws SOAPFaultException
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordRevised(PRPA_IN201302UV02_Message request) throws SOAPFaultException {
-         this.validateHL7V3Message(request);
+        this.validateHL7V3Message(request);
         HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance();
             Subject subjectUpdated = adapter.updateSubject(subject);
+        } catch (EMPIException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
+            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
-            //log_message.setPass(false);
+        }
+        if (log_message.isLogEnabled() && errorDetail != null) {
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
@@ -161,7 +169,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         return ackResponse;
     }
 
-     /**
+    /**
      *
      * @param PRPA_IN201304UV02_Message
      * @return
@@ -175,9 +183,13 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
             EMPIAdapter adapter = EMPIFactory.getInstance();
             Subject survivingSubject = adapter.mergeSubjects(subjectMergeRequest);
+        } catch (EMPIException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
+            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
-            //log_message.setPass(false);
+        }
+        if (log_message.isLogEnabled() && errorDetail != null) {
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
         MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
