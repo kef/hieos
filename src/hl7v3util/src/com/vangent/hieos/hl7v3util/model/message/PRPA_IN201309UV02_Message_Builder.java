@@ -52,35 +52,10 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
         String messageName = "PRPA_IN201309UV02";
 
         // PRPA_IN201309UV02
-        OMElement rootNode = this.createOMElement(messageName);
-        this.setAttribute(rootNode, "ITSVersion", "XML_1.0");
-        this.addMessageId(rootNode);
-
-        // <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="35423"/>
-        // <creationTime value="20090417150301"/>
-        // <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201309UV02"/>
-        // <processingCode code="T"/>
-        // <processingModeCode code="I"/>
-        // <acceptAckCode code="NE"/>
-        this.addCreationTime(rootNode);
-        this.addInteractionId(messageName, rootNode);
-        this.addCode(rootNode, "processingCode", "T");
-        this.addCode(rootNode, "processingModeCode", "I");
-        this.addCode(rootNode, "acceptAckCode", "NE");
-
-        // PRPA_IN201309UV02/receiver
-        // PRPA_IN201309UV02/sender
-        this.addReceiver(rootNode);
-        this.addSender(rootNode);
+        OMElement requestNode = this.getRequestNode(messageName, "T", "I", "NE");
 
         // PRPA_IN201309UV02/controlActProcess
-        OMElement controlActProcessNode = this.addChildOMElement(rootNode, "controlActProcess");
-        this.setAttribute(controlActProcessNode, "moodCode", "EVN");
-        this.setAttribute(controlActProcessNode, "classCode", "CACT");
-
-        // PRPA_IN201309UV02/controlActProcess/code
-        OMElement codeNode = this.addCode(controlActProcessNode, "code", "PRPA_TE201309UV02");
-        this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
+        OMElement controlActProcessNode = this.addControlActProcess(requestNode, "PRPA_TE201309UV02");
 
         // PRPA_IN201309UV02/controlActProcess/authorOrPerformer
         // <authorOrPerformer typeCode="AUT">
@@ -106,7 +81,7 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
                 this.addQueryByParameter(controlActProcessNode,
                 subjectSearchCriteria);
 
-        return new PRPA_IN201309UV02_Message(rootNode);
+        return new PRPA_IN201309UV02_Message(requestNode);
     }
 
     /**

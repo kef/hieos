@@ -54,45 +54,16 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         String messageName = "PRPA_IN201310UV02";
 
         // PRPA_IN201310UV02
-        OMElement responseNode = this.createOMElement(messageName);
-        this.setAttribute(responseNode, "ITSVersion", "XML_1.0");
-        this.addMessageId(responseNode);
-
-        //
-        // EXAMPLE:
-        //
-        // <creationTime value="20101213081923"/>
-        // <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
-        // <processingCode code="T"/>
-        // <processingModeCode code="I"/>
-        // <acceptAckCode code="NE"/>
-        //
-        this.addCreationTime(responseNode);
-        this.addInteractionId(messageName, responseNode);
-        this.addCode(responseNode, "processingCode", "P");
-        this.addCode(responseNode, "processingModeCode", "T");
-        this.addCode(responseNode, "acceptAckCode", "NE");
-
-        // PRPA_IN201310UV02/receiver
-        // PRPA_IN201310UV02/sender
-        this.addReceiver(responseNode);
-        this.addSender(responseNode);
+        OMElement responseNode = this.getResponseNode(messageName, "P", "T", "NE");
 
         // PRPA_IN201310UV02/acknowledgement
         this.addAcknowledgementToRequest(requestNode, responseNode, errorDetail);
 
         // PRPA_IN201310UV02/controlActProcess
-        OMElement controlActProcessNode = this.addChildOMElement(responseNode, "controlActProcess");
-        this.setAttribute(controlActProcessNode, "moodCode", "EVN");
-        this.setAttribute(controlActProcessNode, "classCode", "CACT");
-
-        // PRPA_IN201310UV02/controlActProcess/code
-        OMElement codeNode = this.addCode(controlActProcessNode, "code", "PRPA_TE201310UV02");
-        this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
-
-        List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
+        OMElement controlActProcessNode = this.addControlActProcess(responseNode, "PRPA_TE201310UV02");
 
         // PRPA_IN201310UV02/controlActProcess/subject
+        List<Subject> subjects = subjectSearchResponse != null ? subjectSearchResponse.getSubjects() : null;
         this.addSubjects(controlActProcessNode, subjects);
 
         // PRPA_IN201310UV02/controlActProcess/queryAck
@@ -110,7 +81,7 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * @param subjects
      * @param includeDemographics
      */
-    private void addSubjects(OMElement controlActProcessNode, List<Subject> subjects) {
+    protected void addSubjects(OMElement controlActProcessNode, List<Subject> subjects) {
         if (subjects != null) {
             for (Subject subject : subjects) {
                 this.addSubject(controlActProcessNode, subject);
@@ -123,45 +94,21 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
      * @param controlActProcessNode
      * @param subject
      */
-    private void addSubject(OMElement controlActProcessNode, Subject subject) {
-        // controlActProcess/subject
-        OMElement subjectNode = this.addChildOMElement(controlActProcessNode, "subject");
-        this.setAttribute(subjectNode, "typeCode", "SUBJ");
-
-        // controlActProcess/subject/registrationEvent
-        OMElement registrationEventNode = this.addChildOMElement(subjectNode, "registrationEvent");
-        this.setAttribute(registrationEventNode, "moodCode", "EVN");
-        this.setAttribute(registrationEventNode, "classCode", "REG");
-
-        // controlActProcess/subject/registrationEvent/id
-        OMElement registrationEventIdNode = this.addChildOMElement(registrationEventNode, "id");
-        this.setAttribute(registrationEventIdNode, "nullFlavor", "NA");
-
-        // controlActProcess/subject/registrationEvent/statusCode
-        OMElement statusCodeNode = this.addChildOMElement(registrationEventNode, "statusCode");
-        this.setAttribute(statusCodeNode, "code", "active");
-
-        // controlActProcess/subject/registrationEvent/subject1
-        OMElement subject1Node = this.addChildOMElement(registrationEventNode, "subject1");
-        this.setAttribute(subject1Node, "typeCode", "SBJ");
-
+    protected void addSubject(OMElement controlActProcessNode, Subject subject) {
         // controlActProcess/subject/registrationEvent/subject1/patient
-        OMElement patientNode = this.addChildOMElement(subject1Node, "patient");
-        this.setAttribute(patientNode, "classCode", "PAT");
+        OMElement patientNode = this.addPatientNode(controlActProcessNode, subject);
 
         // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
         this.addSubjectIdentifiers(patientNode, subject);
 
         // controlActProcess/subject/registrationEvent/subject1/patient/statusCode
-        statusCodeNode = this.addChildOMElement(patientNode, "statusCode");
+        OMElement statusCodeNode = this.addChildOMElement(patientNode, "statusCode");
         this.setAttribute(statusCodeNode, "code", "active");
 
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson
-        OMElement patientPersonNode = this.addChildOMElement(patientNode, "patientPerson");
-        this.setAttribute(patientPersonNode, "classCode", "PSN");
-        this.setAttribute(patientPersonNode, "determinerCode", "INSTANCE");
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
+        OMElement patientPersonNode = this.addPatientPersonNode(patientNode);
 
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
         //<name nullFlavor="NA">
         OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
         this.setAttribute(nameNode, "nullFlavor", "NA");
@@ -172,7 +119,5 @@ public class PRPA_IN201310UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
         this.addProviderOrganization(patientNode, subject);
 
-        // controlActProcess/subject/registrationEvent/custodian
-        this.addCustodian(registrationEventNode, subject);
     }
 }

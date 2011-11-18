@@ -93,7 +93,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param xpathExpression
      * @return
      */
@@ -123,7 +123,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param elementName
      * @param value
      * @return
@@ -137,7 +137,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param elementName
      * @param value
      * @return
@@ -151,11 +151,11 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @return
      */
     protected OMElement addSender(OMElement rootNode) {
-        // rootNode/sender
+        // requestNode/sender
         OMElement senderNode = this.addChildOMElement(rootNode, "sender");
         senderNode.addAttribute("typeCode", "SND", null);
         this.addDevice(senderNode, this.getSenderDeviceInfo());
@@ -164,7 +164,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      * 
-     * @param rootNode
+     * @param requestNode
      * @return
      */
     protected OMElement addReceiver(OMElement rootNode) {
@@ -176,29 +176,29 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param deviceInfo
      * @return
      */
     protected OMElement addDevice(OMElement rootNode, DeviceInfo deviceInfo) {
         // Add "device" for Sender:
-        // rootNode/sender/device
+        // requestNode/sender/device
         OMElement deviceNode = this.addChildOMElement(rootNode, "device");
         this.setAttribute(deviceNode, "classCode", "DEV");
         this.setAttribute(deviceNode, "determinerCode", "INSTANCE");
 
-        // rootNode/sender/device/id
+        // requestNode/sender/device/id
         if (deviceInfo.getId() != null) {
             OMElement idNode = this.addChildOMElement(deviceNode, "id");
             this.setAttribute(idNode, "root", deviceInfo.getId());
         }
 
-        // rootNode/sender/device/name
+        // requestNode/sender/device/name
         if (deviceInfo.getName() != null) {
             this.addChildOMElementWithValue(deviceNode, "name", deviceInfo.getName());
         }
 
-        // rootNode/sender/device/telecom
+        // requestNode/sender/device/telecom
         if (deviceInfo.getTelecom() != null) {
             OMElement telecomNode = this.addChildOMElement(deviceNode, "telecom");
             this.setAttribute(telecomNode, "value", deviceInfo.getTelecom());
@@ -240,7 +240,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     /**
      *
      * @param messageName
-     * @param rootNode
+     * @param requestNode
      */
     protected void addInteractionId(String messageName, OMElement rootNode) {
         OMElement childNode = this.createOMElement("interactionId");
@@ -251,7 +251,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      */
     protected void addCreationTime(OMElement rootNode) {
         OMElement creationTimeNode = this.createOMElement("creationTime");
@@ -261,7 +261,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      */
     protected void addMessageId(OMElement rootNode) {
         OMElement childNode = this.createOMElement("id");
@@ -273,7 +273,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     /**
      * 
      * @param requestNode
-     * @param rootNode
+     * @param requestNode
      * @param errorDetail
      */
     protected void addAcknowledgementToRequest(OMElement requestNode, OMElement rootNode, HL7V3ErrorDetail errorDetail) {
@@ -315,7 +315,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addProviderOrganization(OMElement rootNode, Subject subject) {
@@ -356,7 +356,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addSubjectOf1(OMElement rootNode, Subject subject) {
@@ -387,7 +387,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addCustodian(OMElement rootNode, Subject subject) {
@@ -436,7 +436,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param id
      * @return
      */
-    private OMElement addCustodianId(OMElement assignedEntityNode, String id) {
+    protected OMElement addCustodianId(OMElement assignedEntityNode, String id) {
         OMElement idNode = this.addChildOMElement(assignedEntityNode, "id");
         this.setAttribute(idNode, "root", id);
         return idNode;
@@ -445,7 +445,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     /**
      *
      * @param requestNode
-     * @param rootNode
+     * @param requestNode
      * @param subjects
      * @param errorDetail
      */
@@ -496,7 +496,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     /**
      *
      * @param requestNode
-     * @param rootNode
+     * @param requestNode
      */
     protected void addQueryByParameterFromRequest(OMElement requestNode, OMElement rootNode) {
         try {
@@ -510,7 +510,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addAddresses(OMElement rootNode, Subject subject) {
@@ -527,7 +527,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addTelecomAddresses(OMElement rootNode, Subject subject) {
@@ -540,7 +540,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addSubjectIdentifiers(OMElement rootNode, Subject subject) {
@@ -553,7 +553,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subjectIdentifier
      */
     protected void addSubjectIdentifier(OMElement rootNode, SubjectIdentifier subjectIdentifier) {
@@ -563,7 +563,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addSubjectOtherIdentifiers(OMElement rootNode, Subject subject) {
@@ -577,7 +577,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subjectOtherIdentifier
      */
     protected void addSubjectOtherIdentifier(OMElement rootNode, SubjectIdentifier subjectOtherIdentifier) {
@@ -597,7 +597,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param subject
      */
     protected void addSubjectNames(OMElement rootNode, Subject subject) {
@@ -609,7 +609,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      * 
-     * @param rootNode
+     * @param requestNode
      * @param subjectName
      */
     protected void addSubjectName(OMElement rootNode, SubjectName subjectName) {
@@ -622,13 +622,146 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
     /**
      *
-     * @param rootNode
+     * @param requestNode
      * @param component
      * @param nameValue
      */
-    private void addSubjectNameComponent(OMElement rootNode, String component, String nameValue) {
+    protected void addSubjectNameComponent(OMElement rootNode, String component, String nameValue) {
         if (nameValue != null && nameValue.length() > 0) {
             this.addChildOMElementWithValue(rootNode, component, nameValue);
         }
+    }
+
+    /**
+     *
+     * @param requestNode
+     * @param code
+     * @return
+     */
+    protected OMElement addControlActProcess(OMElement rootNode, String code) {
+        OMElement controlActProcessNode = this.addChildOMElement(rootNode, "controlActProcess");
+        this.setAttribute(controlActProcessNode, "moodCode", "EVN");
+        this.setAttribute(controlActProcessNode, "classCode", "CACT");
+
+        // PRPA_IN201309UV02/controlActProcess/code
+        OMElement codeNode = this.addCode(controlActProcessNode, "code", code);
+        this.setAttribute(codeNode, "codeSystem", "2.16.840.1.113883.1.6");
+        return controlActProcessNode;
+    }
+
+    /**
+     * 
+     * @param messageName
+     * @param processingCode
+     * @param processingModeCode
+     * @param acceptAckCode
+     * @return
+     */
+    protected OMElement getResponseNode(String messageName, String processingCode, String processingModeCode, String acceptAckCode) {
+        OMElement responseNode = this.createOMElement(messageName);
+        this.setAttribute(responseNode, "ITSVersion", "XML_1.0");
+        this.addMessageId(responseNode);
+
+        //
+        // EXAMPLE:
+        //
+        // <creationTime value="20101213081923"/>
+        // <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+        // <processingCode code="T"/>
+        // <processingModeCode code="I"/>
+        // <acceptAckCode code="NE"/>
+        //
+        this.addCreationTime(responseNode);
+        this.addInteractionId(messageName, responseNode);
+        this.addCode(responseNode, "processingCode", processingCode);
+        this.addCode(responseNode, "processingModeCode", processingModeCode);
+        this.addCode(responseNode, "acceptAckCode", acceptAckCode);
+
+        // PRPA_IN201306UV02/receiver
+        // PRPA_IN201306UV02/sender
+        this.addReceiver(responseNode);
+        this.addSender(responseNode);
+        return responseNode;
+    }
+
+    /**
+     *
+     * @param messageName
+     * @param processingCode
+     * @param processingModeCode
+     * @param acceptAckCode
+     * @return
+     */
+    protected OMElement getRequestNode(String messageName, String processingCode, String processingModeCode, String acceptAckCode) {
+        OMElement requestNode = this.createOMElement(messageName);
+        this.setAttribute(requestNode, "ITSVersion", "XML_1.0");
+        this.addMessageId(requestNode);
+
+        // <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="35423"/>
+        // <creationTime value="20090417150301"/>
+        // <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201305UV02"/>
+        // <processingCode code="T"/>
+        // <processingModeCode code="I"/>
+        // <acceptAckCode code="NE"/>
+        this.addCreationTime(requestNode);
+        this.addInteractionId(messageName, requestNode);
+        this.addCode(requestNode, "processingCode", processingCode);
+        this.addCode(requestNode, "processingModeCode", processingModeCode);
+        this.addCode(requestNode, "acceptAckCode", acceptAckCode);
+
+        // PRPA_IN201305UV02/receiver
+        // PRPA_IN201305UV02/sender
+        this.addReceiver(requestNode);
+        this.addSender(requestNode);
+        return requestNode;
+    }
+
+    /**
+     * 
+     * @param rootNode
+     * @param subject
+     * @return
+     */
+    protected OMElement addPatientNode(OMElement rootNode, Subject subject) {
+        // controlActProcess/subject
+        OMElement subjectNode = this.addChildOMElement(rootNode, "subject");
+        this.setAttribute(subjectNode, "typeCode", "SUBJ");
+
+        // controlActProcess/subject/registrationEvent
+        OMElement registrationEventNode = this.addChildOMElement(subjectNode, "registrationEvent");
+        this.setAttribute(registrationEventNode, "moodCode", "EVN");
+        this.setAttribute(registrationEventNode, "classCode", "REG");
+
+        // controlActProcess/subject/registrationEvent/id
+        OMElement registrationEventIdNode = this.addChildOMElement(registrationEventNode, "id");
+        this.setAttribute(registrationEventIdNode, "nullFlavor", "NA");
+
+        // controlActProcess/subject/registrationEvent/statusCode
+        OMElement statusCodeNode = this.addChildOMElement(registrationEventNode, "statusCode");
+        this.setAttribute(statusCodeNode, "code", "active");
+
+        // controlActProcess/subject/registrationEvent/subject1
+        OMElement subject1Node = this.addChildOMElement(registrationEventNode, "subject1");
+        this.setAttribute(subject1Node, "typeCode", "SBJ");
+
+        // controlActProcess/subject/registrationEvent/subject1/patient
+        OMElement patientNode = this.addChildOMElement(subject1Node, "patient");
+        this.setAttribute(patientNode, "classCode", "PAT");
+
+        // controlActProcess/subject/registrationEvent/custodian
+        this.addCustodian(registrationEventNode, subject);
+        return patientNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @return
+     */
+    protected OMElement addPatientPersonNode(OMElement rootNode) {
+        OMElement patientPersonNode = this.addChildOMElement(rootNode, "patientPerson");
+        this.setAttribute(patientPersonNode, "classCode", "PSN");
+        this.setAttribute(patientPersonNode, "determinerCode", "INSTANCE");
+        return patientPersonNode;
     }
 }
