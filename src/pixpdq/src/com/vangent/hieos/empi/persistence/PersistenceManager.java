@@ -348,6 +348,26 @@ public class PersistenceManager {
     }
 
     /**
+     *
+     * @param enterpriseSubjectId
+     * @throws EMPIException
+     */
+    public void voidEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
+        SubjectDAO dao = new SubjectDAO(connection);
+        dao.voidEnterpriseSubject(enterpriseSubjectId);
+    }
+
+    /**
+     * 
+     * @param systemSubjectId
+     * @throws EMPIException
+     */
+    public void deleteSystemSubject(String systemSubjectId) throws EMPIException {
+        SubjectDAO dao = new SubjectDAO(connection);
+        dao.deleteSystemSubject(systemSubjectId);
+    }
+
+    /**
      * 
      * @param searchRecord
      * @return

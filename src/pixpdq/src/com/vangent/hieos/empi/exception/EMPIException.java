@@ -21,7 +21,7 @@ public class EMPIException extends Exception {
     /**
      * 
      */
-    public static String ERROR_CODE_UNKOWN_KEY_IDENTIFIER = "204";
+    public static String ERROR_CODE_UNKNOWN_KEY_IDENTIFIER = "204";
     private String code = null;
 
     /**

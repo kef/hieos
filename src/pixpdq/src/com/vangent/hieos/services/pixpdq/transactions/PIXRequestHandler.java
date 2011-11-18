@@ -180,7 +180,6 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             //log_message.setPass(false);
             log_message.addErrorParam("EXCEPTION", errorDetail.getText());
         }
-        errorDetail = new HL7V3ErrorDetail("NOT YET IMPLEMENTED!");
         MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
         this.validateHL7V3Message(ackResponse);
         return ackResponse;

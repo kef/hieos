@@ -142,7 +142,7 @@ public class SubjectMatchDAO extends AbstractDAO {
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectMatch.delete: done executeBatch elapedTimeMillis=" + (endTime - startTime));
+                logger.trace("SubjectMatch.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw new EMPIException(ex);

@@ -158,7 +158,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                     throw new EMPIException(
                             subjectIdentifierDomain.getUniversalId()
                             + " is not a known identifier domain",
-                            EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
+                            EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
                 }
                 stmt.setInt(3, subjectIdentifierDomainId);
                 stmt.addBatch();
@@ -169,6 +169,32 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             if (logger.isTraceEnabled()) {
                 logger.trace("SubjectIdentifierDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime)
                         + " Number Records Added: " + insertCounts.length);
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
+    }
+
+    /**
+     *
+     * @param subjectId
+     * @throws EMPIException
+     */
+    public void deleteSubjectIdentifiers(String subjectId) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("DELETE FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
+            String sql = sb.toString();
+            stmt = this.getPreparedStatement(sql);
+            stmt.setString(1, subjectId);
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                logger.trace("SubjectIdentifierDAO.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw new EMPIException(ex);

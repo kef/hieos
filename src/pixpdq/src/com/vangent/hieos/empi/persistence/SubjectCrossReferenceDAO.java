@@ -157,4 +157,52 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
             this.close(stmt);
         }
     }
+
+    /**
+     *
+     * @param systemSubjectId
+     * @throws EMPIException
+     */
+    public void deleteSystemSubjectCrossReferences(String systemSubjectId) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            String sql = "DELETE FROM subject_xref WHERE system_subject_id=?";
+            stmt = this.getPreparedStatement(sql);
+            stmt.setString(1, systemSubjectId);
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                logger.trace("SubjectCrossReferenceDAO.deleteSystemSubjectCrossReferences: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
+    }
+
+    /**
+     *
+     * @param enterpriseSubjectId
+     * @throws EMPIException
+     */
+    public void deleteEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            String sql = "DELETE FROM subject_xref WHERE enterprise_subject_id=?";
+            stmt = this.getPreparedStatement(sql);
+            stmt.setString(1, enterpriseSubjectId);
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                logger.trace("SubjectCrossReferenceDAO.deleteEnterpriseSubjectCrossReferences: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
+    }
 }

@@ -101,4 +101,28 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
             this.close(stmt);
         }
     }
+
+    /**
+     *
+     * @param subjectId
+     * @throws EMPIException
+     */
+    public void deleteSubjectTelecomAddresses(String subjectId) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            String sql = "DELETE FROM subject_telecom_address WHERE subject_id=?";
+            stmt = this.getPreparedStatement(sql);
+            stmt.setString(1, subjectId);
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                logger.trace("SubjectTelecomAddressDAO.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
+    }
 }

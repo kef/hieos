@@ -60,81 +60,10 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      */
     @Override
     public Subject addSubject(Subject subject) throws EMPIException {
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
         PersistenceManager pm = new PersistenceManager();
         try {
             pm.open();  // Open transaction.
-
-            // FIXME: This is not totally correct, how about "other ids"?
-            // See if the subject exists (if it already has identifiers).
-            if (subject.hasSubjectIdentifiers()) {
-
-                // See if the subject already exists.
-                if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
-                    throw new EMPIException("Subject already exists!");
-                }
-            }
-            // Fall through: The subject does not already exist.
-
-            // Store the subject @ system-level - will stamp with subjectId.
-            subject.setType(Subject.SubjectType.SYSTEM);
-            pm.insertSubject(subject);
-
-            // Get prepared for next steps ..
-            String systemSubjectId = subject.getId();
-            String enterpriseSubjectId = null;
-            int matchScore = 100;    // Default.
-
-            // Find matching records.
-            RecordBuilder rb = new RecordBuilder();
-            Record searchRecord = rb.build(subject);
-            List<ScoredRecord> recordMatches = this.getRecordMatches(pm, searchRecord);
-
-            if (recordMatches.isEmpty()) { // No match.
-
-                // Store the subject @ enterprise-level.
-
-                // Set type type to ENTERPRISE.
-                subject.setType(Subject.SubjectType.ENTERPRISE);
-
-                // Clear out the subject's identifier lists (since they are already stored at the system-level).
-                subject.clearIdentifiers();
-
-                // Stamp the subject with an enterprise id (if configured to do so).
-                EUIDConfig euidConfig = empiConfig.getEuidConfig();
-                if (euidConfig.isEuidAssignEnabled()) {
-                    SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
-                    subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
-                }
-
-                // Store the enterprise-level subject.
-                pm.insertSubject(subject);
-                enterpriseSubjectId = subject.getId();
-
-                // Store the match criteria.
-                searchRecord.setId(enterpriseSubjectId);
-                pm.insertSubjectMatchRecord(searchRecord);
-            } else {
-                // >=1 matches
-
-                // Cross reference will be to first matched record.  All other records will be merged later below.
-                ScoredRecord matchedRecord = recordMatches.get(0);
-                enterpriseSubjectId = matchedRecord.getRecord().getId();
-                matchScore = this.getMatchScore(matchedRecord);
-            }
-
-            // Create and store cross-reference.
-            SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
-            subjectCrossReference.setMatchScore(matchScore);
-            subjectCrossReference.setSystemSubjectId(systemSubjectId);
-            subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
-            pm.insertSubjectCrossReference(subjectCrossReference);
-
-            // Merge all other matches (if any) into first matched record (surviving enterprise record).
-            for (int i = 1; i < recordMatches.size(); i++) {
-                ScoredRecord scoredRecord = recordMatches.get(i);
-                pm.mergeSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
-            }
+            subject = this.addSubject(pm, subject);
             pm.commit();
         } catch (EMPIException ex) {
             pm.rollback();
@@ -150,39 +79,100 @@ public class BaseEMPIAdapter implements EMPIAdapter {
 
     /**
      *
+     * @param pm
+     * @param subject
+     * @return
+     * @throws EMPIException
+     */
+    private Subject addSubject(PersistenceManager pm, Subject subject) throws EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+
+        // FIXME: This is not totally correct, how about "other ids"?
+        // See if the subject exists (if it already has identifiers).
+        if (subject.hasSubjectIdentifiers()) {
+
+            // See if the subject already exists.
+            if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
+                throw new EMPIException("Subject already exists!");
+            }
+        }
+        // Fall through: The subject does not already exist.
+
+        // Store the subject @ system-level - will stamp with subjectId.
+        subject.setType(Subject.SubjectType.SYSTEM);
+        pm.insertSubject(subject);
+
+        // Get prepared for next steps ..
+        String systemSubjectId = subject.getId();
+        String enterpriseSubjectId = null;
+        int matchScore = 100;    // Default.
+
+        // Find matching records.
+        RecordBuilder rb = new RecordBuilder();
+        Record searchRecord = rb.build(subject);
+        List<ScoredRecord> recordMatches = this.getRecordMatches(pm, searchRecord);
+
+        if (recordMatches.isEmpty()) { // No match.
+
+            // Store the subject @ enterprise-level.
+
+            // Set type type to ENTERPRISE.
+            subject.setType(Subject.SubjectType.ENTERPRISE);
+
+            // Clear out the subject's identifier lists (since they are already stored at the system-level).
+            subject.clearIdentifiers();
+
+            // Stamp the subject with an enterprise id (if configured to do so).
+            EUIDConfig euidConfig = empiConfig.getEuidConfig();
+            if (euidConfig.isEuidAssignEnabled()) {
+                SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
+                subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
+            }
+
+            // Store the enterprise-level subject.
+            pm.insertSubject(subject);
+            enterpriseSubjectId = subject.getId();
+
+            // Store the match criteria.
+            searchRecord.setId(enterpriseSubjectId);
+            pm.insertSubjectMatchRecord(searchRecord);
+        } else {
+            // >=1 matches
+
+            // Cross reference will be to first matched record.  All other records will be merged later below.
+            ScoredRecord matchedRecord = recordMatches.get(0);
+            enterpriseSubjectId = matchedRecord.getRecord().getId();
+            matchScore = this.getMatchScore(matchedRecord);
+        }
+
+        // Create and store cross-reference.
+        SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
+        subjectCrossReference.setMatchScore(matchScore);
+        subjectCrossReference.setSystemSubjectId(systemSubjectId);
+        subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
+        pm.insertSubjectCrossReference(subjectCrossReference);
+
+        // Merge all other matches (if any) into first matched record (surviving enterprise record).
+        for (int i = 1; i < recordMatches.size(); i++) {
+            ScoredRecord scoredRecord = recordMatches.get(i);
+            pm.mergeSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
+        }
+
+        return subject;
+    }
+
+    /**
+     *
      * @param subject
      * @return
      * @throws EMPIException
      */
     @Override
     public Subject updateSubject(Subject subject) throws EMPIException {
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
         PersistenceManager pm = new PersistenceManager();
         try {
             pm.open();  // Open transaction.
-
-            List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-
-            // Make sure that subject identifiers are present.
-            if (subjectIdentifiers.isEmpty()) {
-                throw new EMPIException("No identifiers provided for subject - skipping update.");
-            }
-
-            // Make sure that there is only one subject identifier to update.
-            if (subjectIdentifiers.size() > 1) {
-                throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
-            }
-
-            // Get the subject (using the first identifier).
-            Subject baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifiers.get(0));
-            if (baseSubject == null) {
-                throw new EMPIException("Subject does not exist - skipping update.");
-            }
-
-            // FIXME: Should we make sure that we know about the subject identifier domain?
-
-            // TBD ... do the work.
-
+            subject = this.updateSubject(pm, subject);
             pm.commit();
         } catch (EMPIException ex) {
             pm.rollback();
@@ -197,18 +187,145 @@ public class BaseEMPIAdapter implements EMPIAdapter {
     }
 
     /**
+     *
+     * @param pm
+     * @param subject
+     * @return
+     * @throws EMPIException
+     */
+    private Subject updateSubject(PersistenceManager pm, Subject subject) throws EMPIException {
+
+        // First validate identifier domains assocated with the subject's identifiers.
+        this.validateSubjectIdentifierDomains(pm, subject);
+
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+
+        // Make sure that subject identifiers are present.
+        if (subjectIdentifiers.isEmpty()) {
+            throw new EMPIException("No identifiers provided for subject - skipping update.");
+        }
+
+        // Make sure that there is only one subject identifier to update.
+        if (subjectIdentifiers.size() > 1) {
+            throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
+        }
+
+        // Get the subject (using the first identifier).
+        SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
+        Subject baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
+        if (baseSubject == null) {
+            throw new EMPIException(
+                    subjectIdentifier.getCXFormatted()
+                    + " is not a known identifier",
+                    EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+        }
+
+        String enterpriseSubjectId;
+        if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
+            String systemSubjectId = baseSubject.getId();
+
+            // Get the enterprise subject id.
+            enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+
+            // See if this subject is the only cross reference to the enterprise.
+            List<SubjectCrossReference> subjectCrossReferences = pm.loadSubjectCrossReferences(enterpriseSubjectId);
+            if (subjectCrossReferences.size() == 1) {
+                // In this case, void the enterprise record
+                pm.voidEnterpriseSubject(enterpriseSubjectId);
+            }
+            // delete the system-level subject.
+            pm.deleteSystemSubject(systemSubjectId);
+
+            // Now, run through normal add operation.
+            this.addSubject(pm, subject);
+        } else {
+            enterpriseSubjectId = baseSubject.getId();
+            // MUCH TO DO HERE!!!!
+        }
+
+        // TBD ... do the work.
+
+        return subject;
+    }
+
+    /**
      * 
      * @param subjectMergeRequest
      * @return
      * @throws EMPIException
      */
     @Override
-    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException
-    {
-        throw new EMPIException("Not yet implemented!!");
-        //return null;
+    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+        Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
+        Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
+        PersistenceManager pm = new PersistenceManager();
+        try {
+            pm.open();  // Open transaction.
+            // Lookup surviving and subsumed subjects.
+            Subject baseSurvivingSubject = this.getBaseSubjectForMerge(pm, survivingSubject, "surviving");
+            Subject baseSubsumedSubject = this.getBaseSubjectForMerge(pm, subsumedSubject, "subsumed");
+            if (baseSurvivingSubject.getType().equals(Subject.SubjectType.SYSTEM)
+                    && baseSubsumedSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
+
+                // Get base enterprise subjects.
+                String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject.getId());
+                String baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject.getId());
+
+                // Delete the "subsumed" subject.
+                pm.deleteSystemSubject(baseSubsumedSubject.getId());
+
+                // FIXME: MAKE CONFIGURABLE!!!
+
+                // Now move all cross references.
+                pm.mergeSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+            }
+
+            // FIXME: Complete ALL cases.
+
+            pm.commit();
+        } catch (EMPIException ex) {
+            pm.rollback();
+            throw ex; // Rethrow.
+        } catch (Exception ex) {
+            pm.rollback();
+            throw new EMPIException(ex);
+        } finally {
+            pm.close();  // To be sure.
+        }
+        return null; // FIXME!!!!
     }
 
+    /**
+     * 
+     * @param pm
+     * @param subject
+     * @param subjectType
+     * @return
+     * @throws EMPIException
+     */
+    private Subject getBaseSubjectForMerge(PersistenceManager pm, Subject subject, String subjectType) throws EMPIException {
+        Subject baseSubject = null;
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        if (subjectIdentifiers.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("No ").append(subjectType).append(" subject identifier supplied - skipping merge");
+            throw new EMPIException(sb.toString());
+        }
+        if (subjectIdentifiers.size() > 1) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
+            throw new EMPIException(sb.toString());
+
+        }
+        SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
+        baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
+        if (baseSubject == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(subjectType).append(" subject not found - skipping merge");
+            throw new EMPIException(sb.toString());
+        }
+        return baseSubject;
+    }
 
     /**
      *
@@ -290,6 +407,12 @@ public class BaseEMPIAdapter implements EMPIAdapter {
 
             // Get the baseSubject (only base-level information) to determine type and internal id.
             Subject baseSubject = pm.loadBaseSubjectByIdentifier(searchSubjectIdentifier);
+            if ((baseSubject == null) && onlyLoadIdentifiers) {
+                throw new EMPIException(
+                        searchSubjectIdentifier.getCXFormatted()
+                        + " is not a known identifier",
+                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+            }
             Subject enterpriseSubject = null;
             if (baseSubject != null) {  // Found a match.
 
@@ -481,10 +604,22 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     private void validateSubjectIdentifierDomains(PersistenceManager pm, SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        Subject searchSubject = subjectSearchCriteria.getSubject();
-
         // First validate identifier domains assocated with the search subject's identifiers.
-        List<SubjectIdentifier> subjectIdentifiers = searchSubject.getSubjectIdentifiers();
+        this.validateSubjectIdentifierDomains(pm, subjectSearchCriteria.getSubject());
+
+        // Now validate identifiers in any scoping organizations.
+        this.validateScopingAssigningAuthorities(pm, subjectSearchCriteria);
+    }
+
+    /**
+     * 
+     * @param pm
+     * @param subject
+     * @throws EMPIException
+     */
+    private void validateSubjectIdentifierDomains(PersistenceManager pm, Subject subject) throws EMPIException {
+        // Validate identifier domains assocated with the subject's identifiers.
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
             boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(subjectIdentifier);
             if (!subjectIdentifierDomainExists) {
@@ -492,18 +627,27 @@ public class BaseEMPIAdapter implements EMPIAdapter {
                 throw new EMPIException(
                         subjectIdentifierDomain.getUniversalId()
                         + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
+                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
             }
         }
+    }
 
-        // Now validate identifiers in any scoping organizations.
+    /**
+     *
+     * @param pm
+     * @param subjectSearchCriteria
+     * @throws EMPIException
+     */
+    private void validateScopingAssigningAuthorities(PersistenceManager pm, SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+
+        // Validate identifiers in any scoping organizations.
         for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
             boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(scopingIdentifierDomain);
             if (!subjectIdentifierDomainExists) {
                 throw new EMPIException(
                         scopingIdentifierDomain.getUniversalId()
                         + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKOWN_KEY_IDENTIFIER);
+                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
             }
         }
     }
