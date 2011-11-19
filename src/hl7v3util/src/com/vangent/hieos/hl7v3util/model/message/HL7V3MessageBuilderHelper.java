@@ -788,6 +788,25 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param subject
      */
     protected void addSubjectWithIdsOnly(OMElement controlActProcessNode, Subject subject) {
+        this.addSubjectWithIdsAndNamesOnly(controlActProcessNode, subject, false);
+    }
+
+    /**
+     *
+     * @param controlActProcessNode
+     * @param subject
+     */
+    protected void addSubjectWithIdsAndNamesOnly(OMElement controlActProcessNode, Subject subject) {
+        this.addSubjectWithIdsAndNamesOnly(controlActProcessNode, subject, true);
+    }
+
+    /**
+     * 
+     * @param controlActProcessNode
+     * @param subject
+     * @param emitNames
+     */
+    private void addSubjectWithIdsAndNamesOnly(OMElement controlActProcessNode, Subject subject, boolean emitNames) {
         // controlActProcess/subject/registrationEvent/subject1/patient
         OMElement patientNode = this.addPatientNode(controlActProcessNode, subject);
 
@@ -802,9 +821,12 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         OMElement patientPersonNode = this.addPatientPersonNode(patientNode);
 
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
-        //<name nullFlavor="NA">
-        OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
-        this.setAttribute(nameNode, "nullFlavor", "NA");
+        if (emitNames) {
+            this.addSubjectNames(patientPersonNode, subject);
+        } else {
+            OMElement nameNode = this.addChildOMElement(patientPersonNode, "name");
+            this.setAttribute(nameNode, "nullFlavor", "NA");
+        }
 
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
         this.addSubjectOtherIdentifiers(patientPersonNode, subject);

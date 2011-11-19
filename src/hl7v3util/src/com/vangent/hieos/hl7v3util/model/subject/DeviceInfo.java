@@ -25,6 +25,9 @@ public class DeviceInfo {
     private String representedOrganizationId;
     private String telecom;
 
+    /**
+     *
+     */
     public DeviceInfo() {
         this.id = null;
         this.name = null;
@@ -45,34 +48,66 @@ public class DeviceInfo {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * 
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRepresentedOrganizationId() {
         return representedOrganizationId;
     }
 
+    /**
+     *
+     * @param representedOrganizationId
+     */
     public void setRepresentedOrganizationId(String representedOrganizationId) {
         this.representedOrganizationId = representedOrganizationId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTelecom() {
         return telecom;
     }
 
+    /**
+     *
+     * @param telecom
+     */
     public void setTelecom(String telecom) {
         this.telecom = telecom;
     }

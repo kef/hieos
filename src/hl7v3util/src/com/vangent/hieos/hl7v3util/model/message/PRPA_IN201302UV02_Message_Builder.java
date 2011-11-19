@@ -48,13 +48,13 @@ public class PRPA_IN201302UV02_Message_Builder extends HL7V3MessageBuilderHelper
         String messageName = "PRPA_IN201302UV02";
 
         // PRPA_IN201302UV02
-        OMElement requestNode = this.getRequestNode(messageName, "T", "I", "NE");
+        OMElement requestNode = this.getRequestNode(messageName, "T", "T", "AL");
 
         // PRPA_IN201302UV02/controlActProcess
         OMElement controlActProcessNode = this.addControlActProcess(requestNode, "PRPA_TE201302UV02");
 
         // PRPA_IN201302UV02/controlActProcess/subject
-        this.addSubjectWithIdsOnly(controlActProcessNode, subject);
+        this.addSubjectWithIdsAndNamesOnly(controlActProcessNode, subject);
 
         return new PRPA_IN201302UV02_Message(requestNode);
     }
