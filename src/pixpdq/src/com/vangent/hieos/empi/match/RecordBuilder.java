@@ -59,6 +59,7 @@ public class RecordBuilder {
                         TransformFunction transformFunction = transformFunctionConfig.getTransformFunction();
                         value = transformFunction.transform(value);
                     }
+                    
                     System.out.println(" ... value (final) = " + value.toString());
                     Field field = new Field(fieldName, value.toString());
                     record.addField(field);
