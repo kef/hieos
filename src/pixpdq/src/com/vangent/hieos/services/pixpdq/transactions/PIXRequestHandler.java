@@ -125,7 +125,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
-            EMPIAdapter adapter = EMPIFactory.getInstance();
+            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
             Subject subjectAdded = adapter.addSubject(subject);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
@@ -153,7 +153,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
-            EMPIAdapter adapter = EMPIFactory.getInstance();
+            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
             Subject subjectUpdated = adapter.updateSubject(subject);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
@@ -181,7 +181,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
-            EMPIAdapter adapter = EMPIFactory.getInstance();
+            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
             Subject survivingSubject = adapter.mergeSubjects(subjectMergeRequest);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
@@ -248,7 +248,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIFactory.getInstance();
+        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
     }

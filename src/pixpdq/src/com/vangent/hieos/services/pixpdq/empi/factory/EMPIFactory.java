@@ -14,6 +14,7 @@ package com.vangent.hieos.services.pixpdq.empi.factory;
 
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
 import com.vangent.hieos.services.pixpdq.empi.impl.base.BaseEMPIAdapter;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
  *
@@ -22,11 +23,14 @@ import com.vangent.hieos.services.pixpdq.empi.impl.base.BaseEMPIAdapter;
 public class EMPIFactory {
 
     /**
-     * 
+     *
+     * @param configActor
      * @return
      */
-    static public EMPIAdapter getInstance() {
+    static public EMPIAdapter getInstance(XConfigActor configActor) {
         // FIXME: Replace by dynamic load using xconfig file.
-        return new BaseEMPIAdapter();
+        EMPIAdapter empiAdaptor = new BaseEMPIAdapter();
+        empiAdaptor.setConfig(configActor);
+        return empiAdaptor;
     }
 }

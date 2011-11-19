@@ -26,7 +26,6 @@ import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import org.apache.log4j.Logger;
 
@@ -58,8 +57,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      * @return
      */
     @Override
-    public boolean getStatus()
-    {
+    public boolean getStatus() {
         return log_message.isPass();
     }
 
@@ -83,14 +81,14 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      * @return
      */
     protected DeviceInfo getDeviceInfo() {
+        /*
         DeviceInfo deviceInfo = new DeviceInfo();
         XConfigObject config = this.getConfigActor();
         String deviceId = config.getProperty("DeviceId");
         String deviceName = config.getProperty("DeviceName");
-        //String homeCommunityId = config.getUniqueId();
         deviceInfo.setId(deviceId);
-        deviceInfo.setName(deviceName);
-        //deviceInfo.setHomeCommunityId(homeCommunityId);
+        deviceInfo.setName(deviceName);*/
+        DeviceInfo deviceInfo = new DeviceInfo(this.getConfigActor());
         return deviceInfo;
     }
 
@@ -101,7 +99,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      * @throws EMPIException
      */
     protected SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIFactory.getInstance();
+        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
         return subjectSearchResponse;
     }

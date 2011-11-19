@@ -159,6 +159,27 @@ public class PersistenceManager {
      * @throws EMPIException
      */
     public Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId) throws EMPIException {
+        return this.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId, false);
+    }
+
+    /**
+     *
+     * @param enterpriseSubjectId
+     * @return
+     * @throws EMPIException
+     */
+    public Subject loadEnterpriseSubjectIdentifiersAndNamesOnly(String enterpriseSubjectId) throws EMPIException {
+        return this.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId, true);
+    }
+
+    /**
+     *
+     * @param enterpriseSubjectId
+     * @param loadNames
+     * @return
+     * @throws EMPIException
+     */
+    private Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId, boolean loadNames) throws EMPIException {
         // Create enterprise subject.
         Subject enterpriseSubject = new Subject();
         enterpriseSubject.setId(enterpriseSubjectId);
@@ -170,6 +191,12 @@ public class PersistenceManager {
 
         // Load cross references for the enterprise subject.
         this.loadSubjectCrossReferencedIdentifiers(enterpriseSubject);
+
+        // Load names if required.
+        if (loadNames) {
+            SubjectNameDAO subjectNameDAO = new SubjectNameDAO(connection);
+            subjectNameDAO.load(enterpriseSubject);
+        }
         return enterpriseSubject;
     }
 
