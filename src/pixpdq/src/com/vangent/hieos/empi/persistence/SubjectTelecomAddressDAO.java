@@ -62,7 +62,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
                 telecomAddresses.add(telecomAddress);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject telecom addresses(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading subject TelecomAddresses(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -107,22 +107,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectTelecomAddresses(String subjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "DELETE FROM subject_telecom_address WHERE subject_id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectTelecomAddressDAO.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+        this.deleteRecords(subjectId, "subject_telecom_address", "subject_id", this.getClass().getName());
     }
 }

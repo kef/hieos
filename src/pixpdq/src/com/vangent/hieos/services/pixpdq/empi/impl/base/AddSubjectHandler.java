@@ -123,7 +123,7 @@ public class AddSubjectHandler extends BaseHandler {
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
         for (int i = 1; i < recordMatches.size(); i++) {
             ScoredRecord scoredRecord = recordMatches.get(i);
-            pm.mergeSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
+            pm.mergeEnterpriseSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
         }
         return enterpriseSubjectId;
     }

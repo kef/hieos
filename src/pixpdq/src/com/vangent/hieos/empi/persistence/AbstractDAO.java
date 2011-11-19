@@ -55,6 +55,36 @@ public class AbstractDAO {
 
     /**
      *
+     * @param id
+     * @param tableName 
+     * @param className
+     * @throws EMPIException
+     */
+    protected void deleteRecords(String id, String tableName, String idColumnName, String className) throws EMPIException {
+        PreparedStatement stmt = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("DELETE FROM ").append(tableName).append(" WHERE ").append(idColumnName).append("=?");
+            String sql = sb.toString();
+            stmt = this.getPreparedStatement(sql);
+            stmt.setString(1, id);
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate();
+            long endTime = System.currentTimeMillis();
+            if (logger.isTraceEnabled()) {
+                StringBuilder sbTrace = new StringBuilder();
+                sbTrace.append(className).append(".deleteRecords: done executeUpdate elapedTimeMillis=").append((endTime - startTime));
+                logger.trace(sbTrace.toString());
+            }
+        } catch (SQLException ex) {
+            throw new EMPIException(ex);
+        } finally {
+            this.close(stmt);
+        }
+    }
+
+    /**
+     *
      * @param sql
      * @return
      * @throws EMPIException

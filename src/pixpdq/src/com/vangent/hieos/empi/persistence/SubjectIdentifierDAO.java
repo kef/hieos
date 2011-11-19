@@ -73,7 +73,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject identifier(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -125,7 +125,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectIdentifiers.add(subjectIdentifier);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject identifier(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -182,25 +182,8 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectIdentifiers(String subjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("DELETE FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
-            String sql = sb.toString();
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectIdentifierDAO.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+        this.deleteRecords(subjectId, this.getTableName(), "subject_id", this.getClass().getName());
     }
 
     /**

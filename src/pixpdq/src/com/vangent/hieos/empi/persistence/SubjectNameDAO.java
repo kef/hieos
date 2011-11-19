@@ -113,22 +113,7 @@ public class SubjectNameDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectNames(String subjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "DELETE FROM subject_name WHERE subject_id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectName.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+        this.deleteRecords(subjectId, "subject_name", "subject_id", this.getClass().getName());
     }
 }

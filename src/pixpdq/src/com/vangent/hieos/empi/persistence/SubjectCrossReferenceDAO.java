@@ -44,7 +44,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectCrossReference> load(String enterpriseSubjectId) throws EMPIException {
+    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
         List<SubjectCrossReference> subjectCrossReferences = new ArrayList<SubjectCrossReference>();
         // Load the subject names.
         PreparedStatement stmt = null;
@@ -65,7 +65,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 subjectCrossReferences.add(subjectCrossReference);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject_xref(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading SubjectCrossReference(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -94,7 +94,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 enterpriseSubjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject_xref(s) from database" + ex.getMessage());
+            throw new EMPIException("Failure reading SubjectCrossReference(s) from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -132,24 +132,24 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
 
     /**
      *
-     * @param survivingSubjectId
-     * @param subsumedSubjectId
+     * @param survivingEnterpriseSubjectId
+     * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void merge(String survivingSubjectId, String subsumedSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
 
-        // Move cross references from subsumedSubjectId to survivingSubjectId
+        // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
         PreparedStatement stmt = null;
         try {
             String sql = "UPDATE subject_xref SET enterprise_subject_id=? WHERE enterprise_subject_id=?";
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, survivingSubjectId);
-            stmt.setString(2, subsumedSubjectId);
+            stmt.setString(1, survivingEnterpriseSubjectId);
+            stmt.setString(2, subsumedEnterpriseSubjectId);
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectCrossReferenceDAO.merge: done executeBatch elapedTimeMillis=" + (endTime - startTime));
+                logger.trace("SubjectCrossReferenceDAO.mergeEnterpriseSubjects: done executeBatch elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw new EMPIException(ex);
@@ -164,22 +164,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void deleteSystemSubjectCrossReferences(String systemSubjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "DELETE FROM subject_xref WHERE system_subject_id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, systemSubjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectCrossReferenceDAO.deleteSystemSubjectCrossReferences: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+        this.deleteRecords(systemSubjectId, "subject_xref", "system_subject_id", this.getClass().getName());
     }
 
     /**
@@ -188,21 +173,6 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void deleteEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "DELETE FROM subject_xref WHERE enterprise_subject_id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, enterpriseSubjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectCrossReferenceDAO.deleteEnterpriseSubjectCrossReferences: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+        this.deleteRecords(enterpriseSubjectId, "subject_xref", "enterprise_subject_id", this.getClass().getName());
     }
 }

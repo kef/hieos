@@ -68,13 +68,13 @@ public class SubjectDAO extends AbstractDAO {
                 genderCodeId = rs.getInt(4);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject from database" + ex.getMessage());
+            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
         }
 
-        // Now, load composed objects.
+        // Now, loadEnterpriseSubjectCrossReferences composed objects.
         Connection conn = this.getConnection();
 
         // Names.
@@ -107,35 +107,6 @@ public class SubjectDAO extends AbstractDAO {
         return subject;
     }
 
-    /**
-     * 
-     * @param subjectIdentifiers
-     * @return
-     * @throws EMPIException
-     */
-    /*
-    public List<Subject> findSubjectsByIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
-    List<Subject> subjects = new ArrayList<Subject>();
-    PreparedStatement stmt = null;
-    ResultSet rs = null;
-    try {
-    SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
-    // Go through each identifier (assumes no duplicates across subjects).
-    for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-    // See if the identifier has a subject.
-    String subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
-    if (subjectId != null) {
-    // Load the subject and add to list.
-    Subject subject = this.load(subjectId);
-    subjects.add(subject);
-    }
-    }
-    } finally {
-    this.close(stmt);
-    this.close(rs);
-    }
-    return subjects;
-    }*/
     /**
      *
      * @param subjectIdentifier
@@ -178,7 +149,7 @@ public class SubjectDAO extends AbstractDAO {
                 subject.setType(this.getSubjectType(rs.getString(2)));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject from database" + ex.getMessage());
+            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -280,11 +251,11 @@ public class SubjectDAO extends AbstractDAO {
         Connection conn = this.getConnection();  // Get connection to use.
 
         // Mark enterprise subject as "Voided"
-        this.markVoid(enterpriseSubjectId);
+        this.voidSubject(enterpriseSubjectId);
 
         // Delete "SubjectMatch" record for enterpriseSubjectId.
         SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-        subjectMatchDAO.delete(enterpriseSubjectId);
+        subjectMatchDAO.deleteSubjectRecords(enterpriseSubjectId);
 
         // Delete all cross references to the enterprise subject.
         SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -293,23 +264,23 @@ public class SubjectDAO extends AbstractDAO {
 
     /**
      * 
-     * @param survivingSubjectId
-     * @param subsumedSubjectId
+     * @param survivingEnterpriseSubjectId
+     * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void merge(String survivingSubjectId, String subsumedSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
         Connection conn = this.getConnection();  // Get connection to use.
 
-        // Mark subsumedSubjectId as "Voided"
-        this.markVoid(subsumedSubjectId);
+        // Mark subsumedEnterpriseSubjectId as "Voided"
+        this.voidSubject(subsumedEnterpriseSubjectId);
 
-        // Delete "SubjectMatch" record for subsumedSubjectId.
+        // Delete "SubjectMatch" record for subsumedEnterpriseSubjectId.
         SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-        subjectMatchDAO.delete(subsumedSubjectId);
+        subjectMatchDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
 
-        // Move cross references from subsumedSubjectId to survivingSubjectId
+        // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
         SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
-        subjectCrossReferenceDAO.merge(survivingSubjectId, subsumedSubjectId);
+        subjectCrossReferenceDAO.mergeEnterpriseSubjects(survivingEnterpriseSubjectId, subsumedEnterpriseSubjectId);
     }
 
     /**
@@ -322,7 +293,7 @@ public class SubjectDAO extends AbstractDAO {
         try {
             Connection conn = this.getConnection();  // Get connection to use.
 
-            // First delete component parts.
+            // First deleteSubjectRecords component parts.
 
             // Get DAO instances responsible for deletions.
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
@@ -333,24 +304,16 @@ public class SubjectDAO extends AbstractDAO {
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
 
             // Run deletions.
-            subjectNameDAO.deleteSubjectNames(systemSubjectId);
-            subjectAddressDAO.deleteSubjectAddresses(systemSubjectId);
-            subjectTelecomAddressDAO.deleteSubjectTelecomAddresses(systemSubjectId);
-            subjectIdentifierDAO.deleteSubjectIdentifiers(systemSubjectId);
-            subjectOtherIdentifierDAO.deleteSubjectIdentifiers(systemSubjectId);
+            subjectNameDAO.deleteSubjectRecords(systemSubjectId);
+            subjectAddressDAO.deleteSubjectRecords(systemSubjectId);
+            subjectTelecomAddressDAO.deleteSubjectRecords(systemSubjectId);
+            subjectIdentifierDAO.deleteSubjectRecords(systemSubjectId);
+            subjectOtherIdentifierDAO.deleteSubjectRecords(systemSubjectId);
             subjectCrossReferenceDAO.deleteSystemSubjectCrossReferences(systemSubjectId);
 
-            String sql = "DELETE FROM subject WHERE id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, systemSubjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("Subject.delete: done executeBatch elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            // Now, delete the subject record.
+            this.deleteRecords(systemSubjectId, "subject", "id", this.getClass().getName());
+
         } finally {
             this.close(stmt);
         }
@@ -361,7 +324,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void markVoid(String subjectId) throws EMPIException {
+    public void voidSubject(String subjectId) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             String sql = "UPDATE subject SET type=? WHERE id=?";

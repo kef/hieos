@@ -132,23 +132,8 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void delete(String subjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "DELETE FROM subject_match WHERE id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectMatch.delete: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
+    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+        this.deleteRecords(subjectId, "subject_match", "id", this.getClass().getName());
     }
 
     /**

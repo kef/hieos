@@ -80,7 +80,7 @@ public class UpdateSubjectHandler extends BaseHandler {
             enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
 
             // See if this subject is the only cross reference to the enterprise.
-            List<SubjectCrossReference> subjectCrossReferences = pm.loadSubjectCrossReferences(enterpriseSubjectId);
+            List<SubjectCrossReference> subjectCrossReferences = pm.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
             if (subjectCrossReferences.size() == 1) {
                 // In this case, void the enterprise record
                 pm.voidEnterpriseSubject(enterpriseSubjectId);

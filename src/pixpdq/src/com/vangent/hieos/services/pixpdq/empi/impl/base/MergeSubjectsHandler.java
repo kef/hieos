@@ -64,7 +64,7 @@ public class MergeSubjectsHandler extends BaseHandler {
             // FIXME: MAKE CONFIGURABLE!!!
 
             // Now move all cross references.
-            pm.mergeSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+            pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
         }
 
         // FIXME: Complete ALL cases.

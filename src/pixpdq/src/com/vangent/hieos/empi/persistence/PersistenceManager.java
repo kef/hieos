@@ -131,9 +131,9 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectCrossReference> loadSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
+    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
         SubjectCrossReferenceDAO dao = new SubjectCrossReferenceDAO(connection);
-        return dao.load(enterpriseSubjectId);
+        return dao.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
     }
 
     /**
@@ -147,7 +147,7 @@ public class PersistenceManager {
         Subject enterpriseSubject = this.loadSubject(enterpriseSubjectId);
 
         // Get cross references to the subject ...
-        this.loadSubjectCrossReferencedIdentifiers(enterpriseSubject);
+        this.loadEnterpriseSubjectCrossReferencedIdentifiers(enterpriseSubject);
 
         return enterpriseSubject;
     }
@@ -190,7 +190,7 @@ public class PersistenceManager {
         enterpriseSubject.getSubjectIdentifiers().addAll(enterpriseSubjectIdentifiers);
 
         // Load cross references for the enterprise subject.
-        this.loadSubjectCrossReferencedIdentifiers(enterpriseSubject);
+        this.loadEnterpriseSubjectCrossReferencedIdentifiers(enterpriseSubject);
 
         // Load names if required.
         if (loadNames) {
@@ -205,10 +205,10 @@ public class PersistenceManager {
      * @param enterpriseSubject
      * @throws EMPIException
      */
-    public void loadSubjectCrossReferencedIdentifiers(Subject enterpriseSubject) throws EMPIException {
+    public void loadEnterpriseSubjectCrossReferencedIdentifiers(Subject enterpriseSubject) throws EMPIException {
 
         // Load cross references for the enterpriseSubject.
-        List<SubjectCrossReference> subjectCrossReferences = this.loadSubjectCrossReferences(enterpriseSubject.getId());
+        List<SubjectCrossReference> subjectCrossReferences = this.loadEnterpriseSubjectCrossReferences(enterpriseSubject.getId());
 
         // Loop through each cross reference.
         for (SubjectCrossReference subjectCrossReference : subjectCrossReferences) {
@@ -299,17 +299,7 @@ public class PersistenceManager {
         int subjectIdentifierDomainId = this.getSubjectIdentifierDomainId(subjectIdentifierDomain);
         return subjectIdentifierDomainId != -1;
     }
-
-    /**
-     * 
-     * @param subjectIdentifiers
-     * @return
-     * @throws EMPIException
-     */
-    /*public List<Subject> findSubjectsByIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
-    SubjectDAO dao = new SubjectDAO(connection);
-    return dao.findSubjectsByIdentifiers(subjectIdentifiers);
-    }*/
+    
     /**
      *
      * @param subject
@@ -365,13 +355,13 @@ public class PersistenceManager {
 
     /**
      * 
-     * @param survivingSubjectId
-     * @param subsumedSubjectId
+     * @param survivingEnterpriseSubjectId
+     * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void mergeSubjects(String survivingSubjectId, String subsumedSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
-        dao.merge(survivingSubjectId, subsumedSubjectId);
+        dao.mergeEnterpriseSubjects(survivingEnterpriseSubjectId, subsumedEnterpriseSubjectId);
     }
 
     /**
