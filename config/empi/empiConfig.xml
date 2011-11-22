@@ -72,6 +72,34 @@
             </parameters>
         </transform-function>
         <transform-function>
+            <name>Caverphone1</name>
+            <class>com.vangent.hieos.empi.transform.Caverphone1TransformFunction</class>
+            <parameters>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+            </parameters>
+        </transform-function>
+        <transform-function>
+            <name>Caverphone2</name>
+            <class>com.vangent.hieos.empi.transform.Caverphone2TransformFunction</class>
+            <parameters>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+            </parameters>
+        </transform-function>
+        <transform-function>
             <name>HL7Date</name>
             <class>com.vangent.hieos.empi.transform.HL7DateTransformFunction</class>
         </transform-function>
@@ -211,6 +239,22 @@
             </transform-functions>
             <match-db-column>match_field12</match-db-column>
         </field>
+        <field>
+            <name>familyNameCaverphone2</name>
+            <source-object-path>subjectNames[0].familyName</source-object-path>
+            <transform-functions>
+                <transform-function>Caverphone2</transform-function>
+            </transform-functions>
+            <match-db-column>match_field13</match-db-column>
+        </field>
+        <field>
+            <name>familyNameCaverphone1</name>
+            <source-object-path>subjectNames[0].familyName</source-object-path>
+            <transform-functions>
+                <transform-function>Caverphone1</transform-function>
+            </transform-functions>
+            <match-db-column>match_field14</match-db-column>
+        </field>
     </fields>
     
     <!-- First pass "blocking" configuration (only support one round for now) -->
@@ -244,8 +288,8 @@
     </blocking-config>
     
     <match-config>
-        <accept-threshold>0.8</accept-threshold>
-        <reject-threshold>0.8</reject-threshold>
+        <accept-threshold>0.9</accept-threshold>
+        <reject-threshold>0.9</reject-threshold>
         <match-fields>
             <match-field>
                 <name>givenName</name>
