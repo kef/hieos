@@ -17,6 +17,7 @@ import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
@@ -42,11 +43,12 @@ public class UpdateNotificationHandler extends BaseHandler {
      *
      * @param enterpriseSubjectId
      */
-    public void sendUpdateNotifications(String enterpriseSubjectId) {
-        if (enterpriseSubjectId == null) {
+    public void sendUpdateNotifications(UpdateNotificationContent updateNotificationContent) {
+        if (updateNotificationContent == null) {
             // FIXME: Should we ever get here?
             return;  // Early exit!
         }
+        /*
         PersistenceManager pm = new PersistenceManager();
         try {
             // MUST BE CALLED OUTSIDE EXISTING TRANSACTION
@@ -65,5 +67,6 @@ public class UpdateNotificationHandler extends BaseHandler {
         } finally {
             pm.close();
         }
+         */
     }
 }

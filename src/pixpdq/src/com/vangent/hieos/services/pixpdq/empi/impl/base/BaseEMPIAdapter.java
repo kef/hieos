@@ -19,6 +19,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
+import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 
@@ -63,13 +64,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     @Override
-    public Subject addSubject(Subject subject) throws EMPIException {
+    public UpdateNotificationContent addSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = new PersistenceManager();
-        String enterpriseSubjectId = null;
+        UpdateNotificationContent updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
             AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm);
-            enterpriseSubjectId = addSubjectHandler.addSubject(subject);
+            updateNotificationContent = addSubjectHandler.addSubject(subject);
             pm.commit();
         } catch (EMPIException ex) {
             pm.rollback();
@@ -80,8 +81,8 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         } finally {
             pm.close();  // To be sure.
         }
-        //this.sendUpdateNotifications(enterpriseSubjectId);
-        return subject;
+        this.sendUpdateNotifications(updateNotificationContent);
+        return updateNotificationContent;
     }
 
     /**
@@ -91,13 +92,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     @Override
-    public Subject updateSubject(Subject subject) throws EMPIException {
+    public UpdateNotificationContent updateSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = new PersistenceManager();
-        String enterpriseSubjectId = null;
+        UpdateNotificationContent updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
             UpdateSubjectHandler updateSubjectHandler = new UpdateSubjectHandler(this.getConfigActor(), pm);
-            enterpriseSubjectId = updateSubjectHandler.updateSubject(subject);
+            updateNotificationContent = updateSubjectHandler.updateSubject(subject);
             pm.commit();
         } catch (EMPIException ex) {
             pm.rollback();
@@ -108,8 +109,8 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         } finally {
             pm.close();  // To be sure.
         }
-        //this.sendUpdateNotifications(enterpriseSubjectId);
-        return subject;
+        this.sendUpdateNotifications(updateNotificationContent);
+        return updateNotificationContent;
     }
 
     /**
@@ -119,13 +120,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     @Override
-    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    public UpdateNotificationContent mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
         PersistenceManager pm = new PersistenceManager();
-        Subject survivingSubject = null;
+        UpdateNotificationContent updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
             MergeSubjectsHandler mergeSubjectsHandler = new MergeSubjectsHandler(this.getConfigActor(), pm);
-            survivingSubject = mergeSubjectsHandler.mergeSubjects(subjectMergeRequest);
+            updateNotificationContent = mergeSubjectsHandler.mergeSubjects(subjectMergeRequest);
             pm.commit();
         } catch (EMPIException ex) {
             pm.rollback();
@@ -136,7 +137,8 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         } finally {
             pm.close();  // To be sure.
         }
-        return survivingSubject; // FIXME!!!!
+        this.sendUpdateNotifications(updateNotificationContent);
+        return updateNotificationContent;
     }
 
     /**
@@ -177,5 +179,14 @@ public class BaseEMPIAdapter implements EMPIAdapter {
             pm.close();
         }
         return subjectSearchResponse;
+    }
+
+    /**
+     *
+     * @param updateNotificationContent
+     */
+    private void sendUpdateNotifications(UpdateNotificationContent updateNotificationContent) {
+        UpdateNotificationHandler updateNotificationHandler = new UpdateNotificationHandler(this.getConfigActor(), null);
+        updateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
     }
 }

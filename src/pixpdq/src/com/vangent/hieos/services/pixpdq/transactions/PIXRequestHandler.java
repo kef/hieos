@@ -126,7 +126,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            Subject subjectAdded = adapter.addSubject(subject);
+            adapter.addSubject(subject);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -154,7 +154,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            Subject subjectUpdated = adapter.updateSubject(subject);
+            adapter.updateSubject(subject);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -182,7 +182,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            Subject survivingSubject = adapter.mergeSubjects(subjectMergeRequest);
+            adapter.mergeSubjects(subjectMergeRequest);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {

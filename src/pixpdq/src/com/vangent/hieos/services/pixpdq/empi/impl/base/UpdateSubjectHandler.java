@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -44,8 +45,9 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public String updateSubject(Subject subject) throws EMPIException {
+    public UpdateNotificationContent updateSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
+        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
         String enterpriseSubjectId = null;
 
         // First validate identifier domains assocated with the subject's identifiers.
@@ -97,6 +99,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         }
         // FIXME: MUCH TO DO HERE!!!!
 
-        return enterpriseSubjectId;
+        // FIXME: Fill-in update notification content.
+        return updateNotificationContent;
     }
 }

@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
+import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -44,10 +45,11 @@ public class MergeSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public Subject mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    public UpdateNotificationContent mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
         PersistenceManager pm = this.getPersistenceManager();
+        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
         // Lookup surviving and subsumed subjects.
         Subject baseSurvivingSubject = this.getBaseSubjectForMerge(survivingSubject, "surviving");
         Subject baseSubsumedSubject = this.getBaseSubjectForMerge(subsumedSubject, "subsumed");
@@ -68,8 +70,8 @@ public class MergeSubjectsHandler extends BaseHandler {
         }
 
         // FIXME: Complete ALL cases.
-
-        return null; // FIXME!!!!
+        // FIXME: Fill-in update notification content.
+        return updateNotificationContent;
     }
 
     /**

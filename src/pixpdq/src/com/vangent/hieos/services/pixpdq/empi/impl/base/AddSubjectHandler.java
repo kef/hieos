@@ -23,6 +23,7 @@ import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -50,9 +51,10 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public String addSubject(Subject subject) throws EMPIException {
+    public UpdateNotificationContent addSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         EMPIConfig empiConfig = EMPIConfig.getInstance();
+        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
 
         // FIXME: This is not totally correct, how about "other ids"?
         // See if the subject exists (if it already has identifiers).
@@ -125,6 +127,7 @@ public class AddSubjectHandler extends BaseHandler {
             ScoredRecord scoredRecord = recordMatches.get(i);
             pm.mergeEnterpriseSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
         }
-        return enterpriseSubjectId;
+        // FIXME: Fill-in update notification content.
+        return updateNotificationContent;
     }
 }
