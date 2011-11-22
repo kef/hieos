@@ -46,15 +46,18 @@ public class MergeSubjectsHandler extends BaseHandler {
      * @throws EMPIException
      */
     public UpdateNotificationContent mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
-        Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
-        Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
         PersistenceManager pm = this.getPersistenceManager();
         UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
+
         // Lookup surviving and subsumed subjects.
+        Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
+        Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
         Subject baseSurvivingSubject = this.getBaseSubjectForMerge(survivingSubject, "surviving");
         Subject baseSubsumedSubject = this.getBaseSubjectForMerge(subsumedSubject, "subsumed");
+
         if (baseSurvivingSubject.getType().equals(Subject.SubjectType.SYSTEM)
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
+            // Both are system-level subjects.
 
             // Get base enterprise subjects.
             String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject.getId());
@@ -66,6 +69,14 @@ public class MergeSubjectsHandler extends BaseHandler {
             // FIXME: MAKE CONFIGURABLE!!!
 
             // Now move all cross references.
+            pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+
+        } else if (baseSurvivingSubject.getType().equals(Subject.SubjectType.ENTERPRISE)
+                && baseSubsumedSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
+            // Both are enterprise-level subjects.
+            // Now move all cross references.
+            String baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getId();
+            String baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getId();
             pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
         }
 

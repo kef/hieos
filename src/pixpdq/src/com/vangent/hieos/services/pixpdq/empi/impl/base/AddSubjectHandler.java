@@ -84,8 +84,6 @@ public class AddSubjectHandler extends BaseHandler {
 
         if (recordMatches.isEmpty()) { // No match.
 
-            // Store the subject @ enterprise-level.
-
             // Set type type to ENTERPRISE.
             subject.setType(Subject.SubjectType.ENTERPRISE);
 

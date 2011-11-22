@@ -53,9 +53,8 @@ public class UpdateSubjectHandler extends BaseHandler {
         // First validate identifier domains assocated with the subject's identifiers.
         this.validateSubjectIdentifierDomains(subject);
 
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-
         // Make sure that subject identifiers are present.
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         if (subjectIdentifiers.isEmpty()) {
             throw new EMPIException("No identifiers provided for subject - skipping update.");
         }
