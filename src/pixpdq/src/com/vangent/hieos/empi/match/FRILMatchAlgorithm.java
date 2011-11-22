@@ -19,6 +19,7 @@ import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.exception.EMPIException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -88,7 +89,17 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
                 matchResults.addPossibleMatch(scoredRecord);
             }
         }
+        this.sortMatchResults(matchResults);
         return matchResults;
+    }
+
+    /**
+     * 
+     * @param matchResults
+     */
+    private void sortMatchResults(MatchResults matchResults) {
+        // Only sort matches (in descending order by score).
+        Collections.sort(matchResults.getMatches(), new ScoredRecordComparator());
     }
 
     /**
@@ -131,7 +142,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         // Now, compute field-level and record scores.
         scoredRecord.computeScores();
         System.out.println("ScoredRecord: " + scoredRecord.toString());
-        System.out.println("recordScore = " + scoredRecord.getScore());
+        System.out.println("... recordScore = " + scoredRecord.getScore());
         return scoredRecord;
     }
 }
