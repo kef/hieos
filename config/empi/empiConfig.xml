@@ -147,7 +147,9 @@
             <name>familyNameDoubleMetaphone</name>
             <source-object-path>subjectNames[0].familyName</source-object-path>
             <transform-functions>
-                <transform-function>DoubleMetaphone</transform-function>
+                <transform-function>
+                    <name>DoubleMetaphone</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field1</match-db-column>
         </field>
@@ -155,7 +157,9 @@
             <name>givenNameDoubleMetaphone</name>
             <source-object-path>subjectNames[0].givenName</source-object-path>
             <transform-functions>
-                <transform-function>DoubleMetaphone</transform-function>
+                <transform-function>
+                    <name>DoubleMetaphone</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field2</match-db-column>
         </field>
@@ -163,7 +167,9 @@
             <name>familyName</name>
             <source-object-path>subjectNames[0].familyName</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field3</match-db-column>
         </field>
@@ -171,7 +177,9 @@
             <name>givenName</name>
             <source-object-path>subjectNames[0].givenName</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field4</match-db-column>
         </field>
@@ -179,7 +187,9 @@
             <name>birthTime</name>
             <source-object-path>birthTime</source-object-path>
             <transform-functions>
-                <transform-function>HL7Date</transform-function>
+                <transform-function>
+                    <name>HL7Date</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field5</match-db-column>
         </field>
@@ -187,7 +197,9 @@
             <name>gender</name>
             <source-object-path>gender.code</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field6</match-db-column>
         </field>
@@ -195,7 +207,9 @@
             <name>familyNameSoundex</name>
             <source-object-path>subjectNames[0].familyName</source-object-path>
             <transform-functions>
-                <transform-function>Soundex</transform-function>
+                <transform-function>
+                    <name>Soundex</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field7</match-db-column>
         </field>
@@ -203,7 +217,9 @@
             <name>givenNameSoundex</name>
             <source-object-path>subjectNames[0].givenName</source-object-path>
             <transform-functions>
-                <transform-function>Soundex</transform-function>
+                <transform-function>
+                    <name>Soundex</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field8</match-db-column>
         </field>
@@ -211,7 +227,9 @@
             <name>streetAddressLine1</name>
             <source-object-path>addresses[0].streetAddressLine1</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field9</match-db-column>
         </field>
@@ -219,7 +237,9 @@
             <name>city</name>
             <source-object-path>addresses[0].city</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field10</match-db-column>
         </field>
@@ -227,7 +247,9 @@
             <name>state</name>
             <source-object-path>addresses[0].state</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field11</match-db-column>
         </field>
@@ -235,7 +257,9 @@
             <name>postalCode</name>
             <source-object-path>addresses[0].postalCode</source-object-path>
             <transform-functions>
-                <transform-function>NormalizeCase</transform-function>
+                <transform-function>
+                    <name>NormalizeCase</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field12</match-db-column>
         </field>
@@ -243,7 +267,9 @@
             <name>familyNameCaverphone2</name>
             <source-object-path>subjectNames[0].familyName</source-object-path>
             <transform-functions>
-                <transform-function>Caverphone2</transform-function>
+                <transform-function>
+                    <name>Caverphone2</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field13</match-db-column>
         </field>
@@ -251,7 +277,9 @@
             <name>familyNameCaverphone1</name>
             <source-object-path>subjectNames[0].familyName</source-object-path>
             <transform-functions>
-                <transform-function>Caverphone1</transform-function>
+                <transform-function>
+                    <name>Caverphone1</name>
+                </transform-function>
             </transform-functions>
             <match-db-column>match_field14</match-db-column>
         </field>
@@ -298,42 +326,54 @@
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
             <match-field>
                 <name>familyName</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
             <match-field>
                 <name>streetAddressLine1</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
             <match-field>
                 <name>city</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
             <match-field>
                 <name>state</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
             <match-field>
                 <name>postalCode</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
-                <distance-function>Levenshtein</distance-function>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
             </match-field>
         </match-fields>
     </match-config>
