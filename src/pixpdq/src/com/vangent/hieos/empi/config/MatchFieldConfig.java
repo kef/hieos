@@ -25,7 +25,8 @@ public class MatchFieldConfig extends ConfigItem {
     private static String ACCEPT_THRESHOLD = "accept-threshold";
     private static String REJECT_THRESHOLD = "reject-threshold";
     private static String WEIGHT = "weight";
-    private static String DISTANCE_FUNCTION = "distance-function";
+    private static String DISTANCE_FUNCTION = "distance-function(0)";
+    private static String DISTANCE_FUNCTION_NAME = "name";
     private String name;
     private double acceptThreshold;
     private double rejectThreshold;
@@ -143,7 +144,8 @@ public class MatchFieldConfig extends ConfigItem {
         this.weight = hc.getDouble(WEIGHT);
 
         // Link to distance function configuration.
-        String distanceFunctionName = hc.getString(DISTANCE_FUNCTION);
+        HierarchicalConfiguration hcDistanceFunction = hc.configurationAt(DISTANCE_FUNCTION);
+        String distanceFunctionName = hcDistanceFunction.getString(DISTANCE_FUNCTION_NAME);
         this.distanceFunctionConfig = empiConfig.getDistanceFunctionConfig(distanceFunctionName);
 
         // Link to field configuration.

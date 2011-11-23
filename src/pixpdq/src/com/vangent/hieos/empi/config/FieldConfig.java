@@ -24,10 +24,11 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class FieldConfig extends ConfigItem {
 
-    private static String NAME = "name";
+    private static String FIELD_NAME = "name";
     private static String SOURCE_OBJECT_PATH = "source-object-path";
     private static String MATCH_DB_COLUMN = "match-db-column";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
+    private static String TRANSFORM_FUNCTION_NAME = "name";
     private String name;
     private String sourceObjectPath;
     private String matchDatabaseColumn;
@@ -97,14 +98,15 @@ public class FieldConfig extends ConfigItem {
      */
     @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
-        this.name = hc.getString(NAME);
+        this.name = hc.getString(FIELD_NAME);
         this.sourceObjectPath = hc.getString(SOURCE_OBJECT_PATH);
         this.matchDatabaseColumn = hc.getString(MATCH_DB_COLUMN);
 
         // Link up transforms.
-        List transformFunctionNames = hc.getList(TRANSFORM_FUNCTIONS);
-        for (Iterator it = transformFunctionNames.iterator(); it.hasNext();) {
-            String transformFunctionName = (String) it.next();
+        List transformFunctions = hc.configurationsAt(TRANSFORM_FUNCTIONS);
+        for (Iterator it = transformFunctions.iterator(); it.hasNext();) {
+            HierarchicalConfiguration hcTransformFunction = (HierarchicalConfiguration) it.next();
+            String transformFunctionName = hcTransformFunction.getString(TRANSFORM_FUNCTION_NAME);
             TransformFunctionConfig transformFunctionConfig = empiConfig.getTransformFunctionConfig(transformFunctionName);
             transformFunctionConfigs.add(transformFunctionConfig);
         }
