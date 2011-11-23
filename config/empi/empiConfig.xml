@@ -104,6 +104,16 @@
             <class>com.vangent.hieos.empi.transform.HL7DateTransformFunction</class>
         </transform-function>
         <transform-function>
+            <name>Prefix</name>
+            <class>com.vangent.hieos.empi.transform.PrefixTransformFunction</class>
+            <parameters>
+                <parameter>
+                    <name>prefix-length</name>
+                    <value>3</value>
+                </parameter>
+            </parameters>
+        </transform-function>
+        <transform-function>
             <name>NormalizeCase</name>
             <class>com.vangent.hieos.empi.transform.NormalizeCaseTransformFunction</class>
         </transform-function>
@@ -128,16 +138,12 @@
         <distance-function>
             <name>ExactMatch</name>
             <class>com.vangent.hieos.empi.distance.ExactMatchDistanceFunction</class>
-            <parameters>
+            <!--<parameters>
                 <parameter>
-                    <name></name>
-                    <value></value>
+                    <name>truncate-length</name>
+                    <value>5</value>
                 </parameter>
-                <parameter>
-                    <name></name>
-                    <value></value>
-                </parameter>
-            </parameters>
+            </parameters>-->
         </distance-function>
     </distance-functions>
 
@@ -282,6 +288,22 @@
                 </transform-function>
             </transform-functions>
             <match-db-column>match_field14</match-db-column>
+        </field>
+        <field>
+            <name>familyNamePrefix</name>
+            <source-object-path>subjectNames[0].familyName</source-object-path>
+            <transform-functions>
+                <transform-function>
+                    <name>Prefix</name>
+                    <parameters>
+                        <parameter>
+                            <name>prefix-length</name>
+                            <value>2</value>
+                        </parameter>
+                    </parameters>
+                </transform-function>
+            </transform-functions>
+            <match-db-column>match_field15</match-db-column>
         </field>
     </fields>
     
