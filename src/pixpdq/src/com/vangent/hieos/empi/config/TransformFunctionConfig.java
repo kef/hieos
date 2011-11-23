@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.empi.config;
 
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.transform.TransformFunction;
 
 /**
@@ -25,6 +26,18 @@ public class TransformFunctionConfig extends FunctionConfig {
      * @return
      */
     public TransformFunction getTransformFunction() {
-        return (TransformFunction)this.getFunction();
+        return (TransformFunction) this.getFunction();
+    }
+
+    /**
+     *
+     * @return
+     * @throws EMPIException
+     */
+    @Override
+    public FunctionConfig copyNoParameters() throws EMPIException {
+        TransformFunctionConfig copyFunctionConfig = new TransformFunctionConfig();
+        super.copyNoParameters(copyFunctionConfig);
+        return copyFunctionConfig;
     }
 }

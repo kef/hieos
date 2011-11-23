@@ -14,6 +14,10 @@ package com.vangent.hieos.empi.config;
 
 import com.vangent.hieos.empi.function.Function;
 import com.vangent.hieos.empi.exception.EMPIException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 
@@ -21,14 +25,18 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class FunctionConfig extends ConfigItem {
+public abstract class FunctionConfig implements ConfigItem {
 
     private final static Logger logger = Logger.getLogger(FunctionConfig.class);
     private static String NAME = "name";
     private static String CLASS_NAME = "class";
+    private static String FUNCTION_PARAMETERS = "parameters.parameter";
+    private static String PARAMETER_NAME = "name";
+    private static String PARAMETER_VALUE = "value";
     private String name;
     private String className;
     private Function function;
+    private Map<String, String> parameters = new HashMap<String, String>();
 
     /**
      *
@@ -80,19 +88,143 @@ public class FunctionConfig extends ConfigItem {
 
     /**
      *
+     * @return
+     */
+    public boolean hasParameters() {
+        return !parameters.isEmpty();
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public String getParameter(String name) {
+        return parameters.get(name.toLowerCase());
+    }
+
+    /**
+     *
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    public boolean getParameterAsBoolean(String name, boolean defaultValue) {
+        String value = this.getParameter(name);
+        if (value != null) {
+            return value.equalsIgnoreCase("true") ? true : false;
+        }
+        return defaultValue;
+    }
+
+    /**
+     *
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    public int getParameterAsInteger(String name, int defaultValue) {
+        String value = this.getParameter(name);
+        if (value != null) {
+            return Integer.valueOf(value);
+        }
+        return defaultValue;
+    }
+
+    /**
+     *
+     * @param name
+     * @param defaultValue
+     * @return
+     */
+    public double getParameterAsDouble(String name, double defaultValue) {
+        String value = this.getParameter(name);
+        if (value != null) {
+            return Double.valueOf(value);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * 
      * @param hc
+     * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.name = hc.getString(NAME);
         this.className = hc.getString(CLASS_NAME);
         logger.info("... className = " + this.className);
 
-        // TBD: Parse Function parameters ...
-
         // Get an instance of the function and set the configuration.
-        this.function = (Function) ConfigHelper.loadClass(this.className);
+        this.function = (Function) ConfigHelper.loadClassInstance(this.className);
         this.function.setFunctionConfig(this);
+
+        // Load function parameters.
+        this.loadFunctionParameters(hc);
+    }
+
+    /**
+     * 
+     * @param hc
+     */
+    public void loadFunctionParameters(HierarchicalConfiguration hc) {
+        // Load function parameters.
+        List functionParameters = hc.configurationsAt(FUNCTION_PARAMETERS);
+        if (functionParameters != null) {
+            for (Iterator it = functionParameters.iterator(); it.hasNext();) {
+                HierarchicalConfiguration hcParameter = (HierarchicalConfiguration) it.next();
+                String parameterName = hcParameter.getString(PARAMETER_NAME);
+                String parameterValue = hcParameter.getString(PARAMETER_VALUE);
+                this.parameters.put(parameterName.toLowerCase(), parameterValue);
+            }
+        }
+    }
+
+    /**
+     *
+     * @return
+     * @throws EMPIException
+     */
+    abstract public FunctionConfig copyNoParameters() throws EMPIException;
+
+    /**
+     *
+     * @param copyFunctionConfig
+     * @throws EMPIException
+     */
+    protected void copyNoParameters(FunctionConfig copyFunctionConfig) throws EMPIException {
+        copyFunctionConfig.name = name;
+        copyFunctionConfig.className = className;
+        copyFunctionConfig.function = (Function) ConfigHelper.loadClassInstance(className);
+        copyFunctionConfig.function.setFunctionConfig(copyFunctionConfig);
+
+        // Copy parameters (must be easier way).
+        /*
+        copyFunctionConfig.parameters = new HashMap<String, String>();
+        Set<String> parameterNames = this.parameters.keySet();
+        for (String parameterName : parameterNames) {
+        String parameterValue = this.parameters.get(parameterName);
+        copyFunctionConfig.parameters.put(parameterName, parameterValue);
+        }*/
+    }
+
+    /**
+     * 
+     * @param hcFunction
+     * @return
+     * @throws EMPIException
+     */
+    public FunctionConfig loadFunctionConfig(HierarchicalConfiguration hcFunction) throws EMPIException {
+        FunctionConfig functionConfig = this;  // Default is to return self.
+        
+        // See if the function has parameters.
+        List functionParameters = hcFunction.configurationsAt(FUNCTION_PARAMETERS);
+        if ((functionParameters != null) && !functionParameters.isEmpty()) {
+            // Create a copy of the function and replace parameters.
+            functionConfig = this.copyNoParameters();
+            functionConfig.loadFunctionParameters(hcFunction);
+        }
+        return functionConfig;
     }
 }

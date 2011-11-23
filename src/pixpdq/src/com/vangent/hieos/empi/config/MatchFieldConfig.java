@@ -19,7 +19,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class MatchFieldConfig extends ConfigItem {
+public class MatchFieldConfig implements ConfigItem {
 
     private static String NAME = "name";
     private static String ACCEPT_THRESHOLD = "accept-threshold";
@@ -136,7 +136,6 @@ public class MatchFieldConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.name = hc.getString(NAME);
         this.acceptThreshold = hc.getDouble(ACCEPT_THRESHOLD);
@@ -146,9 +145,24 @@ public class MatchFieldConfig extends ConfigItem {
         // Link to distance function configuration.
         HierarchicalConfiguration hcDistanceFunction = hc.configurationAt(DISTANCE_FUNCTION);
         String distanceFunctionName = hcDistanceFunction.getString(DISTANCE_FUNCTION_NAME);
-        this.distanceFunctionConfig = empiConfig.getDistanceFunctionConfig(distanceFunctionName);
+        this.distanceFunctionConfig = this.getDistanceFunctionConfig(empiConfig, hcDistanceFunction, distanceFunctionName);
 
         // Link to field configuration.
         this.fieldConfig = empiConfig.getFieldConfig(this.name);
+    }
+
+    /**
+     *
+     * @param empiConfig
+     * @param hcFunction
+     * @param functionName
+     * @return
+     * @throws EMPIException
+     */
+    private DistanceFunctionConfig getDistanceFunctionConfig(
+            EMPIConfig empiConfig, HierarchicalConfiguration hcFunction, String functionName) throws EMPIException {
+        DistanceFunctionConfig functionConfig = empiConfig.getDistanceFunctionConfig(functionName);
+        functionConfig = (DistanceFunctionConfig) functionConfig.loadFunctionConfig(hcFunction);
+        return functionConfig;
     }
 }

@@ -70,17 +70,19 @@ public class SubjectMatchDAO extends AbstractDAO {
             try {
                 // Get prepared statement to support the blocking pass and then execute query.
                 stmt = this.getBlockingPassPreparedStatement(searchRecord, blockingPassConfig);
-                rs = stmt.executeQuery();
+                if (stmt != null) {  // Only process if blocking pass is active based upon search criteria.
+                    rs = stmt.executeQuery();
 
-                // Process each query result (and avoid duplicates across blocking passes).
-                while (rs.next()) {
-                    String recordId = rs.getString(1); // id is always position 1.
+                    // Process each query result (and avoid duplicates across blocking passes).
+                    while (rs.next()) {
+                        String recordId = rs.getString(1); // id is always position 1.
 
-                    // Avoid duplicates across blocking passes.
-                    if (!candidateRecordIds.contains(recordId)) {
-                        candidateRecordIds.add(recordId);  // Make sure to avoid duplicates on further passes.
-                        Record record = this.buildRecordFromResultSet(rs, recordId, matchConfig);
-                        records.add(record);
+                        // Avoid duplicates across blocking passes.
+                        if (!candidateRecordIds.contains(recordId)) {
+                            candidateRecordIds.add(recordId);  // Make sure to avoid duplicates on further passes.
+                            Record record = this.buildRecordFromResultSet(rs, recordId, matchConfig);
+                            records.add(record);
+                        }
                     }
                 }
             } catch (SQLException ex) {
@@ -211,22 +213,24 @@ public class SubjectMatchDAO extends AbstractDAO {
     private PreparedStatement getBlockingPassPreparedStatement(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
         // Get active blocking field configs based upon the search record.
         List<FieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
-
-        // Build prepared statement to support "blocking" phase.
-        String sql = this.buildBlockingPassSQLSelectStatement(activeBlockingFieldConfigs);
-        PreparedStatement stmt = this.getPreparedStatement(sql);
-        try {
-            // Set WHERE clause values in the prepared statement.
-            int fieldIndex = 0;
-            for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
-                Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
-                stmt.setString(++fieldIndex, field.getValue());
+        PreparedStatement stmt = null;
+        if (!activeBlockingFieldConfigs.isEmpty()) {
+            // Build prepared statement to support "blocking" phase.
+            String sql = this.buildBlockingPassSQLSelectStatement(activeBlockingFieldConfigs);
+            stmt = this.getPreparedStatement(sql);
+            try {
+                // Set WHERE clause values in the prepared statement.
+                int fieldIndex = 0;
+                for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
+                    System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
+                    Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
+                    System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                    stmt.setString(++fieldIndex, field.getValue());
+                }
+            } catch (SQLException ex) {
+                this.close(stmt);
+                throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
             }
-        } catch (SQLException ex) {
-            this.close(stmt);
-            throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
         }
         return stmt;
     }

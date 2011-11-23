@@ -22,7 +22,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class BlockingPassConfig extends ConfigItem {
+public class BlockingPassConfig implements ConfigItem {
 
     private static String BLOCKING_FIELDS = "blocking-fields.blocking-field";
     private static String BLOCKING_FIELD_NAME = "name";
@@ -42,14 +42,13 @@ public class BlockingPassConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
 
         // Get the field-level configuration.
         List blockingFields = hc.configurationsAt(BLOCKING_FIELDS);
         for (Iterator it = blockingFields.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
-            String blockingFieldName = hcSub.getString(BLOCKING_FIELD_NAME);
+            HierarchicalConfiguration hcBlockingField = (HierarchicalConfiguration) it.next();
+            String blockingFieldName = hcBlockingField.getString(BLOCKING_FIELD_NAME);
 
             // Link it up.
             FieldConfig blockingFieldConfig = empiConfig.getFieldConfig(blockingFieldName);

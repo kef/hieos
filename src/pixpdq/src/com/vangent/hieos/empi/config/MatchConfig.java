@@ -22,7 +22,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class MatchConfig extends ConfigItem {
+public class MatchConfig implements ConfigItem {
 
     private static String ACCEPT_THRESHOLD = "accept-threshold";
     private static String REJECT_THRESHOLD = "reject-threshold";
@@ -92,7 +92,6 @@ public class MatchConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.acceptThreshold = hc.getDouble(ACCEPT_THRESHOLD);
         this.rejectThreshold = hc.getDouble(REJECT_THRESHOLD);
@@ -100,9 +99,9 @@ public class MatchConfig extends ConfigItem {
         // Get the field-level configuration.
         List matchFields = hc.configurationsAt(MATCH_FIELDS);
         for (Iterator it = matchFields.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
+            HierarchicalConfiguration hcMatchField = (HierarchicalConfiguration) it.next();
             MatchFieldConfig matchFieldConfig = new MatchFieldConfig();
-            matchFieldConfig.load(hcSub, empiConfig);
+            matchFieldConfig.load(hcMatchField, empiConfig);
             // FIXME: Put in map?
             matchFieldConfigs.add(matchFieldConfig);
         }

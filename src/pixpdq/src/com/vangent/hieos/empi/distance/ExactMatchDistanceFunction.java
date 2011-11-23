@@ -18,6 +18,8 @@ package com.vangent.hieos.empi.distance;
  */
 public class ExactMatchDistanceFunction extends DistanceFunction {
 
+    private static String PARAM_TRUNCATE_LENGTH = "truncate-length";
+
     /**
      *
      * @param s1
@@ -25,9 +27,16 @@ public class ExactMatchDistanceFunction extends DistanceFunction {
      * @return
      */
     public double getDistance(String s1, String s2) {
-        if (s1.equalsIgnoreCase(s2)) {
-            return 1.0;
+        // See if the strings should be truncated before the compare.
+        int compareLength = this.getFunctionConfig().getParameterAsInteger(PARAM_TRUNCATE_LENGTH, -1);
+        if (compareLength != -1) {
+            if (s1.length() > compareLength) {
+                s1 = s1.substring(0, compareLength);
+            }
+            if (s2.length() > compareLength) {
+                s2 = s2.substring(0, compareLength);
+            }
         }
-        return 0.0;
+        return s1.equalsIgnoreCase(s2) ? 1.0 : 0;
     }
 }

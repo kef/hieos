@@ -29,7 +29,7 @@ public class ConfigHelper {
      * @return
      * @throws EMPIException
      */
-    public static Object loadClass(String className) throws EMPIException {
+    public static Object loadClassInstance(String className) throws EMPIException {
         logger.info("... className = " + className);
 
         // Dynamically load the class.

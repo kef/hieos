@@ -22,7 +22,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class FieldConfig extends ConfigItem {
+public class FieldConfig implements ConfigItem {
 
     private static String FIELD_NAME = "name";
     private static String SOURCE_OBJECT_PATH = "source-object-path";
@@ -96,7 +96,6 @@ public class FieldConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.name = hc.getString(FIELD_NAME);
         this.sourceObjectPath = hc.getString(SOURCE_OBJECT_PATH);
@@ -107,8 +106,23 @@ public class FieldConfig extends ConfigItem {
         for (Iterator it = transformFunctions.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcTransformFunction = (HierarchicalConfiguration) it.next();
             String transformFunctionName = hcTransformFunction.getString(TRANSFORM_FUNCTION_NAME);
-            TransformFunctionConfig transformFunctionConfig = empiConfig.getTransformFunctionConfig(transformFunctionName);
+            TransformFunctionConfig transformFunctionConfig = this.getTransformFunctionConfig(empiConfig, hcTransformFunction, transformFunctionName);
             transformFunctionConfigs.add(transformFunctionConfig);
         }
+    }
+
+    /**
+     * 
+     * @param empiConfig
+     * @param hcFunction
+     * @param functionName
+     * @return
+     * @throws EMPIException
+     */
+    private TransformFunctionConfig getTransformFunctionConfig(
+            EMPIConfig empiConfig, HierarchicalConfiguration hcFunction, String functionName) throws EMPIException {
+        TransformFunctionConfig functionConfig = empiConfig.getTransformFunctionConfig(functionName);
+        functionConfig = (TransformFunctionConfig) functionConfig.loadFunctionConfig(hcFunction);
+        return functionConfig;
     }
 }

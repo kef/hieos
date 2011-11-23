@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class EUIDConfig extends ConfigItem {
+public class EUIDConfig implements ConfigItem {
 
     private final static Logger logger = Logger.getLogger(EUIDConfig.class);
     private static String EUID_ASSIGN_ENABLED = "euid-assign-enabled";
@@ -84,7 +84,6 @@ public class EUIDConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.euidUniversalId = hc.getString(EUID_UNIVERSALID);
         this.euidUniversalIdType = hc.getString(EUID_UNIVERSALID_TYPE);

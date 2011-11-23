@@ -216,10 +216,10 @@ public class EMPIConfig {
         // Get transform function configurations.
         List transformFunctions = hc.configurationsAt(TRANSFORM_FUNCTIONS);
         for (Iterator it = transformFunctions.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
+            HierarchicalConfiguration hcTransformFunction = (HierarchicalConfiguration) it.next();
             TransformFunctionConfig transformFunctionConfig = new TransformFunctionConfig();
             try {
-                transformFunctionConfig.load(hcSub, this);
+                transformFunctionConfig.load(hcTransformFunction, this);
                 // Keep track of transform function configurations (in hash map).
                 transformFunctionConfigs.put(transformFunctionConfig.getName(), transformFunctionConfig);
             } catch (EMPIException ex) {
@@ -230,10 +230,10 @@ public class EMPIConfig {
         // Get distance function configurations.
         List distanceFunctions = hc.configurationsAt(DISTANCE_FUNCTIONS);
         for (Iterator it = distanceFunctions.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
+            HierarchicalConfiguration hcDistanceFunction = (HierarchicalConfiguration) it.next();
             DistanceFunctionConfig distanceFunctionConfig = new DistanceFunctionConfig();
             try {
-                distanceFunctionConfig.load(hcSub, this);
+                distanceFunctionConfig.load(hcDistanceFunction, this);
                 // Keep track of distance function configurations (in hash map).
                 distanceFunctionConfigs.put(distanceFunctionConfig.getName(), distanceFunctionConfig);
             } catch (EMPIException ex) {
@@ -251,9 +251,9 @@ public class EMPIConfig {
         // Get field configurations.
         List fields = hc.configurationsAt(FIELDS);
         for (Iterator it = fields.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
+            HierarchicalConfiguration hcField = (HierarchicalConfiguration) it.next();
             FieldConfig fieldConfig = new FieldConfig();
-            fieldConfig.load(hcSub, this);
+            fieldConfig.load(hcField, this);
             // Keep track of field configurations (in hash map).
             fieldConfigs.put(fieldConfig.getName(), fieldConfig);
         }
@@ -267,6 +267,6 @@ public class EMPIConfig {
     private void loadMatchAlgorithm(HierarchicalConfiguration hc) throws EMPIException {
         String matchAlgorithmClassName = hc.getString(MATCH_ALGORITHM);
         // Get an instance of the match algorithm.
-        this.matchAlgorithm = (MatchAlgorithm) ConfigHelper.loadClass(matchAlgorithmClassName);
+        this.matchAlgorithm = (MatchAlgorithm) ConfigHelper.loadClassInstance(matchAlgorithmClassName);
     }
 }

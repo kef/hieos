@@ -19,7 +19,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public abstract class ConfigItem {
+public interface ConfigItem {
 
     /**
      *
@@ -27,5 +27,5 @@ public abstract class ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    abstract public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException;
+    public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException;
 }

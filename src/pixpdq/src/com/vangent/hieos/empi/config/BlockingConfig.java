@@ -22,7 +22,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class BlockingConfig extends ConfigItem {
+public class BlockingConfig implements ConfigItem {
 
     private static String BLOCKING_PASSES = "blocking-pass";
     private List<BlockingPassConfig> blockingPassConfigs = new ArrayList<BlockingPassConfig>();
@@ -41,15 +41,14 @@ public class BlockingConfig extends ConfigItem {
      * @param empiConfig
      * @throws EMPIException
      */
-    @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
 
         // Get the blocking pass configuration.
         List blockingPasses = hc.configurationsAt(BLOCKING_PASSES);
         for (Iterator it = blockingPasses.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
+            HierarchicalConfiguration hcBlockingPass = (HierarchicalConfiguration) it.next();
             BlockingPassConfig blockingPassConfig = new BlockingPassConfig();
-            blockingPassConfig.load(hcSub, empiConfig);
+            blockingPassConfig.load(hcBlockingPass, empiConfig);
             blockingPassConfigs.add(blockingPassConfig);
         }
     }
