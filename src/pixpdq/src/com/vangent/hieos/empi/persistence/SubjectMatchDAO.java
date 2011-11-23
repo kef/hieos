@@ -13,6 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.config.BlockingConfig;
+import com.vangent.hieos.empi.config.BlockingPassConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.FieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
@@ -25,7 +26,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -50,50 +53,44 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public List<Record> lookup(Record searchRecord) throws EMPIException {
+    public List<Record> findCandidates(Record searchRecord) throws EMPIException {
         List<Record> records = new ArrayList<Record>();
-        ResultSet rs = null;
-        PreparedStatement stmt = null;
-        try {
-            // Get active blocking field configs based upon the search record.
-            List<FieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord);
+        Set<String> candidateRecordIds = new HashSet<String>();
 
-            // Build prepared statement to support "blocking" phase.
-            stmt = this.buildSQLSelectPreparedStatement(activeBlockingFieldConfigs);
+        // Get configuration items.
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        MatchConfig matchConfig = empiConfig.getMatchConfig();
+        BlockingConfig blockingConfig = empiConfig.getBlockingConfig();
+        List<BlockingPassConfig> blockingPassConfigs = blockingConfig.getBlockingPassConfigs();
 
-            // Set WHERE clause values in the prepared statement.
-            int fieldIndex = 0;
-            for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
-                Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
-                stmt.setString(++fieldIndex, field.getValue());
-            }
-            // Execure query.
-            rs = stmt.executeQuery();
+        // Run through each blocking pass.
+        for (BlockingPassConfig blockingPassConfig : blockingPassConfigs) {
+            ResultSet rs = null;
+            PreparedStatement stmt = null;
+            try {
+                // Get prepared statement to support the blocking pass and then execute query.
+                stmt = this.getBlockingPassPreparedStatement(searchRecord, blockingPassConfig);
+                rs = stmt.executeQuery();
 
-            // Process each query result.
-            EMPIConfig empiConfig = EMPIConfig.getInstance();
-            MatchConfig matchConfig = empiConfig.getMatchConfig();
-            while (rs.next()) {
-                Record record = new Record();
-                record.setId(rs.getString(1)); // id is always position 1.
+                // Process each query result (and avoid duplicates across blocking passes).
+                while (rs.next()) {
+                    String recordId = rs.getString(1); // id is always position 1.
 
-                // Now fill in the match fields from the result set.
-                List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-                fieldIndex = 1;
-                for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-                    Field field = new Field(matchFieldConfig.getName(), rs.getString(++fieldIndex));
-                    record.addField(field);
+                    // Avoid duplicates across blocking passes.
+                    if (!candidateRecordIds.contains(recordId)) {
+                        candidateRecordIds.add(recordId);  // Make sure to avoid duplicates on further passes.
+                        Record record = this.buildRecordFromResultSet(rs, recordId, matchConfig);
+                        records.add(record);
+                    }
                 }
-                records.add(record);
+            } catch (SQLException ex) {
+                throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
+            } finally {
+                this.close(stmt);
+                this.close(rs);
             }
-        } catch (SQLException ex) {
-            throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
-        } finally {
-            this.close(stmt);
-            this.close(rs);
         }
+
         return records;
     }
 
@@ -205,12 +202,64 @@ public class SubjectMatchDAO extends AbstractDAO {
     }
 
     /**
-     *
+     * 
+     * @param searchRecord
+     * @param blockingPassConfig
+     * @return
+     * @throws EMPIException
+     */
+    private PreparedStatement getBlockingPassPreparedStatement(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
+        // Get active blocking field configs based upon the search record.
+        List<FieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
+
+        // Build prepared statement to support "blocking" phase.
+        String sql = this.buildBlockingPassSQLSelectStatement(activeBlockingFieldConfigs);
+        PreparedStatement stmt = this.getPreparedStatement(sql);
+        try {
+            // Set WHERE clause values in the prepared statement.
+            int fieldIndex = 0;
+            for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
+                System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
+                Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
+                System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                stmt.setString(++fieldIndex, field.getValue());
+            }
+        } catch (SQLException ex) {
+            this.close(stmt);
+            throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
+        }
+        return stmt;
+    }
+
+    /**
+     * 
+     * @param rs
+     * @param recordId
+     * @param matchConfig
+     * @return
+     * @throws SQLException
+     */
+    private Record buildRecordFromResultSet(ResultSet rs, String recordId, MatchConfig matchConfig) throws SQLException {
+        Record record = new Record();
+        record.setId(recordId);
+
+        // Fill in the match fields from the result set.
+        List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
+        int fieldIndex = 1;
+        for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
+            Field field = new Field(matchFieldConfig.getName(), rs.getString(++fieldIndex));
+            record.addField(field);
+        }
+        return record;
+    }
+
+    /**
+     * 
      * @param activeBlockingFieldConfigs
      * @return
      * @throws EMPIException
      */
-    private PreparedStatement buildSQLSelectPreparedStatement(List<FieldConfig> activeBlockingFieldConfigs) throws EMPIException {
+    private String buildBlockingPassSQLSelectStatement(List<FieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
@@ -248,7 +297,7 @@ public class SubjectMatchDAO extends AbstractDAO {
         String sql = sb.toString();
         System.out.println("SELECT SQL = " + sql);
 
-        return this.getPreparedStatement(sql);
+        return sql;
     }
 
     /**
@@ -257,13 +306,9 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    private List<FieldConfig> getActiveBlockingFieldConfigs(Record searchRecord) throws EMPIException {
-        // Get EMPI configuration.
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
-
+    private List<FieldConfig> getActiveBlockingFieldConfigs(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
         // Get blocking field configs.
-        BlockingConfig blockingConfig = empiConfig.getBlockingConfig();
-        List<FieldConfig> blockingFieldConfigs = blockingConfig.getBlockingFieldConfigs();
+        List<FieldConfig> blockingFieldConfigs = blockingPassConfig.getBlockingFieldConfigs();
 
         // Loop through all blocking configs and add only those where the search record
         // has a value.

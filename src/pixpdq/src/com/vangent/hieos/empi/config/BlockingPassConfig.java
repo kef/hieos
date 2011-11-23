@@ -22,17 +22,18 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  *
  * @author Bernie Thuman
  */
-public class BlockingConfig extends ConfigItem {
+public class BlockingPassConfig extends ConfigItem {
 
-    private static String BLOCKING_PASSES = "blocking-pass";
-    private List<BlockingPassConfig> blockingPassConfigs = new ArrayList<BlockingPassConfig>();
+    private static String BLOCKING_FIELDS = "blocking-fields.blocking-field";
+    private static String BLOCKING_FIELD_NAME = "name";
+    private List<FieldConfig> blockingFieldConfigs = new ArrayList<FieldConfig>();
 
     /**
      *
      * @return
      */
-    public List<BlockingPassConfig> getBlockingPassConfigs() {
-        return blockingPassConfigs;
+    public List<FieldConfig> getBlockingFieldConfigs() {
+        return blockingFieldConfigs;
     }
 
     /**
@@ -44,13 +45,16 @@ public class BlockingConfig extends ConfigItem {
     @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
 
-        // Get the blocking pass configuration.
-        List blockingPasses = hc.configurationsAt(BLOCKING_PASSES);
-        for (Iterator it = blockingPasses.iterator(); it.hasNext();) {
+        // Get the field-level configuration.
+        List blockingFields = hc.configurationsAt(BLOCKING_FIELDS);
+        for (Iterator it = blockingFields.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcSub = (HierarchicalConfiguration) it.next();
-            BlockingPassConfig blockingPassConfig = new BlockingPassConfig();
-            blockingPassConfig.load(hcSub, empiConfig);
-            blockingPassConfigs.add(blockingPassConfig);
+            String blockingFieldName = hcSub.getString(BLOCKING_FIELD_NAME);
+
+            // Link it up.
+            FieldConfig blockingFieldConfig = empiConfig.getFieldConfig(blockingFieldName);
+
+            blockingFieldConfigs.add(blockingFieldConfig);
         }
     }
 }

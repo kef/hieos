@@ -390,8 +390,8 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<Record> lookup(Record searchRecord) throws EMPIException {
+    public List<Record> findCandidates(Record searchRecord) throws EMPIException {
         SubjectMatchDAO dao = new SubjectMatchDAO(connection);
-        return dao.lookup(searchRecord);
+        return dao.findCandidates(searchRecord);
     }
 }

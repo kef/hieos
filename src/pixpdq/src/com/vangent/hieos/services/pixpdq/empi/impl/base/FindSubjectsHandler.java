@@ -87,7 +87,7 @@ public class FindSubjectsHandler extends BaseHandler {
         // First, make sure that we are configured to support supplied identifier domains.
         this.validateSubjectIdentifierDomains(subjectSearchCriteria);
 
-        // Now, conduct lookup.
+        // Now, conduct findCandidates.
         subjectSearchResponse = this.loadIdentifiersForSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
     }
