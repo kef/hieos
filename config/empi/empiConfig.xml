@@ -257,34 +257,36 @@
         </field>
     </fields>
     
-    <!-- First pass "blocking" configuration (only support one round for now) -->
+    <!-- First pass "blocking" configuration -->
     <blocking-config>
-        <blocking-fields>
-            <blocking-field>
-                <name>familyNameSoundex</name>
-            </blocking-field>
-            <blocking-field>
-                <name>givenNameSoundex</name>
-            </blocking-field>
-            <blocking-field>
-                <name>birthTime</name>
-            </blocking-field>
-            <blocking-field>
-                <name>gender</name>
-            </blocking-field>
-            <blocking-field>
-                <name>streetAddressLine1</name>
-            </blocking-field>
-            <blocking-field>
-                <name>city</name>
-            </blocking-field>
-            <blocking-field>
-                <name>state</name>
-            </blocking-field>
-            <blocking-field>
-                <name>postalCode</name>
-            </blocking-field>
-        </blocking-fields>
+        <blocking-pass>
+            <blocking-fields>
+                <blocking-field>
+                    <name>familyNameSoundex</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>givenNameSoundex</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>birthTime</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>gender</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>streetAddressLine1</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>city</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>state</name>
+                </blocking-field>
+                <blocking-field>
+                    <name>postalCode</name>
+                </blocking-field>
+            </blocking-fields>
+        </blocking-pass>
     </blocking-config>
     
     <match-config>
