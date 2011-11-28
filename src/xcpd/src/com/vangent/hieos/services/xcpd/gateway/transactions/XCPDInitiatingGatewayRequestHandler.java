@@ -231,7 +231,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
         } catch (XCPDException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
-        MCCI_IN000002UV01_Message ackResponse = this.getPatientRegistryRecordAddedResponse(request, errorDetail);
+        MCCI_IN000002UV01_Message ackResponse = this.getPatientIdentityFeedResponse(request, errorDetail);
         this.log(errorDetail);
         this.validateHL7V3Message(ackResponse);
         return ackResponse;
@@ -379,12 +379,12 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
     }
 
     /**
-     *
-     * @param PRPA_IN201301UV02_Message
+     * 
+     * @param request
      * @param errorDetail
      * @return
      */
-    private MCCI_IN000002UV01_Message getPatientRegistryRecordAddedResponse(PRPA_IN201301UV02_Message request, HL7V3ErrorDetail errorDetail) {
+    private MCCI_IN000002UV01_Message getPatientIdentityFeedResponse(HL7V3Message request, HL7V3ErrorDetail errorDetail) {
         DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
         DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         MCCI_IN000002UV01_Message_Builder ackBuilder = new MCCI_IN000002UV01_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
