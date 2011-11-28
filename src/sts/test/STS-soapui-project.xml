@@ -101,7 +101,7 @@
       <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
          <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
             <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
-            <wsu:Expires>2011-08-30T20:45:49.881Z</wsu:Expires>
+            <wsu:Expires>2011-10-30T20:45:49.881Z</wsu:Expires>
          </wsu:Timestamp>
          <wsse:UsernameToken>
             <wsse:Username>stsclient</wsse:Username>
@@ -136,7 +136,10 @@
                <xspa:ClaimValue>Carina Day Centre</xspa:ClaimValue>
             </xspa:ClaimType>
             <xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
-               <xspa:ClaimValue>DOCTOR</xspa:ClaimValue>
+               <xspa:ClaimValue>DOCTOR</xspa:ClaimValue>
+            </xspa:ClaimType>
+<xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
+               <xspa:ClaimValue>FOO</xspa:ClaimValue>
             </xspa:ClaimType>
             <!--<xspa:ClaimType Uri="urn:oasis:names:tc:xacml:2.0:subject:role" xmlns:xspa="urn:oasis:names:tc:xspa:1.0:claims">
                <xspa:ClaimValue>
@@ -425,7 +428,7 @@ lZmUAuNVPCTBoNuWBX/tvvAw3a3jl+DXB+Fn2JbRpoUdvkgAWCAJ6hrKgA==</ds:X509Certificate
       <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
          <wsu:Timestamp wsu:Id="Timestamp-2" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
             <wsu:Created>2011-06-01T20:45:49.881Z</wsu:Created>
-            <wsu:Expires>2011-08-25T20:45:49.881Z</wsu:Expires>
+            <wsu:Expires>2011-09-25T20:45:49.881Z</wsu:Expires>
          </wsu:Timestamp>
          <wsse:BinarySecurityToken wsu:Id="binarytoken" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">MIIC5DCCAk2gAwIBAgIETdzqTDANBgkqhkiG9w0BAQUFADCBpDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFDASBgNVBAcTC1NhbnRhIENsYXJhMRkwFwYDVQQKExBTdW4gTWljcm9zeXN0ZW1zMSgwJgYDVQQLEx9TdW4gR2xhc3NGaXNoIEVudGVycHJpc2UgU2VydmVyMSUwIwYDVQQDExxWR0VKSjM5NFExTEFSTC52YW5nZW50LmxvY2FsMB4XDTExMDUyNTExMzg1MloXDTIxMDUyMjExMzg1MlowgaQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRQwEgYDVQQHEwtTYW50YSBDbGFyYTEZMBcGA1UEChMQU3VuIE1pY3Jvc3lzdGVtczEoMCYGA1UECxMfU3VuIEdsYXNzRmlzaCBFbnRlcnByaXNlIFNlcnZlcjElMCMGA1UEAxMcVkdFSkozOTRRMUxBUkwudmFuZ2VudC5sb2NhbDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAmEJVoex2B8y9M9KN0/GImSyCppiIfiOj1kIdk7ConvXFQGpSoI6xVQ1Ke8CNlkKSGqNDRCUMrVtcAH61dVvxmYJ/KODVN1Av8x5Ww7rZFnn8UQXPWSmNCoqAfwZMTTk8ziIBrQwlLx8/yARunNvLL1YAEE3DskFUGpL7pU2NNZECAwEAAaMhMB8wHQYDVR0OBBYEFGwWYTUddvPurnFU/wIY2F7fDycoMA0GCSqGSIb3DQEBBQUAA4GBACma9tIT2qzlEd0ebRiRWlFM9n5rGXvV8b3qgpttXXYR/7zLyAjZMLU+LKwfqHQMODOVJ5OlGREQSrmTlRoLxuoDSaaEoLRMGcPYMT+RNG/xKuyfIQwl+2SJIX3DXmisrZ2mrHfLzfP0j7ARY3meG4e0rONgKAxPiE5E+OH6NPbq</wsse:BinarySecurityToken>
       </wsse:Security>
