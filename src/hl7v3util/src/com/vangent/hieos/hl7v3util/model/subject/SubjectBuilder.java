@@ -20,10 +20,7 @@ import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -47,8 +44,24 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:patientPerson/ns:name";
     private final static String XPATH_PATIENT_GENDER =
             "./ns:patientPerson/ns:administrativeGenderCode[1]";
+    private final static String XPATH_PATIENT_MARITAL_STATUS =
+            "./ns:patientPerson/ns:maritalStatusCode[1]";
+    private final static String XPATH_PATIENT_RELIGIOUS_AFFILIATION =
+            "./ns:patientPerson/ns:religiousAffiliationCode[1]";
+    private final static String XPATH_PATIENT_RACE =
+            "./ns:patientPerson/ns:raceCode[1]";
+    private final static String XPATH_PATIENT_ETHNIC_GROUP =
+            "./ns:patientPerson/ns:ethnicGroupCode[1]";
     private final static String XPATH_PATIENT_BIRTH_TIME =
             "./ns:patientPerson/ns:birthTime[1]";
+    private final static String XPATH_PATIENT_DECEASED_INDICATOR =
+            "./ns:patientPerson/ns:deceasedInd[1]";
+    private final static String XPATH_PATIENT_DECEASED_TIME =
+            "./ns:patientPerson/ns:deceasedTime[1]";
+    private final static String XPATH_PATIENT_MULTIPLE_BIRTH_INDICATOR =
+            "./ns:patientPerson/ns:multipleBirthInd[1]";
+    private final static String XPATH_PATIENT_MULTIPLE_BIRTH_ORDER_NUMBER =
+            "./ns:patientPerson/ns:multipleBirthOrderNumber[1]";
     private final static String XPATH_PATIENT_AS_OTHER_IDS =
             "./ns:patientPerson/ns:asOtherIDs";
     private final static String XPATH_SUBJECTS =
@@ -177,6 +190,12 @@ public class SubjectBuilder extends BuilderHelper {
         this.setNames(subject, patientNode);
         this.setTelecomAddresses(subject, patientNode);
         this.setAddresses(subject, patientNode);
+        this.setMultipleBirthIndicator(subject, patientNode);
+        this.setDeceasedIndicator(subject, patientNode);
+        this.setMaritalStatus(subject, patientNode);
+        this.setReligiousAffiliation(subject, patientNode);
+        this.setRace(subject, patientNode);
+        this.setEthnicGroup(subject, patientNode);
         this.setSubjectIdentifiers(subject, patientNode);
         this.setSubjectOtherIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
@@ -207,9 +226,69 @@ public class SubjectBuilder extends BuilderHelper {
         try {
             OMElement genderNode = this.selectSingleNode(patientNode, XPATH_PATIENT_GENDER);
             //if (genderNode != null) {
-            SubjectGender subjectGender = this.buildGender(genderNode);
+            CodedValue subjectGender = this.buildCodedValue(genderNode);
             subject.setGender(subjectGender);
             //}
+        } catch (XPathHelperException ex) {
+            // Do nothing.
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     */
+    private void setMaritalStatus(Subject subject, OMElement patientNode) {
+        try {
+            OMElement maritalStatusNode = this.selectSingleNode(patientNode, XPATH_PATIENT_MARITAL_STATUS);
+            CodedValue maritalStatus = this.buildCodedValue(maritalStatusNode);
+            subject.setMaritalStatus(maritalStatus);
+        } catch (XPathHelperException ex) {
+            // Do nothing.
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     */
+    private void setReligiousAffiliation(Subject subject, OMElement patientNode) {
+        try {
+            OMElement religiousAffiliationNode = this.selectSingleNode(patientNode, XPATH_PATIENT_RELIGIOUS_AFFILIATION);
+            CodedValue religiousAffiliation = this.buildCodedValue(religiousAffiliationNode);
+            subject.setReligiousAffiliation(religiousAffiliation);
+        } catch (XPathHelperException ex) {
+            // Do nothing.
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     */
+    private void setRace(Subject subject, OMElement patientNode) {
+        try {
+            OMElement raceNode = this.selectSingleNode(patientNode, XPATH_PATIENT_RACE);
+            CodedValue race = this.buildCodedValue(raceNode);
+            subject.setRace(race);
+        } catch (XPathHelperException ex) {
+            // Do nothing.
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     */
+    private void setEthnicGroup(Subject subject, OMElement patientNode) {
+        try {
+            OMElement ethnicGroupNode = this.selectSingleNode(patientNode, XPATH_PATIENT_ETHNIC_GROUP);
+            CodedValue ethnicGroup = this.buildCodedValue(ethnicGroupNode);
+            subject.setEthnicGroup(ethnicGroup);
         } catch (XPathHelperException ex) {
             // Do nothing.
         }
@@ -220,15 +299,14 @@ public class SubjectBuilder extends BuilderHelper {
      * @param node
      * @return
      */
-    public SubjectGender buildGender(OMElement node) {
-        String genderCode = "UN";  // HL7v3: UN=Undifferentiated
+    public CodedValue buildCodedValue(OMElement node) {
+        CodedValue codedValue = null;
         if (node != null) {
-            genderCode = node.getAttributeValue(new QName("code"));
+            String code = node.getAttributeValue(new QName("code"));
+            codedValue = new CodedValue();
+            codedValue.setCode(code);
         }
-        //String genderCode = node.getAttributeValue(new QName("code"));
-        SubjectGender subjectGender = new SubjectGender();
-        subjectGender.setCode(genderCode);
-        return subjectGender;
+        return codedValue;
     }
 
     /**
@@ -237,37 +315,7 @@ public class SubjectBuilder extends BuilderHelper {
      * @param patientNode
      */
     private void setBirthTime(Subject subject, OMElement patientNode) {
-        try {
-            OMElement birthTimeNode = this.selectSingleNode(patientNode, XPATH_PATIENT_BIRTH_TIME);
-            String hl7BirthTime = null;
-            if (birthTimeNode != null) {
-                hl7BirthTime = birthTimeNode.getAttributeValue(new QName("value"));
-            }
-            this.setBirthTime(subject, hl7BirthTime);
-        } catch (XPathHelperException ex) {
-            // TBD: Do something.
-        }
-    }
-
-    /**
-     *
-     * @param subject
-     * @param hl7BirthTime
-     */
-    public void setBirthTime(Subject subject, String hl7BirthTime) {
-        Date birthTime = null;
-        if (hl7BirthTime != null && hl7BirthTime.length() >= 8) {
-            hl7BirthTime = hl7BirthTime.substring(0, 8);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            try {
-                birthTime = sdf.parse(hl7BirthTime);
-            } catch (ParseException ex) {
-                // Do nothing.
-            }
-        } else {
-            // TBD: EMIT WARNING OF SOME SORT.
-        }
-        subject.setBirthTime(birthTime);
+        subject.setBirthTime(this.getHL7DateValue(patientNode, XPATH_PATIENT_BIRTH_TIME));
     }
 
     /**
@@ -332,6 +380,32 @@ public class SubjectBuilder extends BuilderHelper {
         } catch (XPathHelperException ex) {
             // Just ignore here.
         }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param rootNode
+     */
+    private void setDeceasedIndicator(Subject subject, OMElement rootNode) {
+        // Deceased indicator.
+        subject.setDeceasedIndicator(this.getBooleanValue(rootNode, XPATH_PATIENT_DECEASED_INDICATOR));
+
+        // Deceased time.
+        subject.setDeceasedTime(this.getHL7DateValue(rootNode, XPATH_PATIENT_DECEASED_TIME));
+    }
+
+    /**
+     *
+     * @param subject
+     * @param rootNode
+     */
+    private void setMultipleBirthIndicator(Subject subject, OMElement rootNode) {
+        // Multiple birth indicator.
+        subject.setMultipleBirthIndicator(this.getBooleanValue(rootNode, XPATH_PATIENT_MULTIPLE_BIRTH_INDICATOR));
+
+        // Multiple birth order number.
+        subject.setMultipleBirthOrderNumber(this.getIntegerValue(rootNode, XPATH_PATIENT_MULTIPLE_BIRTH_ORDER_NUMBER));
     }
 
     /**

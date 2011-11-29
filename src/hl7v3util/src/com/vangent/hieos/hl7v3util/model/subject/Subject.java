@@ -27,9 +27,17 @@ public class Subject {
     private List<SubjectName> subjectNames = new ArrayList<SubjectName>();
     private List<Address> addresses = new ArrayList<Address>();
     private List<TelecomAddress> telecomAddresses = new ArrayList<TelecomAddress>();
-    private SubjectGender gender = null;
+    private CodedValue gender = null;
+    private CodedValue maritalStatus = null;
+    private CodedValue religiousAffiliation = null;
+    private CodedValue race = null;
+    private CodedValue ethnicGroup = null;
     private Custodian custodian = null;
     private Date birthTime = null;
+    private Boolean deceasedIndicator = null;
+    private Date deceasedTime = null;
+    private Boolean multipleBirthIndicator = null;
+    private Integer multipleBirthOrderNumber = null;
     private int matchConfidencePercentage = 0;
     private String id = null;
     private SubjectType type = SubjectType.ENTERPRISE; // Default.
@@ -211,7 +219,7 @@ public class Subject {
      *
      * @return
      */
-    public SubjectGender getGender() {
+    public CodedValue getGender() {
         return gender;
     }
 
@@ -219,8 +227,72 @@ public class Subject {
      *
      * @param gender
      */
-    public void setGender(SubjectGender gender) {
+    public void setGender(CodedValue gender) {
         this.gender = gender;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CodedValue getEthnicGroup() {
+        return ethnicGroup;
+    }
+
+    /**
+     *
+     * @param ethnicGroup
+     */
+    public void setEthnicGroup(CodedValue ethnicGroup) {
+        this.ethnicGroup = ethnicGroup;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CodedValue getMaritalStatus() {
+        return maritalStatus;
+    }
+
+    /**
+     *
+     * @param maritalStatus
+     */
+    public void setMaritalStatus(CodedValue maritalStatus) {
+        this.maritalStatus = maritalStatus;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CodedValue getRace() {
+        return race;
+    }
+
+    /**
+     *
+     * @param race
+     */
+    public void setRace(CodedValue race) {
+        this.race = race;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CodedValue getReligiousAffiliation() {
+        return religiousAffiliation;
+    }
+
+    /**
+     *
+     * @param religiousAffiliation
+     */
+    public void setReligiousAffiliation(CodedValue religiousAffiliation) {
+        this.religiousAffiliation = religiousAffiliation;
     }
 
     /**
@@ -253,6 +325,70 @@ public class Subject {
      */
     public void setCustodian(Custodian custodian) {
         this.custodian = custodian;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Boolean getDeceasedIndicator() {
+        return deceasedIndicator;
+    }
+
+    /**
+     *
+     * @param deceasedIndicator
+     */
+    public void setDeceasedIndicator(Boolean deceasedIndicator) {
+        this.deceasedIndicator = deceasedIndicator;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Date getDeceasedTime() {
+        return deceasedTime;
+    }
+
+    /**
+     *
+     * @param deceasedTime
+     */
+    public void setDeceasedTime(Date deceasedTime) {
+        this.deceasedTime = deceasedTime;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Boolean getMultipleBirthIndicator() {
+        return multipleBirthIndicator;
+    }
+
+    /**
+     *
+     * @param multipleBirthIndicator
+     */
+    public void setMultipleBirthIndicator(Boolean multipleBirthIndicator) {
+        this.multipleBirthIndicator = multipleBirthIndicator;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Integer getMultipleBirthOrderNumber() {
+        return multipleBirthOrderNumber;
+    }
+
+    /**
+     *
+     * @param multipleBirthOrderNumber
+     */
+    public void setMultipleBirthOrderNumber(Integer multipleBirthOrderNumber) {
+        this.multipleBirthOrderNumber = multipleBirthOrderNumber;
     }
 
     /**

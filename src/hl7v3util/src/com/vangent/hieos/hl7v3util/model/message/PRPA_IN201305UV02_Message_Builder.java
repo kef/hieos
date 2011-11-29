@@ -12,9 +12,9 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
@@ -183,7 +183,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //  <livingSubjectAdministrativeGender>
         //    <value code="M"/>
         //    <semanticsText>LivingSubject.administrativeGender</semanticsText>
-        SubjectGender subjectGender = searchSubject.getGender();
+        CodedValue subjectGender = searchSubject.getGender();
         if (subjectGender != null) {
             OMElement genderNode = this.addChildOMElement(parameterListNode, "livingSubjectAdministrativeGender");
             this.addCode(genderNode, "value", subjectGender.getCode());

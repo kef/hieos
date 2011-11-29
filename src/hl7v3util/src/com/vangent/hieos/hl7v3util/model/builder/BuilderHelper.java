@@ -14,6 +14,10 @@ package com.vangent.hieos.hl7v3util.model.builder;
 
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
+import com.vangent.hieos.xutil.hl7.date.Hl7Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
@@ -26,8 +30,8 @@ import org.apache.axiom.om.OMAbstractFactory;
  * @author Bernie Thuman
  */
 public class BuilderHelper {
-    public final static String HL7V3_NAMESPACE = "urn:hl7-org:v3";
 
+    public final static String HL7V3_NAMESPACE = "urn:hl7-org:v3";
     private OMFactory omfactory;
     private OMNamespace ns;
 
@@ -59,7 +63,7 @@ public class BuilderHelper {
         return parentNode.getFirstChildWithName(new QName(HL7V3_NAMESPACE, name));
     }
 
-     /**
+    /**
      *
      * @param rootNode
      * @param xpathExpression
@@ -80,12 +84,12 @@ public class BuilderHelper {
         return value;
     }
 
-     /**
-      *
-      * @param rootNode
-      * @param xpathExpression
-      * @return
-      */
+    /**
+     *
+     * @param rootNode
+     * @param xpathExpression
+     * @return
+     */
     protected String getNodeText(OMElement rootNode, String xpathExpression) {
         OMElement node = null;
         try {
@@ -99,7 +103,6 @@ public class BuilderHelper {
         }
         return value;
     }
-
 
     /**
      *
@@ -182,5 +185,146 @@ public class BuilderHelper {
     protected void setAttribute(OMElement node, String attributeName, String attributeValue) {
         node.addAttribute(attributeName, attributeValue, null);
     }
-   
+
+    /**
+     * 
+     * @param rootNode
+     * @param xPath
+     * @return
+     */
+    protected Boolean getBooleanValue(OMElement rootNode, String xPath) {
+        Boolean booleanVal = null;
+        try {
+            OMElement node = this.selectSingleNode(rootNode, xPath);
+            if (node != null) {
+                String textValue = node.getAttributeValue(new QName("value"));
+                booleanVal = Boolean.valueOf(textValue);
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+        return booleanVal;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param xPath
+     * @return
+     */
+    protected Integer getIntegerValue(OMElement rootNode, String xPath) {
+        Integer integerVal = null;
+        try {
+            OMElement node = this.selectSingleNode(rootNode, xPath);
+            if (node != null) {
+                String textValue = node.getAttributeValue(new QName("value"));
+                integerVal = Integer.valueOf(textValue);
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+        return integerVal;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param xPath
+     * @return
+     */
+    protected Date getHL7DateValue(OMElement rootNode, String xPath) {
+        Date dateVal = null;
+        try {
+            OMElement node = this.selectSingleNode(rootNode, xPath);
+            if (node != null) {
+                String textValue = node.getAttributeValue(new QName("value"));
+                dateVal = this.getHL7Date(textValue);
+            }
+        } catch (XPathHelperException ex) {
+            // TBD: Do something.
+        }
+        return dateVal;
+    }
+
+    /**
+     *
+     * @param hl7Date
+     * @return
+     */
+    public Date getHL7Date(String hl7DateText) {
+        Date hl7Date = null;
+        if (hl7DateText != null && hl7DateText.length() >= 8) {
+            hl7DateText = hl7DateText.substring(0, 8);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            try {
+                hl7Date = sdf.parse(hl7DateText);
+            } catch (ParseException ex) {
+                // Do nothing.
+            }
+        } else {
+            // TBD: EMIT WARNING OF SOME SORT.
+        }
+        return hl7Date;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param childNodeName
+     * @param value
+     * @return
+     */
+    public OMElement addChildNodeWithBooleanValueAttribute(OMElement rootNode, String childNodeName, Boolean value) {
+        OMElement childNode = null;
+        if (value != null) {
+            childNode = this.addChildOMElement(rootNode, childNodeName);
+            this.setAttribute(childNode, "value", value.toString());
+        }
+        return childNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param childNodeName
+     * @param value
+     * @return
+     */
+    public OMElement addChildNodeWithIntegerValueAttribute(OMElement rootNode, String childNodeName, Integer value) {
+        OMElement childNode = null;
+        if (value != null) {
+            childNode = this.addChildOMElement(rootNode, childNodeName);
+            this.setAttribute(childNode, "value", value.toString());
+        }
+        return childNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param childNodeName
+     * @param value
+     * @return
+     */
+    public OMElement addChildNodeWithDateValueAttribute(OMElement rootNode, String childNodeName, Date value) {
+        OMElement childNode = null;
+        if (value != null) {
+            childNode = this.addChildOMElement(rootNode, childNodeName);
+            this.setAttribute(childNode, "value", Hl7Date.toHL7format(value));
+        }
+        return childNode;
+    }
+
+    /**
+     * 
+     * @param rootNode
+     * @param childNodeName
+     * @param value
+     * @return
+     */
+    public OMElement addChildNodeWithValueAttribute(OMElement rootNode, String childNodeName, String value) {
+        OMElement childNode = this.addChildOMElement(rootNode, childNodeName);
+        this.setAttribute(childNode, "value", value);
+        return childNode;
+    }
 }

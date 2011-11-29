@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
-import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
@@ -119,7 +118,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
         try {
             OMElement genderNode = this.selectSingleNode(parameterListNode, XPATH_PARAMETER_GENDER);
             if (genderNode != null) {
-                SubjectGender subjectGender = this.buildGender(genderNode);
+                CodedValue subjectGender = this.buildCodedValue(genderNode);
                 subject.setGender(subjectGender);
             }
         } catch (XPathHelperException ex) {
@@ -133,16 +132,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
      * @param parameterListNode
      */
     private void setBirthTime(Subject subject, OMElement parameterListNode) {
-        try {
-            OMElement birthTimeNode = this.selectSingleNode(parameterListNode, XPATH_PARAMETER_BIRTH_TIME);
-            String hl7BirthTime = null;
-            if (birthTimeNode != null) {
-                hl7BirthTime = birthTimeNode.getAttributeValue(new QName("value"));
-            }
-            this.setBirthTime(subject, hl7BirthTime);
-        } catch (XPathHelperException ex) {
-            // TBD: Do something.
-        }
+        subject.setBirthTime(this.getHL7DateValue(parameterListNode, XPATH_PARAMETER_BIRTH_TIME));
     }
 
     /**

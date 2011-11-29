@@ -14,6 +14,7 @@ package com.vangent.hieos.hl7v3util.model.message;
 
 import com.vangent.hieos.hl7v3util.model.builder.*;
 import com.vangent.hieos.hl7v3util.model.subject.Address;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.Custodian;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
@@ -122,8 +123,8 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     }
 
     /**
-     *
-     * @param requestNode
+     * 
+     * @param rootNode
      * @param elementName
      * @param value
      * @return
@@ -132,6 +133,21 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         OMElement childNode = this.createOMElement(elementName);
         rootNode.addChild(childNode);
         childNode.addAttribute("code", value, null);
+        return childNode;
+    }
+
+    /**
+     * 
+     * @param rootNode
+     * @param elementName
+     * @param codedValue
+     * @return
+     */
+    protected OMElement addCode(OMElement rootNode, String elementName, CodedValue codedValue) {
+        OMElement childNode = null;
+        if (codedValue != null) {
+            childNode = this.addCode(rootNode, elementName, codedValue.getCode());
+        }
         return childNode;
     }
 
