@@ -14,9 +14,9 @@ package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.Subject.SubjectType;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,8 +53,12 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         int genderCodeId;
+        int maritalStatusCodeId;
+        int religiousAffiliationCodeId;
+        int raceCodeId;
+        int ethnicGroupCodeId;
         try {
-            String sql = "SELECT id,type,birth_time,gender_code_id FROM subject WHERE id=?";
+            String sql = "SELECT id,type,birth_time,gender_code_id,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code_id,religious_affiliation_code_id,race_code_id,ethnic_group_code_id FROM subject WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -64,8 +68,16 @@ public class SubjectDAO extends AbstractDAO {
             } else {
                 subject.setId(subjectId);
                 subject.setType(this.getSubjectType(rs.getString(2)));
-                subject.setBirthTime(rs.getDate(3));
+                subject.setBirthTime(this.getDate(rs, 3));
                 genderCodeId = rs.getInt(4);
+                subject.setDeceasedIndicator(this.getBoolean(rs, 5));
+                subject.setDeceasedTime(this.getDate(rs, 6));
+                subject.setMultipleBirthIndicator(this.getBoolean(rs, 7));
+                subject.setMultipleBirthOrderNumber(this.getInteger(rs, 8));
+                maritalStatusCodeId = rs.getInt(9);
+                religiousAffiliationCodeId = rs.getInt(10);
+                raceCodeId = rs.getInt(11);
+                ethnicGroupCodeId = rs.getInt(12);
             }
         } catch (SQLException ex) {
             throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
@@ -76,6 +88,14 @@ public class SubjectDAO extends AbstractDAO {
 
         // Now, loadEnterpriseSubjectCrossReferences composed objects.
         Connection conn = this.getConnection();
+
+        // Coded values.
+        CodeDAO codeDAO = new CodeDAO(conn);
+        subject.setGender(codeDAO.load(genderCodeId, CodeDAO.CodeType.GENDER));
+        subject.setMaritalStatus(codeDAO.load(maritalStatusCodeId, CodeDAO.CodeType.MARITAL_STATUS));
+        subject.setReligiousAffiliation(codeDAO.load(religiousAffiliationCodeId, CodeDAO.CodeType.RELIGIOUS_AFFILIATION));
+        subject.setRace(codeDAO.load(raceCodeId, CodeDAO.CodeType.RACE));
+        subject.setEthnicGroup(codeDAO.load(ethnicGroupCodeId, CodeDAO.CodeType.ETHNIC_GROUP));
 
         // Names.
         SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
@@ -89,10 +109,6 @@ public class SubjectDAO extends AbstractDAO {
         SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
         subjectTelecomAddressDAO.load(subject);
 
-        // Gender.
-        SubjectGenderDAO subjectGenderDAO = new SubjectGenderDAO(conn);
-        SubjectGender subjectGender = subjectGenderDAO.load(genderCodeId);
-        subject.setGender(subjectGender);
 
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
@@ -194,22 +210,24 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
-            String sql = "INSERT INTO subject(id,type,birth_time,gender_code_id) values(?,?,?,?)";
+            String sql = "INSERT INTO subject(id,type,birth_time,gender_code_id,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code_id,religious_affiliation_code_id,race_code_id,ethnic_group_code_id) values(?,?,?,?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
-            SubjectGenderDAO subjectGenderDAO = new SubjectGenderDAO(conn);
+            CodeDAO codeDAO = new CodeDAO(conn);
             for (Subject subject : subjects) {
                 String subjectTypeValue = this.getSubjectTypeValue(subject);
                 subject.setId(PersistenceHelper.getUUID());
                 stmt.setString(1, subject.getId());
                 stmt.setString(2, subjectTypeValue);
-                stmt.setDate(3, PersistenceHelper.getSQLDate(subject.getBirthTime()));
-
-                // Get gender code id.
-                SubjectGender subjectGender = subject.getGender();
-                if (subjectGender != null) {
-                    int genderCodeId = subjectGenderDAO.getId(subject.getGender().getCode());
-                    stmt.setInt(4, genderCodeId);
-                }
+                this.setDate(stmt, 3, subject.getBirthTime());
+                this.setCodedValueId(codeDAO, CodeDAO.CodeType.GENDER, stmt, 4, subject.getGender());
+                this.setBoolean(stmt, 5, subject.getDeceasedIndicator());
+                this.setDate(stmt, 6, subject.getDeceasedTime());
+                this.setBoolean(stmt, 7, subject.getMultipleBirthIndicator());
+                this.setInteger(stmt, 8, subject.getMultipleBirthOrderNumber());
+                this.setCodedValueId(codeDAO, CodeDAO.CodeType.MARITAL_STATUS, stmt, 9, subject.getMaritalStatus());
+                this.setCodedValueId(codeDAO, CodeDAO.CodeType.RELIGIOUS_AFFILIATION, stmt, 10, subject.getReligiousAffiliation());
+                this.setCodedValueId(codeDAO, CodeDAO.CodeType.RACE, stmt, 11, subject.getRace());
+                this.setCodedValueId(codeDAO, CodeDAO.CodeType.ETHNIC_GROUP, stmt, 12, subject.getEthnicGroup());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

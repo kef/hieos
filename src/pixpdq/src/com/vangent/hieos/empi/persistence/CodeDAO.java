@@ -23,7 +23,38 @@ import java.sql.SQLException;
  *
  * @author Bernie Thuman
  */
-public abstract class CodeDAO extends AbstractDAO {
+public class CodeDAO extends AbstractDAO {
+
+    /**
+     *
+     */
+    public enum CodeType {
+
+        /**
+         *
+         */
+        GENDER,
+        /**
+         *
+         */
+        MARITAL_STATUS,
+        /**
+         *
+         */
+        RELIGIOUS_AFFILIATION,
+        /**
+         *
+         */
+        RACE,
+        /**
+         *
+         */
+        ETHNIC_GROUP,
+        /**
+         *
+         */
+        LANGUAGE
+    };
 
     /**
      *
@@ -34,22 +65,17 @@ public abstract class CodeDAO extends AbstractDAO {
     }
 
     /**
-     *
-     * @return
-     */
-    abstract public String getTableName();
-
-    /**
      * 
      * @param code
+     * @param type
      * @return
      * @throws EMPIException
      */
-    public int getId(String code) throws EMPIException {
+    public int getId(String code, CodeType type) throws EMPIException {
         int id = -1;  // Not found if -1.
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        String tableName = this.getTableName();
+        String tableName = this.getTableName(type);
         try {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT id FROM ").append(tableName).append(" WHERE code=?");
@@ -72,13 +98,15 @@ public abstract class CodeDAO extends AbstractDAO {
     }
 
     /**
-     *
+     * 
      * @param id
-     * @param codedValue 
+     * @param type
+     * @return
      * @throws EMPIException
      */
-    public void load(int id, CodedValue codedValue) throws EMPIException {
-        String tableName = this.getTableName();
+    public CodedValue load(int id, CodeType type) throws EMPIException {
+        CodedValue codedValue = null;
+        String tableName = this.getTableName(type);
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
@@ -89,8 +117,10 @@ public abstract class CodeDAO extends AbstractDAO {
             // Execute query.
             rs = stmt.executeQuery();
             if (!rs.next()) {
-                throw new EMPIException("id = " + id + " not found in table = " + tableName);
+                // Return null if not found.
+                //throw new EMPIException("id = " + id + " not found in table = " + tableName);
             } else {
+                codedValue = new CodedValue();
                 codedValue.setCode(rs.getString(1));
                 codedValue.setDisplayName(rs.getString(2));
             }
@@ -99,6 +129,29 @@ public abstract class CodeDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
             this.close(rs);
+        }
+        return codedValue;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private String getTableName(CodeType type) {
+        switch (type) {
+            case GENDER:
+                return "gender_code";
+            case MARITAL_STATUS:
+                return "marital_status_code";
+            case RELIGIOUS_AFFILIATION:
+                return "religious_affiliation_code";
+            case RACE:
+                return "race_code";
+            case ETHNIC_GROUP:
+                return "ethnic_group_code";
+            case LANGUAGE:
+            default:
+                return "language_code";
         }
     }
 }

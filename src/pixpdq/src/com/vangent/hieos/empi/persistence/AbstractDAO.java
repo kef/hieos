@@ -13,11 +13,14 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -99,6 +102,120 @@ public class AbstractDAO {
             throw new EMPIException(ex);
         }
         return stmt;
+    }
+
+    /**
+     *
+     * @param codeDAO
+     * @param type
+     * @param stmt
+     * @param index
+     * @param codedValue
+     * @throws SQLException
+     */
+    protected void setCodedValueId(CodeDAO codeDAO, CodeDAO.CodeType type, PreparedStatement stmt, int index, CodedValue codedValue) throws SQLException {
+        if (codedValue != null) {
+            try {
+                int codeId = codeDAO.getId(codedValue.getCode(), type);
+                stmt.setInt(index, codeId);
+            } catch (EMPIException ex) {
+                // TBD: Emit log message.
+                // Set to null.
+                this.setInteger(stmt, index, null);
+            }
+        } else {
+            this.setInteger(stmt, index, null);
+        }
+    }
+
+    /**
+     *
+     * @param stmt
+     * @param index
+     * @param value
+     * @throws SQLException
+     */
+    protected void setBoolean(PreparedStatement stmt, int index, Boolean value) throws SQLException {
+        if (value != null) {
+            stmt.setBoolean(index, value);
+        } else {
+            stmt.setNull(index, java.sql.Types.BOOLEAN);
+        }
+    }
+
+    /**
+     *
+     * @param stmt
+     * @param index
+     * @param value
+     * @throws SQLException
+     */
+    protected void setDate(PreparedStatement stmt, int index, Date value) throws SQLException {
+        if (value != null) {
+            stmt.setDate(index, PersistenceHelper.getSQLDate(value));
+        } else {
+            stmt.setNull(index, java.sql.Types.DATE);
+        }
+    }
+
+    /**
+     *
+     * @param stmt
+     * @param index
+     * @param value
+     * @throws SQLException
+     */
+    protected void setInteger(PreparedStatement stmt, int index, Integer value) throws SQLException {
+        if (value != null) {
+            stmt.setInt(index, value);
+        } else {
+            stmt.setNull(index, java.sql.Types.INTEGER);
+        }
+    }
+
+    /**
+     * 
+     * @param rs
+     * @param index
+     * @return
+     * @throws SQLException
+     */
+    protected Integer getInteger(ResultSet rs, int index) throws SQLException {
+        int nValue = rs.getInt(index);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return nValue;
+    }
+
+    /**
+     *
+     * @param rs
+     * @param index
+     * @return
+     * @throws SQLException
+     */
+    protected Boolean getBoolean(ResultSet rs, int index) throws SQLException {
+        boolean nValue = rs.getBoolean(index);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return nValue;
+    }
+
+    /**
+     *
+     * @param rs
+     * @param index
+     * @return
+     * @throws SQLException
+     */
+    protected Date getDate(ResultSet rs, int index) throws SQLException {
+        Date nValue = rs.getDate(index);
+        if (rs.wasNull()) {
+            return null;
+        }
+        return nValue;
     }
 
     /**
