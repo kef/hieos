@@ -40,6 +40,22 @@ public class PersistenceManager {
     }
 
     /**
+     *
+     * @return
+     */
+    public Connection getConnection() {
+        return connection;
+    }
+
+    /**
+     * 
+     * @param connection
+     */
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+
+    /**
      * 
      * @throws EMPIException
      */
@@ -299,7 +315,7 @@ public class PersistenceManager {
         int subjectIdentifierDomainId = this.getSubjectIdentifierDomainId(subjectIdentifierDomain);
         return subjectIdentifierDomainId != -1;
     }
-    
+
     /**
      *
      * @param subject

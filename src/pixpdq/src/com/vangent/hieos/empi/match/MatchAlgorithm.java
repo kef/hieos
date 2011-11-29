@@ -22,7 +22,7 @@ import java.util.List;
  */
 public abstract class MatchAlgorithm {
 
-    private PersistenceManager persistenceService = null;
+    private PersistenceManager persistenceManager = null;
 
     /**
      *
@@ -34,16 +34,16 @@ public abstract class MatchAlgorithm {
      *
      * @return
      */
-    public PersistenceManager getPersistenceService() {
-        return persistenceService;
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
     }
 
     /**
      * 
      * @param persistenceService
      */
-    public void setPersistenceService(PersistenceManager persistenceService) {
-        this.persistenceService = persistenceService;
+    public void setPersistenceManager(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     /**

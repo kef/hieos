@@ -106,7 +106,7 @@ public class FindSubjectsHandler extends BaseHandler {
 
         // Get match algorithm (configurable).
         MatchAlgorithm matchAlgorithm = empiConfig.getMatchAlgorithm();
-        matchAlgorithm.setPersistenceService(pm);
+        matchAlgorithm.setPersistenceManager(pm);
 
         // Run the algorithm to get matches.
         long startTime = System.currentTimeMillis();
