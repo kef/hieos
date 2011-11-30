@@ -122,13 +122,13 @@ public class XATNALogger {
     public XATNALogger(String transactionId, ActorType actorType) throws Exception {
         this.transactionId = transactionId;
         this.actorType = actorType;
-        
+
         XConfig xconfig = XConfig.getInstance();
         this.performAudit = xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNAPerformAudit");
         if (this.performAudit) {
-            
+
             this.logSAMLAssertion =
-                xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNALogSAMLAssertion", false);
+                    xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNALogSAMLAssertion", false);
         }
     }
 
@@ -170,7 +170,7 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
-            auditSAMLAssertion();
+            addSAMLAssertion();
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -250,7 +250,7 @@ public class XATNALogger {
 
         // Persist the message.
         if (amb != null) {
-            auditSAMLAssertion();
+            addSAMLAssertion();
             amb.setAuditSource(this.getAuditSourceId(), null, null);
             amb.persistMessage();
         }
@@ -292,35 +292,12 @@ public class XATNALogger {
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
                 this.hostAddress); /* networkAccessPointId */
 
-
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addPatientId(patientId);
 
+        // Query:
         byte[] queryBase64Bytes = Base64.encodeBase64(queryByParameter.getBytes());
-        // Stored Query ID:
-        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, CRS_GTWY_PATIENT_DISCOVERY);
-        amb.setParticipantObject(
-                "2", /* participantObjectTypeCode */
-                "24", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                queryId, /* participantObjectId */
-                homeCommunityId, /* participantObjectName */
-                queryBase64Bytes, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addQueryDetails(CRS_GTWY_PATIENT_DISCOVERY, homeCommunityId, queryBase64Bytes, queryId);
     }
 
     /**
@@ -338,7 +315,7 @@ public class XATNALogger {
         // Event ID and Event Type:
         CodedValueType eventId = this.getCodedValueType("110112", "DCM", "Query");
         String displayName = CRS_GTWY_PATIENT_DISCOVERY;
-        
+
         CodedValueType eventType = this.getCodedValueType(transactionId, IHE_TX, displayName);
         amb = new AuditMessageBuilder(null, null, eventId, eventType, "E", this.outcome.toString());
 
@@ -364,36 +341,13 @@ public class XATNALogger {
                 roleIdCode, /* roleIdCode */
                 "2", /* networkAccessPointTypeCode (1 = hostname, 2 = IP Address) */
                 url.getHost()); /* networkAccessPointId */
-       
-        byte[] queryBase64Bytes = Base64.encodeBase64(queryByParameter.getBytes());
 
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addPatientId(patientId);
 
-        // Stored Query ID:
-        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, displayName);
-        amb.setParticipantObject(
-                "2", /* participantObjectTypeCode */
-                "24", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                queryId, /* participantObjectId */
-                homeCommunityId, /* participantObjectName */
-                queryBase64Bytes, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        // Query:
+        byte[] queryBase64Bytes = Base64.encodeBase64(queryByParameter.getBytes());
+        this.addQueryDetails(displayName, homeCommunityId, queryBase64Bytes, queryId);
     }
 
     /**
@@ -436,21 +390,10 @@ public class XATNALogger {
         String submissionSetId = m.getSubmissionSetUniqueId();
 
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+        this.addPatientId(patientId);
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
+        CodedValueType participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */
@@ -459,9 +402,7 @@ public class XATNALogger {
                 null, /* participantObjectSensitivity */
                 submissionSetId, /* participantObjectId */
                 null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+                null); /* participantObjectQuery */
     }
 
     /**
@@ -506,21 +447,10 @@ public class XATNALogger {
         String submissionSetId = m.getSubmissionSetUniqueId();
 
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+        this.addPatientId(patientId);
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
+        CodedValueType participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */
@@ -529,9 +459,7 @@ public class XATNALogger {
                 null, /* participantObjectSensitivity */
                 submissionSetId, /* participantObjectId */
                 null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+                null); /* participantObjectQuery */
     }
 
     /**
@@ -574,21 +502,10 @@ public class XATNALogger {
         String submissionSetId = m.getSubmissionSetUniqueId();
 
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+        this.addPatientId(patientId);
 
         // Submission Set:
-        participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
+        CodedValueType participantObjectIdentifier = this.getCodedValueType(MetadataSupport.XDSSubmissionSet_classification_uuid, IHE_XDS_MDT, "submission set classificationNode");
         amb.setParticipantObject(
                 "2", /* participantObjectTypeCode */
                 "20", /* participantObjectTypeCodeRole */
@@ -597,9 +514,7 @@ public class XATNALogger {
                 null, /* participantObjectSensitivity */
                 submissionSetId, /* participantObjectId */
                 null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjecxtDetailValue */
+                null); /* participantObjectQuery */
     }
 
     /**
@@ -642,30 +557,16 @@ public class XATNALogger {
                 this.fromAddress); /* networkAccessPointId */
 
         // Document URIs:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("9", "RFC-3881", "Report Number");
         for (OMElement doc_request : MetadataSupport.childrenWithLocalName(rootNode, "DocumentRequest")) {
             String homeCommunityId = null;
-            String repositoryId;
-            String documentId;
-            repositoryId = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
-            byte[] podval = repositoryId.getBytes();
-            documentId = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
+            String repositoryUniqueId = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
+            String documentId = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
             OMElement homeNode = MetadataSupport.firstChildWithLocalName(doc_request, "HomeCommunityId");
             if (homeNode != null) {
                 homeCommunityId = homeNode.getText();
             }
-            // Document URI:
-            amb.setParticipantObject(
-                    "2", /* participantObjectTypeCode */
-                    "3", /* participantObjectTypeCodeRole */
-                    null, /* participantObjectDataLifeCycle */
-                    participantObjectIdentifier, /* participantIDTypeCode */
-                    null, /* participantObjectSensitivity */
-                    documentId, /* participantObjectId */
-                    homeCommunityId, /* participantObjectName */
-                    null, /* participantObjectQuery */
-                    "Repository Unique Id", /* participantObjectDetailName */
-                    podval); /* participantObjectDetailValue */
+            // Document:
+            this.addDocumentDetails(documentId, repositoryUniqueId, homeCommunityId);
         }
     }
 
@@ -712,30 +613,16 @@ public class XATNALogger {
                 this.hostAddress); /* networkAccessPointId */
 
         // Document URIs:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("9", "RFC-3881", "Report Number");
         for (OMElement doc_request : MetadataSupport.childrenWithLocalName(rootNode, "DocumentRequest")) {
             String homeCommunityId = null;
-            String repositoryId;
-            String documentId;
-            repositoryId = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
-            byte[] podval = repositoryId.getBytes();
-            documentId = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
+            String repositoryUniqueId = MetadataSupport.firstChildWithLocalName(doc_request, "RepositoryUniqueId").getText();
+            String documentId = MetadataSupport.firstChildWithLocalName(doc_request, "DocumentUniqueId").getText();
             OMElement homeNode = MetadataSupport.firstChildWithLocalName(doc_request, "HomeCommunityId");
             if (homeNode != null) {
                 homeCommunityId = homeNode.getText();
             }
-            // Document URI:
-            amb.setParticipantObject(
-                    "2", /* participantObjectTypeCode */
-                    "3", /* participantObjectTypeCodeRole */
-                    null, /* participantObjectDataLifeCycle */
-                    participantObjectIdentifier, /* participantIDTypeCode */
-                    null, /* participantObjectSensitivity */
-                    documentId, /* participantObjectId */
-                    homeCommunityId, /* participantObjectName */
-                    null, /* participantObjectQuery */
-                    "Repository Unique Id", /* participantObjectDetailName */
-                    podval); /* participantObjectDetailValue */
+            // Document:
+            this.addDocumentDetails(documentId, repositoryUniqueId, homeCommunityId);
         }
     }
 
@@ -785,41 +672,15 @@ public class XATNALogger {
         OMElement adhocQuery = MetadataSupport.firstChildWithLocalName(rootNode, "AdhocQuery");
         storedQueryId = adhocQuery.getAttributeValue(MetadataSupport.id_qname);
         patientId = this.getQueryPatientID(rootNode, storedQueryId);
-        String query = rootNode.toString();
-        /* BHT: Removed and replaced with line below.
-        String queryBase64String = Base64Coder.encodeString(query);  // Convert to base64.
-        byte[] queryBase64Bytes = queryBase64String.getBytes();
-         */
-        byte[] queryBase64Bytes = Base64.encodeBase64(query.getBytes());
 
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addPatientId(patientId);
 
-        // Stored Query ID:
-        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, displayName);
+        // Query:
+        String query = rootNode.toString();
+        byte[] queryBase64Bytes = Base64.encodeBase64(query.getBytes());
         String homeCommunityId = this.getHomeCommunityId(adhocQuery);
-        amb.setParticipantObject(
-                "2", /* participantObjectTypeCode */
-                "24", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                storedQueryId, /* participantObjectId */
-                homeCommunityId, /* participantObjectName */
-                queryBase64Bytes, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addQueryDetails(displayName, homeCommunityId, queryBase64Bytes, storedQueryId);
     }
 
     /**
@@ -870,42 +731,14 @@ public class XATNALogger {
         storedQueryId = adhocQuery.getAttributeValue(MetadataSupport.id_qname);
         patientId = this.getQueryPatientID(rootNode, storedQueryId);
 
-        String query = rootNode.toString();
-        /* BHT: Removed and replaced with line below.
-        String queryBase64String = Base64Coder.encodeString(query);  // Convert to base64.
-        byte[] queryBase64Bytes = queryBase64String.getBytes();
-         */
-        byte[] queryBase64Bytes = Base64.encodeBase64(query.getBytes());
-
-
         // Patient ID:
-        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        amb.setParticipantObject(
-                "1", /* participantObjectTypeCode */
-                "1", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                patientId, /* participantObjectId */
-                null, /* participantObjectName */
-                null, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addPatientId(patientId);
 
-        // Stored Query ID:
-        participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, displayName);
+        // Query:
+        String query = rootNode.toString();
+        byte[] queryBase64Bytes = Base64.encodeBase64(query.getBytes());
         String homeCommunityId = this.getHomeCommunityId(adhocQuery);
-        amb.setParticipantObject(
-                "2", /* participantObjectTypeCode */
-                "24", /* participantObjectTypeCodeRole */
-                null, /* participantObjectDataLifeCycle */
-                participantObjectIdentifier, /* participantIDTypeCode */
-                null, /* participantObjectSensitivity */
-                storedQueryId, /* participantObjectId */
-                homeCommunityId, /* participantObjectName */
-                queryBase64Bytes, /* participantObjectQuery */
-                null, /* participantObjectDetailName */
-                null); /* participantObjectDetailValue */
+        this.addQueryDetails(displayName, homeCommunityId, queryBase64Bytes, storedQueryId);
     }
 
     /**
@@ -971,8 +804,8 @@ public class XATNALogger {
                 null, /* participantObjectQuery */
                 "Message Identifier", /* participantObjectDetailName */
                 podval); /* participantObjectDetailValue */
-            
-        auditSAMLAssertion();
+
+        addSAMLAssertion();
 
         // Now, persist the audit message.
         amb.setAuditSource(this.getAuditSourceId(), null, null);
@@ -982,7 +815,7 @@ public class XATNALogger {
     /**
      *
      */
-    private void auditSAMLAssertion() {
+    private void addSAMLAssertion() {
         if (this.logSAMLAssertion) {
             OMElement assertionEle = null;
             try {
@@ -995,8 +828,8 @@ public class XATNALogger {
                     assertionEle = XServiceProvider.getSAMLAssertionFromRequest(mc);
                 }
             } catch (SOAPFaultException ex) {
-                 // Eat this.
-                logger.warn("Could not get SAML Assertion", ex);               
+                // Eat this.
+                logger.warn("Could not get SAML Assertion", ex);
             }
             if (assertionEle != null) {
                 String assertionId = assertionEle.getAttributeValue(new QName("ID"));
@@ -1016,7 +849,99 @@ public class XATNALogger {
             }
         }
     }
-    
+
+    /**
+     *
+     * @param patientId
+     */
+    private void addPatientId(String patientId) {
+        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
+        amb.setParticipantObject(
+                "1", /* participantObjectTypeCode */
+                "1", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                patientId, /* participantObjectId */
+                null, /* participantObjectName */
+                null); /* participantObjectQuery */
+    }
+
+    /**
+     *
+     * @param displayName
+     * @param homeCommunityId
+     * @param queryBase64Bytes
+     * @param queryId
+     */
+    private void addQueryDetails(String displayName,
+            String homeCommunityId, byte[] queryBase64Bytes, String queryId) {
+        CodedValueType participantObjectIdentifier = this.getCodedValueType(transactionId, IHE_TX, displayName);
+        String[] participantObjectDetailNames = null;
+        byte[][] participantObjectDetailValues = null;
+        if (homeCommunityId != null) {
+            participantObjectDetailNames = new String[2];
+            participantObjectDetailValues = new byte[2][];
+        } else {
+            participantObjectDetailNames = new String[1];
+            participantObjectDetailValues = new byte[1][];
+        }
+        participantObjectDetailNames[0] = "QueryEncoding";
+        participantObjectDetailValues[0] = "UTF-8".getBytes();
+        if (homeCommunityId != null) {
+            participantObjectDetailNames[1] = "urn:ihe:iti:xca:2010:homeCommunityId";
+            participantObjectDetailValues[1] = homeCommunityId.getBytes();
+        }
+
+        amb.setParticipantObject(
+                "2", /* participantObjectTypeCode */
+                "24", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                queryId, /* participantObjectId */
+                null, /*homeCommunityId,*/ /* participantObjectName */
+                queryBase64Bytes, /* participantObjectQuery */
+                participantObjectDetailNames, /* participantObjectDetailNames */
+                participantObjectDetailValues); /* participantObjectDetailValues */
+    }
+
+    /**
+     * 
+     * @param documentId
+     * @param repositoryUniqueId
+     * @param homeCommunityId
+     */
+    private void addDocumentDetails(String documentId, String repositoryUniqueId, String homeCommunityId) {
+        CodedValueType participantObjectIdentifier = this.getCodedValueType("9", "RFC-3881", "Report Number");
+        String[] participantObjectDetailNames = null;
+        byte[][] participantObjectDetailValues = null;
+        if (homeCommunityId != null) {
+            participantObjectDetailNames = new String[2];
+            participantObjectDetailValues = new byte[2][];
+        } else {
+            participantObjectDetailNames = new String[1];
+            participantObjectDetailValues = new byte[1][];
+        }
+        participantObjectDetailNames[0] = "Repository Unique Id";
+        participantObjectDetailValues[0] = repositoryUniqueId.getBytes();
+        if (homeCommunityId != null) {
+            participantObjectDetailNames[1] = "ihe:homeCommunityID";
+            participantObjectDetailValues[1] = homeCommunityId.getBytes();
+        }
+        amb.setParticipantObject(
+                "2", /* participantObjectTypeCode */
+                "3", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                documentId, /* participantObjectId */
+                null, /*homeCommunityId,*/ /* participantObjectName */
+                null, /* participantObjectQuery */
+                participantObjectDetailNames, /* participantObjectDetailNames */
+                participantObjectDetailValues); /* participantObjectDetailValues */
+    }
+
     /**
      * 
      * @param queryRequest
@@ -1027,9 +952,9 @@ public class XATNALogger {
         if (homeCommunityId == null || homeCommunityId.equals("")) {
             homeCommunityId = null;
         }
-        if (homeCommunityId == null) {
-            homeCommunityId = "HomeCommunityId not present in request";
-        }
+        /*if (homeCommunityId == null) {
+        homeCommunityId = "HomeCommunityId not present in request";
+        }*/
         return homeCommunityId;
     }
 

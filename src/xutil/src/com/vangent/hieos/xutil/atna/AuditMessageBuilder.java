@@ -50,8 +50,8 @@ public class AuditMessageBuilder {
             syslogHost = XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogHost");//props.getProperty("syslogHost");
             syslogPort = new Integer(XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogPort")).intValue();
             syslogProtocol = XConfig.getInstance().getHomeCommunityConfigProperty("ATNAsyslogProtocol");
-            logger.info("XATNALogger: using syslogHost=" +
-                    syslogHost + ", port=" + syslogPort + ", protocol=" + syslogProtocol);
+            logger.info("XATNALogger: using syslogHost="
+                    + syslogHost + ", port=" + syslogPort + ", protocol=" + syslogProtocol);
         } catch (Exception e) {
             logger.error("**** CAN NOT LOAD ATNA properties from XConfig ***", e);
         }
@@ -124,6 +124,21 @@ public class AuditMessageBuilder {
     }
 
     /**
+     *
+     * @param participantObjectTypeCode
+     * @param participantObjectTypeCodeRole
+     * @param participantObjectDataLifeCycle
+     * @param poicd
+     * @param participantObjectSensitivity
+     * @param participantObjectID
+     * @param participantObjectName
+     * @param participantObjectQuery
+     */
+    public void setParticipantObject(String participantObjectTypeCode, String participantObjectTypeCodeRole, String participantObjectDataLifeCycle, CodedValueType poicd, String participantObjectSensitivity, String participantObjectID, String participantObjectName, byte[] participantObjectQuery) {
+        this.setParticipantObject(participantObjectTypeCode, participantObjectTypeCodeRole, participantObjectDataLifeCycle, poicd, participantObjectSensitivity, participantObjectID, participantObjectName, participantObjectQuery, (String[]) null, (byte[][]) null);
+    }
+
+    /**
      * 
      * @param participantObjectTypeCode
      * @param participantObjectTypeCodeRole
@@ -137,6 +152,31 @@ public class AuditMessageBuilder {
      * @param participantObjectDetailValue
      */
     public void setParticipantObject(String participantObjectTypeCode, String participantObjectTypeCodeRole, String participantObjectDataLifeCycle, CodedValueType poicd, String participantObjectSensitivity, String participantObjectID, String participantObjectName, byte[] participantObjectQuery, String participantObjectDetailName, byte[] participantObjectDetailValue) {
+        String[] participantObjectDetailNames = null;
+        byte[][] participantObjectDetailValues = null;
+        if (participantObjectDetailName != null) {
+            participantObjectDetailNames = new String[1];
+            participantObjectDetailValues = new byte[1][];
+            participantObjectDetailNames[0] = participantObjectDetailName;
+            participantObjectDetailValues[0] = participantObjectDetailValue;
+        }
+        this.setParticipantObject(participantObjectTypeCode, participantObjectTypeCodeRole, participantObjectDataLifeCycle, poicd, participantObjectSensitivity, participantObjectID, participantObjectName, participantObjectQuery, participantObjectDetailNames, participantObjectDetailValues);
+    }
+
+    /**
+     *
+     * @param participantObjectTypeCode
+     * @param participantObjectTypeCodeRole
+     * @param participantObjectDataLifeCycle
+     * @param poicd
+     * @param participantObjectSensitivity
+     * @param participantObjectID
+     * @param participantObjectName
+     * @param participantObjectQuery
+     * @param participantObjectDetailNames
+     * @param participantObjectDetailValues
+     */
+    public void setParticipantObject(String participantObjectTypeCode, String participantObjectTypeCodeRole, String participantObjectDataLifeCycle, CodedValueType poicd, String participantObjectSensitivity, String participantObjectID, String participantObjectName, byte[] participantObjectQuery, String[] participantObjectDetailNames, byte[][] participantObjectDetailValues) {
         ParticipantObjectIdentificationType poi = new ParticipantObjectIdentificationType();
         if (participantObjectTypeCode != null) {
             short val = new Short(participantObjectTypeCode).shortValue();
@@ -165,12 +205,13 @@ public class AuditMessageBuilder {
             poi.setParticipantObjectQuery(participantObjectQuery);
         }
         List pods = poi.getParticipantObjectDetail();
-
-        if (participantObjectDetailName != null) {
-            TypeValuePairType tvp = new TypeValuePairType();
-            tvp.setType(participantObjectDetailName);
-            tvp.setValue(participantObjectDetailValue);
-            pods.add(tvp);
+        if (participantObjectDetailNames != null) {
+            for (int i = 0; i < participantObjectDetailNames.length; i++) {
+                TypeValuePairType tvp = new TypeValuePairType();
+                tvp.setType(participantObjectDetailNames[i]);
+                tvp.setValue(participantObjectDetailValues[i]);
+                pods.add(tvp);
+            }
         }
         pois.add(poi);
     }
