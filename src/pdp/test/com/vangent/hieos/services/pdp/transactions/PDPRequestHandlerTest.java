@@ -44,7 +44,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDefaultTest() throws Exception {
 
-        runTest("requests/request-default.xml", "Permit",
+        runTest("resources/requests/request-default.xml", "Permit",
                 "evaluate-document-policy");
     }
 
@@ -57,7 +57,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyBlockedIndividualTest() throws Exception {
 
-        runTest("requests/initial/request-denyBlockedIndividual.xml", "Deny",
+        runTest("resources/requests/initial/request-denyBlockedIndividual.xml", "Deny",
                 "blocked-individuals-policy-deny");
     }
 
@@ -70,7 +70,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyBlockedOrganizationTest() throws Exception {
 
-        runTest("requests/initial/request-denyBlockedOrganization.xml", "Deny",
+        runTest("resources/requests/initial/request-denyBlockedOrganization.xml", "Deny",
                 "blocked-organizations-policy-deny");
     }
 
@@ -83,7 +83,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyConfidentialityCodeTest() throws Exception {
 
-        runTest("requests/document/request-denyConfidentialityCode.xml",
+        runTest("resources/requests/document/request-denyConfidentialityCode.xml",
                 "Deny", "patient-consent-policy-deny");
     }
 
@@ -96,7 +96,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyEmptyPermitTest() throws Exception {
 
-        runTest("requests/initial/request-denyEmptyPermit.xml", "Deny",
+        runTest("resources/requests/initial/request-denyEmptyPermit.xml", "Deny",
                 "empty-permit-policy-deny");
     }
 
@@ -109,7 +109,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyExplicitAuthorizationNONETest() throws Exception {
 
-        runTest("requests/document/request-denyExplicitAuthorization-NONE.xml",
+        runTest("resources/requests/document/request-denyExplicitAuthorization-NONE.xml",
                 "Deny", "always-authorise-normal-document-policy-deny");
     }
 
@@ -123,7 +123,7 @@ public class PDPRequestHandlerTest {
     public void runDenyExplicitAuthorizationNORMALTest() throws Exception {
 
         runTest(
-            "requests/document/request-denyExplicitAuthorization-NORMAL.xml",
+            "resources/requests/document/request-denyExplicitAuthorization-NORMAL.xml",
             "Deny", "always-authorise-sensitive-document-policy-deny");
     }
 
@@ -136,7 +136,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyHomeCommunityTest() throws Exception {
 
-        runTest("requests/document/request-denyHomeCommunity.xml", "Deny",
+        runTest("resources/requests/document/request-denyHomeCommunity.xml", "Deny",
                 "patient-consent-policy-deny");
     }
 
@@ -149,7 +149,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyInactivePatientTest() throws Exception {
 
-        runTest("requests/initial/request-denyInactivePatient.xml", "Deny",
+        runTest("resources/requests/initial/request-denyInactivePatient.xml", "Deny",
                 "patient-inactive-policy-deny");
     }
 
@@ -162,7 +162,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyNoDirectivesDocumentTest() throws Exception {
 
-        runTest("requests/document/request-denyNoDirectives.xml", "Deny",
+        runTest("resources/requests/document/request-denyNoDirectives.xml", "Deny",
                 "final-policy-deny");
     }
 
@@ -175,7 +175,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyUnallowedIndividualTest() throws Exception {
 
-        runTest("requests/initial/request-denyUnallowedIndividual.xml", "Deny",
+        runTest("resources/requests/initial/request-denyUnallowedIndividual.xml", "Deny",
                 "allowed-individuals-policy-deny");
     }
 
@@ -188,7 +188,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runDenyUnallowedOrganizationTest() throws Exception {
 
-        runTest("requests/initial/request-denyUnallowedOrganization.xml",
+        runTest("resources/requests/initial/request-denyUnallowedOrganization.xml",
                 "Deny", "allowed-organizations-policy-deny");
     }
 
@@ -201,7 +201,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runEmergencyTest() throws Exception {
 
-        runTest("requests/initial/request-permitEmergency.xml", "Permit",
+        runTest("resources/requests/initial/request-permitEmergency.xml", "Permit",
                 "evaluate-document-policy");
     }
 
@@ -214,7 +214,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runPermitEmergencyDocumentTest() throws Exception {
 
-        runTest("requests/document/request-permitEmergency.xml", "Permit",
+        runTest("resources/requests/document/request-permitEmergency.xml", "Permit",
                 "emergency-access-policy-permit");
     }
 
@@ -228,7 +228,7 @@ public class PDPRequestHandlerTest {
     public void runPermitExplicitAuthorizationNORMALTest() throws Exception {
 
         runTest(
-            "requests/document/request-permitExplicitAuthorization-NORMAL.xml",
+            "resources/requests/document/request-permitExplicitAuthorization-NORMAL.xml",
             "Permit", "always-authorise-normal-document-policy-permit");
     }
 
@@ -243,7 +243,7 @@ public class PDPRequestHandlerTest {
             throws Exception {
 
         runTest(
-            "requests/document/request-permitExplicitAuthorization-RESTRICTED2.xml",
+            "resources/requests/document/request-permitExplicitAuthorization-RESTRICTED2.xml",
             "Permit", "always-authorise-sensitive-document-policy-permit");
     }
 
@@ -258,7 +258,7 @@ public class PDPRequestHandlerTest {
             throws Exception {
 
         runTest(
-            "requests/document/request-permitExplicitAuthorization-RESTRICTED.xml",
+            "resources/requests/document/request-permitExplicitAuthorization-RESTRICTED.xml",
             "Permit", "always-authorise-normal-document-policy-permit");
     }
 
@@ -271,7 +271,7 @@ public class PDPRequestHandlerTest {
     @Test
     public void runPermitNoDirectivesTest() throws Exception {
 
-        runTest("requests/initial/request-permitNoDirectives.xml", "Permit",
+        runTest("resources/requests/initial/request-permitNoDirectives.xml", "Permit",
                 "evaluate-document-policy");
     }
 
