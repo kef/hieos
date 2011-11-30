@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xml.Util;
 
 import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
@@ -86,17 +87,19 @@ public class SubmitObjectsRequest extends XBaseTransaction {
     public OMElement run(OMElement sor) {
         try {
             sor.build();
-            SubmitObjectsRequestInternal(sor);
             //AUDIT:POINT
-            //call to audit message for document repository
+            //call to audit message for document registry
             //for Transaction id = ITI-42. (Register Document set-b)
-            //Here document consumer is treated as document repository
+            // NOTE!!: Moved above "SubjectObjectsRequestInternal()" method call since the "sor" instance
+            // is changed during the execution of "SubjectObjectsRequestInternal() method.  Otherwise,
+            // we would need to pay the penalty for a deep copy of the "sor" instance.
             performAudit(
                     XATNALogger.TXN_ITI42,
                     sor,
                     null,
                     XATNALogger.ActorType.REGISTRY,
                     XATNALogger.OutcomeIndicator.SUCCESS);
+            SubmitObjectsRequestInternal(sor);
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsDeprecatedException e) {
