@@ -24,9 +24,9 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.hl7v3util.client.PDSClient;
+import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectGender;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
@@ -124,7 +124,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			genderCode = null;
 		}
 		if (genderCode != null) {
-			SubjectGender gender = new SubjectGender();
+			CodedValue gender = new CodedValue();
 			gender.setCode(genderCode);
 			subject.setGender(gender);
 		}
@@ -233,7 +233,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			patient.setFamilyName(subjectName.getFamilyName());
 		}
 		// Gender.
-		SubjectGender gender = subject.getGender();
+		CodedValue gender = subject.getGender();
 		if (gender != null) {
 			patient.setGender(gender.getCode());
 		} else {
