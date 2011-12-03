@@ -51,12 +51,12 @@ public class SubjectNameDAO extends AbstractDAO {
         try {
             String sql = "SELECT id,given_name,family_name,prefix,suffix,middle_name FROM subject_name WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getId());
+            stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectName subjectName = new SubjectName();
-                subjectName.setId(rs.getString(1));
+                subjectName.setInternalId(rs.getString(1));
                 subjectName.setGivenName(rs.getString(2));
                 subjectName.setFamilyName(rs.getString(3));
                 subjectName.setPrefix(rs.getString(4));
@@ -84,14 +84,14 @@ public class SubjectNameDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_name(id,given_name,family_name,prefix,suffix,middle_name,subject_id) values(?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectName subjectName : subjectNames) {
-                subjectName.setId(PersistenceHelper.getUUID());
-                stmt.setString(1, subjectName.getId());
+                subjectName.setInternalId(PersistenceHelper.getUUID());
+                stmt.setString(1, subjectName.getInternalId());
                 stmt.setString(2, subjectName.getGivenName());
                 stmt.setString(3, subjectName.getFamilyName());
                 stmt.setString(4, subjectName.getPrefix());
                 stmt.setString(5, subjectName.getSuffix());
                 stmt.setString(6, subjectName.getMiddleName());
-                stmt.setString(7, parentSubject.getId());
+                stmt.setString(7, parentSubject.getInternalId());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

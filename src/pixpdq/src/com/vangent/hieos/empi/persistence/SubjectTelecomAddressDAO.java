@@ -51,12 +51,12 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         try {
             String sql = "SELECT id,use,value FROM subject_telecom_address WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getId());
+            stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 TelecomAddress telecomAddress = new TelecomAddress();
-                telecomAddress.setId(rs.getString(1));
+                telecomAddress.setInternalId(rs.getString(1));
                 telecomAddress.setUse(rs.getString(2));
                 telecomAddress.setValue(rs.getString(3));
                 telecomAddresses.add(telecomAddress);
@@ -81,11 +81,11 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_telecom_address(id,use,value,subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (TelecomAddress telecomAddress : telecomAddresses) {
-                telecomAddress.setId(PersistenceHelper.getUUID());
-                stmt.setString(1, telecomAddress.getId());
+                telecomAddress.setInternalId(PersistenceHelper.getUUID());
+                stmt.setString(1, telecomAddress.getInternalId());
                 stmt.setString(2, telecomAddress.getUse());
                 stmt.setString(3, telecomAddress.getValue());
-                stmt.setString(4, parentSubject.getId());
+                stmt.setString(4, parentSubject.getInternalId());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

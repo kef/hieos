@@ -41,7 +41,7 @@ public class UpdateNotificationHandler extends BaseHandler {
 
     /**
      *
-     * @param enterpriseSubjectId
+     * @param updateNotificationContent 
      */
     public void sendUpdateNotifications(UpdateNotificationContent updateNotificationContent) {
         if (updateNotificationContent == null) {

@@ -7,6 +7,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.FRILMatchAlgorithm;
 import com.vangent.hieos.empi.match.Field;
+import com.vangent.hieos.empi.match.MatchAlgorithm;
 import java.util.List;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
@@ -98,7 +99,7 @@ public class EMPIPersistenceManagerTest {
         // Run full matching process.
         FRILMatchAlgorithm algo = new FRILMatchAlgorithm();
         algo.setPersistenceManager(pm);
-        MatchResults matchResults = algo.findMatches(searchRecord);
+        MatchResults matchResults = algo.findMatches(searchRecord, MatchAlgorithm.MatchType.MATCH_EMPTY_FIELDS);
 
         searchRecord = new Record();
         searchRecord.addField(new Field("givenNameDoubleMetaphone", "MR"));

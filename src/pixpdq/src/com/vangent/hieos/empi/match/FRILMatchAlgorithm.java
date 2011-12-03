@@ -49,33 +49,35 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     /**
      * 
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */
     @Override
-    public MatchResults findMatches(Record searchRecord) throws EMPIException {
+    public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException {
         // First, get list of candidate records.
         List<Record> candidateRecords = this.findCandidates(searchRecord);
         // Now, run the findMatches algorithm.
-        return this.findMatches(searchRecord, candidateRecords);
+        return this.findMatches(searchRecord, candidateRecords, matchType);
     }
 
     /**
      * 
      * @param searchRecord
      * @param records
+     * @param matchType
      * @return
      * @throws EMPIException
      */
     @Override
-    public MatchResults findMatches(Record searchRecord, List<Record> records) throws EMPIException {
+    public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         MatchConfig matchConfig = empiConfig.getMatchConfig();
         double recordAcceptThreshold = matchConfig.getAcceptThreshold();
         double recordRejectThreshold = matchConfig.getRejectThreshold();
         MatchResults matchResults = new MatchResults();
         for (Record record : records) {
-            ScoredRecord scoredRecord = this.score(searchRecord, record, matchConfig);
+            ScoredRecord scoredRecord = this.score(searchRecord, record, matchConfig, matchType);
             double recordScore = scoredRecord.getScore();
             // FIXME: Shouldn't we return a sorted list as the result?
             if (recordScore >= recordAcceptThreshold) {
@@ -103,14 +105,15 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     }
 
     /**
-     * 
+     *
      * @param searchRecord
      * @param record
      * @param matchConfig
+     * @param matchType
      * @return
      * @throws EMPIException
      */
-    private ScoredRecord score(Record searchRecord, Record record, MatchConfig matchConfig) throws EMPIException {
+    private ScoredRecord score(Record searchRecord, Record record, MatchConfig matchConfig, MatchType matchType) throws EMPIException {
         ScoredRecord scoredRecord = new ScoredRecord(matchConfig);
         scoredRecord.setRecord(record);
 
@@ -129,10 +132,12 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
             // Compute the field distance (a.k.a similarity).
             Field searchRecordField = searchRecord.getField(matchFieldName);
             String searchRecordFieldValue = searchRecordField != null ? searchRecordField.getValue() : null;
-            double fieldDistance = 1.0;  // Empty search field is considered a match.
+            double fieldDistance;
             if (searchRecordFieldValue != null) {
                 String candidateRecordFieldValue = record.getField(matchFieldName).getValue();
                 fieldDistance = distanceFunction.getDistance(searchRecordFieldValue, candidateRecordFieldValue);
+            } else {
+                fieldDistance = this.getEmptyFieldDistance(matchType);
             }
             scoredRecord.setDistance(fieldIndex, fieldDistance);
             ++fieldIndex;
@@ -144,5 +149,19 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         System.out.println("ScoredRecord: " + scoredRecord.toString());
         System.out.println("... recordScore = " + scoredRecord.getScore());
         return scoredRecord;
+    }
+
+    /**
+     *
+     * @param matchType
+     * @return
+     */
+    private double getEmptyFieldDistance(MatchType matchType) {
+        if (matchType.equals(MatchType.MATCH_EMPTY_FIELDS)) {
+            return 1.0;
+        } else {
+            // MatchType.NOMATCH_EMTPY_FIELDS
+            return 0.0;
+        }
     }
 }

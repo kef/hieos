@@ -48,7 +48,6 @@ public class UpdateSubjectHandler extends BaseHandler {
     public UpdateNotificationContent updateSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
-        String enterpriseSubjectId = null;
 
         // First validate identifier domains assocated with the subject's identifiers.
         this.validateSubjectIdentifierDomains(subject);
@@ -75,30 +74,42 @@ public class UpdateSubjectHandler extends BaseHandler {
         }
 
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
-            String systemSubjectId = baseSubject.getId();
-
-            // Get the enterprise subject id.
-            enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
-
-            // See if this subject is the only cross reference to the enterprise.
-            List<SubjectCrossReference> subjectCrossReferences = pm.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
-            if (subjectCrossReferences.size() == 1) {
-                // In this case, void the enterprise record
-                pm.voidEnterpriseSubject(enterpriseSubjectId);
-            }
-            // delete the system-level subject.
-            pm.deleteSystemSubject(systemSubjectId);
-
-            // Now, run through normal add operation.
-            AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm);
-            addSubjectHandler.addSubject(subject);
+            this.updateSystemSubject(baseSubject, subject);
         } else {
-            enterpriseSubjectId = baseSubject.getId();
+            String enterpriseSubjectId = baseSubject.getInternalId();
             // FIXME: MUCH TO DO HERE!!!!
         }
         // FIXME: MUCH TO DO HERE!!!!
 
         // FIXME: Fill-in update notification content.
         return updateNotificationContent;
+    }
+
+    /**
+     *
+     * @param baseSubject
+     * @param subject
+     * @throws EMPIException
+     */
+    private void updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException {
+        PersistenceManager pm = this.getPersistenceManager();
+        // Get the enterprise subject id.
+        String enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
+
+        // delete the system-level subject.
+        pm.deleteSubject(baseSubject);
+
+        // See if this subject was the only cross reference to the enterprise.
+        List<SubjectCrossReference> subjectCrossReferences = pm.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
+        if (subjectCrossReferences.isEmpty()) {
+            // In this case, delete the enterprise record
+            pm.deleteSubject(enterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
+        }
+
+        // FIXME: How about existing identifiers?
+
+        // Now, run through normal add operation.
+        AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm);
+        addSubjectHandler.addSubject(subject);
     }
 }

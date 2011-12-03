@@ -24,6 +24,8 @@ public abstract class MatchAlgorithm {
 
     private PersistenceManager persistenceManager = null;
 
+    public enum MatchType { MATCH_EMPTY_FIELDS, NOMATCH_EMPTY_FIELDS };
+
     /**
      *
      */
@@ -40,7 +42,7 @@ public abstract class MatchAlgorithm {
 
     /**
      * 
-     * @param persistenceService
+     * @param persistenceManager
      */
     public void setPersistenceManager(PersistenceManager persistenceManager) {
         this.persistenceManager = persistenceManager;
@@ -57,10 +59,11 @@ public abstract class MatchAlgorithm {
     /**
      * 
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */
-    abstract public MatchResults findMatches(Record searchRecord) throws EMPIException;
+    abstract public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException;
 
     /**
      * 
@@ -69,5 +72,5 @@ public abstract class MatchAlgorithm {
      * @return
      * @throws EMPIException
      */
-    abstract public MatchResults findMatches(Record searchRecord, List<Record> records) throws EMPIException;
+    abstract public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException;
 }

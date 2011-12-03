@@ -16,7 +16,6 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.Subject.SubjectType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,7 +65,7 @@ public class SubjectDAO extends AbstractDAO {
             if (!rs.next()) {
                 throw new EMPIException("No subject found for uniqueid = " + subjectId);
             } else {
-                subject.setId(subjectId);
+                subject.setInternalId(subjectId);
                 subject.setType(this.getSubjectType(rs.getString(2)));
                 subject.setBirthTime(this.getDate(rs, 3));
                 genderCodeId = rs.getInt(4);
@@ -86,7 +85,7 @@ public class SubjectDAO extends AbstractDAO {
             this.close(rs);
         }
 
-        // Now, loadEnterpriseSubjectCrossReferences composed objects.
+        // Now, load composed objects.
         Connection conn = this.getConnection();
 
         // Coded values.
@@ -108,7 +107,6 @@ public class SubjectDAO extends AbstractDAO {
         // Telecom addresses.
         SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
         subjectTelecomAddressDAO.load(subject);
-
 
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
@@ -161,7 +159,7 @@ public class SubjectDAO extends AbstractDAO {
             rs = stmt.executeQuery();
             if (rs.next()) {
                 subject = new Subject();
-                subject.setId(subjectId);
+                subject.setInternalId(subjectId);
                 subject.setType(this.getSubjectType(rs.getString(2)));
             }
         } catch (SQLException ex) {
@@ -215,8 +213,8 @@ public class SubjectDAO extends AbstractDAO {
             CodeDAO codeDAO = new CodeDAO(conn);
             for (Subject subject : subjects) {
                 String subjectTypeValue = this.getSubjectTypeValue(subject);
-                subject.setId(PersistenceHelper.getUUID());
-                stmt.setString(1, subject.getId());
+                subject.setInternalId(PersistenceHelper.getUUID());
+                stmt.setString(1, subject.getInternalId());
                 stmt.setString(2, subjectTypeValue);
                 this.setDate(stmt, 3, subject.getBirthTime());
                 this.setCodedValueId(codeDAO, CodeDAO.CodeType.GENDER, stmt, 4, subject.getGender());
@@ -265,6 +263,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
+    /*
     public void voidEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
         Connection conn = this.getConnection();  // Get connection to use.
 
@@ -278,7 +277,7 @@ public class SubjectDAO extends AbstractDAO {
         // Delete all cross references to the enterprise subject.
         SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
         subjectCrossReferenceDAO.deleteEnterpriseSubjectCrossReferences(enterpriseSubjectId);
-    }
+    }*/
 
     /**
      * 
@@ -287,31 +286,37 @@ public class SubjectDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
-        Connection conn = this.getConnection();  // Get connection to use.
 
-        // Mark subsumedEnterpriseSubjectId as "Voided"
-        this.voidSubject(subsumedEnterpriseSubjectId);
+        // Only perform merge if the ids are different.
+        // Guard is here just in case higher-level logic does not account for this case.
+        if (!survivingEnterpriseSubjectId.equals(subsumedEnterpriseSubjectId)) {
+            Connection conn = this.getConnection();  // Get connection to use.
 
-        // Delete "SubjectMatch" record for subsumedEnterpriseSubjectId.
-        SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-        subjectMatchDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
+            // Delete "SubjectMatch" record for subsumedEnterpriseSubjectId.
+            SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
+            subjectMatchDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
 
-        // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
-        SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
-        subjectCrossReferenceDAO.mergeEnterpriseSubjects(survivingEnterpriseSubjectId, subsumedEnterpriseSubjectId);
+            // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
+            SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
+            subjectCrossReferenceDAO.mergeEnterpriseSubjects(survivingEnterpriseSubjectId, subsumedEnterpriseSubjectId);
+
+            // Delete the subsumed enterprise subject.
+            this.deleteSubject(subsumedEnterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
+        }
     }
 
     /**
-     * 
-     * @param systemSubjectId
+     *
+     * @param subjectId
+     * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSystemSubject(String systemSubjectId) throws EMPIException {
+    public void deleteSubject(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             Connection conn = this.getConnection();  // Get connection to use.
 
-            // First deleteSubjectRecords component parts.
+            // First delete component parts.
 
             // Get DAO instances responsible for deletions.
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
@@ -322,15 +327,21 @@ public class SubjectDAO extends AbstractDAO {
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
 
             // Run deletions.
-            subjectNameDAO.deleteSubjectRecords(systemSubjectId);
-            subjectAddressDAO.deleteSubjectRecords(systemSubjectId);
-            subjectTelecomAddressDAO.deleteSubjectRecords(systemSubjectId);
-            subjectIdentifierDAO.deleteSubjectRecords(systemSubjectId);
-            subjectOtherIdentifierDAO.deleteSubjectRecords(systemSubjectId);
-            subjectCrossReferenceDAO.deleteSystemSubjectCrossReferences(systemSubjectId);
+            subjectNameDAO.deleteSubjectRecords(subjectId);
+            subjectAddressDAO.deleteSubjectRecords(subjectId);
+            subjectTelecomAddressDAO.deleteSubjectRecords(subjectId);
+            subjectIdentifierDAO.deleteSubjectRecords(subjectId);
+            subjectOtherIdentifierDAO.deleteSubjectRecords(subjectId);
+            subjectCrossReferenceDAO.deleteSubjectCrossReferences(subjectId, subjectType);
+
+            if (subjectType.equals(SubjectType.ENTERPRISE)) {
+                // Delete subject match record.
+                SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
+                subjectMatchDAO.deleteSubjectRecords(subjectId);
+            }
 
             // Now, delete the subject record.
-            this.deleteRecords(systemSubjectId, "subject", "id", this.getClass().getName());
+            this.deleteRecords(subjectId, "subject", "id", this.getClass().getName());
 
         } finally {
             this.close(stmt);
@@ -342,6 +353,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
+    /*
     public void voidSubject(String subjectId) throws EMPIException {
         PreparedStatement stmt = null;
         try {
@@ -360,7 +372,7 @@ public class SubjectDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
         }
-    }
+    }*/
 
     /**
      * NOTE: Could have built a full enumeration, but decided to be overkill.

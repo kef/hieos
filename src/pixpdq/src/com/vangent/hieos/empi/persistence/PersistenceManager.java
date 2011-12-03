@@ -143,6 +143,16 @@ public class PersistenceManager {
 
     /**
      *
+     * @param enterpriseSubject
+     * @return
+     * @throws EMPIException
+     */
+    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(Subject enterpriseSubject) throws EMPIException {
+        return this.loadEnterpriseSubjectCrossReferences(enterpriseSubject.getInternalId());
+    }
+
+    /**
+     *
      * @param enterpriseSubjectId
      * @return
      * @throws EMPIException
@@ -198,7 +208,7 @@ public class PersistenceManager {
     private Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId, boolean loadNames) throws EMPIException {
         // Create enterprise subject.
         Subject enterpriseSubject = new Subject();
-        enterpriseSubject.setId(enterpriseSubjectId);
+        enterpriseSubject.setInternalId(enterpriseSubjectId);
         enterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
 
         // Load enterprise subject identifiers.
@@ -224,7 +234,7 @@ public class PersistenceManager {
     public void loadEnterpriseSubjectCrossReferencedIdentifiers(Subject enterpriseSubject) throws EMPIException {
 
         // Load cross references for the enterpriseSubject.
-        List<SubjectCrossReference> subjectCrossReferences = this.loadEnterpriseSubjectCrossReferences(enterpriseSubject.getId());
+        List<SubjectCrossReference> subjectCrossReferences = this.loadEnterpriseSubjectCrossReferences(enterpriseSubject);
 
         // Loop through each cross reference.
         for (SubjectCrossReference subjectCrossReference : subjectCrossReferences) {
@@ -247,6 +257,16 @@ public class PersistenceManager {
                 }
             }
         }
+    }
+
+    /**
+     * 
+     * @param systemSubject
+     * @return
+     * @throws EMPIException
+     */
+    public String getEnterpriseSubjectId(Subject systemSubject) throws EMPIException {
+        return this.getEnterpriseSubjectId(systemSubject.getInternalId());
     }
 
     /**
@@ -338,12 +358,26 @@ public class PersistenceManager {
     }
 
     /**
+     * 
+     * @param systemSubjectId
+     * @param enterpriseSubjectId
+     * @param matchScore
+     * @throws EMPIException
+     */
+    public void insertSubjectCrossReference(String systemSubjectId, String enterpriseSubjectId, int matchScore) throws EMPIException {
+        SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
+        subjectCrossReference.setMatchScore(matchScore);
+        subjectCrossReference.setSystemSubjectId(systemSubjectId);
+        subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
+        this.insertSubjectCrossReference(subjectCrossReference);
+    }
+
+    /**
      *
      * @param subjectCrossReference
      * @throws EMPIException
      */
-    public void insertSubjectCrossReference(
-            SubjectCrossReference subjectCrossReference) throws EMPIException {
+    public void insertSubjectCrossReference(SubjectCrossReference subjectCrossReference) throws EMPIException {
         SubjectCrossReferenceDAO dao = new SubjectCrossReferenceDAO(connection);
         dao.insert(subjectCrossReference);
     }
@@ -385,19 +419,48 @@ public class PersistenceManager {
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
+    /*
     public void voidEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
-        SubjectDAO dao = new SubjectDAO(connection);
-        dao.voidEnterpriseSubject(enterpriseSubjectId);
+    SubjectDAO dao = new SubjectDAO(connection);
+    dao.voidEnterpriseSubject(enterpriseSubjectId);
+    }*/
+    /**
+     *
+     * @param subject
+     * @throws EMPIException
+     */
+    public void deleteSubject(Subject subject) throws EMPIException {
+        this.deleteSubject(subject.getInternalId(), subject.getType());
     }
 
     /**
      * 
-     * @param systemSubjectId
+     * @param subjectId 
+     * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSystemSubject(String systemSubjectId) throws EMPIException {
+    public void deleteSubject(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
-        dao.deleteSystemSubject(systemSubjectId);
+        dao.deleteSubject(subjectId, subjectType);
+    }
+
+    /**
+     * 
+     * @param subjectIdentifier
+     * @throws EMPIException
+     */
+    public void deleteSubjectIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+        this.deleteSubjectIdentifier(subjectIdentifier.getInternalId());
+    }
+
+    /**
+     *
+     * @param subjectIdentifierId
+     * @throws EMPIException
+     */
+    public void deleteSubjectIdentifier(String subjectIdentifierId) throws EMPIException {
+        SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
+        dao.deleteSubjectIdentifier(subjectIdentifierId);
     }
 
     /**

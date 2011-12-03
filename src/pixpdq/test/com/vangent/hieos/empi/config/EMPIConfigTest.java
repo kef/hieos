@@ -4,6 +4,7 @@
  */
 package com.vangent.hieos.empi.config;
 
+import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import java.util.Date;
@@ -126,7 +127,7 @@ public class EMPIConfigTest {
         record1.addField(new Field("familyName", "AARON"));
         records.add(record1);
 
-        MatchResults matchResults = algo.findMatches(searchRecord, records);
+        MatchResults matchResults = algo.findMatches(searchRecord, records, MatchAlgorithm.MatchType.NOMATCH_EMPTY_FIELDS);
         if (matchResults.getMatches().size() > 0) {
             System.out.println("MATCHES: ");
         }

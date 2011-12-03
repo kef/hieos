@@ -36,7 +36,7 @@ public class RecordBuilder {
     public Record build(Subject subject) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         Record record = new Record();
-        record.setId(subject.getId());
+        record.setId(subject.getInternalId());
 
         // Go through each field (according to configuration).
         List<FieldConfig> fieldConfigs = empiConfig.getFieldConfigList();

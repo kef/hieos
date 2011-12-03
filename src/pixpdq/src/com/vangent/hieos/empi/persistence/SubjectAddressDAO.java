@@ -51,12 +51,12 @@ public class SubjectAddressDAO extends AbstractDAO {
         try {
             String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code FROM subject_address WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getId());
+            stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Address address = new Address();
-                address.setId(rs.getString(1));
+                address.setInternalId(rs.getString(1));
                 address.setStreetAddressLine1(rs.getString(2));
                 address.setStreetAddressLine2(rs.getString(3));
                 address.setStreetAddressLine3(rs.getString(4));
@@ -85,15 +85,15 @@ public class SubjectAddressDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,subject_id) values(?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Address address : addresses) {
-                address.setId(PersistenceHelper.getUUID());
-                stmt.setString(1, address.getId());
+                address.setInternalId(PersistenceHelper.getUUID());
+                stmt.setString(1, address.getInternalId());
                 stmt.setString(2, address.getStreetAddressLine1());
                 stmt.setString(3, address.getStreetAddressLine2());
                 stmt.setString(4, address.getStreetAddressLine3());
                 stmt.setString(5, address.getCity());
                 stmt.setString(6, address.getState());
                 stmt.setString(7, address.getPostalCode());
-                stmt.setString(8, parentSubject.getId());
+                stmt.setString(8, parentSubject.getInternalId());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

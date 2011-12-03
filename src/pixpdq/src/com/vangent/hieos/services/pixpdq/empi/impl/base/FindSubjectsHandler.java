@@ -15,6 +15,7 @@ package com.vangent.hieos.services.pixpdq.empi.impl.base;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
@@ -26,7 +27,6 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -87,7 +87,7 @@ public class FindSubjectsHandler extends BaseHandler {
         // First, make sure that we are configured to support supplied identifier domains.
         this.validateSubjectIdentifierDomains(subjectSearchCriteria);
 
-        // Now, conduct findCandidates.
+        // Now, find subjects using the identifier in the search criteria.
         subjectSearchResponse = this.loadIdentifiersForSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
     }
@@ -98,7 +98,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public List<ScoredRecord> getRecordMatches(Record searchRecord) throws EMPIException {
+    public List<ScoredRecord> getRecordMatches(Record searchRecord, MatchType matchType) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
 
         // Get EMPI configuration.
@@ -110,25 +110,13 @@ public class FindSubjectsHandler extends BaseHandler {
 
         // Run the algorithm to get matches.
         long startTime = System.currentTimeMillis();
-        MatchResults matchResults = matchAlgorithm.findMatches(searchRecord);
+        MatchResults matchResults = matchAlgorithm.findMatches(searchRecord, matchType);
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
             logger.trace("FindSubjectsHandler.getRecordMatches.findMatches: elapedTimeMillis=" + (endTime - startTime));
         }
         // Only return matches.
         return matchResults.getMatches();
-    }
-
-    /**
-     *
-     * @param scoredRecord
-     * @return
-     */
-    public int getMatchScore(ScoredRecord scoredRecord) {
-        // Round-up match score.
-        BigDecimal bd = new BigDecimal(scoredRecord.getScore() * 100.0);
-        bd = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
-        return bd.intValue();
     }
 
     /**
@@ -147,7 +135,7 @@ public class FindSubjectsHandler extends BaseHandler {
         Record searchRecord = rb.build(searchSubject);
 
         // Run the matching algorithm.
-        List<ScoredRecord> recordMatches = this.getRecordMatches(searchRecord);
+        List<ScoredRecord> recordMatches = this.getRecordMatches(searchRecord, MatchType.MATCH_EMPTY_FIELDS);
 
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();
@@ -155,7 +143,7 @@ public class FindSubjectsHandler extends BaseHandler {
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
             Subject enterpriseSubject = pm.loadEnterpriseSubject(record.getId());
-            int matchConfidencePercentage = this.getMatchScore(scoredRecord);
+            int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
             enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
 
             if (logger.isDebugEnabled()) {
@@ -279,10 +267,10 @@ public class FindSubjectsHandler extends BaseHandler {
         PersistenceManager pm = this.getPersistenceManager();
         String enterpriseSubjectId = null;
         if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
-            enterpriseSubjectId = baseSubject.getId();
+            enterpriseSubjectId = baseSubject.getInternalId();
         } else {
             // Get enterpiseSubjectId for the system-level subject.
-            enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject.getId());
+            enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
         }
 
         // Load enterprise subject (id's only).

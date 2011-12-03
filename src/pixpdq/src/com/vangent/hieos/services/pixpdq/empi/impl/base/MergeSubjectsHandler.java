@@ -49,34 +49,58 @@ public class MergeSubjectsHandler extends BaseHandler {
         PersistenceManager pm = this.getPersistenceManager();
         UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
 
-        // Lookup surviving and subsumed subjects.
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
-        Subject baseSurvivingSubject = this.getBaseSubjectForMerge(survivingSubject, "surviving");
-        Subject baseSubsumedSubject = this.getBaseSubjectForMerge(subsumedSubject, "subsumed");
+
+        // Validate input is usable.
+        this.validateSubjects(survivingSubject, subsumedSubject);
+
+        // Lookup surviving and subsumed subjects.
+        Subject baseSurvivingSubject = this.getBaseSubject(survivingSubject, "surviving");
+        Subject baseSubsumedSubject = this.getBaseSubject(subsumedSubject, "subsumed");
 
         if (baseSurvivingSubject.getType().equals(Subject.SubjectType.SYSTEM)
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             // Both are system-level subjects.
+            String survivingSubjectSystemSubjectId = baseSurvivingSubject.getInternalId();
+            String subsumedSubjectSystemSubjectId = baseSubsumedSubject.getInternalId();
 
-            // Get base enterprise subjects.
-            String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject.getId());
-            String baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject.getId());
+            // See if this is referencing the same system-level subject.
+            if (survivingSubjectSystemSubjectId.equals(subsumedSubjectSystemSubjectId)) {
+                // Get all identifiers for the system-subject.
+                List<SubjectIdentifier> subjectIdentifiers = pm.loadSubjectIdentifiers(subsumedSubjectSystemSubjectId);
+                if (subjectIdentifiers.size() == 1) {
+                    // This case should never happen given prior validation checks.
+                    // FIXME????
+                    throw new EMPIException("Should never happen - skipping merge");
+                }
+                // Now, remove the "subsumed" identifier.
+                // Find the identifier to remove.
+                SubjectIdentifier subsumedSubjectIdentifierToRemove =
+                        this.findSubjectIdentifier(subsumedSubject.getSubjectIdentifiers().get(0), subjectIdentifiers);
 
-            // Delete the "subsumed" subject.
-            pm.deleteSystemSubject(baseSubsumedSubject.getId());
+                // Delete the identifier.
+                pm.deleteSubjectIdentifier(subsumedSubjectIdentifierToRemove.getInternalId());
+            } else {
 
-            // FIXME: MAKE CONFIGURABLE!!!
+                // Get base enterprise subjects.
+                String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject);
+                String baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject);
 
-            // Now move all cross references.
-            pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+                // Delete the "subsumed" subject.
+                pm.deleteSubject(baseSubsumedSubject);
 
+                // FIXME: MAKE CONFIGURABLE!!!
+
+                // Now move all cross references.
+                pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+            }
         } else if (baseSurvivingSubject.getType().equals(Subject.SubjectType.ENTERPRISE)
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
             // Both are enterprise-level subjects.
             // Now move all cross references.
-            String baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getId();
-            String baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getId();
+            String baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getInternalId();
+            String baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getInternalId();
             pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
         }
 
@@ -87,14 +111,43 @@ public class MergeSubjectsHandler extends BaseHandler {
 
     /**
      *
-     * @param subject
-     * @param subjectType
+     * @param searchSubjectIdentifier
+     * @param subjectIdentifiers
      * @return
+     */
+    private SubjectIdentifier findSubjectIdentifier(SubjectIdentifier searchSubjectIdentifier, List<SubjectIdentifier> subjectIdentifiers) {
+        // TBD: Move this method ...
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            if (subjectIdentifier.equals(searchSubjectIdentifier)) {
+                return subjectIdentifier;
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param survivingSubject
+     * @param subsumedSubject
      * @throws EMPIException
      */
-    private Subject getBaseSubjectForMerge(Subject subject, String subjectType) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
-        Subject baseSubject = null;
+    private void validateSubjects(Subject survivingSubject, Subject subsumedSubject) throws EMPIException {
+        this.valididateSubject(survivingSubject, "surviving");
+        this.valididateSubject(subsumedSubject, "subsumed");
+        SubjectIdentifier survivingSubjectIdentifier = survivingSubject.getSubjectIdentifiers().get(0);
+        SubjectIdentifier subsumedSubjectIdentifier = subsumedSubject.getSubjectIdentifiers().get(0);
+        if (survivingSubjectIdentifier.equals(subsumedSubjectIdentifier)) {
+            throw new EMPIException("Same identifier supplied - skipping merge");
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param subjectType
+     * @throws EMPIException
+     */
+    private void valididateSubject(Subject subject, String subjectType) throws EMPIException {
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         if (subjectIdentifiers.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -105,15 +158,26 @@ public class MergeSubjectsHandler extends BaseHandler {
             StringBuilder sb = new StringBuilder();
             sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
             throw new EMPIException(sb.toString());
-
         }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param subjectType
+     * @return
+     * @throws EMPIException
+     */
+    private Subject getBaseSubject(Subject subject, String subjectType) throws EMPIException {
+        PersistenceManager pm = this.getPersistenceManager();
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
-        baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
-        if (baseSubject == null) {
+        Subject baseMergeSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
+        if (baseMergeSubject == null) {
             StringBuilder sb = new StringBuilder();
             sb.append(subjectType).append(" subject not found - skipping merge");
             throw new EMPIException(sb.toString());
         }
-        return baseSubject;
+        return baseMergeSubject;
     }
 }

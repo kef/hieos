@@ -16,10 +16,10 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.EUIDConfig;
 import com.vangent.hieos.empi.euid.EUIDGenerator;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
-import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -53,7 +53,6 @@ public class AddSubjectHandler extends BaseHandler {
      */
     public UpdateNotificationContent addSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
         UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
 
         // FIXME: This is not totally correct, how about "other ids"?
@@ -72,7 +71,7 @@ public class AddSubjectHandler extends BaseHandler {
         pm.insertSubject(subject);
 
         // Get prepared for next steps ..
-        String systemSubjectId = subject.getId();
+        String systemSubjectId = subject.getInternalId();
         String enterpriseSubjectId = null;
         int matchScore = 100;    // Default.
 
@@ -80,45 +79,21 @@ public class AddSubjectHandler extends BaseHandler {
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(subject);
         FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager());
-        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord);
+        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.NOMATCH_EMPTY_FIELDS);
 
         if (recordMatches.isEmpty()) { // No match.
-
-            // Set type type to ENTERPRISE.
-            subject.setType(Subject.SubjectType.ENTERPRISE);
-
-            // Clear out the subject's identifier lists (since they are already stored at the system-level).
-            subject.clearIdentifiers();
-
-            // Stamp the subject with an enterprise id (if configured to do so).
-            EUIDConfig euidConfig = empiConfig.getEuidConfig();
-            if (euidConfig.isEuidAssignEnabled()) {
-                SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
-                subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
-            }
-
-            // Store the enterprise-level subject.
-            pm.insertSubject(subject);
-            enterpriseSubjectId = subject.getId();
-
-            // Store the match criteria.
-            searchRecord.setId(enterpriseSubjectId);
-            pm.insertSubjectMatchRecord(searchRecord);
+            enterpriseSubjectId = this.insertEnterpriseSubject(searchRecord, subject);
         } else {
             // >=1 matches
 
             // Cross reference will be to first matched record.  All other records will be merged later below.
             ScoredRecord matchedRecord = recordMatches.get(0);
             enterpriseSubjectId = matchedRecord.getRecord().getId();
-            matchScore = findSubjectsHandler.getMatchScore(matchedRecord);
+            matchScore = matchedRecord.getMatchScorePercentage();
         }
 
         // Create and store cross-reference.
-        SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
-        subjectCrossReference.setMatchScore(matchScore);
-        subjectCrossReference.setSystemSubjectId(systemSubjectId);
-        subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
-        pm.insertSubjectCrossReference(subjectCrossReference);
+        pm.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
         for (int i = 1; i < recordMatches.size(); i++) {
@@ -127,5 +102,39 @@ public class AddSubjectHandler extends BaseHandler {
         }
         // FIXME: Fill-in update notification content.
         return updateNotificationContent;
+    }
+
+    /**
+     *
+     * @param searchRecord
+     * @param subject
+     * @return
+     * @throws EMPIException
+     */
+    private String insertEnterpriseSubject(Record searchRecord, Subject subject) throws EMPIException {
+        PersistenceManager pm = this.getPersistenceManager();
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+
+        // Build (from received subject) and store enterprise-level subject.
+        subject.setType(Subject.SubjectType.ENTERPRISE);
+
+        // Clear out the subject's identifier lists (since they are already stored at the system-level).
+        subject.clearIdentifiers();
+
+        // Stamp the subject with an enterprise id (if configured to do so).
+        EUIDConfig euidConfig = empiConfig.getEuidConfig();
+        if (euidConfig.isEuidAssignEnabled()) {
+            SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
+            subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
+        }
+
+        // Store the enterprise-level subject.
+        pm.insertSubject(subject);
+        String enterpriseSubjectId = subject.getInternalId();
+
+        // Store the match criteria.
+        searchRecord.setId(enterpriseSubjectId);
+        pm.insertSubjectMatchRecord(searchRecord);
+        return enterpriseSubjectId;
     }
 }

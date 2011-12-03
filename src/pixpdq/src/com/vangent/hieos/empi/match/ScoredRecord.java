@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
+import java.math.BigDecimal;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -83,6 +84,17 @@ public class ScoredRecord {
      */
     public double getScore() {
         return score;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public int getMatchScorePercentage() {
+        // Round-up match score.
+        BigDecimal bd = new BigDecimal(this.getScore() * 100.0);
+        bd = bd.setScale(0, BigDecimal.ROUND_HALF_UP);
+        return bd.intValue();
     }
 
     /**

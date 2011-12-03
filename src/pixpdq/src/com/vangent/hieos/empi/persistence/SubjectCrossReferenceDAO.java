@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,7 +62,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 subjectCrossReference.setSystemSubjectId(rs.getString(1));
                 subjectCrossReference.setMatchScore(rs.getDouble(2));
 
-                // Add SubjectIdentifier to list.
+                // Add cross-reference to list.
                 subjectCrossReferences.add(subjectCrossReference);
             }
         } catch (SQLException ex) {
@@ -115,13 +116,11 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
             stmt.setString(1, subjectCrossReference.getEnterpriseSubjectId());
             stmt.setString(2, subjectCrossReference.getSystemSubjectId());
             stmt.setDouble(3, subjectCrossReference.getMatchScore());
-            stmt.addBatch();
             long startTime = System.currentTimeMillis();
-            int[] insertCounts = stmt.executeBatch();
+            stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectCrossReferenceDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime)
-                        + " Number Records Added: " + insertCounts.length);
+                logger.trace("SubjectCrossReferenceDAO.insert: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw new EMPIException(ex);
@@ -149,7 +148,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectCrossReferenceDAO.mergeEnterpriseSubjects: done executeBatch elapedTimeMillis=" + (endTime - startTime));
+                logger.trace("SubjectCrossReferenceDAO.mergeEnterpriseSubjects: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw new EMPIException(ex);
@@ -159,12 +158,17 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
     }
 
     /**
-     *
-     * @param systemSubjectId
+     * 
+     * @param subjectId
+     * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSystemSubjectCrossReferences(String systemSubjectId) throws EMPIException {
-        this.deleteRecords(systemSubjectId, "subject_xref", "system_subject_id", this.getClass().getName());
+    public void deleteSubjectCrossReferences(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
+        String columnName = "system_subject_id";
+        if (subjectType.equals(Subject.SubjectType.ENTERPRISE)) {
+            columnName = "enterprise_subject_id";
+        }
+        this.deleteRecords(subjectId, "subject_xref", columnName, this.getClass().getName());
     }
 
     /**

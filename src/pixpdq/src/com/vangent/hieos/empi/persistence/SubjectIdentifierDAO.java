@@ -88,7 +88,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public List<SubjectIdentifier> load(Subject parentSubject) throws EMPIException {
-        return this.load(parentSubject.getId());
+        return this.load(parentSubject.getInternalId());
     }
 
     /**
@@ -104,7 +104,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("SELECT identifier,subject_identifier_domain_id FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
+            sb.append("SELECT id,identifier,subject_identifier_domain_id FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
             String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
@@ -114,10 +114,11 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             while (rs.next()) {
                 SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
                 subjectIdentifier.setSubjectId(subjectId);
-                subjectIdentifier.setIdentifier(rs.getString(1));
+                subjectIdentifier.setInternalId(rs.getString(1));
+                subjectIdentifier.setIdentifier(rs.getString(2));
 
                 // Get SubjectIdentifierDomain
-                int subjectIdentifierDomainId = rs.getInt(2);
+                int subjectIdentifierDomainId = rs.getInt(3);
                 SubjectIdentifierDomain subjectIdentifierDomain = sidDAO.load(subjectIdentifierDomainId);
                 subjectIdentifier.setIdentifierDomain(subjectIdentifierDomain);
 
@@ -137,20 +138,20 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * 
      * @param subjectIdentifiers
      * @param parentSubject
-     * @param identifierType
      * @throws EMPIException
      */
     public void insert(List<SubjectIdentifier> subjectIdentifiers, Subject parentSubject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO ").append(this.getTableName()).append("(subject_id,identifier,subject_identifier_domain_id) values(?,?,?)");
+            sb.append("INSERT INTO ").append(this.getTableName()).append("(id,subject_id,identifier,subject_identifier_domain_id) values(?,?,?,?)");
             String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-                stmt.setString(1, parentSubject.getId());
-                stmt.setString(2, subjectIdentifier.getIdentifier());
+                stmt.setString(1, PersistenceHelper.getUUID());
+                stmt.setString(2, parentSubject.getInternalId());
+                stmt.setString(3, subjectIdentifier.getIdentifier());
                 // Get foreign key reference to subjectidentifierdomain.
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
                 int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
@@ -160,7 +161,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                             + " is not a known identifier domain",
                             EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
                 }
-                stmt.setInt(3, subjectIdentifierDomainId);
+                stmt.setInt(4, subjectIdentifierDomainId);
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -184,6 +185,15 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      */
     public void deleteSubjectRecords(String subjectId) throws EMPIException {
         this.deleteRecords(subjectId, this.getTableName(), "subject_id", this.getClass().getName());
+    }
+
+    /**
+     *
+     * @param subjectIdentifierId
+     * @throws EMPIException
+     */
+    public void deleteSubjectIdentifier(String subjectIdentifierId) throws EMPIException {
+        this.deleteRecords(subjectIdentifierId, this.getTableName(), "id", this.getClass().getName());
     }
 
     /**
