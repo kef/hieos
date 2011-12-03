@@ -21,6 +21,7 @@ public class SubjectIdentifier {
     private String subjectId;
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
+    private String internalId = null;
 
     /**
      * 
@@ -124,5 +125,21 @@ public class SubjectIdentifier {
     public boolean equals(SubjectIdentifier subjectIdentifier) {
         return subjectIdentifier.getIdentifier().equals(this.identifier)
                 && subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getInternalId() {
+        return internalId;
+    }
+
+    /**
+     *
+     * @param internalId
+     */
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 }

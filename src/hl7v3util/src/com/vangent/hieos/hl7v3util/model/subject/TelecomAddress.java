@@ -18,7 +18,7 @@ package com.vangent.hieos.hl7v3util.model.subject;
  */
 public class TelecomAddress {
 
-    private String id = null;
+    private String internalId = null;
     private String use;
     private String value;
 
@@ -26,16 +26,16 @@ public class TelecomAddress {
      *
      * @return
      */
-    public String getId() {
-        return id;
+    public String getInternalId() {
+        return internalId;
     }
 
     /**
      * 
-     * @param id
+     * @param internalId
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     /**

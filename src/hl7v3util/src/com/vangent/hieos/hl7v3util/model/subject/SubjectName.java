@@ -23,7 +23,7 @@ public class SubjectName {
     private String middleName;
     private String prefix;
     private String suffix;
-    private String id = null;
+    private String internalId = null;
 
     /**
      *
@@ -130,15 +130,15 @@ public class SubjectName {
      * 
      * @return
      */
-    public String getId() {
-        return id;
+    public String getInternalId() {
+        return internalId;
     }
 
     /**
      *
-     * @param id
+     * @param internalId
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 }

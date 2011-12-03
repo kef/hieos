@@ -18,7 +18,7 @@ package com.vangent.hieos.hl7v3util.model.subject;
  */
 public class Address {
 
-    private String id = null;
+    private String internalId = null;
     private String streetAddressLine1;
     private String streetAddressLine2;
     private String streetAddressLine3;
@@ -31,16 +31,16 @@ public class Address {
      * 
      * @return
      */
-    public String getId() {
-        return id;
+    public String getInternalId() {
+        return internalId;
     }
 
     /**
      *
-     * @param id
+     * @param internalId
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     /**

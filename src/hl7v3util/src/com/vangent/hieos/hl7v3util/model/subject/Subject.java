@@ -39,7 +39,7 @@ public class Subject {
     private Boolean multipleBirthIndicator = null;
     private Integer multipleBirthOrderNumber = null;
     private int matchConfidencePercentage = 0;
-    private String id = null;
+    private String internalId = null;
     private SubjectType type = SubjectType.ENTERPRISE; // Default.
 
     /**
@@ -467,16 +467,16 @@ public class Subject {
      *
      * @return
      */
-    public String getId() {
-        return id;
+    public String getInternalId() {
+        return internalId;
     }
 
     /**
      *
-     * @param id
+     * @param internalId
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     /**
