@@ -26,13 +26,13 @@ public class BlockingPassConfig implements ConfigItem {
 
     private static String BLOCKING_FIELDS = "blocking-fields.blocking-field";
     private static String BLOCKING_FIELD_NAME = "name";
-    private List<FieldConfig> blockingFieldConfigs = new ArrayList<FieldConfig>();
+    private List<BlockingFieldConfig> blockingFieldConfigs = new ArrayList<BlockingFieldConfig>();
 
     /**
      *
      * @return
      */
-    public List<FieldConfig> getBlockingFieldConfigs() {
+    public List<BlockingFieldConfig> getBlockingFieldConfigs() {
         return blockingFieldConfigs;
     }
 
@@ -43,16 +43,11 @@ public class BlockingPassConfig implements ConfigItem {
      * @throws EMPIException
      */
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
-
-        // Get the field-level configuration.
         List blockingFields = hc.configurationsAt(BLOCKING_FIELDS);
         for (Iterator it = blockingFields.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcBlockingField = (HierarchicalConfiguration) it.next();
-            String blockingFieldName = hcBlockingField.getString(BLOCKING_FIELD_NAME);
-
-            // Link it up.
-            FieldConfig blockingFieldConfig = empiConfig.getFieldConfig(blockingFieldName);
-
+            BlockingFieldConfig blockingFieldConfig = new BlockingFieldConfig();
+            blockingFieldConfig.load(hcBlockingField, empiConfig);
             blockingFieldConfigs.add(blockingFieldConfig);
         }
     }

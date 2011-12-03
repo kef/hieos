@@ -13,6 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.config.BlockingConfig;
+import com.vangent.hieos.empi.config.BlockingFieldConfig;
 import com.vangent.hieos.empi.config.BlockingPassConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.FieldConfig;
@@ -212,7 +213,7 @@ public class SubjectMatchDAO extends AbstractDAO {
      */
     private PreparedStatement getBlockingPassPreparedStatement(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
         // Get active blocking field configs based upon the search record.
-        List<FieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
+        List<BlockingFieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
         PreparedStatement stmt = null;
         if (!activeBlockingFieldConfigs.isEmpty()) {
             // Build prepared statement to support "blocking" phase.
@@ -221,7 +222,7 @@ public class SubjectMatchDAO extends AbstractDAO {
             try {
                 // Set WHERE clause values in the prepared statement.
                 int fieldIndex = 0;
-                for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
+                for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
                     System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
                     Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
                     System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
@@ -263,7 +264,7 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    private String buildBlockingPassSQLSelectStatement(List<FieldConfig> activeBlockingFieldConfigs) throws EMPIException {
+    private String buildBlockingPassSQLSelectStatement(List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
@@ -290,8 +291,9 @@ public class SubjectMatchDAO extends AbstractDAO {
         // Build the where clause (on blocking fields).
         fieldIndex = 0;
         int numActiveBlockingFields = activeBlockingFieldConfigs.size();
-        for (FieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-            String dbColumnName = activeBlockingFieldConfig.getMatchDatabaseColumn();
+        for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
+            FieldConfig fieldConfig = activeBlockingFieldConfig.getFieldConfig();
+            String dbColumnName = fieldConfig.getMatchDatabaseColumn();
             sb.append(dbColumnName).append(" = ?");
             ++fieldIndex;
             if (fieldIndex != numActiveBlockingFields) {
@@ -310,19 +312,31 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    private List<FieldConfig> getActiveBlockingFieldConfigs(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
+    private List<BlockingFieldConfig> getActiveBlockingFieldConfigs(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
         // Get blocking field configs.
-        List<FieldConfig> blockingFieldConfigs = blockingPassConfig.getBlockingFieldConfigs();
+        List<BlockingFieldConfig> blockingFieldConfigs = blockingPassConfig.getBlockingFieldConfigs();
 
         // Loop through all blocking configs and add only those where the search record
-        // has a value.
-        List<FieldConfig> activeBlockingConfigs = new ArrayList<FieldConfig>();
-        for (FieldConfig blockingFieldConfig : blockingFieldConfigs) {
+        // has a value (unless it is required).  If any required field is missing, the blocking
+        // pass is considered invalid and no blocking field configurations are returned.
+        List<BlockingFieldConfig> activeBlockingFieldConfigs = new ArrayList<BlockingFieldConfig>();
+        for (BlockingFieldConfig blockingFieldConfig : blockingFieldConfigs) {
             Field field = searchRecord.getField(blockingFieldConfig.getName());
+            if (field == null && blockingFieldConfig.isRequired() == true) {
+                System.out.println("+++++ Skipping blocking pass (missing required field = "
+                        + blockingFieldConfig.getName() + ") +++++");
+
+                // There is no search field for the blocking field, yet it is required.
+                // This blocking pass is now invalid.
+
+                // Clear out any active blocking field configs.
+                activeBlockingFieldConfigs.clear();
+                break;  // Get out of the loop now!
+            }
             if (field != null && field.getValue() != null) {
-                activeBlockingConfigs.add(blockingFieldConfig);
+                activeBlockingFieldConfigs.add(blockingFieldConfig);
             }
         }
-        return activeBlockingConfigs;
+        return activeBlockingFieldConfigs;
     }
 }
