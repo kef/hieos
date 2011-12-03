@@ -313,27 +313,35 @@
             <blocking-fields>
                 <blocking-field>
                     <name>familyNameSoundex</name>
+                    <required>true</required>
                 </blocking-field>
                 <blocking-field>
                     <name>givenNameSoundex</name>
-                </blocking-field>
-                <blocking-field>
-                    <name>birthTime</name>
+                    <required>false</required>
                 </blocking-field>
                 <blocking-field>
                     <name>gender</name>
+                    <required>false</required>
                 </blocking-field>
+            </blocking-fields>
+        </blocking-pass>
+        <blocking-pass>
+            <blocking-fields>
                 <blocking-field>
                     <name>streetAddressLine1</name>
+                    <required>true</required>
                 </blocking-field>
                 <blocking-field>
                     <name>city</name>
+                    <required>true</required>
                 </blocking-field>
                 <blocking-field>
                     <name>state</name>
+                    <required>true</required>
                 </blocking-field>
                 <blocking-field>
                     <name>postalCode</name>
+                    <required>true</required>
                 </blocking-field>
             </blocking-fields>
         </blocking-pass>
@@ -345,7 +353,7 @@
         <match-fields>
             <match-field>
                 <name>givenName</name>
-                <accept-threshold>1.0</accept-threshold>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
@@ -354,7 +362,7 @@
             </match-field>
             <match-field>
                 <name>familyName</name>
-                <accept-threshold>1.0</accept-threshold>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
@@ -362,8 +370,17 @@
                 </distance-function>
             </match-field>
             <match-field>
-                <name>streetAddressLine1</name>
+                <name>birthTime</name>
                 <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>1.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>streetAddressLine1</name>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
@@ -372,7 +389,7 @@
             </match-field>
             <match-field>
                 <name>city</name>
-                <accept-threshold>1.0</accept-threshold>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
@@ -381,7 +398,7 @@
             </match-field>
             <match-field>
                 <name>state</name>
-                <accept-threshold>1.0</accept-threshold>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
@@ -390,7 +407,7 @@
             </match-field>
             <match-field>
                 <name>postalCode</name>
-                <accept-threshold>1.0</accept-threshold>
+                <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>1.0</weight>
                 <distance-function>
