@@ -36,15 +36,15 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class SubjectMatchDAO extends AbstractDAO {
+public class SubjectMatchFieldsDAO extends AbstractDAO {
 
-    private final static Logger logger = Logger.getLogger(SubjectMatchDAO.class);
+    private final static Logger logger = Logger.getLogger(SubjectMatchFieldsDAO.class);
 
     /**
      *
      * @param connection
      */
-    public SubjectMatchDAO(Connection connection) {
+    public SubjectMatchFieldsDAO(Connection connection) {
         super(connection);
     }
 
@@ -87,7 +87,7 @@ public class SubjectMatchDAO extends AbstractDAO {
                     }
                 }
             } catch (SQLException ex) {
-                throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
+                throw new EMPIException("Failure reading 'subject_match_fields' records from database" + ex.getMessage());
             } finally {
                 this.close(stmt);
                 this.close(rs);
@@ -117,7 +117,7 @@ public class SubjectMatchDAO extends AbstractDAO {
             int[] insertCounts = stmt.executeBatch();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectMatchDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime)
+                logger.trace("SubjectMatchFieldsDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime)
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
@@ -133,7 +133,7 @@ public class SubjectMatchDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void deleteSubjectRecords(String subjectId) throws EMPIException {
-        this.deleteRecords(subjectId, "subject_match", "id", this.getClass().getName());
+        this.deleteRecords(subjectId, "subject_match_fields", "subject_id", this.getClass().getName());
     }
 
     /**
@@ -169,7 +169,7 @@ public class SubjectMatchDAO extends AbstractDAO {
      */
     private PreparedStatement buildSQLInsertPreparedStatement() throws EMPIException {
         StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO subject_match(id,");
+        sb.append("INSERT INTO subject_match_fields(subject_id,");
 
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
@@ -230,7 +230,7 @@ public class SubjectMatchDAO extends AbstractDAO {
                 }
             } catch (SQLException ex) {
                 this.close(stmt);
-                throw new EMPIException("Failure reading 'subject_match' records from database" + ex.getMessage());
+                throw new EMPIException("Failure reading 'subject_match_fields' records from database" + ex.getMessage());
             }
         }
         return stmt;
@@ -270,7 +270,7 @@ public class SubjectMatchDAO extends AbstractDAO {
 
         // Build
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT id,");  // Always extract the id.
+        sb.append("SELECT subject_id,");  // Always extract the subject_id.
 
         // Add list of fields to extract (only those we plan on matching against).
         MatchConfig matchConfig = empiConfig.getMatchConfig();
@@ -286,7 +286,7 @@ public class SubjectMatchDAO extends AbstractDAO {
                 sb.append(",");
             }
         }
-        sb.append(" FROM subject_match WHERE ");
+        sb.append(" FROM subject_match_fields WHERE ");
 
         // Build the where clause (on blocking fields).
         fieldIndex = 0;

@@ -390,7 +390,7 @@ public class PersistenceManager {
     public void insertSubjectMatchRecord(Record record) throws EMPIException {
         List<Record> records = new ArrayList<Record>();
         records.add(record);
-        this.insertSubjectMatchRecords(records);
+        this.insertSubjectMatchFields(records);
     }
 
     /**
@@ -398,8 +398,8 @@ public class PersistenceManager {
      * @param records
      * @throws EMPIException
      */
-    public void insertSubjectMatchRecords(List<Record> records) throws EMPIException {
-        SubjectMatchDAO dao = new SubjectMatchDAO(connection);
+    public void insertSubjectMatchFields(List<Record> records) throws EMPIException {
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(connection);
         dao.insert(records);
     }
 
@@ -470,7 +470,7 @@ public class PersistenceManager {
      * @throws EMPIException
      */
     public List<Record> findCandidates(Record searchRecord) throws EMPIException {
-        SubjectMatchDAO dao = new SubjectMatchDAO(connection);
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(connection);
         return dao.findCandidates(searchRecord);
     }
 }

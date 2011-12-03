@@ -271,8 +271,8 @@ public class SubjectDAO extends AbstractDAO {
         this.voidSubject(enterpriseSubjectId);
 
         // Delete "SubjectMatch" record for enterpriseSubjectId.
-        SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-        subjectMatchDAO.deleteSubjectRecords(enterpriseSubjectId);
+        SubjectMatchFieldsDAO subjectMatchCriteriaDAO = new SubjectMatchFieldsDAO(conn);
+        subjectMatchCriteriaDAO.deleteSubjectRecords(enterpriseSubjectId);
 
         // Delete all cross references to the enterprise subject.
         SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -292,9 +292,9 @@ public class SubjectDAO extends AbstractDAO {
         if (!survivingEnterpriseSubjectId.equals(subsumedEnterpriseSubjectId)) {
             Connection conn = this.getConnection();  // Get connection to use.
 
-            // Delete "SubjectMatch" record for subsumedEnterpriseSubjectId.
-            SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-            subjectMatchDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
+            // Delete "SubjectMatchFieldsDAO" record for subsumedEnterpriseSubjectId.
+            SubjectMatchFieldsDAO subjectMatchFieldsDAO = new SubjectMatchFieldsDAO(conn);
+            subjectMatchFieldsDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
 
             // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -336,8 +336,8 @@ public class SubjectDAO extends AbstractDAO {
 
             if (subjectType.equals(SubjectType.ENTERPRISE)) {
                 // Delete subject match record.
-                SubjectMatchDAO subjectMatchDAO = new SubjectMatchDAO(conn);
-                subjectMatchDAO.deleteSubjectRecords(subjectId);
+                SubjectMatchFieldsDAO subjectMatchFieldsDAO = new SubjectMatchFieldsDAO(conn);
+                subjectMatchFieldsDAO.deleteSubjectRecords(subjectId);
             }
 
             // Now, delete the subject record.
