@@ -87,7 +87,7 @@ public class MergeSubjectsHandler extends BaseHandler {
                 String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject);
                 String baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject);
 
-                // Delete the "subsumed" subject.
+                // Delete the "subsumed" system-level subject.
                 pm.deleteSubject(baseSubsumedSubject);
 
                 // FIXME: MAKE CONFIGURABLE!!!

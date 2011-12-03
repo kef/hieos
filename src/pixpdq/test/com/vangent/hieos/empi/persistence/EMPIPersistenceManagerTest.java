@@ -91,7 +91,7 @@ public class EMPIPersistenceManagerTest {
         RecordBuilder recordBuilder = new RecordBuilder();
         Record searchRecord = recordBuilder.build(subject);
         System.out.println("Search Record = " + searchRecord);
-        pm.insertSubjectMatchRecord(searchRecord);
+        pm.insertSubjectMatchFields(searchRecord);
 
         List<Record> candidateRecords = pm.findCandidates(searchRecord);
         System.out.println("Candidate record count = " + candidateRecords.size());

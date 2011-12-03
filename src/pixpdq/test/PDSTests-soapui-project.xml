@@ -146,13 +146,15 @@
                      <value root="2.16.840.1.113883.3.72.5.9.1" extension="JW-824-v3"/>
                      <semanticsText>LivingSubject.id</semanticsText>
                   </livingSubjectId>-->
+<!--
                   <livingSubjectName>
                      <value>
-                        <given>briggs</given>
-                        <family>crystal</family>
+                        <given></given>
+                        <family>Thuman</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
+-->
                   <!--<otherIDsScopingOrganization>
                      <value root="1.3.6.1.4.1.21367.13.20.999"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>

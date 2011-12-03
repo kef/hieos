@@ -293,8 +293,8 @@ public class SubjectDAO extends AbstractDAO {
             Connection conn = this.getConnection();  // Get connection to use.
 
             // Delete "SubjectMatchFieldsDAO" record for subsumedEnterpriseSubjectId.
-            SubjectMatchFieldsDAO subjectMatchFieldsDAO = new SubjectMatchFieldsDAO(conn);
-            subjectMatchFieldsDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
+            //SubjectMatchFieldsDAO subjectMatchFieldsDAO = new SubjectMatchFieldsDAO(conn);
+            //subjectMatchFieldsDAO.deleteSubjectRecords(subsumedEnterpriseSubjectId);
 
             // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -334,7 +334,7 @@ public class SubjectDAO extends AbstractDAO {
             subjectOtherIdentifierDAO.deleteSubjectRecords(subjectId);
             subjectCrossReferenceDAO.deleteSubjectCrossReferences(subjectId, subjectType);
 
-            if (subjectType.equals(SubjectType.ENTERPRISE)) {
+            if (subjectType.equals(SubjectType.SYSTEM)) {
                 // Delete subject match record.
                 SubjectMatchFieldsDAO subjectMatchFieldsDAO = new SubjectMatchFieldsDAO(conn);
                 subjectMatchFieldsDAO.deleteSubjectRecords(subjectId);

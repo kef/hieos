@@ -25,7 +25,9 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -82,36 +84,49 @@ public class AddSubjectHandler extends BaseHandler {
         List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.NOMATCH_EMPTY_FIELDS);
 
         if (recordMatches.isEmpty()) { // No match.
-            enterpriseSubjectId = this.insertEnterpriseSubject(searchRecord, subject);
+            enterpriseSubjectId = this.insertEnterpriseSubject(subject);
         } else {
             // >=1 matches
 
             // Cross reference will be to first matched record.  All other records will be merged later below.
             ScoredRecord matchedRecord = recordMatches.get(0);
-            enterpriseSubjectId = matchedRecord.getRecord().getId();
+            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+            enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
             matchScore = matchedRecord.getMatchScorePercentage();
+
+            // FIXME: Update enterprise subject with latest demographics.
         }
+
+        // Insert system-level subject match fields (for subsequent find operations).
+        searchRecord.setId(systemSubjectId);
+        pm.insertSubjectMatchFields(searchRecord);
 
         // Create and store cross-reference.
         pm.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
+        Set<String> subsumedEnterpriseSubjectIds = new HashSet<String>();
         for (int i = 1; i < recordMatches.size(); i++) {
-            ScoredRecord scoredRecord = recordMatches.get(i);
-            pm.mergeEnterpriseSubjects(enterpriseSubjectId, scoredRecord.getRecord().getId());
+            ScoredRecord matchedRecord = recordMatches.get(i);
+            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+            String subsumedEnterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+            // Make sure that the subject has not already been merged.
+            if (!subsumedEnterpriseSubjectIds.contains(subsumedEnterpriseSubjectId)) {
+                subsumedEnterpriseSubjectIds.add(subsumedEnterpriseSubjectId);
+                pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
+            }
         }
         // FIXME: Fill-in update notification content.
         return updateNotificationContent;
     }
 
     /**
-     *
-     * @param searchRecord
+     * 
      * @param subject
      * @return
      * @throws EMPIException
      */
-    private String insertEnterpriseSubject(Record searchRecord, Subject subject) throws EMPIException {
+    private String insertEnterpriseSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
@@ -130,11 +145,6 @@ public class AddSubjectHandler extends BaseHandler {
 
         // Store the enterprise-level subject.
         pm.insertSubject(subject);
-        String enterpriseSubjectId = subject.getInternalId();
-
-        // Store the match criteria.
-        searchRecord.setId(enterpriseSubjectId);
-        pm.insertSubjectMatchRecord(searchRecord);
-        return enterpriseSubjectId;
+        return subject.getInternalId();
     }
 }

@@ -28,7 +28,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -140,27 +142,33 @@ public class FindSubjectsHandler extends BaseHandler {
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();
         long startTime = System.currentTimeMillis();
+        Set<String> enterpriseSubjectIds = new HashSet<String>();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
-            Subject enterpriseSubject = pm.loadEnterpriseSubject(record.getId());
-            int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
-            enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
+            String systemSubjectId = record.getId();
+            String enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+            if (!enterpriseSubjectIds.contains(enterpriseSubjectId)) {
+                enterpriseSubjectIds.add(enterpriseSubjectId);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("match score = " + scoredRecord.getScore());
-                logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
-                logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+                Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
+                int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
+                enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("match score = " + scoredRecord.getScore());
+                    logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
+                    logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+                }
+
+                // Filter unwanted results (if required).
+                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
+
+                // FIXME: What about "other ids"?
+                // If we kept at least one identifier ...
+                if (enterpriseSubject.hasSubjectIdentifiers()) {
+                    subjectMatches.add(enterpriseSubject);
+                }
             }
-
-            // Filter unwanted results (if required).
-            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
-
-            // FIXME: What about "other ids"?
-            // If we kept at least one identifier ...
-            if (enterpriseSubject.hasSubjectIdentifiers()) {
-                subjectMatches.add(enterpriseSubject);
-            }
-
         }
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {

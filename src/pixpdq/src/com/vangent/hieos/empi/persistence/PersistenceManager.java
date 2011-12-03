@@ -387,7 +387,7 @@ public class PersistenceManager {
      * @param record
      * @throws EMPIException
      */
-    public void insertSubjectMatchRecord(Record record) throws EMPIException {
+    public void insertSubjectMatchFields(Record record) throws EMPIException {
         List<Record> records = new ArrayList<Record>();
         records.add(record);
         this.insertSubjectMatchFields(records);
