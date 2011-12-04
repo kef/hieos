@@ -43,7 +43,7 @@ public interface EMPIAdapter {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent addSubject(Subject subject) throws EMPIException;
+    public EMPINotification addSubject(Subject subject) throws EMPIException;
 
     /**
      *
@@ -51,7 +51,7 @@ public interface EMPIAdapter {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent updateSubject(Subject subject) throws EMPIException;
+    public EMPINotification updateSubject(Subject subject) throws EMPIException;
 
     /**
      *
@@ -59,7 +59,7 @@ public interface EMPIAdapter {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException;
+    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException;
 
     /**
      * 

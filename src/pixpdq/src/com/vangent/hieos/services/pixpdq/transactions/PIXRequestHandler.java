@@ -36,6 +36,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequestBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -126,7 +127,8 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            adapter.addSubject(subject);
+            EMPINotification updateNotificationContent = adapter.addSubject(subject);
+            this.sendUpdateNotifications(updateNotificationContent);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -154,7 +156,8 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            adapter.updateSubject(subject);
+            EMPINotification updateNotificationContent = adapter.updateSubject(subject);
+            this.sendUpdateNotifications(updateNotificationContent);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -182,7 +185,8 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-            adapter.mergeSubjects(subjectMergeRequest);
+            EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
+            this.sendUpdateNotifications(updateNotificationContent);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -278,5 +282,14 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         SubjectSearchCriteriaBuilder builder = new SubjectSearchCriteriaBuilder();
         SubjectSearchCriteria subjectSearchCriteria = builder.buildSubjectSearchCriteria(request);
         return subjectSearchCriteria;
+    }
+
+    /**
+     * 
+     * @param updateNotificationContent
+     */
+    private void sendUpdateNotifications(EMPINotification updateNotificationContent) {
+        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler(this.getConfigActor());
+        pixUpdateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
     }
 }

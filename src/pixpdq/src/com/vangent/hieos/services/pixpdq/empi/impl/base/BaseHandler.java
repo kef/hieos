@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -76,5 +77,17 @@ public class BaseHandler {
                         EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
             }
         }
+    }
+
+    /**
+     * 
+     * @param notification
+     * @param enterpriseSubjectId
+     * @throws EMPIException
+     */
+    protected void addSubjectToNotification(EMPINotification notification, String enterpriseSubjectId) throws EMPIException {
+        PersistenceManager pm = this.getPersistenceManager();
+        Subject subject = pm.loadEnterpriseSubjectIdentifiersAndNamesOnly(enterpriseSubjectId);
+        notification.addSubject(subject);
     }
 }

@@ -17,7 +17,7 @@ import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
-import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -45,9 +45,9 @@ public class MergeSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
+        EMPINotification notification = new EMPINotification();
 
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
@@ -81,6 +81,9 @@ public class MergeSubjectsHandler extends BaseHandler {
 
                 // Delete the identifier.
                 pm.deleteSubjectIdentifier(subsumedSubjectIdentifierToRemove.getInternalId());
+
+                // FIXME: Should we even allow this case (see above).
+                // FIXME: Do update notification.
             } else {
 
                 // Get base enterprise subjects.
@@ -94,6 +97,7 @@ public class MergeSubjectsHandler extends BaseHandler {
 
                 // Now move all cross references.
                 pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+                this.addSubjectToNotification(notification, baseEnterpriseSurvivingSubjectId);
             }
         } else if (baseSurvivingSubject.getType().equals(Subject.SubjectType.ENTERPRISE)
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
@@ -102,11 +106,11 @@ public class MergeSubjectsHandler extends BaseHandler {
             String baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getInternalId();
             String baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getInternalId();
             pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
+            this.addSubjectToNotification(notification, baseEnterpriseSurvivingSubjectId);
         }
 
         // FIXME: Complete ALL cases.
-        // FIXME: Fill-in update notification content.
-        return updateNotificationContent;
+        return notification;
     }
 
     /**

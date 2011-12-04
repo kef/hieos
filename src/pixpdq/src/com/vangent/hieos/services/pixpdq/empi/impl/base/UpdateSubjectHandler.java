@@ -17,7 +17,7 @@ import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -45,9 +45,9 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent updateSubject(Subject subject) throws EMPIException {
+    public EMPINotification updateSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
+        EMPINotification updateNotificationContent = new EMPINotification();
 
         // First validate identifier domains assocated with the subject's identifiers.
         this.validateSubjectIdentifierDomains(subject);
@@ -74,7 +74,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         }
 
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
-            this.updateSystemSubject(baseSubject, subject);
+            updateNotificationContent = this.updateSystemSubject(baseSubject, subject);
         } else {
             String enterpriseSubjectId = baseSubject.getInternalId();
             // FIXME: MUCH TO DO HERE!!!!
@@ -91,8 +91,10 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @param subject
      * @throws EMPIException
      */
-    private void updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException {
+    private EMPINotification updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
+        EMPINotification notification = new EMPINotification();
+
         // Get the enterprise subject id.
         String enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
 
@@ -104,12 +106,17 @@ public class UpdateSubjectHandler extends BaseHandler {
         if (subjectCrossReferences.isEmpty()) {
             // In this case, delete the enterprise record
             pm.deleteSubject(enterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
+        } else {
+            this.addSubjectToNotification(notification, enterpriseSubjectId);
         }
 
         // FIXME: How about existing identifiers?
 
         // Now, run through normal add operation.
         AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm);
-        addSubjectHandler.addSubject(subject);
+        EMPINotification addNotification = addSubjectHandler.addSubject(subject);
+        notification.addNotification(addNotification);
+
+        return notification;
     }
 }

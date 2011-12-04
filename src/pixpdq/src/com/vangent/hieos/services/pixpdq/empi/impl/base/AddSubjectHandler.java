@@ -23,7 +23,7 @@ import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.services.pixpdq.empi.api.UpdateNotificationContent;
+import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.HashSet;
 import java.util.List;
@@ -53,9 +53,8 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public UpdateNotificationContent addSubject(Subject subject) throws EMPIException {
+    public EMPINotification addSubject(Subject subject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        UpdateNotificationContent updateNotificationContent = new UpdateNotificationContent();
 
         // FIXME: This is not totally correct, how about "other ids"?
         // See if the subject exists (if it already has identifiers).
@@ -116,13 +115,15 @@ public class AddSubjectHandler extends BaseHandler {
                 pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
             }
         }
-        // FIXME: Fill-in update notification content.
-        return updateNotificationContent;
+        EMPINotification notification = new EMPINotification();
+        this.addSubjectToNotification(notification, enterpriseSubjectId);
+        return notification;
     }
 
     /**
-     * 
+     *
      * @param subject
+     * @param updateNotificationContent
      * @return
      * @throws EMPIException
      */
