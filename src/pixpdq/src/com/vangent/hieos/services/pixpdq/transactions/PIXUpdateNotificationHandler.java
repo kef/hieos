@@ -12,12 +12,14 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
+import com.vangent.hieos.empi.config.CrossReferenceConsumerConfig;
+import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 
@@ -43,21 +45,51 @@ public class PIXUpdateNotificationHandler {
      * @param updateNotificationContent
      */
     public void sendUpdateNotifications(EMPINotification updateNotificationContent) {
+        EMPIConfig empiConfig;
         try {
-            XConfig xConfig = XConfig.getInstance();
-            DeviceInfo senderDeviceInfo = new DeviceInfo(configActor);
-            // FIXME: Make into a real implementation (put on queue and get out!!!).
-            for (Subject subject : updateNotificationContent.getSubjects()) {
-                XConfigActor pixConsumerConfig = xConfig.getXConfigActorByName("pixconsumer1", "PIXConsumerType");
-                DeviceInfo receiverDeviceInfo = new DeviceInfo(pixConsumerConfig);
-                PIXConsumerClient pixConsumerClient = new PIXConsumerClient(pixConsumerConfig);
-                MCCI_IN000002UV01_Message ackMessage = pixConsumerClient.patientRegistryRecordRevised(senderDeviceInfo, receiverDeviceInfo, subject);
+            empiConfig = EMPIConfig.getInstance();
+        } catch (EMPIException ex) {
+            logger.error("Error getting EMPI configuration when trying to send PIX Update Notifications", ex);
+            return;
+        }
+        if (!empiConfig.isUpdateNotificationEnabled()) {
+            // Notifications are turned off -- get out now.
+            return; // Early exit!!
+        }
+
+        // FIXME: Put notifications onto a queue ... this will delay synchronous web service process.
+        DeviceInfo senderDeviceInfo = new DeviceInfo(configActor);
+
+        // Go through each cross reference consumer configuration.
+        for (CrossReferenceConsumerConfig crossReferenceConsumerConfig : empiConfig.getCrossReferenceConsumerConfigs()) {
+
+            // Only send notifications if enabled for the consumer.
+            if (crossReferenceConsumerConfig.isEnabled()) {
+                XConfigActor pixConsumerActorConfig = crossReferenceConsumerConfig.getConfigActor();
+                if (pixConsumerActorConfig != null) {
+
+                    DeviceInfo receiverDeviceInfo = new DeviceInfo(pixConsumerActorConfig);
+                    PIXConsumerClient pixConsumerClient = new PIXConsumerClient(pixConsumerActorConfig);
+
+                    // Now send notifications for each individual subject on notification list.
+                    for (Subject subject : updateNotificationContent.getSubjects()) {
+                        try {
+                            logger.info("Sending PIX Update Notification [device id = "
+                                    + receiverDeviceInfo.getId() + "]");
+
+                            // FIXME: Need to only send interested identifier domains.
+                            MCCI_IN000002UV01_Message ackMessage = pixConsumerClient.patientRegistryRecordRevised(
+                                    senderDeviceInfo, receiverDeviceInfo, subject);
+                        } catch (Exception ex) {
+                            logger.error("Error sending PIX Update Notification to receiver [device id = "
+                                    + receiverDeviceInfo.getId() + "]", ex);
+                        }
+                    }
+                } else {
+                    logger.error("Error sending PIX Update Notification (no XConfig entry) to receiver [device id = "
+                            + crossReferenceConsumerConfig.getDeviceId() + "]");
+                }
             }
-        } catch (Exception ex) {
-            // FIXME: Do something ...
-            logger.error("Exception sending update notification", ex);
-        } finally {
-            // Do nothing.
         }
     }
 }

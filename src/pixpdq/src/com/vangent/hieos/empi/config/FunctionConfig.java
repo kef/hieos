@@ -48,14 +48,6 @@ public abstract class FunctionConfig implements ConfigItem {
 
     /**
      *
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     *
      * @return
      */
     public String getClassName() {
@@ -64,26 +56,10 @@ public abstract class FunctionConfig implements ConfigItem {
 
     /**
      *
-     * @param className
-     */
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    /**
-     *
      * @return
      */
     public Function getFunction() {
         return function;
-    }
-
-    /**
-     *
-     * @param function
-     */
-    public void setFunction(Function function) {
-        this.function = function;
     }
 
     /**

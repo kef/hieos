@@ -36,14 +36,6 @@ public class BlockingFieldConfig implements ConfigItem {
     }
 
     /**
-     *
-     * @param fieldConfig
-     */
-    public void setFieldConfig(FieldConfig fieldConfig) {
-        this.fieldConfig = fieldConfig;
-    }
-
-    /**
      * 
      * @return
      */
@@ -53,26 +45,10 @@ public class BlockingFieldConfig implements ConfigItem {
 
     /**
      *
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     *
      * @return
      */
     public boolean isRequired() {
         return required;
-    }
-
-    /**
-     *
-     * @param required
-     */
-    public void setRequired(boolean required) {
-        this.required = required;
     }
 
     /**

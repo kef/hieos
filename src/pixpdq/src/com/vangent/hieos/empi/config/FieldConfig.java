@@ -44,14 +44,6 @@ public class FieldConfig implements ConfigItem {
 
     /**
      *
-     * @param matchDatabaseColumn
-     */
-    public void setMatchDatabaseColumn(String matchDatabaseColumn) {
-        this.matchDatabaseColumn = matchDatabaseColumn;
-    }
-
-    /**
-     *
      * @return
      */
     public String getName() {
@@ -60,26 +52,10 @@ public class FieldConfig implements ConfigItem {
 
     /**
      *
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     *
      * @return
      */
     public String getSourceObjectPath() {
         return sourceObjectPath;
-    }
-
-    /**
-     *
-     * @param sourceObjectPath
-     */
-    public void setSourceObjectPath(String sourceObjectPath) {
-        this.sourceObjectPath = sourceObjectPath;
     }
 
     /**

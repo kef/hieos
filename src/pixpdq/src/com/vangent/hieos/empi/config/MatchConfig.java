@@ -41,26 +41,10 @@ public class MatchConfig implements ConfigItem {
 
     /**
      *
-     * @param acceptThreshold
-     */
-    public void setAcceptThreshold(double acceptThreshold) {
-        this.acceptThreshold = acceptThreshold;
-    }
-
-    /**
-     *
      * @return
      */
     public double getRejectThreshold() {
         return rejectThreshold;
-    }
-
-    /**
-     *
-     * @param rejectThreshold
-     */
-    public void setRejectThreshold(double rejectThreshold) {
-        this.rejectThreshold = rejectThreshold;
     }
 
     /**

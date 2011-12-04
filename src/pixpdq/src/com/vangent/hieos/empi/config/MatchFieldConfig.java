@@ -44,26 +44,10 @@ public class MatchFieldConfig implements ConfigItem {
 
     /**
      *
-     * @param acceptThreshold
-     */
-    public void setAcceptThreshold(double acceptThreshold) {
-        this.acceptThreshold = acceptThreshold;
-    }
-
-    /**
-     *
      * @return
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     *
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -76,26 +60,10 @@ public class MatchFieldConfig implements ConfigItem {
 
     /**
      *
-     * @param rejectThreshold
-     */
-    public void setRejectThreshold(double rejectThreshold) {
-        this.rejectThreshold = rejectThreshold;
-    }
-
-    /**
-     *
      * @return
      */
     public double getWeight() {
         return weight;
-    }
-
-    /**
-     *
-     * @param weight
-     */
-    public void setWeight(double weight) {
-        this.weight = weight;
     }
 
     /**
@@ -108,26 +76,10 @@ public class MatchFieldConfig implements ConfigItem {
 
     /**
      *
-     * @param distanceFunctionConfig
-     */
-    public void setDistanceFunctionConfig(DistanceFunctionConfig distanceFunctionConfig) {
-        this.distanceFunctionConfig = distanceFunctionConfig;
-    }
-
-    /**
-     *
      * @return
      */
     public FieldConfig getFieldConfig() {
         return fieldConfig;
-    }
-
-    /**
-     * 
-     * @param fieldConfig
-     */
-    public void setFieldConfig(FieldConfig fieldConfig) {
-        this.fieldConfig = fieldConfig;
     }
 
     /**

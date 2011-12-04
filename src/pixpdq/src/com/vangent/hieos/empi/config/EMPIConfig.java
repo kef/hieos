@@ -14,6 +14,10 @@ package com.vangent.hieos.empi.config;
 
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.xutil.exception.XConfigException;
+import com.vangent.hieos.xutil.xconfig.XConfig;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +36,7 @@ public class EMPIConfig {
 
     private final static Logger logger = Logger.getLogger(EMPIConfig.class);
     private static String JNDI_RESOURCE_NAME = "jndi-resource-name";
+    private static String UPDATE_NOTIFICATION_ENABLED = "update-notification-enabled";
     private static String MATCH_ALGORITHM = "match-algorithm";
     private static String DEFAULT_JNDI_RESOURCE_NAME = "jdbc/hieos-empi";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
@@ -40,15 +45,19 @@ public class EMPIConfig {
     private static String BLOCKING_CONFIG = "blocking-config(0)";
     private static String MATCH_CONFIG = "match-config(0)";
     private static String EUID_CONFIG = "euid-config(0)";
+    private static String CROSS_REFERENCE_CONSUMER_CONFIGS = "cross-reference-consumers.cross-reference-consumer";
     private static EMPIConfig _instance = null;
     private BlockingConfig blockingConfig;
     private MatchConfig matchConfig;
     private String jndiResourceName;
     private MatchAlgorithm matchAlgorithm;
     private EUIDConfig euidConfig;
+    private boolean updateNotificationEnabled;
     private Map<String, TransformFunctionConfig> transformFunctionConfigs = new HashMap<String, TransformFunctionConfig>();
     private Map<String, DistanceFunctionConfig> distanceFunctionConfigs = new HashMap<String, DistanceFunctionConfig>();
     private Map<String, FieldConfig> fieldConfigs = new HashMap<String, FieldConfig>();
+    private Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = new HashMap<String, XConfigActor>();
+    private List<CrossReferenceConsumerConfig> crossReferenceConsumerConfigs = new ArrayList<CrossReferenceConsumerConfig>();
 
     /**
      *
@@ -170,6 +179,30 @@ public class EMPIConfig {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isUpdateNotificationEnabled() {
+        return updateNotificationEnabled;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<CrossReferenceConsumerConfig> getCrossReferenceConsumerConfigs() {
+        return crossReferenceConsumerConfigs;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Map<String, XConfigActor> getCrossReferenceConsumerConfigActorMap() {
+        return crossReferenceConsumerConfigActorMap;
+    }
+
+    /**
      * 
      * @throws EMPIException
      */
@@ -179,6 +212,7 @@ public class EMPIConfig {
         try {
             XMLConfiguration xmlConfig = new XMLConfiguration(configLocation);
             jndiResourceName = xmlConfig.getString(JNDI_RESOURCE_NAME, DEFAULT_JNDI_RESOURCE_NAME);
+            updateNotificationEnabled = xmlConfig.getBoolean(UPDATE_NOTIFICATION_ENABLED, false);
 
             // Load the match algorithm.
             this.loadMatchAlgorithm(xmlConfig);
@@ -200,6 +234,9 @@ public class EMPIConfig {
             // Load EUID configuration.
             euidConfig = new EUIDConfig();
             euidConfig.load(xmlConfig.configurationAt(EUID_CONFIG), this);
+
+            // Load cross reference consumers.
+            this.loadCrossReferenceConsumers(xmlConfig);
 
         } catch (ConfigurationException ex) {
             throw new EMPIException(
@@ -264,9 +301,50 @@ public class EMPIConfig {
      * @param hc
      * @throws EMPIException
      */
+    private void loadCrossReferenceConsumers(HierarchicalConfiguration hc) throws EMPIException {
+        // Load up XConfig configuration items.
+        this.loadCrossReferenceConsumerConfigActorMap();
+
+        // Get cross-reference consumer configurations.
+        List crossReferenceConsumers = hc.configurationsAt(CROSS_REFERENCE_CONSUMER_CONFIGS);
+        for (Iterator it = crossReferenceConsumers.iterator(); it.hasNext();) {
+            HierarchicalConfiguration hcCrossReferenceConsumer = (HierarchicalConfiguration) it.next();
+            CrossReferenceConsumerConfig crossReferenceConsumerConfig = new CrossReferenceConsumerConfig();
+            crossReferenceConsumerConfig.load(hcCrossReferenceConsumer, this);
+            crossReferenceConsumerConfigs.add(crossReferenceConsumerConfig);
+        }
+    }
+
+    /**
+     *
+     * @param hc
+     * @throws EMPIException
+     */
     private void loadMatchAlgorithm(HierarchicalConfiguration hc) throws EMPIException {
         String matchAlgorithmClassName = hc.getString(MATCH_ALGORITHM);
         // Get an instance of the match algorithm.
         this.matchAlgorithm = (MatchAlgorithm) ConfigHelper.loadClassInstance(matchAlgorithmClassName);
+    }
+
+    /**
+     *
+     * @throws EMPIException
+     */
+    private void loadCrossReferenceConsumerConfigActorMap() throws EMPIException {
+        XConfig xConfig;
+        try {
+            xConfig = XConfig.getInstance();
+        } catch (XConfigException ex) {
+            throw new EMPIException("Unable to load XConfig", ex);
+        }
+        List<XConfigObject> crossReferenceConsumerConfigObjects = xConfig.getXConfigObjectsOfType("PIXConsumerType");
+        for (XConfigObject configObject : crossReferenceConsumerConfigObjects) {
+            String deviceId = configObject.getProperty("DeviceId");
+            if (deviceId != null) {
+                crossReferenceConsumerConfigActorMap.put(deviceId, (XConfigActor) configObject);
+            } else {
+                logger.error("DeviceId not found in XConfig for PIX Consumer = " + configObject.getName());
+            }
+        }
     }
 }

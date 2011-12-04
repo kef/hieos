@@ -25,7 +25,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public class BlockingPassConfig implements ConfigItem {
 
     private static String BLOCKING_FIELDS = "blocking-fields.blocking-field";
-    private static String BLOCKING_FIELD_NAME = "name";
     private List<BlockingFieldConfig> blockingFieldConfigs = new ArrayList<BlockingFieldConfig>();
 
     /**
