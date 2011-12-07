@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
-import com.vangent.hieos.hl7v3util.model.builder.*;
+import com.vangent.hieos.hl7v3util.model.builder.BuilderHelper;
 import com.vangent.hieos.hl7v3util.model.subject.Address;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.Custodian;
@@ -535,13 +535,22 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     protected void addAddresses(OMElement rootNode, Subject subject) {
         for (Address address : subject.getAddresses()) {
             OMElement addressNode = this.addChildOMElement(rootNode, "addr");
-            // FIXME: Deal with more than one address line.
-            this.addChildOMElementWithValue(addressNode, "streetAddressLine", address.getStreetAddressLine1());
-            this.addChildOMElementWithValue(addressNode, "city", address.getCity());
-            this.addChildOMElementWithValue(addressNode, "state", address.getState());
-            this.addChildOMElementWithValue(addressNode, "postalCode", address.getPostalCode());
-            this.addChildOMElementWithValue(addressNode, "country", address.getCountry());
+            this.addAddress(addressNode, address);
         }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param address
+     */
+    protected void addAddress(OMElement rootNode, Address address) {
+        // FIXME: Deal with more than one address line.
+        this.addChildOMElementWithValue(rootNode, "streetAddressLine", address.getStreetAddressLine1());
+        this.addChildOMElementWithValue(rootNode, "city", address.getCity());
+        this.addChildOMElementWithValue(rootNode, "state", address.getState());
+        this.addChildOMElementWithValue(rootNode, "postalCode", address.getPostalCode());
+        this.addChildOMElementWithValue(rootNode, "country", address.getCountry());
     }
 
     /**

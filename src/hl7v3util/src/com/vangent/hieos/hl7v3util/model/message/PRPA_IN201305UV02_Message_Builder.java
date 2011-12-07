@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
+import com.vangent.hieos.hl7v3util.model.subject.Address;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
@@ -57,7 +58,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         String messageName = "PRPA_IN201305UV02";
 
         // PRPA_IN201305UV02
-        OMElement requestNode = this.getRequestNode(messageName, "T", "I", "NE");
+        OMElement requestNode = this.getRequestNode(messageName, "T", "T", "AL");
 
         // PRPA_IN201305UV02/controlActProcess
         OMElement controlActProcessNode = this.addControlActProcess(requestNode, "PRPA_TE201305UV02");
@@ -234,6 +235,8 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
             this.addChildOMElementWithValue(subjectNameNode, "semanticsText", "LivingSubject.name");
         }
 
+        
+
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList/otherIDsScopingOrganization
         // <otherIDsScopingOrganization>
         //    <value root="1.2.840.114350.1.13.99997.2.3412"/>
@@ -247,7 +250,24 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
             this.addChildOMElementWithValue(otherIDsScopingOrganizationNode, "semanticsText", "OtherIDs.scopingOrganization.id");
         }
 
-        // FIXME: How about addresses and other parameters????
+        // Patient Address.
+        // <patientAddress>
+        //   <value>
+        //      <streetAddressLine>20 Point Street</streetAddressLine>
+        //      <city>CHICAGO</city>
+        //      <state>ILL</state>
+        //      <postalCode>60606</postalCode>
+        //   </value>
+        //   <semanticsText>Patient.addr</semanticsText>
+        // </patientAddress>
+        for (Address address : searchSubject.getAddresses()) {
+            OMElement subjectAddressNode = this.addChildOMElement(parameterListNode, "patientAddress");
+            OMElement valueNode = this.addChildOMElement(subjectAddressNode, "value");
+            this.addAddress(valueNode, address);
+            this.addChildOMElementWithValue(subjectAddressNode, "semanticsText", "Patient.addr");
+        }
+
+        // FIXME: How about other parameters????
         return parameterListNode;
     }
 }
