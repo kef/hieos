@@ -12,6 +12,9 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRetrieveDocumentSet;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -48,12 +51,18 @@ public class XCAIGRetrieveDocumentSet extends XCARetrieveDocumentSet {
         super.validateRequest(request);
 
         // Perform ATNA audit (FIXME - may not be best place).
-        this.performAudit(
-                XATNALogger.TXN_ITI43,
-                request,
-                null,
-                XATNALogger.OutcomeIndicator.SUCCESS,
-                XATNALogger.ActorType.REPOSITORY);
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventRetrieveDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRetrieveDocumentSet(request);
+                auditEvent.setActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
+                auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.ITI43);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.EXPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 
     /**

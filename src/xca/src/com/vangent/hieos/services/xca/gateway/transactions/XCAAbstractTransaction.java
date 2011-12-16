@@ -10,12 +10,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xca.gateway.transactions;
 
 import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
 
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
 
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -23,7 +24,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -43,8 +43,26 @@ public abstract class XCAAbstractTransaction extends XBaseTransaction {
     //private XConfigActor gatewayConfig = null;
     private XCARequestController requestController = null;
     private boolean errorDetected = false;
-    
-    public enum XCAResponseStatusType {Success, PartialSuccess, Failure};
+    private ATNAAuditEvent.ActorType gatewayActorType;
+
+    /**
+     * 
+     */
+    public enum XCAResponseStatusType {
+
+        /**
+         * 
+         */
+        Success,
+        /**
+         *
+         */
+        PartialSuccess,
+        /**
+         * 
+         */
+        Failure
+    };
 
     // Subclass responsibilities:
     /**
@@ -175,24 +193,6 @@ public abstract class XCAAbstractTransaction extends XBaseTransaction {
 
     /**
      *
-     * @param ATNAtxn
-     * @param request
-     * @param endpoint
-     * @param successFlag
-     * @param actor
-     */
-    protected void performAudit(String ATNAtxn, OMElement request, String endpoint, XATNALogger.OutcomeIndicator outcome, XATNALogger.ActorType actorType) {
-        try {
-            XATNALogger xATNALogger = new XATNALogger(ATNAtxn, actorType);
-            xATNALogger.performAudit(request, endpoint, outcome);
-        } catch (Exception e) {
-            // Eat exception.
-            logger.error("Could not perform ATNA audit", e);
-        }
-    }
-
-    /**
-     *
      * @param errorString
      */
     protected void logError(String errorString) {
@@ -226,5 +226,21 @@ public abstract class XCAAbstractTransaction extends XBaseTransaction {
      */
     protected XCARequestController getRequestController() {
         return this.requestController;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ActorType getGatewayActorType() {
+        return gatewayActorType;
+    }
+
+    /**
+     *
+     * @param gatewayActorType
+     */
+    public void setGatewayActorType(ActorType gatewayActorType) {
+        this.gatewayActorType = gatewayActorType;
     }
 }

@@ -22,7 +22,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 // XATNA
-import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -51,6 +51,7 @@ public class XCARespondingGateway extends XCAGateway {
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
         XCAAdhocQueryRequest request = new XCARGAdhocQueryRequest(log_message, getMessageContext());
         request.setConfigActor(config);
+        request.setGatewayActorType(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
         return request;
     }
 
@@ -62,6 +63,7 @@ public class XCARespondingGateway extends XCAGateway {
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
         XCARetrieveDocumentSet request = new XCARGRetrieveDocumentSet(log_message, getMessageContext());
         request.setConfigActor(config);
+        request.setGatewayActorType(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
         return request;
     }
 
@@ -97,7 +99,7 @@ public class XCARespondingGateway extends XCAGateway {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(XATNALogger.ActorType.RESPONDING_GATEWAY);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
     }
 
     /**
@@ -107,6 +109,6 @@ public class XCARespondingGateway extends XCAGateway {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("XCARespondingGateway::shutDown()");
-        this.ATNAlogStop(XATNALogger.ActorType.RESPONDING_GATEWAY);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
     }
 }

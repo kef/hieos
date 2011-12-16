@@ -19,6 +19,9 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -50,11 +53,11 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
     };
     private static XConfigActor _xcpdIGConfig = null;
 
-   /**
-    * 
-    * @param log_message
-    * @param messageContext
-    */
+    /**
+     *
+     * @param log_message
+     * @param messageContext
+     */
     public XCAIGAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
         super(log_message, messageContext);
     }
@@ -68,12 +71,18 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
         super.validateRequest(request);
 
         // Perform ATNA audit (FIXME - may not be best place).
-        this.performAudit(
-                XATNALogger.TXN_ITI18,
-                request,
-                null,
-                XATNALogger.OutcomeIndicator.SUCCESS,
-                XATNALogger.ActorType.REGISTRY);
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegistryStoredQuery(request);
+                auditEvent.setActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
+                auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.ITI18);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.QUERY_PROVIDER);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 
     /**
@@ -265,10 +274,10 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
                 for (SubjectIdentifier matchSubjectIdentifier : matchSubject.getSubjectIdentifiers()) {
                     String remotePatientId = matchSubjectIdentifier.getCXFormatted();
                     this.logInfo("Patient Correlation",
-                            "localHomeCommunityId=" + localHomeCommunityId +
-                            ", localPatientId=" + localPatientId +
-                            ", remoteHomeCommunityId=" + remoteHomeCommunityId +
-                            ", remotePatientId=" + remotePatientId);
+                            "localHomeCommunityId=" + localHomeCommunityId
+                            + ", localPatientId=" + localPatientId
+                            + ", remoteHomeCommunityId=" + remoteHomeCommunityId
+                            + ", remotePatientId=" + remotePatientId);
 
                     // Save the remote gateway configuration in result list.
                     XConfigActor config = xconf.getXConfigActorById(remoteHomeCommunityId, XConfig.XCA_RESPONDING_GATEWAY_TYPE);

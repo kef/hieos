@@ -170,7 +170,7 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
         // FIXME: Logic is a bit problematic -- need to find another way.
         XCAAbstractRequestCollection requestCollection = requestController.getRequestCollection(uniqueId);
         if (requestCollection == null) {
-            requestCollection = new XCARetrieveRequestCollection(uniqueId, configActor, isLocalRequest);
+            requestCollection = new XCARetrieveRequestCollection(uniqueId, configActor, isLocalRequest, this.getGatewayActorType());
             requestController.setRequestCollection(requestCollection);
         }
         XCARequest xcaRequest = new XCARequest(queryRequest);

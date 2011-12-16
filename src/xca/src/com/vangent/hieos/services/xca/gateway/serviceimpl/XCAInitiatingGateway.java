@@ -18,11 +18,11 @@ import com.vangent.hieos.services.xca.gateway.transactions.XCAIGAdhocQueryReques
 
 // Axis2 LifeCycle support.
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 // XATNA
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -51,6 +51,7 @@ public class XCAInitiatingGateway extends XCAGateway {
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
         XCAAdhocQueryRequest request = new XCAIGAdhocQueryRequest(log_message, getMessageContext());
         request.setConfigActor(config);
+        request.setGatewayActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
         return request;
     }
 
@@ -62,6 +63,7 @@ public class XCAInitiatingGateway extends XCAGateway {
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
         XCARetrieveDocumentSet request = new XCAIGRetrieveDocumentSet(log_message, getMessageContext());
         request.setConfigActor(config);
+        request.setGatewayActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
         return request;
     }
 
@@ -90,14 +92,13 @@ public class XCAInitiatingGateway extends XCAGateway {
     public void startUp(ConfigurationContext configctx, AxisService service) {
         logger.info("XCAInitiatingGateway::startUp()");
         try {
-            XConfig xconf;
-            xconf = XConfig.getInstance();
+            XConfig xconf = XConfig.getInstance();
             XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
             config = (XConfigActor) homeCommunity.getXConfigObjectWithName("ig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 
     /**
@@ -107,6 +108,6 @@ public class XCAInitiatingGateway extends XCAGateway {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("XCAInitiatingGateway::shutDown()");
-        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 }

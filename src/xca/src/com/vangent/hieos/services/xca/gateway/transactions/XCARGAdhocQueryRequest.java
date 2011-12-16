@@ -12,9 +12,13 @@
  */
 package com.vangent.hieos.services.xca.gateway.transactions;
 
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -48,12 +52,19 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
         super.validateRequest(request);
 
         // Perform ATNA audit (FIXME - may not be best place).
-        this.performAudit(
-                XATNALogger.TXN_ITI38,
-                request,
-                null,
-                XATNALogger.OutcomeIndicator.SUCCESS,
-                XATNALogger.ActorType.REGISTRY);
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegistryStoredQuery(request);
+                auditEvent.setActorType(ActorType.RESPONDING_GATEWAY);
+                auditEvent.setTransaction(IHETransaction.ITI38);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.QUERY_PROVIDER);
+                auditEvent.setHomeCommunityId(this.getLocalHomeCommunityId());
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 
     /**
@@ -67,7 +78,6 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
         // query requests.
         return false;
     }
-
 
     /**
      * 

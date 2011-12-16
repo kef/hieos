@@ -10,10 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xca.gateway.controller;
 
-import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 // Third party.
@@ -37,6 +37,7 @@ abstract public class XCAAbstractRequestCollection {
     private XConfigActor configActor = null;  // Configuration for the target entity (e.g XConfigGateway or XConfigRepository).
     private OMElement result = null;
     private ArrayList<XCAErrorMessage> errors = new ArrayList<XCAErrorMessage>();
+    private ATNAAuditEvent.ActorType gatewayActorType;
 
     abstract String getEndpointURL();
 
@@ -48,14 +49,24 @@ abstract public class XCAAbstractRequestCollection {
     abstract OMElement sendRequests() throws SOAPFaultException;
 
     /**
-     * 
-     * @param uniqueId
-     * @param request
+     *
      */
-    public XCAAbstractRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
+    private XCAAbstractRequestCollection() {
+        // Do not allow.
+    }
+
+    /**
+     *
+     * @param uniqueId
+     * @param configActor
+     * @param isLocalRequest
+     * @param gatewayActorType
+     */
+    public XCAAbstractRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest, ATNAAuditEvent.ActorType gatewayActorType) {
         this.uniqueId = uniqueId;
         this.configActor = configActor;
         this.isLocalRequest = isLocalRequest;
+        this.gatewayActorType = gatewayActorType;
     }
 
     /**
@@ -126,27 +137,15 @@ abstract public class XCAAbstractRequestCollection {
      * 
      * @param error
      */
-    public void addErrorMessage(XCAErrorMessage error)
-    {
+    public void addErrorMessage(XCAErrorMessage error) {
         this.errors.add(error);
     }
 
     /**
      *
-     * @param ATNAtxn
-     * @param request
-     * @param endpoint
-     * @param successFlag
-     * @param actor
+     * @return
      */
-    protected void performAudit(String ATNAtxn, OMElement request, String endpoint, XATNALogger.OutcomeIndicator outcome) {
-        try {
-            XATNALogger xATNALogger = new XATNALogger(ATNAtxn, XATNALogger.ActorType.DOCCONSUMER);
-            xATNALogger.performAudit(request, endpoint, outcome);
-        } catch (Exception e) {
-            // Eat exception.
-            logger.error("Could not perform ATNA audit", e);
-        }
+    public ActorType getGatewayActorType() {
+        return gatewayActorType;
     }
-   
 }

@@ -12,6 +12,10 @@
  */
 package com.vangent.hieos.services.xca.gateway.controller;
 
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRetrieveDocumentSet;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
@@ -23,9 +27,6 @@ import com.vangent.hieos.xutil.exception.SOAPFaultException;
 // XConfig.
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
-
-// XATNA.
-import com.vangent.hieos.xutil.atna.XATNALogger;
 
 // Third-party.
 import com.vangent.hieos.xutil.exception.XConfigException;
@@ -46,13 +47,14 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
     private final static Logger logger = Logger.getLogger(XCARetrieveRequestCollection.class);
 
     /**
-     *
+     * 
      * @param uniqueId
      * @param configActor
      * @param isLocalRequest
+     * @param gatewayActorType
      */
-    public XCARetrieveRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest) {
-        super(uniqueId, configActor, isLocalRequest);
+    public XCARetrieveRequestCollection(String uniqueId, XConfigActor configActor, boolean isLocalRequest, ATNAAuditEvent.ActorType gatewayActorType) {
+        super(uniqueId, configActor, isLocalRequest, gatewayActorType);
     }
 
     /**
@@ -150,6 +152,9 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
         logger.info("*** XCA action: " + action + ", expectedReturnAction: " + expectedReturnAction
                 + ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
+        // Do ATNA auditing (FIXME: Always showing success).
+        this.auditRetrieve(request, endpoint, ATNAAuditEvent.OutcomeIndicator.SUCCESS);
+
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
         boolean soap12 = xconfigTxn.isSOAP12Endpoint();
@@ -161,8 +166,7 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
                 expectedReturnAction);
         OMElement result = soap.getResult();  // Get the result.
 
-        // Do ATNA auditing (after getting the result since we are only logging positive cases).
-        this.performAudit(getATNATransaction(), request, endpoint, XATNALogger.OutcomeIndicator.SUCCESS);
+
         return result;
     }
 
@@ -223,7 +227,32 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
      * This method returns an appropriate ATNA transaction type depending on whether the request is local or not.
      * @return a String representing an ATNA transaction Type
      */
-    public String getATNATransaction() {
-        return this.isLocalRequest() ? XATNALogger.TXN_ITI43 : XATNALogger.TXN_ITI39;
+    public ATNAAuditEvent.IHETransaction getATNATransaction() {
+        return this.isLocalRequest() ? ATNAAuditEvent.IHETransaction.ITI43 : ATNAAuditEvent.IHETransaction.ITI39;
+    }
+
+    /**
+     * 
+     * @param request
+     * @param endpoint
+     * @param outcome
+     */
+    private void auditRetrieve(OMElement request, String endpoint, ATNAAuditEvent.OutcomeIndicator outcome) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEvent.IHETransaction transaction = this.getATNATransaction();
+                ATNAAuditEventRetrieveDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRetrieveDocumentSet(request);
+                auditEvent.setTargetEndpoint(endpoint);
+                auditEvent.setTransaction(transaction);
+                auditEvent.setActorType(this.getGatewayActorType());
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.IMPORT);
+                auditEvent.setOutcomeIndicator(outcome);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception e) {
+            // Eat exception.
+            logger.error("Could not perform ATNA audit", e);
+        }
     }
 }
