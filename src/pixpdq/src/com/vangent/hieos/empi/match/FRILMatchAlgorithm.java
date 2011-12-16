@@ -55,8 +55,13 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      */
     @Override
     public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException {
+        System.out.println("Search Record: " + searchRecord);
+
         // First, get list of candidate records.
         List<Record> candidateRecords = this.findCandidates(searchRecord);
+
+        // DEBUG:
+        System.out.println("... number of candidate records = " + candidateRecords.size());
         // Now, run the findMatches algorithm.
         return this.findMatches(searchRecord, candidateRecords, matchType);
     }
@@ -82,12 +87,15 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
             // FIXME: Shouldn't we return a sorted list as the result?
             if (recordScore >= recordAcceptThreshold) {
                 // Match.
+                System.out.println("... Matched Record: " + scoredRecord.toString());
                 matchResults.addMatch(scoredRecord);
             } else if (recordScore < recordRejectThreshold) {
-                // No findMatches.
+                // Non-match.
+                System.out.println("... Non-Matched Record: " + scoredRecord.toString());
                 matchResults.addNonMatch(scoredRecord);
             } else {
-                // Possible findMatches.
+                // Possible match.
+                System.out.println("... Possible Matched Record: " + scoredRecord.toString());
                 matchResults.addPossibleMatch(scoredRecord);
             }
         }
@@ -133,7 +141,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
             Field searchRecordField = searchRecord.getField(matchFieldName);
             String searchRecordFieldValue = searchRecordField != null ? searchRecordField.getValue() : null;
             double fieldDistance;
-            if (searchRecordFieldValue != null) {
+            if ((searchRecordFieldValue != null) && !searchRecordFieldValue.isEmpty()) {
                 String candidateRecordFieldValue = record.getField(matchFieldName).getValue();
                 fieldDistance = distanceFunction.getDistance(searchRecordFieldValue, candidateRecordFieldValue);
             } else {
@@ -146,8 +154,8 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         }
         // Now, compute field-level and record scores.
         scoredRecord.computeScores();
-        System.out.println("ScoredRecord: " + scoredRecord.toString());
-        System.out.println("... recordScore = " + scoredRecord.getScore());
+        //System.out.println("ScoredRecord: " + scoredRecord.toString());
+        //System.out.println("... recordScore = " + scoredRecord.getScore());
         return scoredRecord;
     }
 

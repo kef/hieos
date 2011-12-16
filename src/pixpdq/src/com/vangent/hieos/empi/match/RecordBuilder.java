@@ -43,24 +43,24 @@ public class RecordBuilder {
         for (FieldConfig fieldConfig : fieldConfigs) {
             String sourceObjectPath = fieldConfig.getSourceObjectPath();
             String fieldName = fieldConfig.getName();
-            System.out.println("field name = " + fieldName);
-            System.out.println(" ... sourceObjectPath = " + sourceObjectPath);
+            //System.out.println("field name = " + fieldName);
+            //System.out.println(" ... sourceObjectPath = " + sourceObjectPath);
             try {
                 // FIXME: Deal with different types?
                 // Now access the field value.
                 Object value = PropertyUtils.getProperty(subject, sourceObjectPath);
                 if (value != null) {
-                    System.out.println(" ... value = " + value.toString());
+                    //System.out.println(" ... value = " + value.toString());
 
                     // Now run any transforms (in order).
                     List<TransformFunctionConfig> transformFunctionConfigs = fieldConfig.getTransformFunctionConfigs();
                     for (TransformFunctionConfig transformFunctionConfig : transformFunctionConfigs) {
-                        System.out.println(" ... transformFunction = " + transformFunctionConfig.getName());
+                        //System.out.println(" ... transformFunction = " + transformFunctionConfig.getName());
                         TransformFunction transformFunction = transformFunctionConfig.getTransformFunction();
                         value = transformFunction.transform(value);
                     }
                     
-                    System.out.println(" ... value (final) = " + value.toString());
+                    //System.out.println(" ... value (final) = " + value.toString());
                     Field field = new Field(fieldName, value.toString());
                     record.addField(field);
                 }
