@@ -304,8 +304,11 @@ public class AuditMessageBuilder {
             StringBuffer sb = sw.getBuffer();
             ret = new String(sb);
             if (logger.isTraceEnabled()) {
-                logger.trace("Message Content: " + ret);
+                logger.trace("--- ATNA Audit Message ---");
+                logger.trace(ret);
+                logger.trace("--------------------------");
             }
+
             ret = ret.replaceAll("-05:00", "");
 
             // Resolve schema validation errors
