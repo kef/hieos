@@ -13,7 +13,7 @@
 package com.vangent.hieos.xutil.services.framework;
 
 import com.vangent.hieos.xutil.response.Response;
-import com.vangent.hieos.xutil.atna.XATNALogger;
+//import com.vangent.hieos.xutil.atna.XATNALogger;
 
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
@@ -139,6 +139,7 @@ public class XBaseTransaction {
      * @param outcome
      * @param actor
      */
+    /*
     protected void performAudit(String transactionNumber, OMElement metadata, String targetEndpoint, XATNALogger.ActorType actor, XATNALogger.OutcomeIndicator outcome) {
         try {
             //Instantiate the audit class
@@ -154,5 +155,5 @@ public class XBaseTransaction {
         } catch (Exception e) {
             logger.error("Could not perform ATNA audit", e);
         }
-    }
+    }*/
 }

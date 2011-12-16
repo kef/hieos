@@ -12,6 +12,9 @@
  */
 package com.vangent.hieos.xutil.services.framework;
 
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventStart;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventStop;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -542,11 +545,11 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         throw new SOAPFaultException(msg);
     }
 
-     /**
-      * 
-      * @param ex
-      * @throws AxisFault
-      */
+    /**
+     *
+     * @param ex
+     * @throws AxisFault
+     */
     public void throwAxisFault(SOAPFaultException ex) throws AxisFault {
         if (log_message != null) {
             log_message.addErrorParam("SOAPError", ex.getMessage());
@@ -636,10 +639,15 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param actorType
      */
-    public void ATNAlogStop(XATNALogger.ActorType actorType) {
+    public void ATNAlogStop(ATNAAuditEvent.ActorType actorType) {
         try {
-            XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_STOP, actorType);
-            xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventStop auditEvent = new ATNAAuditEventStop();
+                auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.STOP);
+                auditEvent.setActorType(actorType);
+                xATNALogger.audit(auditEvent);
+            }
         } catch (Exception e) {
             logger.error("Could not perform ATNA audit (stop)", e);
         }
@@ -649,10 +657,15 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @param actorType
      */
-    public void ATNAlogStart(XATNALogger.ActorType actorType) {
+    public void ATNAlogStart(ATNAAuditEvent.ActorType actorType) {
         try {
-            XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_START, actorType);
-            xATNALogger.performAudit(null, null, XATNALogger.OutcomeIndicator.SUCCESS);
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventStart auditEvent = new ATNAAuditEventStart();
+                auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.START);
+                auditEvent.setActorType(actorType);
+                xATNALogger.audit(auditEvent);
+            }
         } catch (Exception e) {
             logger.error("Could not perform ATNA audit (start)", e);
         }
