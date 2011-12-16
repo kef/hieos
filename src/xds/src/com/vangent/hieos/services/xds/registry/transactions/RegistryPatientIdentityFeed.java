@@ -19,6 +19,8 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.adt.db.AdtRecordBean;
 import com.vangent.hieos.adt.db.AdtJdbcConnection;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 
@@ -131,12 +133,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
         // ATNA log (Start)
         OMElement idNode = this.getFirstChildWithName(request, "id");
         String messageId = (idNode != null) ? idNode.getAttributeValue(new QName("root")) : "UNKNOWN";
-        this.logPatientIdentityFeedToATNA(
-                XATNALogger.TXN_ITI44,
+        this.auditPatientIdentityFeed(
+                ATNAAuditEvent.IHETransaction.ITI44,
                 this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
                 updateMode /* updateMode */,
-                this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS,
+                this.errorDetected ? ATNAAuditEvent.OutcomeIndicator.MINOR_FAILURE : ATNAAuditEvent.OutcomeIndicator.SUCCESS,
                 null /* sourceIdentity */,
                 null /* sourceIP */);
         // ATNA log (Stop)
@@ -204,12 +206,12 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
         // ATNA log (Start)
         String messageId = this.getPatientFeedRequestNodeText(patientFeedRequest, "MessageControlId");
-        this.logPatientIdentityFeedToATNA(
-                XATNALogger.TXN_ITI8,
+        this.auditPatientIdentityFeed(
+                ATNAAuditEvent.IHETransaction.ITI8,
                 this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
                 updateMode /* updateMode */,
-                this.errorDetected ? XATNALogger.OutcomeIndicator.MINOR_FAILURE : XATNALogger.OutcomeIndicator.SUCCESS,
+                this.errorDetected ? ATNAAuditEvent.OutcomeIndicator.MINOR_FAILURE : ATNAAuditEvent.OutcomeIndicator.SUCCESS,
                 this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIdentity") /* sourceIdentity */,
                 this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIPAddress") /* sourceIP */);
         // ATNA log (Stop)
@@ -1227,20 +1229,32 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 // All of the log methods below should not generate exceptions if problems occur.
     /**
      *
+     * @param transaction
      * @param patientId
      * @param messageId
      * @param updateMode
+     * @param outcome
+     * @param sourceIdentity
+     * @param sourceIP
      */
-    private void logPatientIdentityFeedToATNA(
-            String transactionId,
-            String patientId, String messageId, boolean updateMode, XATNALogger.OutcomeIndicator outcome,
+    private void auditPatientIdentityFeed(
+            ATNAAuditEvent.IHETransaction transaction,
+            String patientId, String messageId, boolean updateMode, ATNAAuditEvent.OutcomeIndicator outcome,
             String sourceIdentity, String sourceIP) {
         try {
-            //this.selectSingleNode(request, this.XPATH_MESSAGE_ID);
-            XATNALogger xATNALogger = new XATNALogger(transactionId, XATNALogger.ActorType.REGISTRY);
-            xATNALogger.auditPatientIdentityFeedToRegistry(
-                    patientId, messageId, updateMode, outcome,
-                    sourceIdentity, sourceIP);
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventPatientIdentityFeed auditEvent = new ATNAAuditEventPatientIdentityFeed();
+                auditEvent.setTransaction(transaction);
+                auditEvent.setActorType(ATNAAuditEvent.ActorType.REGISTRY);
+                auditEvent.setPatientId(patientId);
+                auditEvent.setMessageId(messageId);
+                auditEvent.setUpdateMode(updateMode);
+                auditEvent.setOutcomeIndicator(outcome);
+                auditEvent.setSourceIP(sourceIP);
+                auditEvent.setSourceIdentity(sourceIdentity);
+                xATNALogger.audit(auditEvent);
+            }
         } catch (Exception e) {
             this.logInternalException(e, "Error trying to perform ATNA logging for Patient Identity Feed");
         }

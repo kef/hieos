@@ -36,6 +36,11 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.exception.XDSRepositoryMetadataError;
@@ -61,7 +66,6 @@ import org.apache.commons.codec.binary.Base64;
 public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
 
     private final static Logger logger = Logger.getLogger(ProvideAndRegisterDocumentSet.class);
-
     private Repository repoConfig = null;
 
     /**
@@ -186,19 +190,20 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
                 pnr,
                 MetadataTypes.METADATA_TYPE_RET);
 
-        OMElement sor = findSubjectObjectsRequest(pnr);
+        OMElement sor = findSOR(pnr);
         Metadata m = new Metadata(sor);
 
         //AUDIT:POINT
         //call to audit message for document repository
         //for Transaction id = ITI-41. (Provide & Register Document set-b)
         //Here document consumer is treated as document repository
-        performAudit(
-                XATNALogger.TXN_ITI41,
-                sor,
-                null,
-                XATNALogger.ActorType.REPOSITORY,
-                XATNALogger.OutcomeIndicator.SUCCESS);
+        this.auditProvideAndRegisterDocumentSet(sor);
+        //performAudit(
+        //        XATNALogger.TXN_ITI41,
+        //        sor,
+        //        null,
+        //        XATNALogger.ActorType.REPOSITORY,
+        //        XATNALogger.OutcomeIndicator.SUCCESS);
 
         log_message.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
         log_message.addOtherParam("Structure", m.structure());
@@ -255,8 +260,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         }
 
         if (eo_count != doc_count) {
-            throw new XDSMissingDocumentMetadataException("Submission contained " + doc_count + " documents but " + eo_count +
-                    " ExtrinsicObjects in metadata - they must match");
+            throw new XDSMissingDocumentMetadataException("Submission contained " + doc_count + " documents but " + eo_count
+                    + " ExtrinsicObjects in metadata - they must match");
         }
 
         setRepositoryUniqueId(m);
@@ -273,25 +278,21 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         try {
             OMElement result;
             try {
-                boolean soap12 = this.isRegisterTransactionSOAP12();
-                soap.soapCall(
-                        register_transaction,
-                        epr,
-                        false,    /* mtom. */
-                        soap12,   /* addressing - only if SOAP 1.2 */
-                        soap12,
-                        action,
-                        expectedReturnAction);
                 //AUDIT:POINT
                 //call to audit message for document repository
                 //for Transaction id = ITI-42. (Register Document set-b)
                 //Here document consumer is treated as document repository
-                performAudit(
-                        XATNALogger.TXN_ITI42,
+                this.auditRegisterDocumentSet(register_transaction, epr);
+                boolean soap12 = this.isRegisterTransactionSOAP12();
+                soap.soapCall(
                         register_transaction,
                         epr,
-                        XATNALogger.ActorType.REPOSITORY,
-                        XATNALogger.OutcomeIndicator.SUCCESS);
+                        false, /* mtom. */
+                        soap12, /* addressing - only if SOAP 1.2 */
+                        soap12,
+                        action,
+                        expectedReturnAction);
+
             } catch (SOAPFaultException e) {
                 response.add_error(MetadataSupport.XDSRegistryNotAvailable, e.getMessage(), this.getClass().getName(), log_message);
                 return;  // Early exit!!
@@ -361,12 +362,12 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @return
      * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
      */
-    private OMElement findSubjectObjectsRequest(OMElement pnr) throws MetadataValidationException {
+    private OMElement findSOR(OMElement pnr) throws MetadataValidationException {
         OMElement sor;
         sor = pnr.getFirstElement();
         if (sor == null || !sor.getLocalName().equals("SubmitObjectsRequest")) {
-            throw new MetadataValidationException("Cannot find SubmitObjectsRequest element in submission - top level element is " +
-                    pnr.getLocalName());
+            throw new MetadataValidationException("Cannot find SubmitObjectsRequest element in submission - top level element is "
+                    + pnr.getLocalName());
         }
         return sor;
     }
@@ -477,9 +478,9 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         if (submittedDocumentHash != null) {
             if (!submittedDocumentHash.equalsIgnoreCase(doc.getHash())) {
                 throw new XDSRepositoryMetadataError(
-                        "Submitted hash(" + submittedDocumentHash + ")" +
-                        " does not match computed hash(" +
-                        doc.getHash() + ")");
+                        "Submitted hash(" + submittedDocumentHash + ")"
+                        + " does not match computed hash("
+                        + doc.getHash() + ")");
             }
         }
 
@@ -490,9 +491,9 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         if (submittedDocumentSize != null) {
             if (!submittedDocumentSize.equalsIgnoreCase(computedDocumentedSize)) {
                 throw new XDSRepositoryMetadataError(
-                        "Submitted size(" + submittedDocumentSize + ")" +
-                        " does not match computed size(" +
-                        computedDocumentedSize + ")");
+                        "Submitted size(" + submittedDocumentSize + ")"
+                        + " does not match computed size("
+                        + computedDocumentedSize + ")");
             }
         }
 
@@ -569,5 +570,48 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      */
     private String getRegistryExpectedReturnSOAPAction() {
         return SoapActionFactory.XDSB_REGISTRY_REGISTER_ACTION_RESPONSE;
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditProvideAndRegisterDocumentSet(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRegisterDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventProvideAndRegisterDocumentSet(rootNode);
+                auditEvent.setActorType(ActorType.REPOSITORY);
+                auditEvent.setTransaction(IHETransaction.ITI41);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.IMPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param targetEndpoint
+     */
+    private void auditRegisterDocumentSet(OMElement rootNode, String targetEndpoint) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRegisterDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegisterDocumentSet(rootNode);
+                // Override now.
+                auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.ITI42);
+                auditEvent.setActorType(ATNAAuditEvent.ActorType.REPOSITORY);
+                auditEvent.setTargetEndpoint(targetEndpoint);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.EXPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 }

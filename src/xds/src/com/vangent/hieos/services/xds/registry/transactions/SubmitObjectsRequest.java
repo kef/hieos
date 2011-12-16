@@ -35,6 +35,11 @@ import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.metadata.validation.Validator;
 import com.vangent.hieos.services.xds.registry.storedquery.SQFactory;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -43,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xml.Util;
 
 import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
@@ -93,12 +97,13 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             // NOTE!!: Moved above "SubjectObjectsRequestInternal()" method call since the "sor" instance
             // is changed during the execution of "SubjectObjectsRequestInternal() method.  Otherwise,
             // we would need to pay the penalty for a deep copy of the "sor" instance.
-            performAudit(
-                    XATNALogger.TXN_ITI42,
-                    sor,
-                    null,
-                    XATNALogger.ActorType.REGISTRY,
-                    XATNALogger.OutcomeIndicator.SUCCESS);
+            this.auditSubjectObjectsRequest(sor);
+            //performAudit(
+            //        XATNALogger.TXN_ITI42,
+            //        sor,
+            //        null,
+            //        XATNALogger.ActorType.REGISTRY,
+            //        XATNALogger.OutcomeIndicator.SUCCESS);
             SubmitObjectsRequestInternal(sor);
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
@@ -462,6 +467,26 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditSubjectObjectsRequest(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRegisterDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegisterDocumentSet(rootNode);
+                auditEvent.setActorType(ActorType.REGISTRY);
+                auditEvent.setTransaction(IHETransaction.ITI42);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.IMPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
         }
     }
 }

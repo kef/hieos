@@ -19,6 +19,11 @@ import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.services.xds.policy.DocumentPolicyResult;
 import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -120,12 +125,13 @@ public class AdhocQueryRequest extends XBaseTransaction {
             //call to audit message for the Registry
             //for Transaction id = ITI-18. (Registry Stored Query)
             //Here the Registry is treated as source
-            performAudit(
-                    XATNALogger.TXN_ITI18,
-                    ahqr,
-                    null,
-                    XATNALogger.ActorType.REGISTRY,
-                    XATNALogger.OutcomeIndicator.SUCCESS);
+            this.auditAdhocQuery(ahqr);
+            //performAudit(
+            //        XATNALogger.TXN_ITI18,
+            //        ahqr,
+            //        null,
+            //        XATNALogger.ActorType.REGISTRY,
+            //        XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (XdsResultNotSinglePatientException e) {
             response.add_error(MetadataSupport.XDSResultNotSinglePatient, e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsValidationException e) {
@@ -203,7 +209,7 @@ public class AdhocQueryRequest extends XBaseTransaction {
                             if (log_message.isLogEnabled()) {
                                 log_message.addOtherParam("Policy:Note", "DENIED access to all content");
                             }
-                            response.add_warning(MetadataSupport.XDSPolicyEvaluationWarning, "Request denied due to policy", this.getClass().getName(), log_message);                            
+                            response.add_warning(MetadataSupport.XDSPolicyEvaluationWarning, "Request denied due to policy", this.getClass().getName(), log_message);
                         } else if (!pdpResponse.hasObligations()) {
                             if (log_message.isLogEnabled()) {
                                 log_message.addOtherParam("Policy:Note", "PERMITTED access to all content [no obligations]");
@@ -259,17 +265,17 @@ public class AdhocQueryRequest extends XBaseTransaction {
                     obligationIds.get(0),
                     pdpResponse.getRequestType(),
                     new RegistryObjectElementList(registryObjects));
-            
+
             // Place permitted registry objects into the response.
             List<OMElement> permittedRegistryObjects = policyResult.getPermittedRegistryObjects().getElementList();
             if (!permittedRegistryObjects.isEmpty()) {
                 AdhocQueryResponse ahqResponse = (AdhocQueryResponse) response;
                 ahqResponse.addQueryResults((ArrayList) permittedRegistryObjects);
             }
-            
+
             // emit denial warnings
             policyResult.emitDocumentDenialWarnings(response, getClass(), log_message);
-            
+
         } else {
             // Note: We should no longer get to this code.
             // We do not interrogate ObjectRef requests.
@@ -437,5 +443,25 @@ public class AdhocQueryRequest extends XBaseTransaction {
         // If this is not an MPQ request, then validate consistent patient identifiers
         // in response.
         return fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditAdhocQuery(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegistryStoredQuery(rootNode);
+                auditEvent.setActorType(ActorType.REGISTRY);
+                IHETransaction iheTransaction = this.isMPQRequest() ? IHETransaction.ITI51 : IHETransaction.ITI18;
+                auditEvent.setTransaction(iheTransaction);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.QUERY_PROVIDER);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 }

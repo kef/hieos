@@ -40,6 +40,11 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.services.xds.repository.storage.XDSDocument;
 import com.vangent.hieos.services.xds.repository.storage.XDSRepositoryStorage;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.AuditEventType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRetrieveDocumentSet;
 
 import com.vangent.hieos.xutil.exception.XDSDocumentUniqueIdError;
 import java.util.ArrayList;
@@ -145,12 +150,13 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             //call to audit message for document repository
             //for Transaction id = ITI-43. (Retrieve Document Set)
             //Here document consumer is treated as document repository
-            performAudit(
-                    XATNALogger.TXN_ITI43,
-                    rds,
-                    null,
-                    XATNALogger.ActorType.REPOSITORY,
-                    XATNALogger.OutcomeIndicator.SUCCESS);
+            this.auditRetrieveDocumentSet(rds);
+            //performAudit(
+            //        XATNALogger.TXN_ITI43,
+            //        rds,
+            //        null,
+            //        XATNALogger.ActorType.REPOSITORY,
+            //        XATNALogger.OutcomeIndicator.SUCCESS);
 
         } catch (XdsFormatException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
@@ -217,7 +223,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                         registryObjects);
                 permittedDocumentList = policyResult.getPermittedDocuments();
             }
-            
+
             // Now, add list of permitted documents to the response.
             this.addPermittedDocumentsToResponse(documentResponseList, permittedDocumentList);
         }
@@ -245,7 +251,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
                 DocumentPolicyResult.emitDocumentDenialWarning(new DocumentMetadata(documentResponse),
                         response, getClass(), this.log_message);
             }
-            
+
             if (log_message.isLogEnabled()) {
                 if (permittedAccessToDocument) {
                     logsb.append("...PERMIT" + "[doc_id=").append(documentResponse.getDocumentId()).append(", repo_id=").append(documentResponse.getRepositoryId()).append("]");
@@ -258,7 +264,7 @@ public class RetrieveDocumentSet extends XBaseTransaction {
             log_message.addOtherParam("DelegateDocumentLevelPolicyEval",
                     this.getConfigActor().getProperty("DelegateDocumentLevelPolicyEval"));
             log_message.addOtherParam("Policy:Note", logsb.toString());
-        }        
+        }
     }
 
     /**
@@ -385,6 +391,26 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         documentNode.addChild(t);
         documentResponseNode.addChild(documentNode);
         return documentResponseNode;
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditRetrieveDocumentSet(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRetrieveDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRetrieveDocumentSet(rootNode);
+                auditEvent.setActorType(ActorType.REPOSITORY);
+                auditEvent.setTransaction(IHETransaction.ITI43);
+                auditEvent.setAuditEventType(AuditEventType.EXPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 
     /**

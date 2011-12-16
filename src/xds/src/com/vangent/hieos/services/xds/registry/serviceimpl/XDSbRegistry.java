@@ -18,6 +18,7 @@ import com.vangent.hieos.services.xds.registry.transactions.AdhocQueryRequest;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xds.registry.transactions.SubmitObjectsRequest;
 import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 
 import org.apache.log4j.Logger;
 import org.apache.axis2.AxisFault;
@@ -28,7 +29,6 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -334,7 +334,7 @@ public class XDSbRegistry extends XAbstractService {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(XATNALogger.ActorType.REGISTRY);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.REGISTRY);
     }
 
     /**
@@ -344,6 +344,6 @@ public class XDSbRegistry extends XAbstractService {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("DocumentRegistry::shutDown()");
-        this.ATNAlogStop(XATNALogger.ActorType.REGISTRY);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.REGISTRY);
     }
 }
