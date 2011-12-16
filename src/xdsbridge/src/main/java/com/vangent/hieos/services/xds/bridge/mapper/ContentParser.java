@@ -10,9 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.bridge.mapper;
 
+import com.vangent.hieos.services.xds.bridge.utils.ContentConverterUtils;
 import java.util.HashMap;
 import java.util.Map;
 import com.vangent.hieos.xutil.exception.XMLParserException;
@@ -71,13 +71,19 @@ public class ContentParser {
         String[] uris = prefixUris[1];
 
         Map<String, String> expressions = config.getExpressions();
-
+        Map<String, String> contentConversions = config.getContentConversions();
         for (Map.Entry<String, String> entry : expressions.entrySet()) {
-
             String expression = entry.getValue();
             String value = parseText(node, expression, prefixes, uris);
-
-            result.put(entry.getKey(), value);
+            String variableKey = entry.getKey();
+            // See if we need to run a converter.
+            if (contentConversions != null) {
+                String contentConversion = contentConversions.get(variableKey);
+                if (contentConversion != null) {
+                    value = ContentConverterUtils.convert(variableKey, value, contentConversion);
+                }
+            }
+            result.put(variableKey, value);
         }
 
         return result;
@@ -98,7 +104,7 @@ public class ContentParser {
      * @throws XPathHelperException
      */
     private String parseText(OMElement elem, String expr, String[] prefixes,
-                             String[] uris)
+            String[] uris)
             throws XPathHelperException {
 
         String result = XPathHelper.stringValueOf(elem, expr, prefixes, uris);

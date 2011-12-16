@@ -353,8 +353,18 @@ public class CDAToXDSMapper implements IXDSMapper {
                        String.format("%s^%s", sourceIdRoot, sourceIdExt));
         }
 
-        result.put(ContentVariableName.SubmissionTime.toString(),
-                   Hl7Date.now());
+        // Convert Submission Time to DTM_UTC format (if required).
+        //String submissionTime;
+        //Map<String, String> contentConversions = cfg.getContentConversions();
+        //if (contentConversions != null) {
+            // See if a converter exists for the submission time.
+        //    String contentConversion = contentConversions.get(ContentVariableName.SubmissionTime.toString());
+        //    if (contentConversion != null)
+        //    {
+        //        System.out.println("SubmissionTime CONVERSION would go here!!!");
+        //    }
+        //}
+        result.put(ContentVariableName.SubmissionTime.toString(), Hl7Date.nowUTC());
 
         // uses 2.25 prefix
         result.put(ContentVariableName.SubmissionSetUniqueId.toString(),

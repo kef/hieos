@@ -157,8 +157,19 @@ public class XDSBridgeConfigXmlParser {
             }
         }
 
+        OMElement contentConversionsElem = parserConfigElem.getFirstChildWithName(
+                                    new QName("ContentConversions"));
+        Map<String, String> contentConversions = null;
+
+        if (contentConversionsElem != null) {
+
+            // pull expressions
+            contentConversions = parseNameValuePairs(contentConversionsElem, "Variable", "name",
+                                              "converter", true);
+        }
+
         return new ContentParserConfig(name, namespaces, expressions,
-                                       staticValues, templateFilename);
+                                       staticValues, contentConversions, templateFilename);
     }
 
     /**
