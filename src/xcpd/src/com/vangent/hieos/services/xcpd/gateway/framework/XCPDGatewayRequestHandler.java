@@ -12,28 +12,28 @@
  */
 package com.vangent.hieos.services.xcpd.gateway.framework;
 
+import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.client.PDSClient;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XMLSchemaValidatorException;
-import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import com.vangent.hieos.xutil.xml.XPathHelper;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -47,10 +47,22 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     private final static Logger logger = Logger.getLogger(XCPDGatewayRequestHandler.class);
     private final static int DEFAULT_MINIMUM_DEGREE_MATCH_PERCENTAGE = 90;
 
+    /**
+     *
+     */
     public enum GatewayType {
 
+        /**
+         *
+         */
         InitiatingGateway,
+        /**
+         *
+         */
         RespondingGateway,
+        /**
+         *
+         */
         Unknown
     };
     private GatewayType gatewayType = GatewayType.Unknown;
@@ -227,91 +239,48 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
         return log_message.isPass();
     }
 
-    // FIXME: Rewrite
     /**
-     * 
+     *
+     * @param actorType
      * @param request
-     * @param subjectSearchCriteria
-     * @param endpoint
+     * @param targetEndpoint
      */
-    public void performATNAAudit(PRPA_IN201305UV02_Message request,
-            SubjectSearchCriteria subjectSearchCriteria, String endpoint) {
+    public void performAuditPDQQueryInitiator(ATNAAuditEvent.ActorType actorType,
+            PRPA_IN201305UV02_Message request, String targetEndpoint) {
         try {
-            //Instantiate the audit class
-            XATNALogger.ActorType actorType = XATNALogger.ActorType.RESPONDING_GATEWAY;
-            if (this.gatewayType == GatewayType.InitiatingGateway) {
-                actorType = XATNALogger.ActorType.INITIATING_GATEWAY;
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                String homeCommunityId = this.getGatewayConfig().getUniqueId();
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventPDQQueryInitiator(
+                        actorType, request, homeCommunityId, targetEndpoint);
+                auditEvent.setTransaction(IHETransaction.ITI55);
+                xATNALogger.audit(auditEvent);
             }
-            XATNALogger xATNALogger = new XATNALogger(XATNALogger.TXN_ITI55, actorType);
-
-            // Get patient ids.
-            String patientIdText = null;
-            Subject subject = subjectSearchCriteria.getSubject();
-            for (SubjectIdentifier subjectIdentifer : subject.getSubjectIdentifiers()) {
-                SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifer.getIdentifierDomain();
-                String assigningAuthority = subjectIdentifierDomain.getUniversalId();
-                String pid = subjectIdentifer.getIdentifier() + "^^^&" + assigningAuthority + "&ISO";
-                if (patientIdText == null) {
-                    patientIdText = pid;
-                } else {
-                    patientIdText = patientIdText + "," + pid;
-                }
-            }
-            String homeCommunityId = this.getGatewayConfig().getUniqueId();
-            xATNALogger.performAuditCrossGatewayPatientDiscovery(
-                    patientIdText,
-                    homeCommunityId,
-                    this.getQueryId(request),
-                    this.getQueryByParameter(request),
-                    endpoint,
-                    XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (Exception ex) {
             logger.error("XCPD EXCEPTION: Could not perform ATNA audit", ex);
         }
     }
 
-    // FIXME: Rewrite (MOVE TO PROPER CODE LOCATION).
-    /**
-     *
-     * @param request
-     * @return
-     */
-    private String getQueryByParameter(PRPA_IN201305UV02_Message request) {
-        String XPATH_QUERY_BY_PARAMETER =
-                "./ns:controlActProcess/ns:queryByParameter[1]";
-        String HL7V3_NAMESPACE = "urn:hl7-org:v3";
-
-        String queryByParameter = "UNKNOWN";
-        try {
-            OMElement queryByParameterNode = XPathHelper.selectSingleNode(
-                    request.getMessageNode(),
-                    XPATH_QUERY_BY_PARAMETER, HL7V3_NAMESPACE);
-            queryByParameter = queryByParameterNode.toString();
-        } catch (XPathHelperException ex) {
-            // FIXME: ???
-        }
-        return queryByParameter;
-    }
-
-    // FIXME: Rewrite (MOVE TO PROPER CODE LOCATION).
     /**
      * 
+     * @param actorType
      * @param request
-     * @return
+     * @param subjectSearchResponse
      */
-    private String getQueryId(PRPA_IN201305UV02_Message request) {
-        String XPATH_QUERY_ID =
-                "./ns:controlActProcess/ns:queryByParameter/ns:queryId[1]";
-        String HL7V3_NAMESPACE = "urn:hl7-org:v3";
-
-        String queryId = "UNKNOWN";
+    public void performAuditPDQQueryProvider(ATNAAuditEvent.ActorType actorType,
+            PRPA_IN201305UV02_Message request,
+            SubjectSearchResponse subjectSearchResponse) {
         try {
-            OMElement queryIdNode = XPathHelper.selectSingleNode(
-                    request.getMessageNode(), XPATH_QUERY_ID, HL7V3_NAMESPACE);
-            queryId = queryIdNode.toString();
-        } catch (XPathHelperException ex) {
-            // FIXME: ???
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                String homeCommunityId = this.getGatewayConfig().getUniqueId();
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventPDQQueryProvider(
+                        actorType, request, subjectSearchResponse, homeCommunityId);
+                auditEvent.setTransaction(IHETransaction.ITI55);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("XCPD EXCEPTION: Could not perform ATNA audit", ex);
         }
-        return queryId;
     }
 }

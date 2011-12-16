@@ -29,6 +29,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -51,9 +52,10 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
 
     // Type type of message received.
     public enum MessageType {
+
         CrossGatewayPatientDiscovery,
         PatientLocationQuery
-     };
+    };
     private final static Logger logger = Logger.getLogger(XCPDRespondingGatewayRequestHandler.class);
     private static XConfigActor _pdsConfig = null;
 
@@ -108,8 +110,6 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             SubjectSearchCriteria subjectSearchCriteria =
                     criteriaBuilder.buildSubjectSearchCriteria(request);
 
-            this.performATNAAudit(request, subjectSearchCriteria, null /* endpoint */);
-
             // Validate against XCPD rules.
             this.validateRequest(subjectSearchCriteria);
 
@@ -143,6 +143,9 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
                 custodian.setSupportsHealthDataLocator(false);
                 subject.setCustodian(custodian);
             }
+            // ATNA Audit:
+            this.performAuditPDQQueryProvider(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY,
+                    request, patientDiscoverySearchResponse);
         } catch (Exception ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }

@@ -17,6 +17,7 @@ import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
 
 import com.vangent.hieos.services.xcpd.gateway.framework.XCPDGatewayRequestHandler;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
@@ -60,11 +61,10 @@ public class GatewayCallable implements Callable<GatewayResponse> {
                     message.getMessageNode().toString());
         }
 
-        // Audit
-        requestHandler.performATNAAudit(this.request.getRequest(),
-                this.request.getSubjectSearchCriteria(),
+        // ATNA Audit:
+        requestHandler.performAuditPDQQueryInitiator(ATNAAuditEvent.ActorType.INITIATING_GATEWAY,
+                this.request.getRequest(),
                 this.request.getEndpoint());
-
 
         // Make the call.
         XCPDGatewayClient client = new XCPDGatewayClient(request.getRGConfig());

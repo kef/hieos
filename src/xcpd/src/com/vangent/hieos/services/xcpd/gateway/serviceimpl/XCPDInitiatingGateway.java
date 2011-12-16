@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.xcpd.gateway.serviceimpl;
 
 import com.vangent.hieos.services.xcpd.gateway.transactions.XCPDInitiatingGatewayRequestHandler;
-import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -128,7 +128,7 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(XATNALogger.ActorType.INITIATING_GATEWAY);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 
     /**
@@ -138,6 +138,6 @@ public class XCPDInitiatingGateway extends XCPDGateway {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("XCPDInitiatingGateway::shutDown()");
-        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 }
