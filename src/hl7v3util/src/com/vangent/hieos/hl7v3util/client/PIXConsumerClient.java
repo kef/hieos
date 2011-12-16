@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.client;
 
+import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message_Builder;
@@ -47,7 +48,7 @@ public class PIXConsumerClient extends WebServiceClient {
      * @return
      * @throws SOAPFaultException
      */
-    public MCCI_IN000002UV01_Message patientRegistryRecordRevised(PRPA_IN201302UV02_Message request) throws SOAPFaultException {
+    public HL7V3ClientResponse patientRegistryRecordRevised(PRPA_IN201302UV02_Message request) throws SOAPFaultException {
         // TBD: Validate against schema.
         Soap soap = new Soap();
         XConfigActor config = this.getConfig();
@@ -62,7 +63,12 @@ public class PIXConsumerClient extends WebServiceClient {
                 soap12,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION /* SOAP action */,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION_RESPONSE /* SOAP action response */);
-        return new MCCI_IN000002UV01_Message(soapResponse);
+        HL7V3ClientResponse clientResponse = new HL7V3ClientResponse();
+        clientResponse.setClientMessage(request);
+        clientResponse.setMessageId(HL7V3MessageBuilderHelper.getMessageId(request));
+        clientResponse.setTargetEndpoint(txn.getEndpointURL());
+        clientResponse.setTargetResponse(new MCCI_IN000002UV01_Message(soapResponse));
+        return clientResponse;
     }
 
     /**
@@ -73,11 +79,10 @@ public class PIXConsumerClient extends WebServiceClient {
      * @return
      * @throws SOAPFaultException
      */
-    public MCCI_IN000002UV01_Message patientRegistryRecordRevised(
+    public HL7V3ClientResponse patientRegistryRecordRevised(
             DeviceInfo senderDeviceInfo,
             DeviceInfo receiverDeviceInfo,
             Subject subject) throws SOAPFaultException {
-        MCCI_IN000002UV01_Message response = null;
 
         // Build the HL7v3 message.
         PRPA_IN201302UV02_Message_Builder messageBuilder =
@@ -87,7 +92,6 @@ public class PIXConsumerClient extends WebServiceClient {
                 messageBuilder.buildPRPA_IN201302UV02_Message(subject);
 
         // FIXME: Should build a converter of the ACK response.
-        response = this.patientRegistryRecordRevised(request);
-        return response;
+        return this.patientRegistryRecordRevised(request);
     }
 }

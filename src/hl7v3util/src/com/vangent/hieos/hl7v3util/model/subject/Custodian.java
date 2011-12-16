@@ -16,24 +16,50 @@ package com.vangent.hieos.hl7v3util.model.subject;
  *
  * @author Bernie Thuman
  */
-public class Custodian {
+public class Custodian implements Cloneable {
 
-    boolean supportsHealthDataLocator;
-    String custodianId;
+    private boolean supportsHealthDataLocator;
+    private String custodianId;
 
+    /**
+     *
+     * @return
+     */
     public String getCustodianId() {
         return custodianId;
     }
 
+    /**
+     * 
+     * @param custodianId
+     */
     public void setCustodianId(String custodianId) {
         this.custodianId = custodianId;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isSupportsHealthDataLocator() {
         return supportsHealthDataLocator;
     }
 
+    /**
+     *
+     * @param supportsHealthDataLocator
+     */
     public void setSupportsHealthDataLocator(boolean supportsHealthDataLocator) {
         this.supportsHealthDataLocator = supportsHealthDataLocator;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class Subject {
+public class Subject implements Cloneable {
 
     private List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();
@@ -501,5 +501,53 @@ public class Subject {
     public void clearIdentifiers() {
         subjectIdentifiers.clear();
         subjectOtherIdentifiers.clear();
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Subject copy = (Subject) super.clone();
+        copy.subjectIdentifiers = SubjectIdentifier.clone(subjectIdentifiers);
+        copy.subjectOtherIdentifiers = SubjectIdentifier.clone(subjectOtherIdentifiers);
+        copy.subjectNames = SubjectName.clone(subjectNames);
+        copy.addresses = Address.clone(addresses);
+        copy.telecomAddresses = TelecomAddress.clone(telecomAddresses);
+        copy.gender = CodedValue.clone(gender);
+        copy.maritalStatus = CodedValue.clone(maritalStatus);
+        copy.religiousAffiliation = CodedValue.clone(religiousAffiliation);
+        copy.race = CodedValue.clone(race);
+        copy.ethnicGroup = CodedValue.clone(ethnicGroup);
+        if (custodian != null) {
+            copy.custodian = (Custodian) custodian.clone();
+        }
+        if (birthTime != null) {
+            copy.birthTime = (Date) birthTime.clone();
+        }
+        if (deceasedTime != null) {
+            copy.deceasedTime = (Date) deceasedTime.clone();
+        }
+        return copy;
+    }
+
+    /**
+     *
+     * @param listToClone
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    public static List<Subject> clone(List<Subject> listToClone) throws CloneNotSupportedException {
+        List<Subject> copy = null;
+        if (listToClone != null) {
+            copy = new ArrayList<Subject>();
+            for (Subject elementToClone : listToClone) {
+                Subject clonedElement = (Subject) elementToClone.clone();
+                copy.add(clonedElement);
+            }
+        }
+        return copy;
     }
 }

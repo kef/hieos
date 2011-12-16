@@ -12,11 +12,14 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectIdentifier {
+public class SubjectIdentifier implements Cloneable {
 
     private String subjectId;
     private String identifier;
@@ -141,5 +144,37 @@ public class SubjectIdentifier {
      */
     public void setInternalId(String internalId) {
         this.internalId = internalId;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SubjectIdentifier copy = (SubjectIdentifier) super.clone();
+        if (identifierDomain != null) {
+            copy.identifierDomain = (SubjectIdentifierDomain) identifierDomain.clone();
+        }
+        return copy;
+    }
+
+    /**
+     *
+     * @param listToClone
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    public static List<SubjectIdentifier> clone(List<SubjectIdentifier> listToClone) throws CloneNotSupportedException {
+        List<SubjectIdentifier> copy = null;
+        if (listToClone != null) {
+            copy = new ArrayList<SubjectIdentifier>();
+            for (SubjectIdentifier elementToClone : listToClone) {
+                SubjectIdentifier clonedElement = (SubjectIdentifier) elementToClone.clone();
+                copy.add(clonedElement);
+            }
+        }
+        return copy;
     }
 }

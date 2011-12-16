@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectSearchCriteria {
+public class SubjectSearchCriteria implements Cloneable {
 
     private Subject subject = null;
     private int minimumDegreeMatchPercentage = 100;  // Default.
@@ -147,5 +147,23 @@ public class SubjectSearchCriteria {
      */
     public void setSpecifiedMinimumDegreeMatchPercentage(boolean specifiedMinimumDegreeMatchPercentage) {
         this.specifiedMinimumDegreeMatchPercentage = specifiedMinimumDegreeMatchPercentage;
+    }
+
+    /**
+     * 
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SubjectSearchCriteria copy = (SubjectSearchCriteria) super.clone();
+        if (subject != null) {
+            copy.subject = (Subject) subject.clone();
+        }
+        if (communityAssigningAuthority != null) {
+            copy.communityAssigningAuthority = (SubjectIdentifierDomain) communityAssigningAuthority.clone();
+        }
+        copy.scopingAssigningAuthorities = SubjectIdentifierDomain.clone(scopingAssigningAuthorities);
+        return copy;
     }
 }

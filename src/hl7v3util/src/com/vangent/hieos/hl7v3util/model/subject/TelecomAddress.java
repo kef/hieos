@@ -12,11 +12,14 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class TelecomAddress {
+public class TelecomAddress implements Cloneable {
 
     private String internalId = null;
     private String use;
@@ -68,5 +71,33 @@ public class TelecomAddress {
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    /**
+     *
+     * @param listToClone
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    public static List<TelecomAddress> clone(List<TelecomAddress> listToClone) throws CloneNotSupportedException {
+        List<TelecomAddress> copy = null;
+        if (listToClone != null) {
+            copy = new ArrayList<TelecomAddress>();
+            for (TelecomAddress elementToClone : listToClone) {
+                TelecomAddress clonedElement = (TelecomAddress) elementToClone.clone();
+                copy.add(clonedElement);
+            }
+        }
+        return copy;
     }
 }

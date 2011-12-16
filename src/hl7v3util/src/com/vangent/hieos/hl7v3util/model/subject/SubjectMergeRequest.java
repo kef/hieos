@@ -16,7 +16,7 @@ package com.vangent.hieos.hl7v3util.model.subject;
  *
  * @author Bernie Thuman
  */
-public class SubjectMergeRequest {
+public class SubjectMergeRequest implements Cloneable {
     // Even though, we really only care about subject identifiers, there may be other
     // information we need (in the future).
 
@@ -53,5 +53,22 @@ public class SubjectMergeRequest {
      */
     public void setSurvivingSubject(Subject survivingSubject) {
         this.survivingSubject = survivingSubject;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SubjectMergeRequest copy = (SubjectMergeRequest) super.clone();
+        if (survivingSubject != null) {
+            copy.survivingSubject = (Subject) survivingSubject.clone();
+        }
+        if (subsumedSubject != null) {
+            copy.subsumedSubject = (Subject) subsumedSubject.clone();
+        }
+        return copy;
     }
 }

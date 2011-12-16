@@ -12,11 +12,14 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectIdentifierDomain {
+public class SubjectIdentifierDomain implements Cloneable {
 
     private int id;
     private String namespaceId;
@@ -96,5 +99,33 @@ public class SubjectIdentifierDomain {
         // FIXME?: Only looks at ID & Type since namespaceId could be problematic ...
         return subjectIdentifierDomain.getUniversalId().equals(this.universalId)
                 && subjectIdentifierDomain.getUniversalIdType().equals(this.universalIdType);
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    /**
+     *
+     * @param listToClone
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    public static List<SubjectIdentifierDomain> clone(List<SubjectIdentifierDomain> listToClone) throws CloneNotSupportedException {
+        List<SubjectIdentifierDomain> copy = null;
+        if (listToClone != null) {
+            copy = new ArrayList<SubjectIdentifierDomain>();
+            for (SubjectIdentifierDomain elementToClone : listToClone) {
+                SubjectIdentifierDomain clonedElement = (SubjectIdentifierDomain) elementToClone.clone();
+                copy.add(clonedElement);
+            }
+        }
+        return copy;
     }
 }

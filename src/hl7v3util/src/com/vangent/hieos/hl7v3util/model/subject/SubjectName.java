@@ -12,11 +12,14 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectName {
+public class SubjectName implements Cloneable {
 
     private String givenName;
     private String familyName;
@@ -140,5 +143,33 @@ public class SubjectName {
      */
     public void setInternalId(String internalId) {
         this.internalId = internalId;
+    }
+
+    /**
+     * 
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    /**
+     *
+     * @param listToClone
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    public static List<SubjectName> clone(List<SubjectName> listToClone) throws CloneNotSupportedException {
+        List<SubjectName> copy = null;
+        if (listToClone != null) {
+            copy = new ArrayList<SubjectName>();
+            for (SubjectName elementToClone : listToClone) {
+                SubjectName clonedElement = (SubjectName) elementToClone.clone();
+                copy.add(clonedElement);
+            }
+        }
+        return copy;
     }
 }

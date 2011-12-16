@@ -16,7 +16,7 @@ package com.vangent.hieos.hl7v3util.model.subject;
  *
  * @author Bernie Thuman
  */
-public class CodedValue {
+public class CodedValue implements Cloneable {
 
     private String code;
     private String codeSystem;
@@ -116,5 +116,28 @@ public class CodedValue {
             return code;
         }
         return code + "^^" + codeSystem;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    /**
+     *
+     * @param toCopy
+     * @return
+     */
+    public static CodedValue clone(CodedValue toCopy) throws CloneNotSupportedException {
+        CodedValue copy = toCopy;
+        if (toCopy != null) {
+            copy = (CodedValue) toCopy.clone();
+        }
+        return copy;
     }
 }

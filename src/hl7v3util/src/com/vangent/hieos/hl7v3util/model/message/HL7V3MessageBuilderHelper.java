@@ -24,6 +24,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
+import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.List;
 import java.util.UUID;
 import org.apache.axiom.om.OMElement;
@@ -56,6 +57,64 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     static public DeviceInfo getReceiverDeviceInfo(HL7V3Message message) {
         HL7V3MessageBuilderHelper builder = new HL7V3MessageBuilderHelper();
         return builder.getDeviceInfo(message.getMessageNode(), "./ns:receiver/ns:device[1]");
+    }
+
+    // Some helper methods:
+    /**
+     *
+     * @param message
+     * @return
+     */
+    static public String getQueryByParameter(HL7V3Message message) {
+        String XPATH_QUERY_BY_PARAMETER =
+                "./ns:controlActProcess/ns:queryByParameter[1]";
+        String queryByParameter = "UNKNOWN";
+        try {
+            OMElement queryByParameterNode = XPathHelper.selectSingleNode(
+                    message.getMessageNode(),
+                    XPATH_QUERY_BY_PARAMETER, HL7V3_NAMESPACE);
+            queryByParameter = queryByParameterNode.toString();
+        } catch (XPathHelperException ex) {
+            // FIXME: ???
+        }
+        return queryByParameter;
+    }
+
+    /**
+     * 
+     * @param message
+     * @return
+     */
+    static public String getQueryId(HL7V3Message message) {
+        String XPATH_QUERY_ID =
+                "./ns:controlActProcess/ns:queryByParameter/ns:queryId[1]";
+        String queryId = "UNKNOWN";
+        try {
+            OMElement queryIdNode = XPathHelper.selectSingleNode(
+                    message.getMessageNode(), XPATH_QUERY_ID, HL7V3_NAMESPACE);
+            queryId = queryIdNode.toString();
+        } catch (XPathHelperException ex) {
+            // FIXME: ???
+        }
+        return queryId;
+    }
+
+    /**
+     *
+     * @param message
+     * @return
+     */
+    static public String getMessageId(HL7V3Message message) {
+        String XPATH_MESSAGE_ID = "./ns:id[1]";
+        String messageId = "UNKNOWN";
+        try {
+            OMElement messageIdNode = XPathHelper.selectSingleNode(
+                    message.getMessageNode(), XPATH_MESSAGE_ID, HL7V3_NAMESPACE);
+            messageId = messageIdNode.toString();
+        } catch (XPathHelperException ex) {
+            // FIXME: ???
+        }
+        return messageId;
     }
 
     /**

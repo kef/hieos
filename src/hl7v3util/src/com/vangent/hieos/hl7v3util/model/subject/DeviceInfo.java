@@ -18,7 +18,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
  *
  * @author Bernie Thuman
  */
-public class DeviceInfo {
+public class DeviceInfo implements Cloneable {
 
     private String id;
     private String name;
@@ -110,5 +110,15 @@ public class DeviceInfo {
      */
     public void setTelecom(String telecom) {
         this.telecom = telecom;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

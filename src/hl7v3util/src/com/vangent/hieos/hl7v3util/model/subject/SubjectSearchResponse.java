@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.hl7v3util.model.subject;
 
 import java.util.ArrayList;
@@ -20,7 +19,8 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectSearchResponse {
+public class SubjectSearchResponse implements Cloneable {
+
     private List<Subject> subjects = new ArrayList<Subject>();
     // TBD: add other attributes (outside of the list of subjects).
 
@@ -28,8 +28,7 @@ public class SubjectSearchResponse {
      *
      * @return
      */
-    public List<Subject> getSubjects()
-    {
+    public List<Subject> getSubjects() {
         return this.subjects;
     }
 
@@ -37,8 +36,19 @@ public class SubjectSearchResponse {
      *
      * @param subjects
      */
-    public void setSubjects(List<Subject> subjects)
-    {
+    public void setSubjects(List<Subject> subjects) {
         this.subjects = subjects;
+    }
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SubjectSearchResponse copy = (SubjectSearchResponse) super.clone();
+        copy.subjects = Subject.clone(subjects);
+        return copy;
     }
 }
