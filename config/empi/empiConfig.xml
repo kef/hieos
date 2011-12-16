@@ -379,6 +379,15 @@
                 </distance-function>
             </match-field>
             <match-field>
+                <name>gender</name>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>4.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
+            <match-field>
                 <name>streetAddressLine1</name>
                 <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
@@ -417,7 +426,7 @@
         </match-fields>
     </match-config>
 
-    <update-notification-enabled>true</update-notification-enabled>
+    <update-notification-enabled>false</update-notification-enabled>
 
     <!-- List of cross reference consumers -->
     <cross-reference-consumers>
@@ -449,7 +458,7 @@
                 </identifier-domain>
             </interested-identifier-domains>
         </cross-reference-consumer>
-        <cross-reference-consumer>
+        <!--<cross-reference-consumer>
             <name>BOGUS DEVICE</name>
             <enabled>true</enabled>
             <device-id>bogus.device.id</device-id>
@@ -476,7 +485,7 @@
                     <namespace-id>NIST2010-3</namespace-id>
                 </identifier-domain>
             </interested-identifier-domains>
-        </cross-reference-consumer>
+        </cross-reference-consumer>-->
         <!-- more cross-reference-consumer(s) go here .... -->
     </cross-reference-consumers>
 </config>
