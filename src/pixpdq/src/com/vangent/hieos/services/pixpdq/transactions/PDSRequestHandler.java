@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pixpdq.transactions;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
@@ -24,6 +25,9 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
@@ -93,6 +97,7 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
             // FIXME: Validate minimum fields required!!!!
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjects(subjectSearchCriteria);
+            this.performAuditPDQQueryProvider(request, subjectSearchResponse);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -133,5 +138,27 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
         PRPA_IN201306UV02_Message_Builder builder =
                 new PRPA_IN201306UV02_Message_Builder(senderDeviceInfo, receiverDeviceInfo);
         return builder.buildPRPA_IN201306UV02_Message(request, subjectSearchResponse, errorDetail);
+    }
+
+    /**
+     * 
+     * @param request
+     * @param subjectSearchResponse
+     */
+    private void performAuditPDQQueryProvider(
+            PRPA_IN201305UV02_Message request,
+            SubjectSearchResponse subjectSearchResponse) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                //String homeCommunityId = this.getGatewayConfig().getUniqueId();
+                String homeCommunityId = null;  // FIXME: Should we set this?
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventPDQQueryProvider(
+                        ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER, request, subjectSearchResponse, homeCommunityId);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("PatientDemographicsSupplier EXCEPTION: Could not perform ATNA audit", ex);
+        }
     }
 }

@@ -15,6 +15,7 @@ package com.vangent.hieos.services.pixpdq.transactions;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
 import com.vangent.hieos.services.pixpdq.empi.factory.EMPIFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
@@ -32,14 +33,20 @@ import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201302UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201304UV02_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequestBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.List;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
@@ -126,9 +133,12 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
+            // Clone identifiers (for audit later).
+            List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
+            this.performAuditPatientIdentityFeed(request, false /* update mode */, subjectIdentifiers);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -155,9 +165,12 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
+            // Clone identifiers (for audit later).
+            List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
+            this.performAuditPatientIdentityFeed(request, true /* update mode */, subjectIdentifiers);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -184,9 +197,13 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
+            // Clone identifiers (for audit later).
+            List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            // Merge the subjects (clone first since merge has side-effects).
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
             this.sendUpdateNotifications(updateNotificationContent);
+            this.performAuditPatientIdentityFeed(request, true /* update mode */, survivingSubjectIdentifiers);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -229,6 +246,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
         try {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
+            this.performAuditPIXQueryProvider(request, subjectSearchResponse);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
         } catch (Exception ex) {
@@ -291,5 +309,46 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
     private void sendUpdateNotifications(EMPINotification updateNotificationContent) {
         PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler(this.getConfigActor());
         pixUpdateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
+    }
+
+    /**
+     *
+     * @param request
+     * @param subjectSearchResponse
+     */
+    private void performAuditPIXQueryProvider(PRPA_IN201309UV02_Message request, SubjectSearchResponse subjectSearchResponse) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                //String homeCommunityId = this.getGatewayConfig().getUniqueId();
+                String homeCommunityId = null;  // FIXME: Should we set this?
+                ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventPIXQueryProvider(
+                        ATNAAuditEvent.ActorType.PIX_MANAGER, request, subjectSearchResponse, homeCommunityId);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("PIXManager EXCEPTION: Could not perform ATNA audit", ex);
+        }
+    }
+
+    /**
+     *
+     * @param request
+     * @param updateMode
+     * @param subjectIdentifiers
+     */
+    private void performAuditPatientIdentityFeed(
+            HL7V3Message request, boolean updateMode, List<SubjectIdentifier> subjectIdentifiers) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                //String homeCommunityId = null;  // FIXME: Should we set this and use it?
+                ATNAAuditEventPatientIdentityFeed auditEvent = ATNAAuditEventHelper.getATNAAuditEventPatientIdentityFeed(
+                        ATNAAuditEvent.ActorType.PIX_MANAGER, request, updateMode, subjectIdentifiers);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("PIXManager EXCEPTION: Could not perform ATNA audit", ex);
+        }
     }
 }

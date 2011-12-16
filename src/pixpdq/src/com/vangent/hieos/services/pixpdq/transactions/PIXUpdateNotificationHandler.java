@@ -15,12 +15,17 @@ package com.vangent.hieos.services.pixpdq.transactions;
 import com.vangent.hieos.empi.config.CrossReferenceConsumerConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.hl7v3util.client.HL7V3ClientResponse;
 import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
-import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientRecord;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.log4j.Logger;
 
 /**
@@ -78,8 +83,10 @@ public class PIXUpdateNotificationHandler {
                                     + receiverDeviceInfo.getId() + "]");
 
                             // FIXME: Need to only send interested identifier domains.
-                            MCCI_IN000002UV01_Message ackMessage = pixConsumerClient.patientRegistryRecordRevised(
+                            HL7V3ClientResponse clientResponse = pixConsumerClient.patientRegistryRecordRevised(
                                     senderDeviceInfo, receiverDeviceInfo, subject);
+
+                            this.performAuditPIXUpdateNotification(subject, clientResponse);
                         } catch (Exception ex) {
                             logger.error("Error sending PIX Update Notification to receiver [device id = "
                                     + receiverDeviceInfo.getId() + "]", ex);
@@ -90,6 +97,26 @@ public class PIXUpdateNotificationHandler {
                             + crossReferenceConsumerConfig.getDeviceId() + "]");
                 }
             }
+        }
+    }
+
+    /**
+     * 
+     * @param subject
+     * @param pixConsumerActorConfig
+     */
+    private void performAuditPIXUpdateNotification(
+            Subject subject, HL7V3ClientResponse clientResponse) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAAuditEventPatientRecord auditEvent = ATNAAuditEventHelper.getATNAAuditEventPatientRecord(
+                        ATNAAuditEvent.ActorType.PIX_MANAGER, subject, 
+                        clientResponse.getTargetEndpoint(), clientResponse.getMessageId());
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("PIXManager EXCEPTION: Could not perform ATNA audit", ex);
         }
     }
 }
