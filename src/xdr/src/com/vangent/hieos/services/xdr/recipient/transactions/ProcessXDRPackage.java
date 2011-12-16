@@ -12,6 +12,10 @@
  */
 package com.vangent.hieos.services.xdr.recipient.transactions;
 
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -142,17 +146,10 @@ public class ProcessXDRPackage extends XBaseTransaction {
             logger.debug("SOR in XDR Request: " + sor.toString());
         }
         Metadata m = new Metadata(sor);
-
         //AUDIT:POINT
         //call to audit message for XDR Recipient
         //for Transaction id = ITI-41. (Provide & Register Document set-b)
-        performAudit(
-                XATNALogger.TXN_ITI41,
-                sor,
-                null,
-                XATNALogger.ActorType.DOCRECIPIENT,
-                XATNALogger.OutcomeIndicator.SUCCESS);
-
+        this.auditProvideAndRegisterDocumentSet(ATNAAuditEvent.ActorType.DOCRECIPIENT, ATNAAuditEvent.AuditEventType.IMPORT, sor, null);
         String intendedRecipient = m.getSlotValue(m.getRegistryPackages().get(0), "intendedRecipient", 0);
         if (intendedRecipient == null) {
             // default to spaces 
@@ -168,6 +165,7 @@ public class ProcessXDRPackage extends XBaseTransaction {
 
         XConfigTransaction txn = this.getConfigActor().getTransaction("ProvideAndRegisterDocumentSet-b");
         String epr = txn.getEndpointURL();
+
         // Retrieve the PNR URL to use from the XConfig file
         // FIXME: Modify logic to retrieve the endpoint based on intendedRecipient value
         logger.info("XDR PNR transaction endpoint" + epr);
@@ -179,17 +177,11 @@ public class ProcessXDRPackage extends XBaseTransaction {
         try {
             OMElement result;
             try {
-                soap.soapCall(pnr, epr, true, txn.isSOAP12Endpoint(), txn.isSOAP12Endpoint(), action, expectedReturnAction);
                 //AUDIT:POINT
-                //call to audit message for document repository
-                //for Transaction id = ITI-41. (Provide and Register Document set-b)
-                //Here document consumer is treated as document repository
-                performAudit(
-                        XATNALogger.TXN_ITI41,
-                        pnr,
-                        epr,
-                        XATNALogger.ActorType.REPOSITORY,
-                        XATNALogger.OutcomeIndicator.SUCCESS);
+                //call to audit message for XDR Recipient
+                //for Transaction id = ITI-41. (Provide & Register Document set-b)
+                this.auditProvideAndRegisterDocumentSet(ATNAAuditEvent.ActorType.DOCSOURCE, ATNAAuditEvent.AuditEventType.EXPORT, sor, epr);
+                soap.soapCall(pnr, epr, true, txn.isSOAP12Endpoint(), txn.isSOAP12Endpoint(), action, expectedReturnAction);
             } catch (SOAPFaultException e) {
                 logger.info("RETURNED FROM PNR TRANSACTION WITH ERROR" + e);
                 response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
@@ -271,5 +263,29 @@ public class ProcessXDRPackage extends XBaseTransaction {
      */
     private String getExpectedReturnAction() {
         return SoapActionFactory.XDSB_REPOSITORY_PNR_ACTION_RESPONSE;
+    }
+
+    /**
+     * 
+     * @param actorType
+     * @param rootNode
+     * @param targetEndpoint
+     */
+    private void auditProvideAndRegisterDocumentSet(
+            ATNAAuditEvent.ActorType actorType, ATNAAuditEvent.AuditEventType auditEventType, OMElement rootNode, String targetEndpoint) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRegisterDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventProvideAndRegisterDocumentSet(rootNode);
+                auditEvent.setActorType(actorType);
+                auditEvent.setTransaction(IHETransaction.ITI41);
+                auditEvent.setTargetEndpoint(targetEndpoint);
+                auditEvent.setAuditEventType(auditEventType);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 }

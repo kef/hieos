@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xdr.recipient.serviceimpl;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.services.xdr.recipient.transactions.ProcessXDRPackage;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axiom.om.OMElement;
@@ -26,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -120,7 +120,7 @@ public class XDRRecipient extends XAbstractService {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(XATNALogger.ActorType.DOCRECIPIENT);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.DOCRECIPIENT);
     }
 
     /**
@@ -130,6 +130,6 @@ public class XDRRecipient extends XAbstractService {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("XDRRecipient::shutDown()");
-        this.ATNAlogStop(XATNALogger.ActorType.DOCRECIPIENT);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.DOCRECIPIENT);
     }
 }
