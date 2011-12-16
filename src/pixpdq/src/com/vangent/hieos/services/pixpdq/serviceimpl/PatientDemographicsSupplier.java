@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.pixpdq.serviceimpl;
 
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -75,6 +76,7 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER);
     }
 
     /**
@@ -84,10 +86,6 @@ public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("PatientDemographicsSupplier::shutDown()");
-        /*if (service.getParameterValue("ActorName").equals("InitiatingGateway")) {
-        this.ATNAlogStop(XATNALogger.ActorType.INITIATING_GATEWAY);
-        } else {
-        this.ATNAlogStop(XATNALogger.ActorType.RESPONDING_GATEWAY);
-        }*/
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER);
     }
 }
