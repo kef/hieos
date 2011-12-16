@@ -20,6 +20,7 @@ import java.util.Formatter;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Class to produce dates in HL7 format.
@@ -39,40 +40,41 @@ public class Hl7Date {
      * @return HL7 date as string.
      */
     static public String now() {
-        StringBuilder sb = new StringBuilder();
+        //StringBuilder sb = new StringBuilder();
         // Send all output to the Appendable object sb
-        Formatter formatter = new Formatter(sb, Locale.US);
-        Calendar c = new GregorianCalendar();
-        formatter.format("%s%02d%02d%02d%02d%02d",
-                c.get(Calendar.YEAR),
-                c.get(Calendar.MONTH) + 1,
-                c.get(Calendar.DAY_OF_MONTH),
-                c.get(Calendar.HOUR_OF_DAY),
-                c.get(Calendar.MINUTE),
-                c.get(Calendar.SECOND));
-        return sb.toString();
+        //Formatter formatter = new Formatter(sb, Locale.US);
+       return Hl7Date.toDTM_DefaultTimeZone(new Date());
+        /*        formatter.format("%s%02d%02d%02d%02d%02d",
+        c.get(Calendar.YEAR),
+        c.get(Calendar.MONTH) + 1,
+        c.get(Calendar.DAY_OF_MONTH),
+        c.get(Calendar.HOUR_OF_DAY),
+        c.get(Calendar.MINUTE),
+        c.get(Calendar.SECOND));
+        return sb.toString();*/
     }
 
     /**
-     * Return current time (minus 1 year) in HL7 format as YYYYMMDDHHMMSS.  This method
-     * has no practical purpose beyond for test support.
+     * Return current time in HL7 format as: YYYYMMDDHHMMSS.
      *
-     * @return Current time (minus 1 year) in HL7 format.
+     * @return HL7 date as string.
      */
-    static public String lastyear() {
-        StringBuilder sb = new StringBuilder();
+    static public String nowUTC() {
+        //StringBuilder sb = new StringBuilder();
         // Send all output to the Appendable object sb
-        Formatter formatter = new Formatter(sb, Locale.US);
-        Calendar c = new GregorianCalendar();
-        formatter.format("%s%02d%02d%02d%02d%02d",
-                c.get(Calendar.YEAR) - 1,
-                c.get(Calendar.MONTH) + 1,
-                c.get(Calendar.DAY_OF_MONTH),
-                c.get(Calendar.HOUR_OF_DAY),
-                c.get(Calendar.MINUTE),
-                c.get(Calendar.SECOND));
-        return sb.toString();
+        //Formatter formatter = new Formatter(sb, Locale.US);
+        return Hl7Date.toDTM_UTCTimeZone(new Date());
+        /*        formatter.format("%s%02d%02d%02d%02d%02d",
+        c.get(Calendar.YEAR),
+        c.get(Calendar.MONTH) + 1,
+        c.get(Calendar.DAY_OF_MONTH),
+        c.get(Calendar.HOUR_OF_DAY),
+        c.get(Calendar.MINUTE),
+        c.get(Calendar.SECOND));
+        return sb.toString();*/
     }
+
+  
 
     /**
      * Convert a Java date to HL7 format.
@@ -85,43 +87,108 @@ public class Hl7Date {
         SimpleDateFormat formatter = new SimpleDateFormat(hl7DateFormat);
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        formatter.setTimeZone(timeZone);
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         String hl7formattedDate = formatter.format(date);
         hl7formattedDate.replaceAll("UTC", "Z");
         return hl7formattedDate;
     }
+    
+    // DTM format: YYYY[MM[DD[HH[MM[SS[.S[S[S[S]]]]]]]]][+/-ZZZZ]
+    static private String _dtmParsePatterns[] = {
+        "yyyyMMddHHmmssZ",
+        "yyyyMMddHHmmZ",
+        "yyyyMMddHHZ",
+        "yyyyMMddZ",
+        "yyyyMMZ",
+        "yyyyZ",
+        "yyyyMMddHHmmss",
+        "yyyyMMddHHmm",
+        "yyyyMMddHH",
+        "yyyyMMdd",
+        "yyyyMM",
+        "yyyy"};
 
     /**
-     * Return a Java Date instance given an HL7 formatted date string.
      *
-     * @param hl7date HL7 formatted date.
-     * @return A Java Date.
+     * @param inputDTM
+     * @return
      */
-    public static Date getDateFromHL7Format(String hl7date) {
-        // TBD: FIXUP/MOVE CODE
-        Date date = null;
-        if (hl7date != null) {
-            String formatString = "yyyyMMdd";
-            int len = hl7date.length();
-            if (len >= 12) {
-                hl7date = hl7date.substring(0, 12);
-                formatString = "yyyyMMddHHmm";
-            } else if (len > 8) {
-                hl7date = hl7date.substring(0, 8);
-            } else if (len < 8) {
-                hl7date = "00000101"; // FIXME: HACK TO STAND OUT
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat(formatString);
-            try {
-                date = sdf.parse(hl7date);
-            } catch (ParseException ex) {
-                // Do nothing.
-            }
+    static public String toDTM_UTCWithNoOffset(String inputDTM) {
+        // Get a Java date instance from the DTM string.
+        Date date = Hl7Date.toDate(inputDTM);
+
+        // Convert the Java date to DTM in UTC but without the time zone component.
+        String outputDTM = Hl7Date.toDTM_UTCTimeZone(date);
+
+        // Now, trim string to original precision.
+        int inputDTMLengthWithoutTZ;
+        // See if the original DTM string had a time zone
+        if (inputDTM.contains("-") || inputDTM.contains("+")) {
+            String[] splits = inputDTM.split("[-+]");
+            String inputDTMwithoutTZ = splits[0];  // input DTM (with no time zone).
+            inputDTMLengthWithoutTZ = inputDTMwithoutTZ.length();  // Num chars before time zone.
         } else {
-            // TBD: EMIT WARNING OF SOME SORT.
+            inputDTMLengthWithoutTZ = inputDTM.length();
         }
-        return date;
+        outputDTM = outputDTM.substring(0, inputDTMLengthWithoutTZ);
+        return outputDTM;
+    }
+
+    /**
+     * 
+     * @param inputDTM
+     * @return
+     */
+    static public Date toDate(String inputDTM) {
+        try {
+            Date date = DateUtils.parseDate(inputDTM, _dtmParsePatterns);
+            return date;
+        } catch (ParseException ex) {
+            // FIXME: Do something?
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    static public String toDTM_DefaultTimeZone(Date date) {
+        Calendar c = new GregorianCalendar();
+        c.setTime(date);
+        return Hl7Date.formatDTM(c);
+    }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    static public String toDTM_UTCTimeZone(Date date) {
+        Calendar c = new GregorianCalendar();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTime(date);
+        return Hl7Date.formatDTM(c);
+    }
+
+    /**
+     * 
+     * @param c
+     * @return
+     */
+    static private String formatDTM(Calendar c) {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb, Locale.US);
+        formatter.format("%s%02d%02d%02d%02d%02d",
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH) + 1,
+                c.get(Calendar.DAY_OF_MONTH),
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                c.get(Calendar.SECOND));
+        String formattedTime = sb.toString();
+        return formattedTime;
     }
 }
