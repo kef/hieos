@@ -199,7 +199,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         }
         sb.append(")");
         String sql = sb.toString();
-        System.out.println("INSERT SQL = " + sql);
+        //System.out.println("INSERT SQL = " + sql);
 
         return this.getPreparedStatement(sql);
     }
@@ -223,9 +223,9 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 // Set WHERE clause values in the prepared statement.
                 int fieldIndex = 0;
                 for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                    System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
+                    //System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
                     Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                    System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                    //System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
                     stmt.setString(++fieldIndex, field.getValue());
                 }
             } catch (SQLException ex) {
@@ -301,7 +301,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             }
         }
         String sql = sb.toString();
-        System.out.println("SELECT SQL = " + sql);
+        //System.out.println("SELECT SQL = " + sql);
 
         return sql;
     }
