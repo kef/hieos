@@ -26,7 +26,11 @@ import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xml.Util;
 
 import com.vangent.hieos.xutil.xml.XMLParser;
+import java.util.Calendar;
+import java.util.Formatter;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
@@ -103,7 +107,7 @@ public class StoredQueryTransaction extends QueryTransaction {
 
         Linkage lnk = new Linkage(instruction_output, metadata);
         lnk.add("$now$", Hl7Date.now());
-        lnk.add("$lastyear$", Hl7Date.lastyear());
+        lnk.add("$lastyear$", StoredQueryTransaction.lastyear());
         lnk.compileLinkage();
 
         s_ctx.add_name_value(instruction_output, "InputMetadata", Util.deep_copy(metadata_ele));
@@ -122,8 +126,8 @@ public class StoredQueryTransaction extends QueryTransaction {
         // verify input is correct top-level request
         if (parse_metadata) {
             if (!metadata_ele.getLocalName().equals("AdhocQueryRequest")) {
-                throw new XdsInternalException("Stored Query Transaction (as coded in testplan step '" + s_ctx.get("step_id") +
-                        "') must reference a file containing an AdhocQueryRequest");
+                throw new XdsInternalException("Stored Query Transaction (as coded in testplan step '" + s_ctx.get("step_id")
+                        + "') must reference a file containing an AdhocQueryRequest");
             }
         }
         useMtom = false;
@@ -145,6 +149,27 @@ public class StoredQueryTransaction extends QueryTransaction {
             fail(ExceptionUtil.exception_details(e));
         }
         return result;
+    }
+
+    /**
+     * Return current time (minus 1 year) in HL7 format as YYYYMMDDHHMMSS.  This method
+     * has no practical purpose beyond for test support.
+     *
+     * @return Current time (minus 1 year) in HL7 format.
+     */
+    static private String lastyear() {
+        StringBuilder sb = new StringBuilder();
+        // Send all output to the Appendable object sb
+        Formatter formatter = new Formatter(sb, Locale.US);
+        Calendar c = new GregorianCalendar();
+        formatter.format("%s%02d%02d%02d%02d%02d",
+                c.get(Calendar.YEAR) - 1,
+                c.get(Calendar.MONTH) + 1,
+                c.get(Calendar.DAY_OF_MONTH),
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                c.get(Calendar.SECOND));
+        return sb.toString();
     }
 
     /**
