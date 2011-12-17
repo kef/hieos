@@ -49,7 +49,7 @@ public class SubjectAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code FROM subject_address WHERE subject_id=?";
+            String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use FROM subject_address WHERE subject_id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -63,6 +63,7 @@ public class SubjectAddressDAO extends AbstractDAO {
                 address.setCity(rs.getString(5));
                 address.setState(rs.getString(6));
                 address.setPostalCode(rs.getString(7));
+                address.setUse(rs.getString(8));
                 addresses.add(address);
             }
         } catch (SQLException ex) {
@@ -82,7 +83,7 @@ public class SubjectAddressDAO extends AbstractDAO {
     public void insert(List<Address> addresses, Subject parentSubject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,subject_id) values(?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use,subject_id) values(?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Address address : addresses) {
                 address.setInternalId(PersistenceHelper.getUUID());
@@ -93,7 +94,8 @@ public class SubjectAddressDAO extends AbstractDAO {
                 stmt.setString(5, address.getCity());
                 stmt.setString(6, address.getState());
                 stmt.setString(7, address.getPostalCode());
-                stmt.setString(8, parentSubject.getInternalId());
+                stmt.setString(8, address.getUse());
+                stmt.setString(9, parentSubject.getInternalId());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

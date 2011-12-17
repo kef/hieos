@@ -349,32 +349,6 @@ public class SubjectDAO extends AbstractDAO {
     }
 
     /**
-     *
-     * @param subjectId
-     * @throws EMPIException
-     */
-    /*
-    public void voidSubject(String subjectId) throws EMPIException {
-        PreparedStatement stmt = null;
-        try {
-            String sql = "UPDATE subject SET type=? WHERE id=?";
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, this.getSubjectTypeValue(SubjectType.VOIDED));
-            stmt.setString(2, subjectId);
-            long startTime = System.currentTimeMillis();
-            stmt.executeUpdate();
-            long endTime = System.currentTimeMillis();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SubjectDAO.markVoid: done executeBatch elapedTimeMillis=" + (endTime - startTime));
-            }
-        } catch (SQLException ex) {
-            throw new EMPIException(ex);
-        } finally {
-            this.close(stmt);
-        }
-    }*/
-
-    /**
      * NOTE: Could have built a full enumeration, but decided to be overkill.
      *
      * @param subjectType
