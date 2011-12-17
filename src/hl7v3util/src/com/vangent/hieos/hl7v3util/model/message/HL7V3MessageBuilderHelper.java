@@ -605,6 +605,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      */
     protected void addAddress(OMElement rootNode, Address address) {
         // FIXME: Deal with more than one address line.
+        this.setAttribute(rootNode, "use", address.getUse());
         this.addChildOMElementWithValue(rootNode, "streetAddressLine", address.getStreetAddressLine1());
         this.addChildOMElementWithValue(rootNode, "city", address.getCity());
         this.addChildOMElementWithValue(rootNode, "state", address.getState());

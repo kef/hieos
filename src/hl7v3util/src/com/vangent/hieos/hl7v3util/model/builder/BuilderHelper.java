@@ -183,7 +183,9 @@ public class BuilderHelper {
      * @param attributeValue
      */
     protected void setAttribute(OMElement node, String attributeName, String attributeValue) {
-        node.addAttribute(attributeName, attributeValue, null);
+        if (attributeValue != null) {
+            node.addAttribute(attributeName, attributeValue, null);
+        }
     }
 
     /**

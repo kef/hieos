@@ -29,6 +29,7 @@ public class Address implements Cloneable {
     private String state;
     private String postalCode;
     private String country;
+    private String use;
 
     /**
      * 
@@ -156,6 +157,22 @@ public class Address implements Cloneable {
      */
     public void setStreetAddressLine3(String streetAddressLine3) {
         this.streetAddressLine3 = streetAddressLine3;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getUse() {
+        return use;
+    }
+
+    /**
+     * 
+     * @param use
+     */
+    public void setUse(String use) {
+        this.use = use;
     }
 
     /**

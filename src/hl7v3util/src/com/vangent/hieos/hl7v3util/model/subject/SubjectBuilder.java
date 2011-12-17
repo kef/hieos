@@ -446,6 +446,7 @@ public class SubjectBuilder extends BuilderHelper {
     public Address buildAddress(OMElement rootNode) {
         Address address = new Address();
         // FIXME? - deal with more than one address line.
+        address.setUse(rootNode.getAttributeValue(new QName("use")));
         address.setStreetAddressLine1(this.getFirstChildNodeValue(rootNode, "streetAddressLine"));
         address.setCity(this.getFirstChildNodeValue(rootNode, "city"));
         address.setState(this.getFirstChildNodeValue(rootNode, "state"));
