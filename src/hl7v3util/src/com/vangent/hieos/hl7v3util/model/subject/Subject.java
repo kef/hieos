@@ -27,6 +27,7 @@ public class Subject implements Cloneable {
     private List<SubjectName> subjectNames = new ArrayList<SubjectName>();
     private List<Address> addresses = new ArrayList<Address>();
     private List<TelecomAddress> telecomAddresses = new ArrayList<TelecomAddress>();
+    private List<SubjectPersonalRelationship> subjectPersonalRelationships = new ArrayList<SubjectPersonalRelationship>();
     private CodedValue gender = null;
     private CodedValue maritalStatus = null;
     private CodedValue religiousAffiliation = null;
@@ -213,6 +214,30 @@ public class Subject implements Cloneable {
      */
     public void setSubjectNames(List<SubjectName> subjectNames) {
         this.subjectNames = subjectNames;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<SubjectPersonalRelationship> getSubjectPersonalRelationships() {
+        return subjectPersonalRelationships;
+    }
+
+    /**
+     *
+     * @param subjectPersonalRelationships
+     */
+    public void setSubjectPersonalRelationships(List<SubjectPersonalRelationship> subjectPersonalRelationships) {
+        this.subjectPersonalRelationships = subjectPersonalRelationships;
+    }
+
+    /**
+     *
+     * @param subjectPersonalRelationship
+     */
+    public void SubjectPersonalRelationship(SubjectPersonalRelationship subjectPersonalRelationship) {
+        this.subjectPersonalRelationships.add(subjectPersonalRelationship);
     }
 
     /**
@@ -516,6 +541,7 @@ public class Subject implements Cloneable {
         copy.subjectNames = SubjectName.clone(subjectNames);
         copy.addresses = Address.clone(addresses);
         copy.telecomAddresses = TelecomAddress.clone(telecomAddresses);
+        copy.subjectPersonalRelationships = SubjectPersonalRelationship.clone(subjectPersonalRelationships);
         copy.gender = CodedValue.clone(gender);
         copy.maritalStatus = CodedValue.clone(maritalStatus);
         copy.religiousAffiliation = CodedValue.clone(religiousAffiliation);
