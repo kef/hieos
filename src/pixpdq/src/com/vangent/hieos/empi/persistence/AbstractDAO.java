@@ -80,7 +80,7 @@ public class AbstractDAO {
                 logger.trace(sbTrace.toString());
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception deleting records", ex);
         } finally {
             this.close(stmt);
         }
@@ -99,7 +99,7 @@ public class AbstractDAO {
         try {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception getting prepared statement", ex);
         }
         return stmt;
     }

@@ -73,7 +73,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
+             throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -126,7 +126,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectIdentifiers.add(subjectIdentifier);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectIdentifier(s) from database" + ex.getMessage());
+             throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -172,7 +172,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception inserting subject identifiers", ex);
         } finally {
             this.close(stmt);
         }

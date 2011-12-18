@@ -87,7 +87,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                     }
                 }
             } catch (SQLException ex) {
-                throw new EMPIException("Failure reading 'subject_match_fields' records from database" + ex.getMessage());
+                throw PersistenceHelper.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
             } finally {
                 this.close(stmt);
                 this.close(rs);
@@ -121,7 +121,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception inserting Subject match fields", ex);
         } finally {
             this.close(stmt);
         }
@@ -158,7 +158,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 stmt.setString(++fieldIndex, fieldValue);
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception prepared statement", ex);
         }
     }
 
@@ -230,7 +230,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 }
             } catch (SQLException ex) {
                 this.close(stmt);
-                throw new EMPIException("Failure reading 'subject_match_fields' records from database" + ex.getMessage());
+                throw PersistenceHelper.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
             }
         }
         return stmt;

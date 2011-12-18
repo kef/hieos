@@ -66,7 +66,7 @@ public class SubjectDAO extends AbstractDAO {
                 throw new EMPIException("No subject found for uniqueid = " + subjectId);
             } else {
                 subject.setInternalId(subjectId);
-                subject.setType(this.getSubjectType(rs.getString(2)));
+                subject.setType(Subject.getSubjectType(rs.getString(2)));
                 subject.setBirthTime(this.getDate(rs, 3));
                 genderCodeId = rs.getInt(4);
                 subject.setDeceasedIndicator(this.getBoolean(rs, 5));
@@ -79,7 +79,7 @@ public class SubjectDAO extends AbstractDAO {
                 ethnicGroupCodeId = rs.getInt(12);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading Subject from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -107,6 +107,10 @@ public class SubjectDAO extends AbstractDAO {
         // Telecom addresses.
         SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
         subjectTelecomAddressDAO.load(subject);
+
+        // Personal relationships.
+        SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
+        subjectPersonalRelationshipDAO.load(subject);
 
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
@@ -160,10 +164,10 @@ public class SubjectDAO extends AbstractDAO {
             if (rs.next()) {
                 subject = new Subject();
                 subject.setInternalId(subjectId);
-                subject.setType(this.getSubjectType(rs.getString(2)));
+                subject.setType(Subject.getSubjectType(rs.getString(2)));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading Subject from database" + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading Subject from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -212,7 +216,7 @@ public class SubjectDAO extends AbstractDAO {
             stmt = this.getPreparedStatement(sql);
             CodeDAO codeDAO = new CodeDAO(conn);
             for (Subject subject : subjects) {
-                String subjectTypeValue = this.getSubjectTypeValue(subject);
+                String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
                 subject.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subject.getInternalId());
                 stmt.setString(2, subjectTypeValue);
@@ -242,17 +246,19 @@ public class SubjectDAO extends AbstractDAO {
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
             SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(conn);
             SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
+            SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
             SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             for (Subject subject : subjects) {
                 subjectNameDAO.insert(subject.getSubjectNames(), subject);
                 subjectAddressDAO.insert(subject.getAddresses(), subject);
                 subjectTelecomAddressDAO.insert(subject.getTelecomAddresses(), subject);
+                subjectPersonalRelationshipDAO.insert(subject.getSubjectPersonalRelationships(), subject);
                 subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
                 subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception inserting subjects", ex);
         } finally {
             this.close(stmt);
         }
@@ -265,20 +271,19 @@ public class SubjectDAO extends AbstractDAO {
      */
     /*
     public void voidEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
-        Connection conn = this.getConnection();  // Get connection to use.
+    Connection conn = this.getConnection();  // Get connection to use.
 
-        // Mark enterprise subject as "Voided"
-        this.voidSubject(enterpriseSubjectId);
+    // Mark enterprise subject as "Voided"
+    this.voidSubject(enterpriseSubjectId);
 
-        // Delete "SubjectMatch" record for enterpriseSubjectId.
-        SubjectMatchFieldsDAO subjectMatchCriteriaDAO = new SubjectMatchFieldsDAO(conn);
-        subjectMatchCriteriaDAO.deleteSubjectRecords(enterpriseSubjectId);
+    // Delete "SubjectMatch" record for enterpriseSubjectId.
+    SubjectMatchFieldsDAO subjectMatchCriteriaDAO = new SubjectMatchFieldsDAO(conn);
+    subjectMatchCriteriaDAO.deleteSubjectRecords(enterpriseSubjectId);
 
-        // Delete all cross references to the enterprise subject.
-        SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
-        subjectCrossReferenceDAO.deleteEnterpriseSubjectCrossReferences(enterpriseSubjectId);
+    // Delete all cross references to the enterprise subject.
+    SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
+    subjectCrossReferenceDAO.deleteEnterpriseSubjectCrossReferences(enterpriseSubjectId);
     }*/
-
     /**
      * 
      * @param survivingEnterpriseSubjectId
@@ -322,6 +327,7 @@ public class SubjectDAO extends AbstractDAO {
             SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
             SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(conn);
             SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
+            SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
             SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -330,6 +336,7 @@ public class SubjectDAO extends AbstractDAO {
             subjectNameDAO.deleteSubjectRecords(subjectId);
             subjectAddressDAO.deleteSubjectRecords(subjectId);
             subjectTelecomAddressDAO.deleteSubjectRecords(subjectId);
+            subjectPersonalRelationshipDAO.deleteSubjectRecords(subjectId);
             subjectIdentifierDAO.deleteSubjectRecords(subjectId);
             subjectOtherIdentifierDAO.deleteSubjectRecords(subjectId);
             subjectCrossReferenceDAO.deleteSubjectCrossReferences(subjectId, subjectType);
@@ -346,54 +353,5 @@ public class SubjectDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
         }
-    }
-
-    /**
-     * NOTE: Could have built a full enumeration, but decided to be overkill.
-     *
-     * @param subjectType
-     * @return
-     */
-    private String getSubjectTypeValue(Subject subject) {
-        return this.getSubjectTypeValue(subject.getType());
-    }
-
-    /**
-     * 
-     * @param subjectType
-     * @return
-     */
-    private String getSubjectTypeValue(Subject.SubjectType subjectType) {
-        String value = "";
-        switch (subjectType) {
-            case ENTERPRISE:
-                value = "E";
-                break;
-            case SYSTEM:
-                value = "S";
-                break;
-            default:
-                value = "V";
-                break;
-        }
-        return value;
-    }
-
-    /**
-     * NOTE: Could have built a full enumeration, but decided to be overkill.
-     *
-     * @param type
-     * @return
-     */
-    private Subject.SubjectType getSubjectType(String type) {
-        Subject.SubjectType subjectType = SubjectType.ENTERPRISE;
-        if (type.equalsIgnoreCase("E")) {
-            subjectType = SubjectType.ENTERPRISE;
-        } else if (type.equalsIgnoreCase("S")) {
-            subjectType = SubjectType.SYSTEM;
-        } else {
-            subjectType = SubjectType.VOIDED;
-        }
-        return subjectType;
     }
 }

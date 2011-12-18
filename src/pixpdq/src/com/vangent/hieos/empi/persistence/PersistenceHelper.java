@@ -119,4 +119,23 @@ public class PersistenceHelper {
             close(connection);
         }
     }
+
+    /**
+     *
+     * @param sqlException
+     * @return
+     */
+    public static EMPIException getEMPIException(String text, SQLException ex) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(text);
+        sb.append("\n--- SQLException caught ---\n");
+        while (ex != null) {
+            sb.append("Message: ").append(ex.getMessage());
+            ex = ex.getNextException();
+            sb.append("\n");
+        }
+        String errorText = sb.toString();
+        logger.error(errorText);
+        return new EMPIException(errorText);
+    }
 }

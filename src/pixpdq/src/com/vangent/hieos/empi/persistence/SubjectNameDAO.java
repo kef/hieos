@@ -65,7 +65,7 @@ public class SubjectNameDAO extends AbstractDAO {
                 subjectNames.add(subjectName);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject name(s) from database" + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading subject name(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -102,7 +102,7 @@ public class SubjectNameDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception inserting subject names", ex);
         } finally {
             this.close(stmt);
         }

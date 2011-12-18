@@ -57,7 +57,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 id = rs.getInt(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading subject identifier domain from database .. " + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading subject identifier domain from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -106,7 +106,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 subjectIdentifierDomain.setNamespaceId(rs.getString(3));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading from subject_identifier_domain table .. " + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading from subject_identifier_domain table", ex);
         } finally {
             this.close(stmt);
             this.close(rs);

@@ -66,7 +66,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 subjectCrossReferences.add(subjectCrossReference);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectCrossReference(s) from database" + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -95,7 +95,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 enterpriseSubjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading SubjectCrossReference(s) from database" + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -123,7 +123,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SubjectCrossReferenceDAO.insert: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception inserting subject cross references", ex);
         } finally {
             this.close(stmt);
         }
@@ -151,7 +151,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SubjectCrossReferenceDAO.mergeEnterpriseSubjects: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
-            throw new EMPIException(ex);
+            throw PersistenceHelper.getEMPIException("Exception updating subject cross references", ex);
         } finally {
             this.close(stmt);
         }

@@ -53,6 +53,10 @@ public class CodeDAO extends AbstractDAO {
         /**
          *
          */
+        PERSONAL_RELATIONSHIP,
+        /**
+         *
+         */
         LANGUAGE
     };
 
@@ -89,7 +93,7 @@ public class CodeDAO extends AbstractDAO {
                 id = rs.getInt(1);
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading code from database table = " + tableName + ".." + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading code from database table = " + tableName, ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -125,7 +129,7 @@ public class CodeDAO extends AbstractDAO {
                 codedValue.setDisplayName(rs.getString(2));
             }
         } catch (SQLException ex) {
-            throw new EMPIException("Failure reading code from database table = " + tableName + ".." + ex.getMessage());
+            throw PersistenceHelper.getEMPIException("Exception reading code from database table = " + tableName, ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -149,6 +153,8 @@ public class CodeDAO extends AbstractDAO {
                 return "race_code";
             case ETHNIC_GROUP:
                 return "ethnic_group_code";
+            case PERSONAL_RELATIONSHIP:
+                return "personal_relationship_code";
             case LANGUAGE:
             default:
                 return "language_code";
