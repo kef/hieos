@@ -21,6 +21,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
@@ -205,6 +206,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
     protected OMElement addCode(OMElement rootNode, String elementName, CodedValue codedValue) {
         OMElement childNode = null;
         if (codedValue != null) {
+            // FIXME: Should add more elements from coded value.
             childNode = this.addCode(rootNode, elementName, codedValue.getCode());
         }
         return childNode;
@@ -631,6 +633,40 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param requestNode
      * @param subject
      */
+    protected void addSubjectPersonalRelationships(OMElement rootNode, Subject subject) {
+        // <urn:personalRelationship classCode="PRS">
+        //    <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+        //    <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+        //         <urn:name xsi:type="urn:PN">
+        //             <urn:family>PALMER</urn:family>
+        //         </urn:name>
+        //    </urn:relationshipHolder1>
+        // </urn:personalRelationship>
+        for (SubjectPersonalRelationship subjectPersonalRelationship : subject.getSubjectPersonalRelationships()) {
+            // Get the related subject.
+            Subject relatedSubject = subjectPersonalRelationship.getSubject();
+            OMElement personalRelationshipNode = this.addChildOMElement(rootNode, "personalRelationship");
+            this.setAttribute(personalRelationshipNode, "classCode", "PRS");
+
+            // Add any identifiers associated with the related subject.
+            this.addSubjectIdentifiers(personalRelationshipNode, relatedSubject);
+
+            // Add the relationship type coded value.
+            this.addCode(personalRelationshipNode, "code", subjectPersonalRelationship.getRelationshipType());
+
+            // Add the relationship holder (another subject).
+            OMElement relationshipHolder1Node = this.addChildOMElement(personalRelationshipNode, "relationshipHolder1");
+            this.setAttribute(relationshipHolder1Node, "classCode", "PSN");
+            this.setAttribute(relationshipHolder1Node, "determinerCode", "INSTANCE");
+            this.addSubjectComponents(relationshipHolder1Node, relatedSubject);
+        }
+    }
+
+    /**
+     *
+     * @param requestNode
+     * @param subject
+     */
     protected void addSubjectIdentifiers(OMElement rootNode, Subject subject) {
         // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
         for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
@@ -918,5 +954,53 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
         // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
         this.addProviderOrganization(patientNode, subject);
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @param subject
+     */
+    protected void addSubjectComponents(OMElement rootNode, Subject subject) {
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
+        this.addSubjectNames(rootNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/telecom[*]
+        this.addTelecomAddresses(rootNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/administrativeGenderCode
+        this.addCode(rootNode, "administrativeGenderCode", subject.getGender());
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/birthTime
+        this.addChildNodeWithDateValueAttribute(rootNode, "birthTime", subject.getBirthTime());
+        //OMElement birthTimeNode = this.addChildOMElement(patientPersonNode, "birthTime");
+        //this.setAttribute(birthTimeNode, "value", Hl7Date.toHL7format(subject.getBirthTime()));
+
+        // Deceased indicator.
+        this.addChildNodeWithBooleanValueAttribute(rootNode, "deceasedInd", subject.getDeceasedIndicator());
+
+        // Deceased time.
+        this.addChildNodeWithDateValueAttribute(rootNode, "deceasedTime", subject.getDeceasedTime());
+
+        // Multi-birth indicator.
+        this.addChildNodeWithBooleanValueAttribute(rootNode, "multipleBirthInd", subject.getMultipleBirthIndicator());
+
+        // Multi-birth order number.
+        this.addChildNodeWithIntegerValueAttribute(rootNode, "multipleBirthOrderNumber", subject.getMultipleBirthOrderNumber());
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/addr[*]
+        this.addAddresses(rootNode, subject);
+
+        // Add other coded values ...
+        this.addCode(rootNode, "maritalStatusCode", subject.getMaritalStatus());
+        this.addCode(rootNode, "religiousAffiliationCode", subject.getReligiousAffiliation());
+        this.addCode(rootNode, "raceCode", subject.getRace());
+        this.addCode(rootNode, "ethnicGroupCode", subject.getEthnicGroup());
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
+        this.addSubjectOtherIdentifiers(rootNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/personalRelationship[*]
+        this.addSubjectPersonalRelationships(rootNode, subject);
     }
 }

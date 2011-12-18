@@ -66,6 +66,8 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:multipleBirthOrderNumber[1]";
     private final static String XPATH_AS_OTHER_IDS =
             "./ns:asOtherIDs";
+    private final static String XPATH_PERSONAL_RELATIONSHIPS =
+            "./ns:personalRelationship";
     private final static String XPATH_SUBJECTS =
             "./ns:controlActProcess/ns:subject";
     private final static String XPATH_SUBJECT_REGISTRATION_EVENT =
@@ -192,8 +194,20 @@ public class SubjectBuilder extends BuilderHelper {
      */
     private Subject getSubject(OMElement patientNode, OMElement patientPersonNode, OMElement registrationEventNode) {
         Subject subject = new Subject();
-        this.setSubjectIdentifiers(subject, patientNode);
         this.setCustodian(subject, registrationEventNode);
+        this.setSubjectComponents(subject, patientNode, patientPersonNode);
+        return subject;
+    }
+
+    /**
+     *
+     * @param subject
+     * @param patientNode
+     * @param patientPersonNode
+     */
+    private void setSubjectComponents(Subject subject, OMElement patientNode, OMElement patientPersonNode) {
+        this.setSubjectIdentifiers(subject, patientNode);
+        this.setSubjectPersonalRelationships(subject, patientPersonNode);
         this.setGender(subject, patientPersonNode);
         this.setBirthTime(subject, patientPersonNode);
         this.setNames(subject, patientPersonNode);
@@ -207,7 +221,6 @@ public class SubjectBuilder extends BuilderHelper {
         this.setEthnicGroup(subject, patientPersonNode);
         this.setSubjectOtherIdentifiers(subject, patientPersonNode);
         this.setMatchConfidencePercentage(subject, patientPersonNode);
-        return subject;
     }
 
     /**
@@ -495,6 +508,57 @@ public class SubjectBuilder extends BuilderHelper {
         } catch (XPathHelperException ex) {
             // Just ignore here.
         }
+    }
+
+    /**
+     *
+     * @param subject
+     * @param rootNode
+     */
+    private void setSubjectPersonalRelationships(Subject subject, OMElement rootNode) {
+
+        List<SubjectPersonalRelationship> subjectPersonalRelationships = subject.getSubjectPersonalRelationships();
+        try {
+            List<OMElement> personalRelationshipNodes = this.selectNodes(rootNode, XPATH_PERSONAL_RELATIONSHIPS);
+            for (OMElement personalRelationshipNode : personalRelationshipNodes) {
+                SubjectPersonalRelationship subjectPersonalRelationship = this.buildSubjectPersonalRelationship(personalRelationshipNode);
+                subjectPersonalRelationships.add(subjectPersonalRelationship);
+            }
+        } catch (XPathHelperException ex) {
+            // Just ignore here.
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @return
+     */
+    public SubjectPersonalRelationship buildSubjectPersonalRelationship(OMElement rootNode) {
+        // <urn:personalRelationship classCode="PRS">
+        //    <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+        //    <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+        //         <urn:name xsi:type="urn:PN">
+        //             <urn:family>PALMER</urn:family>
+        //         </urn:name>
+        //    </urn:relationshipHolder1>
+        // </urn:personalRelationship>
+        SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
+
+        // Set relationship type.
+        OMElement codeNode = this.getFirstChildNodeWithName(rootNode, "code");
+        CodedValue relationshipType = this.buildCodedValue(codeNode);
+        subjectPersonalRelationship.setRelationshipType(relationshipType);
+
+        // Now parse the relationship holder.
+        OMElement relationshipHolder1Node = this.getFirstChildNodeWithName(rootNode, "relationshipHolder1");
+
+        // Parse (as a full subject).
+        Subject relatedSubject = new Subject();
+        this.setSubjectComponents(relatedSubject, rootNode, relationshipHolder1Node);
+        subjectPersonalRelationship.setSubject(relatedSubject);
+
+        return subjectPersonalRelationship;
     }
 
     /**

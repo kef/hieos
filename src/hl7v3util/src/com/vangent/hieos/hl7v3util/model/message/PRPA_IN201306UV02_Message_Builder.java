@@ -107,43 +107,8 @@ public class PRPA_IN201306UV02_Message_Builder extends HL7V3MessageBuilderHelper
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson
         OMElement patientPersonNode = this.addPatientPersonNode(patientNode);
 
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/name[*]
-        this.addSubjectNames(patientPersonNode, subject);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/telecom[*]
-        this.addTelecomAddresses(patientPersonNode, subject);
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/administrativeGenderCode
-        this.addCode(patientPersonNode, "administrativeGenderCode", subject.getGender());
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/birthTime
-        this.addChildNodeWithDateValueAttribute(patientPersonNode, "birthTime", subject.getBirthTime());
-        //OMElement birthTimeNode = this.addChildOMElement(patientPersonNode, "birthTime");
-        //this.setAttribute(birthTimeNode, "value", Hl7Date.toHL7format(subject.getBirthTime()));
-
-        // Deceased indicator.
-        this.addChildNodeWithBooleanValueAttribute(patientPersonNode, "deceasedInd", subject.getDeceasedIndicator());
-
-        // Deceased time.
-        this.addChildNodeWithDateValueAttribute(patientPersonNode, "deceasedTime", subject.getDeceasedTime());
-
-        // Multi-birth indicator.
-        this.addChildNodeWithBooleanValueAttribute(patientPersonNode, "multipleBirthInd", subject.getMultipleBirthIndicator());
-
-        // Multi-birth order number.
-        this.addChildNodeWithIntegerValueAttribute(patientPersonNode, "multipleBirthOrderNumber", subject.getMultipleBirthOrderNumber());
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/addr[*]
-        this.addAddresses(patientPersonNode, subject);
-
-        // Add other coded values ...
-        this.addCode(patientPersonNode, "maritalStatusCode", subject.getMaritalStatus());
-        this.addCode(patientPersonNode, "religiousAffiliationCode", subject.getReligiousAffiliation());
-        this.addCode(patientPersonNode, "raceCode", subject.getRace());
-        this.addCode(patientPersonNode, "ethnicGroupCode", subject.getEthnicGroup());
-
-        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
-        this.addSubjectOtherIdentifiers(patientPersonNode, subject);
+        // Now add the subject's component parts.
+        this.addSubjectComponents(patientPersonNode, subject);
 
         // controlActProcess/subject/registrationEvent/subject1/patient/providerOrganization
         this.addProviderOrganization(patientNode, subject);
