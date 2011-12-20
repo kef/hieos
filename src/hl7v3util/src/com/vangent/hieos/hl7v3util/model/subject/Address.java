@@ -19,9 +19,8 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class Address implements Cloneable {
+public class Address extends SubjectAbstractEntity implements Cloneable {
 
-    private String internalId = null;
     private String streetAddressLine1;
     private String streetAddressLine2;
     private String streetAddressLine3;
@@ -30,22 +29,6 @@ public class Address implements Cloneable {
     private String postalCode;
     private String country;
     private String use;
-
-    /**
-     * 
-     * @return
-     */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     *
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
 
     /**
      *

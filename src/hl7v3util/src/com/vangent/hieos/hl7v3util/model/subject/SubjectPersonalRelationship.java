@@ -19,27 +19,10 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectPersonalRelationship implements Cloneable {
+public class SubjectPersonalRelationship extends SubjectAbstractEntity implements Cloneable {
 
-    private String internalId = null;
     private CodedValue relationshipType = null;
     private Subject subject = null;
-
-    /**
-     *
-     * @return
-     */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     *
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
 
     /**
      *

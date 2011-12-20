@@ -42,6 +42,10 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:addr";
     private final static String XPATH_TELECOM_ADDRESSES =
             "./ns:telecom";
+    private final static String XPATH_LANGUAGES =
+            "./ns:languageCommunication";
+    private final static String XPATH_LANGUAGE_PREFERENCE_INDICATOR =
+            "./ns:preferenceInd[1]";
     private final static String XPATH_NAMES =
             "./ns:name";
     private final static String XPATH_GENDER =
@@ -208,6 +212,7 @@ public class SubjectBuilder extends BuilderHelper {
     private void setSubjectComponents(Subject subject, OMElement patientNode, OMElement patientPersonNode) {
         this.setSubjectIdentifiers(subject, patientNode);
         this.setSubjectPersonalRelationships(subject, patientPersonNode);
+        this.setSubjectLanguages(subject, patientPersonNode);
         this.setGender(subject, patientPersonNode);
         this.setBirthTime(subject, patientPersonNode);
         this.setNames(subject, patientPersonNode);
@@ -559,6 +564,44 @@ public class SubjectBuilder extends BuilderHelper {
         subjectPersonalRelationship.setSubject(relatedSubject);
 
         return subjectPersonalRelationship;
+    }
+
+    /**
+     *
+     * @param subject
+     * @param rootNode
+     */
+    private void setSubjectLanguages(Subject subject, OMElement rootNode) {
+        List<SubjectLanguage> subjectLanguages = subject.getSubjectLanguages();
+        try {
+            List<OMElement> languageNodes = this.selectNodes(rootNode, XPATH_LANGUAGES);
+            for (OMElement languageNode : languageNodes) {
+                SubjectLanguage subjectLanguage = this.buildSubjectLanguage(languageNode);
+                subjectLanguages.add(subjectLanguage);
+            }
+        } catch (XPathHelperException ex) {
+            // Just ignore here.
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @return
+     */
+    public SubjectLanguage buildSubjectLanguage(OMElement rootNode) {
+        // <urn:languageCommunication>
+        //   <urn:languageCode code="en-US"/>
+        //   <urn:preferenceInd value="true"/>
+        // </urn:languageCommunication>
+
+        SubjectLanguage subjectLanguage = new SubjectLanguage();
+        OMElement languageCodeNode = this.getFirstChildNodeWithName(rootNode, "languageCode");
+        CodedValue languageCode = this.buildCodedValue(languageCodeNode);
+        subjectLanguage.setLanguageCode(languageCode);
+        subjectLanguage.setPreferenceIndicator(this.getBooleanValue(rootNode, XPATH_LANGUAGE_PREFERENCE_INDICATOR));
+
+        return subjectLanguage;
     }
 
     /**

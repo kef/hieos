@@ -19,14 +19,13 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectName implements Cloneable {
+public class SubjectName extends SubjectAbstractEntity implements Cloneable {
 
     private String givenName;
     private String familyName;
     private String middleName;
     private String prefix;
     private String suffix;
-    private String internalId = null;
 
     /**
      *
@@ -127,22 +126,6 @@ public class SubjectName implements Cloneable {
      */
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     *
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
     }
 
     /**

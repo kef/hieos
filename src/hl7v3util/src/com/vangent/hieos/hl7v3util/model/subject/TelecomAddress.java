@@ -19,27 +19,10 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class TelecomAddress implements Cloneable {
+public class TelecomAddress extends SubjectAbstractEntity implements Cloneable {
 
-    private String internalId = null;
     private String use;
     private String value;
-
-    /**
-     *
-     * @return
-     */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     * 
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
 
     /**
      *

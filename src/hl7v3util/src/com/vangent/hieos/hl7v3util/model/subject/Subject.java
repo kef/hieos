@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class Subject implements Cloneable {
+public class Subject extends SubjectAbstractEntity implements Cloneable {
 
     private List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();
@@ -28,6 +28,7 @@ public class Subject implements Cloneable {
     private List<Address> addresses = new ArrayList<Address>();
     private List<TelecomAddress> telecomAddresses = new ArrayList<TelecomAddress>();
     private List<SubjectPersonalRelationship> subjectPersonalRelationships = new ArrayList<SubjectPersonalRelationship>();
+    private List<SubjectLanguage> subjectLanguages = new ArrayList<SubjectLanguage>();
     private CodedValue gender = null;
     private CodedValue maritalStatus = null;
     private CodedValue religiousAffiliation = null;
@@ -40,7 +41,6 @@ public class Subject implements Cloneable {
     private Boolean multipleBirthIndicator = null;
     private Integer multipleBirthOrderNumber = null;
     private int matchConfidencePercentage = 0;
-    private String internalId = null;
     private SubjectType type = SubjectType.ENTERPRISE; // Default.
 
     /**
@@ -172,6 +172,30 @@ public class Subject implements Cloneable {
      */
     public void addTelecomAddress(TelecomAddress telecomAddress) {
         this.telecomAddresses.add(telecomAddress);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<SubjectLanguage> getSubjectLanguages() {
+        return subjectLanguages;
+    }
+
+    /**
+     * 
+     * @param subjectLanguages
+     */
+    public void setSubjectLanguages(List<SubjectLanguage> subjectLanguages) {
+        this.subjectLanguages = subjectLanguages;
+    }
+
+    /**
+     *
+     * @param subjectLanguage
+     */
+    public void addSubjectLanguage(SubjectLanguage subjectLanguage) {
+        this.subjectLanguages.add(subjectLanguage);
     }
 
     /**
@@ -540,22 +564,6 @@ public class Subject implements Cloneable {
      *
      * @return
      */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     *
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
-
-    /**
-     *
-     * @return
-     */
     public SubjectType getType() {
         return type;
     }
@@ -590,6 +598,7 @@ public class Subject implements Cloneable {
         copy.addresses = Address.clone(addresses);
         copy.telecomAddresses = TelecomAddress.clone(telecomAddresses);
         copy.subjectPersonalRelationships = SubjectPersonalRelationship.clone(subjectPersonalRelationships);
+        copy.subjectLanguages = SubjectLanguage.clone(subjectLanguages);
         copy.gender = CodedValue.clone(gender);
         copy.maritalStatus = CodedValue.clone(maritalStatus);
         copy.religiousAffiliation = CodedValue.clone(religiousAffiliation);

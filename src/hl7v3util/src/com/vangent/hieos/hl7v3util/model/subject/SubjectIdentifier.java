@@ -19,12 +19,11 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectIdentifier implements Cloneable {
+public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneable {
 
     private String subjectId;
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
-    private String internalId = null;
 
     /**
      * 
@@ -128,22 +127,6 @@ public class SubjectIdentifier implements Cloneable {
     public boolean equals(SubjectIdentifier subjectIdentifier) {
         return subjectIdentifier.getIdentifier().equals(this.identifier)
                 && subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getInternalId() {
-        return internalId;
-    }
-
-    /**
-     *
-     * @param internalId
-     */
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
     }
 
     /**

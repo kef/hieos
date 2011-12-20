@@ -20,6 +20,7 @@ import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
@@ -667,6 +668,27 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param requestNode
      * @param subject
      */
+    protected void addSubjectLanguages(OMElement rootNode, Subject subject) {
+        // <urn:languageCommunication>
+        //   <urn:languageCode code="en-US"/>
+        //   <urn:preferenceInd value="true"/>
+        // </urn:languageCommunication>
+        for (SubjectLanguage subjectLanguage : subject.getSubjectLanguages()) {
+            OMElement languageCommunicationNode = this.addChildOMElement(rootNode, "languageCommunication");
+
+            // Add the language type coded value.
+            this.addCode(languageCommunicationNode, "languageCode", subjectLanguage.getLanguageCode());
+
+            // Language preference indicator.
+            this.addChildNodeWithBooleanValueAttribute(languageCommunicationNode, "preferenceInd", subjectLanguage.getPreferenceIndicator());
+        }
+    }
+
+    /**
+     *
+     * @param requestNode
+     * @param subject
+     */
     protected void addSubjectIdentifiers(OMElement rootNode, Subject subject) {
         // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
         for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
@@ -1002,5 +1024,8 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
 
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/personalRelationship[*]
         this.addSubjectPersonalRelationships(rootNode, subject);
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/languageCommunication[*]
+        this.addSubjectLanguages(rootNode, subject);
     }
 }
