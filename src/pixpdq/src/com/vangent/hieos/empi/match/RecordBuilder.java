@@ -43,11 +43,9 @@ public class RecordBuilder {
         for (FieldConfig fieldConfig : fieldConfigs) {
             String sourceObjectPath = fieldConfig.getSourceObjectPath();
             String fieldName = fieldConfig.getName();
-            //System.out.println("field name = " + fieldName);
-            //System.out.println(" ... sourceObjectPath = " + sourceObjectPath);
+            // FIXME: Deal with different types?
             try {
-                // FIXME: Deal with different types?
-                // Now access the field value.
+                // Access the field value.
                 Object value = PropertyUtils.getProperty(subject, sourceObjectPath);
                 if (value != null) {
                     //System.out.println(" ... value = " + value.toString());
@@ -59,14 +57,15 @@ public class RecordBuilder {
                         TransformFunction transformFunction = transformFunctionConfig.getTransformFunction();
                         value = transformFunction.transform(value);
                     }
-                    
+
                     //System.out.println(" ... value (final) = " + value.toString());
                     Field field = new Field(fieldName, value.toString());
                     record.addField(field);
                 }
             } catch (Exception ex) {
-                // FIXME: Do something!!!
-                System.out.println("Exception: " + ex.getMessage());
+                System.out.println(
+                        "Unable to access '" + sourceObjectPath + "' field: "
+                        + ex.getMessage());
             }
         }
 

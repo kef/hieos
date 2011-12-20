@@ -42,8 +42,8 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      */
     @Override
     public List<Record> findCandidates(Record searchRecord) throws EMPIException {
-        PersistenceManager ps = this.getPersistenceManager();
-        return ps.findCandidates(searchRecord);
+        PersistenceManager pm = this.getPersistenceManager();
+        return pm.findCandidates(searchRecord);
     }
 
     /**

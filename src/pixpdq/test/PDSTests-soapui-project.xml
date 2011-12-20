@@ -139,7 +139,7 @@
                   </livingSubjectId>-->
                   <livingSubjectName>
                      <value>
-                        <given/>
+                        <given></given>
                         <family>thuman</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
@@ -168,7 +168,8 @@
                         <postalCode>02860</postalCode>
                      </value>
                      <semanticsText>Patient.addr</semanticsText>
-                  </patientAddress>-->
+                  </patientAddress>
+-->
                </parameterList>
             </queryByParameter>
          </controlActProcess>

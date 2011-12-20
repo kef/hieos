@@ -46,7 +46,6 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
      */
     public void load(Subject parentSubject) throws EMPIException {
         List<SubjectPersonalRelationship> subjectPersonalRelationships = parentSubject.getSubjectPersonalRelationships();
-        // Load the subject addresses.
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {

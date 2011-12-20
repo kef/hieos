@@ -78,6 +78,6 @@ public class Record {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("fields", fields).toString();
+        return new ToStringBuilder(this).append("id", id).append("fields", fields).toString();
     }
 }

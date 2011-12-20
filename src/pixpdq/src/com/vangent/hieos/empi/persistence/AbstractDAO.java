@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.log4j.Logger;
 
@@ -216,6 +217,24 @@ public class AbstractDAO {
             return null;
         }
         return nValue;
+    }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    protected Timestamp getTimestamp(Date date) {
+        return new Timestamp(date.getTime());
+    }
+
+    /**
+     *
+     * @param timestamp
+     * @return
+     */
+    protected Date getDate(Timestamp timestamp) {
+        return new Date(timestamp.getTime());
     }
 
     /**

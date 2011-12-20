@@ -168,6 +168,17 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
+    public String getLastUpdatedSystemSubjectId(String enterpriseSubjectId) throws EMPIException {
+        SubjectDAO dao = new SubjectDAO(connection);
+        return dao.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
+    }
+
+    /**
+     *
+     * @param enterpriseSubjectId
+     * @return
+     * @throws EMPIException
+     */
     public Subject loadEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
         // Load subject.
         Subject enterpriseSubject = this.loadSubject(enterpriseSubjectId);
@@ -359,6 +370,17 @@ public class PersistenceManager {
 
     /**
      * 
+     * @param targetEnterpriseSubjectId
+     * @param subject
+     * @throws EMPIException
+     */
+    public void updateEnterpriseSubject(String targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+        SubjectDAO dao = new SubjectDAO(connection);
+        dao.updateEnterpriseSubject(targetEnterpriseSubjectId, subject);
+    }
+
+    /**
+     *
      * @param systemSubjectId
      * @param enterpriseSubjectId
      * @param matchScore

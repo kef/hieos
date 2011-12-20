@@ -93,7 +93,9 @@ public class AddSubjectHandler extends BaseHandler {
             enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
             matchScore = matchedRecord.getMatchScorePercentage();
 
-            // FIXME: Update enterprise subject with latest demographics.
+            // Update enterprise subject with latest demographics.
+            System.out.println("+++ Updating demographics on enterprise subject +++");
+            pm.updateEnterpriseSubject(enterpriseSubjectId, subject);
         }
 
         // Insert system-level subject match fields (for subsequent find operations).
