@@ -75,7 +75,7 @@ public class TypeValueDAO extends AbstractDAO {
         String stmtFragment = null;
         if (action == DAO_ACTION_INSERT) {
             stmtFragment = "INSERT INTO " + getTableName() +
-                    " values(?,?,?,?,?)";
+                    " values(?,?,?,?)";
 
         } else if (action == DAO_ACTION_DELETE) {
             stmtFragment = "DELETE " + getTableName() +
@@ -101,13 +101,12 @@ public class TypeValueDAO extends AbstractDAO {
             ATNATypeValue atv = (ATNATypeValue) object;
             if (action == DAO_ACTION_INSERT) {
                 pstmt.setString(1, atv.getParent());
-                pstmt.setString(2, atv.getAttributeName());
-                pstmt.setInt(3, atv.getSeqNo());
-                pstmt.setString(4, atv.getType());
+                pstmt.setInt(2, atv.getSeqNo());
+                pstmt.setString(3, atv.getType());
                 if (atv.getValue() == null) {
-                    pstmt.setBinaryStream(5, null, 0);
+                    pstmt.setBinaryStream(4, null, 0);
                 } else {
-                    pstmt.setBinaryStream(5, new ByteArrayInputStream(atv.getValue()), atv.getValue().length);
+                    pstmt.setBinaryStream(4, new ByteArrayInputStream(atv.getValue()), atv.getValue().length);
                 }
             } else if (action == DAO_ACTION_DELETE) {
                 pstmt.setString(1, atv.getParent());

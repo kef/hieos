@@ -267,7 +267,9 @@ public class AuditMessageHandler {
             //um.setSchema(schema);
 
             // Unmarshall the XML Message to the AuditMessage Java Object
-            log.trace("Unmarshall XML Message");
+            if (log.isTraceEnabled()) {
+                log.trace("Unmarshall XML Message");
+            }
             StringReader auditString = new StringReader(auditXML);
             AuditMessage auditMessage = (AuditMessage) um.unmarshal(auditString);
 
@@ -293,7 +295,9 @@ public class AuditMessageHandler {
      */
     private ATNAMessage initializeATNAMessage(AuditMessage jbAuditMessage) {
 
-        log.trace("Create ATNAMessage Object from JAXB Object ");
+        if (log.isTraceEnabled()) {
+            log.trace("Create ATNAMessage Object from JAXB Object ");
+        }
         ATNAMessage message = new ATNAMessage();
         // Use the same uniqueid fro the ATNALog and ATNAMessage records
         // This will make it easy to match the ATNA DB records to the ATNA XML received
@@ -355,7 +359,7 @@ public class AuditMessageHandler {
                 participantObject.setTypeCode(getIntegerFromShort(jbParticipantObject.getParticipantObjectTypeCode()));
                 participantObject.setTypeCodeRole(getIntegerFromShort(jbParticipantObject.getParticipantObjectTypeCodeRole()));
                 participantObject.setDataLifeCycle(getIntegerFromShort(jbParticipantObject.getParticipantObjectDataLifeCycle()));
-                participantObject.setDetails(createTypeValueList(participantObject.getUniqueID(), "D", jbParticipantObject.getParticipantObjectDetail()));
+                participantObject.setDetails(createTypeValueList(participantObject.getUniqueID(), jbParticipantObject.getParticipantObjectDetail()));
                 participantObjects.add(participantObject);
             }
             message.setParticipantObjects(participantObjects);
@@ -442,7 +446,8 @@ public class AuditMessageHandler {
             int seqNo = 0;
             for (CodedValueType jbValue : jbList) {
                 ATNACodedValue obj = createCodedValueObj(parentId, attributeName, jbValue);
-                obj.setSeqNo(seqNo + 1);
+                seqNo++;
+                obj.setSeqNo(seqNo);
                 objList.add(obj);
             }
             return objList;
@@ -452,19 +457,19 @@ public class AuditMessageHandler {
     /**
      *
      * @param parentId
-     * @param attributeName
      * @param jbList
      * @return
      */
-    private static List<ATNATypeValue> createTypeValueList(String parentId, String attributeName, List<TypeValuePairType> jbList) {
+    private static List<ATNATypeValue> createTypeValueList(String parentId, List<TypeValuePairType> jbList) {
         if (jbList == null) {
             return null;
         } else {
             List<ATNATypeValue> objList = new ArrayList<ATNATypeValue>();
             int seqNo = 0;
             for (TypeValuePairType jbValue : jbList) {
-                ATNATypeValue obj = createTypeValueObj(parentId, attributeName, jbValue);
-                obj.setSeqNo(seqNo + 1);
+                ATNATypeValue obj = createTypeValueObj(parentId, jbValue);
+                seqNo++;
+                obj.setSeqNo(seqNo);
                 objList.add(obj);
             }
             return objList;
@@ -474,21 +479,18 @@ public class AuditMessageHandler {
     /**
      *
      * @param parentId
-     * @param attributeName
      * @param jbValue
      * @return
      */
-    private static ATNATypeValue createTypeValueObj(String parentId, String attributeName, TypeValuePairType jbValue) {
+    private static ATNATypeValue createTypeValueObj(String parentId, TypeValuePairType jbValue) {
         if (jbValue == null) {
             return null;
         } else {
             ATNATypeValue obj = new ATNATypeValue();
             obj.setParent(parentId);
-            obj.setAttributeName(attributeName);
             obj.setSeqNo(1);
             obj.setType(jbValue.getType());
             obj.setValue(jbValue.getValue());
-            log.debug("ATNATypeValue Type: " + obj.getType());
             return obj;
         }
     }

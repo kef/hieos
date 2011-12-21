@@ -19,7 +19,6 @@ package com.vangent.hieos.services.atna.arr.support;
 public class ATNATypeValue {
 
     private String parent;
-    private String attributeName;
     private Integer seqNo;
 
     private String type;
@@ -37,20 +36,6 @@ public class ATNATypeValue {
      */
     public void setParent(String parent) {
         this.parent = parent;
-    }
-
-    /**
-     * @return the attributeName
-     */
-    public String getAttributeName() {
-        return attributeName;
-    }
-
-    /**
-     * @param attributeName the attributeName to set
-     */
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
     }
 
     /**
