@@ -187,11 +187,10 @@ CREATE TABLE pocodevalue (
 --  description - optional, zero or more
 CREATE TABLE potypevalue (
   parentid VARCHAR2(50) NOT NULL,
-  attributename CHAR(1) NOT NULL,
   seqno NUMBER (4) NOT NULL,
   codetype VARCHAR2(100) NOT NULL,
   codevalue BLOB NOT NULL,
-  CONSTRAINT potypevalue_pkey PRIMARY KEY (parentid, attributename, seqno),
+  CONSTRAINT potypevalue_pkey PRIMARY KEY (parentid, seqno),
   CONSTRAINT potypevalue_po_fkey FOREIGN KEY (parentid)
       REFERENCES participantobject (uniqueid) ON DELETE CASCADE
 );

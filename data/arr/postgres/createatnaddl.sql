@@ -215,11 +215,10 @@ ALTER TABLE pocodevalue OWNER TO arr;
 --  description - optional, zero or more
 CREATE TABLE potypevalue (
   parentid CHARACTER VARYING(50) NOT NULL,
-  attributename CHAR(1) NOT NULL,
   seqno INTEGER NOT NULL,
   codetype CHARACTER VARYING(100) NOT NULL,
   codevalue BYTEA NOT NULL,
-  CONSTRAINT potypevalue_pkey PRIMARY KEY (parentid, attributename, seqno),
+  CONSTRAINT potypevalue_pkey PRIMARY KEY (parentid, seqno),
   CONSTRAINT potypevalue_po_fkey FOREIGN KEY (parentid)
       REFERENCES participantobject (uniqueid) ON DELETE CASCADE
 )
