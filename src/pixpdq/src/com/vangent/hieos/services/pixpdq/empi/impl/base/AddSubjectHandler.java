@@ -67,6 +67,8 @@ public class AddSubjectHandler extends BaseHandler {
         }
         // Fall through: The subject does not already exist.
 
+        this.validateSubjectCodes(subject);
+
         // Store the subject @ system-level - will stamp with subjectId.
         subject.setType(Subject.SubjectType.SYSTEM);
         pm.insertSubject(subject);

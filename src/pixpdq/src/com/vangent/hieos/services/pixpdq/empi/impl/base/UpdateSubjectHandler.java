@@ -73,6 +73,8 @@ public class UpdateSubjectHandler extends BaseHandler {
                     EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
         }
 
+        this.validateSubjectCodes(subject);
+
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             updateNotificationContent = this.updateSystemSubject(baseSubject, subject);
         } else {

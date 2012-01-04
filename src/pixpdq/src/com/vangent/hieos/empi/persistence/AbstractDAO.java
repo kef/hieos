@@ -12,6 +12,9 @@
  */
 package com.vangent.hieos.empi.persistence;
 
+import com.vangent.hieos.empi.codes.CodesConfig;
+import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
+import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import java.sql.Connection;
@@ -107,25 +110,46 @@ public class AbstractDAO {
 
     /**
      *
-     * @param codeDAO
-     * @param type
+     * @param code
+     * @param codeType
+     * @return
+     */
+    protected CodedValue getCodedValue(String code, CodesConfig.CodedType codedType) {
+        CodedValue codedValue = null;
+        try {
+            if (code != null) {
+                EMPIConfig empiConfig = EMPIConfig.getInstance();
+                codedValue = empiConfig.getCodedValue(code, codedType);
+                if (codedValue == null) {
+                    // Just echo back with code.
+                    logger.info("Coded value is not part of this configuration");
+                    logger.info("... code = " + code);
+                    logger.info("... coded type = " + codedType.toString());
+                    codedValue = new CodedValue();
+                    codedValue.setCode(code);
+                }
+            }
+        } catch (EMPIException ex) {
+            logger.error("Unable to get coded value", ex);
+        }
+        return codedValue;
+    }
+
+    /**
+     * 
      * @param stmt
      * @param index
      * @param codedValue
+     * @param codedType
      * @throws SQLException
      */
-    protected void setCodedValueId(CodeDAO codeDAO, CodeDAO.CodeType type, PreparedStatement stmt, int index, CodedValue codedValue) throws SQLException {
+    protected void setCodedValue(PreparedStatement stmt, int index, CodedValue codedValue, CodedType codedType) throws SQLException {
+        // It is assumed that the coded value has already been validated.  However, if in the future, the
+        // desire is to validate here, "codedType" can be used to help.
         if (codedValue != null) {
-            try {
-                int codeId = codeDAO.getId(codedValue.getCode(), type);
-                stmt.setInt(index, codeId);
-            } catch (EMPIException ex) {
-                // TBD: Emit log message.
-                // Set to null.
-                this.setInteger(stmt, index, null);
-            }
+            stmt.setString(index, codedValue.getCode());
         } else {
-            this.setInteger(stmt, index, null);
+            stmt.setString(index, null);
         }
     }
 

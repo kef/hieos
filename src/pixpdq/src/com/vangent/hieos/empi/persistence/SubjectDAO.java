@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.empi.persistence;
 
+import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.Subject.SubjectType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -53,13 +54,8 @@ public class SubjectDAO extends AbstractDAO {
         // Load the subject.
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        int genderCodeId;
-        int maritalStatusCodeId;
-        int religiousAffiliationCodeId;
-        int raceCodeId;
-        int ethnicGroupCodeId;
         try {
-            String sql = "SELECT id,type,birth_time,gender_code_id,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code_id,religious_affiliation_code_id,race_code_id,ethnic_group_code_id,last_updated_time FROM subject WHERE id=?";
+            String sql = "SELECT id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time FROM subject WHERE id=?";
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -70,15 +66,15 @@ public class SubjectDAO extends AbstractDAO {
                 subject.setInternalId(subjectId);
                 subject.setType(Subject.getSubjectType(rs.getString(2)));
                 subject.setBirthTime(this.getDate(rs, 3));
-                genderCodeId = rs.getInt(4);
+                subject.setGender(this.getCodedValue(rs.getString(4), CodesConfig.CodedType.GENDER));
                 subject.setDeceasedIndicator(this.getBoolean(rs, 5));
                 subject.setDeceasedTime(this.getDate(rs, 6));
                 subject.setMultipleBirthIndicator(this.getBoolean(rs, 7));
                 subject.setMultipleBirthOrderNumber(this.getInteger(rs, 8));
-                maritalStatusCodeId = rs.getInt(9);
-                religiousAffiliationCodeId = rs.getInt(10);
-                raceCodeId = rs.getInt(11);
-                ethnicGroupCodeId = rs.getInt(12);
+                subject.setMaritalStatus(this.getCodedValue(rs.getString(9), CodesConfig.CodedType.MARITAL_STATUS));
+                subject.setReligiousAffiliation(this.getCodedValue(rs.getString(10), CodesConfig.CodedType.RELIGIOUS_AFFILIATION));
+                subject.setRace(this.getCodedValue(rs.getString(11), CodesConfig.CodedType.RACE));
+                subject.setEthnicGroup(this.getCodedValue(rs.getString(12), CodesConfig.CodedType.ETHNIC_GROUP));
                 Date lastUpdatedTime = this.getDate(rs.getTimestamp(13));
                 subject.setLastUpdatedTime(lastUpdatedTime);
             }
@@ -91,14 +87,6 @@ public class SubjectDAO extends AbstractDAO {
 
         // Now, load composed objects.
         Connection conn = this.getConnection();
-
-        // Coded values.
-        CodeDAO codeDAO = new CodeDAO(conn);
-        subject.setGender(codeDAO.load(genderCodeId, CodeDAO.CodeType.GENDER));
-        subject.setMaritalStatus(codeDAO.load(maritalStatusCodeId, CodeDAO.CodeType.MARITAL_STATUS));
-        subject.setReligiousAffiliation(codeDAO.load(religiousAffiliationCodeId, CodeDAO.CodeType.RELIGIOUS_AFFILIATION));
-        subject.setRace(codeDAO.load(raceCodeId, CodeDAO.CodeType.RACE));
-        subject.setEthnicGroup(codeDAO.load(ethnicGroupCodeId, CodeDAO.CodeType.ETHNIC_GROUP));
 
         // Names.
         SubjectNameDAO subjectNameDAO = new SubjectNameDAO(conn);
@@ -273,9 +261,8 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
-            String sql = "INSERT INTO subject(id,type,birth_time,gender_code_id,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code_id,religious_affiliation_code_id,race_code_id,ethnic_group_code_id,last_updated_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject(id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
-            CodeDAO codeDAO = new CodeDAO(conn);
             for (Subject subject : subjects) {
                 String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
                 subject.setInternalId(PersistenceHelper.getUUID());
@@ -283,15 +270,15 @@ public class SubjectDAO extends AbstractDAO {
                 stmt.setString(1, subject.getInternalId());
                 stmt.setString(2, subjectTypeValue);
                 this.setDate(stmt, 3, subject.getBirthTime());
-                this.setCodedValueId(codeDAO, CodeDAO.CodeType.GENDER, stmt, 4, subject.getGender());
+                this.setCodedValue(stmt, 4, subject.getGender(), CodesConfig.CodedType.GENDER);
                 this.setBoolean(stmt, 5, subject.getDeceasedIndicator());
                 this.setDate(stmt, 6, subject.getDeceasedTime());
                 this.setBoolean(stmt, 7, subject.getMultipleBirthIndicator());
                 this.setInteger(stmt, 8, subject.getMultipleBirthOrderNumber());
-                this.setCodedValueId(codeDAO, CodeDAO.CodeType.MARITAL_STATUS, stmt, 9, subject.getMaritalStatus());
-                this.setCodedValueId(codeDAO, CodeDAO.CodeType.RELIGIOUS_AFFILIATION, stmt, 10, subject.getReligiousAffiliation());
-                this.setCodedValueId(codeDAO, CodeDAO.CodeType.RACE, stmt, 11, subject.getRace());
-                this.setCodedValueId(codeDAO, CodeDAO.CodeType.ETHNIC_GROUP, stmt, 12, subject.getEthnicGroup());
+                this.setCodedValue(stmt, 9, subject.getMaritalStatus(), CodesConfig.CodedType.MARITAL_STATUS);
+                this.setCodedValue(stmt, 10, subject.getReligiousAffiliation(), CodesConfig.CodedType.RELIGIOUS_AFFILIATION);
+                this.setCodedValue(stmt, 11, subject.getRace(), CodesConfig.CodedType.RACE);
+                this.setCodedValue(stmt, 12, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
                 stmt.setTimestamp(13, this.getTimestamp(subject.getLastUpdatedTime()));
                 stmt.addBatch();
             }
@@ -486,21 +473,19 @@ public class SubjectDAO extends AbstractDAO {
      */
     private void updateSubjectSimpleParts(Subject subject) throws EMPIException {
         PreparedStatement stmt = null;
-        Connection conn = this.getConnection();
         try {
-            String sql = "UPDATE subject SET birth_time=?,gender_code_id=?,deceased_indicator=?,deceased_time=?,multiple_birth_indicator=?,multiple_birth_order_number=?,marital_status_code_id=?,religious_affiliation_code_id=?,race_code_id=?,ethnic_group_code_id=?,last_updated_time=? WHERE id=?";
+            String sql = "UPDATE subject SET birth_time=?,gender_code=?,deceased_indicator=?,deceased_time=?,multiple_birth_indicator=?,multiple_birth_order_number=?,marital_status_code=?,religious_affiliation_code=?,race_code=?,ethnic_group_code=?,last_updated_time=? WHERE id=?";
             stmt = this.getPreparedStatement(sql);
-            CodeDAO codeDAO = new CodeDAO(conn);
             this.setDate(stmt, 1, subject.getBirthTime());
-            this.setCodedValueId(codeDAO, CodeDAO.CodeType.GENDER, stmt, 2, subject.getGender());
+            this.setCodedValue(stmt, 2, subject.getGender(), CodesConfig.CodedType.GENDER);
             this.setBoolean(stmt, 3, subject.getDeceasedIndicator());
             this.setDate(stmt, 4, subject.getDeceasedTime());
             this.setBoolean(stmt, 5, subject.getMultipleBirthIndicator());
             this.setInteger(stmt, 6, subject.getMultipleBirthOrderNumber());
-            this.setCodedValueId(codeDAO, CodeDAO.CodeType.MARITAL_STATUS, stmt, 7, subject.getMaritalStatus());
-            this.setCodedValueId(codeDAO, CodeDAO.CodeType.RELIGIOUS_AFFILIATION, stmt, 8, subject.getReligiousAffiliation());
-            this.setCodedValueId(codeDAO, CodeDAO.CodeType.RACE, stmt, 9, subject.getRace());
-            this.setCodedValueId(codeDAO, CodeDAO.CodeType.ETHNIC_GROUP, stmt, 10, subject.getEthnicGroup());
+            this.setCodedValue(stmt, 7, subject.getMaritalStatus(), CodesConfig.CodedType.MARITAL_STATUS);
+            this.setCodedValue(stmt, 8, subject.getReligiousAffiliation(), CodesConfig.CodedType.RELIGIOUS_AFFILIATION);
+            this.setCodedValue(stmt, 9, subject.getRace(), CodesConfig.CodedType.RACE);
+            this.setCodedValue(stmt, 10, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
             stmt.setTimestamp(11, this.getTimestamp(subject.getLastUpdatedTime()));
             stmt.setString(12, subject.getInternalId());
             stmt.addBatch();

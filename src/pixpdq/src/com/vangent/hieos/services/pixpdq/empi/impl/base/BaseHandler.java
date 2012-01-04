@@ -12,11 +12,15 @@
  */
 package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
+import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
+import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
@@ -76,6 +80,34 @@ public class BaseHandler {
                         + " is not a known identifier domain",
                         EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
             }
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @throws EMPIException
+     */
+    protected void validateSubjectCodes(Subject subject) throws EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+
+        // Validate individual code values.
+        empiConfig.validateCode(subject.getGender(), CodedType.GENDER);
+        empiConfig.validateCode(subject.getMaritalStatus(), CodedType.MARITAL_STATUS);
+        empiConfig.validateCode(subject.getReligiousAffiliation(), CodedType.RELIGIOUS_AFFILIATION);
+        empiConfig.validateCode(subject.getRace(), CodedType.RACE);
+        empiConfig.validateCode(subject.getEthnicGroup(), CodedType.ETHNIC_GROUP);
+
+        // Validate personal relationship codes.
+        List<SubjectPersonalRelationship> subjectPersonalRelationships = subject.getSubjectPersonalRelationships();
+        for (SubjectPersonalRelationship subjectPersonalRelationship : subjectPersonalRelationships) {
+            empiConfig.validateCode(subjectPersonalRelationship.getRelationshipType(), CodedType.PERSONAL_RELATIONSHIP);
+        }
+
+        // Validate language codes.
+        List<SubjectLanguage> subjectLanguages = subject.getSubjectLanguages();
+        for (SubjectLanguage subjectLanguage : subjectLanguages) {
+            empiConfig.validateCode(subjectLanguage.getLanguageCode(), CodedType.LANGUAGE);
         }
     }
 
