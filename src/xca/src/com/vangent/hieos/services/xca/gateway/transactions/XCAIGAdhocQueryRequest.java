@@ -33,6 +33,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
@@ -392,6 +393,8 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
      * FIXME (BHT): This does not belong here .... but was unable to work with Metadata class to
      * get this done ... Also, could use XPathHelper to streamline ...
      *
+     * This is ugly, but due to Patient Identifiers with "&amp;" embedded, this is all that would work.
+     *
      * @param obj
      * @param slotName
      * @param valueIndex
@@ -409,7 +412,11 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
                 int valueCount = 0;
                 for (OMElement valueNode : MetadataSupport.childrenWithLocalName(valueListNode, "Value")) {
                     if (valueCount == valueIndex) {
-                        valueNode.setText(value);
+                        // This is the most ugly part.
+                        valueNode.detach();
+                        OMElement newValueNode = MetadataSupport.om_factory.createOMElement("Value", MetadataSupport.ebRIMns3);
+                        newValueNode.setText(value);
+                        valueListNode.addChild(newValueNode);
                         return;  // Early exit: Get out now!
                     } else {
                         ++valueCount;
