@@ -131,6 +131,8 @@ public class FindSubjectsHandler extends BaseHandler {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         Subject searchSubject = subjectSearchCriteria.getSubject();
+        boolean hasSpecifiedMinimumDegreeMatchPercentage = subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage();
+        int minimumDegreeMatchPercentage = subjectSearchCriteria.getMinimumDegreeMatchPercentage();
 
         // Convert search subject into a record that can be used for matching.
         RecordBuilder rb = new RecordBuilder();
@@ -145,28 +147,34 @@ public class FindSubjectsHandler extends BaseHandler {
         Set<String> enterpriseSubjectIds = new HashSet<String>();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
-            String systemSubjectId = record.getId();
-            String enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
-            if (!enterpriseSubjectIds.contains(enterpriseSubjectId)) {
-                enterpriseSubjectIds.add(enterpriseSubjectId);
+            int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
+            if (logger.isDebugEnabled()) {
+                logger.debug("match score = " + scoredRecord.getScore());
+                logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
+                logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+            }
+            // See if there is a minimum degree match percentage.
+            if (!hasSpecifiedMinimumDegreeMatchPercentage
+                    || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
+                String systemSubjectId = record.getId();
+                String enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+                if (!enterpriseSubjectIds.contains(enterpriseSubjectId)) {
+                    enterpriseSubjectIds.add(enterpriseSubjectId);
+                    Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
+                    enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
 
-                Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
-                int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
-                enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
+                    // Filter unwanted results (if required).
+                    this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("match score = " + scoredRecord.getScore());
-                    logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
-                    logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+                    // FIXME: What about "other ids"?
+                    // If we kept at least one identifier ...
+                    if (enterpriseSubject.hasSubjectIdentifiers()) {
+                        subjectMatches.add(enterpriseSubject);
+                    }
                 }
-
-                // Filter unwanted results (if required).
-                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
-
-                // FIXME: What about "other ids"?
-                // If we kept at least one identifier ...
-                if (enterpriseSubject.hasSubjectIdentifiers()) {
-                    subjectMatches.add(enterpriseSubject);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
                 }
             }
         }
