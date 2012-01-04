@@ -44,7 +44,7 @@ public class XConfig {
 
     public enum ConfigItem {
 
-        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE, XDSBRIDGE_DIR, POLICY_DIR
+        CONFIG_DIR, XCONFIG_FILE, SCHEMA_DIR, CODES_FILE, XDSBRIDGE_DIR, POLICY_DIR, EMPI_DIR
     };
     // HIEOS environment variables (would like to rename but remaining backward compatible).
     public final static String ENV_HIEOS_CONFIG_DIR = "HIEOSxConfigDir";
@@ -52,6 +52,7 @@ public class XConfig {
     public final static String ENV_HIEOS_SCHEMA_DIR = "HIEOSxSchemaDir";
     public final static String ENV_HIEOS_XDSBRIDGE_DIR = "HIEOSxXDSBridgeDir";
     public final static String ENV_HIEOS_POLICY_DIR = "HIEOSxPolicyDir";
+    public final static String ENV_HIEOS_EMPI_DIR = "HIEOSxEMPIDir";
     public final static String ENV_HIEOS_CODES_FILE = "HIEOSxCodesFile";
     // HIEOS system properties (would like to rename but remaining backward compatible).
     public final static String SYSPROP_HIEOS_CONFIG_DIR = "com.vangent.hieos.configdir";
@@ -59,9 +60,9 @@ public class XConfig {
     public final static String SYSPROP_HIEOS_SCHEMA_DIR = "com.vangent.hieos.schemadir";
     public final static String SYSPROP_HIEOS_XDSBRIDGE_DIR = "com.vangent.hieos.xdsbridgedir";
     public final static String SYSPROP_HIEOS_POLICY_DIR = "com.vangent.hieos.policydir";
+    public final static String SYSPROP_HIEOS_EMPI_DIR = "com.vangent.hieos.empidir";
     public final static String SYSPROP_HIEOS_CODES_FILE = "com.vangent.hieos.codesfile";
     private final static Logger logger = Logger.getLogger(XConfig.class);
-    // Location of XDS.b / XCA configuration file (looks in environment variable first.
     static private XConfig _instance = null;  // Singleton instance.
     static private String _configLocation = null;  // Location of xconfig.xml file
     // Internal data structure starts here.
@@ -111,6 +112,9 @@ public class XConfig {
             case POLICY_DIR:
                 configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_POLICY_DIR, XConfig.ENV_HIEOS_POLICY_DIR);
                 break;
+            case EMPI_DIR:
+                configLocation = getConfigLocation(configItem, XConfig.SYSPROP_HIEOS_EMPI_DIR, XConfig.ENV_HIEOS_EMPI_DIR);
+                break;
         }
         return configLocation;
     }
@@ -159,6 +163,9 @@ public class XConfig {
                     break;
                 case POLICY_DIR:
                     configLocation = configDir + "/policy";
+                    break;
+                case EMPI_DIR:
+                    configLocation = configDir + "/empi";
                     break;
             }
         }
