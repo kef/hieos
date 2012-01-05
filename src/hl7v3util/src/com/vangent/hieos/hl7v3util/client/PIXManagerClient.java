@@ -38,10 +38,10 @@ public class PIXManagerClient extends WebServiceClient {
 
     /**
      *
-     * @param gatewayConfig
+     * @param pixManagerConfig
      */
-    public PIXManagerClient(XConfigActor gatewayConfig) {
-        super(gatewayConfig);
+    public PIXManagerClient(XConfigActor pixManagerConfig) {
+        super(pixManagerConfig);
     }
 
     /**

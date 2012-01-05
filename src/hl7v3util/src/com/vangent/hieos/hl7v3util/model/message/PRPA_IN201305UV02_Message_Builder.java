@@ -139,28 +139,31 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
     private OMElement addMatchCriterionList(
             OMElement rootNode,
             SubjectSearchCriteria subjectSearchCriteria) {
-        // <matchCriterionList>
-        //   <minimumDegreeMatch>
-        //     <value xsi:type="INT" value="75"/>
-        //     <semanticsText>Degree of match requested</semanticsText>
-        //   </minimumDegreeMatch>
-        // </matchCriterionList>
+        OMElement matchCriterionListNode = null;
+        // Only include "matchCriterionList" if flagged to do so.
+        if (subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage()) {
+            // <matchCriterionList>
+            //   <minimumDegreeMatch>
+            //     <value xsi:type="INT" value="75"/>
+            //     <semanticsText>Degree of match requested</semanticsText>
+            //   </minimumDegreeMatch>
+            // </matchCriterionList>
 
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList
-        OMElement matchCriterionListNode = this.addChildOMElement(rootNode, "matchCriterionList");
+            // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList
+            matchCriterionListNode = this.addChildOMElement(rootNode, "matchCriterionList");
 
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch
-        OMElement minimumDegreeMatchNode = this.addChildOMElement(matchCriterionListNode, "minimumDegreeMatch");
+            // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch
+            OMElement minimumDegreeMatchNode = this.addChildOMElement(matchCriterionListNode, "minimumDegreeMatch");
 
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/value
-        OMElement valueNode = this.addChildOMElement(minimumDegreeMatchNode, "value");
-        OMNamespace xsiNS = this.createOMNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
-        valueNode.addAttribute("type", "INT", xsiNS);
-        this.setAttribute(valueNode, "value", new Integer(subjectSearchCriteria.getMinimumDegreeMatchPercentage()).toString());
+            // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/value
+            OMElement valueNode = this.addChildOMElement(minimumDegreeMatchNode, "value");
+            OMNamespace xsiNS = this.createOMNamespace("http://www.w3.org/2001/XMLSchema-instance", "xsi");
+            valueNode.addAttribute("type", "INT", xsiNS);
+            this.setAttribute(valueNode, "value", new Integer(subjectSearchCriteria.getMinimumDegreeMatchPercentage()).toString());
 
-        // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/semanticsText
-        OMElement semanticsTextNode = this.addChildOMElementWithValue(minimumDegreeMatchNode, "semanticsText", "Degree of match requested");
-
+            // PRPA_IN201305UV02/controlActProcess/queryByParameter/matchCriterionList/minimumDegreeMatch/semanticsText
+            OMElement semanticsTextNode = this.addChildOMElementWithValue(minimumDegreeMatchNode, "semanticsText", "Degree of match requested");
+        }
         return matchCriterionListNode;
     }
 
@@ -235,7 +238,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
             this.addChildOMElementWithValue(subjectNameNode, "semanticsText", "LivingSubject.name");
         }
 
-        
+
 
         // PRPA_IN201305UV02/controlActProcess/queryByParameter/parameterList/otherIDsScopingOrganization
         // <otherIDsScopingOrganization>
