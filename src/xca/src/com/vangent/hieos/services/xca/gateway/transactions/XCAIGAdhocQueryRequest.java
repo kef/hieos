@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 
 import com.vangent.hieos.xutil.atna.XATNALogger;
+import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -33,7 +34,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
@@ -50,9 +50,10 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
 
     public enum InitiatingGatewayMode {
 
-        PassThrough, XCPD
+        PassThrough, XCPD, PIX
     };
     private static XConfigActor _xcpdIGConfig = null;
+    private static XConfigActor _pixManagerConfig = null;
 
     /**
      *
@@ -106,6 +107,10 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
                     this.logInfo("PatientMappingMode", "XCPD");
                     this.processRequestWithPatientIdUsingXCPDMode(pidCXFormatted, queryRequest, responseOption);
                     break;
+                case PIX:
+                    this.logInfo("PatientMappingMode", "PIX");
+                    this.processRequestWithPatientIdUsingPIXMode(pidCXFormatted, queryRequest, responseOption);
+                    break;
                 case PassThrough:
                 default:
                     this.logInfo("PatientMappingMode", "PassThrough");
@@ -152,6 +157,9 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
             } else if (XCAInitiatingGatewayPatientMappingMode.equalsIgnoreCase("xcpd")) {
                 mode = InitiatingGatewayMode.XCPD;
                 logger.info("XCA Initiating Gateway - using 'xcpd' mode");
+            } else if (XCAInitiatingGatewayPatientMappingMode.equalsIgnoreCase("pix")) {
+                mode = InitiatingGatewayMode.PIX;
+                logger.info("XCA Initiating Gateway - using 'pix' mode");
             } else {
                 logger.warn("XCA Initiating Gateway - using default 'passthrough' mode");
             }
@@ -226,6 +234,28 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
     /**
      *
      * @param pidCXFormatted
+     * @param queryRequest
+     * @param responseOption
+     * @throws XdsInternalException
+     */
+    private void processRequestWithPatientIdUsingPIXMode(String pidCXFormatted, OMElement queryRequest, OMElement responseOption) throws XdsInternalException {
+        List<XCAGatewayConfig> gatewayConfigs = this.getRespondingGatewaysForPatientIdUsingPIXMode(pidCXFormatted);
+        for (XCAGatewayConfig gatewayConfig : gatewayConfigs) {
+            OMElement gatewayQueryRequest = this.getTargetGatewayQueryRequest(queryRequest, gatewayConfig.getPatientId());
+            this.addRequest(gatewayQueryRequest,
+                    responseOption,
+                    gatewayConfig.getHomeCommunityId(),
+                    gatewayConfig.getConfig(),
+                    false);
+        }
+        // FIXME: Should we always go local in this case?
+        XConfigActor registry = this.getLocalRegistry();
+        this.addRequest(queryRequest, responseOption, registry.getName(), registry, true);
+    }
+
+    /**
+     *
+     * @param pidCXFormatted
      * @return
      * @throws XdsInternalException
      */
@@ -237,24 +267,14 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
         List<XCAGatewayConfig> gatewayConfigs = new ArrayList<XCAGatewayConfig>();
 
         // Build subject search criteria (for PIX query).
-        SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
-        Subject subject = new Subject();
-        SubjectIdentifier subjectIdentifier = new SubjectIdentifier(localPatientId);
-        subject.addSubjectIdentifier(subjectIdentifier);
-        subjectSearchCriteria.setSubject(subject);
+        SubjectSearchCriteria subjectSearchCriteria = this.buildSubjectSearchCriteria(localPatientId);
 
         HashSet<String> remoteHomeCommunityIds = new HashSet<String>();
         try {
-            // Get sender / receiver device info.
-            DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
-            DeviceInfo receiverDeviceInfo = this.getDeviceInfo(this.getXCPDInitiatingGatewayConfig());
-
-            // Prepare for PIX Query.
             XConfigActor xcpdIGConfig = this.getXCPDInitiatingGatewayConfig();
-            PIXManagerClient pixClient = new PIXManagerClient(xcpdIGConfig);
 
             // Issue PIX Query.
-            SubjectSearchResponse subjectSearchResponse = pixClient.getIdentifiersQuery(senderDeviceInfo, receiverDeviceInfo, subjectSearchCriteria);
+            SubjectSearchResponse subjectSearchResponse = this.getIdentifiersQuery(subjectSearchCriteria, xcpdIGConfig);
 
             // Loop through matching subjects.
             List<Subject> matchSubjects = subjectSearchResponse.getSubjects();
@@ -290,9 +310,97 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
                 }
             }
         } catch (Exception ex) {
+            this.logError("EXCEPTION: Unable to perform XCPD/PIX query: " + ex.getMessage());
+        }
+        return gatewayConfigs;
+    }
+
+    /**
+     *
+     * @param pidCXFormatted
+     * @return
+     * @throws XdsInternalException
+     */
+    private List<XCAGatewayConfig> getRespondingGatewaysForPatientIdUsingPIXMode(String pidCXFormatted) throws XdsInternalException {
+        String localHomeCommunityId = this.getLocalHomeCommunityId();
+        String localPatientId = pidCXFormatted;
+
+        XConfig xconf = XConfig.getInstance();
+        List<XCAGatewayConfig> gatewayConfigs = new ArrayList<XCAGatewayConfig>();
+
+        // Build subject search criteria (for PIX query).
+        SubjectSearchCriteria subjectSearchCriteria = this.buildSubjectSearchCriteria(localPatientId);
+        try {
+            XConfigActor pixManagerConfig = this.getPIXManagerConfig();
+            // Issue PIX Query.
+            SubjectSearchResponse subjectSearchResponse = this.getIdentifiersQuery(subjectSearchCriteria, pixManagerConfig);
+
+            // Loop through matching subjects.
+            List<Subject> matchSubjects = subjectSearchResponse.getSubjects();
+            for (Subject matchSubject : matchSubjects) {
+
+                // Now get remote home patient ids (support > 1) and put into result list.
+                for (SubjectIdentifier matchSubjectIdentifier : matchSubject.getSubjectIdentifiers()) {
+                    String remotePatientId = matchSubjectIdentifier.getCXFormatted();
+                    String remotePatientIdAssigningAuthority = this.getAssigningAuthority(remotePatientId);
+
+                    // Add all remote gateways that can resolve patients within the assigning authority.
+                    List<XConfigActor> gateways = xconf.getRespondingGatewayConfigsForAssigningAuthorityId(remotePatientIdAssigningAuthority);
+                    for (XConfigActor gateway : gateways) {
+                        String remoteHomeCommunityId = gateway.getUniqueId();
+                        this.logInfo("Patient Correlation",
+                                "localHomeCommunityId=" + localHomeCommunityId
+                                + ", localPatientId=" + localPatientId
+                                + ", remoteHomeCommunityId=" + remoteHomeCommunityId
+                                + ", remotePatientId=" + remotePatientId);
+
+                        // Save the remote gateway configuration in result list.
+                        XCAGatewayConfig gatewayConfig = new XCAGatewayConfig(gateway);
+                        gatewayConfig.setPatientId(remotePatientId);
+                        gatewayConfigs.add(gatewayConfig);
+                    }
+                }
+            }
+        } catch (Exception ex) {
             this.logError("EXCEPTION: Unable to perform PIX query: " + ex.getMessage());
         }
         return gatewayConfigs;
+    }
+
+    /**
+     *
+     * @param patientId
+     * @return
+     */
+    private SubjectSearchCriteria buildSubjectSearchCriteria(String patientId) {
+        // Build subject search criteria (for PIX query).
+        SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
+        Subject subject = new Subject();
+        SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientId);
+        subject.addSubjectIdentifier(subjectIdentifier);
+        subjectSearchCriteria.setSubject(subject);
+        return subjectSearchCriteria;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param pixManagerConfig
+     * @return
+     * @throws SOAPFaultException
+     */
+    private SubjectSearchResponse getIdentifiersQuery(SubjectSearchCriteria subjectSearchCriteria, XConfigActor pixManagerConfig) throws SOAPFaultException {
+        // Get sender / receiver device info.
+        DeviceInfo senderDeviceInfo = this.getSenderDeviceInfo();
+        DeviceInfo receiverDeviceInfo = this.getDeviceInfo(pixManagerConfig);
+
+        // Prepare for PIX Query.
+        PIXManagerClient pixClient = new PIXManagerClient(pixManagerConfig);
+
+        // Issue PIX Query.
+        SubjectSearchResponse subjectSearchResponse = pixClient.getIdentifiersQuery(senderDeviceInfo, receiverDeviceInfo, subjectSearchCriteria);
+
+        return subjectSearchResponse;
     }
 
     /**
@@ -440,5 +548,21 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
         // Now get the "XCPD IG" object (and cache it away).
         _xcpdIGConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("xcpdig", XConfig.XCA_INITIATING_GATEWAY_TYPE);
         return _xcpdIGConfig;
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsInternalException
+     */
+    private synchronized XConfigActor getPIXManagerConfig() throws XdsInternalException {
+        if (_pixManagerConfig != null) {
+            return _pixManagerConfig;
+        }
+        XConfigObject gatewayConfig = this.getGatewayConfig();
+
+        // Now get the "PIX" object (and cache it away).
+        _pixManagerConfig = (XConfigActor) gatewayConfig.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
+        return _pixManagerConfig;
     }
 }
