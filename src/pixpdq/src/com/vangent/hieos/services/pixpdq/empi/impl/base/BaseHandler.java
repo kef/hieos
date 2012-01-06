@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectCitizenship;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
@@ -108,6 +109,12 @@ public class BaseHandler {
         List<SubjectLanguage> subjectLanguages = subject.getSubjectLanguages();
         for (SubjectLanguage subjectLanguage : subjectLanguages) {
             empiConfig.validateCode(subjectLanguage.getLanguageCode(), CodedType.LANGUAGE);
+        }
+
+        // Validate nation codes.
+        List<SubjectCitizenship> subjectCitizenships = subject.getSubjectCitizenships();
+        for (SubjectCitizenship subjectCitizenship : subjectCitizenships) {
+            empiConfig.validateCode(subjectCitizenship.getNationCode(), CodedType.NATION);
         }
     }
 

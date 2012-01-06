@@ -108,6 +108,10 @@ public class SubjectDAO extends AbstractDAO {
         SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(conn);
         subjectLanguageDAO.load(subject);
 
+        // Citizenships.
+        SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(conn);
+        subjectCitizenshipDAO.load(subject);
+
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
         List<SubjectIdentifier> subjectIdentifiers = subjectIdentifierDAO.load(subject);
@@ -298,6 +302,7 @@ public class SubjectDAO extends AbstractDAO {
             SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
             SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
             SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(conn);
+            SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
             SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             for (Subject subject : subjects) {
@@ -306,6 +311,7 @@ public class SubjectDAO extends AbstractDAO {
                 subjectTelecomAddressDAO.insert(subject.getTelecomAddresses(), subject);
                 subjectPersonalRelationshipDAO.insert(subject.getSubjectPersonalRelationships(), subject);
                 subjectLanguageDAO.insert(subject.getSubjectLanguages(), subject);
+                subjectCitizenshipDAO.insert(subject.getSubjectCitizenships(), subject);
                 subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
                 subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
@@ -439,6 +445,13 @@ public class SubjectDAO extends AbstractDAO {
             System.out.println("... updating languages");
         }
 
+        // Citizenships.
+        if (!subject.getSubjectCitizenships().isEmpty()) {
+            updatedEnterpriseSubject.getSubjectCitizenships().clear();
+            updatedEnterpriseSubject.getSubjectCitizenships().addAll(subject.getSubjectCitizenships());
+            System.out.println("... updating citizenships");
+        }
+
         // Delete subject components (names, addresses, etc.)
         this.deleteSubjectComponents(targetEnterpriseSubjectId);
 
@@ -452,6 +465,7 @@ public class SubjectDAO extends AbstractDAO {
         SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
         SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
         SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(conn);
+        SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(conn);
 
         // Insert list content.
         subjectNameDAO.insert(updatedEnterpriseSubject.getSubjectNames(), updatedEnterpriseSubject);
@@ -459,6 +473,7 @@ public class SubjectDAO extends AbstractDAO {
         subjectTelecomAddressDAO.insert(updatedEnterpriseSubject.getTelecomAddresses(), updatedEnterpriseSubject);
         subjectPersonalRelationshipDAO.insert(updatedEnterpriseSubject.getSubjectPersonalRelationships(), updatedEnterpriseSubject);
         subjectLanguageDAO.insert(updatedEnterpriseSubject.getSubjectLanguages(), updatedEnterpriseSubject);
+        subjectCitizenshipDAO.insert(updatedEnterpriseSubject.getSubjectCitizenships(), updatedEnterpriseSubject);
 
         // Now update the simple demographic parts.
         this.updateSubjectSimpleParts(updatedEnterpriseSubject);
@@ -586,6 +601,7 @@ public class SubjectDAO extends AbstractDAO {
             SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(conn);
             SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(conn);
             SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(conn);
+            SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(conn);
 
             // Run deletions.
             subjectNameDAO.deleteSubjectRecords(subjectId);
@@ -593,6 +609,7 @@ public class SubjectDAO extends AbstractDAO {
             subjectTelecomAddressDAO.deleteSubjectRecords(subjectId);
             subjectPersonalRelationshipDAO.deleteSubjectRecords(subjectId);
             subjectLanguageDAO.deleteSubjectRecords(subjectId);
+            subjectCitizenshipDAO.deleteSubjectRecords(subjectId);
 
         } finally {
             this.close(stmt);

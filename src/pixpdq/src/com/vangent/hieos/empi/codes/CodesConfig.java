@@ -76,7 +76,11 @@ public class CodesConfig {
         /**
          *
          */
-        LANGUAGE
+        LANGUAGE,
+        /**
+         *
+         */
+        NATION
     };
 
     /**
