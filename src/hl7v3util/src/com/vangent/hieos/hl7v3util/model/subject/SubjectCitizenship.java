@@ -19,41 +19,41 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectLanguage extends SubjectAbstractEntity implements Cloneable {
+public class SubjectCitizenship extends SubjectAbstractEntity implements Cloneable {
 
-    private CodedValue languageCode = null;
-    private Boolean preferenceIndicator = null;
-
-    /**
-     *
-     * @return
-     */
-    public CodedValue getLanguageCode() {
-        return languageCode;
-    }
-
-    /**
-     *
-     * @param languageCode
-     */
-    public void setLanguageCode(CodedValue languageCode) {
-        this.languageCode = languageCode;
-    }
+    private CodedValue nationCode = null;
+    private String nationName = null;
 
     /**
      *
      * @return
      */
-    public Boolean getPreferenceIndicator() {
-        return preferenceIndicator;
+    public CodedValue getNationCode() {
+        return nationCode;
     }
 
     /**
-     * 
-     * @param preferenceIndicator
+     *
+     * @param nationCode
      */
-    public void setPreferenceIndicator(Boolean preferenceIndicator) {
-        this.preferenceIndicator = preferenceIndicator;
+    public void setNationCode(CodedValue nationCode) {
+        this.nationCode = nationCode;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getNationName() {
+        return nationName;
+    }
+
+    /**
+     *
+     * @param nationName
+     */
+    public void setNationName(String nationName) {
+        this.nationName = nationName;
     }
 
     /**
@@ -63,9 +63,9 @@ public class SubjectLanguage extends SubjectAbstractEntity implements Cloneable 
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        SubjectLanguage copy = (SubjectLanguage) super.clone();
-        if (languageCode != null) {
-            copy.languageCode = (CodedValue) languageCode.clone();
+        SubjectCitizenship copy = (SubjectCitizenship) super.clone();
+        if (nationCode != null) {
+            copy.nationCode = (CodedValue) nationCode.clone();
         }
         return copy;
     }
@@ -76,12 +76,12 @@ public class SubjectLanguage extends SubjectAbstractEntity implements Cloneable 
      * @return
      * @throws CloneNotSupportedException
      */
-    public static List<SubjectLanguage> clone(List<SubjectLanguage> listToClone) throws CloneNotSupportedException {
-        List<SubjectLanguage> copy = null;
+    public static List<SubjectCitizenship> clone(List<SubjectCitizenship> listToClone) throws CloneNotSupportedException {
+        List<SubjectCitizenship> copy = null;
         if (listToClone != null) {
-            copy = new ArrayList<SubjectLanguage>();
-            for (SubjectLanguage elementToClone : listToClone) {
-                SubjectLanguage clonedElement = (SubjectLanguage) elementToClone.clone();
+            copy = new ArrayList<SubjectCitizenship>();
+            for (SubjectCitizenship elementToClone : listToClone) {
+                SubjectCitizenship clonedElement = (SubjectCitizenship) elementToClone.clone();
                 copy.add(clonedElement);
             }
         }

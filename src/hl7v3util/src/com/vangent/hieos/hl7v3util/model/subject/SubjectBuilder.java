@@ -44,6 +44,12 @@ public class SubjectBuilder extends BuilderHelper {
             "./ns:telecom";
     private final static String XPATH_LANGUAGES =
             "./ns:languageCommunication";
+    private final static String XPATH_CITIZENSHIPS =
+            "./ns:asCitizen";
+    private final static String XPATH_NATION_CODE =
+            "./ns:politicalNation/ns:code[1]";
+    private final static String XPATH_NATION_NAME =
+            "./ns:politicalNation/ns:name[1]";
     private final static String XPATH_LANGUAGE_PREFERENCE_INDICATOR =
             "./ns:preferenceInd[1]";
     private final static String XPATH_NAMES =
@@ -213,6 +219,7 @@ public class SubjectBuilder extends BuilderHelper {
         this.setSubjectIdentifiers(subject, patientNode);
         this.setSubjectPersonalRelationships(subject, patientPersonNode);
         this.setSubjectLanguages(subject, patientPersonNode);
+        this.setSubjectCitizenships(subject, patientPersonNode);
         this.setGender(subject, patientPersonNode);
         this.setBirthTime(subject, patientPersonNode);
         this.setNames(subject, patientPersonNode);
@@ -602,6 +609,60 @@ public class SubjectBuilder extends BuilderHelper {
         subjectLanguage.setPreferenceIndicator(this.getBooleanValue(rootNode, XPATH_LANGUAGE_PREFERENCE_INDICATOR));
 
         return subjectLanguage;
+    }
+
+    /**
+     *
+     * @param subject
+     * @param rootNode
+     */
+    private void setSubjectCitizenships(Subject subject, OMElement rootNode) {
+        List<SubjectCitizenship> subjectCitizenships = subject.getSubjectCitizenships();
+        try {
+            List<OMElement> citizenshipNodes = this.selectNodes(rootNode, XPATH_CITIZENSHIPS);
+            for (OMElement citizenshipNode : citizenshipNodes) {
+                SubjectCitizenship subjectCitizenship = this.buildSubjectCitizenship(citizenshipNode);
+                subjectCitizenships.add(subjectCitizenship);
+            }
+        } catch (XPathHelperException ex) {
+            // Just ignore here.
+        }
+    }
+
+    /**
+     *
+     * @param rootNode
+     * @return
+     */
+    public SubjectCitizenship buildSubjectCitizenship(OMElement rootNode) {
+        // <urn:asCitizen classCode="CIT">
+        //   <urn:effectiveTime/>
+        //   <urn:politicalNation>
+        //      <urn:code code="USA"/>
+        //      <urn:name>TEST</urn:name>
+        //   </urn:politicalNation>
+        // </urn:asCitizen>
+        SubjectCitizenship subjectCitizenship = new SubjectCitizenship();
+
+        try {
+            // TBD: Implement "effectiveTime"
+            
+            // Get nation code.
+            OMElement nationCodeNode = this.selectSingleNode(rootNode, XPATH_NATION_CODE);
+            CodedValue nationCode = this.buildCodedValue(nationCodeNode);
+            subjectCitizenship.setNationCode(nationCode);
+
+            // Try to get nation name.
+            OMElement nationNameNode = this.selectSingleNode(rootNode, XPATH_NATION_NAME);
+            if (nationNameNode != null) {
+                String nationName = nationNameNode.getText();
+                subjectCitizenship.setNationName(nationName);
+            }
+        } catch (XPathHelperException ex) {
+            // Just ignore here.
+        }
+
+        return subjectCitizenship;
     }
 
     /**

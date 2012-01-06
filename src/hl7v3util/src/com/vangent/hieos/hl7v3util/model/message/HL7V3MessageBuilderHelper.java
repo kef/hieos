@@ -21,6 +21,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectCitizenship;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
@@ -689,6 +690,37 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param requestNode
      * @param subject
      */
+    protected void addSubjectCitizenships(OMElement rootNode, Subject subject) {
+        // <urn:asCitizen classCode="CIT">
+        //   <urn:effectiveTime/>
+        //   <urn:politicalNation>
+        //      <urn:code code="USA"/>
+        //      <urn:name>TEST</urn:name>
+        //   </urn:politicalNation>
+        // </urn:asCitizen>
+        for (SubjectCitizenship subjectCitizenship : subject.getSubjectCitizenships()) {
+            OMElement asCitizenNode = this.addChildOMElement(rootNode, "asCitizen");
+
+            // TBD: Add "effectiveTime"
+
+            OMElement politicalNationNode = this.addChildOMElement(asCitizenNode, "politicalNation");
+
+            // Add the nation coded value.
+            this.addCode(politicalNationNode, "code", subjectCitizenship.getNationCode());
+
+            // Nation name.
+            String nationName = subjectCitizenship.getNationName();
+            if (nationName != null) {
+                this.addChildOMElementWithValue(politicalNationNode, "name", nationName);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param requestNode
+     * @param subject
+     */
     protected void addSubjectIdentifiers(OMElement rootNode, Subject subject) {
         // controlActProcess/subject/registrationEvent/subject1/patient/id[*]
         for (SubjectIdentifier subjectIdentifier : subject.getSubjectIdentifiers()) {
@@ -1018,6 +1050,9 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
         this.addCode(rootNode, "religiousAffiliationCode", subject.getReligiousAffiliation());
         this.addCode(rootNode, "raceCode", subject.getRace());
         this.addCode(rootNode, "ethnicGroupCode", subject.getEthnicGroup());
+
+        // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asCitizen[*]
+        this.addSubjectCitizenships(rootNode, subject);
 
         // controlActProcess/subject/registrationEvent/subject1/patient/patientPerson/asOtherIds[*]
         this.addSubjectOtherIdentifiers(rootNode, subject);

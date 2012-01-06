@@ -29,6 +29,7 @@ public class Subject extends SubjectAbstractEntity implements Cloneable {
     private List<TelecomAddress> telecomAddresses = new ArrayList<TelecomAddress>();
     private List<SubjectPersonalRelationship> subjectPersonalRelationships = new ArrayList<SubjectPersonalRelationship>();
     private List<SubjectLanguage> subjectLanguages = new ArrayList<SubjectLanguage>();
+    private List<SubjectCitizenship> subjectCitizenships = new ArrayList<SubjectCitizenship>();
     private CodedValue gender = null;
     private CodedValue maritalStatus = null;
     private CodedValue religiousAffiliation = null;
@@ -191,11 +192,35 @@ public class Subject extends SubjectAbstractEntity implements Cloneable {
     }
 
     /**
+     * 
+     * @return
+     */
+    public List<SubjectCitizenship> getSubjectCitizenships() {
+        return subjectCitizenships;
+    }
+
+    /**
+     *
+     * @param subjectCitizenships
+     */
+    public void setSubjectCitizenships(List<SubjectCitizenship> subjectCitizenships) {
+        this.subjectCitizenships = subjectCitizenships;
+    }
+
+    /**
      *
      * @param subjectLanguage
      */
     public void addSubjectLanguage(SubjectLanguage subjectLanguage) {
         this.subjectLanguages.add(subjectLanguage);
+    }
+
+     /**
+     *
+     * @param subjectCitizenship
+     */
+    public void addSubjectCitizenship(SubjectCitizenship subjectCitizenship) {
+        this.subjectCitizenships.add(subjectCitizenship);
     }
 
     /**
@@ -599,6 +624,7 @@ public class Subject extends SubjectAbstractEntity implements Cloneable {
         copy.telecomAddresses = TelecomAddress.clone(telecomAddresses);
         copy.subjectPersonalRelationships = SubjectPersonalRelationship.clone(subjectPersonalRelationships);
         copy.subjectLanguages = SubjectLanguage.clone(subjectLanguages);
+        copy.subjectCitizenships = SubjectCitizenship.clone(subjectCitizenships);
         copy.gender = CodedValue.clone(gender);
         copy.maritalStatus = CodedValue.clone(maritalStatus);
         copy.religiousAffiliation = CodedValue.clone(religiousAffiliation);
