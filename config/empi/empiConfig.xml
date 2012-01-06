@@ -6,10 +6,12 @@
     <!-- Name of match algorithm to use. -->
     <match-algorithm>com.vangent.hieos.empi.match.FRILMatchAlgorithm</match-algorithm>
 
+    <validate-codes-enabled>true</validate-codes-enabled>
+
     <!-- Enterprise ID configuration items. -->
     <euid-config>
         <euid-assign-enabled>false</euid-assign-enabled>
-        <euid-universalid>1.3.6.1.4.1.21367.13.20.1000</euid-universalid>
+        <euid-universalid>1.3.6.1.4.1.21367.13.20.9999</euid-universalid>
         <euid-universalid-type>ISO</euid-universalid-type>
     </euid-config>
 
@@ -355,7 +357,7 @@
                 <name>givenName</name>
                 <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
-                <weight>1.0</weight>
+                <weight>3.0</weight>
                 <distance-function>
                     <name>Levenshtein</name>
                 </distance-function>
@@ -364,7 +366,7 @@
                 <name>familyName</name>
                 <accept-threshold>0.8</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
-                <weight>1.0</weight>
+                <weight>5.0</weight>
                 <distance-function>
                     <name>Levenshtein</name>
                 </distance-function>
@@ -373,7 +375,7 @@
                 <name>birthTime</name>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
-                <weight>1.0</weight>
+                <weight>3.0</weight>
                 <distance-function>
                     <name>ExactMatch</name>
                 </distance-function>
@@ -488,4 +490,14 @@
         </cross-reference-consumer>-->
         <!-- more cross-reference-consumer(s) go here .... -->
     </cross-reference-consumers>
+
+    <!-- List of valid identifier domains (not yet implemented) -->
+    <identifier-domains>
+        <identifier-domain>
+            <universal-id>1.3.6.1.4.1.21367.13.20.9999</universal-id>
+            <universal-id-type>ISO</universal-id-type>
+            <namespace-id>ENTERPRISE</namespace-id>
+        </identifier-domain>
+        <!-- More would go here -->
+    </identifier-domains>
 </config>
