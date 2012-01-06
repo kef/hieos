@@ -1,0 +1,59 @@
+
+<config>
+    <code-set-mappings>
+        <code-set-mapping codedType="GENDER" codeSystem="2.16.840.1.113883.5.1" />
+        <code-set-mapping codedType="MARITAL_STATUS" codeSystem="2.16.840.1.113883.5.2" />
+        <code-set-mapping codedType="RELIGIOUS_AFFILIATION" codeSystem="2.16.840.1.113883.5.1076" />
+        <code-set-mapping codedType="RACE" codeSystem="2.16.840.1.113883.5.104" />
+        <code-set-mapping codedType="ETHNIC_GROUP" codeSystem="2.16.840.1.113883.5.50" />
+        <code-set-mapping codedType="PERSONAL_RELATIONSHIP" codeSystem="2.16.840.1.113883.5.111" />
+        <code-set-mapping codedType="LANGUAGE" codeSystem="ISO-language-codes" />
+        <!-- ISO3166 country codes -->
+        <code-set-mapping codedType="NATION" codeSystem="ISO-nation-codes" />
+    </code-set-mappings>
+    <code-sets>
+        <code-set codeSystem="2.16.840.1.113883.5.104" codeSystemName="HL7 Race" codeSystemVersion="1.0">
+            <code value="1002-5" displayName="American Indian or Alaska Native"/>
+            <code value="1004-1" displayName="American Indian"/>
+        </code-set>
+        <code-set codeSystem="2.16.840.1.113883.5.50" codeSystemName="HL7 Ethnicity" codeSystemVersion="1.0">
+            <code value="2135-2" displayName="Hispanic or Latino"/>
+            <code value="2137-8" displayName="Spaniard"/>
+        </code-set>
+    <!-- language_code (language code system value set - ISO_639-1/ISO-3166-1_alpha-2)
+             http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+             http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+     -->
+        <code-set codeSystem="ISO-language-codes" codeSystemName="Language" codeSystemVersion="">
+            <code value="en" displayName="English"/>
+            <code value="en-US" displayName="English-United States"/>
+        </code-set>
+         <code-set codeSystem="ISO-nation-codes" codeSystemName="Nation" codeSystemVersion="">
+            <code value="USA" displayName="United States"/>
+            <code value="AUS" displayName="Australia"/>
+        </code-set>
+        <code-set codeSystem="2.16.840.1.113883.5.111" codeSystemName="HL7 Role Code" codeSystemVersion="1.0">
+            <code value="MTH" displayName="Mother"/>
+        </code-set>
+        <code-set codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7 Administrative Gender" codeSystemVersion="1.0">
+            <code value="M" displayName="Male"/>
+            <code value="F" displayName="Female"/>
+            <code value="UN" displayName="Undifferentiated"/>
+        </code-set>
+        <code-set codeSystem="2.16.840.1.113883.5.2" codeSystemName="HL7 Marital Status" codeSystemVersion="1.0">
+            <code value="A" displayName="Annulled"/>
+            <code value="D" displayName="Divorced"/>
+            <code value="I" displayName="Interlocutory"/>
+            <code value="L" displayName="Legally Separated"/>
+            <code value="M" displayName="Married"/>
+            <code value="P" displayName="Polygamous"/>
+            <code value="S" displayName="Never Married"/>
+            <code value="T" displayName="Domestic partner"/>
+            <code value="W" displayName="Widowed"/>
+        </code-set>
+        <code-set codeSystem="2.16.840.1.113883.5.1076" codeSystemName="HL7 Religious Affiliation" codeSystemVersion="1.0">
+            <code value="1001" displayName="Adventist"/>
+            <code value="1002" displayName="African Religions"/>
+        </code-set>
+    </code-sets>
+</config>
