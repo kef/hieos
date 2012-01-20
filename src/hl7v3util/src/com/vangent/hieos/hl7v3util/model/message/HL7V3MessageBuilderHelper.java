@@ -735,7 +735,12 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param subjectIdentifier
      */
     protected void addSubjectIdentifier(OMElement rootNode, SubjectIdentifier subjectIdentifier) {
-        this.setAttribute(rootNode, "root", subjectIdentifier.getIdentifierDomain().getUniversalId());
+        SubjectIdentifierDomain identifierDomain = subjectIdentifier.getIdentifierDomain();
+        this.setAttribute(rootNode, "root", identifierDomain.getUniversalId());
+        String namespaceId = identifierDomain.getNamespaceId();
+        if (namespaceId != null && !namespaceId.isEmpty()) {
+            this.setAttribute(rootNode, "assigningAuthorityName", namespaceId);
+        }
         this.setAttribute(rootNode, "extension", subjectIdentifier.getIdentifier());
     }
 

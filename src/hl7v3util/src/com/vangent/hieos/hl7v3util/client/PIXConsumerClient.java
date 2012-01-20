@@ -23,6 +23,7 @@ import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.soap.WebServiceClient;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -33,13 +34,16 @@ public class PIXConsumerClient extends WebServiceClient {
 
     public final static String XREFCONSUMER_UPDATE_ACTION = "urn:hl7-org:v3:PRPA_IN201302UV02";
     public final static String XREFCONSUMER_UPDATE_ACTION_RESPONSE = "urn:hl7-org:v3:MCCI_IN000002UV01";
+    private XLogMessage logMessage;
 
     /**
      *
      * @param gatewayConfig
      */
-    public PIXConsumerClient(XConfigActor gatewayConfig) {
+    public PIXConsumerClient(XConfigActor gatewayConfig, XLogMessage logMessage) {
         super(gatewayConfig);
+        // FIXME: Move logMessage support to base class.
+        this.logMessage = logMessage;
     }
 
     /**
@@ -55,6 +59,10 @@ public class PIXConsumerClient extends WebServiceClient {
         XConfigTransaction txn = config.getTransaction("PatientRegistryRecordRevised");
         soap.setAsync(txn.isAsyncTransaction());
         boolean soap12 = txn.isSOAP12Endpoint();
+        if (logMessage.isLogEnabled()) {
+            logMessage.addOtherParam("PIX Update Notification Request to " + txn.getEndpointURL(),
+                    request.getMessageNode().toString());
+        }
         OMElement soapResponse = soap.soapCall(
                 request.getMessageNode(),
                 txn.getEndpointURL(),
@@ -63,6 +71,10 @@ public class PIXConsumerClient extends WebServiceClient {
                 soap12,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION /* SOAP action */,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION_RESPONSE /* SOAP action response */);
+        if (logMessage.isLogEnabled()) {
+            logMessage.addOtherParam("PIX Update Notification Response from " + txn.getEndpointURL(),
+                    soapResponse.toString());
+        }
         HL7V3ClientResponse clientResponse = new HL7V3ClientResponse();
         clientResponse.setClientMessage(request);
         clientResponse.setMessageId(HL7V3MessageBuilderHelper.getMessageId(request));

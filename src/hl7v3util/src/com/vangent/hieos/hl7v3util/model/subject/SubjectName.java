@@ -26,6 +26,9 @@ public class SubjectName extends SubjectAbstractEntity implements Cloneable {
     private String middleName;
     private String prefix;
     private String suffix;
+    // Not really happy about placing this here ... but since Subject(s) are used to support
+    // searching, this is required to be placed here.
+    private boolean fuzzySearchMode = false;
 
     /**
      *
@@ -126,6 +129,22 @@ public class SubjectName extends SubjectAbstractEntity implements Cloneable {
      */
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isFuzzySearchMode() {
+        return fuzzySearchMode;
+    }
+
+    /**
+     *
+     * @param fuzzySearchMode
+     */
+    public void setFuzzySearchMode(boolean fuzzySearchMode) {
+        this.fuzzySearchMode = fuzzySearchMode;
     }
 
     /**

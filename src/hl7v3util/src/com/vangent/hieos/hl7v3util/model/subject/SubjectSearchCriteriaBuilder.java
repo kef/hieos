@@ -147,6 +147,15 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
             for (OMElement subjectNameNode : subjectNameNodes) {
                 OMElement valueNode = this.getFirstChildNodeWithName(subjectNameNode, "value");
                 SubjectName subjectName = this.buildSubjectName(valueNode);
+                // See if there is a SRCH parameter specified.
+                // <value use="SRCH">
+                String use = valueNode.getAttributeValue(new QName("use"));
+                boolean fuzzySearchMode = false;
+                if (use != null && use.equalsIgnoreCase("SRCH")) {
+                    System.out.println("use=SRCH FOUND");
+                    fuzzySearchMode = true;
+                }
+                subjectName.setFuzzySearchMode(fuzzySearchMode);
                 subjectNames.add(subjectName);
             }
         } catch (XPathHelperException ex) {
