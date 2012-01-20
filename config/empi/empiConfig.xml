@@ -6,7 +6,8 @@
     <!-- Name of match algorithm to use. -->
     <match-algorithm>com.vangent.hieos.empi.match.FRILMatchAlgorithm</match-algorithm>
 
-    <validate-codes-enabled>true</validate-codes-enabled>
+    <!-- when enabled, will validate codes in HL7V3 messages against codes.xml configuration. -->
+    <validate-codes-enabled>false</validate-codes-enabled>
 
     <!-- Enterprise ID configuration items. -->
     <euid-config>
@@ -119,6 +120,10 @@
             <name>NormalizeCase</name>
             <class>com.vangent.hieos.empi.transform.NormalizeCaseTransformFunction</class>
         </transform-function>
+        <transform-function>
+            <name>fuzzyNameSearch</name>
+            <class>com.vangent.hieos.empi.transform.FuzzyNameSearchTransformFunction</class>
+        </transform-function>
     </transform-functions>
 
     <!-- Available distance functions -->
@@ -140,6 +145,16 @@
         <distance-function>
             <name>ExactMatch</name>
             <class>com.vangent.hieos.empi.distance.ExactMatchDistanceFunction</class>
+            <!--<parameters>
+                <parameter>
+                    <name>truncate-length</name>
+                    <value>5</value>
+                </parameter>
+            </parameters>-->
+        </distance-function>
+        <distance-function>
+            <name>FuzzyMatch</name>
+            <class>com.vangent.hieos.empi.distance.FuzzyMatchDistanceFunction</class>
             <!--<parameters>
                 <parameter>
                     <name>truncate-length</name>
@@ -307,6 +322,43 @@
             </transform-functions>
             <match-db-column>match_field15</match-db-column>
         </field>
+        <field>
+            <name>familyNameFuzzy</name>
+            <supersedes-field>familyName</supersedes-field>
+             <!-- default for store-field is "true" -->
+            <store-field>false</store-field>
+            <source-object-path>subjectNames[0]</source-object-path>
+            <transform-functions>
+                <transform-function>
+                    <name>fuzzyNameSearch</name>
+                    <parameters>
+                        <parameter>
+                            <name>field-name</name>
+                            <value>familyName</value>
+                        </parameter>
+                    </parameters>
+                </transform-function>
+            </transform-functions>
+            <match-db-column>match_field3</match-db-column>
+        </field>
+        <field>
+            <name>givenNameFuzzy</name>
+            <supersedes-field>givenName</supersedes-field>
+            <store-field>false</store-field>
+            <source-object-path>subjectNames[0]</source-object-path>
+            <transform-functions>
+                <transform-function>
+                    <name>fuzzyNameSearch</name>
+                    <parameters>
+                        <parameter>
+                            <name>field-name</name>
+                            <value>givenName</value>
+                        </parameter>
+                    </parameters>
+                </transform-function>
+            </transform-functions>
+            <match-db-column>match_field4</match-db-column>
+        </field>
     </fields>
     
     <!-- First pass "blocking" configuration -->
@@ -335,24 +387,68 @@
                 </blocking-field>
                 <blocking-field>
                     <name>city</name>
-                    <required>true</required>
+                    <required>false</required>
                 </blocking-field>
                 <blocking-field>
                     <name>state</name>
-                    <required>true</required>
+                    <required>false</required>
                 </blocking-field>
                 <blocking-field>
                     <name>postalCode</name>
+                    <required>false</required>
+                </blocking-field>
+            </blocking-fields>
+        </blocking-pass>
+        <blocking-pass>
+            <enabled-during-subject-add>false</enabled-during-subject-add>
+            <blocking-fields>
+                <blocking-field>
+                    <name>birthTime</name>
                     <required>true</required>
+                </blocking-field>
+            </blocking-fields>
+        </blocking-pass>
+        <blocking-pass>
+            <!-- default for enabled-during-subject-add is "true" -->
+            <enabled-during-subject-add>false</enabled-during-subject-add>
+            <blocking-fields>
+                <blocking-field>
+                    <name>familyNameFuzzy</name>
+                    <required>true</required>
+                </blocking-field>
+                <blocking-field>
+                    <name>givenNameFuzzy</name>
+                    <required>false</required>
                 </blocking-field>
             </blocking-fields>
         </blocking-pass>
     </blocking-config>
     
     <match-config>
-        <accept-threshold>0.9</accept-threshold>
-        <reject-threshold>0.9</reject-threshold>
+        <accept-threshold>1.0</accept-threshold>
+        <reject-threshold>1.0</reject-threshold>
         <match-fields>
+             <!-- new to support SRCH -->
+            <match-field>
+                <name>givenNameFuzzy</name>
+                <enabled-during-subject-add>false</enabled-during-subject-add>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>3.0</weight>
+                <distance-function>
+                    <name>FuzzyMatch</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>familyNameFuzzy</name>
+                <enabled-during-subject-add>false</enabled-during-subject-add>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>3.0</weight>
+                <distance-function>
+                    <name>FuzzyMatch</name>
+                </distance-function>
+            </match-field>
             <match-field>
                 <name>givenName</name>
                 <accept-threshold>0.8</accept-threshold>
@@ -425,6 +521,7 @@
                     <name>Levenshtein</name>
                 </distance-function>
             </match-field>
+           
         </match-fields>
     </match-config>
 
@@ -433,11 +530,42 @@
     <!-- List of cross reference consumers -->
     <cross-reference-consumers>
         <cross-reference-consumer>
-            <name>NIST PIX PDQ Tool</name>
+            <name>TIANI</name>
             <enabled>true</enabled>
+            <device-id>1.3.6.1.4.1.21367.13.30.6</device-id>
+            <device-name>1.3.6.1.4.1.21367.13.30.6</device-name>
+            <!-- List of interested identifier domains -->
+            <identifier-domains>
+                <!--<identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE-RED</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.2000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE-GREEN</namespace-id>
+                </identifier-domain>
+                -->
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE-BLUE</namespace-id>
+                </identifier-domain>
+                <!--<identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.4</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>TIANI</namespace-id>
+                </identifier-domain>-->
+            </identifier-domains>
+        </cross-reference-consumer>
+        <cross-reference-consumer>
+            <name>NIST PIX PDQ Tool</name>
+            <enabled>false</enabled>
             <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
             <device-name>2.16.840.1.113883.3.72.6.1</device-name>
-            <interested-identifier-domains>
+            <!-- List of interested identifier domains -->
+            <identifier-domains>
                 <identifier-domain>
                     <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
                     <universal-id-type>ISO</universal-id-type>
@@ -458,7 +586,7 @@
                     <universal-id-type>ISO</universal-id-type>
                     <namespace-id>NIST2010-3</namespace-id>
                 </identifier-domain>
-            </interested-identifier-domains>
+            </identifier-domains>
         </cross-reference-consumer>
         <!--<cross-reference-consumer>
             <name>BOGUS DEVICE</name>
@@ -490,6 +618,86 @@
         </cross-reference-consumer>-->
         <!-- more cross-reference-consumer(s) go here .... -->
     </cross-reference-consumers>
+
+    <validate-identity-sources-enabled>true</validate-identity-sources-enabled>
+    
+    <!-- List of valid identifier sources -->
+    <identity-sources>
+
+         <identity-source>
+            <name>ALERT</name>
+            <device-id>1.3.6.1.4.1.21367.13.10.17</device-id>
+            <device-name>1.3.6.1.4.1.21367.13.10.17</device-name>
+            <identifier-domains>
+                <!--<identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_RED</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.2000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_GREEN</namespace-id>
+                </identifier-domain>
+                -->
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.13</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>ALEH</namespace-id>
+                </identifier-domain>
+            </identifier-domains>
+        </identity-source>
+        <identity-source>
+            <name>Geneva NA2012</name>
+            <device-id>1.3.6.1.4.1.21367.13.10.57</device-id>
+            <device-name>NA2012</device-name>
+            <identifier-domains>
+                <!--<identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_RED</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.2000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_GREEN</namespace-id>
+                </identifier-domain>
+                -->
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_BLUE</namespace-id>
+                </identifier-domain>
+            </identifier-domains>
+        </identity-source>
+        <identity-source>
+            <name>TEST</name>
+            <device-id>1.2.840.114350.1.13.99998.8734</device-id>
+            <device-name>TEST</device-name>
+            <identifier-domains>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_RED</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.2000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_GREEN</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_BLUE</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.3000.1.6</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE_LOCAL</namespace-id>
+                </identifier-domain>
+            </identifier-domains>
+        </identity-source>
+    </identity-sources>
 
     <!-- List of valid identifier domains (not yet implemented) -->
     <identifier-domains>
