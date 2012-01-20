@@ -14,21 +14,18 @@ package com.vangent.hieos.empi.config;
 
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class CrossReferenceConsumerConfig implements ConfigItem {
+public class IdentitySourceConfig implements ConfigItem {
 
     private static String NAME = "name";
-    private static String ENABLED = "enabled";
     private static String DEVICE_ID = "device-id";
     private static String DEVICE_NAME = "device-name";
     private static String IDENTIFIER_DOMAINS = "identifier-domains.identifier-domain";
@@ -36,11 +33,9 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
     private static String UNIVERSAL_ID_TYPE = "universal-id-type";
     private static String NAMESPACE_ID = "namespace-id";
     private String name;
-    private boolean enabled;
     private String deviceId;
     private String deviceName;
     private List<SubjectIdentifierDomain> identifierDomains = new ArrayList<SubjectIdentifierDomain>();
-    private XConfigActor configActor = null;
 
     /**
      * 
@@ -70,24 +65,8 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
      *
      * @return
      */
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     *
-     * @return
-     */
     public List<SubjectIdentifierDomain> getIdentifierDomains() {
         return identifierDomains;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public XConfigActor getConfigActor() {
-        return configActor;
     }
 
     /**
@@ -98,7 +77,6 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
      */
     @Override
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
-        this.enabled = hc.getBoolean(ENABLED, Boolean.FALSE);
         this.name = hc.getString(NAME);
         this.deviceId = hc.getString(DEVICE_ID);
         this.deviceName = hc.getString(DEVICE_NAME);
@@ -114,8 +92,5 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
             identifierDomain.setNamespaceId(namespaceId);
             this.identifierDomains.add(identifierDomain);
         }
-        // Set XConfigActor given "deviceId".
-        Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = empiConfig.getCrossReferenceConsumerConfigActorMap();
-        configActor = crossReferenceConsumerConfigActorMap.get(this.deviceId);
     }
 }

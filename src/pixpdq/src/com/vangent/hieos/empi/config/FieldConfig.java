@@ -27,11 +27,15 @@ public class FieldConfig implements ConfigItem {
     private static String FIELD_NAME = "name";
     private static String SOURCE_OBJECT_PATH = "source-object-path";
     private static String MATCH_DB_COLUMN = "match-db-column";
+    private static String STORE_FIELD = "store-field";
+    private static String SUPERSEDES_FIELD = "supersedes-field";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
     private static String TRANSFORM_FUNCTION_NAME = "name";
     private String name;
     private String sourceObjectPath;
     private String matchDatabaseColumn;
+    private String supersedesField = null;
+    private boolean storeField;
     private List<TransformFunctionConfig> transformFunctionConfigs = new ArrayList<TransformFunctionConfig>();
 
     /**
@@ -59,6 +63,22 @@ public class FieldConfig implements ConfigItem {
     }
 
     /**
+     * 
+     * @return
+     */
+    public boolean isStoreField() {
+        return storeField;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getSupersedesField() {
+        return supersedesField;
+    }
+
+    /**
      *
      * @return
      */
@@ -76,6 +96,8 @@ public class FieldConfig implements ConfigItem {
         this.name = hc.getString(FIELD_NAME);
         this.sourceObjectPath = hc.getString(SOURCE_OBJECT_PATH);
         this.matchDatabaseColumn = hc.getString(MATCH_DB_COLUMN);
+        this.supersedesField = hc.getString(SUPERSEDES_FIELD);
+        this.storeField = hc.getBoolean(STORE_FIELD, true);
 
         // Link up transforms.
         List transformFunctions = hc.configurationsAt(TRANSFORM_FUNCTIONS);

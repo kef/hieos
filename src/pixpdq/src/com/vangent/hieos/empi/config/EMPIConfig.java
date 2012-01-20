@@ -18,6 +18,7 @@ import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -44,6 +45,7 @@ public class EMPIConfig {
     private static String JNDI_RESOURCE_NAME = "jndi-resource-name";
     private static String UPDATE_NOTIFICATION_ENABLED = "update-notification-enabled";
     private static String VALIDATE_CODES_ENABLED = "validate-codes-enabled";
+    private static String VALIDATE_IDENTITY_SOURCES_ENABLED = "validate-identity-sources-enabled";
     private static String MATCH_ALGORITHM = "match-algorithm";
     private static String DEFAULT_JNDI_RESOURCE_NAME = "jdbc/hieos-empi";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
@@ -53,6 +55,7 @@ public class EMPIConfig {
     private static String MATCH_CONFIG = "match-config(0)";
     private static String EUID_CONFIG = "euid-config(0)";
     private static String CROSS_REFERENCE_CONSUMER_CONFIGS = "cross-reference-consumers.cross-reference-consumer";
+    private static String IDENTITY_SOURCE_CONFIGS = "identity-sources.identity-source";
     private static EMPIConfig _instance = null;
     private BlockingConfig blockingConfig;
     private MatchConfig matchConfig;
@@ -61,11 +64,14 @@ public class EMPIConfig {
     private EUIDConfig euidConfig;
     private boolean updateNotificationEnabled;
     private boolean validateCodesEnabled;
+    private boolean validateIdentitySourcesEnabled;
     private Map<String, TransformFunctionConfig> transformFunctionConfigs = new HashMap<String, TransformFunctionConfig>();
     private Map<String, DistanceFunctionConfig> distanceFunctionConfigs = new HashMap<String, DistanceFunctionConfig>();
     private Map<String, FieldConfig> fieldConfigs = new HashMap<String, FieldConfig>();
     private Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = new HashMap<String, XConfigActor>();
     private List<CrossReferenceConsumerConfig> crossReferenceConsumerConfigs = new ArrayList<CrossReferenceConsumerConfig>();
+    // Key = device id
+    private Map<String, IdentitySourceConfig> identitySourceConfigs = new HashMap<String, IdentitySourceConfig>();
     private CodesConfig codesConfig;
 
     /**
@@ -205,6 +211,24 @@ public class EMPIConfig {
 
     /**
      *
+     * @return
+     */
+    public boolean isValidateIdentitySourcesEnabled() {
+        return validateIdentitySourcesEnabled;
+    }
+
+    /**
+     *
+     * @param deviceInfo
+     * @return
+     */
+    public IdentitySourceConfig getIdentitySourceConfig(DeviceInfo deviceInfo) {
+        String deviceId = deviceInfo.getId();
+        return this.identitySourceConfigs.get(deviceId);
+    }
+
+    /**
+     *
      * @param code
      * @param codeSystem
      * @return
@@ -303,6 +327,14 @@ public class EMPIConfig {
     }
 
     /**
+     *
+     * @return
+     */
+    public Map<String, IdentitySourceConfig> getIdentitySourceConfigs() {
+        return identitySourceConfigs;
+    }
+
+    /**
      * 
      * @throws EMPIException
      */
@@ -315,6 +347,7 @@ public class EMPIConfig {
             jndiResourceName = xmlConfig.getString(JNDI_RESOURCE_NAME, DEFAULT_JNDI_RESOURCE_NAME);
             updateNotificationEnabled = xmlConfig.getBoolean(UPDATE_NOTIFICATION_ENABLED, false);
             validateCodesEnabled = xmlConfig.getBoolean(VALIDATE_CODES_ENABLED, true);
+            validateIdentitySourcesEnabled = xmlConfig.getBoolean(VALIDATE_IDENTITY_SOURCES_ENABLED, true);
 
             // Load the match algorithm.
             this.loadMatchAlgorithm(xmlConfig);
@@ -339,6 +372,9 @@ public class EMPIConfig {
 
             // Load cross reference consumers.
             this.loadCrossReferenceConsumers(xmlConfig);
+
+            // Load identity sources.
+            this.loadIdentitySources(xmlConfig);
 
             // Load codes configuration.
             codesConfig = new CodesConfig();
@@ -418,6 +454,23 @@ public class EMPIConfig {
             CrossReferenceConsumerConfig crossReferenceConsumerConfig = new CrossReferenceConsumerConfig();
             crossReferenceConsumerConfig.load(hcCrossReferenceConsumer, this);
             crossReferenceConsumerConfigs.add(crossReferenceConsumerConfig);
+        }
+    }
+
+    /**
+     *
+     * @param hc
+     * @throws EMPIException
+     */
+    private void loadIdentitySources(HierarchicalConfiguration hc) throws EMPIException {
+
+        // Get identity source(s) configurations.
+        List identitySources = hc.configurationsAt(IDENTITY_SOURCE_CONFIGS);
+        for (Iterator it = identitySources.iterator(); it.hasNext();) {
+            HierarchicalConfiguration hcIdentitySource = (HierarchicalConfiguration) it.next();
+            IdentitySourceConfig identitySourceConfig = new IdentitySourceConfig();
+            identitySourceConfig.load(hcIdentitySource, this);
+            identitySourceConfigs.put(identitySourceConfig.getDeviceId(), identitySourceConfig);
         }
     }
 

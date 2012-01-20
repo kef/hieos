@@ -25,7 +25,17 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public class BlockingPassConfig implements ConfigItem {
 
     private static String BLOCKING_FIELDS = "blocking-fields.blocking-field";
+    private static String ENABLED_DURING_SUBJECT_ADD = "enabled-during-subject-add";
     private List<BlockingFieldConfig> blockingFieldConfigs = new ArrayList<BlockingFieldConfig>();
+    private boolean enabledDuringSubjectAdd;
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isEnabledDuringSubjectAdd() {
+        return enabledDuringSubjectAdd;
+    }
 
     /**
      *
@@ -43,6 +53,7 @@ public class BlockingPassConfig implements ConfigItem {
      */
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         List blockingFields = hc.configurationsAt(BLOCKING_FIELDS);
+        this.enabledDuringSubjectAdd = hc.getBoolean(ENABLED_DURING_SUBJECT_ADD, true);
         for (Iterator it = blockingFields.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcBlockingField = (HierarchicalConfiguration) it.next();
             BlockingFieldConfig blockingFieldConfig = new BlockingFieldConfig();

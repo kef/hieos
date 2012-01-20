@@ -26,6 +26,7 @@ public class MatchFieldConfig implements ConfigItem {
     private static String REJECT_THRESHOLD = "reject-threshold";
     private static String WEIGHT = "weight";
     private static String DISTANCE_FUNCTION = "distance-function(0)";
+    private static String ENABLED_DURING_SUBJECT_ADD = "enabled-during-subject-add";
     private static String DISTANCE_FUNCTION_NAME = "name";
     private String name;
     private double acceptThreshold;
@@ -33,14 +34,7 @@ public class MatchFieldConfig implements ConfigItem {
     private double weight;
     private DistanceFunctionConfig distanceFunctionConfig;
     private FieldConfig fieldConfig;
-
-    /**
-     *
-     * @return
-     */
-    public double getAcceptThreshold() {
-        return acceptThreshold;
-    }
+    private boolean enabledDuringSubjectAdd;
 
     /**
      *
@@ -48,6 +42,22 @@ public class MatchFieldConfig implements ConfigItem {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isEnabledDuringSubjectAdd() {
+        return enabledDuringSubjectAdd;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getAcceptThreshold() {
+        return acceptThreshold;
     }
 
     /**
@@ -90,6 +100,7 @@ public class MatchFieldConfig implements ConfigItem {
      */
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
         this.name = hc.getString(NAME);
+        this.enabledDuringSubjectAdd = hc.getBoolean(ENABLED_DURING_SUBJECT_ADD, true);
         this.acceptThreshold = hc.getDouble(ACCEPT_THRESHOLD);
         this.rejectThreshold = hc.getDouble(REJECT_THRESHOLD);
         this.weight = hc.getDouble(WEIGHT);
