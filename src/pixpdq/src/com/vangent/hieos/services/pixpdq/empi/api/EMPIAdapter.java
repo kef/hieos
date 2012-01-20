@@ -16,6 +16,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
@@ -30,6 +31,24 @@ public interface EMPIAdapter {
      * @param configActor
      */
     public void setConfig(XConfigActor configActor);
+
+    /**
+     *
+     * @return
+     */
+    public XConfigActor getConfigActor();
+
+    /**
+     *
+     * @param senderDeviceInfo
+     */
+    public void setSenderDeviceInfo(DeviceInfo senderDeviceInfo);
+
+    /**
+     * 
+     * @return
+     */
+    public DeviceInfo getSenderDeviceInfo();
 
     /**
      *

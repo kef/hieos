@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import java.math.BigDecimal;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -55,7 +56,7 @@ public class ScoredRecord {
     /**
      *
      */
-    public void computeScores() {
+    public void computeScores(MatchType matchType) {
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
 
         // Compute field-level scores.
@@ -63,11 +64,16 @@ public class ScoredRecord {
         double fieldWeightSum = 0.0;
         double fieldScoreSum = 0.0;
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-            double fieldScore = this.computeFieldScore(fieldIndex, matchFieldConfig);
-            scores[fieldIndex] = fieldScore;
-            fieldScore *= matchFieldConfig.getWeight();
-            fieldWeightSum += matchFieldConfig.getWeight();
-            fieldScoreSum += fieldScore;
+            if (matchType == MatchType.SUBJECT_ADD && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
+                // Divorce this field from any calculations.
+                scores[fieldIndex] = -1.0;  // Not used (just an indicator for debugging).
+            } else {
+                double fieldScore = this.computeFieldScore(fieldIndex, matchFieldConfig);
+                scores[fieldIndex] = fieldScore;
+                fieldScore *= matchFieldConfig.getWeight();
+                fieldWeightSum += matchFieldConfig.getWeight();
+                fieldScoreSum += fieldScore;
+            }
             ++fieldIndex;
         }
 
@@ -193,12 +199,6 @@ public class ScoredRecord {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("record", record)
-                .append("scores", scores)
-                .append("distances", distances)
-                .append("score", score)
-                .append("gofScore", goodnessOfFitScore)
-                .toString();
+        return new ToStringBuilder(this).append("record", record).append("scores", scores).append("distances", distances).append("score", score).append("gofScore", goodnessOfFitScore).toString();
     }
 }

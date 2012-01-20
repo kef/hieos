@@ -24,7 +24,7 @@ public abstract class MatchAlgorithm {
 
     private PersistenceManager persistenceManager = null;
 
-    public enum MatchType { MATCH_EMPTY_FIELDS, NOMATCH_EMPTY_FIELDS };
+    public enum MatchType { SUBJECT_FIND, SUBJECT_ADD };
 
     /**
      *
@@ -51,10 +51,11 @@ public abstract class MatchAlgorithm {
     /**
      * 
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */
-    abstract public List<Record> findCandidates(Record searchRecord) throws EMPIException;
+    abstract public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException;
 
     /**
      * 

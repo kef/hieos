@@ -66,6 +66,16 @@ public class Record {
 
     /**
      *
+     * @param field
+     */
+    public void removeField(Field field) {
+        if (field != null) {
+            fields.remove(field);
+        }
+    }
+
+    /**
+     *
      * @return
      */
     public List<Field> getFields() {

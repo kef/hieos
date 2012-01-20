@@ -14,8 +14,10 @@ package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
 import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.config.IdentitySourceConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectCitizenship;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -35,16 +37,20 @@ public class BaseHandler {
 
     private static final Logger logger = Logger.getLogger(BaseHandler.class);
     private XConfigActor configActor = null;
-    PersistenceManager persistenceManager = null;
+    private PersistenceManager persistenceManager = null;
+    private DeviceInfo senderDeviceInfo = null;
 
     /**
      * 
      * @param configActor
      * @param persistenceManager
+     * @param senderDeviceInfo
      */
-    protected BaseHandler(XConfigActor configActor, PersistenceManager persistenceManager) {
+    protected BaseHandler(XConfigActor configActor,
+            PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
         this.configActor = configActor;
         this.persistenceManager = persistenceManager;
+        this.senderDeviceInfo = senderDeviceInfo;
     }
 
     /**
@@ -53,6 +59,14 @@ public class BaseHandler {
      */
     protected XConfigActor getConfigActor() {
         return this.configActor;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public DeviceInfo getSenderDeviceInfo() {
+        return senderDeviceInfo;
     }
 
     /**
@@ -91,6 +105,9 @@ public class BaseHandler {
      */
     protected void validateSubjectCodes(Subject subject) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
+        if (!empiConfig.isValidateCodesEnabled()) {
+            return;  // Early exit! --  Not doing validation.
+        }
 
         // Validate individual code values.
         empiConfig.validateCode(subject.getGender(), CodedType.GENDER);
@@ -115,6 +132,53 @@ public class BaseHandler {
         List<SubjectCitizenship> subjectCitizenships = subject.getSubjectCitizenships();
         for (SubjectCitizenship subjectCitizenship : subjectCitizenships) {
             empiConfig.validateCode(subjectCitizenship.getNationCode(), CodedType.NATION);
+        }
+    }
+
+    /**
+     *
+     * @param subject
+     * @throws EMPIException
+     */
+    protected void validateIdentitySource(Subject subject) throws EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        if (!empiConfig.isValidateIdentitySourcesEnabled()) {
+            return;  // Early exit! --  Not doing validation.
+        }
+        System.out.println("++++ Validating identity source ... id = " + this.senderDeviceInfo.getId());
+        System.out.println("++++ Validating identity source ... name = " + this.senderDeviceInfo.getName());
+
+        // Now, make sure that the current source (by Sender Device Info) is able to ADD/UPDATE/MERGE
+        // subjects for the provided identifiers.
+        IdentitySourceConfig identitySourceConfig = empiConfig.getIdentitySourceConfig(this.senderDeviceInfo);
+        if (identitySourceConfig == null) {
+            throw new EMPIException("Could not validate identity source '"
+                    + this.senderDeviceInfo.getId()
+                    + "' - not in HIEOS configuration");
+        }
+
+        // A little brute force, but small lists so should be fine.
+
+        // Now check each subject's identifier and ensure each assigning authorities
+        // is approved for the given identity source.
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+            List<SubjectIdentifierDomain> validIdentifierDomains = identitySourceConfig.getIdentifierDomains();
+            boolean validDomain = false;
+            for (SubjectIdentifierDomain validIdentifierDomain : validIdentifierDomains) {
+                if (validIdentifierDomain.equals(subjectIdentifierDomain)) {
+                    validDomain = true;
+                    break;
+                }
+            }
+            if (!validDomain) {
+                throw new EMPIException("Identity source '"
+                        + this.senderDeviceInfo.getId()
+                        + "' is not configured for universal id '"
+                        + subjectIdentifierDomain.getUniversalId()
+                        + "'");
+            }
         }
     }
 

@@ -43,12 +43,14 @@ public class RecordBuilder {
         for (FieldConfig fieldConfig : fieldConfigs) {
             String sourceObjectPath = fieldConfig.getSourceObjectPath();
             String fieldName = fieldConfig.getName();
-            // FIXME: Deal with different types?
+            // FIXME: Deal with different types (partially implemented)?
+            System.out.println("field = " + fieldName);
+            System.out.println(" ... sourceObjectPath = " + sourceObjectPath);
             try {
                 // Access the field value.
                 Object value = PropertyUtils.getProperty(subject, sourceObjectPath);
                 if (value != null) {
-                    //System.out.println(" ... value = " + value.toString());
+                    System.out.println(" ... value (before transforms) = " + value.toString());
 
                     // Now run any transforms (in order).
                     List<TransformFunctionConfig> transformFunctionConfigs = fieldConfig.getTransformFunctionConfigs();
@@ -57,10 +59,11 @@ public class RecordBuilder {
                         TransformFunction transformFunction = transformFunctionConfig.getTransformFunction();
                         value = transformFunction.transform(value);
                     }
-
-                    //System.out.println(" ... value (final) = " + value.toString());
-                    Field field = new Field(fieldName, value.toString());
-                    record.addField(field);
+                    if (value != null) {
+                        System.out.println(" ... value (after transforms) = " + value.toString());
+                        Field field = new Field(fieldName, value.toString());
+                        record.addField(field);
+                    }
                 }
             } catch (Exception ex) {
                 System.out.println(
@@ -68,7 +71,30 @@ public class RecordBuilder {
                         + ex.getMessage());
             }
         }
-
+        // Now, get rid of any superseded fields.
+        this.removeSupersededFields(record, fieldConfigs);
         return record;
+    }
+
+    /**
+     *
+     * @param record
+     * @param fieldConfigs
+     */
+    private void removeSupersededFields(Record record, List<FieldConfig> fieldConfigs) {
+        // This should handle the case where a field has been removed along the way.
+        for (FieldConfig fieldConfig : fieldConfigs) {
+            String fieldName = fieldConfig.getName();
+            Field field = record.getField(fieldName);
+            if (field != null) {
+                String supersedesFieldName = fieldConfig.getSupersedesField();
+                if (supersedesFieldName != null) {
+                    Field supersededField = record.getField(supersedesFieldName);
+                    System.out.println("+++++++++ REMOVING SUPERSEDED FIELD = " + supersedesFieldName);
+                    System.out.println(" .... keeping field = " + fieldName);
+                    record.removeField(supersededField);
+                }
+            }
+        }
     }
 }

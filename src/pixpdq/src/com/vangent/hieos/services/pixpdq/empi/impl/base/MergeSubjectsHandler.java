@@ -14,6 +14,7 @@ package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
@@ -34,9 +35,10 @@ public class MergeSubjectsHandler extends BaseHandler {
      *
      * @param configActor
      * @param persistenceManager
+     * @param senderDeviceInfo
      */
-    public MergeSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager) {
-        super(configActor, persistenceManager);
+    public MergeSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(configActor, persistenceManager, senderDeviceInfo);
     }
 
     /**
@@ -51,6 +53,8 @@ public class MergeSubjectsHandler extends BaseHandler {
 
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
+        this.validateIdentitySource(survivingSubject);
+        this.validateIdentitySource(subsumedSubject);
 
         // Validate input is usable.
         this.validateSubjects(survivingSubject, subsumedSubject);
@@ -158,11 +162,12 @@ public class MergeSubjectsHandler extends BaseHandler {
             sb.append("No ").append(subjectType).append(" subject identifier supplied - skipping merge");
             throw new EMPIException(sb.toString());
         }
+        /* TEMPORARY HACK -- CONNECTATHON (ICW)
         if (subjectIdentifiers.size() > 1) {
             StringBuilder sb = new StringBuilder();
             sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
             throw new EMPIException(sb.toString());
-        }
+        }*/
     }
 
     /**

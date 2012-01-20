@@ -15,6 +15,7 @@ package com.vangent.hieos.services.pixpdq.empi.impl.base;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
@@ -35,8 +36,8 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @param configActor
      * @param persistenceManager
      */
-    public UpdateSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager) {
-        super(configActor, persistenceManager);
+    public UpdateSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(configActor, persistenceManager, senderDeviceInfo);
     }
 
     /**
@@ -46,6 +47,7 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification updateSubject(Subject subject) throws EMPIException {
+        this.validateIdentitySource(subject);
         PersistenceManager pm = this.getPersistenceManager();
         EMPINotification updateNotificationContent = new EMPINotification();
 
@@ -59,9 +61,10 @@ public class UpdateSubjectHandler extends BaseHandler {
         }
 
         // Make sure that there is only one subject identifier to update.
+        /* CONNECTATHON HACK (for ICW).
         if (subjectIdentifiers.size() > 1) {
             throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
-        }
+        }*/
 
         // Get the subject (using the first identifier).
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
@@ -120,7 +123,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         // FIXME: How about existing identifiers?
 
         // Now, run through normal add operation.
-        AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm);
+        AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm, this.getSenderDeviceInfo());
         EMPINotification addNotification = addSubjectHandler.addSubject(subject);
         notification.addNotification(addNotification);
 

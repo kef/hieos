@@ -37,13 +37,14 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     /**
      *
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */
     @Override
-    public List<Record> findCandidates(Record searchRecord) throws EMPIException {
+    public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        return pm.findCandidates(searchRecord);
+        return pm.findCandidates(searchRecord, matchType);
     }
 
     /**
@@ -58,7 +59,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         System.out.println("Search Record: " + searchRecord);
 
         // First, get list of candidate records.
-        List<Record> candidateRecords = this.findCandidates(searchRecord);
+        List<Record> candidateRecords = this.findCandidates(searchRecord, matchType);
 
         // DEBUG:
         System.out.println("... number of candidate records = " + candidateRecords.size());
@@ -81,6 +82,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         double recordAcceptThreshold = matchConfig.getAcceptThreshold();
         double recordRejectThreshold = matchConfig.getRejectThreshold();
         MatchResults matchResults = new MatchResults();
+        System.out.println("... Search Record: " + searchRecord.toString());
         for (Record record : records) {
             ScoredRecord scoredRecord = this.score(searchRecord, record, matchConfig, matchType);
             double recordScore = scoredRecord.getScore();
@@ -129,6 +131,12 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
         int fieldIndex = 0;
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
+            if (matchType == MatchType.SUBJECT_ADD && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
+                scoredRecord.setDistance(fieldIndex, -1.0);  // -1.0 really means nothing (just for debug).
+                ++fieldIndex;
+                // FIXME: This is a temporary FIX (in a rush).
+                continue;
+            }
             String matchFieldName = matchFieldConfig.getName();
 
             // Get the current field's "distance function" configuration.
@@ -153,7 +161,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
             // TBD: Also, assumes any blocking rounds have occurred.
         }
         // Now, compute field-level and record scores.
-        scoredRecord.computeScores();
+        scoredRecord.computeScores(matchType);
         //System.out.println("ScoredRecord: " + scoredRecord.toString());
         //System.out.println("... recordScore = " + scoredRecord.getScore());
         return scoredRecord;
@@ -165,7 +173,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      * @return
      */
     private double getEmptyFieldDistance(MatchType matchType) {
-        if (matchType.equals(MatchType.MATCH_EMPTY_FIELDS)) {
+        if (matchType.equals(MatchType.SUBJECT_FIND)) {
             return 1.0;
         } else {
             // MatchType.NOMATCH_EMTPY_FIELDS

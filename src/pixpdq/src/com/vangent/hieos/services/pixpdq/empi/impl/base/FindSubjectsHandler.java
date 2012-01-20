@@ -21,6 +21,7 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
@@ -45,9 +46,10 @@ public class FindSubjectsHandler extends BaseHandler {
      *
      * @param configActor
      * @param persistenceManager
+     * @param senderDeviceInfo
      */
-    public FindSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager) {
-        super(configActor, persistenceManager);
+    public FindSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(configActor, persistenceManager, senderDeviceInfo);
     }
 
     /**
@@ -139,7 +141,7 @@ public class FindSubjectsHandler extends BaseHandler {
         Record searchRecord = rb.build(searchSubject);
 
         // Run the matching algorithm.
-        List<ScoredRecord> recordMatches = this.getRecordMatches(searchRecord, MatchType.MATCH_EMPTY_FIELDS);
+        List<ScoredRecord> recordMatches = this.getRecordMatches(searchRecord, MatchType.SUBJECT_FIND);
 
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();

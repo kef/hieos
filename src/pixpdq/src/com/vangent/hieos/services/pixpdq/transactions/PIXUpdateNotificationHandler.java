@@ -20,12 +20,17 @@ import com.vangent.hieos.hl7v3util.client.HL7V3ClientResponse;
 import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientRecord;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,13 +41,15 @@ public class PIXUpdateNotificationHandler {
 
     private static final Logger logger = Logger.getLogger(PIXUpdateNotificationHandler.class);
     private XConfigActor configActor = null;
+    private XLogMessage logMessage;
 
     /**
      *
      * @param configActor
      */
-    public PIXUpdateNotificationHandler(XConfigActor configActor) {
+    public PIXUpdateNotificationHandler(XConfigActor configActor, XLogMessage logMessage) {
         this.configActor = configActor;
+        this.logMessage = logMessage;
     }
 
     /**
@@ -74,19 +81,18 @@ public class PIXUpdateNotificationHandler {
                 if (pixConsumerActorConfig != null) {
 
                     DeviceInfo receiverDeviceInfo = new DeviceInfo(pixConsumerActorConfig);
-                    PIXConsumerClient pixConsumerClient = new PIXConsumerClient(pixConsumerActorConfig);
-
+                    PIXConsumerClient pixConsumerClient = new PIXConsumerClient(pixConsumerActorConfig, logMessage);
                     // Now send notifications for each individual subject on notification list.
                     for (Subject subject : updateNotificationContent.getSubjects()) {
                         try {
-                            logger.info("Sending PIX Update Notification [device id = "
-                                    + receiverDeviceInfo.getId() + "]");
-
-                            // FIXME: Need to only send interested identifier domains.
-                            HL7V3ClientResponse clientResponse = pixConsumerClient.patientRegistryRecordRevised(
-                                    senderDeviceInfo, receiverDeviceInfo, subject);
-
-                            this.performAuditPIXUpdateNotification(subject, clientResponse);
+                            Subject notificationSubject = this.getNotificationSubject(subject, crossReferenceConsumerConfig);
+                            if ((notificationSubject != null) && !notificationSubject.getSubjectIdentifiers().isEmpty()) {
+                                logger.info("Sending PIX Update Notification [device id = "
+                                        + receiverDeviceInfo.getId() + "]");
+                                HL7V3ClientResponse clientResponse = pixConsumerClient.patientRegistryRecordRevised(
+                                        senderDeviceInfo, receiverDeviceInfo, notificationSubject);
+                                this.performAuditPIXUpdateNotification(notificationSubject, clientResponse);
+                            }
                         } catch (Exception ex) {
                             logger.error("Error sending PIX Update Notification to receiver [device id = "
                                     + receiverDeviceInfo.getId() + "]", ex);
@@ -103,6 +109,40 @@ public class PIXUpdateNotificationHandler {
     /**
      * 
      * @param subject
+     * @param crossReferenceConsumerConfig
+     * @return
+     */
+    private Subject getNotificationSubject(Subject subject, CrossReferenceConsumerConfig crossReferenceConsumerConfig) {
+        Subject notificationSubject = null;
+        try {
+            notificationSubject = (Subject) subject.clone();
+            List<SubjectIdentifier> subjectIdentifiersToKeep = new ArrayList<SubjectIdentifier>();
+            // Get list of interested identifier domains.
+            List<SubjectIdentifierDomain> interestedIdentifierDomains = crossReferenceConsumerConfig.getIdentifierDomains();
+            List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+            for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+                // See if we should keep this identifier.
+                SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+                for (SubjectIdentifierDomain interestedIdentifierDomain : interestedIdentifierDomains) {
+                    if (subjectIdentifierDomain.equals(interestedIdentifierDomain)) {
+                        // Keep this identifier.
+                        System.out.println("Found subject identifier of interest: " + subjectIdentifier.getCXFormatted());
+                        subjectIdentifiersToKeep.add(subjectIdentifier);
+                        break;
+                    }
+                }
+            }
+            notificationSubject.setSubjectIdentifiers(subjectIdentifiersToKeep);
+        } catch (Exception ex) {
+            // FIXME: Do sometehing.
+            logger.error("Error cloning Subject", ex);
+        }
+        return notificationSubject;
+    }
+
+    /**
+     * 
+     * @param subject
      * @param pixConsumerActorConfig
      */
     private void performAuditPIXUpdateNotification(
@@ -111,7 +151,7 @@ public class PIXUpdateNotificationHandler {
             XATNALogger xATNALogger = new XATNALogger();
             if (xATNALogger.isPerformAudit()) {
                 ATNAAuditEventPatientRecord auditEvent = ATNAAuditEventHelper.getATNAAuditEventPatientRecord(
-                        ATNAAuditEvent.ActorType.PIX_MANAGER, subject, 
+                        ATNAAuditEvent.ActorType.PIX_MANAGER, subject,
                         clientResponse.getTargetEndpoint(), clientResponse.getMessageId());
                 xATNALogger.audit(auditEvent);
             }

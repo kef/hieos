@@ -22,6 +22,7 @@ import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,12 +50,13 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */
-    public List<Record> findCandidates(Record searchRecord) throws EMPIException {
+    public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
         List<Record> records = new ArrayList<Record>();
         Set<String> candidateRecordIds = new HashSet<String>();
 
@@ -66,6 +68,12 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
         // Run through each blocking pass.
         for (BlockingPassConfig blockingPassConfig : blockingPassConfigs) {
+            boolean isEnabledDuringSubjectAdd = blockingPassConfig.isEnabledDuringSubjectAdd();
+            if (matchType == MatchType.SUBJECT_ADD) {
+                if (!isEnabledDuringSubjectAdd) {
+                    continue;  // Hate to use continues, but in a rush.....
+                }
+            }
             ResultSet rs = null;
             PreparedStatement stmt = null;
             try {
@@ -152,10 +160,13 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             int fieldIndex = 1;
             stmt.setString(fieldIndex, record.getId());
             for (FieldConfig fieldConfig : fieldConfigs) {
-                String fieldName = fieldConfig.getName();
-                Field field = record.getField(fieldName);
-                String fieldValue = (field == null) ? null : field.getValue();
-                stmt.setString(++fieldIndex, fieldValue);
+                boolean isStoreField = fieldConfig.isStoreField();
+                if (isStoreField) {
+                    String fieldName = fieldConfig.getName();
+                    Field field = record.getField(fieldName);
+                    String fieldValue = (field == null) ? null : field.getValue();
+                    stmt.setString(++fieldIndex, fieldValue);
+                }
             }
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception prepared statement", ex);
@@ -177,29 +188,40 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
         // Go through each field and build SQL INSERT string.
 
+        // Determine how many fields should be stored.
+        int numFieldsToStore = 0;
+        for (FieldConfig fieldConfig : fieldConfigs) {
+            boolean isStoreField = fieldConfig.isStoreField();
+            if (isStoreField) {
+                ++numFieldsToStore;
+            }
+        }
+
         // First, get the database columns (to insert).
         int fieldIndex = 0;
-        int numFields = fieldConfigs.size();
         for (FieldConfig fieldConfig : fieldConfigs) {
-            String dbColumnName = fieldConfig.getMatchDatabaseColumn();
-            sb.append(dbColumnName);
-            ++fieldIndex;
-            if (fieldIndex != numFields) {
-                sb.append(",");
+            boolean isStoreField = fieldConfig.isStoreField();
+            if (isStoreField) {
+                String dbColumnName = fieldConfig.getMatchDatabaseColumn();
+                sb.append(dbColumnName);
+                ++fieldIndex;
+                if (fieldIndex != numFieldsToStore) {
+                    sb.append(",");
+                }
             }
         }
         sb.append(") values(?,");  // Single ? for identifier.
 
         // Now, add the ? to correspond to each database column.
-        for (fieldIndex = 1; fieldIndex <= numFields; fieldIndex++) {
+        for (fieldIndex = 1; fieldIndex <= numFieldsToStore; fieldIndex++) {
             sb.append("?");
-            if (fieldIndex != numFields) {
+            if (fieldIndex != numFieldsToStore) {
                 sb.append(",");
             }
         }
         sb.append(")");
         String sql = sb.toString();
-        //System.out.println("INSERT SQL = " + sql);
+        System.out.println("INSERT SQL = " + sql);
 
         return this.getPreparedStatement(sql);
     }
@@ -223,9 +245,10 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 // Set WHERE clause values in the prepared statement.
                 int fieldIndex = 0;
                 for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                    //System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
+                    System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
                     Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                    //System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                    System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                    //stmt.setString(++fieldIndex, field.getValue() + "%");
                     stmt.setString(++fieldIndex, field.getValue());
                 }
             } catch (SQLException ex) {
@@ -294,14 +317,16 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
             FieldConfig fieldConfig = activeBlockingFieldConfig.getFieldConfig();
             String dbColumnName = fieldConfig.getMatchDatabaseColumn();
-            sb.append(dbColumnName).append(" = ?");
+            // select * from subject_match_fields where match_field3 LIKE 'moo%' AND match_field4 LIKE 'c%'
+            //sb.append(dbColumnName).append(" = ?");
+            sb.append(dbColumnName).append(" LIKE ?");
             ++fieldIndex;
             if (fieldIndex != numActiveBlockingFields) {
                 sb.append(" AND ");
             }
         }
         String sql = sb.toString();
-        //System.out.println("SELECT SQL = " + sql);
+        System.out.println("SELECT SQL = " + sql);
 
         return sql;
     }

@@ -129,6 +129,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordAdded(PRPA_IN201301UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
+        DeviceInfo senderDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectBuilder builder = new SubjectBuilder();
@@ -136,6 +137,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
             this.performAuditPatientIdentityFeed(request, false /* update mode */, subjectIdentifiers);
@@ -161,6 +163,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      */
     private MCCI_IN000002UV01_Message processPatientRegistryRecordRevised(PRPA_IN201302UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
+        DeviceInfo senderDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectBuilder builder = new SubjectBuilder();
@@ -168,6 +171,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
             this.performAuditPatientIdentityFeed(request, true /* update mode */, subjectIdentifiers);
@@ -193,6 +197,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      */
     private MCCI_IN000002UV01_Message processPatientRegistryDuplicatesResolved(PRPA_IN201304UV02_Message request) throws SOAPFaultException {
         this.validateHL7V3Message(request);
+        DeviceInfo senderDeviceInfo = HL7V3MessageBuilderHelper.getSenderDeviceInfo(request);
         HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
@@ -200,6 +205,8 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            adapter.setSenderDeviceInfo(senderDeviceInfo);
+
             // Merge the subjects (clone first since merge has side-effects).
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
             this.sendUpdateNotifications(updateNotificationContent);
@@ -307,7 +314,7 @@ public class PIXRequestHandler extends PIXPDSRequestHandler {
      * @param updateNotificationContent
      */
     private void sendUpdateNotifications(EMPINotification updateNotificationContent) {
-        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler(this.getConfigActor());
+        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler(this.getConfigActor(), this.log_message);
         pixUpdateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
     }
 

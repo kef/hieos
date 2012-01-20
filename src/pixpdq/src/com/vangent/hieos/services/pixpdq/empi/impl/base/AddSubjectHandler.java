@@ -21,8 +21,10 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.HashSet;
@@ -42,9 +44,10 @@ public class AddSubjectHandler extends BaseHandler {
      * 
      * @param configActor
      * @param persistenceManager
+     * @param senderDeviceInfo
      */
-    public AddSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager) {
-        super(configActor, persistenceManager);
+    public AddSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(configActor, persistenceManager, senderDeviceInfo);
     }
 
     /**
@@ -54,6 +57,7 @@ public class AddSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification addSubject(Subject subject) throws EMPIException {
+        this.validateIdentitySource(subject);
         PersistenceManager pm = this.getPersistenceManager();
 
         // FIXME: This is not totally correct, how about "other ids"?
@@ -81,10 +85,17 @@ public class AddSubjectHandler extends BaseHandler {
         // Find matching records.
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(subject);
-        FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager());
-        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.NOMATCH_EMPTY_FIELDS);
+        FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager(), this.getSenderDeviceInfo());
+        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_ADD);
 
         if (recordMatches.isEmpty()) { // No match.
+            enterpriseSubjectId = this.insertEnterpriseSubject(subject);
+        } else if (this.isAnyMatchedRecordInSameIdentifierDomain(subject, recordMatches)) {
+            System.out.println("+++++ Not linking subject with same identifier domain +++++");
+            // Do not place record along side any record within the same identifier domain.
+            recordMatches.clear();  // Treat as though a match did not occur.
+
+            // Insert a new enterprise record.
             enterpriseSubjectId = this.insertEnterpriseSubject(subject);
         } else {
             // >=1 matches
@@ -122,6 +133,98 @@ public class AddSubjectHandler extends BaseHandler {
         EMPINotification notification = new EMPINotification();
         this.addSubjectToNotification(notification, enterpriseSubjectId);
         return notification;
+    }
+
+    /**
+     *
+     * @param subject
+     * @param recordMatches
+     * @return
+     * @throws EMPIException
+     */
+    private boolean isAnyMatchedRecordInSameIdentifierDomain(Subject subject, List<ScoredRecord> recordMatches) throws EMPIException {
+
+        // First check scored record against record matches to see if it is safe to link
+        // the records.
+        for (ScoredRecord recordMatch : recordMatches) {
+            if (this.isMatchedRecordInSameIdentifierDomain(subject, recordMatch)) {
+                return true;  // Early exit.
+            }
+        }
+
+        // FIXME: NEED TO OPTIMIZE ... doing many DB reads where should only read once per
+        // record.
+
+        /* WORK ON THIS LATER ... need to think fully through
+        // Now, go through each pair in the merge set.
+        PersistenceManager pm = this.getPersistenceManager();
+        for (ScoredRecord matchedRecord : recordMatches) {
+            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+            // Load identifiers for matched system subject.
+            List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+
+            for (ScoredRecord compareMatchedRecord : recordMatches) {
+                String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
+                if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
+                    // Load identifiers for matched system subject (to compare).
+                    List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
+                    boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
+                    if (foundMatch) {
+                        // Found a match.
+                        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
+                        return true;  // Early exit!
+                    }
+                }
+            }
+        }*/
+        return false;
+    }
+
+    /**
+     * 
+     * @param subject
+     * @param matchedRecord
+     * @return
+     * @throws EMPIException
+     */
+    private boolean isMatchedRecordInSameIdentifierDomain(Subject subject, ScoredRecord matchedRecord) throws EMPIException {
+        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+        // Load identifiers for matched system subject.
+        PersistenceManager pm = this.getPersistenceManager();
+        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+
+        // Get list of the subject's identifiers.
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+
+        return this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, subjectIdentifiers);
+    }
+
+    /**
+     * 
+     * @param matchedSubjectIdentifiers
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    private boolean isMatchedRecordInSameIdentifierDomain(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+
+        // NOTE: Small list, so brute force is OK.
+
+        // See if there is a match between the "matched subject" and the subject.
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+            for (SubjectIdentifier matchedSubjectIdentifier : matchedSubjectIdentifiers) {
+                SubjectIdentifierDomain matchedSubjectIdentifierDomain = matchedSubjectIdentifier.getIdentifierDomain();
+                if (subjectIdentifierDomain.equals(matchedSubjectIdentifierDomain)) {
+                    // No need to look further.
+                    System.out.println("+++++ Not linking +++++");
+                    System.out.println(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
+                    System.out.println(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
+                    return true;  // Early exit!
+                }
+            }
+        }
+        return false;
     }
 
     /**
