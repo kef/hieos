@@ -9,15 +9,15 @@
 
     <!-- Global properties used by underlying xutil library -->
     <Object name="home" type="HomeCommunityType">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId>
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.4</UniqueId>
 
         <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
 	
         <!-- HIEOS ATNA log -->
-        <!--<Property name="ATNAsyslogHost">vangent1</Property>
-        <Property name="ATNAsyslogPort">3110</Property>-->	<!-- UDP Port 3110; TCP Port 3100-->
+        <Property name="ATNAsyslogHost">localhost</Property>
+        <Property name="ATNAsyslogPort">3110</Property>	<!-- UDP Port 3110; TCP Port 3100-->
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
@@ -35,11 +35,15 @@
         <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
+        <!--<ObjectReference name="pds" refname="nistpds" reftype="PDSType"/>-->
+        <!--<Property name="ContentURL">http://localhost:8888/docview</Property>-->
+       
         <Property name="ContentURL">http://localhost:8080/DocViewer/docview</Property>
+        
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
         <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
-        <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.1000</Property>
+        <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
         <!-- Valid DefaultSearchMode values: hie, nhin_exchange -->
         <Property name="DefaultSearchMode">hie</Property>
         <Property name="Title">HIEOS Doc Viewer</Property>
@@ -48,7 +52,7 @@
         <Property name="LogoHeight">100</Property>
         <Property name="TrimDocumentTabTitles">false</Property>
         <Property name="TrimDocumentTabTitlesLength">20</Property>
-	<ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
+        <ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
 	
         <!-- Custom Display Configuration -->
         <Property name="ShowTitleBranding">true</Property>
@@ -58,8 +62,8 @@
         <Property name="LabelGivenNameText">First Name</Property>
         <Property name="LabelFamilyNameText">Last Name</Property>
         <Property name="LabelEUIDText">MPI ID</Property>
-        <Property name="LabelHIEModeText">IHS Health Information Exchange</Property>
-        <Property name="LabelNHINModeText">National Health Information Network Exchange</Property>
+        <Property name="LabelHIEModeText">Cross Community</Property>
+        <Property name="LabelNHINModeText">NHIN Exchange</Property>
         
         <Property name="ToolTipGivenNameColumn">Displays first name.</Property>
         <Property name="ToolTipFamilyNameColumn">Displays last name.</Property>
@@ -70,9 +74,9 @@
         <Property name="ToolTipConfidenceColumn">Displays confidence.</Property>
         
 	<!-- Permission Mappings  -->
-	<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
-	<Property name="PermittedRoles_ViewConsent">Role1</Property>
-	<Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
+        <Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
+        <Property name="PermittedRoles_ViewConsent">Role1</Property>
+        <Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
         <!--
@@ -86,49 +90,52 @@
         <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property-->
         <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property-->
 
+        <!-- Device information for DocViewer -->
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
     </Object>
     
     
      <!-- Lists available document templates -->
-     <Object name="DocumentTemplateList" type="DocumentTemplateListType">
-     	<ObjectReference refname="IHSDocumentTemplate" reftype="DocumentTemplateType"/>
-     	<ObjectReference refname="BasicDocumentTemplate" reftype="DocumentTemplateType"/>
-     	<ObjectReference refname="DODDocumentTemplate" reftype="DocumentTemplateType"/>
-     	<ObjectReference refname="VADocumentTemplate" reftype="DocumentTemplateType"/>
-     	<ObjectReference refname="MEDVADocumentTemplate" reftype="DocumentTemplateType"/>
-     	<ObjectReference refname="CCRDocumentTemplate" reftype="DocumentTemplateType"/>
-     </Object>
+    <Object name="DocumentTemplateList" type="DocumentTemplateListType">
+        <ObjectReference refname="IHSDocumentTemplate" reftype="DocumentTemplateType"/>
+        <ObjectReference refname="BasicDocumentTemplate" reftype="DocumentTemplateType"/>
+        <ObjectReference refname="DODDocumentTemplate" reftype="DocumentTemplateType"/>
+        <ObjectReference refname="VADocumentTemplate" reftype="DocumentTemplateType"/>
+        <ObjectReference refname="MEDVADocumentTemplate" reftype="DocumentTemplateType"/>
+        <ObjectReference refname="CCRDocumentTemplate" reftype="DocumentTemplateType"/>
+    </Object>
     
     <!-- will extend later with types, etc. -->
-     <Object name="IHSDocumentTemplate" type="DocumentTemplateType">
+    <Object name="IHSDocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">IHS Template</Property>
         <Property name="FileName">raa/CCD.xsl</Property>
-     </Object>
+    </Object>
      
-     <Object name="BasicDocumentTemplate" type="DocumentTemplateType">
+    <Object name="BasicDocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">Basic Template</Property>
         <Property name="FileName">basic/CCD.xsl</Property>
-     </Object>
+    </Object>
      
-     <Object name="DODDocumentTemplate" type="DocumentTemplateType">
+    <Object name="DODDocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">DOD Template</Property>
         <Property name="FileName">dod/CCD.xsl</Property>
-     </Object>
+    </Object>
      
-     <Object name="VADocumentTemplate" type="DocumentTemplateType">
+    <Object name="VADocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">VA Template</Property>
         <Property name="FileName">va/CCD.xsl</Property>
-     </Object>
+    </Object>
      
-     <Object name="MEDVADocumentTemplate" type="DocumentTemplateType">
+    <Object name="MEDVADocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">MEDVA Template</Property>
         <Property name="FileName">medva/CCD_MAIN.xsl</Property>
-     </Object>
+    </Object>
           
-     <Object name="CCRDocumentTemplate" type="DocumentTemplateType">
-         <Property name="DisplayName">CCR Template</Property>
-         <Property name="FileName">ccr/CCR.xsl</Property>
-     </Object>
+    <Object name="CCRDocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">CCR Template</Property>
+        <Property name="FileName">ccr/CCR.xsl</Property>
+    </Object>
      
 
     <!-- Left here since this may be used in the future for XUA client usage -->
@@ -152,23 +159,23 @@
 
     <!-- For direct HIEOS XCA query/retrieves -->
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.3070</UniqueId> <!-- Home Community ID -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.4</UniqueId> <!-- Home Community ID -->
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:23080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:23081/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:23080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:23081/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcaigas</Endpoint>
         </Transaction>
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:23080/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:23081/axis2/services/xcaig</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:23080/axis2/services/xcaigas</Endpoint>
-            <Endpoint secure="true"  async="true">https://localhost:23081/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8081/axis2/services/xcaig</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xcaigas</Endpoint>
+            <Endpoint secure="true"  async="true">https://localhost:8081/axis2/services/xcaigas</Endpoint>
         </Transaction>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCAIG</Property>
-        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.2000</Property>
+        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
         
     </Actor>
     
@@ -218,7 +225,7 @@
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
     </Actor>
 
@@ -226,13 +233,26 @@
     <Actor name="localpds" type="PDSType">
         <UniqueId>NA</UniqueId>
         <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://10.24.196.208:8080/axis2/services/pds</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/pds</Endpoint>
             <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
-        <Property name="DeviceName">GATEWAY_VANGENT_PDS</Property>
+      <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
+    </Actor>
+
+    <!-- To support PDQ request from DocViewer -->
+    <Actor name="nistpds" type="PDSType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryFindCandidatesQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://129.6.24.143:9090</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+        <Property name="DeviceId">2.16.840.1.113883.3.72.6.5.100.207</Property>
+        <Property name="DeviceName">2.16.840.1.113883.3.72.6.1</Property>
     </Actor>
 
 </Config>
