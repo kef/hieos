@@ -37,7 +37,7 @@ public class ContentParserConfig {
     private String initializationErrors;
 
     /** Field description */
-    private final ContentParserConfigName name;
+    private final String name;
 
     /** Field description */
     private final Map<String, String> namespaces;
@@ -55,8 +55,9 @@ public class ContentParserConfig {
      * Enum description
      *
      */
-    public enum ContentParserConfigName { SharedHealthSummaryMapper,
-            DischargeSummaryMapper }
+    // Removed (BHT): Should never have been hard-wired.
+    //public enum ContentParserConfigName { SharedHealthSummaryMapper,
+    //        DischargeSummaryMapper }
 
     /**
      * Constructs ...
@@ -72,7 +73,7 @@ public class ContentParserConfig {
      * @param inConversions
      * @param inTemplateFileName
      */
-    public ContentParserConfig(ContentParserConfigName inName,
+    public ContentParserConfig(String inName,
                                Map<String, String> inNamespaces,
                                Map<String, String> inExpressions,
                                Map<String, Map<String, String>> inStaticValues,
@@ -146,7 +147,7 @@ public class ContentParserConfig {
      *
      * @return
      */
-    public ContentParserConfigName getName() {
+    public String getName() {
         return name;
     }
 

@@ -10,15 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import java.util.EnumMap;
 import java.util.Map;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
-    .ContentParserConfigName;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;
+import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 /**
@@ -32,13 +29,10 @@ public class MapperFactory {
 
     /** Field description */
     private static final Logger logger = Logger.getLogger(MapperFactory.class);
-
     /** Field description */
     private final ContentParser contentParser;
-
     /** Field description */
-    private final Map<ContentParserConfigName, IXDSMapper> xdsMappers;
-
+    private final Map<String, IXDSMapper> xdsMappers;
     /** Field description */
     private final XDSBridgeConfig xdsbridgeConfig;
 
@@ -52,11 +46,9 @@ public class MapperFactory {
      * @param tplGen
      */
     public MapperFactory(XDSBridgeConfig bridgeConfig, ContentParser tplGen) {
-
         super();
         this.xdsbridgeConfig = bridgeConfig;
         this.contentParser = tplGen;
-
         this.xdsMappers = initializeXDSMappers();
     }
 
@@ -69,7 +61,6 @@ public class MapperFactory {
      * @return
      */
     public CDAToXDSMapper createCDAToXDSMapper(ContentParserConfig cfg) {
-
         return new CDAToXDSMapper(this.contentParser, cfg);
     }
 
@@ -82,16 +73,12 @@ public class MapperFactory {
      * @return
      */
     private ContentParserConfig findContentParserConfig(CodedValue type) {
-
         ContentParserConfig result = null;
-
         DocumentTypeMapping mapping =
-            this.xdsbridgeConfig.findDocumentTypeMapping(type);
-
+                this.xdsbridgeConfig.findDocumentTypeMapping(type);
         if (mapping != null) {
             result = mapping.getContentParserConfig();
         }
-
         return result;
     }
 
@@ -103,16 +90,11 @@ public class MapperFactory {
      * @return a document mapper
      */
     public IXDSMapper getMapper(CodedValue type) {
-
         IXDSMapper result = null;
-
         ContentParserConfig parserConfig = findContentParserConfig(type);
-
         if (parserConfig != null) {
-
             result = this.xdsMappers.get(parserConfig.getName());
         }
-
         return result;
     }
 
@@ -121,37 +103,31 @@ public class MapperFactory {
      *
      * @return a map containing all known mappers
      */
-    private Map<ContentParserConfigName, IXDSMapper> initializeXDSMappers() {
-
-        Map<ContentParserConfigName, IXDSMapper> result =
-            new EnumMap<ContentParserConfigName,
-                        IXDSMapper>(ContentParserConfigName.class);
-
-        for (DocumentTypeMapping mapping :
-                this.xdsbridgeConfig.getDocumentTypeMappings()) {
-
+    private Map<String, IXDSMapper> initializeXDSMappers() {
+        Map<String, IXDSMapper> result = new HashMap<String, IXDSMapper>();
+        for (DocumentTypeMapping mapping : this.xdsbridgeConfig.getDocumentTypeMappings()) {
             ContentParserConfig config = mapping.getContentParserConfig();
-            ContentParserConfigName name = config.getName();
-
+            String name = config.getName();
             if (result.containsKey(name) == false) {
-
+                logger.debug(String.format("Creating %s mapper.", name.toString()));
+                result.put(name, createCDAToXDSMapper(config));
+                /*
                 switch (name) {
 
-                    case SharedHealthSummaryMapper :
-                    case DischargeSummaryMapper :
-                        logger.debug(String.format("Creating %s mapper.",
-                                                   name.toString()));
-                        result.put(name, createCDAToXDSMapper(config));
+                case SharedHealthSummaryMapper :
+                case DischargeSummaryMapper :
+                logger.debug(String.format("Creating %s mapper.",
+                name.toString()));
+                result.put(name, createCDAToXDSMapper(config));
 
-                        break;
+                break;
 
-                    default :
-                        logger.warn(String.format("Unknown mapper %s.",
-                                                  name.toString()));
-                }
+                default :
+                logger.warn(String.format("Unknown mapper %s.",
+                name.toString()));
+                }*/
             }
         }
-
         return result;
     }
 }

@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
-    .ContentParserConfigName;
+//import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
+//    .ContentParserConfigName;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentVariableName;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
@@ -101,14 +101,11 @@ public class XDSBridgeConfigXmlParser {
      * @return
      */
     private ContentParserConfig parseContentConfig(
-            ContentParserConfigName name, OMElement parserConfigElem) {
+            String name, OMElement parserConfigElem) {
 
         // pull template or use default
-        String templateFilename =
-            parserConfigElem.getAttributeValue(new QName("template"));
-
+        String templateFilename = parserConfigElem.getAttributeValue(new QName("template"));
         if (StringUtils.isBlank(templateFilename)) {
-
             templateFilename = this.defaultTemplate;
         }
 
@@ -185,73 +182,59 @@ public class XDSBridgeConfigXmlParser {
     private Map<String, ContentParserConfig> parseContentConfigs()
             throws XPathHelperException {
 
-        Map<String, ContentParserConfig> result = new HashMap<String,
-                                                      ContentParserConfig>();
-
+        Map<String, ContentParserConfig> result = new HashMap<String, ContentParserConfig>();
         QName nameQName = new QName("name");
         QName baseQName = new QName("base");
-
-        Iterator<OMElement> iterator = this.configElem.getChildrenWithName(
-                                           new QName("ContentParserConfig"));
+        Iterator<OMElement> iterator = this.configElem.getChildrenWithName(new QName("ContentParserConfig"));
 
         while (iterator.hasNext()) {
-
             OMElement parserConfigElem = iterator.next();
 
             // pull name
-            String nameAttribute =
-                parserConfigElem.getAttributeValue(nameQName);
+            String name = parserConfigElem.getAttributeValue(nameQName);
+            //String name = null;
 
-            ContentParserConfigName name = null;
-
+            /*
             try {
-
                 name = ContentParserConfigName.valueOf(nameAttribute);
                 logger.info(String.format("Loaded config [%s].",
                                           nameAttribute));
-
             } catch (IllegalArgumentException e) {
-
                 // ignore, probably a base config
-            }
+            }*/
 
             if (name != null) {
-
-                ContentParserConfig parserConfig = parseContentConfig(name,
-                                                       parserConfigElem);
+                logger.info(String.format("Loading config [%s].", name));
+                ContentParserConfig parserConfig = parseContentConfig(name, parserConfigElem);
 
                 // pull base value
-                String baseAttribute =
-                    parserConfigElem.getAttributeValue(baseQName);
-
+                String baseAttribute = parserConfigElem.getAttributeValue(baseQName);
                 if (StringUtils.isNotBlank(baseAttribute)) {
-
-                    String expr =
-                        String.format("//ContentParserConfig[@name='%s']",
-                                      baseAttribute);
-                    OMElement baseElem =
-                        XPathHelper.selectSingleNode(this.configElem, expr, "");
-
+                    String expr = String.format("//ContentParserConfig[@name='%s']", baseAttribute);
+                    OMElement baseElem = XPathHelper.selectSingleNode(this.configElem, expr, "");
                     if (baseElem != null) {
-
-                        ContentParserConfig baseConfig =
-                            parseContentConfig(name, baseElem);
+                        logger.info(String.format("Loading base config [%s].", baseAttribute));
+                        ContentParserConfig baseConfig = parseContentConfig(name, baseElem);
 
                         // need to merge
+                        // Note (BHT): Strange how this was implemented.
+                        // Copies parserConfig into baseConfig and then points parserConfig
+                        // into baseConfig.  Someone trying to be "cute".
+                        // Besides the fact that baseConfig has to be parsed more than
+                        // once (upon multiple passes).
+                        logger.info(String.format("Merged configs [%s] and [%s] to support [%s] config.",
+                                baseAttribute, name, name));
                         baseConfig.merge(parserConfig);
                         parserConfig = baseConfig;
-
                     } else {
-
                         logger.warn(String.format("Base %s is not found.",
                                                   baseAttribute));
                     }
                 }
-
-                result.put(name.toString(), parserConfig);
+                logger.info(String.format("Cached config [%s].", name));
+                result.put(name, parserConfig);
             }
         }
-
         return result;
     }
 

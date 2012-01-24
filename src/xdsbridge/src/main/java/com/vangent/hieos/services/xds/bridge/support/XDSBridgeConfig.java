@@ -10,14 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package com.vangent.hieos.services.xds.bridge.support;
 
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
-import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
-    .ContentParserConfigName;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.utils.CodedValueUtils;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -31,7 +27,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * Class description
  *
@@ -43,18 +38,14 @@ public class XDSBridgeConfig {
 
     /** Field description */
     public static final String CONFIG_FILE_PROP = "ConfigFile";
-
     /** Field description */
     public static final String TEMPLATE_METADATA_PROP =
-        "ProvideAndRegisterMetadataTemplate";
-
+            "ProvideAndRegisterMetadataTemplate";
     /** Field description */
     private static final Logger logger =
-        Logger.getLogger(XDSBridgeConfig.class);
-
+            Logger.getLogger(XDSBridgeConfig.class);
     /** Field description */
     private final List<DocumentTypeMapping> documentTypeMappings;
-
     /** Field description */
     private final XConfigActor xdsBridgeActor;
 
@@ -68,7 +59,7 @@ public class XDSBridgeConfig {
      * @param mappings
      */
     private XDSBridgeConfig(XConfigActor xdsBridgeActor,
-                            List<DocumentTypeMapping> mappings) {
+            List<DocumentTypeMapping> mappings) {
 
         super();
         this.xdsBridgeActor = xdsBridgeActor;
@@ -90,7 +81,7 @@ public class XDSBridgeConfig {
             throws Exception {
 
         String cfgFileName =
-            prefixFullPath(actor.getProperty(CONFIG_FILE_PROP));
+                prefixFullPath(actor.getProperty(CONFIG_FILE_PROP));
         File cfgFile = new File(cfgFileName);
 
         if (cfgFile.exists() == false) {
@@ -100,7 +91,7 @@ public class XDSBridgeConfig {
         }
 
         String tplFileName =
-            prefixFullPath(actor.getProperty(TEMPLATE_METADATA_PROP));
+                prefixFullPath(actor.getProperty(TEMPLATE_METADATA_PROP));
 
         File tplFile = new File(tplFileName);
 
@@ -111,7 +102,7 @@ public class XDSBridgeConfig {
         }
 
         XDSBridgeConfigXmlParser parser =
-            new XDSBridgeConfigXmlParser(cfgFileName, tplFileName);
+                new XDSBridgeConfigXmlParser(cfgFileName, tplFileName);
         List<DocumentTypeMapping> mappings = parser.parse();
 
         return new XDSBridgeConfig(actor, mappings);
@@ -128,8 +119,8 @@ public class XDSBridgeConfig {
     private static String prefixFullPath(String filename) {
 
         return String.format(
-            "%s%s%s", XConfig.getConfigLocation(ConfigItem.XDSBRIDGE_DIR),
-            File.separator, filename);
+                "%s%s%s", XConfig.getConfigLocation(ConfigItem.XDSBRIDGE_DIR),
+                File.separator, filename);
     }
 
     /**
@@ -140,27 +131,17 @@ public class XDSBridgeConfig {
      *
      * @return
      */
-    public ContentParserConfig findContentParserConfig(
-            ContentParserConfigName name) {
-
+    public ContentParserConfig findContentParserConfig(String name) {
         ContentParserConfig result = null;
-
         if (name != null) {
-
             for (DocumentTypeMapping mapping : getDocumentTypeMappings()) {
-
-                ContentParserConfigName configName =
-                    mapping.getContentParserConfig().getName();
-
-                if (configName == name) {
-
+                String configName = mapping.getContentParserConfig().getName();
+                if (configName.equalsIgnoreCase(name)) {
                     result = mapping.getContentParserConfig();
-
                     break;
                 }
             }
         }
-
         return result;
     }
 
