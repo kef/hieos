@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class PatientSearchCriteria implements IsSerializable {
 
@@ -29,6 +29,7 @@ public class PatientSearchCriteria implements IsSerializable {
 	private String genderCode;
 	private String healthRecordNumber;
 	private String ssnLast4;
+	private boolean fuzzyNameSearch;
 
 	public String getGivenName() {
 		return givenName;
@@ -76,6 +77,14 @@ public class PatientSearchCriteria implements IsSerializable {
 
 	public void setSsnLast4(String ssnLast4) {
 		this.ssnLast4 = ssnLast4;
+	}
+
+	public boolean isFuzzyNameSearch() {
+		return fuzzyNameSearch;
+	}
+
+	public void setFuzzyNameSearch(boolean fuzzyNameSearch) {
+		this.fuzzyNameSearch = fuzzyNameSearch;
 	}
 
 }

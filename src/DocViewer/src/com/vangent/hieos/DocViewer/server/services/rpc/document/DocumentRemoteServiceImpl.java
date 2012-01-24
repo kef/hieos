@@ -186,7 +186,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		String creationTime = m
 				.getSlotValue(extrinsicObject, "creationTime", 0);
 		documentMetadata.setCreationTime(Hl7Date
-				.getDateFromHL7Format(creationTime));
+				.toDate(creationTime));
 
 		// Name (Title?).
 		String name = m.getNameValue(extrinsicObject);

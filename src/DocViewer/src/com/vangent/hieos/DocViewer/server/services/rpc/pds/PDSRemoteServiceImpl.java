@@ -97,26 +97,27 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		// Name:
 		subjectName.setGivenName(patientSearchCriteria.getGivenName());
 		subjectName.setFamilyName(patientSearchCriteria.getFamilyName());
+		subjectName.setFuzzySearchMode(patientSearchCriteria.isFuzzyNameSearch());
 		subject.addSubjectName(subjectName);
 
 		// DOB:
 		subject.setBirthTime(patientSearchCriteria.getDateOfBirth());
-               
-                // SSN(last4)
-                String ssnValue = patientSearchCriteria.getSsnLast4();
-                if (StringUtils.isNotBlank(ssnValue)) {
-                    
-                    SubjectIdentifierDomain ssnDomain = new SubjectIdentifierDomain();
-                    ssnDomain.setUniversalId(SSN_IDENTIFIER_DOMAIN);
-                    ssnDomain.setUniversalIdType("ISO");
 
-                    SubjectIdentifier ssnId = new SubjectIdentifier();
-                    ssnId.setIdentifierDomain(ssnDomain);
-                    ssnId.setIdentifier(ssnValue);   
+		// SSN(last4)
+		String ssnValue = patientSearchCriteria.getSsnLast4();
+		if (StringUtils.isNotBlank(ssnValue)) {
 
-                    subject.addSubjectIdentifier(ssnId);
-                }
-                
+			SubjectIdentifierDomain ssnDomain = new SubjectIdentifierDomain();
+			ssnDomain.setUniversalId(SSN_IDENTIFIER_DOMAIN);
+			ssnDomain.setUniversalIdType("ISO");
+
+			SubjectIdentifier ssnId = new SubjectIdentifier();
+			ssnId.setIdentifierDomain(ssnDomain);
+			ssnId.setIdentifier(ssnValue);
+
+			subject.addSubjectIdentifier(ssnId);
+		}
+
 		// Gender:
 		String genderCode = patientSearchCriteria.getGenderCode();
 		if (genderCode.equals("UN")) {
@@ -249,8 +250,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 
 		// Populate SSN field.
 		SubjectIdentifier ssnSubjectIdentifier = this.getSubjectSSN(subject);
-		if (ssnSubjectIdentifier != null)
-		{
+		if (ssnSubjectIdentifier != null) {
 			patient.setSSN(this.formatSSN(ssnSubjectIdentifier));
 		} else {
 			patient.setSSN("N/A");
@@ -281,21 +281,20 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @return
 	 */
 	private SubjectIdentifier getSubjectSSN(Subject subject) {
-		return this.getSubjectForIdentifierDomain(subject, SSN_IDENTIFIER_DOMAIN);
+		return this.getSubjectForIdentifierDomain(subject,
+				SSN_IDENTIFIER_DOMAIN);
 	}
-	
+
 	/**
 	 * 
 	 * @param identifier
 	 * @return
 	 */
-	private String formatSSN(SubjectIdentifier identifier)
-	{
+	private String formatSSN(SubjectIdentifier identifier) {
 		String id = identifier.getIdentifier();
 		String formattedSSN = "N/A";
 		int len = id.length();
-		if (len >= 4)
-		{
+		if (len >= 4) {
 			// Get last 4 characters.
 			String last4 = id.substring(len - 4);
 			formattedSSN = "xxx-xxxx-" + last4;

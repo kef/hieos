@@ -16,6 +16,7 @@ import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.form.events.SubmitValuesEvent;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.CheckboxItem;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.RadioGroupItem;
@@ -24,6 +25,8 @@ import com.smartgwt.client.widgets.form.fields.DateTimeItem;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangeHandler;
 import com.smartgwt.client.widgets.form.events.SubmitValuesHandler;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
@@ -33,10 +36,10 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
-public class PatientSearch extends Canvas 
-    implements ClickHandler, SubmitValuesHandler {
+public class PatientSearch extends Canvas implements ClickHandler,
+		SubmitValuesHandler {
 	private DocViewerController controller;
 	private final DynamicForm searchForm;
 	private final TextItem familyNameField;
@@ -44,47 +47,52 @@ public class PatientSearch extends Canvas
 	private final DateTimeItem dateOfBirthField;
 	private final RadioGroupItem genderGroupItem;
 	private final TextItem ssnLast4Field;
-	//private final TextItem hrnField = new TextItem("hrn", "HRN");
+	private final CheckboxItem fuzzyNameSearchCheckboxItem;
+
+	// private final TextItem hrnField = new TextItem("hrn", "HRN");
 
 	/**
 	 * 
 	 */
 	public PatientSearch(DocViewerController mainController) {
-            
+
 		this.controller = mainController;
-                
-                Config controllerConfig = this.controller.getConfig();
+
+		Config controllerConfig = this.controller.getConfig();
 
 		this.searchForm = new DynamicForm();
-                this.searchForm.setIsGroup(true);
-                this.searchForm.setGroupTitle("<b>Search Criteria</b>");
+		this.searchForm.setIsGroup(true);
+		this.searchForm.setGroupTitle("<b>Patient Search Criteria</b>");
 		this.searchForm.setWidth(300);
-                this.searchForm.setSaveOnEnter(true);
-                this.searchForm.addSubmitValuesHandler(this);
+		this.searchForm.setSaveOnEnter(true);
+		this.searchForm.addSubmitValuesHandler(this);
 
 		// Family name:
-                String familyNameLabel = controllerConfig.get(Config.KEY_LABEL_FAMILY_NAME);
-                this.familyNameField = new TextItem("familyName", familyNameLabel);		
-                this.familyNameField.setRequired(true);
-        
+		String familyNameLabel = controllerConfig
+				.get(Config.KEY_LABEL_FAMILY_NAME);
+		this.familyNameField = new TextItem("familyName", familyNameLabel);
+		this.familyNameField.setRequired(true);
+
 		// Given name:
-                String givenNameLabel = controllerConfig.get(Config.KEY_LABEL_GIVEN_NAME);
-                this.givenNameField = new TextItem("givenName", givenNameLabel);		
-                this.givenNameField.setRequired(true);
+		String givenNameLabel = controllerConfig
+				.get(Config.KEY_LABEL_GIVEN_NAME);
+		this.givenNameField = new TextItem("givenName", givenNameLabel);
+		this.givenNameField.setRequired(true);
 
 		// Date of birth:
-                this.dateOfBirthField = new DateTimeItem("DOB", "Date of birth");		dateOfBirthField.setDisplayFormat(DateDisplayFormat.TOUSSHORTDATE);
+		this.dateOfBirthField = new DateTimeItem("DOB", "Date of birth");
+		dateOfBirthField.setDisplayFormat(DateDisplayFormat.TOUSSHORTDATE);
 		this.dateOfBirthField.setRequired(false);
-                
+
 		// SSN:
-                ssnLast4Field = new TextItem("ssn", "SSN");
-                ssnLast4Field.setLength(9);
-                ssnLast4Field.setMask("#########");
+		ssnLast4Field = new TextItem("ssn", "SSN");
+		ssnLast4Field.setLength(9);
+		ssnLast4Field.setMask("#########");
 		ssnLast4Field.setRequired(false);
 
-                // Gender:
-                this.genderGroupItem = new RadioGroupItem();
-                this.genderGroupItem.setVertical(false);
+		// Gender:
+		this.genderGroupItem = new RadioGroupItem();
+		this.genderGroupItem.setVertical(false);
 		this.genderGroupItem.setStartRow(false);
 		this.genderGroupItem.setTitle("Gender");
 		this.genderGroupItem.setValueMap("male", "female", "unspecified");
@@ -92,30 +100,43 @@ public class PatientSearch extends Canvas
 		this.genderGroupItem.setRequired(false);
 
 		/*
-		// HRN:
-		hrnField.setRequired(false);
-                */
-		
+		 * // HRN: hrnField.setRequired(false);
+		 */
+
 		final ButtonItem btnFind = new ButtonItem("Find");
 		btnFind.setIcon("find.png");
 		btnFind.addClickHandler(this);
-                btnFind.setEndRow(true);
-                btnFind.setColSpan(2);
-                btnFind.setAlign(Alignment.CENTER);
-                
+		btnFind.setEndRow(true);
+		btnFind.setColSpan(2);
+		btnFind.setAlign(Alignment.CENTER);
+
+		// To enable "fuzzy searching" on name.
+		this.fuzzyNameSearchCheckboxItem = new CheckboxItem();
+		this.fuzzyNameSearchCheckboxItem.setName("fuzzyNameSearchCheckboxItem");
+		this.fuzzyNameSearchCheckboxItem.setTitle("Fuzzy Name Search");
+		this.fuzzyNameSearchCheckboxItem.setValue(true);
+		
+		/*
+		this.fuzzyNameSearchCheckboxItem.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				// buttonItem.setDisabled(!((Boolean) event.getValue()));
+			}
+		}); */
+
 		// Search fields:
-		this.searchForm.setFields(new FormItem[] { familyNameField, 
-                        givenNameField, dateOfBirthField,  
-                        ssnLast4Field, genderGroupItem, btnFind });
-		
-		//searchForm.setFields(new FormItem[] { familyNameField, givenNameField,
-		//		dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
-		
+		this.searchForm.setFields(new FormItem[] { fuzzyNameSearchCheckboxItem, familyNameField,
+				givenNameField, dateOfBirthField, ssnLast4Field,
+				genderGroupItem, btnFind });
+
+		// searchForm.setFields(new FormItem[] { familyNameField,
+		// givenNameField,
+		// dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
+
 		// Now, lay it out.
 		final VLayout layout = new VLayout();
 
-		//layout.setShowEdges(true);
-		//layout.setEdgeSize(3);
+		// layout.setShowEdges(true);
+		// layout.setEdgeSize(3);
 		layout.addMember(searchForm);
 
 		addChild(layout);
@@ -126,14 +147,14 @@ public class PatientSearch extends Canvas
 	 */
 	@Override
 	public void onClick(ClickEvent event) {
-            this.searchForm.submit();
+		this.searchForm.submit();
 	}
 
 	/**
 	 * 
 	 */
-        @Override
-        public void onSubmitValues(SubmitValuesEvent event) {
+	@Override
+	public void onSubmitValues(SubmitValuesEvent event) {
 		boolean validatedOk = searchForm.validate();
 		if (validatedOk == true) {
 			// Pull values off of form.
@@ -141,7 +162,7 @@ public class PatientSearch extends Canvas
 			// Conduct the search.
 			controller.findPatients(criteria);
 		}
-        }
+	}
 
 	/**
 	 * 
@@ -168,13 +189,14 @@ public class PatientSearch extends Canvas
 		criteria.setGenderCode(genderCode);
 
 		// HRN:
-		//criteria.setHealthRecordNumber(hrnField.getValueAsString());
+		// criteria.setHealthRecordNumber(hrnField.getValueAsString());
 
 		// SSN(last4):
 		criteria.setSsnLast4(ssnLast4Field.getValueAsString());
-                
+		
+		criteria.setFuzzyNameSearch(fuzzyNameSearchCheckboxItem.getValueAsBoolean());
+
 		return criteria;
 	}
-	
 
 }
