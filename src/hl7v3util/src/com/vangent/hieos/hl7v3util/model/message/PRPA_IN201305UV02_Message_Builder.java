@@ -234,6 +234,9 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         for (SubjectName subjectName : searchSubject.getSubjectNames()) {
             OMElement subjectNameNode = this.addChildOMElement(parameterListNode, "livingSubjectName");
             OMElement valueNode = this.addChildOMElement(subjectNameNode, "value");
+            if (subjectName.isFuzzySearchMode()) {
+                this.setAttribute(valueNode, "use", "SRCH");
+            }
             this.addSubjectName(valueNode, subjectName);
             this.addChildOMElementWithValue(subjectNameNode, "semanticsText", "LivingSubject.name");
         }
