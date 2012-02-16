@@ -143,7 +143,11 @@ public class RegistryCodedValueMapper {
         Iterator iter = values.iterator();
         while (iter.hasNext()) {
             String value = (String) iter.next();
-            result.add((String) mapper.status_ValueToCodeMap.get(value));
+            String code = (String) mapper.status_ValueToCodeMap.get(value);
+            // Guard against adding null values to the list.
+            if (code != null) {
+                result.add(code);
+            }
         }
         return result;
     }
@@ -188,7 +192,7 @@ public class RegistryCodedValueMapper {
         return (String) mapper.idScheme_ValueToCodeMap.get(value);
     }
 
-     /**
+    /**
      *
      * @param code
      * @return
