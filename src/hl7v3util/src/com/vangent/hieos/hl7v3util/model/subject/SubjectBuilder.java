@@ -232,7 +232,7 @@ public class SubjectBuilder extends BuilderHelper {
         this.setRace(subject, patientPersonNode);
         this.setEthnicGroup(subject, patientPersonNode);
         this.setSubjectOtherIdentifiers(subject, patientPersonNode);
-        this.setMatchConfidencePercentage(subject, patientPersonNode);
+        this.setMatchConfidencePercentage(subject, patientNode);
     }
 
     /**
