@@ -63,8 +63,9 @@ public class UpdateSubjectHandler extends BaseHandler {
         // Make sure that there is only one subject identifier to update.
         /* CONNECTATHON HACK (for ICW).
         if (subjectIdentifiers.size() > 1) {
-            throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
+        throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
         }*/
+        // NOTE: Decided to keep code above commented out - will use first identifier for update.
 
         // Get the subject (using the first identifier).
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);

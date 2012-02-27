@@ -164,10 +164,11 @@ public class MergeSubjectsHandler extends BaseHandler {
         }
         /* TEMPORARY HACK -- CONNECTATHON (ICW)
         if (subjectIdentifiers.size() > 1) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
-            throw new EMPIException(sb.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
+        throw new EMPIException(sb.toString());
         }*/
+        // NOTE: Decided to keep code above commented out - will use first identifier for merge.
     }
 
     /**

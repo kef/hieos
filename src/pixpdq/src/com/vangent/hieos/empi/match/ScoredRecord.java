@@ -184,8 +184,15 @@ public class ScoredRecord {
         double fieldScore;
         double fieldDistance = distances[fieldIndex];
         if (fieldDistance >= fieldAcceptThreshold) {
-            fieldScore = 1.0;
+            // FIXME: ?
+            // NOTE (BHT): The FRIL algorithm says to set the field score = 1.0 if the field
+            // distances is >= the accept threshold for the field.  This FRIL implementation 
+            // sets the field score equal to the field distance.
+            //fieldScore = 1.0;
+            fieldScore = fieldDistance;
         } else if (fieldDistance < fieldRejectThreshold) {
+            // FIXME: ?
+            // NOTE (BHT): Should we consider setting the field score to the field distance as above?
             fieldScore = 0.0;
         } else {
             fieldScore = (fieldDistance - fieldRejectThreshold) / (fieldAcceptThreshold - fieldRejectThreshold);
