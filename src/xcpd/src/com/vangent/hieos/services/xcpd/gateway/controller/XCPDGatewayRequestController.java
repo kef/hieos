@@ -182,6 +182,9 @@ public class XCPDGatewayRequestController {
             SubjectSearchCriteria patientDiscoverySearchCriteria) {
 
         // Prepare gateway requests.
+        // HACK (CONNECTATHON).
+        // FIXME?
+        patientDiscoverySearchCriteria.getSubject().getSubjectIdentifiers().clear();
         List<GatewayRequest> gatewayRequests = this.getGatewayRequests(patientDiscoverySearchCriteria);
 
         // Issue XCPD CrossGatewayPatientDiscovery requests to targeted gateways (in parallel).

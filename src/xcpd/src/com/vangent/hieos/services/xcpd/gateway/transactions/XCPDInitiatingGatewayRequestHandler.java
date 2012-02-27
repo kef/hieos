@@ -179,8 +179,14 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                     // Get ready to send CGPD request.
                     SubjectSearchCriteria patientDiscoverySearchCriteria = new SubjectSearchCriteria();
                     patientDiscoverySearchCriteria.setSubject(subject);
+                    // FIXME?
+                    /* TEMPORARY DISABLE FOR CONNECTATHON (need to make configurable)
+                     * some RGs do not support properly -- e.g. Intersystems
+                     */
+                    /*
+                    patientDiscoverySearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(true);
                     patientDiscoverySearchCriteria.setMinimumDegreeMatchPercentage(subjectSearchCriteria.getMinimumDegreeMatchPercentage());
-
+                    */
                     // FIXME: Should strip out all ids except for the one that matches the
                     // communityAssigningAuthority
                     SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();

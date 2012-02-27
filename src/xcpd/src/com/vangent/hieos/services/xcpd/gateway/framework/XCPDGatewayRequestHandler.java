@@ -115,6 +115,9 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
      * @param subjectSearchCriteria
      */
     public void setMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria) {
+        // TEMPORARY DISABLE (CONNECTATHON) - some gateways do not interpret properly
+        // FIXME?
+        /*
         if (subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage() == false) {
             logger.info("Setting MinimumDegreeMatchPercentage from xconfig");
             String minimumDegreeMatchPercentageText = this.getGatewayConfigProperty("MinimumDegreeMatchPercentage");
@@ -124,7 +127,7 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
             }
             subjectSearchCriteria.setSpecifiedMinimumDegreeMatchPercentage(true);
             subjectSearchCriteria.setMinimumDegreeMatchPercentage(new Integer(minimumDegreeMatchPercentage));
-        }
+        }*/
     }
 
     /**
