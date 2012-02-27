@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:pip="urn:hieos:policy:pip"
+           xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+           xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
+           PolicySetId="hie-document-upload-policy-set"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable">
+    <Target>
+        <Actions>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
+        </Actions>
+    </Target>
+
+   <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
+         caller as to which rule fired -->
+
+   <!-- TBD - detailed rules to go here .. -->
+         
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="final-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Permit if no other policies/rules fired.</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+
+         <!-- Default Deny rule (if no Permit rules fired above) -->
+        <Rule RuleId="final-rule" Effect="Permit"/>
+    </Policy>
+    
+     <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
+    <Obligations>
+        <Obligation ObligationId="evaluate-document-upload-fine-grain-policy" FulfillOn="Permit"/>
+    </Obligations>
+       
+</PolicySet>
