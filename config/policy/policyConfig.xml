@@ -4,6 +4,9 @@
         <!-- Note: must be relative to location of this file -->
         <PolicyFile name="policies/hie-policy.xml" />
         <PolicyFile name="policies/hie-document-policy.xml"/>
+        <PolicyFile name="policies/hie-document-upload-policy.xml" />
+        <PolicyFile name="policies/hie-document-upload-fine-grain-policy.xml"/>
+        
         <!-- other policy files would go here ... -->
     </PolicyFiles>
 
