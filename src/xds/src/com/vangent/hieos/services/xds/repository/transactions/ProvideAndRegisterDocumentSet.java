@@ -12,6 +12,12 @@
  */
 package com.vangent.hieos.services.xds.repository.transactions;
 
+import com.vangent.hieos.policyutil.exception.PolicyException;
+import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
+import com.vangent.hieos.policyutil.pep.impl.PEP;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyEvaluator;
+import com.vangent.hieos.services.xds.policy.DocumentPolicyResult;
+import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -50,13 +56,13 @@ import java.io.InputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
-//import sun.misc.BASE64Decoder;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -75,7 +81,6 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      */
     public ProvideAndRegisterDocumentSet(XLogMessage log_message, MessageContext messageContext) {
         this.log_message = log_message;
-        //this.messageContext = messageContext;
         try {
             init(new RegistryResponse(), messageContext);
         } catch (XdsInternalException e) {
@@ -84,7 +89,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param pnr
      * @return
      */
@@ -140,56 +145,59 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      *
      * @param pnr
      * @param m
-     * @throws com.vangent.hieos.xutil.exception.XDSMissingDocumentException
-     * @throws com.vangent.hieos.xutil.exception.XDSMissingDocumentMetadataException
+     * @throws XDSMissingDocumentException
+     * @throws XDSMissingDocumentMetadataException
      */
     private void validatePNR(OMElement pnr, Metadata m) throws XDSMissingDocumentException, XDSMissingDocumentMetadataException {
         ArrayList<OMElement> docs = MetadataSupport.childrenWithLocalName(pnr, "Document");
-        ArrayList<String> doc_ids = new ArrayList<String>();
+        ArrayList<String> docIds = new ArrayList<String>();
 
+        // Get list of document identifiers.
         for (OMElement doc : docs) {
             String id = doc.getAttributeValue(MetadataSupport.id_qname);
             // if id == null or id ==""
-            doc_ids.add(id);
+            docIds.add(id);
         }
 
-        ArrayList<String> eo_ids = m.getExtrinsicObjectIds();
-
-        for (String id : eo_ids) {
-            if (!doc_ids.contains(id)) {
+        // Make sure that the meta-data contains the list of document identifiers.
+        ArrayList<String> extrinsicObjectIds = m.getExtrinsicObjectIds();
+        for (String id : extrinsicObjectIds) {
+            if (!docIds.contains(id)) {
                 throw new XDSMissingDocumentException("Document with id " + id + " is missing");
             }
         }
 
-        for (String id : doc_ids) {
-            if (!eo_ids.contains(id)) {
+        // Do the inverse check.
+        for (String id : docIds) {
+            if (!extrinsicObjectIds.contains(id)) {
                 throw new XDSMissingDocumentMetadataException("XDSDocumentEntry with id " + id + " is missing");
             }
         }
-
     }
 
     /**
-     *
+     * 
      * @param pnr
-     * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
-     * @throws com.vangent.hieos.xutil.exception.SchemaValidationException
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
-     * @throws com.vangent.hieos.xutil.exception.XdsConfigurationException
-     * @throws com.vangent.hieos.xutil.exception.XdsIOException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
-     * @throws java.io.IOException
+     * @throws MetadataValidationException
+     * @throws SchemaValidationException
+     * @throws XdsInternalException
+     * @throws MetadataException
+     * @throws XdsConfigurationException
+     * @throws XdsIOException
+     * @throws XdsException
+     * @throws IOException
      */
     private void handleProvideAndRegisterRequest(OMElement pnr)
             throws MetadataValidationException, SchemaValidationException,
             XdsInternalException, MetadataException, XdsConfigurationException,
             XdsIOException, XdsException, IOException {
 
+        // Validate P&R against the XML schema.
         RegistryUtility.schema_validate_local(
                 pnr,
                 MetadataTypes.METADATA_TYPE_RET);
 
+        // Constuct the Metadata instance from the SubmitObjectsRequest (SOR).
         OMElement sor = findSOR(pnr);
         Metadata m = new Metadata(sor);
 
@@ -208,63 +216,163 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         log_message.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
         log_message.addOtherParam("Structure", m.structure());
 
+        // Validate the P&R.
         this.validatePNR(pnr, m);
 
-        int eo_count = m.getExtrinsicObjectIds().size();
-        int doc_count = 0;
-        for (OMElement document : MetadataSupport.childrenWithLocalName(pnr, "Document")) {
-            doc_count++;
-            String id = document.getAttributeValue(MetadataSupport.id_qname);
-            OMText binaryNode = (OMText) document.getFirstOMChild();
-            boolean optimized = false;
-            javax.activation.DataHandler datahandler = null;
-            try {
-                datahandler = (javax.activation.DataHandler) binaryNode.getDataHandler();
-                optimized = true;
-            } catch (Exception e) {
-                // Message is not optimized.
-            }
+        // Stamp the meta-data with the repository unique id before submitting to the Document Registry.
+        // NOTE: This was moved to earlier in the process to allow policy evaluation to use this information
+        // if required.
+        setRepositoryUniqueId(m);
 
-            // Create the XDSDocument to hold relevant storage parameters.
-            XDSDocument doc = new XDSDocument(repoConfig.getRepositoryUniqueId());
-            doc.setDocumentId(id);
-            if (optimized) {
-                InputStream is = null;
-                try {
-                    is = datahandler.getInputStream();
-                } catch (IOException e) {
-                    throw new XdsIOException("Error accessing document content from message");
-                }
-                this.storeXOPDocument(m, doc, is);
-            } else {
-                String base64 = document.getText();
-                //String base64 = binaryNode.getText();
-                /* DEBUG:
-                System.out.println("+++ NOT XOP OPTIMIZED +++");
-                System.out.println("++++ BEGIN BASE64 CONTENT ++++");
-                System.out.println(base64);
-                System.out.println("++++ END BASE64 CONTENT ++++");
-                System.out.println("-> base64.length = " + base64.length());
-                System.out.println("-> base64(bytes).length = " + base64.getBytes().length);
-                 */
-                byte[] ba = Base64.decodeBase64(base64.getBytes());
-                /* DEBUG:
-                System.out.println("-> base64(decoded).length = " + ba.length);
-                 */
-                /* BHT: Replaced code (with above line) to get rid of sun.misc dependency.
-                BASE64Decoder d = new BASE64Decoder();
-                byte[] ba = d.decodeBuffer(base64);
-                 */
-                storeDocument(m, doc, ba);
-            }
-        }
+        // Get list of documents to persist.
+        List<OMElement> documents = MetadataSupport.childrenWithLocalName(pnr, "Document");
 
-        if (eo_count != doc_count) {
-            throw new XDSMissingDocumentMetadataException("Submission contained " + doc_count + " documents but " + eo_count
+        // Make sure metadata instances matches number of documents to store.
+        int documentCount = documents.size();
+        int extrinsicObjectCount = m.getExtrinsicObjectIds().size();
+        if (extrinsicObjectCount != documents.size()) {
+            throw new XDSMissingDocumentMetadataException("Submission contained " + documentCount + " documents but " + extrinsicObjectCount
                     + " ExtrinsicObjects in metadata - they must match");
         }
 
-        setRepositoryUniqueId(m);
+        try {
+            // Policy Enforcement:
+            PEP pep = new PEP(this.getConfigActor());
+            boolean policyEnabled = pep.isPolicyEnabled();
+            if (!policyEnabled) {
+                // Policy is not enabled - store and register.
+                this.storeAndRegisterDocuments(documents, m);
+            } else {
+                // Evaluate policy (pass one).
+                PDPResponse pdpResponse = pep.evaluate();
+                if (pdpResponse.isDenyDecision()) {
+                    if (log_message.isLogEnabled()) {
+                        log_message.addOtherParam("Policy:Note", "DENIED storage of all content");
+                    }
+                    response.add_warning(MetadataSupport.XDSPolicyEvaluationWarning, "Request denied due to policy", this.getClass().getName(), log_message);
+                } else if (!pdpResponse.hasObligations()) {
+                    // No obligations to satisfy.
+                    if (log_message.isLogEnabled()) {
+                        log_message.addOtherParam("Policy:Note", "PERMITTED storage of all content [no obligations]");
+                    }
+                    this.storeAndRegisterDocuments(documents, m);
+                } else {
+                    // Must evaluate obligations (@ document level).
+                    this.handleObligations(pdpResponse, documents, m);
+                }
+            }
+        } catch (PolicyException e) {
+            // We are unable to satisfy the Policy Evaluation request, so we must deny.
+            response.add_error(MetadataSupport.XDSRepositoryError, "Policy Exception: " + e.getMessage(), this.getClass().getName(), log_message);
+        }
+    }
+
+    /**
+     *
+     * @param pdpResponse
+     * @param documents
+     * @param m
+     * @throws MetadataException
+     * @throws PolicyException
+     * @throws XdsInternalException
+     * @throws XdsIOException
+     * @throws XdsConfigurationException
+     * @throws XdsException
+     */
+    private void handleObligations(PDPResponse pdpResponse, List<OMElement> documents, Metadata m) throws MetadataException, PolicyException, XdsInternalException, XdsIOException, XdsConfigurationException, XdsException {
+        // Get list of obligation ids to satisfy ... these will be used as the "action-id"
+        // when evaluating policy at the document-level
+        List<String> obligationIds = pdpResponse.getObligationIds();
+        // FIXME(?): Only satisfy the first obligation in the list!
+
+        // Run policy evaluation to get permitted objects list (using obligation id as "action-id").
+        DocumentPolicyEvaluator policyEvaluator = new DocumentPolicyEvaluator(log_message);
+        DocumentPolicyResult policyResult = policyEvaluator.evaluate(
+                obligationIds.get(0),
+                pdpResponse.getRequestType(),
+                new RegistryObjectElementList(m.getExtrinsicObjects()));
+        if (policyResult.getDeniedDocuments().isEmpty()) {
+            // No documents were denied - normal process from here.
+            storeAndRegisterDocuments(documents, m);
+        } else {
+            // Emit denial warnings.
+            policyResult.emitDocumentDenialWarnings(response, getClass(), log_message);
+        }
+    }
+
+    /**
+     *
+     * @param documents
+     * @param m
+     * @throws XdsInternalException
+     * @throws XdsIOException
+     * @throws MetadataException
+     * @throws XdsConfigurationException
+     * @throws XdsException
+     */
+    private void storeAndRegisterDocuments(List<OMElement> documents, Metadata m) throws XdsInternalException, XdsIOException, MetadataException, XdsConfigurationException, XdsException {
+        // Loop through each document and persist each one.
+        for (OMElement document : documents) {
+            storeDocument(document, m);  // Persist document.
+        }
+
+        // Submit metadata to Document Registry.
+        performRegisterDocumentSet(m);
+    }
+
+    /**
+     * 
+     * @param document
+     * @param m
+     * @throws XdsInternalException
+     * @throws XdsIOException
+     * @throws MetadataException
+     * @throws XdsConfigurationException
+     * @throws XdsException
+     */
+    private void storeDocument(OMElement document, Metadata m) throws XdsInternalException, XdsIOException, MetadataException, XdsConfigurationException, XdsException {
+        String id = document.getAttributeValue(MetadataSupport.id_qname);
+        OMText binaryNode = (OMText) document.getFirstOMChild();
+        boolean optimized = false;
+        javax.activation.DataHandler datahandler = null;
+        try {
+            datahandler = (javax.activation.DataHandler) binaryNode.getDataHandler();
+            optimized = true;
+        } catch (Exception e) {
+            // Ignore exception - message is not optimized.
+        }
+
+        // Create the XDSDocument to hold relevant storage parameters.
+        XDSDocument doc = new XDSDocument(repoConfig.getRepositoryUniqueId());
+        doc.setDocumentId(id);
+
+        // If the document is optimized (i.e. XOP/binary attachment).
+        if (optimized) {
+            InputStream is = null;
+            try {
+                is = datahandler.getInputStream();
+            } catch (IOException e) {
+                throw new XdsIOException("Error accessing document content from message");
+            }
+            // Store in repository.
+            this.storeXOPDocument(m, doc, is);
+        } else {
+            // Not optimized - decode
+            String base64 = document.getText();
+            byte[] ba = Base64.decodeBase64(base64.getBytes());
+            // Store in repository.
+            storeDocument(m, doc, ba);
+        }
+    }
+
+    /**
+     * 
+     * @param m
+     * @throws MetadataException
+     * @throws XdsInternalException
+     */
+    private void performRegisterDocumentSet(Metadata m) throws MetadataException, XdsInternalException {
+      
         OMElement register_transaction = m.getV3SubmitObjectsRequest();
         String epr = getRegistryEndpoint();
 
@@ -328,7 +436,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     /**
      *
      * @return
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws XdsInternalException
      */
     private String getRegistryEndpoint() throws XdsInternalException {
         return repoConfig.getRegisterTransactionEndpoint();
@@ -345,14 +453,14 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     /**
      *
      * @param soap
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws XdsInternalException
      */
     private void logSOAPHeaders(Soap soap) throws XdsInternalException {
         if (log_message.isLogEnabled()) {
-            OMElement in_hdr = soap.getInHeader();
-            OMElement out_hdr = soap.getOutHeader();
-            log_message.addSOAPParam("Header sent to Registry", (out_hdr == null) ? "Null" : out_hdr);
-            log_message.addSOAPParam("Header received from Registry", (in_hdr == null) ? "Null" : in_hdr);
+            OMElement inHeader = soap.getInHeader();
+            OMElement outHeader = soap.getOutHeader();
+            log_message.addSOAPParam("Header sent to Registry", (outHeader == null) ? "Null" : outHeader);
+            log_message.addSOAPParam("Header received from Registry", (inHeader == null) ? "Null" : inHeader);
         }
     }
 
@@ -360,7 +468,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      *
      * @param pnr
      * @return
-     * @throws com.vangent.hieos.xutil.exception.MetadataValidationException
+     * @throws MetadataValidationException
      */
     private OMElement findSOR(OMElement pnr) throws MetadataValidationException {
         OMElement sor;
@@ -373,15 +481,15 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param m
      * @param doc
      * @param is
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
-     * @throws com.vangent.hieos.xutil.exception.XdsIOException
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     * @throws com.vangent.hieos.xutil.exception.XdsConfigurationException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
+     * @throws MetadataException
+     * @throws XdsIOException
+     * @throws XdsInternalException
+     * @throws XdsConfigurationException
+     * @throws XdsException
      */
     private void storeXOPDocument(Metadata m, XDSDocument doc, InputStream is)
             throws MetadataException, XdsIOException, XdsInternalException, XdsConfigurationException, XdsException {
@@ -425,11 +533,11 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @param m
      * @param doc
      * @param bytes
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
-     * @throws com.vangent.hieos.xutil.exception.XdsIOException
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
-     * @throws com.vangent.hieos.xutil.exception.XdsConfigurationException
-     * @throws com.vangent.hieos.xutil.exception.XdsException
+     * @throws MetadataException
+     * @throws XdsIOException
+     * @throws XdsInternalException
+     * @throws XdsConfigurationException
+     * @throws XdsException
      */
     private void storeDocument(Metadata m, XDSDocument doc, byte[] bytes)
             throws MetadataException, XdsIOException, XdsInternalException, XdsConfigurationException, XdsException {
@@ -441,7 +549,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param bytes
      * @param doc
      * @param m
@@ -501,14 +609,15 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         m.setSlot(extrinsic_object, "size", computedDocumentedSize);
         m.setSlot(extrinsic_object, "hash", doc.getHash());
         /* BHT: REMOVED
-        m.setSlot(extrinsic_object, "URI",  document_uri (uid, mime_type));
-        m.setURIAttribute(extrinsic_object, document_uri(uid, mime_type));
+        m.setSlot(extrinsicObject, "URI",  document_uri (uid, mimeType));
+        m.setURIAttribute(extrinsicObject, document_uri(uid, mimeType));
          */
     }
 
     /**
      *
      * @param doc
+     * @throws XdsInternalException
      */
     private void storeDocument(XDSDocument doc) throws XdsInternalException {
         // Now store the document.
@@ -517,17 +626,17 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param doc
      * @param m
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
+     * @throws MetadataException
      */
     private void validateDocumentMetadata(XDSDocument doc, Metadata m) throws MetadataException {
         String id = doc.getDocumentId();
 
         // Do some metadata validation.
-        OMElement extrinsic_object = m.getObjectById(id);
-        if (extrinsic_object == null) {
+        OMElement extrinsicObject = m.getObjectById(id);
+        if (extrinsicObject == null) {
             throw new MetadataException("Document submitted with id of " + id + " but no ExtrinsicObject exists in metadata with same id");
         }
 
@@ -538,8 +647,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         }
 
         // Mime type better exist.
-        String mime_type = extrinsic_object.getAttributeValue(MetadataSupport.mime_type_qname);
-        if (mime_type == null || mime_type.equals("")) {
+        String mimeType = extrinsicObject.getAttributeValue(MetadataSupport.mime_type_qname);
+        if (mimeType == null || mimeType.equals("")) {
             throw new MetadataException("ExtrinsicObject " + id + " does not have a mimeType");
         }
     }
@@ -547,8 +656,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     /**
      *
      * @param m
-     * @throws com.vangent.hieos.xutil.exception.MetadataException
-     * @throws com.vangent.hieos.xutil.exception.XdsInternalException
+     * @throws MetadataException
+     * @throws XdsInternalException
      */
     private void setRepositoryUniqueId(Metadata m) throws MetadataException, XdsInternalException {
         for (OMElement eo : m.getExtrinsicObjects()) {
@@ -557,7 +666,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @return
      */
     private String getRegistrySOAPAction() {
@@ -593,7 +702,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param rootNode
      * @param targetEndpoint
      */
