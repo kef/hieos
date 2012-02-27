@@ -8,6 +8,7 @@ import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.FRILMatchAlgorithm;
 import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import java.util.List;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
@@ -93,20 +94,20 @@ public class EMPIPersistenceManagerTest {
         System.out.println("Search Record = " + searchRecord);
         pm.insertSubjectMatchFields(searchRecord);
 
-        List<Record> candidateRecords = pm.findCandidates(searchRecord);
+        List<Record> candidateRecords = pm.findCandidates(searchRecord, MatchType.SUBJECT_FIND);
         System.out.println("Candidate record count = " + candidateRecords.size());
 
         // Run full matching process.
         FRILMatchAlgorithm algo = new FRILMatchAlgorithm();
         algo.setPersistenceManager(pm);
-        MatchResults matchResults = algo.findMatches(searchRecord, MatchAlgorithm.MatchType.MATCH_EMPTY_FIELDS);
+        MatchResults matchResults = algo.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FIND);
 
         searchRecord = new Record();
         searchRecord.addField(new Field("givenNameDoubleMetaphone", "MR"));
         searchRecord.addField(new Field("familyNameDoubleMetaphone", "0MN"));
         searchRecord.addField(new Field("birthTime", "20111022"));
         searchRecord.addField(new Field("gender", "F"));
-        candidateRecords = pm.findCandidates(searchRecord);
+        candidateRecords = pm.findCandidates(searchRecord, MatchType.SUBJECT_FIND);
         System.out.println("Candidate record count = " + candidateRecords.size());
         connection.close();
     }

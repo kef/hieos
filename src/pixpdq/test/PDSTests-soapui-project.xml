@@ -87,7 +87,7 @@
       <http:address location="http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpEndpoint/"/>
     </wsdl:port>
   </wsdl:service>
-</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/axis2/services/pds</con:endpoint><con:endpoint>http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpSoap12Endpoint/</con:endpoint><con:endpoint>http://208.81.185.143:8080/axis2/services/pds</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:PatientRegistryFindCandidatesQuery" name="PatientRegistryFindCandidatesQuery" bindingOperationName="PatientRegistryFindCandidatesQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pds</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/axis2/services/pds</con:endpoint><con:endpoint>http://PGS6NY0MJ1LA:8091/axis2/services/pds.pdsHttpSoap12Endpoint/</con:endpoint><con:endpoint>http://208.81.185.143:8080/axis2/services/pds</con:endpoint><con:endpoint>http://10.242.8.29:8080/axis2/services/pds</con:endpoint></con:endpoints><con:operation isOneWay="false" action="urn:PatientRegistryFindCandidatesQuery" name="PatientRegistryFindCandidatesQuery" bindingOperationName="PatientRegistryFindCandidatesQuery" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://10.242.8.29:8080/axis2/services/pds</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201305UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
@@ -116,38 +116,60 @@
                <initialQuantity value="2"/>
                <matchCriterionList>
                   <minimumDegreeMatch>
-                     <value xsi:type="INT" value="75"/>
+                     <value xsi:type="INT" value="80"/>
                      <semanticsText>Degree of match requested</semanticsText>
                   </minimumDegreeMatch>
                </matchCriterionList>
                <parameterList>
-                  <!--<livingSubjectAdministrativeGender>
-                     <value code="M"/>
+<!--
+               <livingSubjectAdministrativeGender>
+                     <value code="F"/>
                      <semanticsText>LivingSubject.administrativeGender</semanticsText>
-                  </livingSubjectAdministrativeGender>-->
-                  <!--livingSubjectBirthTime>
-                     <value value="19291015"/>
+               </livingSubjectAdministrativeGender>
+-->             
+                 
+<!--
+                 <livingSubjectBirthTime>
+                     <value value="19780920"/>
                      <semanticsText>LivingSubject.birthTime</semanticsText>
-                  </livingSubjectBirthTime>-->
-                  <!--<livingSubjectId>
-                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="5214bdff33e441fd808272504429c7bc"/>
+                  </livingSubjectBirthTime>
+-->
+
+                  <livingSubjectId>
+                     <value root="1.3.6.1.4.1.21367.13.20.2000" extension="20120220190521"/>
                      <semanticsText>LivingSubject.id</semanticsText>
-                  </livingSubjectId>-->
-                  <!--<livingSubjectId>
-                     <value root="2.16.840.1.113883.3.72.5.9.1" extension="JW-824-v3"/>
+                  </livingSubjectId>
+<!--
+                  <livingSubjectId>
+                     <value root="1.3.6.1.4.1.21367.13.20.32" extension="305638"/>
                      <semanticsText>LivingSubject.id</semanticsText>
-                  </livingSubjectId>-->
+                  </livingSubjectId>
+-->
+<!--
                   <livingSubjectName>
-                     <value>
+                     <value use="SRCH">
                         <given></given>
-                        <family>thuman</family>
+                        <family>MOO</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
-                  <!--<otherIDsScopingOrganization>
-                     <value root="1.3.6.1.4.1.21367.13.20.999"/>
+    -->              
+
+<!--
+ 		  <livingSubjectName>
+                     <value use="SRCH">
+                        <given></given>
+                        <family>SOMEMAN</family>
+                     </value>
+                     <semanticsText>LivingSubject.name</semanticsText>
+                  </livingSubjectName>
+-->
+<!--
+                  <otherIDsScopingOrganization>
+                     <value root="1.3.6.1.4.1.21367.13.20.48"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
-                  </otherIDsScopingOrganization>-->
+                  </otherIDsScopingOrganization>
+-->
                   <!--<otherIDsScopingOrganization>
                      <value root="1.3.6.1.4.1.21367.13.20.1000"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
@@ -160,12 +182,14 @@
                      <value root="1.3.6.1.4.1.21367.2005.1.1"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
                   </otherIDsScopingOrganization>-->
-                 <!-- <patientAddress>
+
+<!--
+                  <patientAddress>
                      <value>
-                        <streetAddressLine>31 SPOONER ST</streetAddressLine>
-                        <city>QUAHOG</city>
-                        <state>RI</state>
-                        <postalCode>02860</postalCode>
+                        <streetAddressLine>10 PINETREE</streetAddressLine>
+                        <city></city>
+                        <state></state>
+                        <postalCode></postalCode>
                      </value>
                      <semanticsText>Patient.addr</semanticsText>
                   </patientAddress>
@@ -178,54 +202,50 @@
 </soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201305UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Request 2 (NIST)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pds</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
-      <PRPA_IN201305UV02 ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3">
-         <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="35423"/>
-         <creationTime value="20070428150301"/>
+      <PRPA_IN201305UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <id root="1.5.4.3.2.1" extension="d585ae7d-3765-4684-83c9-02f79b3cccdf"/>
+         <creationTime value="20120112095905"/>
          <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201305UV02"/>
          <processingCode code="T"/>
-         <processingModeCode code="T"/>
+         <processingModeCode code="I"/>
          <acceptAckCode code="AL"/>
          <receiver typeCode="RCV">
             <device classCode="DEV" determinerCode="INSTANCE">
-               <id root="1.2.840.114350.1.13.99999.4567"/>
+               <id root="1.3.6.1.4.1.21367.13.30.4"/>
                <asAgent classCode="AGNT">
                   <representedOrganization determinerCode="INSTANCE" classCode="ORG">
-                     <id root="1.2.840.114350.1.13.99999.1234"/>
+                     <id root="1.3.6.1.4.1.21367.13.50.4"/>
                   </representedOrganization>
                </asAgent>
             </device>
          </receiver>
          <sender typeCode="SND">
             <device classCode="DEV" determinerCode="INSTANCE">
-               <id root="1.2.840.114350.1.13.99998.8735"/>
+               <id root="1.3.6.1.4.1.21367.13.50.2"/>
                <asAgent classCode="AGNT">
                   <representedOrganization determinerCode="INSTANCE" classCode="ORG">
-                     <id root="1.2.840.114350.1.13.99998"/>
+                     <id root="1.3.6.1.4.1.21367.13.70.2"/>
                   </representedOrganization>
                </asAgent>
             </device>
          </sender>
          <controlActProcess classCode="CACT" moodCode="EVN">
             <code code="PRPA_TE201305UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <authorOrPerformer typeCode="AUT">
+               <assignedDevice classCode="ASSIGNED">
+                  <id root="1.3.6.1.4.1.21367.13.20.2000"/>
+               </assignedDevice>
+            </authorOrPerformer>
             <queryByParameter>
-               <queryId root="1.2.840.114350.1.13.28.1.18.5.999" extension="48516808864"/>
+               <queryId root="1.8.7.6.5.4.3.2.1.1" extension="4c7596a2-46eb-4659-8831-bfeae5040355"/>
                <statusCode code="new"/>
                <responseModalityCode code="R"/>
                <responsePriorityCode code="I"/>
                <parameterList>
-                  <otherIDsScopingOrganization>
-                     <value root="2.16.840.1.113883.3.72.5.9.1"/>
-                     <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
-                  </otherIDsScopingOrganization>
-                  <patientAddress>
-                     <value>
-                        <streetAddressLine>1905 romrog Way</streetAddressLine>
-                        <city>ROCk SPRINGs</city>
-                        <state>Wy</state>
-                        <postalCode>82901</postalCode>
-                     </value>
-                     <semanticsText>Patient.addr</semanticsText>
-                  </patientAddress>
+                  <livingSubjectId>
+                     <value extension="BLUE5410" assigningAuthorityName="IHEBLUE" root="1.3.6.1.4.1.21367.13.20.3000"/>
+                     <semanticsText>LivingSubject.id</semanticsText>
+                  </livingSubjectId>
                </parameterList>
             </queryByParameter>
          </controlActProcess>
@@ -235,62 +255,97 @@
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201305UV02 ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3">
-         <id root="61eb1d2a-8b46-49ee-8972-43e8b19e4797"/>
-         <creationTime value="20110117021941"/>
+         <id root="f7d979e5-e94c-48fb-8105-5e4bf7a66dde"/>
+         <creationTime value="20120104141249"/>
          <interactionId extension="PRPA_IN201305UV02" root="2.16.840.1.113883.1.6"/>
          <processingCode code="T"/>
-         <processingModeCode code="I"/>
-         <acceptAckCode code="NE"/>
+         <processingModeCode code="T"/>
+         <acceptAckCode code="AL"/>
          <receiver typeCode="RCV">
             <device classCode="DEV" determinerCode="INSTANCE">
-               <id root="1.3.6.1.4.1.21367.13.10.417"/>
-               <name>GATEWAY_VANGENT_XCARG</name>
-               <asAgent classCode="AGNT">
-                  <representedOrganization classCode="ORG" determinerCode="INSTANCE">
-                     <id root="1.3.6.1.4.1.21367.13.3070"/>
-                  </representedOrganization>
-               </asAgent>
+               <id root="1.3.6.1.4.1.21367.13.30.4"/>
+               <name>GATEWAY_VANGENT_PDS</name>
             </device>
          </receiver>
          <sender typeCode="SND">
             <device classCode="DEV" determinerCode="INSTANCE">
-               <id root="1.3.6.1.4.1.21367.13.10.417"/>
+               <id root="1.3.6.1.4.1.21367.13.30.4"/>
                <name>GATEWAY_VANGENT_XCAIG</name>
                <asAgent classCode="AGNT">
                   <representedOrganization classCode="ORG" determinerCode="INSTANCE">
-                     <id root="1.3.6.1.4.1.21367.13.3070"/>
+                     <id root="1.3.6.1.4.1.21367.13.70.4"/>
                   </representedOrganization>
                </asAgent>
             </device>
          </sender>
          <controlActProcess moodCode="EVN" classCode="CACT">
             <code code="PRPA_TE201305UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <authorOrPerformer typeCode="AUT">
+               <assignedDevice classCode="ASSIGNED">
+                  <id root="1.3.6.1.4.1.21367.13.20.3000"/>
+               </assignedDevice>
+            </authorOrPerformer>
             <queryByParameter>
                <queryId root="1.2.840.114350.1.13.28.1.18.5.999" extension="18204"/>
                <statusCode code="new"/>
+               <responseModalityCode code="R"/>
                <responsePriorityCode code="I"/>
+               <matchCriterionList>
+                  <minimumDegreeMatch>
+                     <value xsi:type="INT" value="90" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                     <semanticsText>Degree of match requested</semanticsText>
+                  </minimumDegreeMatch>
+               </matchCriterionList>
                <parameterList>
-<livingSubjectAdministrativeGender>
-                     <value code="M"/>
+                  <livingSubjectAdministrativeGender>
+                     <value code="M "/>
                      <semanticsText>LivingSubject.administrativeGender</semanticsText>
                   </livingSubjectAdministrativeGender>
-		 
-                 <!-- <livingSubjectAdministrativeGender>
-                     <code value="F"/>
-                     <semanticsText>LivingSubject.administrativeGender</semanticsText>
-                  </livingSubjectAdministrativeGender>
-                  -->
-		  <livingSubjectBirthTime>
+                  <livingSubjectBirthTime>
                      <value value="19640610"/>
                      <semanticsText>LivingSubject.birthTime</semanticsText>
                   </livingSubjectBirthTime>
                   <livingSubjectName>
                      <value>
-                        <given>John</given>
-                        <family>Jones</family>
+                        <given>Bernie</given>
+                        <family>Thuman</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
+                  <otherIDsScopingOrganization>
+                     <value root="1.3.6.1.4.1.21367.13.20.3000"/>
+                     <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
+                  </otherIDsScopingOrganization>
+                  <patientAddress>
+                     <value>
+                        <streetAddressLine>1710 Hunt Meadow Drive</streetAddressLine>
+                        <city>Annapolis</city>
+                        <state>MD</state>
+                        <postalCode>21403</postalCode>
+                        <country/>
+                     </value>
+                     <semanticsText>Patient.addr</semanticsText>
+                  </patientAddress>
+                  <patientAddress>
+                     <value use="H">
+                        <streetAddressLine>1710 Hunt Meadow Drive</streetAddressLine>
+                        <city>Annapolis</city>
+                        <state>MD</state>
+                        <postalCode>21403</postalCode>
+                        <country/>
+                     </value>
+                     <semanticsText>Patient.addr</semanticsText>
+                  </patientAddress>
+                  <patientAddress>
+                     <value use="WP">
+                        <streetAddressLine>1710 Hunt Meadow Drive</streetAddressLine>
+                        <city>Annapolis</city>
+                        <state>MD</state>
+                        <postalCode>21403</postalCode>
+                        <country/>
+                     </value>
+                     <semanticsText>Patient.addr</semanticsText>
+                  </patientAddress>
                </parameterList>
             </queryByParameter>
          </controlActProcess>

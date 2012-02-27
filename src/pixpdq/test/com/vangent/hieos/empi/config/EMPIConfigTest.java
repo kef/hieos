@@ -127,7 +127,7 @@ public class EMPIConfigTest {
         record1.addField(new Field("familyName", "AARON"));
         records.add(record1);
 
-        MatchResults matchResults = algo.findMatches(searchRecord, records, MatchAlgorithm.MatchType.NOMATCH_EMPTY_FIELDS);
+        MatchResults matchResults = algo.findMatches(searchRecord, records, MatchAlgorithm.MatchType.SUBJECT_ADD);
         if (matchResults.getMatches().size() > 0) {
             System.out.println("MATCHES: ");
         }
