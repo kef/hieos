@@ -19,9 +19,39 @@
 
     <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
          caller as to which rule fired -->
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="same-pid-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Deny if the Document's patient id does not match the resource-id.</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
 
-    <!-- TBD - detailed policy/rules should go here. -->
-     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+        <Rule RuleId="same-pid-rule" Effect="Deny">
+            <Description>
+                Deny if the Document's patient id does not match the resource-id.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" MustBePresent="true" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                            <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:DocumentMetadata/pip:PatientId/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                        </Apply>
+                    </Apply>
+                </Apply>
+            </Condition>
+        </Rule>
+        <Obligations>
+            <Obligation ObligationId="same-pid-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+
+    <!-- TBD - detailed policy/rules should go here (Stub provided next - always permits). -->
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
          PolicyId="stub-policy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
         <Description>Always permit stub policy.</Description>

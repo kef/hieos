@@ -20,6 +20,32 @@
    <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
          caller as to which rule fired -->
 
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="patient-inactive-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Patient Inactive Policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="patient-inactive-rule" Effect="Deny">
+            <Description>
+                Deny if patient is inactive.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Inactive</AttributeValue>
+                    </Apply>
+                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:Status/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+        </Rule>
+        <Obligations>
+            <Obligation ObligationId="patient-inactive-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+
    <!-- TBD - detailed rules to go here .. -->
          
     <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
