@@ -16,7 +16,6 @@ import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.NoMetadataException;
-import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -198,7 +197,7 @@ public abstract class BasicTransaction extends OmLogger {
         String schema_results = "";
         try {
             RegistryUtility.schema_validate_local(registry_result, metadata_type);
-        } catch (SchemaValidationException e) {
+        } catch (Exception e) {
             s_ctx.set_error("Schema validation threw exception: " + e.getMessage());
             step_failure = true;
         }
