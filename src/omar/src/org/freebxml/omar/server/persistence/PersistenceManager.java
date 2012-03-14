@@ -149,10 +149,10 @@ public interface PersistenceManager {
     /**
      * Gets a JDBC Connection.
      */
-    public Connection getConnection(ServerRequestContext context) throws RegistryException;
+    public Connection getConnection() throws RegistryException;
     
     /**
      * Releases or relinqueshes a JDBC connection.
      */
-    public void releaseConnection(ServerRequestContext context, Connection connection) throws RegistryException;
+    public void releaseConnection(Connection connection) throws RegistryException;
 }
