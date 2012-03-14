@@ -138,17 +138,17 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 resp.setRegistryErrorList(((ServerRequestContext) context).getErrorList());
             }
         } catch (RegistryException e) {
-            ((ServerRequestContext) context).rollback();
+        //    ((ServerRequestContext) context).rollback();
             throw e;
         } catch (IllegalStateException e) {
             //?? This is a JAXR spec bug that we do not send an UnauthorizedRequestException
-            ((ServerRequestContext) context).rollback();
+        //    ((ServerRequestContext) context).rollback();
             throw e;
         } catch (Exception e) {
-            ((ServerRequestContext) context).rollback();
+        //    ((ServerRequestContext) context).rollback();
             throw new RegistryException(e);
         }
-        ((ServerRequestContext) context).commit();
+        //((ServerRequestContext) context).commit();
         return resp;
     }
 
@@ -217,13 +217,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 resp.setRegistryErrorList(((ServerRequestContext) context).getErrorList());
             }
         } catch (RegistryException e) {
-            ((ServerRequestContext) context).rollback();
+            //((ServerRequestContext) context).rollback();
             throw e;
         } catch (Exception e) {
-            ((ServerRequestContext) context).rollback();
+            //((ServerRequestContext) context).rollback();
             throw new RegistryException(e);
         }
-        ((ServerRequestContext) context).commit();
+        //((ServerRequestContext) context).commit();
         return resp;
     }
 
@@ -342,13 +342,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 resp.setRegistryErrorList(((ServerRequestContext) context).getErrorList());
             }
         } catch (RegistryException e) {
-            ((ServerRequestContext) context).rollback();
+            //((ServerRequestContext) context).rollback();
             throw e;
         } catch (Exception e) {
-            ((ServerRequestContext) context).rollback();
+            //((ServerRequestContext) context).rollback();
             throw new RegistryException(e);
         }
-        ((ServerRequestContext) context).commit();
+        //((ServerRequestContext) context).commit();
         return resp;
     }
 
