@@ -96,11 +96,11 @@ public class QueryManagerImpl implements QueryManager {
                         "Unsupported Query Language: ClassificationNode id: " + queryLang);
             }
         } catch (Exception e) {
-            ((ServerRequestContext)context).rollback();
+            //((ServerRequestContext)context).rollback();
             throw new RegistryException(e);
         }
         ((ServerRequestContext)context).setQueryResults(ahqr.getRegistryObjectList().getIdentifiable());
-        ((ServerRequestContext)context).commit();
+        //((ServerRequestContext)context).commit();
         ahqr.setRequestId(req.getId());
         return ahqr;
     }
