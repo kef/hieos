@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.XMLParser;
+import java.sql.Connection;
 import java.util.Random;
 
 /**
@@ -57,13 +58,15 @@ public class OmarRegistry {
     private LifeCycleManager lcm = LifeCycleManagerFactory.getInstance().getLifeCycleManager();
     private ServerRequestContext context = null;
     private OMElement request = null;
+    private Connection connection = null;
 
     /**
      *
      * @param request
      */
-    public OmarRegistry(OMElement request) {
+    public OmarRegistry(OMElement request, Connection connection) {
         this.request = request;
+        this.connection = connection;
 
     }
 
@@ -90,20 +93,20 @@ public class OmarRegistry {
                 response = this.convertResponseToOMElement(rr);
                 done = true;
                 if (retries > 0) {
-                    log.error("++++ DEADLOCK RETRY #" + retries + " SUCCESS!! ++++");
+                    log.error("++++ ebXML: DEADLOCK RETRY #" + retries + " SUCCESS!! ++++");
                 }
             } catch (RegistryDeadlockException e) {
-                log.error("++++ DEADLOCK DETECTED (# of retries so far = " + retries + ") ++++");
+                log.error("++++ ebXML: DEADLOCK DETECTED (# of retries so far = " + retries + ") ++++");
                 if (retries == MAX_RETRIES) {
                     done = true;
-                    log.error("++++ ALL DEADLOCK RETRIES FAILED ++++");
+                    log.error("++++ ebXML: ALL DEADLOCK RETRIES FAILED ++++");
                     throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
                 } else {
                     try {
                         ++retries;
                         // Now sleep for a little period (<= MAX_SLEEP_TIME_MILLIS.
                         int delay = rand.nextInt(MAX_SLEEP_TIME_MILLIS);
-                        log.error("++++ DEADLOCK RETRY #" + retries + "(sleeping " + delay + " msecs)");
+                        log.error("++++ ebXML: DEADLOCK RETRY #" + retries + "(sleeping " + delay + " msecs)");
                         Thread.sleep(delay);
                     } catch (InterruptedException ex) {
                         // Do nothing here - just continue - still count as a retry.
@@ -127,6 +130,7 @@ public class OmarRegistry {
 
             // Create the ServerRequestContext to use.
             context = new ServerRequestContext((RegistryRequestType) requestObject);
+            context.setConnection(connection);
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);
             throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
@@ -170,7 +174,7 @@ public class OmarRegistry {
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);
             if (e.getMessage().contains("deadlock")) {
-                System.out.println("+++++++++ DEADLOCK DETECTED ++++++++++++");
+                log.error("+++++++++ ebXML: DEADLOCK DETECTED ++++++++++++", e);
                 throw new RegistryDeadlockException(e.getMessage());
             }
             throw new XdsInternalException("ebXML EXCEPTION: " + e.getMessage());
