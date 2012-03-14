@@ -18,6 +18,7 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPResponse;
 import com.vangent.hieos.services.xds.policy.DocumentPolicyResult;
 import com.vangent.hieos.services.xds.policy.RegistryObjectElementList;
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.storedquery.StoredQueryFactory;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
@@ -433,16 +434,21 @@ public class AdhocQueryRequest extends XBaseTransaction {
      */
     private List<OMElement> storedQuery(OMElement ahqr, boolean isLeafClassRequest)
             throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
+        BackendRegistry backendRegistry = new BackendRegistry(log_message);
         StoredQueryFactory fact =
                 new StoredQueryFactory(
                 ahqr, // AdhocQueryRequest
                 isLeafClassRequest,
                 response, // The response object.
                 log_message, // For logging.
-                service_name);  // For logging.
+                service_name, // For logging.
+                backendRegistry);
         // If this is not an MPQ request, then validate consistent patient identifiers
         // in response.
-        return fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
+        List<OMElement> results = fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
+        // No exception - simply commit (which will release the connection).
+        backendRegistry.commit();
+        return results;
     }
 
     /**

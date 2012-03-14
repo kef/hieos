@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.adt.db.AdtRecordBean;
 import com.vangent.hieos.adt.db.AdtJdbcConnection;
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
@@ -532,12 +533,19 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
      * @return List of UUIDs for ExternalIdentifiers found in Registry.
      */
     private List<String> getExternalIdentifiersToSplitOut(String activePatientId, List documentSourceIds) throws PatientIdentityFeedException {
-        PatientIdentityFeedRegistryStoredQuerySupport sq = new PatientIdentityFeedRegistryStoredQuerySupport(null, log_message);
+        BackendRegistry backendRegistry = new BackendRegistry(log_message);
+        PatientIdentityFeedRegistryStoredQuerySupport sq = new PatientIdentityFeedRegistryStoredQuerySupport(null, log_message, backendRegistry);
         List<String> externalIdentifierIds = new ArrayList<String>();
         try {
             externalIdentifierIds = sq.getExternalIdentifiersToSplitOut(activePatientId, documentSourceIds);
         } catch (XdsInternalException ex) {
             throw this.logException(ex.getMessage());
+        }
+         try {
+            // No exception - simply commit (which will release the connection).
+            backendRegistry.commit();
+        } catch (XdsInternalException ex) {
+            throw new PatientIdentityFeedException(ex.getMessage());
         }
         return externalIdentifierIds;
     }
