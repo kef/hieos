@@ -14,7 +14,7 @@ package com.vangent.hieos.xutil.registry;
 
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.exception.SchemaValidationException;
+//import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.validation.Validator;
@@ -41,7 +41,7 @@ public class RegistryUtility {
      * @throws SchemaValidationException
      */
     static public void schema_validate_local(OMElement ahqr, int metadata_type)
-            throws XdsInternalException, SchemaValidationException {
+            throws XdsInternalException {
         // Only do schema validation if required per configuration.
         XConfig xconfig = XConfig.getInstance();
         boolean XMLSchemaValidationEnabled = xconfig.getHomeCommunityConfigPropertyAsBoolean(
