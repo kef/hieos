@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -30,21 +31,21 @@ import org.apache.axiom.om.OMElement;
 public class GetSubmissionSets extends StoredQuery {
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public GetSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public GetSubmissionSets(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -54,8 +55,9 @@ public class GetSubmissionSets extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata runInternal() throws XdsException {
         Metadata metadata;
+        SqParams params = this.getSqParams();
         List<String> uuids = params.getListParm("$uuid");
         if (uuids != null) {
             OMElement ele = this.getSubmissionSetsOfContents(uuids);
@@ -63,10 +65,10 @@ public class GetSubmissionSets extends StoredQuery {
             metadata = new Metadata();
             metadata.addMetadata(ele, true);
 
-            if (this.return_leaf_class) {
+            if (this.isReturnLeafClass()) {
                 if (metadata.getSubmissionSetIds().size() > 0) {
-                    OMElement assocs_ele = this.getAssocations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
-                    metadata.addMetadata(assocs_ele, true);
+                    OMElement assocsEle = this.getAssocations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
+                    metadata.addMetadata(assocsEle, true);
                 }
             } else {
                 if (metadata.getObjectRefIds().size() > 0) {
@@ -79,7 +81,4 @@ public class GetSubmissionSets extends StoredQuery {
             throw new XdsException("GetSubmissionSets: internal error: no format selected");
         }
     }
-
-   
-    
 }

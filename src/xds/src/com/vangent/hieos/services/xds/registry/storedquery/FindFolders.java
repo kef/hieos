@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -35,24 +36,24 @@ import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 public class FindFolders extends StoredQuery {
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public FindFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public FindFolders(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSFolderPatientId", true, false, true, false, false, (String[]) null);
         validateQueryParam("$XDSFolderLastUpdateTimeFrom", false, false, false, false, false, (String[]) null);
         validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, false, (String[]) null);
         validateQueryParam("$XDSFolderCodeList", false, true, true, true, true, (String[]) null);
         validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -62,11 +63,11 @@ public class FindFolders extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata runInternal() throws XdsException {
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
-        if (log_message != null) {
-            log_message.addOtherParam("Results structure", m.structure());
+        if (this.getLogMessage() != null) {
+            this.getLogMessage().addOtherParam("Results structure", m.structure());
         }
         return m;
     }
@@ -78,53 +79,52 @@ public class FindFolders extends StoredQuery {
      * @throws MetadataException
      * @throws XdsException
      */
-    OMElement impl() throws XdsInternalException, MetadataException, XdsException {
-        String patient_id = params.getStringParm("$XDSFolderPatientId");
-        String update_time_from = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
-        String update_time_to = params.getIntParm("$XDSFolderLastUpdateTimeTo");
+    private OMElement impl() throws XdsInternalException, MetadataException, XdsException {
+        SqParams params = this.getSqParams();
+        String patientId = params.getStringParm("$XDSFolderPatientId");
+        String lastUpdateTimeFrom = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
+        String lastUpdateTimeTo = params.getIntParm("$XDSFolderLastUpdateTimeTo");
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         List<String> status = params.getListParm("$XDSFolderStatus");
-        if (patient_id == null || patient_id.length() == 0) {
+        if (patientId == null || patientId.length() == 0) {
             throw new XdsException("Patient ID parameter empty");
         }
-        if (status.size() == 0) {
+        if (status.isEmpty()) {
             throw new XdsException("Status parameter empty");
         }
-        init();
-        select("obj");
-        append("FROM RegistryPackage obj, ExternalIdentifier patId");
-        newline();
-        if (update_time_from != null) {
-            append(", Slot updateTimef");
+        StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
+        sqb.select("obj");
+        sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
+        sqb.newline();
+        if (lastUpdateTimeFrom != null) {
+            sqb.append(", Slot updateTimef");
         }
-        newline();
-        if (update_time_to != null) {
-            append(", Slot updateTimet");
+        sqb.newline();
+        if (lastUpdateTimeTo != null) {
+            sqb.append(", Slot updateTimet");
         }
-        newline();
-        if (codes != null) {
-            append(declareClassifications(codes));
-        }
-        newline();
-        append("WHERE");
-        newline();
+        sqb.newline();
+        sqb.appendClassificationDeclaration(codes);
+        sqb.newline();
+        sqb.append("WHERE");
+        sqb.newline();
 
         // patientID
-        append("(obj.id = patId.registryobject AND	");
-        newline();
-        append(" patId.identificationScheme='" +
-                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
+        sqb.append("(obj.id = patId.registryobject AND	");
+        sqb.newline();
+        sqb.append(" patId.identificationScheme='"
+                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
                 + "' AND ");
-        newline();
-        append(" patId.value = '");
-        append(patient_id);
-        append("' ) AND");
-        newline();
-        append(" obj.status IN ");
-        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
-        newline();
-        this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
-        this.addCode(codes);
-        return query();
+        sqb.newline();
+        sqb.append(" patId.value = '");
+        sqb.append(patientId);
+        sqb.append("' ) AND");
+        sqb.newline();
+        sqb.append(" obj.status IN ");
+        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
+        sqb.newline();
+        sqb.addTimes("lastUpdateTime", "updateTimef", "updateTimet", lastUpdateTimeFrom, lastUpdateTimeTo, "obj");
+        sqb.addCode(codes);
+        return runQuery(sqb);
     }
 }

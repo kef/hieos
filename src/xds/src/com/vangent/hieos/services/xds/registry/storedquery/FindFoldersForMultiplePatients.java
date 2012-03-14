@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
@@ -36,17 +37,17 @@ import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 public class FindFoldersForMultiplePatients extends StoredQuery {
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public FindFoldersForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public FindFoldersForMultiplePatients(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSFolderPatientId", false, true, true, false, false, (String[]) null);
@@ -54,7 +55,7 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
         validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, false, (String[]) null);
         validateQueryParam("$XDSFolderCodeList", true, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -64,9 +65,9 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException, XDSRegistryOutOfResourcesException {
-        if (this.return_leaf_class == true) {
-            this.return_leaf_class = false;
+    public Metadata runInternal() throws XdsException, XDSRegistryOutOfResourcesException {
+        if (this.isReturnLeafClass()) {
+            this.setReturnLeafClass(false);
             OMElement refs = impl();
             Metadata m = MetadataParser.parseNonSubmission(refs);
             int objectRefsSize = m.getObjectRefs().size();
@@ -75,15 +76,15 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
                 throw new XDSRegistryOutOfResourcesException(
                         "FindFoldersForMultiplePatients Stored Query for LeafClass is limited to " + this.getMaxLeafObjectsAllowedFromQuery() + " documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
-            this.return_leaf_class = true;  // Reset.
+            this.setReturnLeafClass(true);  // Reset.
             if (objectRefsSize == 0) {
                 return m;  // No need to go further and issue another query.
             }
         }
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
-        if (log_message != null) {
-            log_message.addOtherParam("Results structure", m.structure());
+        if (this.getLogMessage() != null) {
+            this.getLogMessage().addOtherParam("Results structure", m.structure());
         }
         return m;
     }
@@ -95,54 +96,54 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
      * @throws MetadataException
      * @throws XdsException
      */
-    OMElement impl() throws XdsInternalException, MetadataException, XdsException {
-        List<String> patient_id = params.getListParm("$XDSFolderPatientId");
-        String update_time_from = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
-        String update_time_to = params.getIntParm("$XDSFolderLastUpdateTimeTo");
+    private OMElement impl() throws XdsInternalException, MetadataException, XdsException {
+        SqParams params = this.getSqParams();
+        List<String> patientId = params.getListParm("$XDSFolderPatientId");
+        String lastUpdateTimeFrom = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
+        String lastUpdateTimeTo = params.getIntParm("$XDSFolderLastUpdateTimeTo");
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         List<String> status = params.getListParm("$XDSFolderStatus");
-        init();
-        select("obj");
-        append("FROM RegistryPackage obj");
-        if (patient_id != null && patient_id.size() > 0) {
-            append(", ExternalIdentifier patId");
-            newline();
+        StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
+        //sqb.initQuery();
+        sqb.select("obj");
+        sqb.append("FROM RegistryPackage obj");
+        if (patientId != null && patientId.size() > 0) {
+            sqb.append(", ExternalIdentifier patId");
+            sqb.newline();
         }
-        newline();
-        if (update_time_from != null) {
-            append(", Slot updateTimef");
+        sqb.newline();
+        if (lastUpdateTimeFrom != null) {
+            sqb.append(", Slot updateTimef");
         }
-        newline();
-        if (update_time_to != null) {
-            append(", Slot updateTimet");
+        sqb.newline();
+        if (lastUpdateTimeTo != null) {
+            sqb.append(", Slot updateTimet");
         }
-        newline();
-        if (codes != null) {
-            append(declareClassifications(codes));
-        }
-        newline();
-        where();
-        newline();
+        sqb.newline();
+        sqb.appendClassificationDeclaration(codes);
+        sqb.newline();
+        sqb.where();
+        sqb.newline();
 
         // patient id
-        if (patient_id != null && patient_id.size() > 0) {
-            append("(obj.id = patId.registryobject AND	");
-            newline();
-            append(" patId.identificationScheme='" +
-                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
+        if (patientId != null && patientId.size() > 0) {
+            sqb.append("(obj.id = patId.registryobject AND	");
+            sqb.newline();
+            sqb.append(" patId.identificationScheme='"
+                    + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
                     + "' AND ");
-            newline();
-            append(" patId.value IN ");
-            append(patient_id);
-            append(" ) ");
-            newline();
+            sqb.newline();
+            sqb.append(" patId.value IN ");
+            sqb.append(patientId);
+            sqb.append(" ) ");
+            sqb.newline();
         }
-        newline();
-        this.addCode(codes);
-        this.addTimes("lastUpdateTime", "updateTimef", "updateTimet", update_time_from, update_time_to, "obj");
-        and();
-        append(" obj.status IN ");
-        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
-        return query();
+        sqb.newline();
+        sqb.addCode(codes);
+        sqb.addTimes("lastUpdateTime", "updateTimef", "updateTimet", lastUpdateTimeFrom, lastUpdateTimeTo, "obj");
+        sqb.and();
+        sqb.append(" obj.status IN ");
+        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
+        return runQuery(sqb);
     }
 }

@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
@@ -30,22 +31,16 @@ import java.util.List;
 public class GetFolders extends StoredQuery {
 
     /**
-     *
-     * @param params
-     * @param return_objects
-     * @param response
-     * @param log_message
-     * @param is_secure
-     * @throws MetadataValidationException
+     * 
      */
-    public GetFolders(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public GetFolders(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, false, "$XDSFolderUniqueId");
         validateQueryParam("$XDSFolderUniqueId", true, true, true, false, false, "$XDSFolderEntryUUID");
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -55,20 +50,21 @@ public class GetFolders extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata runInternal() throws XdsException {
         Metadata metadata;
-        List<String> fol_uuid = params.getListParm("$XDSFolderEntryUUID");
-        if (fol_uuid != null) {
+        SqParams params = this.getSqParams();
+        List<String> folderUUID = params.getListParm("$XDSFolderEntryUUID");
+        if (folderUUID != null) {
             // starting from uuid
-            OMElement x = getFolderByUUID(fol_uuid);
+            OMElement x = getFolderByUUID(folderUUID);
             metadata = MetadataParser.parseNonSubmission(x);
             /*if (metadata.getFolders().size() == 0) {
             return metadata;
             }*/
         } else {
             // starting from uniqueid
-            List<String> fol_uid = params.getListParm("$XDSFolderUniqueId");
-            OMElement x = getFolderByUID(fol_uid);
+            List<String> folderUID = params.getListParm("$XDSFolderUniqueId");
+            OMElement x = getFolderByUID(folderUID);
             metadata = MetadataParser.parseNonSubmission(x);
         }
         return metadata;

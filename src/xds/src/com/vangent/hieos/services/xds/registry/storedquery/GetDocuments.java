@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -31,22 +32,22 @@ import org.apache.axiom.om.OMElement;
 public class GetDocuments extends StoredQuery {
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public GetDocuments(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public GetDocuments(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR?, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, false, "$XDSDocumentEntryEntryUUID");
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId");
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -56,8 +57,9 @@ public class GetDocuments extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata runInternal() throws XdsException {
         Metadata metadata;
+        SqParams params = this.getSqParams();
         List<String> uids = params.getListParm("$XDSDocumentEntryUniqueId");
         List<String> uuids = params.getListParm("$XDSDocumentEntryEntryUUID");
         if (uids != null) {

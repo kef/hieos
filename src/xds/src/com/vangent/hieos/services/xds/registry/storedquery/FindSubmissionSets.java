@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -34,17 +35,17 @@ import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 public class FindSubmissionSets extends StoredQuery {
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public FindSubmissionSets(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public FindSubmissionSets(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSSubmissionSetPatientId", true, false, true, false, false, (String[]) null);
         validateQueryParam("$XDSSubmissionSetSourceId", false, true, true, false, false, (String[]) null);
@@ -54,7 +55,7 @@ public class FindSubmissionSets extends StoredQuery {
         validateQueryParam("$XDSSubmissionSetContentType", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSSubmissionSetStatus", true, true, true, false, false, (String[]) null);
 
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -65,11 +66,11 @@ public class FindSubmissionSets extends StoredQuery {
      * @throws XdsInternalException
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsInternalException, XdsException {
+    public Metadata runInternal() throws XdsInternalException, XdsException {
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
-        if (log_message != null) {
-            log_message.addOtherParam("Results structure", m.structure());
+        if (this.getLogMessage() != null) {
+            this.getLogMessage().addOtherParam("Results structure", m.structure());
         }
         return m;
     }
@@ -80,89 +81,87 @@ public class FindSubmissionSets extends StoredQuery {
      * @throws XdsInternalException
      * @throws XdsException
      */
-    OMElement impl() throws XdsInternalException, XdsException {
-        String patient_id = params.getStringParm("$XDSSubmissionSetPatientId");
-        List<String> source_id = params.getListParm("$XDSSubmissionSetSourceId");
-        String submission_time_from = params.getIntParm("$XDSSubmissionSetSubmissionTimeFrom");
-        String submission_time_to = params.getIntParm("$XDSSubmissionSetSubmissionTimeTo");
-        String author_person = params.getStringParm("$XDSSubmissionSetAuthorPerson");
-        SQCodedTerm content_type = params.getCodedParm("$XDSSubmissionSetContentType");
+    private OMElement impl() throws XdsInternalException, XdsException {
+        SqParams params = this.getSqParams();
+        String patientId = params.getStringParm("$XDSSubmissionSetPatientId");
+        List<String> sourceId = params.getListParm("$XDSSubmissionSetSourceId");
+        String submissionTimeFrom = params.getIntParm("$XDSSubmissionSetSubmissionTimeFrom");
+        String submissionTimeTo = params.getIntParm("$XDSSubmissionSetSubmissionTimeTo");
+        String authorPerson = params.getStringParm("$XDSSubmissionSetAuthorPerson");
+        SQCodedTerm contentType = params.getCodedParm("$XDSSubmissionSetContentType");
         List<String> status = params.getListParm("$XDSSubmissionSetStatus");
 
-        init();
-        select("obj");
-        append("FROM RegistryPackage obj, ExternalIdentifier patId");
-        newline();
-        if (source_id != null) {
-            append(", ExternalIdentifier srcId");
+        StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
+        sqb.select("obj");
+        sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
+        sqb.newline();
+        if (sourceId != null) {
+            sqb.append(", ExternalIdentifier srcId");
         }
-        newline();
-        if (submission_time_from != null) {
-            append(", Slot sTimef");
+        sqb.newline();
+        if (submissionTimeFrom != null) {
+            sqb.append(", Slot sTimef");
         }
-        newline();
-        if (submission_time_to != null) {
-            append(", Slot sTimet");
+        sqb.newline();
+        if (submissionTimeTo != null) {
+            sqb.append(", Slot sTimet");
         }
-        newline();
-        if (author_person != null) {
-            append(", Classification author");
-            newline();
-            append(", Slot authorperson");
+        sqb.newline();
+        if (authorPerson != null) {
+            sqb.append(", Classification author");
+            sqb.newline();
+            sqb.append(", Slot authorperson");
         }
-        newline();
-        if (content_type != null) {
-            append(declareClassifications(content_type));
-        }
-        newline();
+        sqb.newline();
+        sqb.appendClassificationDeclaration(contentType);
+        sqb.newline();
 
-
-        append("WHERE");
-        newline();
+        sqb.append("WHERE");
+        sqb.newline();
         // patientID
-        append("(obj.id = patId.registryobject AND	");
-        newline();
-        append("  patId.identificationScheme='" + 
-                RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
+        sqb.append("(obj.id = patId.registryobject AND	");
+        sqb.newline();
+        sqb.append("  patId.identificationScheme='"
+                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
                 + "' AND ");
-        newline();
-        append("  patId.value = '");
-        append(patient_id);
-        append("' ) ");
-        newline();
+        sqb.newline();
+        sqb.append("  patId.value = '");
+        sqb.append(patientId);
+        sqb.append("' ) ");
+        sqb.newline();
 
-        if (source_id != null) {
-            append("AND");
-            newline();
-            append("(obj.id = srcId.registryobject AND	");
-            newline();
-            append("  srcId.identificationScheme='" +
-                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid)
+        if (sourceId != null) {
+            sqb.append("AND");
+            sqb.newline();
+            sqb.append("(obj.id = srcId.registryobject AND	");
+            sqb.newline();
+            sqb.append("  srcId.identificationScheme='"
+                    + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid)
                     + "' AND ");
-            newline();
-            append("  srcId.value IN ");
-            append(source_id);
-            append(" ) ");
-            newline();
+            sqb.newline();
+            sqb.append("  srcId.value IN ");
+            sqb.append(sourceId);
+            sqb.append(" ) ");
+            sqb.newline();
         }
-        this.addTimes("submissionTime", "sTimef", "sTimet", submission_time_from, submission_time_to, "obj");
-        if (author_person != null) {
-            append("AND");
-            newline();
-            append("(obj.id = author.classifiedObject AND ");
-            newline();
-            append("  author.classificationScheme='urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d' AND ");
-            newline();
-            append("  authorperson.parent = author.id AND");
-            newline();
-            append("  authorperson.name_ = 'authorPerson' AND");
-            newline();
-            append("  authorperson.value LIKE '" + author_person + "' )");
-            newline();
+        sqb.addTimes("submissionTime", "sTimef", "sTimet", submissionTimeFrom, submissionTimeTo, "obj");
+        if (authorPerson != null) {
+            sqb.append("AND");
+            sqb.newline();
+            sqb.append("(obj.id = author.classifiedObject AND ");
+            sqb.newline();
+            sqb.append("  author.classificationScheme='urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d' AND ");
+            sqb.newline();
+            sqb.append("  authorperson.parent = author.id AND");
+            sqb.newline();
+            sqb.append("  authorperson.name_ = 'authorPerson' AND");
+            sqb.newline();
+            sqb.append("  authorperson.value LIKE '" + authorPerson + "' )");
+            sqb.newline();
         }
-        this.addCode(content_type);
-        append("AND obj.status IN ");
-        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
-        return query();
+        sqb.addCode(contentType);
+        sqb.append("AND obj.status IN ");
+        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
+        return runQuery(sqb);
     }
 }

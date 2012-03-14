@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -28,23 +29,23 @@ import org.apache.axiom.om.OMElement;
  */
 public class GetFoldersForDocument extends StoredQuery {
 
-    /**
-     *
-     * @param params
-     * @param return_objects
-     * @param response
-     * @param log_message
-     * @param is_secure
-     * @throws MetadataValidationException
-     */
-    public GetFoldersForDocument(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+   /**
+    *
+    * @param params
+    * @param returnLeafClass
+    * @param response
+    * @param logMessage
+    * @param backendRegistry
+    * @throws MetadataValidationException
+    */
+    public GetFoldersForDocument(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, false, "$XDSDocumentEntryEntryUUID");
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, false, "$XDSDocumentEntryUniqueId");
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -54,11 +55,12 @@ public class GetFoldersForDocument extends StoredQuery {
      * @return
      * @throws XdsException
      */
-    public Metadata run_internal() throws XdsException {
+    public Metadata runInternal() throws XdsException {
+        SqParams params = this.getSqParams();
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         if (uuid == null || uuid.equals("")) {
-            uuid = this.getDocumentIDFromUID(uid);
+            uuid = this.getDocumentUUIDFromUID(uid);
         }
         if (uuid == null) {
             throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");

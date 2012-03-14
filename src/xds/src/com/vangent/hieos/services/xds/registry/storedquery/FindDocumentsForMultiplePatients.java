@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -36,26 +37,27 @@ import org.freebxml.omar.server.persistence.rdb.RegistryCodedValueMapper;
 public class FindDocumentsForMultiplePatients extends StoredQuery {
 
     /**
-     *
+     * 
      * @param response
-     * @param log_message
+     * @param logMessage
+     * @param backendRegistry
      */
-    public FindDocumentsForMultiplePatients(ErrorLogger response, XLogMessage log_message) {
-        super(response, log_message);
+    public FindDocumentsForMultiplePatients(ErrorLogger response, XLogMessage logMessage, BackendRegistry backendRegistry) {
+        super(response, logMessage, backendRegistry);
     }
 
     /**
-     *
+     * 
      * @param params
-     * @param return_objects
+     * @param returnLeafClass
      * @param response
-     * @param log_message
-     * @param is_secure
+     * @param logMessage
+     * @param backendRegistry
      * @throws MetadataValidationException
      */
-    public FindDocumentsForMultiplePatients(SqParams params, boolean return_objects, Response response, XLogMessage log_message)
+    public FindDocumentsForMultiplePatients(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
-        super(params, return_objects, response, log_message);
+        super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSDocumentEntryPatientId", false, true, true, false, false, (String[]) null);
@@ -73,7 +75,7 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, false, (String[]) null);
-        if (this.has_validation_errors) {
+        if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
     }
@@ -85,9 +87,9 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
      * @throws XdsException
      * @throws XDSRegistryOutOfResourcesException
      */
-    public Metadata run_internal() throws XdsInternalException, XdsException, XDSRegistryOutOfResourcesException {
-        if (this.return_leaf_class == true) {
-            this.return_leaf_class = false;
+    public Metadata runInternal() throws XdsInternalException, XdsException, XDSRegistryOutOfResourcesException {
+        if (this.isReturnLeafClass()) {
+            this.setReturnLeafClass(false);
             OMElement refs = impl();
             Metadata m = MetadataParser.parseNonSubmission(refs);
             int objectRefsSize = m.getObjectRefs().size();
@@ -95,15 +97,15 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
             if (objectRefsSize > this.getMaxLeafObjectsAllowedFromQuery()) {
                 throw new XDSRegistryOutOfResourcesException("FindDocumentsForMultiplePatients Stored Query for LeafClass is limited to 25 documents on this Registry. Your query targeted " + m.getObjectRefs().size() + " documents");
             }
-            this.return_leaf_class = true;  // Reset.
+            this.setReturnLeafClass(true); // Reset.
             if (objectRefsSize == 0) {
                 return m;  // No need to go further and issue another query.
             }
         }
         OMElement results = impl();
         Metadata m = MetadataParser.parseNonSubmission(results);
-        if (log_message != null) {
-            log_message.addOtherParam("Results structure", m.structure());
+        if (this.getLogMessage() != null) {
+            this.getLogMessage().addOtherParam("Results structure", m.structure());
         }
         return m;
     }
@@ -114,127 +116,117 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
      * @throws XdsInternalException
      * @throws XdsException
      */
-    OMElement impl() throws XdsInternalException, XdsException {
-        List<String> patient_id = params.getListParm("$XDSDocumentEntryPatientId");
-        SQCodedTerm class_codes = params.getCodedParm("$XDSDocumentEntryClassCode");
-        SQCodedTerm type_codes = params.getCodedParm("$XDSDocumentEntryTypeCode");
-        SQCodedTerm practice_setting_codes = params.getCodedParm("$XDSDocumentEntryPracticeSettingCode");
-        String creation_time_from = params.getIntParm("$XDSDocumentEntryCreationTimeFrom");
-        String creation_time_to = params.getIntParm("$XDSDocumentEntryCreationTimeTo");
-        String service_start_time_from = params.getIntParm("$XDSDocumentEntryServiceStartTimeFrom");
-        String service_start_time_to = params.getIntParm("$XDSDocumentEntryServiceStartTimeTo");
-        String service_stop_time_from = params.getIntParm("$XDSDocumentEntryServiceStopTimeFrom");
-        String service_stop_time_to = params.getIntParm("$XDSDocumentEntryServiceStopTimeTo");
-        SQCodedTerm hcft_codes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
-        SQCodedTerm event_codes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
-        SQCodedTerm conf_codes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
-        SQCodedTerm format_codes = params.getCodedParm("$XDSDocumentEntryFormatCode");
+    private OMElement impl() throws XdsInternalException, XdsException {
+        SqParams params = this.getSqParams();
+        List<String> patientId = params.getListParm("$XDSDocumentEntryPatientId");
+        SQCodedTerm classCodes = params.getCodedParm("$XDSDocumentEntryClassCode");
+        SQCodedTerm typeCodes = params.getCodedParm("$XDSDocumentEntryTypeCode");
+        SQCodedTerm practiceSettingCodes = params.getCodedParm("$XDSDocumentEntryPracticeSettingCode");
+        String creationTimeFrom = params.getIntParm("$XDSDocumentEntryCreationTimeFrom");
+        String creationTimeTo = params.getIntParm("$XDSDocumentEntryCreationTimeTo");
+        String serviceStartTimeFrom = params.getIntParm("$XDSDocumentEntryServiceStartTimeFrom");
+        String serviceStartTimeTo = params.getIntParm("$XDSDocumentEntryServiceStartTimeTo");
+        String serviceStopTimeFrom = params.getIntParm("$XDSDocumentEntryServiceStopTimeFrom");
+        String serviceStopTimeTo = params.getIntParm("$XDSDocumentEntryServiceStopTimeTo");
+        SQCodedTerm facilityTypeCodes = params.getCodedParm("$XDSDocumentEntryHealthcareFacilityTypeCode");
+        SQCodedTerm eventCodes = params.getCodedParm("$XDSDocumentEntryEventCodeList");
+        SQCodedTerm confidentialityCodes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
+        SQCodedTerm formatCodes = params.getCodedParm("$XDSDocumentEntryFormatCode");
         List<String> status = params.getListParm("$XDSDocumentEntryStatus");
-        List<String> author_person = params.getListParm("$XDSDocumentEntryAuthorPerson");
-        init();
-        select("obj");
-        append("FROM ExtrinsicObject obj");
-        if (patient_id != null && patient_id.size() > 0) {
-            append(", ExternalIdentifier patId");
-            newline();
+        List<String> authorPerson = params.getListParm("$XDSDocumentEntryAuthorPerson");
+        StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
+        //sqb.initQuery();
+        sqb.select("obj");
+        sqb.append("FROM ExtrinsicObject obj");
+        if (patientId != null && patientId.size() > 0) {
+            sqb.append(", ExternalIdentifier patId");
+            sqb.newline();
         }
-        if (class_codes != null) {
-            append(declareClassifications(class_codes));
+        sqb.appendClassificationDeclaration(classCodes);
+        sqb.appendClassificationDeclaration(typeCodes);
+        sqb.appendClassificationDeclaration(practiceSettingCodes);
+        sqb.appendClassificationDeclaration(facilityTypeCodes);  // $XDSDocumentEntryHealthcareFacilityTypeCode
+        sqb.appendClassificationDeclaration(eventCodes); // $XDSDocumentEntryEventCodeList
+        if (creationTimeFrom != null) {
+            sqb.append(", Slot crTimef");
         }
-        if (type_codes != null) {
-            append(declareClassifications(type_codes));
+        sqb.newline();                       // $XDSDocumentEntryCreationTimeFrom
+        if (creationTimeTo != null) {
+            sqb.append(", Slot crTimet");
         }
-        if (practice_setting_codes != null) {
-            append(declareClassifications(practice_setting_codes));
+        sqb.newline();                       // $XDSDocumentEntryCreationTimeTo
+        if (serviceStartTimeFrom != null) {
+            sqb.append(", Slot serStartTimef");
         }
-        if (hcft_codes != null) {
-            append(declareClassifications(hcft_codes));  // $XDSDocumentEntryHealthcareFacilityTypeCode
+        sqb.newline();                 // $XDSDocumentEntryServiceStartTimeFrom
+        if (serviceStartTimeTo != null) {
+            sqb.append(", Slot serStartTimet");
         }
-        if (event_codes != null) {
-            append(declareClassifications(event_codes)); // $XDSDocumentEntryEventCodeList
+        sqb.newline();                 // $XDSDocumentEntryServiceStartTimeTo
+        if (serviceStopTimeFrom != null) {
+            sqb.append(", Slot serStopTimef");
         }
-        if (creation_time_from != null) {
-            append(", Slot crTimef");
+        sqb.newline();                  // $XDSDocumentEntryServiceStopTimeFrom
+        if (serviceStopTimeTo != null) {
+            sqb.append(", Slot serStopTimet");
         }
-        newline();                       // $XDSDocumentEntryCreationTimeFrom
-        if (creation_time_to != null) {
-            append(", Slot crTimet");
+        sqb.newline();                  // $XDSDocumentEntryServiceStopTimeTo
+        sqb.appendClassificationDeclaration(confidentialityCodes);  // $XDSDocumentEntryConfidentialityCode
+        if (formatCodes != null) {
+            sqb.append(", Classification fmtCode");
         }
-        newline();                       // $XDSDocumentEntryCreationTimeTo
-        if (service_start_time_from != null) {
-            append(", Slot serStartTimef");
+        sqb.newline();             // $XDSDocumentEntryFormatCode
+        if (authorPerson != null) {
+            sqb.append(", Classification author");
+            sqb.newline();
+            sqb.append(", Slot authorperson");
         }
-        newline();                 // $XDSDocumentEntryServiceStartTimeFrom
-        if (service_start_time_to != null) {
-            append(", Slot serStartTimet");
-        }
-        newline();                 // $XDSDocumentEntryServiceStartTimeTo
-        if (service_stop_time_from != null) {
-            append(", Slot serStopTimef");
-        }
-        newline();                  // $XDSDocumentEntryServiceStopTimeFrom
-        if (service_stop_time_to != null) {
-            append(", Slot serStopTimet");
-        }
-        newline();                  // $XDSDocumentEntryServiceStopTimeTo
-        if (conf_codes != null) {
-            append(declareClassifications(conf_codes));  // $XDSDocumentEntryConfidentialityCode
-        }
-        if (format_codes != null) {
-            append(", Classification fmtCode");
-        }
-        newline();             // $XDSDocumentEntryFormatCode
-        if (author_person != null) {
-            append(", Classification author");
-            newline();
-            append(", Slot authorperson");
-        }
-        newline();
-        where();
-        newline();
+        sqb.newline();
+        sqb.where();
+        sqb.newline();
 
         // patient id
-        if (patient_id != null && patient_id.size() > 0) {
-            append("(obj.id = patId.registryobject AND	");
-            newline();
-            append(" patId.identificationScheme='" + 
-                    RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
+        if (patientId != null && patientId.size() > 0) {
+            sqb.append("(obj.id = patId.registryobject AND	");
+            sqb.newline();
+            sqb.append(" patId.identificationScheme='"
+                    + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
                     + "' AND ");
-            newline();
-            append(" patId.value IN ");
-            append(patient_id);
-            append(" ) ");
-            newline();
+            sqb.newline();
+            sqb.append(" patId.value IN ");
+            sqb.append(patientId);
+            sqb.append(" ) ");
+            sqb.newline();
         }
-        addCode(class_codes);
-        addCode(type_codes);
-        addCode(practice_setting_codes);
-        addTimes("creationTime", "crTimef", "crTimet", creation_time_from, creation_time_to, "obj");
-        addTimes("serviceStartTime", "serStartTimef", "serStartTimet", service_start_time_from, service_start_time_to, "obj");
-        addTimes("serviceStopTime", "serStopTimef", "serStopTimet", service_stop_time_from, service_stop_time_to, "obj");
-        addCode(hcft_codes);
-        addCode(event_codes);
-        addCode(conf_codes);
-        addCode(format_codes);
-        if (author_person != null) {
-            for (String ap : author_person) {
-                and();
-                newline();
-                append("(obj.id = author.classifiedObject AND ");
-                newline();
-                append("  author.classificationScheme='urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d' AND ");
-                newline();
-                append("  authorperson.parent = author.id AND");
-                newline();
-                append("  authorperson.name_ = 'authorPerson' AND");
-                newline();
-                append("  authorperson.value LIKE '" + ap + "' )");
-                newline();
+        sqb.addCode(classCodes);
+        sqb.addCode(typeCodes);
+        sqb.addCode(practiceSettingCodes);
+        sqb.addTimes("creationTime", "crTimef", "crTimet", creationTimeFrom, creationTimeTo, "obj");
+        sqb.addTimes("serviceStartTime", "serStartTimef", "serStartTimet", serviceStartTimeFrom, serviceStartTimeTo, "obj");
+        sqb.addTimes("serviceStopTime", "serStopTimef", "serStopTimet", serviceStopTimeFrom, serviceStopTimeTo, "obj");
+        sqb.addCode(facilityTypeCodes);
+        sqb.addCode(eventCodes);
+        sqb.addCode(confidentialityCodes);
+        sqb.addCode(formatCodes);
+        if (authorPerson != null) {
+            for (String ap : authorPerson) {
+                sqb.and();
+                sqb.newline();
+                sqb.append("(obj.id = author.classifiedObject AND ");
+                sqb.newline();
+                sqb.append("  author.classificationScheme='urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d' AND ");
+                sqb.newline();
+                sqb.append("  authorperson.parent = author.id AND");
+                sqb.newline();
+                sqb.append("  authorperson.name_ = 'authorPerson' AND");
+                sqb.newline();
+                sqb.append("  authorperson.value LIKE '" + ap + "' )");
+                sqb.newline();
             }
         }
-        and();
-        append(" obj.status IN ");
-        append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
-        return query();
+        sqb.and();
+        sqb.append(" obj.status IN ");
+        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
+        return runQuery(sqb);
     }
 }
