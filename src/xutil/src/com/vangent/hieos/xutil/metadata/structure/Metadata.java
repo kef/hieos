@@ -209,7 +209,7 @@ public class Metadata {
      * @return Boolean result.
      */
     public boolean isObjectRefsOnly() {
-        return submissionSets.size() == 0 && extrinsicObjects.size() == 0 && folders.size() == 0 && associations.size() == 0 && classifications.size() == 0 && objectRefs.size() != 0;
+        return submissionSets.isEmpty() && extrinsicObjects.isEmpty() && folders.isEmpty() && associations.isEmpty() && classifications.isEmpty() && !objectRefs.isEmpty();
     }
 
     /**
@@ -486,7 +486,7 @@ public class Metadata {
      */
     @SuppressWarnings("unchecked")
     public void addObjectRefs(List<?> object_refs_or_ids) throws MetadataException {
-        if (object_refs_or_ids.size() == 0) {
+        if (object_refs_or_ids.isEmpty()) {
             return;
         }
         Object ele = object_refs_or_ids.get(0);
@@ -1209,8 +1209,8 @@ public class Metadata {
                 if (isUUID(target_object) && !containsObject(target_object)) {
                     objectsReferenced.add(target_object);
                 }
-                if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(association_type) ||
-                        MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc.equals(association_type)) {
+                if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(association_type)
+                        || MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc.equals(association_type)) {
                     if (!target_object.startsWith("urn:uuid:")) {
                         throw new MetadataValidationException("RPLC association has targetObject attribute which is not a UUID: " + target_object);
                     }
@@ -1555,8 +1555,8 @@ public class Metadata {
     public ArrayList<OMElement> getAssociationsInclusive(ArrayList<String> ids) {
         ArrayList<OMElement> assocs = new ArrayList<OMElement>();
         for (OMElement a : this.getAssociations()) {
-            if (ids.contains(getAssocSource(a)) &&
-                    ids.contains(getAssocTarget(a))) {
+            if (ids.contains(getAssocSource(a))
+                    && ids.contains(getAssocTarget(a))) {
                 assocs.add(a);
             }
         }
@@ -1795,11 +1795,11 @@ public class Metadata {
             if (name == null) {
                 continue;
             }
-            if (name.equals("ObjectRef") ||
-                    name.equals("ExtrinsicObject") ||
-                    name.equals("RegistryPackage") ||
-                    name.equals("Association") ||
-                    name.equals("Classification")) {
+            if (name.equals("ObjectRef")
+                    || name.equals("ExtrinsicObject")
+                    || name.equals("RegistryPackage")
+                    || name.equals("Association")
+                    || name.equals("Classification")) {
                 return ele;
             }
             OMElement e2 = find_metadata_wrapper2(e);
@@ -2184,7 +2184,7 @@ public class Metadata {
     public void updateFoldersLastUpdateTimeSlot() throws MetadataException {
         ArrayList<OMElement> folderList = this.folders;
         // Set XDSFolder.lastUpdateTime
-        if ((folderList != null) && (folderList.size() != 0)) {
+        if ((folderList != null) && (!folderList.isEmpty())) {
             String timestamp = Hl7Date.now();
             for (OMElement fol : folderList) {
                 this.setSlot(fol, "lastUpdateTime", timestamp);
@@ -2541,8 +2541,8 @@ public class Metadata {
                     break;
                 }
                 String[] parts = slotValue.split("\\|");
-                if (parts.length != 2 ||
-                        parts[0].length() == 0) {
+                if (parts.length != 2
+                        || parts[0].length() == 0) {
                     throw new MetadataException("URI value does not parse: " + slotValue + " must be num|string format");
                 }
                 map.put(parts[0], parts[1]);
@@ -2558,8 +2558,8 @@ public class Metadata {
                 buf.append(part);
             }
             if (map.size() != i - 1) {
-                throw new MetadataException("URI value does not parse: index " + i + "  not found but Slot has " + map.size() + " values. Slot is\n" +
-                        getSlot(eoId, "URI").toString());
+                throw new MetadataException("URI value does not parse: index " + i + "  not found but Slot has " + map.size() + " values. Slot is\n"
+                        + getSlot(eoId, "URI").toString());
             }
             value = buf.toString();
         }
@@ -2567,8 +2567,8 @@ public class Metadata {
             return null;
         }
         if (!value.startsWith("http://") && !value.startsWith("https://")) {
-            throw new MetadataException("URI must have http:// or https:// prefix. URI was calculated to be\n" + value +
-                    "\nand original slot is\n" + getSlot(eoId, "URI").toString());
+            throw new MetadataException("URI must have http:// or https:// prefix. URI was calculated to be\n" + value
+                    + "\nand original slot is\n" + getSlot(eoId, "URI").toString());
         }
         return value;
     }
@@ -2627,4 +2627,3 @@ public class Metadata {
         }
     }
 }
-

@@ -32,10 +32,20 @@ public class MetadataSupport {
     public static final String ebQns2_uri = "urn:oasis:names:tc:ebxml-regrep:query:xsd:2.1";
     public static final OMNamespace ebQns2 = om_factory.createOMNamespace(ebQns2_uri, "query");
 
+    /**
+     *
+     * @param ns
+     * @return
+     */
     public static boolean isV2Namespace(String ns) {
         return ns != null && (ns.equals(ebRSns2_uri) || ns.equals(ebRIMns2_uri) || ns.equals(ebQns2_uri));
     }
 
+    /**
+     *
+     * @param ns
+     * @return
+     */
     public static boolean isV2Namespace(OMNamespace ns) {
         return isV2Namespace(ns.getNamespaceURI());
     }
@@ -57,14 +67,27 @@ public class MetadataSupport {
     public static final String xdsB_ihe_assoc_type_apnd = xdsB_ihe_assoc_namespace_uri + ":APND";
     public static final String xdsB_ihe_assoc_type_xfrm_rplc = xdsB_ihe_assoc_namespace_uri + ":XFRM_RPLC";
     public static final String xdsB_ihe_assoc_type_signs = xdsB_ihe_assoc_namespace_uri + ":signs";
+    public static final String xdsB_ihe_assoc_type_update_availability_status = "urn:ihe:iti:2010:AssociationType:UpdateAvailabilityStatus";
+    public static final String xdsB_ihe_assoc_type_submit_association = "urn:ihe:iti:2010:AssociationType:SubmitAssociation";
 
+    /**
+     *
+     * @param ns
+     * @return
+     */
     public static boolean isV3Namespace(String ns) {
         return ns != null && (ns.equals(ebRSns3_uri) || ns.equals(ebRIMns3_uri) || ns.equals(ebQns3_uri) || ns.equals(ebLcm3_uri) || ns.equals(xdsB_uri));
     }
 
+    /**
+     *
+     * @param ns
+     * @return
+     */
     public static boolean isV3Namespace(OMNamespace ns) {
         return isV3Namespace(ns.getNamespaceURI());
     }
+
     public static final OMNamespace xml_namespace = om_factory.createOMNamespace("http://www.w3.org/XML/1998/namespace", "xml");
     public static final String status_type_namespace = "urn:oasis:names:tc:ebxml-regrep:StatusType:";
     public static final String status_type_approved = status_type_namespace + "Approved";
@@ -82,6 +105,7 @@ public class MetadataSupport {
     public static final QName noderepresentation_qname = new QName("nodeRepresentation");
     public static final QName classificationnode_qname = new QName("classificationNode");
     public static final QName id_qname = new QName("id");
+    public static final QName lid_qname = new QName("lid");
     public static final QName registry_object_qname = new QName("registryObject");
     public static final QName association_type_qname = new QName("associationType");
     public static final QName source_object_qname = new QName("sourceObject");
@@ -98,6 +122,7 @@ public class MetadataSupport {
     public static final QName home_community_id_qname = new QName(xdsB.getNamespaceURI(), "HomeCommunityId");
     public static OMNamespace soapns = om_factory.createOMNamespace("http://www.w3.org/2003/05/soap-envelope", "soapenv");
     public static OMNamespace wsans = om_factory.createOMNamespace("http://www.w3.org/2005/08/addressing", "wsa");
+
     // Stored Query query ids
     public static final String SQ_FindDocuments = "urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d";
     public static final String SQ_FindDocumentsForMultiplePatients = "urn:uuid:3d1bdb10-39a2-11de-89c2-2f44d94eaa9f";
@@ -114,6 +139,7 @@ public class MetadataSupport {
     public static final String SQ_GetFolderAndContents = "urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7";
     public static final String SQ_GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
     public static final String SQ_GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
+
     // uuids defined
     public static final String XDSSubmissionSet_patientid_uuid = "urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446";
     public static final String XDSDocumentEntry_patientid_uuid = "urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427";
@@ -133,6 +159,7 @@ public class MetadataSupport {
     public static final String XDSDocumentEntry_hcftCode_uuid = "urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1";
     public static final String XDSDocumentEntry_eventCode_uuid = "urn:uuid:2c6b8cb7-8b2a-4051-b291-b1ae6a575ef4";
     public static final String XDSDocumentEntry_confCode_uuid = "urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f";
+
     // XDS error codes
     public static final String XDSMissingDocument = "XDSMissingDocument";
     public static final String XDSMissingDocumentMetadata = "XDSMissingDocumentMetadata";
@@ -164,14 +191,22 @@ public class MetadataSupport {
     public static final String XDSMissingHomeCommunityId = "XDSMissingHomeCommunityId";
     public static final String XDSUnknownCommunity = "XDSUnknownCommunity";
     public static final String XDSUnavailableCommunity = "XDSUnavailableCommunity";
+
     public static final QName response_option_qname = new QName("ResponseOption");
     public static final QName adhoc_query_qname = new QName("AdhocQuery");
+
     // XDR Error Codes
     public static final String XDRRecipientError = "XDRRecipientError";
-    
+
     // Non-standard Warnings
     public static final String XDSPolicyEvaluationWarning = "XDSPolicyEvaluationWarning";
 
+    /**
+     *
+     * @param ele
+     * @param localName
+     * @return
+     */
     public static OMElement firstChildWithLocalName(OMElement ele, String localName) {
         for (Iterator it = ele.getChildElements(); it.hasNext();) {
             OMElement child = (OMElement) it.next();
@@ -182,6 +217,12 @@ public class MetadataSupport {
         return null;
     }
 
+    /**
+     *
+     * @param ele
+     * @param localNameSuffix
+     * @return
+     */
     public static OMElement firstChildWithLocalNameEndingWith(OMElement ele, String localNameSuffix) {
         for (Iterator it = ele.getChildElements(); it.hasNext();) {
             OMElement child = (OMElement) it.next();
@@ -192,6 +233,12 @@ public class MetadataSupport {
         return null;
     }
 
+    /**
+     *
+     * @param ele
+     * @param localName
+     * @return
+     */
     public static ArrayList<OMElement> childrenWithLocalName(OMElement ele, String localName) {
         ArrayList<OMElement> al = new ArrayList<OMElement>();
         for (Iterator it = ele.getChildElements(); it.hasNext();) {
@@ -203,6 +250,12 @@ public class MetadataSupport {
         return al;
     }
 
+    /**
+     *
+     * @param ele
+     * @param localName
+     * @return
+     */
     public static ArrayList<OMElement> decendentsWithLocalName(OMElement ele, String localName) {
         ArrayList<OMElement> al = new ArrayList<OMElement>();
         if (ele == null || localName == null) {
@@ -212,6 +265,12 @@ public class MetadataSupport {
         return al;
     }
 
+    /**
+     *
+     * @param decendents
+     * @param ele
+     * @param localName
+     */
     private static void decendentsWithLocalName1(ArrayList<OMElement> decendents, OMElement ele, String localName) {
         for (Iterator it = ele.getChildElements(); it.hasNext();) {
             OMElement child = (OMElement) it.next();
