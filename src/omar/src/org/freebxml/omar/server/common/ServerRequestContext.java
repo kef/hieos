@@ -354,9 +354,19 @@ public class ServerRequestContext implements RequestContext {
      */
     public Connection getConnection() throws RegistryException {
         if (connection == null) {
-            connection = pm.getConnection(this);
+            connection = pm.getConnection();
         }
         return connection;
+    }
+
+    /**
+     * HIEOS (Added) - to allow for atomic XDS.b transactions.
+     *
+     * @param connection
+     */
+    public void setConnection(Connection connection)
+    {
+       this.connection = connection;
     }
 
     /*
@@ -372,7 +382,7 @@ public class ServerRequestContext implements RequestContext {
         if (connection != null) {
             try {
                 connection.commit();
-                pm.releaseConnection(this, connection);
+                pm.releaseConnection(connection);
                 connection = null;
             } catch (RegistryException e) {
                 rollback();
@@ -392,7 +402,7 @@ public class ServerRequestContext implements RequestContext {
         try {
             if (connection != null) {
                 connection.rollback();
-                pm.releaseConnection(this, connection);
+                pm.releaseConnection(connection);
                 connection = null;
             }
         } catch (SQLException e) {
