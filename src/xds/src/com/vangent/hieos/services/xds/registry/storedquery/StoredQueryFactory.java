@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.response.AdhocQueryResponse;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -33,26 +34,26 @@ import org.apache.axiom.om.OMElement;
  */
 public class StoredQueryFactory {
 
-    OMElement ahqr;
-    boolean return_objects = false;
-    SqParams params;
-    String query_id;
-    XLogMessage log_message = null;
-    StoredQuery sq;
-    String service_name;
-    Response response = null;
+    private OMElement adhocQueryRequest;
+    private boolean returnLeafClass = false;
+    private SqParams params;
+    private String queryId;
+    private XLogMessage logMessage = null;
+    private StoredQuery sq;
+    private String serviceName;
+    private Response response = null;
 
     /**
      *
      * @return
      */
     public boolean isLeafClassReturnType() {
-        OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
-        if (response_option == null) {
+        OMElement responseOption = MetadataSupport.firstChildWithLocalName(adhocQueryRequest, "ResponseOption");
+        if (responseOption == null) {
             return true;
         }
-        String return_type = response_option.getAttributeValue(MetadataSupport.return_type_qname);
-        if (return_type == null || return_type.equals("") || !return_type.equals("LeafClass")) {
+        String returnType = responseOption.getAttributeValue(MetadataSupport.return_type_qname);
+        if (returnType == null || returnType.equals("") || !returnType.equals("LeafClass")) {
             return false;
         }
         return true;
@@ -78,20 +79,21 @@ public class StoredQueryFactory {
 
     /**
      *
-     * @param ahqr
+     * @param adhocQueryRequest
      * @param isLeafClassRequest
-     * @param resp
-     * @param lmsg
-     * @param sname
+     * @param response
+     * @param logMessage
+     * @param serviceName
      * @throws XdsInternalException
      * @throws MetadataException
      * @throws XdsException
      */
-    public StoredQueryFactory(OMElement ahqr, boolean isLeafClassRequest, Response resp, XLogMessage lmsg, String sname) throws XdsInternalException, MetadataException, XdsException {
-        this.ahqr = ahqr;
-        this.response = resp;
-        this.log_message = lmsg;
-        this.service_name = sname;
+    public StoredQueryFactory(
+            OMElement adhocQueryRequest, boolean isLeafClassRequest, Response response, XLogMessage logMessage, String serviceName, BackendRegistry backendRegistry) throws XdsInternalException, MetadataException, XdsException {
+        this.adhocQueryRequest = adhocQueryRequest;
+        this.response = response;
+        this.logMessage = logMessage;
+        this.serviceName = serviceName;
 
         /*
         OMElement response_option = MetadataSupport.firstChildWithLocalName(ahqr, "ResponseOption");
@@ -111,18 +113,18 @@ public class StoredQueryFactory {
         } else {
             throw new MetadataException("/AdhocQueryRequest/ResponseOption/@returnType must be LeafClass or ObjectRef. Found value " + return_type);
         }*/
-        return_objects = isLeafClassRequest;
+        returnLeafClass = isLeafClassRequest;
 
-        OMElement adhoc_query = MetadataSupport.firstChildWithLocalName(ahqr, "AdhocQuery");
-        if (adhoc_query == null) {
+        OMElement adhocQuery = MetadataSupport.firstChildWithLocalName(adhocQueryRequest, "AdhocQuery");
+        if (adhocQuery == null) {
             throw new XdsInternalException("Cannot find /AdhocQueryRequest/AdhocQuery element");
         }
 
         ParamParser parser = new ParamParser();
-        params = parser.parse(ahqr);
+        params = parser.parse(adhocQueryRequest);
 
-        if (log_message != null) {
-            log_message.addOtherParam("Parameters", params);
+        if (logMessage != null) {
+            logMessage.addOtherParam("Parameters", params);
         }
 
         if (this.response == null) {
@@ -130,103 +132,103 @@ public class StoredQueryFactory {
             this.response = new AdhocQueryResponse();
         }
 
-        query_id = adhoc_query.getAttributeValue(MetadataSupport.id_qname);
+        queryId = adhocQuery.getAttributeValue(MetadataSupport.id_qname);
 
-        if (query_id.equals(MetadataSupport.SQ_FindDocuments)) {
+        if (queryId.equals(MetadataSupport.SQ_FindDocuments)) {
             // FindDocuments
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "FindDocuments");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "FindDocuments");
             }
-            sq = new FindDocuments(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_FindSubmissionSets)) {
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "FindSubmissionSets");
+            sq = new FindDocuments(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_FindSubmissionSets)) {
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "FindSubmissionSets");
             }
             // FindSubmissionSets
-            sq = new FindSubmissionSets(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_FindFolders)) {
+            sq = new FindSubmissionSets(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_FindFolders)) {
             // FindFolders
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "FindFolders");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "FindFolders");
             }
-            sq = new FindFolders(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
+            sq = new FindFolders(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_FindDocumentsForMultiplePatients)) {
             // FindDocumentsForMultiplePatients
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "FindDocumentsForMultiplePatients");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "FindDocumentsForMultiplePatients");
             }
-            sq = new FindDocumentsForMultiplePatients(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
+            sq = new FindDocumentsForMultiplePatients(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_FindFoldersForMultiplePatients)) {
             // FindFoldersForMultiplePatients
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "FindFoldersForMultiplePatients");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "FindFoldersForMultiplePatients");
             }
-            sq = new FindFoldersForMultiplePatients(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetAll)) {
+            sq = new FindFoldersForMultiplePatients(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetAll)) {
             // GetAll
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetAll");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetAll");
             }
-            response.add_error(MetadataSupport.XDSRegistryError, "UnImplemented Stored Query query id = " + query_id, this.getClass().getName(), log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetDocuments)) {
+            response.add_error(MetadataSupport.XDSRegistryError, "UnImplemented Stored Query query id = " + queryId, this.getClass().getName(), logMessage);
+        } else if (queryId.equals(MetadataSupport.SQ_GetDocuments)) {
             // GetDocuments
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetDocuments");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetDocuments");
             }
-            sq = new GetDocuments(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetFolders)) {
+            sq = new GetDocuments(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetFolders)) {
             // GetFolders
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetFolders");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetFolders");
             }
-            sq = new GetFolders(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetAssociations)) {
+            sq = new GetFolders(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetAssociations)) {
             // GetAssociations
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetAssociations");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetAssociations");
             }
-            sq = new GetAssociations(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetDocumentsAndAssociations)) {
+            sq = new GetAssociations(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetDocumentsAndAssociations)) {
             // GetDocumentsAndAssociations
-            if (log_message != null) {
-                log_message.setTestMessage("GetDocumentsAndAssociations");
+            if (logMessage != null) {
+                logMessage.setTestMessage("GetDocumentsAndAssociations");
             }
-            sq = new GetDocumentsAndAssociations(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetSubmissionSets)) {
+            sq = new GetDocumentsAndAssociations(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetSubmissionSets)) {
             // GetSubmissionSets
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetSubmissionSets");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetSubmissionSets");
             }
-            sq = new GetSubmissionSets(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetSubmissionSetAndContents)) {
+            sq = new GetSubmissionSets(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetSubmissionSetAndContents)) {
             // GetSubmissionSetAndContents
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetSubmissionSetAndContents");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetSubmissionSetAndContents");
             }
-            sq = new GetSubmissionSetAndContents(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetFolderAndContents)) {
+            sq = new GetSubmissionSetAndContents(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetFolderAndContents)) {
             // GetFolderAndContents
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetFolderAndContents");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetFolderAndContents");
             }
-            sq = new GetFolderAndContents(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetFoldersForDocument)) {
+            sq = new GetFolderAndContents(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetFoldersForDocument)) {
             // GetFoldersForDocument
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetFoldersForDocument");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetFoldersForDocument");
             }
-            sq = new GetFoldersForDocument(params, return_objects, this.response, log_message);
-        } else if (query_id.equals(MetadataSupport.SQ_GetRelatedDocuments)) {
+            sq = new GetFoldersForDocument(params, returnLeafClass, this.response, logMessage, backendRegistry);
+        } else if (queryId.equals(MetadataSupport.SQ_GetRelatedDocuments)) {
             // GetRelatedDocuments
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + "GetRelatedDocuments");
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + "GetRelatedDocuments");
             }
-            sq = new GetRelatedDocuments(params, return_objects, this.response, log_message);
+            sq = new GetRelatedDocuments(params, returnLeafClass, this.response, logMessage, backendRegistry);
         } else {
-            if (log_message != null) {
-                log_message.setTestMessage(service_name + " " + query_id);
+            if (logMessage != null) {
+                logMessage.setTestMessage(serviceName + " " + queryId);
             }
-            this.response.add_error(MetadataSupport.XDSRegistryError, "Unknown Stored Query query id = " + query_id, this.getClass().getName(), log_message);
+            this.response.add_error(MetadataSupport.XDSRegistryError, "Unknown Stored Query query id = " + queryId, this.getClass().getName(), logMessage);
         }
     }
 

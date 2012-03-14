@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.xds.registry.storedquery;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
 import com.vangent.hieos.xutil.exception.XMLParserException;
@@ -37,13 +38,13 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
     private final static Logger logger = Logger.getLogger(PatientIdentityFeedRegistryStoredQuerySupport.class);
 
     /**
-     * Constructor.
      *
      * @param response
-     * @param log_message
+     * @param logMessage
+     * @param backendRegistry
      */
-    public PatientIdentityFeedRegistryStoredQuerySupport(ErrorLogger response, XLogMessage log_message) {
-        super(response, log_message);
+    public PatientIdentityFeedRegistryStoredQuerySupport(ErrorLogger response, XLogMessage logMessage, BackendRegistry backendRegistry) {
+        super(response, logMessage, backendRegistry);
     }
 
     /**
@@ -54,7 +55,7 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      * @throws XDSRegistryOutOfResourcesException
      */
     @Override
-    public Metadata run_internal() throws XdsException, XDSRegistryOutOfResourcesException {
+    public Metadata runInternal() throws XdsException, XDSRegistryOutOfResourcesException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -110,26 +111,25 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      * @return List of submission set uuids.
      */
     private List<String> getSubmissionSetUUIDs(String activePatientId, List documentSourceIds) throws MetadataException, XdsException {
-        init();
-        this.return_leaf_class = false;
-        select("ss");
-        append("FROM RegistryPackage ss, ExternalIdentifier ss_pid, ExternalIdentifier ss_sid");
-        newline();
-        append("WHERE (ss_pid.value = " + "'" + activePatientId + "'");
-        append(" AND ss_pid.identificationscheme = '");
-        append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid));
-        append("'");
-        newline();
-        append("AND ss_pid.registryobject = ss.id)");
-        newline();
-        append("AND (ss_sid.value IN ");
-        append(documentSourceIds);
-        append(" AND ss_sid.identificationscheme = '");
-        append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid));
-        append("'");
-        append(" AND ss_sid.registryobject = ss.id)");
-        newline();
-        return this.queryForObjectRefs();
+        StoredQueryBuilder sqb = new StoredQueryBuilder(false /* LeafClass */);
+        sqb.select("ss");
+        sqb.append("FROM RegistryPackage ss, ExternalIdentifier ss_pid, ExternalIdentifier ss_sid");
+        sqb.newline();
+        sqb.append("WHERE (ss_pid.value = " + "'" + activePatientId + "'");
+        sqb.append(" AND ss_pid.identificationscheme = '");
+        sqb.append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid));
+        sqb.append("'");
+        sqb.newline();
+        sqb.append("AND ss_pid.registryobject = ss.id)");
+        sqb.newline();
+        sqb.append("AND (ss_sid.value IN ");
+        sqb.append(documentSourceIds);
+        sqb.append(" AND ss_sid.identificationscheme = '");
+        sqb.append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid));
+        sqb.append("'");
+        sqb.append(" AND ss_sid.registryobject = ss.id)");
+        sqb.newline();
+        return this.runQueryForObjectRefs(sqb);
     }
 
     /**
@@ -203,23 +203,22 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      * @throws XdsException
      */
     private List<String> getExternalIdentifierIds(String identificationScheme, List<String> uuids) throws MetadataException, XdsException {
-        if (uuids == null || uuids.size() == 0) {
+        if (uuids == null || uuids.isEmpty()) {
             // Return an empty list of no UUIDs in request.
             return new ArrayList<String>();
         }
-        init();
-        this.return_leaf_class = false;
-        select("ei");
-        append("FROM ExternalIdentifier ei");
-        newline();
-        append("WHERE ei.registryobject IN ");
-        append(uuids);
-        newline();
-        append("AND ei.identificationscheme = '");
-        append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(identificationScheme));
-        append("'");
-        newline();
-        return this.queryForObjectRefs();
+        StoredQueryBuilder sqb = new StoredQueryBuilder(false);
+        sqb.select("ei");
+        sqb.append("FROM ExternalIdentifier ei");
+        sqb.newline();
+        sqb.append("WHERE ei.registryobject IN ");
+        sqb.append(uuids);
+        sqb.newline();
+        sqb.append("AND ei.identificationscheme = '");
+        sqb.append(RegistryCodedValueMapper.convertIdScheme_ValueToCode(identificationScheme));
+        sqb.append("'");
+        sqb.newline();
+        return this.runQueryForObjectRefs(sqb);
     }
 
     /**
@@ -232,24 +231,23 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      * @throws XdsException
      */
     private List<String> getRegistryObjectUUIDs(String objectType, List<String> submissionSetUUIDs) throws MetadataException, XdsException {
-        if (submissionSetUUIDs == null || submissionSetUUIDs.size() == 0) {
+        if (submissionSetUUIDs == null || submissionSetUUIDs.isEmpty()) {
             // Return an empty list of no submission set UUIDs in request.
             return new ArrayList<String>();
         }
-        init();
-        this.return_leaf_class = false;
-        select("obj");
-        append("FROM " + objectType + " obj, Association assoc");
-        newline();
-        append("WHERE assoc.sourceobject IN ");
-        append(submissionSetUUIDs);
-        newline();
-        append("AND assoc.associationtype = '");
-        append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
-        append("'");
-        append(" AND assoc.targetobject = obj.id");
-        newline();
-        return this.queryForObjectRefs();
+        StoredQueryBuilder sqb = new StoredQueryBuilder(false);
+        sqb.select("obj");
+        sqb.append("FROM " + objectType + " obj, Association assoc");
+        sqb.newline();
+        sqb.append("WHERE assoc.sourceobject IN ");
+        sqb.append(submissionSetUUIDs);
+        sqb.newline();
+        sqb.append("AND assoc.associationtype = '");
+        sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_eb_assoc_type_has_member));
+        sqb.append("'");
+        sqb.append(" AND assoc.targetobject = obj.id");
+        sqb.newline();
+        return this.runQueryForObjectRefs(sqb);
     }
 
     /**
@@ -257,14 +255,16 @@ public class PatientIdentityFeedRegistryStoredQuerySupport extends StoredQuery {
      *
      * @return List of object references (UUIDs).
      *
-     * @throws XMLParserException
      * @throws XdsException
      */
-    protected List<String> queryForObjectRefs() throws XMLParserException, XdsException {
+    @Override
+    public List<String> runQueryForObjectRefs(StoredQueryBuilder sqb) throws XdsException {
+        String query = sqb.getQuery();
         if (logger.isDebugEnabled()) {
-            logger.debug("REGISTRY QUERY -> " + this.query.toString());
+            logger.debug("REGISTRY QUERY -> " + query);
         }
-        List<String> queryResult = br.queryForObjectRefs(query.toString());
+        BackendRegistry backendRegistry = this.getBackendRegistry();
+        List<String> queryResult = backendRegistry.runQueryForObjectRefs(query);
         if (logger.isDebugEnabled()) {
             logger.debug("REGISTRY QUERY RESULT -> " + queryResult);
         }
