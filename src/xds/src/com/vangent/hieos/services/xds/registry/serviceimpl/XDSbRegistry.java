@@ -15,9 +15,11 @@ package com.vangent.hieos.services.xds.registry.serviceimpl;
 import com.vangent.hieos.xutil.exception.XdsValidationException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.services.xds.registry.transactions.AdhocQueryRequest;
+import com.vangent.hieos.services.xds.registry.transactions.DeleteDocumentSetRequest;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.services.xds.registry.transactions.SubmitObjectsRequest;
 import com.vangent.hieos.services.xds.registry.transactions.RegistryPatientIdentityFeed;
+import com.vangent.hieos.services.xds.registry.transactions.UpdateDocumentSetRequest;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 
 import org.apache.log4j.Logger;
@@ -49,10 +51,10 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     *
+     * 
      * @param sor
      * @return
-     * @throws org.apache.axis2.AxisFault
+     * @throws AxisFault
      */
     public OMElement SubmitObjectsRequest(OMElement sor) throws AxisFault {
         OMElement response = null;
@@ -79,10 +81,10 @@ public class XDSbRegistry extends XAbstractService {
     }
 
     /**
-     *
+     * 
      * @param ahqr
      * @return
-     * @throws org.apache.axis2.AxisFault
+     * @throws AxisFault
      */
     public OMElement AdhocQueryRequest(OMElement ahqr) throws AxisFault {
         OMElement response = null;
@@ -107,6 +109,68 @@ public class XDSbRegistry extends XAbstractService {
         } catch (XdsValidationException ex) {
             response = endTransaction(ahqr, ex, XAbstractService.ActorType.REGISTRY, "");
         }
+        return response;
+    }
+
+    /**
+     *
+     * @param submitObjectsRequest
+     * @return
+     * @throws AxisFault
+     */
+    public OMElement UpdateDocumentSetRequest(OMElement submitObjectsRequest) throws AxisFault {
+        OMElement response = null;
+        try {
+            long start = System.currentTimeMillis();
+            beginTransaction("UpdateDocumentSet", submitObjectsRequest);
+            validateWS();
+            validateNoMTOM();
+            //validateSubmitTransaction(sor);
+            UpdateDocumentSetRequest txn = new UpdateDocumentSetRequest(log_message, getMessageContext());
+            txn.setConfigActor(this.getConfigActor());
+            response = txn.run(submitObjectsRequest);
+            endTransaction(txn.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("UpdateDocumentSet TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
+            //return endTransaction(submitObjectsRequest, e, XAbstractService.ActorType.REGISTRY, "");
+        } catch (SOAPFaultException ex) {
+            throwAxisFault(ex);
+        }
+        //catch (XdsValidationException ex) {
+        //    response = endTransaction(submitObjectsRequest, ex, XAbstractService.ActorType.REGISTRY, "");
+        //}
+        return response;
+    }
+
+    /**
+     * 
+     * @param removeObjectsRequest
+     * @return
+     * @throws AxisFault
+     */
+    public OMElement DeleteDocumentSetRequest(OMElement removeObjectsRequest) throws AxisFault {
+        OMElement response = null;
+        try {
+            long start = System.currentTimeMillis();
+            beginTransaction("DeleteDocumentSet", removeObjectsRequest);
+            validateWS();
+            validateNoMTOM();
+            //validateSubmitTransaction(sor);
+            DeleteDocumentSetRequest txn = new DeleteDocumentSetRequest(log_message, getMessageContext());
+            txn.setConfigActor(this.getConfigActor());
+            response = txn.run(removeObjectsRequest);
+            endTransaction(txn.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("DeleteDocumentSet TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
+            //return endTransaction(removeObjectsRequest, e, XAbstractService.ActorType.REGISTRY, "");
+        } catch (SOAPFaultException ex) {
+            throwAxisFault(ex);
+        }
+        //catch (XdsValidationException ex) {
+        //    response = endTransaction(removeObjectsRequest, ex, XAbstractService.ActorType.REGISTRY, "");
+        //}
         return response;
     }
 
