@@ -177,9 +177,9 @@ public class SQLPersistenceManagerImpl
      * Get a database connection. The connection is of autocommit off and with
      * transaction isolation level "transaction read committed"
      */
-    public Connection getConnection(ServerRequestContext context) throws RegistryException {
+    public Connection getConnection() throws RegistryException {
         Connection connection = null;
-        if (log.isTraceEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("SQLPersistenceManagerImpl.getConnection");
             numConnectionsOpen++;
         }
@@ -201,20 +201,19 @@ public class SQLPersistenceManagerImpl
     }
 
     /**
-     *
-     * @param context
+     * 
      * @param connection
      * @throws RegistryException
      */
-    public void releaseConnection(ServerRequestContext context, Connection connection) throws RegistryException {
-        if (log.isTraceEnabled()) {
+    public void releaseConnection(Connection connection) throws RegistryException {
+        if (log.isDebugEnabled()) {
             log.debug("SQLPersistenceManagerImpl.releaseConnection");
             numConnectionsOpen--;
             log.debug("Number of connections open:" + numConnectionsOpen);
         }
         try {
-            if ((connection != null) &&
-                    (!connection.isClosed()) && (ds != null)) {
+            if ((connection != null)
+                    && (!connection.isClosed()) && (ds != null)) {
                 connection.close();
             }
         } catch (Exception e) {
@@ -412,8 +411,8 @@ public class SQLPersistenceManagerImpl
 
             //Find the constructor that takes RequestContext as its only arg
             Constructor con = null;
-            for (int i = 0; i <
-                    cons.length; i++) {
+            for (int i = 0; i
+                    < cons.length; i++) {
                 con = cons[i];
                 if ((con.getParameterTypes().length == 1) && (con.getParameterTypes()[0] == conParameterTypes[0])) {
                     dao = (OMARDAO) con.newInstance(conParameterValues);
@@ -449,9 +448,9 @@ public class SQLPersistenceManagerImpl
         idList.addAll(context.getObjectRefsMap().keySet());
 
         //First fetch the objects and then delete them
-        String query = "SELECT * FROM RegistryObject ro WHERE ro.id IN ( " +
-                bu.getIdListFromIds(idList) +
-                " ) ";
+        String query = "SELECT * FROM RegistryObject ro WHERE ro.id IN ( "
+                + bu.getIdListFromIds(idList)
+                + " ) ";
         List objs = getRegistryObjectsMatchingQuery(context, query, null, "RegistryObject");
         List userAliases = null;
         Iterator iter = objs.iterator();
@@ -501,13 +500,12 @@ public class SQLPersistenceManagerImpl
      */
     /* HIEOS (REMOVED):
     public List executeSQLQuery(
-            ServerRequestContext context, String sqlQuery,
-            ResponseOptionType responseOption, String tableName, List objectRefs)
-            throws RegistryException {
-        IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
-        return executeSQLQuery(context, sqlQuery, responseOption, tableName, objectRefs, paramHolder);
+    ServerRequestContext context, String sqlQuery,
+    ResponseOptionType responseOption, String tableName, List objectRefs)
+    throws RegistryException {
+    IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
+    return executeSQLQuery(context, sqlQuery, responseOption, tableName, objectRefs, paramHolder);
     }*/
-
     /**
      * Executes and SQL query using specified parameters.
      * This variant is used to invoke fixed queries without PreparedStatements.
@@ -516,25 +514,23 @@ public class SQLPersistenceManagerImpl
      */
     /* HIEOS (REMOVED):
     public List executeSQLQuery(
-            ServerRequestContext context, String sqlQuery,
-            ResponseOptionType responseOption, String tableName, List objectRefs,
-            IterativeQueryParams paramHolder)
-            throws RegistryException {
-        return executeSQLQuery(context, sqlQuery, null, responseOption, tableName, objectRefs, paramHolder);
+    ServerRequestContext context, String sqlQuery,
+    ResponseOptionType responseOption, String tableName, List objectRefs,
+    IterativeQueryParams paramHolder)
+    throws RegistryException {
+    return executeSQLQuery(context, sqlQuery, null, responseOption, tableName, objectRefs, paramHolder);
     }*/
-
     /**
      * Executes an SQL Query.
      */
     /* HIEOS (REMOVED):
     public List executeSQLQuery(
-            ServerRequestContext context, String sqlQuery, List queryParams,
-            ResponseOptionType responseOption, String tableName, List objectRefs)
-            throws RegistryException {
-        IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
-        return executeSQLQuery(context, sqlQuery, queryParams, responseOption, tableName, objectRefs, paramHolder);
+    ServerRequestContext context, String sqlQuery, List queryParams,
+    ResponseOptionType responseOption, String tableName, List objectRefs)
+    throws RegistryException {
+    IterativeQueryParams paramHolder = new IterativeQueryParams(0, -1);
+    return executeSQLQuery(context, sqlQuery, queryParams, responseOption, tableName, objectRefs, paramHolder);
     } */
-
     /**
      * Executes an SQL Query.
      */
@@ -638,8 +634,8 @@ public class SQLPersistenceManagerImpl
                 res = roDAO.getObjects(rs, startIndex, maxResults);
                 // HIEOS/BHT (DEBUG):
                 log.trace(" -> Object Size: " + res.size());
-            } else if ((returnType == ReturnType.LEAF_CLASS) ||
-                    (returnType == ReturnType.LEAF_CLASS_WITH_REPOSITORY_ITEM)) {
+            } else if ((returnType == ReturnType.LEAF_CLASS)
+                    || (returnType == ReturnType.LEAF_CLASS_WITH_REPOSITORY_ITEM)) {
                 res = getObjects(context, connection, rs, tableName, responseOption,
                         objectRefs, startIndex, maxResults);
                 // HIEOS/BHT (DEBUG):
@@ -938,7 +934,6 @@ public class SQLPersistenceManagerImpl
 
         return ownersMap;
     }
-
     /**
      * Updates the idToLidMap in context entries with RegistryObject id as Key and RegistryObject lid as value
      * for each object that matches specified id.
@@ -946,65 +941,64 @@ public class SQLPersistenceManagerImpl
      */
     /* HIEOS (REMOVED):
     public void updateIdToLidMap(ServerRequestContext context, Set ids, String tableName) throws RegistryException {
-        if ((ids != null) && (ids.size() >= 0)) {
+    if ((ids != null) && (ids.size() >= 0)) {
 
-            Iterator iter = ids.iterator();
-            Statement stmt = null;
+    Iterator iter = ids.iterator();
+    Statement stmt = null;
 
-            try {
-                stmt = context.getConnection().createStatement();
+    try {
+    stmt = context.getConnection().createStatement();
 
-                StringBuffer sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
-                List existingIdList = new ArrayList();
+    StringBuffer sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
+    List existingIdList = new ArrayList();
 
-                // We need to count the number of item in "IN" list.
-                // We need to split the a single SQL Strings if it is too long. Some database such as Oracle,
-                // does not allow the IN list is too long
-                //
-                int listCounter = 0;
+    // We need to count the number of item in "IN" list.
+    // We need to split the a single SQL Strings if it is too long. Some database such as Oracle,
+    // does not allow the IN list is too long
+    //
+    int listCounter = 0;
 
-                while (iter.hasNext()) {
-                    String id = (String) iter.next();
+    while (iter.hasNext()) {
+    String id = (String) iter.next();
 
-                    if (iter.hasNext() && (listCounter < IdentifiableDAO.identifiableExistsBatchCount)) {
-                        sql.append("'" + id + "',");
-                    } else {
-                        sql.append("'" + id + "')");
+    if (iter.hasNext() && (listCounter < IdentifiableDAO.identifiableExistsBatchCount)) {
+    sql.append("'" + id + "',");
+    } else {
+    sql.append("'" + id + "')");
 
-                        //log.info("sql string=" + sql.toString());
-                        log.trace("SQL = " + sql.toString());
-                        ResultSet rs = stmt.executeQuery(sql.toString());
+    //log.info("sql string=" + sql.toString());
+    log.trace("SQL = " + sql.toString());
+    ResultSet rs = stmt.executeQuery(sql.toString());
 
-                        while (rs.next()) {
-                            String _id = rs.getString(1);
-                            String lid = rs.getString(2);
-                            context.getIdToLidMap().put(_id, lid);
-                        }
+    while (rs.next()) {
+    String _id = rs.getString(1);
+    String lid = rs.getString(2);
+    context.getIdToLidMap().put(_id, lid);
+    }
 
-                        sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
-                        listCounter =
-                                0;
-                    }
+    sql = new StringBuffer("SELECT id, lid FROM " + tableName + " WHERE id IN (");
+    listCounter =
+    0;
+    }
 
-                    listCounter++;
-                }
+    listCounter++;
+    }
 
-            } catch (SQLException e) {
-                throw new RegistryException(e);
-            } finally {
-                try {
-                    if (stmt != null) {
-                        stmt.close();
-                    }
+    } catch (SQLException e) {
+    throw new RegistryException(e);
+    } finally {
+    try {
+    if (stmt != null) {
+    stmt.close();
+    }
 
-                } catch (SQLException sqle) {
-                    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
-                }
+    } catch (SQLException sqle) {
+    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
+    }
 
-            }
-        }
+    }
+    }
     }*/
-
     /**
      * Checks each object being deleted to make sure that it does not have any currently existing references.
      * Objects must be fetched from the Cache or Server and not from the RequestContext??
@@ -1014,93 +1008,93 @@ public class SQLPersistenceManagerImpl
      */
     /* HIEOS (REMOVED):
     public void checkIfReferencesExist(ServerRequestContext context, List roIds) throws RegistryException {
-        if (skipReferenceCheckOnRemove) {
-            return;
-        }
+    if (skipReferenceCheckOnRemove) {
+    return;
+    }
 
-        Iterator iter = roIds.iterator();
+    Iterator iter = roIds.iterator();
 
-        HashMap idToReferenceSourceMap = new HashMap();
-        while (iter.hasNext()) {
-            String id = (String) iter.next();
+    HashMap idToReferenceSourceMap = new HashMap();
+    while (iter.hasNext()) {
+    String id = (String) iter.next();
 
 
-            StringBuffer query = new StringBuffer();
-            query.append("SELECT id FROM RegistryObject WHERE objectType = ? UNION ");
-            query.append("SELECT id FROM ClassificationNode WHERE parent = ? UNION ");
-            query.append("SELECT id FROM Classification WHERE classificationNode = ? OR classificationScheme = ? OR classifiedObject = ? UNION ");
-            query.append("SELECT id FROM ExternalIdentifier WHERE identificationScheme = ? OR registryObject = ? UNION ");
-            query.append("SELECT id FROM Association WHERE associationType = ? OR sourceObject = ? OR targetObject= ?  UNION ");
-            query.append("SELECT id FROM AuditableEvent WHERE user_ = ? OR requestId = ? UNION ");
-            query.append("SELECT id FROM Organization WHERE parent = ? UNION ");
-            query.append("SELECT id FROM Registry where operator = ? UNION ");
-            query.append("SELECT id FROM ServiceBinding WHERE service = ? OR targetBinding = ? UNION ");
-            query.append("SELECT id FROM SpecificationLink WHERE serviceBinding = ? OR specificationObject = ? UNION ");
-            query.append("SELECT id FROM Subscription WHERE selector = ?  UNION ");
-            query.append("SELECT s.parent FROM Slot s WHERE s.slotType = '" + BindingUtility.CANONICAL_DATA_TYPE_ID_ObjectRef + "' AND s.value = ?");
+    StringBuffer query = new StringBuffer();
+    query.append("SELECT id FROM RegistryObject WHERE objectType = ? UNION ");
+    query.append("SELECT id FROM ClassificationNode WHERE parent = ? UNION ");
+    query.append("SELECT id FROM Classification WHERE classificationNode = ? OR classificationScheme = ? OR classifiedObject = ? UNION ");
+    query.append("SELECT id FROM ExternalIdentifier WHERE identificationScheme = ? OR registryObject = ? UNION ");
+    query.append("SELECT id FROM Association WHERE associationType = ? OR sourceObject = ? OR targetObject= ?  UNION ");
+    query.append("SELECT id FROM AuditableEvent WHERE user_ = ? OR requestId = ? UNION ");
+    query.append("SELECT id FROM Organization WHERE parent = ? UNION ");
+    query.append("SELECT id FROM Registry where operator = ? UNION ");
+    query.append("SELECT id FROM ServiceBinding WHERE service = ? OR targetBinding = ? UNION ");
+    query.append("SELECT id FROM SpecificationLink WHERE serviceBinding = ? OR specificationObject = ? UNION ");
+    query.append("SELECT id FROM Subscription WHERE selector = ?  UNION ");
+    query.append("SELECT s.parent FROM Slot s WHERE s.slotType = '" + BindingUtility.CANONICAL_DATA_TYPE_ID_ObjectRef + "' AND s.value = ?");
 
-            PreparedStatement stmt = null;
-            try {
-                stmt = context.getConnection().prepareStatement(query.toString());
-                stmt.setString(1, id);
-                stmt.setString(2, id);
-                stmt.setString(3, id);
-                stmt.setString(4, id);
-                stmt.setString(5, id);
-                stmt.setString(6, id);
-                stmt.setString(7, id);
-                stmt.setString(8, id);
-                stmt.setString(9, id);
-                stmt.setString(10, id);
-                stmt.setString(11, id);
-                stmt.setString(12, id);
-                stmt.setString(13, id);
-                stmt.setString(14, id);
-                stmt.setString(15, id);
-                stmt.setString(16, id);
-                stmt.setString(17, id);
-                stmt.setString(18, id);
-                stmt.setString(19, id);
-                stmt.setString(20, id);
-                log.trace("SQL = " + query.toString());  // HIEOS/BHT: (DEBUG)
-                ResultSet rs = stmt.executeQuery();
-                boolean result = false;
+    PreparedStatement stmt = null;
+    try {
+    stmt = context.getConnection().prepareStatement(query.toString());
+    stmt.setString(1, id);
+    stmt.setString(2, id);
+    stmt.setString(3, id);
+    stmt.setString(4, id);
+    stmt.setString(5, id);
+    stmt.setString(6, id);
+    stmt.setString(7, id);
+    stmt.setString(8, id);
+    stmt.setString(9, id);
+    stmt.setString(10, id);
+    stmt.setString(11, id);
+    stmt.setString(12, id);
+    stmt.setString(13, id);
+    stmt.setString(14, id);
+    stmt.setString(15, id);
+    stmt.setString(16, id);
+    stmt.setString(17, id);
+    stmt.setString(18, id);
+    stmt.setString(19, id);
+    stmt.setString(20, id);
+    log.trace("SQL = " + query.toString());  // HIEOS/BHT: (DEBUG)
+    ResultSet rs = stmt.executeQuery();
+    boolean result = false;
 
-                ArrayList referenceSourceIds = new ArrayList();
-                while (rs.next()) {
-                    String referenceSourceId = rs.getString(1);
-                    if (!roIds.contains(referenceSourceId)) {
-                        referenceSourceIds.add(referenceSourceId);
-                    }
+    ArrayList referenceSourceIds = new ArrayList();
+    while (rs.next()) {
+    String referenceSourceId = rs.getString(1);
+    if (!roIds.contains(referenceSourceId)) {
+    referenceSourceIds.add(referenceSourceId);
+    }
 
-                }
+    }
 
-                if (!referenceSourceIds.isEmpty()) {
-                    idToReferenceSourceMap.put(id, referenceSourceIds);
-                }
+    if (!referenceSourceIds.isEmpty()) {
+    idToReferenceSourceMap.put(id, referenceSourceIds);
+    }
 
-            } catch (SQLException e) {
-                throw new RegistryException(e);
-            } finally {
-                try {
-                    if (stmt != null) {
-                        stmt.close();
-                    }
+    } catch (SQLException e) {
+    throw new RegistryException(e);
+    } finally {
+    try {
+    if (stmt != null) {
+    stmt.close();
+    }
 
-                } catch (SQLException sqle) {
-                    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
-                }
+    } catch (SQLException sqle) {
+    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
+    }
 
-            }
-        }
+    }
+    }
 
-        if (!idToReferenceSourceMap.isEmpty()) {
-            //At least one ref exists to at least one object so throw exception
-            String msg = ServerResourceBundle.getInstance().getString("message.referencesExist");
-            msg +=
-                    "\n" + idToReferenceSourceMap.toString();
+    if (!idToReferenceSourceMap.isEmpty()) {
+    //At least one ref exists to at least one object so throw exception
+    String msg = ServerResourceBundle.getInstance().getString("message.referencesExist");
+    msg +=
+    "\n" + idToReferenceSourceMap.toString();
 
-            throw new ReferencesExistException(msg);
-        }
+    throw new ReferencesExistException(msg);
+    }
     }*/
 }
