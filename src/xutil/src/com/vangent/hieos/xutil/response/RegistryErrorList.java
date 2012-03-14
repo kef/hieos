@@ -136,7 +136,11 @@ public class RegistryErrorList extends ErrorLogger {
         return registryErrorList();
     }
 
-    OMElement registryErrorList() {
+    /**
+     *
+     * @return
+     */
+    private OMElement registryErrorList() {
         if (rel == null) {
             rel = MetadataSupport.om_factory.createOMElement("RegistryErrorList", ebRSns);
         }
@@ -193,10 +197,10 @@ public class RegistryErrorList extends ErrorLogger {
      * @param location
      */
     public void add_validation(String topic, String msg, String location) {
-        validations.append(topic + ": " +
-                ((msg != null) ? msg + " " : "") +
-                ((location != null) ? " @" + location : "") +
-                "\n");
+        validations.append(topic + ": "
+                + ((msg != null) ? msg + " " : "")
+                + ((location != null) ? " @" + location : "")
+                + "\n");
     }
 
     /**
