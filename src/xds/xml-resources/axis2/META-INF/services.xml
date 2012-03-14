@@ -15,6 +15,14 @@
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
             <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
         </operation>
+        <operation name="UpdateDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2010:UpdateDocumentSet</actionMapping>
+        </operation>
+        <operation name="DeleteDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2010:DeleteDocumentSet</actionMapping>
+        </operation>
         <operation name="DocumentRegistry_PRPA_IN201301UV02">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201301UV02</actionMapping>
@@ -30,7 +38,7 @@
         <operation name="DocumentRegistry_PRPA_IN201304UV02UNMERGE">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE</actionMapping>
-        </operation> 
+        </operation>
            <!-- To support a simpler interface (from HL7v2 Adaptor); not supported in async -->
         <operation name="PatientFeedRequest">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
@@ -54,6 +62,14 @@
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:ihe:iti:2007:RegistryStoredQuery</actionMapping>
             <actionMapping>urn:ihe:iti:2009:MultiPatientStoredQuery</actionMapping>
+        </operation>
+        <operation name="UpdateDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2010:UpdateDocumentSet</actionMapping>
+        </operation>
+        <operation name="DeleteDocumentSetRequest">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:ihe:iti:2010:DeleteDocumentSet</actionMapping>
         </operation>
         <operation name="DocumentRegistry_PRPA_IN201301UV02">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
