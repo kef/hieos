@@ -92,6 +92,7 @@ public class Attribute {
         doc_slots.add("size");
         doc_slots.add("URI");
         doc_slots.add("repositoryUniqueId");
+        doc_slots.add("documentAvailability");
 
         // Folder slots:
         fol_slots = new ArrayList<String>();
@@ -270,42 +271,42 @@ public class Attribute {
             String classified_object_type = (classified_object_ele == null) ? "Unknown type" : classified_object_ele.getLocalName();
             String nodeRepresentation = class_ele.getAttributeValue(MetadataSupport.noderepresentation_qname);
 
-            if (class_scheme != null &&
-                    (class_scheme.equals(MetadataSupport.XDSDocumentEntry_author_uuid) ||
-                    class_scheme.equals(MetadataSupport.XDSSubmissionSet_author_uuid))) {
+            if (class_scheme != null
+                    && (class_scheme.equals(MetadataSupport.XDSDocumentEntry_author_uuid)
+                    || class_scheme.equals(MetadataSupport.XDSSubmissionSet_author_uuid))) {
                 // doc.author or ss.author
 
                 if (nodeRepresentation == null || (nodeRepresentation != null && !nodeRepresentation.equals(""))) {
-                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
-                            class_scheme + ") with no nodeRepresentation attribute.  It is required and must be the empty string.");
+                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme="
+                            + class_scheme + ") with no nodeRepresentation attribute.  It is required and must be the empty string.");
                 }
 
                 String author_person = m.getSlotValue(class_ele, "authorPerson", 0);
                 if (author_person == null) {
-                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
-                            class_scheme + ") with no authorPerson slot.  One is required.");
+                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme="
+                            + class_scheme + ") with no authorPerson slot.  One is required.");
                 }
 //				if ( ! is_xcn_format(author_person))
 //					err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
 //							class_scheme + ") with authorPerson slot that is not in XCN format. The value found was " + author_person	);
 
                 if (m.getSlotValue(class_ele, "authorPerson", 1) != null) {
-                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
-                            class_scheme + ") with multiple values in the authorPerson slot.  Only one is allowed. To document a second author, create a second Classification object");
+                    err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme="
+                            + class_scheme + ") with multiple values in the authorPerson slot.  Only one is allowed. To document a second author, create a second Classification object");
                 }
 
                 for (OMElement slot : MetadataSupport.childrenWithLocalName(class_ele, "Slot")) {
                     String slot_name = slot.getAttributeValue(MetadataSupport.slot_name_qname);
-                    if (slot_name != null &&
-                            (slot_name.equals("authorPerson") || // FIXME: Should probably validate as XCN
-                            slot_name.equals("authorRole") ||
-                            slot_name.equals("authorSpecialty"))) {
+                    if (slot_name != null
+                            && (slot_name.equals("authorPerson") || // FIXME: Should probably validate as XCN
+                            slot_name.equals("authorRole")
+                            || slot_name.equals("authorSpecialty"))) {
                         // Do nothing.
                     } else if (slot_name != null && slot_name.equals("authorInstitution")) {
                         validate_author_institution(slot);
                     } else {
-                        err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme=" +
-                                class_scheme + ") with an unknown type of slot with name " + slot_name + ".  Only XDS prescribed slots are allowed inside this classification");
+                        err(classified_object_type + " " + classified_object_id + " has a author type classification (classificationScheme="
+                                + class_scheme + ") with an unknown type of slot with name " + slot_name + ".  Only XDS prescribed slots are allowed inside this classification");
                     }
                 }
             }
@@ -437,6 +438,23 @@ public class Attribute {
 
     /**
      *
+     * @param slot
+     */
+    private void validate_document_availability(OMElement slot) {
+        OMElement value_list = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
+        for (OMElement value : MetadataSupport.childrenWithLocalName(value_list, "Value")) {
+            String content = value.getText();
+            if (content == null || content.equals("")) {
+                err("Slot documentAvailability has empty Slot value");
+            } else if (!(content.equals(MetadataSupport.document_availability_offline)
+                    || content.equals(MetadataSupport.document_availability_online))) {
+                err(content + " is not a valid value for Slot documentAvailability");
+            }
+        }
+    }
+
+    /**
+     *
      * @throws MetadataException
      */
     private void validate_special_doc_slot_structure() throws MetadataException {
@@ -458,6 +476,8 @@ public class Attribute {
                     validate_source_patient_info(slot);
                 } else if (slot_name.equals("intendedRecipient")) {
                     // FIXME: Should validate against XON/XCN format (multi-valued).
+                } else if (slot_name.equals("documentAvailability")) {
+                    validate_document_availability(slot);
                 } else if (slot_name.equals("URI")) {
                 }
             }
@@ -491,14 +511,14 @@ public class Attribute {
                 }
             }
             if (ss_class_count + fol_class_count == 0) {
-                err("RegistryPackage" + " " + id + " : is not Classified as either a Submission Set or Folder: " +
-                        "Submission Set must have classification urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd " +
-                        "and Folder must have classification urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2");
+                err("RegistryPackage" + " " + id + " : is not Classified as either a Submission Set or Folder: "
+                        + "Submission Set must have classification urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd "
+                        + "and Folder must have classification urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2");
             }
             if (ss_class_count + fol_class_count > 1) {
-                err("RegistryPackage" + " " + id + " : is Classified multiple times: " +
-                        "Submission Set must have single classification urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd " +
-                        "and Folder must have single classification urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2");
+                err("RegistryPackage" + " " + id + " : is Classified multiple times: "
+                        + "Submission Set must have single classification urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd "
+                        + "and Folder must have single classification urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2");
             }
         }
     }
@@ -626,6 +646,7 @@ public class Attribute {
             validate_slot("Document", id, slots, "serviceStopTime", false, false, true);
             validate_slot("Document", id, slots, "size", false, true, true);
             validate_slot("Document", id, slots, "sourcePatientInfo", true, false, false);
+            validate_slot("Document", id, slots, "documentAvailability", false, false, false);
 
             // These are tricky since the validation is based on the metadata format (xds.a or xds.b) instead of
             // on the transaction. All Stored Queries are encoded in ebRIM 3.0 (xds.b format) but they could
@@ -811,8 +832,8 @@ public class Attribute {
                     }
                 }
             }
-            if ((value_count > 1 && !multivalue) ||
-                    value_count == 0) {
+            if ((value_count > 1 && !multivalue)
+                    || value_count == 0) {
                 err(type + " " + id + " has slot " + name + " is required to have a single value");
             }
         }

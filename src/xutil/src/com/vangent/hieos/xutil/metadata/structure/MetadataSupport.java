@@ -93,6 +93,8 @@ public class MetadataSupport {
     public static final String status_type_approved = status_type_namespace + "Approved";
     public static final String status_type_submitted = status_type_namespace + "Submitted";
     public static final String status_type_deprecated = status_type_namespace + "Deprecated";
+    public static final String document_availability_online = "urn:ihe:iti:2010:DocumentAvailability:Online";
+    public static final String document_availability_offline = "urn:ihe:iti:2010:DocumentAvailability:Offline";
     public static final String response_status_type_namespace = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:";
     public static final String association_type_namespace = "urn:oasis:names:tc:ebxml-regrep:AssociationType:";
     public static final QName name_qname = new QName("Name");

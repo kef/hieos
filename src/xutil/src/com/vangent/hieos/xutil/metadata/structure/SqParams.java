@@ -20,153 +20,233 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ *
+ * @author thumbe
+ */
 public class SqParams {
-	HashMap<String, Object> params;
-	
-	public SqParams(HashMap<String, Object> params) {
-		this.params = params;
-	}
-	
-	public SqParams() {
-		params = new HashMap<String, Object>();
-	}
-	
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		
-		buf.append("SqParms\n");
-		for (Iterator<String> it = params.keySet().iterator(); it.hasNext(); ) {
-			String name = it.next();
-			Object value = params.get(name);
-			buf.append("\t");
-			buf.append(name);
-			buf.append(" => ");
-			buf.append(value);
-			buf.append("\n");
-		}
-		
-		return buf.toString();
-	}
-	
-	public int size() { return params.size(); }
-	public void addParm(String name, Object value) { params.put(name, value); }
-	public boolean hasParm(String parmName) { return params.containsKey(parmName); }
-	public Object getParm(String parmName) { return params.get(parmName); }
-	
-	public void addStringParm(String name, String value) {
-		addParm(name, value);
-	}
 
-	public void addIntParm(String name, Integer value) {
-		addParm(name, value);
-	}
+    HashMap<String, Object> params;
 
-	public void addIntParm(String name, BigInteger value) {
-		addParm(name, value);
-	}
-	
-	public void addListParm(String name, List<String> values) {
-		addParm(name, values);
-	}
+    /**
+     *
+     * @param Bernie Thuman (Adapted from NIST).
+     */
+    public SqParams(HashMap<String, Object> params) {
+        this.params = params;
+    }
 
-	public void addListParm(String name, String onlyValue) {
-		List<String> values = new ArrayList<String>();
-		values.add(onlyValue);
-		addParm(name, values);
-	}
+    /**
+     *
+     */
+    public SqParams() {
+        params = new HashMap<String, Object>();
+    }
 
-	
-	public String getStringParm(String name) {
-		Object o = params.get(name);
-		if ( o instanceof String) {
-			return (String) o;
-		}
-		return null;
-	}
-	
-	public String getIntParm(String name) throws MetadataException {
-		Object o = params.get(name);
-		if (o == null)
-			return null;
-		if ( o instanceof Integer) {
-			Integer i = (Integer) o;
-			return i.toString();
-		} 
-		if ( o instanceof BigInteger) {
-			BigInteger i = (BigInteger) o;
-			return i.toString();
-		} 
-		else
-			throw new MetadataException("Parameter " + name + " - expecting a number but got " + o.getClass().getName() + " instead");
-	}
+    /**
+     * 
+     * @return
+     */
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
 
-	public List<String> getListParm(String name) throws XdsInternalException, MetadataException {
-		Object o = params.get(name);
-		if (o == null)
-			return null;
-		if (o instanceof List) {
-			List<String> a = (List<String>) o;
-			if (a.size() == 0)
-				throw new MetadataException("Parameter " + name + " is an empty list");
-			return a;
-		}
-		throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
-	}
+        buf.append("SqParms\n");
+        for (Iterator<String> it = params.keySet().iterator(); it.hasNext();) {
+            String name = it.next();
+            Object value = params.get(name);
+            buf.append("\t");
+            buf.append(name);
+            buf.append(" => ");
+            buf.append(value);
+            buf.append("\n");
+        }
 
-	public List<Object> getAndorParm(String name) throws XdsInternalException, MetadataException {
-		Object o = params.get(name);
-		if (o == null)
-			return null;
-		if (o instanceof ArrayList) {
-			List<Object> a = (List<Object>) o;
-			if (a.size() == 0)
-				throw new MetadataException("Parameter " + name + " is an empty list");
-			return a;
-		}
-		throw new XdsInternalException("get_arraylist_parm(): bad type = " + o.getClass().getName());
-	}
-	
-	public SQCodedTerm getCodedParm(String name) throws MetadataException, XdsInternalException {
-		Object o = params.get(name);
-		if (o == null)
-			return null;
-		if (o instanceof SQCodedTerm) {
-			SQCodedTerm term = (SQCodedTerm) o;
-			if (term.isEmpty())
-				throw new MetadataException("Parameter " + name + " is empty");
-			return term;
-		}
-			
-		throw new XdsInternalException("getCodedParm(): bad type = " + o.getClass().getName());
-	}
+        return buf.toString();
+    }
 
-        /*
-	public boolean isAnd(Object values) {
-		return (values instanceof And);
-	}*/
+    /**
+     *
+     * @return
+     */
+    public int size() {
+        return params.size();
+    }
 
-        /*
-	public int andSize(Object values) {
-		if ( !isAnd(values)) return 0;
-		And and = (And) values;
-		return and.size();
-	} */
+    /**
+     *
+     * @param name
+     * @param value
+     */
+    public void addParm(String name, Object value) {
+        params.put(name, value);
+    }
 
-	// A simple OR query uses a single SQL variable to control
-	// If AND logic is used then we need a separate SQL variable for each AND part
-	// This method allocates the variable names
-        /*
-	public ArrayList<String> getAndorVarNames(Object andor, String varname) {
-		ArrayList<String> names = new ArrayList<String>();
-		if ( !isAnd(andor)) {
-			names.add(varname);
-			return names;
-		}
-		And and = (And) andor;
-		for (int i=0; i<and.size(); i++) {
-			names.add(varname + i);
-		}
-		return names;
-	} */
+    /**
+     *
+     * @param parmName
+     * @return
+     */
+    public boolean hasParm(String parmName) {
+        return params.containsKey(parmName);
+    }
 
+    /**
+     *
+     * @param parmName
+     * @return
+     */
+    public Object getParm(String parmName) {
+        return params.get(parmName);
+    }
+
+    /**
+     *
+     * @param name
+     * @param value
+     */
+    public void addStringParm(String name, String value) {
+        addParm(name, value);
+    }
+
+    /**
+     *
+     * @param name
+     * @param value
+     */
+    public void addIntParm(String name, Integer value) {
+        addParm(name, value);
+    }
+
+    /**
+     *
+     * @param name
+     * @param value
+     */
+    public void addIntParm(String name, BigInteger value) {
+        addParm(name, value);
+    }
+
+    /**
+     *
+     * @param name
+     * @param values
+     */
+    public void addListParm(String name, List<String> values) {
+        addParm(name, values);
+    }
+
+    /**
+     *
+     * @param name
+     * @param onlyValue
+     */
+    public void addListParm(String name, String onlyValue) {
+        List<String> values = new ArrayList<String>();
+        values.add(onlyValue);
+        addParm(name, values);
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public String getStringParm(String name) {
+        Object o = params.get(name);
+        if (o instanceof String) {
+            return (String) o;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     * @throws MetadataException
+     */
+    public String getIntParm(String name) throws MetadataException {
+        Object o = params.get(name);
+        if (o == null) {
+            return null;
+        }
+        if (o instanceof Integer) {
+            Integer i = (Integer) o;
+            return i.toString();
+        }
+        if (o instanceof BigInteger) {
+            BigInteger i = (BigInteger) o;
+            return i.toString();
+        } else {
+            throw new MetadataException("Parameter " + name + " - expecting a number but got " + o.getClass().getName() + " instead");
+        }
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     */
+    public List<String> getListParm(String name) throws XdsInternalException, MetadataException {
+        Object o = params.get(name);
+        if (o == null) {
+            return null;
+        }
+        if (o instanceof List) {
+            List<String> a = (List<String>) o;
+            if (a.isEmpty()) {
+                throw new MetadataException("Parameter " + name + " is an empty list");
+            }
+            return a;
+        }
+        throw new XdsInternalException("getListParm(): bad type = " + o.getClass().getName());
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     * @throws XdsInternalException
+     * @throws MetadataException
+     */
+    public List<Object> getAndorParm(String name) throws XdsInternalException, MetadataException {
+        Object o = params.get(name);
+        if (o == null) {
+            return null;
+        }
+        if (o instanceof ArrayList) {
+            List<Object> a = (List<Object>) o;
+            if (a.isEmpty()) {
+                throw new MetadataException("Parameter " + name + " is an empty list");
+            }
+            return a;
+        }
+        throw new XdsInternalException("getAndorParm(): bad type = " + o.getClass().getName());
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     * @throws MetadataException
+     * @throws XdsInternalException
+     */
+    public SQCodedTerm getCodedParm(String name) throws MetadataException, XdsInternalException {
+        Object o = params.get(name);
+        if (o == null) {
+            return null;
+        }
+        if (o instanceof SQCodedTerm) {
+            SQCodedTerm term = (SQCodedTerm) o;
+            if (term.isEmpty()) {
+                throw new MetadataException("Parameter " + name + " is empty");
+            }
+            return term;
+        }
+
+        throw new XdsInternalException("getCodedParm(): bad type = " + o.getClass().getName());
+    }
 }

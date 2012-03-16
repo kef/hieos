@@ -12,9 +12,17 @@
  */
 package com.vangent.hieos.xutil.metadata.structure;
 
+/**
+ *
+ * @author Bernie Thuman
+ */
 public abstract class SQCodedTerm {
 
-	public abstract boolean isEmpty();
+    /**
+     *
+     * @return
+     */
+    public abstract boolean isEmpty();
 
 
 	static String[] codeParameters = { 
@@ -54,22 +62,42 @@ public abstract class SQCodedTerm {
 			"urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5"
 	};
 
-	public static int codeIndex(String name) {
+        /**
+         *
+         * @param name
+         * @return
+         */
+        public static int codeIndex(String name) {
 		for (int i=0; i<codeParameters.length; i++)
 			if (codeParameters[i].equals(name))
 				return i;
 		return -1;
 	}
 
-	public static boolean isCodeParameter(String name) {
+        /**
+         *
+         * @param name
+         * @return
+         */
+        public static boolean isCodeParameter(String name) {
 		return (codeIndex(name) != -1);
 	}
 
-	public static String codeVarName(String codeName) {
+        /**
+         *
+         * @param codeName
+         * @return
+         */
+        public static String codeVarName(String codeName) {
 		return codeParmVarName[codeIndex(codeName)];
 	}
 
-	public static String codeUUID(String codeName) {
+        /**
+         *
+         * @param codeName
+         * @return
+         */
+        public static String codeUUID(String codeName) {
 		return codeParmUUID[codeIndex(codeName)];
 	}
 	
