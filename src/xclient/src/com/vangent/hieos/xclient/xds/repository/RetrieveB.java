@@ -18,20 +18,20 @@ import com.vangent.hieos.xutil.response.RegistryResponseParser;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
+//import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
-import com.vangent.hieos.xutil.exception.SchemaValidationException;
+//import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsConfigurationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsIOException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.exception.XdsPreparsedException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
+//import com.vangent.hieos.xutil.exception.XdsWSException;
 import com.vangent.hieos.xutil.registry.OmLogger;
-import com.vangent.hieos.xutil.registry.RegistryUtility;
+//import com.vangent.hieos.xutil.registry.RegistryUtility;
 import com.vangent.hieos.xutil.soap.Soap;
 
 import java.io.IOException;
@@ -162,11 +162,12 @@ public class RetrieveB extends OmLogger {
             }
         }
 
+        /*
         try {
             RegistryUtility.schema_validate_local(result, MetadataTypes.METADATA_TYPE_RET);
         } catch (SchemaValidationException e) {
             throw new XdsInternalException("Schema validation of Retrieve Response: " + e.getMessage());
-        }
+        }*/
 
         // validate response contents
         try {
