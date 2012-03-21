@@ -25,7 +25,7 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.metadata.structure.ParamParser;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
-import com.vangent.hieos.xutil.exception.SchemaValidationException;
+//import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -99,10 +99,10 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
         // Validate against schema.
         try {
             RegistryUtility.schema_validate_local(request, MetadataTypes.METADATA_TYPE_SQ);
-        } catch (SchemaValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryMetadataError,
-                    "SchemaValidationException: " + e.getMessage(),
-                    this.getLocalHomeCommunityId(), log_message);
+        //} catch (SchemaValidationException e) {
+        //    response.add_error(MetadataSupport.XDSRegistryMetadataError,
+        //            "SchemaValidationException: " + e.getMessage(),
+        //            this.getLocalHomeCommunityId(), log_message);
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError,
                     "SchemaValidationException: " + e.getMessage(),
