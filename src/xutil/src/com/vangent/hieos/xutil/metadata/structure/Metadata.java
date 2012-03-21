@@ -127,6 +127,54 @@ public class Metadata {
 
     /**
      * 
+     * @param obj
+     * @param previousVersion
+     */
+    // FIXME: May want to rework and not require passing "previousVersion".
+    public static void updateRegistryObjectVersion(OMElement obj, String previousVersion) {
+        // Get version
+        //<rim:VersionInfo versionName="1" />
+        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(obj, "VersionInfo");
+        if (versionInfoEle == null) {
+            // No version info exists, create one.
+            versionInfoEle = MetadataSupport.om_factory.createOMElement("VersionInfo", MetadataSupport.ebRIMns3);
+
+            // Attach to the version info object (before first Classification).
+            OMElement classificationEle = MetadataSupport.firstChildWithLocalName(obj, "Classification");
+            classificationEle.insertSiblingBefore(versionInfoEle);
+            //targetObject.addChild(versionInfoEle);
+        }
+        Double nextVersion = new Double(previousVersion) + 1.0;
+        OMAttribute versionNameAttr = versionInfoEle.getAttribute(new QName("versionName"));
+        if (versionNameAttr == null) {
+            versionInfoEle.addAttribute("versionName", nextVersion.toString(), null);
+        } else {
+            versionNameAttr.setAttributeValue(nextVersion.toString());
+        }
+    }
+
+    /**
+     * 
+     * @param obj
+     * @return
+     */
+    public static Double getRegistryObjectVersion(OMElement obj) {
+        // Get version
+        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(obj, "VersionInfo");
+        if (versionInfoEle == null) {
+            return 1.0;  // Default.
+        }
+        OMAttribute versionNameAttr = versionInfoEle.getAttribute(new QName("versionName"));
+        if (versionNameAttr == null) {
+            return 1.0;  // Default.
+        } else {
+            String versionNameText = versionNameAttr.getAttributeValue();
+            return new Double(versionNameText);
+        }
+    }
+
+    /**
+     * 
      * @return
      */
     private String allocate_id() {
@@ -1006,6 +1054,28 @@ public class Metadata {
      */
     public ArrayList<OMElement> getAssociations() {
         return associations;
+    }
+
+    /**
+     *
+     * @param i
+     * @return
+     */
+    public OMElement getAssociation(int i) {
+        return (OMElement) getAssociations().get(i);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayList<String> getAssociationIds() {
+        ArrayList<String> ids = new ArrayList<String>();
+        for (Iterator<OMElement> it = getAssociations().iterator(); it.hasNext();) {
+            OMElement ele = it.next();
+            ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
+        }
+        return ids;
     }
 
     /**
