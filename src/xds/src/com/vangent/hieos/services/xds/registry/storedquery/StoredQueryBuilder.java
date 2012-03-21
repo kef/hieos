@@ -195,30 +195,30 @@ public class StoredQueryBuilder {
      * 
      * @param attributeName
      * @param fromVariable
-     * @param toVariable
+     * @param toTableAlias
      * @param fromLimit
      * @param toLimit
      * @param variableName
      */
-    public void addTimes(String attributeName, String fromVariable, String toVariable,
-            String fromLimit, String toLimit, String variableName) {
+    public void addTimes(String slotName, String fromTableAlias, String toTableAlias,
+            String fromLimit, String toLimit, String registryObjectTableAlias) {
         if (fromLimit != null) {
             // Parent:
             and();
             append(" (");
-            append(fromVariable);
-            append(".parent = " + variableName + ".id AND ");
+            append(fromTableAlias);
+            append(".parent=" + registryObjectTableAlias + ".id AND ");
             newline();
             // Name:
-            append("  ");
-            append(fromVariable);
-            append(".name_ = '");
-            append(attributeName);
-            append("' AND     ");
+            append(" ");
+            append(fromTableAlias);
+            append(".name_='");
+            append(slotName);
+            append("' AND ");
             newline();
             // Value:
-            append("  ");
-            append(fromVariable);
+            append(" ");
+            append(fromTableAlias);
             append(".value >= ");
             appendQuoted(fromLimit);
             append(" ) ");
@@ -229,19 +229,19 @@ public class StoredQueryBuilder {
             // Parent:
             and();
             append(" (");
-            append(toVariable);
-            append(".parent = " + variableName + ".id AND ");
+            append(toTableAlias);
+            append(".parent=" + registryObjectTableAlias + ".id AND ");
             newline();
             // Name:
-            append("  ");
-            append(toVariable);
-            append(".name_ = '");
-            append(attributeName);
+            append(" ");
+            append(toTableAlias);
+            append(".name_='");
+            append(slotName);
             append("' AND     ");
             newline();
             // Value:
-            append("  ");
-            append(toVariable);
+            append(" ");
+            append(toTableAlias);
             append(".value < ");
             appendQuoted(toLimit);
             append(" ) ");
@@ -249,6 +249,40 @@ public class StoredQueryBuilder {
         }
     }
 
+    /**
+     * 
+     * @param slotName
+     * @param slotValues
+     * @param slotTableAlias
+     * @param registryObjectTableAlias
+     * @throws MetadataException
+     */
+    public void addSlot(String slotName, List<String> slotValues, String slotTableAlias, String registryObjectTableAlias) throws MetadataException {
+        if (slotValues != null && !slotValues.isEmpty()) {
+            // Parent:
+            and();
+            append(" (");
+            append(slotTableAlias + ".parent");
+            append("=");
+            append(registryObjectTableAlias + ".id");
+            append(" AND ");
+            newline();
+            // Name:
+            append(" ");
+            append(slotTableAlias + ".name_");
+            append("=");
+            appendQuoted(slotName);
+            append(" AND ");
+            newline();
+            // Value(s):
+            append(slotTableAlias + ".value");
+            append(" IN ");
+            append(slotValues);
+            append(" ) ");
+            newline();
+        }
+    }
+    
     /**
      * 
      */

@@ -157,7 +157,9 @@ public class OmarRegistry {
                 rr = lcm.deprecateObjects(context);
                 log.trace("OMAR: deprecateObjects ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else if (message instanceof SetStatusOnObjectsRequestType) {
-                throw new XdsInternalException("SetStatusOnObjectsRequest - not supported by Registry");
+                //throw new XdsInternalException("SetStatusOnObjectsRequest - not supported by Registry");
+                rr = lcm.setStatusOnObjects(context);
+                log.trace("OMAR: SetStatusOnObjectsRequest ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else if (message instanceof UndeprecateObjectsRequestType) {
                 throw new XdsInternalException("UndeprecateObjectsRequest - not supported by Registry");
             } else if (message instanceof RemoveObjectsRequestType) {
@@ -168,8 +170,8 @@ public class OmarRegistry {
                 throw new XdsInternalException("RelocateObjectsRequest - not supported by Registry");
             } else {
                 throw new XdsInternalException(ServerResourceBundle.getInstance().
-                        getString("message.unknownRequest") +
-                        message.getClass().getName());
+                        getString("message.unknownRequest")
+                        + message.getClass().getName());
             }
         } catch (Exception e) {
             log.error("**ebXML EXCEPTION**", e);

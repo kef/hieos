@@ -75,6 +75,8 @@ public class FindDocuments extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryStatus", true, true, true, false, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSDocumentEntryDocumentAvailability", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
 
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
@@ -122,6 +124,7 @@ public class FindDocuments extends StoredQuery {
 
         // Parse query parameters:
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String patientId = params.getStringParm("$XDSDocumentEntryPatientId");
         SQCodedTerm classCodes = params.getCodedParm("$XDSDocumentEntryClassCode");
         SQCodedTerm typeCodes = params.getCodedParm("$XDSDocumentEntryTypeCode");
@@ -138,6 +141,7 @@ public class FindDocuments extends StoredQuery {
         SQCodedTerm formatCodes = params.getCodedParm("$XDSDocumentEntryFormatCode");
         List<String> status = params.getListParm("$XDSDocumentEntryStatus");
         List<String> authorPerson = params.getListParm("$XDSDocumentEntryAuthorPerson");
+        List<String> documentAvailabilityStatus = params.getListParm("$XDSDocumentEntryDocumentAvailability");
 
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.select("obj");
@@ -151,38 +155,46 @@ public class FindDocuments extends StoredQuery {
         sqb.appendClassificationDeclaration(confidentialityCodes);
         sqb.appendClassificationDeclaration(formatCodes);
         if (creationTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot crTimef");
         }
-        sqb.newline();
         if (creationTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot crTimet");
         }
-        sqb.newline();
         if (serviceStartTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot serStartTimef");
         }
-        sqb.newline();
         if (serviceStartTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot serStartTimet");
         }
-        sqb.newline();
         if (serviceStopTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot serStopTimef");
         }
-        sqb.newline();
         if (serviceStopTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot serStopTimet");
         }
+        if (documentAvailabilityStatus != null) {
+            sqb.newline();
+            sqb.append(", Slot das");
+        }
         if (authorPerson != null) {
+            sqb.newline();
             sqb.append(", Classification author");
             sqb.newline();
             sqb.append(", Slot authorperson");
         }
+
+        // WHERE clause ...
         sqb.newline();
         sqb.append("WHERE");
         sqb.newline();
         // patientID
-        sqb.append("(obj.id = patId.registryobject AND	");
+        sqb.append("(obj.id = patId.registryobject AND ");
         sqb.newline();
         sqb.append(" patId.identificationScheme='"
                 + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
@@ -212,16 +224,17 @@ public class FindDocuments extends StoredQuery {
                 sqb.newline();
                 sqb.append("(obj.id = author.classifiedObject AND ");
                 sqb.newline();
-                sqb.append("  author.classificationScheme='urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d' AND ");
+                sqb.append(" author.classificationScheme='urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d' AND ");
                 sqb.newline();
-                sqb.append("  authorperson.parent = author.id AND");
+                sqb.append(" authorperson.parent=author.id AND");
                 sqb.newline();
-                sqb.append("  authorperson.name_ = 'authorPerson' AND");
+                sqb.append(" authorperson.name_='authorPerson' AND");
                 sqb.newline();
-                sqb.append("  authorperson.value LIKE '" + ap + "' )");
+                sqb.append(" authorperson.value LIKE '" + ap + "' )");
                 sqb.newline();
             }
         }
+        sqb.addSlot("documentAvailability", documentAvailabilityStatus, "das", "obj");
         sqb.append("AND obj.status IN ");
         sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
         return runQuery(sqb);

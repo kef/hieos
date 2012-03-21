@@ -51,7 +51,9 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
-     *
+     * 
+     * @return
+     * @throws XdsException
      */
-    abstract public void execute() throws XdsException;
+    abstract public boolean execute() throws XdsException;
 }

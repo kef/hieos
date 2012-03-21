@@ -47,6 +47,9 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, true, true, false, false, "$XDSDocumentEntryEntryUUID");
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId");
+        validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -60,8 +63,10 @@ public class GetDocumentsAndAssociations extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         List<String> uids = params.getListParm("$XDSDocumentEntryUniqueId");
         List<String> uuids = params.getListParm("$XDSDocumentEntryEntryUUID");
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
         if (uids != null) {
             OMElement ele = getDocumentByUID(uids);
             metadata = MetadataParser.parseNonSubmission(ele);
@@ -84,7 +89,7 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         if (docIds.isEmpty()) {
             return metadata;
         }
-        OMElement ele = getAssociations(docIds, null);
+        OMElement ele = getAssociations(docIds, assocStatusValues, null);
         metadata.addMetadata(ele, true);
         return metadata;
     }

@@ -17,6 +17,7 @@ import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
@@ -38,8 +39,11 @@ public class GetFolders extends StoredQuery {
         super(params, returnLeafClass, response, logMessage, backendRegistry);
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
-        validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, false, "$XDSFolderUniqueId");
-        validateQueryParam("$XDSFolderUniqueId", true, true, true, false, false, "$XDSFolderEntryUUID");
+        validateQueryParam("$XDSFolderEntryUUID", true, true, true, false, false, "$XDSFolderUniqueId", "$XDSFolderLogicalID");
+        validateQueryParam("$XDSFolderUniqueId", true, true, true, false, false, "$XDSFolderEntryUUID", "$XDSFolderLogicalID");
+        validateQueryParam("$XDSFolderLogicalID", false, true, true, false, false, "$XDSFolderUniqueId", "$XDSFolderEntryUUID");
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -53,20 +57,25 @@ public class GetFolders extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
-        List<String> folderUUID = params.getListParm("$XDSFolderEntryUUID");
-        if (folderUUID != null) {
+        String metadataLevel = params.getIntParm("$MetadataLevel");
+        List<String> folderUUIDs = params.getListParm("$XDSFolderEntryUUID");
+        List<String> folderUIDs = params.getListParm("$XDSFolderUniqueId");
+        List<String> lids = params.getListParm("$XDSFolderLogicalID");
+        OMElement ele;
+        if (folderUUIDs != null) {
             // starting from uuid
-            OMElement x = getFolderByUUID(folderUUID);
-            metadata = MetadataParser.parseNonSubmission(x);
-            /*if (metadata.getFolders().size() == 0) {
-            return metadata;
-            }*/
-        } else {
+            ele = getFolderByUUID(folderUUIDs);
+        } else if (folderUIDs != null) {
             // starting from uniqueid
-            List<String> folderUID = params.getListParm("$XDSFolderUniqueId");
-            OMElement x = getFolderByUID(folderUID);
-            metadata = MetadataParser.parseNonSubmission(x);
+            ele = getFolderByUID(folderUIDs);
+
+        } else if (lids != null) {
+            // starting from lid
+            ele = getFolderByLID(lids);
+        } else {
+            throw new XdsInternalException("GetFolders Stored Query: UUID, UID or LID not specified in query");
         }
+        metadata = MetadataParser.parseNonSubmission(ele);
         return metadata;
     }
 }

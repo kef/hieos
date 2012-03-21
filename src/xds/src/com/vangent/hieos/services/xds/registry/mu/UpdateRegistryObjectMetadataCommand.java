@@ -16,19 +16,21 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import org.apache.axiom.om.OMElement;
 
 /**
- *
+ * 
  * @author Bernie Thuman
  */
-public class SubmitAssociationCommand extends MetadataUpdateCommand {
+public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdateCommand {
 
     private OMElement targetObject;
+    private String previousVersion;
+    private boolean associationPropagation;
 
     /**
-     * 
+     *
      * @param metadata
      * @param metadataUpdateContext
      */
-    public SubmitAssociationCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
+    public UpdateRegistryObjectMetadataCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
         super(metadata, metadataUpdateContext);
     }
 
@@ -48,11 +50,35 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         this.targetObject = targetObject;
     }
 
-    @Override
-    public boolean execute() {
-        //throw new UnsupportedOperationException("Not supported yet.");
-        System.out.println("Executing command ... " + this.getClass().getName());
-        this.getMetadataUpdateContext().getLogMessage().addOtherParam("Command", "Submit Association");
-        return true; // Success.
+    /**
+     *
+     * @return
+     */
+    public String getPreviousVersion() {
+        return previousVersion;
+    }
+
+    /**
+     *
+     * @param previousVersion
+     */
+    public void setPreviousVersion(String previousVersion) {
+        this.previousVersion = previousVersion;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isAssociationPropagation() {
+        return associationPropagation;
+    }
+
+    /**
+     *
+     * @param associationPropagation
+     */
+    public void setAssociationPropagation(boolean associationPropagation) {
+        this.associationPropagation = associationPropagation;
     }
 }

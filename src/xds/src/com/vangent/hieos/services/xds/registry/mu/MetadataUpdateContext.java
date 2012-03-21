@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.response.RegistryResponse;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 /**
@@ -24,7 +25,8 @@ public class MetadataUpdateContext {
 
     private XLogMessage logMessage;
     private BackendRegistry backendRegistry;
-    private RegistryResponse response;
+    private RegistryResponse registryResponse;
+    private XConfigActor configActor;
 
     /**
      *
@@ -62,15 +64,31 @@ public class MetadataUpdateContext {
      *
      * @return
      */
-    public RegistryResponse getResponse() {
-        return response;
+    public RegistryResponse getRegistryResponse() {
+        return registryResponse;
     }
 
     /**
      * 
-     * @param response
+     * @param registryResponse
      */
-    public void setResponse(RegistryResponse response) {
-        this.response = response;
+    public void setRegistryResponse(RegistryResponse registryResponse) {
+        this.registryResponse = registryResponse;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public XConfigActor getConfigActor() {
+        return configActor;
+    }
+
+    /**
+     *
+     * @param configActor
+     */
+    public void setConfigActor(XConfigActor configActor) {
+        this.configActor = configActor;
     }
 }

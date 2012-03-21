@@ -46,6 +46,9 @@ public class GetAssociations extends StoredQuery {
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -59,9 +62,11 @@ public class GetAssociations extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         List<String> uuids = params.getListParm("$uuid");
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
         if (uuids != null) {
-            OMElement ele = getAssociationsByUUID(uuids, null);
+            OMElement ele = getAssociationsByUUID(uuids, assocStatusValues, null);
             metadata = MetadataParser.parseNonSubmission(ele);
         } else {
             throw new XdsInternalException("GetAssociations Stored Query: $uuid not found as a multi-value parameter");

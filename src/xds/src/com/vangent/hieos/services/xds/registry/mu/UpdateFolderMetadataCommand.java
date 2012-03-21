@@ -13,16 +13,12 @@
 package com.vangent.hieos.services.xds.registry.mu;
 
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import org.apache.axiom.om.OMElement;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class UpdateFolderMetadataCommand extends MetadataUpdateCommand {
-
-    private String previousVersion;
-    private OMElement targetObject;
+public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCommand {
 
     /**
      *
@@ -33,41 +29,11 @@ public class UpdateFolderMetadataCommand extends MetadataUpdateCommand {
         super(metadata, metadataUpdateContext);
     }
 
-    /**
-     *
-     * @return
-     */
-    public String getPreviousVersion() {
-        return previousVersion;
-    }
-
-    /**
-     *
-     * @param previousVersion
-     */
-    public void setPreviousVersion(String previousVersion) {
-        this.previousVersion = previousVersion;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public OMElement getTargetObject() {
-        return targetObject;
-    }
-
-    /**
-     *
-     * @param targetObject
-     */
-    public void setTargetObject(OMElement targetObject) {
-        this.targetObject = targetObject;
-    }
-
+    
     @Override
-    public void execute() {
+    public boolean execute() {
         //throw new UnsupportedOperationException("Not supported yet.");
-         this.getMetadataUpdateContext().getLogMessage().addOtherParam("Command", "Update Folder Metadata");
+        this.getMetadataUpdateContext().getLogMessage().addOtherParam("Command", "Update Folder Metadata");
+        return true; // Success.
     }
 }

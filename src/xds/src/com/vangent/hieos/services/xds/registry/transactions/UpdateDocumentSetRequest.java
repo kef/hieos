@@ -22,6 +22,7 @@ import com.vangent.hieos.services.xds.registry.mu.UpdateStatusCommand;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -75,6 +76,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
+        } catch (XDSNonIdenticalHashException e) {
+            response.add_error(MetadataSupport.XDSNonIdenticalHash, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors: " + e.getMessage(), this.getClass().getName(), log_message);
         } catch (MetadataException e) {
@@ -115,7 +119,8 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
         metadataUpdateContext.setBackendRegistry(backendRegistry);
         metadataUpdateContext.setLogMessage(log_message);
-        metadataUpdateContext.setResponse((RegistryResponse) response);
+        metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
+        metadataUpdateContext.setConfigActor(this.getConfigActor());
 
         // Create Metadata instance for SOR.
         Metadata m = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.
@@ -159,11 +164,17 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         try {
             // TBD: Do we need to order commands?
             // Execute each command.
+            boolean executionSuccess = false;
             for (MetadataUpdateCommand muCommand : muCommands) {
-                muCommand.execute();
+                executionSuccess = muCommand.execute();
+                if (!executionSuccess) {
+                    break;  // Get out.
+                }
             }
-            backendRegistry.commit();
-            commitCompleted = true;
+            if (executionSuccess) {
+                backendRegistry.commit();
+                commitCompleted = true;
+            }
         } finally {
             if (!commitCompleted) {
                 backendRegistry.rollback();
@@ -214,6 +225,17 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
             if (perviousVersion != null) {
                 System.out.println("... PreviousVersion = " + perviousVersion);
 
+                boolean associationPropagation = true;
+                // See if "AssociationPropagation" slot is in request.
+                String associationPropagationValueText = m.getSlotValue(assoc, "AssociationPropagation", 0);
+                // If missing, default is "yes".
+                if (associationPropagationValueText != null) {
+                    if (associationPropagationValueText.equalsIgnoreCase("no")) {
+                        associationPropagation = false;
+                    }
+                }
+                System.out.println("... association propagation = " + associationPropagation);
+
                 // Get logical id (lid).
                 String lid = targetObject.getAttributeValue(MetadataSupport.lid_qname);
                 System.out.println("... lid = " + lid);
@@ -223,11 +245,13 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                             new UpdateFolderMetadataCommand(m, metadataUpdateContext);
                     updateFolderCommand.setPreviousVersion(perviousVersion);
                     updateFolderCommand.setTargetObject(targetObject);
+                    updateFolderCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateFolderCommand;
                 } else if (targetObjectType.equals("ExtrinsicObject")) {
                     UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand = new UpdateDocumentEntryMetadataCommand(m, metadataUpdateContext);
                     updateDocumentEntryCommand.setPreviousVersion(perviousVersion);
                     updateDocumentEntryCommand.setTargetObject(targetObject);
+                    updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateDocumentEntryCommand;
                 }
             }

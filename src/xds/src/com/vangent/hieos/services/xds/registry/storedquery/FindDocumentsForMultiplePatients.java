@@ -135,52 +135,61 @@ public class FindDocumentsForMultiplePatients extends StoredQuery {
         List<String> status = params.getListParm("$XDSDocumentEntryStatus");
         List<String> authorPerson = params.getListParm("$XDSDocumentEntryAuthorPerson");
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
-        //sqb.initQuery();
         sqb.select("obj");
         sqb.append("FROM ExtrinsicObject obj");
         if (patientId != null && patientId.size() > 0) {
             sqb.append(", ExternalIdentifier patId");
             sqb.newline();
         }
-        sqb.appendClassificationDeclaration(classCodes);
-        sqb.appendClassificationDeclaration(typeCodes);
-        sqb.appendClassificationDeclaration(practiceSettingCodes);
-        sqb.appendClassificationDeclaration(facilityTypeCodes);  // $XDSDocumentEntryHealthcareFacilityTypeCode
-        sqb.appendClassificationDeclaration(eventCodes); // $XDSDocumentEntryEventCodeList
+        sqb.appendClassificationDeclaration(classCodes);           // $XDSDocumentEntryClassCode
+        sqb.appendClassificationDeclaration(typeCodes);            // $XDSDocumentEntryTypeCode
+        sqb.appendClassificationDeclaration(practiceSettingCodes); // $XDSDocumentEntryPracticeSettingCode
+        sqb.appendClassificationDeclaration(facilityTypeCodes);    // $XDSDocumentEntryHealthcareFacilityTypeCode
+        sqb.appendClassificationDeclaration(eventCodes);           // $XDSDocumentEntryEventCodeList
+        sqb.appendClassificationDeclaration(confidentialityCodes); // $XDSDocumentEntryConfidentialityCode
+        sqb.appendClassificationDeclaration(formatCodes);          // $XDSDocumentEntryFormatCode
+
+        // $XDSDocumentEntryCreationTimeFrom
         if (creationTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot crTimef");
         }
-        sqb.newline();                       // $XDSDocumentEntryCreationTimeFrom
+        // $XDSDocumentEntryCreationTimeTo
         if (creationTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot crTimet");
         }
-        sqb.newline();                       // $XDSDocumentEntryCreationTimeTo
+        // $XDSDocumentEntryServiceStartTimeFrom
         if (serviceStartTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot serStartTimef");
         }
-        sqb.newline();                 // $XDSDocumentEntryServiceStartTimeFrom
+        // $XDSDocumentEntryServiceStartTimeTo
         if (serviceStartTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot serStartTimet");
         }
-        sqb.newline();                 // $XDSDocumentEntryServiceStartTimeTo
+        // $XDSDocumentEntryServiceStopTimeFrom
         if (serviceStopTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot serStopTimef");
         }
-        sqb.newline();                  // $XDSDocumentEntryServiceStopTimeFrom
+        // $XDSDocumentEntryServiceStopTimeTo
         if (serviceStopTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot serStopTimet");
         }
-        sqb.newline();                  // $XDSDocumentEntryServiceStopTimeTo
-        sqb.appendClassificationDeclaration(confidentialityCodes);  // $XDSDocumentEntryConfidentialityCode
-        if (formatCodes != null) {
-            sqb.append(", Classification fmtCode");
-        }
-        sqb.newline();             // $XDSDocumentEntryFormatCode
+        //if (formatCodes != null) {
+        //    sqb.append(", Classification fmtCode");
+        //}
         if (authorPerson != null) {
+            sqb.newline();
             sqb.append(", Classification author");
             sqb.newline();
             sqb.append(", Slot authorperson");
         }
+
+        // WHERE clause ...
         sqb.newline();
         sqb.where();
         sqb.newline();

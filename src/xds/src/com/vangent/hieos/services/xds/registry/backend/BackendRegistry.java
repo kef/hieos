@@ -22,9 +22,11 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.xutil.xml.XMLParser;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.registry.RegistryException;
@@ -37,6 +39,11 @@ import org.apache.log4j.Logger;
 
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
+import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRef;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRefList;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 
 /**
  *
@@ -95,7 +102,7 @@ public class BackendRegistry {
      * @return
      * @throws XdsInternalException
      */
-    public OMElement submitApproveObjectsRequest(ArrayList objectIds) throws XdsInternalException {
+    public OMElement submitApproveObjectsRequest(List<String> objectIds) throws XdsInternalException {
         OMElement approveObjectsRequest = this.getApproveObjectsRequest(objectIds);
         this.setReason("Approve");
         return this.submit(approveObjectsRequest);
@@ -107,10 +114,23 @@ public class BackendRegistry {
      * @return
      * @throws XdsInternalException
      */
-    public OMElement submitDeprecateObjectsRequest(ArrayList<String> objectIds) throws XdsInternalException {
+    public OMElement submitDeprecateObjectsRequest(List<String> objectIds) throws XdsInternalException {
         OMElement deprecateObjectsRequest = this.getDeprecateObjectsRequest(objectIds);
         this.setReason("Deprecate");
         return this.submit(deprecateObjectsRequest);
+    }
+
+    /**
+     *
+     * @param objectIds
+     * @param status
+     * @return
+     * @throws XdsInternalException
+     */
+    public OMElement submitSetStatusOnObjectsRequest(List<String> objectIds, String status) throws XdsInternalException {
+        OMElement setStatusOnObjectsRequest = this.getSetStatusOnObjectsRequest(objectIds, status);
+        this.setReason("Set Status");
+        return this.submit(setStatusOnObjectsRequest);
     }
 
     /**
@@ -275,10 +295,10 @@ public class BackendRegistry {
      * @param uuids
      * @return
      */
-    private OMElement getApproveObjectsRequest(ArrayList uuids) {
+    private OMElement getApproveObjectsRequest(List<String> uuids) {
         OMNamespace lcm = MetadataSupport.ebLcm3;
         OMElement req = MetadataSupport.om_factory.createOMElement("ApproveObjectsRequest", lcm);
-        req.addChild(makeObjectRefList(uuids));
+        req.addChild(this.getObjectRefList(uuids));
         return req;
     }
 
@@ -287,10 +307,25 @@ public class BackendRegistry {
      * @param uuids
      * @return
      */
-    private OMElement getDeprecateObjectsRequest(ArrayList uuids) {
+    private OMElement getDeprecateObjectsRequest(List<String> uuids) {
         OMNamespace lcm = MetadataSupport.ebLcm3;
         OMElement req = MetadataSupport.om_factory.createOMElement("DeprecateObjectsRequest", lcm);
-        req.addChild(makeObjectRefList(uuids));
+        req.addChild(this.getObjectRefList(uuids));
+        return req;
+
+    }
+
+    /**
+     * 
+     * @param uuids
+     * @param status
+     * @return
+     */
+    private OMElement getSetStatusOnObjectsRequest(List<String> uuids, String status) {
+        OMNamespace rsExt = MetadataSupport.om_factory.createOMNamespace("urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0:ext", "rsext");
+        OMElement req = MetadataSupport.om_factory.createOMElement("SetStatusOnObjectsRequest", rsExt);
+        req.addAttribute("status", status, null);
+        req.addChild(this.getObjectRefList(uuids));
         return req;
 
     }
@@ -301,14 +336,14 @@ public class BackendRegistry {
      * @param uuids Arraylist of uuids.
      * @return <ObjectRefList> OMElement node.
      */
-    private OMElement makeObjectRefList(ArrayList uuids) {
-        OMNamespace rim = MetadataSupport.ebRIMns3;
+    private OMElement getObjectRefList(List<String> uuids) {
+        OMNamespace rimNs = MetadataSupport.ebRIMns3;
         OMFactory fact = MetadataSupport.om_factory;
-        OMElement objectRefList = fact.createOMElement("ObjectRefList", rim);
+        OMElement objectRefList = fact.createOMElement("ObjectRefList", rimNs);
         for (Iterator it = uuids.iterator(); it.hasNext();) {
             String uuid = (String) it.next();
             OMAttribute attribute = fact.createOMAttribute("id", null, uuid);
-            OMElement objectReference = fact.createOMElement("ObjectRef", rim);
+            OMElement objectReference = fact.createOMElement("ObjectRef", rimNs);
             objectReference.addAttribute(attribute);
             objectRefList.addChild(objectReference);
         }

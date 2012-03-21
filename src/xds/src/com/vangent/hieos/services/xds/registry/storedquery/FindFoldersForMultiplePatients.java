@@ -111,16 +111,18 @@ public class FindFoldersForMultiplePatients extends StoredQuery {
             sqb.append(", ExternalIdentifier patId");
             sqb.newline();
         }
-        sqb.newline();
         if (lastUpdateTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot updateTimef");
         }
-        sqb.newline();
         if (lastUpdateTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot updateTimet");
         }
         sqb.newline();
         sqb.appendClassificationDeclaration(codes);
+
+        // WHERE clause ...
         sqb.newline();
         sqb.where();
         sqb.newline();

@@ -20,6 +20,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.List;
 
 import org.apache.axiom.om.OMElement;
 
@@ -29,15 +30,15 @@ import org.apache.axiom.om.OMElement;
  */
 public class GetFoldersForDocument extends StoredQuery {
 
-   /**
-    *
-    * @param params
-    * @param returnLeafClass
-    * @param response
-    * @param logMessage
-    * @param backendRegistry
-    * @throws MetadataValidationException
-    */
+    /**
+     *
+     * @param params
+     * @param returnLeafClass
+     * @param response
+     * @param logMessage
+     * @param backendRegistry
+     * @throws MetadataValidationException
+     */
     public GetFoldersForDocument(SqParams params, boolean returnLeafClass, Response response, XLogMessage logMessage, BackendRegistry backendRegistry)
             throws MetadataValidationException {
         super(params, returnLeafClass, response, logMessage, backendRegistry);
@@ -45,6 +46,9 @@ public class GetFoldersForDocument extends StoredQuery {
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, false, "$XDSDocumentEntryEntryUUID");
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, false, "$XDSDocumentEntryUniqueId");
+        validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -57,15 +61,18 @@ public class GetFoldersForDocument extends StoredQuery {
      */
     public Metadata runInternal() throws XdsException {
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
+
         if (uuid == null || uuid.equals("")) {
             uuid = this.getDocumentUUIDFromUID(uid);
         }
         if (uuid == null) {
             throw new XdsException("Cannot identify referenced document (uniqueId = " + uid + ")");
         }
-        OMElement folders = this.getFoldersForDocument(uuid);
+        OMElement folders = this.getFoldersForDocument(uuid, assocStatusValues);
         return MetadataParser.parseNonSubmission(folders);
     }
 }

@@ -51,6 +51,9 @@ public class GetRelatedDocuments extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryUniqueId", true, false, true, false, false, "$XDSDocumentEntryEntryUUID");
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, false, true, false, false, "$XDSDocumentEntryUniqueId");
         validateQueryParam("$AssociationTypes", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -64,9 +67,11 @@ public class GetRelatedDocuments extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata = new Metadata();
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         List<String> assocTypes = params.getListParm("$AssociationTypes");
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
         if (assocTypes == null || assocTypes.isEmpty()) {
             throw new XdsInternalException("No $AssociationTypes specified in query");
         }
@@ -114,7 +119,7 @@ public class GetRelatedDocuments extends StoredQuery {
 
         boolean oldQueryType = this.isReturnLeafClass();
         this.setReturnLeafClass(true);
-        OMElement associations = this.getAssociations(targetIds, assocTypes);
+        OMElement associations = this.getAssociations(targetIds, assocStatusValues, assocTypes);
         this.setReturnLeafClass(oldQueryType);
 
         Metadata assocMetadata = MetadataParser.parseNonSubmission(associations);

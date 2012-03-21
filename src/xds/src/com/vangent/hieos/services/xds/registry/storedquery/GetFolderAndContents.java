@@ -51,6 +51,8 @@ public class GetFolderAndContents extends StoredQuery {
         validateQueryParam("$XDSFolderUniqueId", true, false, true, false, false, "$XDSFolderEntryUUID");
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
 
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
@@ -65,8 +67,11 @@ public class GetFolderAndContents extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String folderUUID = params.getStringParm("$XDSFolderEntryUUID");
         String folderUID = params.getStringParm("$XDSFolderUniqueId");
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
+
         if (folderUUID != null) {
             // starting from uuid
             OMElement x = this.getFolderByUUID(folderUUID);
@@ -114,7 +119,7 @@ public class GetFolderAndContents extends StoredQuery {
         logMessage.addOtherParam("Doc ids", docIds.toString());
         List<String> assocIds;
         if (contentIds.size() > 0 && folderIds.size() > 0) {
-            OMElement assocMetadata = this.getRegistryPackageAssociations(folderIds, contentIds);
+            OMElement assocMetadata = this.getRegistryPackageAssociations(folderIds, assocStatusValues, contentIds);
             assocIds = this.getIdsFromRegistryResponse(assocMetadata);
             logMessage.addOtherParam("Assoc ids", assocIds.toString());
             metadata.addMetadata(assocMetadata);

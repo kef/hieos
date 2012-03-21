@@ -302,23 +302,12 @@ public class RegistryObjectValidator extends StoredQuery {
     public List<String> validateAreFolders(ArrayList<String> ids) throws XdsException {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.append("SELECT rp.id FROM RegistryPackage rp, ExternalIdentifier ei");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" rp.status = '");
-        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
-        sqb.append("' AND");
-        sqb.newline();
-        sqb.append(" rp.id IN ");
+        sqb.append(" WHERE rp.status=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
+        sqb.append(" AND rp.id IN ");
         sqb.append(ids);
-        sqb.append(" AND");
-        sqb.newline();
-        sqb.append(" ei.registryObject = rp.id AND");
-        sqb.newline();
-        sqb.append(" ei.identificationScheme = '"
-                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
-                + "'");
-        sqb.newline();
+        sqb.append(" AND ei.registryObject=rp.id AND ei.identificationScheme=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid));
         BackendRegistry backendRegistry = this.getBackendRegistry();
         backendRegistry.setReason("Verify are Folders");
         List<String> results = this.runQueryForObjectRefs(sqb);
@@ -334,29 +323,17 @@ public class RegistryObjectValidator extends StoredQuery {
     private List<String> validateApproved(List<String> uuids) throws XdsException {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.append("SELECT id FROM ExtrinsicObject eo");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" eo.status = '");
-        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
-        sqb.append("' AND");
-        sqb.newline();
-        sqb.append("  eo.id IN ");
+        sqb.append(" WHERE eo.status=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
+        sqb.append(" AND eo.id IN ");
         sqb.append(uuids);
-        sqb.newline();
         List<String> results1 = this.runQueryForObjectRefs(sqb);
         sqb.initQuery();
         sqb.append("SELECT id FROM RegistryPackage eo");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" eo.status = '");
-        sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
-        sqb.append("' AND");
-        sqb.newline();
-        sqb.append(" eo.id IN ");
+        sqb.append(" WHERE eo.status=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
+        sqb.append(" AND eo.id IN ");
         sqb.append(uuids);
-        sqb.newline();
         List<String> results = this.runQueryForObjectRefs(sqb);
         results.addAll(results1);
         return this.findMissingIds(uuids, results);
@@ -376,45 +353,24 @@ public class RegistryObjectValidator extends StoredQuery {
         }
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.append("SELECT eo.id FROM ExtrinsicObject eo, ExternalIdentifier pid");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" eo.id IN ");
+        sqb.append(" WHERE eo.id IN ");
         sqb.append(uuids);
-        sqb.append(" AND ");
-        sqb.newline();
-        sqb.append(" pid.registryobject = eo.id AND");
-        sqb.newline();
-        sqb.append(" pid.identificationScheme='"
-                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
-                + "' AND");
-        sqb.newline();
-        sqb.append(" pid.value = '");
-        sqb.append(patient_id);
-        sqb.append("'");
-        sqb.newline();
+        sqb.append(" AND pid.registryobject=eo.id AND pid.identificationScheme=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid));
+        sqb.append(" AND pid.value=");
+        sqb.appendQuoted(patient_id);
         List<String> results1 = this.runQueryForObjectRefs(sqb);
         sqb.initQuery();
         sqb.append("SELECT eo.id FROM RegistryPackage eo, ExternalIdentifier pid");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" eo.id IN ");
+        sqb.append(" WHERE eo.id IN ");
         sqb.append(uuids);
-        sqb.append(" AND");
-        sqb.newline();
-        sqb.append(" pid.registryobject = eo.id AND");
-        sqb.newline();
-        sqb.append(" pid.identificationScheme IN ('"
-                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
-                + "','"
-                + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
-                + "') AND");
-        sqb.newline();
-        sqb.append(" pid.value = '");
-        sqb.append(patient_id);
-        sqb.append("'");
-        sqb.newline();
+        sqb.append(" AND pid.registryobject = eo.id AND");
+        sqb.append(" pid.identificationScheme IN (");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid));
+        sqb.append(",");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid));
+        sqb.append(") AND pid.value=");
+        sqb.appendQuoted(patient_id);
         List<String> results = this.runQueryForObjectRefs(sqb);
         results.addAll(results1);
         return this.findMissingIds(uuids, results);
@@ -451,21 +407,13 @@ public class RegistryObjectValidator extends StoredQuery {
         }
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.append("SELECT eo.id FROM ExtrinsicObject eo, Association a");
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
-        sqb.append(" a.associationType IN ('");
-        sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_xfrm));
-        sqb.append("', '");
-        sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_apnd));
-        sqb.append("') AND");
-        sqb.newline();
-        sqb.append(" a.targetObject IN ");
+        sqb.append(" WHERE a.associationType IN (");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_xfrm));
+        sqb.append(",");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_apnd));
+        sqb.append(" ) AND a.targetObject IN ");
         sqb.append(uuids);
-        sqb.append(" AND");
-        sqb.newline();
-        sqb.append(" a.sourceObject = eo.id");
-        sqb.newline();
+        sqb.append(" AND a.sourceObject = eo.id");
         return this.runQueryForObjectRefs(sqb);
     }
 

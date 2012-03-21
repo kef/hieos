@@ -54,6 +54,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         validateQueryParam("$XDSSubmissionSetUniqueId", true, false, true, false, false, "$XDSSubmissionSetEntryUUID");
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
 
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
@@ -68,6 +69,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String ssUUID = params.getStringParm("$XDSSubmissionSetEntryUUID");
         String ssUID = params.getStringParm("$XDSSubmissionSetUniqueId");
         if (ssUUID != null) {

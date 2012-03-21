@@ -45,6 +45,8 @@ public class GetSubmissionSets extends StoredQuery {
 
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -58,6 +60,7 @@ public class GetSubmissionSets extends StoredQuery {
     public Metadata runInternal() throws XdsException {
         Metadata metadata;
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         List<String> uuids = params.getListParm("$uuid");
         if (uuids != null) {
             OMElement ele = this.getSubmissionSetsOfContents(uuids);

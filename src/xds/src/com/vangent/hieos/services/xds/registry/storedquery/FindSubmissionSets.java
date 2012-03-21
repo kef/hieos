@@ -94,20 +94,20 @@ public class FindSubmissionSets extends StoredQuery {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.select("obj");
         sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
-        sqb.newline();
         if (sourceId != null) {
+            sqb.newline();
             sqb.append(", ExternalIdentifier srcId");
         }
-        sqb.newline();
         if (submissionTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot sTimef");
         }
-        sqb.newline();
         if (submissionTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot sTimet");
         }
-        sqb.newline();
         if (authorPerson != null) {
+            sqb.newline();
             sqb.append(", Classification author");
             sqb.newline();
             sqb.append(", Slot authorperson");
@@ -116,6 +116,7 @@ public class FindSubmissionSets extends StoredQuery {
         sqb.appendClassificationDeclaration(contentType);
         sqb.newline();
 
+        // WHERE clause ...
         sqb.append("WHERE");
         sqb.newline();
         // patientID

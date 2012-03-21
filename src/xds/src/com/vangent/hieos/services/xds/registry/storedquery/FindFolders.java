@@ -53,6 +53,8 @@ public class FindFolders extends StoredQuery {
         validateQueryParam("$XDSFolderLastUpdateTimeTo", false, false, false, false, false, (String[]) null);
         validateQueryParam("$XDSFolderCodeList", false, true, true, true, true, (String[]) null);
         validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
+        validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
+
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -81,11 +83,13 @@ public class FindFolders extends StoredQuery {
      */
     private OMElement impl() throws XdsInternalException, MetadataException, XdsException {
         SqParams params = this.getSqParams();
+        String metadataLevel = params.getIntParm("$MetadataLevel");
         String patientId = params.getStringParm("$XDSFolderPatientId");
         String lastUpdateTimeFrom = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
         String lastUpdateTimeTo = params.getIntParm("$XDSFolderLastUpdateTimeTo");
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         List<String> status = params.getListParm("$XDSFolderStatus");
+
         if (patientId == null || patientId.length() == 0) {
             throw new XdsException("Patient ID parameter empty");
         }
@@ -95,16 +99,18 @@ public class FindFolders extends StoredQuery {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.select("obj");
         sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
-        sqb.newline();
         if (lastUpdateTimeFrom != null) {
+            sqb.newline();
             sqb.append(", Slot updateTimef");
         }
-        sqb.newline();
         if (lastUpdateTimeTo != null) {
+            sqb.newline();
             sqb.append(", Slot updateTimet");
         }
         sqb.newline();
         sqb.appendClassificationDeclaration(codes);
+
+        // WHERE clause ...
         sqb.newline();
         sqb.append("WHERE");
         sqb.newline();
