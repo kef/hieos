@@ -38,6 +38,7 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
+import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
@@ -160,7 +161,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
 
             // Run validations.
             RegistryObjectValidator rov = new RegistryObjectValidator(response, log_message, backendRegistry);
-            rov.validate(m, response.registryErrorList, this.getConfigActor());
+            rov.validate(m, MetadataType.SUBMISSION, response.registryErrorList, this.getConfigActor());
             if (!response.has_errors()) {
                 // Only continue if response does not have any errors (a bit ugly).
 

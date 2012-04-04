@@ -90,8 +90,13 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         this.originalStatus = originalStatus;
     }
 
+    /**
+     * 
+     * @return
+     * @throws XdsException
+     */
     @Override
-    public boolean execute() throws XdsException {
+    protected boolean execute() throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         String targetObjectId = this.getTargetObjectId();
@@ -107,8 +112,6 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         //   1. ExtrinsicObject
         //   2. Folder
         //   3. Association
-        System.out.println("Executing command ... " + this.getClass().getName());
-        logMessage.addOtherParam("Command", "Update Status");
 
         // Prepare to issue registry query.
         MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
@@ -187,7 +190,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
             OMElement targetFolder = m.getFolder(0);
             this.enforceStatusConstraints("Folder", m, targetFolder);
 
-             // Now, make sure that we don't create a situation where there is more than one
+            // Now, make sure that we don't create a situation where there is more than one
             // approved document for the same LID.
             if (this.newStatus.equals(MetadataSupport.status_type_approved)) {
                 // We are attempting to change the status to approved.  Enforce rules.
@@ -225,6 +228,8 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
             OMElement targetAssoc = m.getAssociation(0);
             this.enforceStatusConstraints("Association", m, targetAssoc);
 
+            // FIXME: Enforce rules?
+            
             // Update the association status.
             this.updateRegistryObjectStatus(muSQ.getBackendRegistry(), m.getAssociationIds(), this.newStatus);
             updated = true;
@@ -282,12 +287,12 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
     private void enforceStatusConstraints(String objectType, Metadata m, OMElement targetRegistryObject) throws XdsException {
         String status = m.getStatus(targetRegistryObject);
 
-        // Make sure current status on document matches the "originalStatus" provided.
+        // Make sure current status on registry object matches the "originalStatus" provided.
         if (!status.equals(this.originalStatus)) {
             throw new XdsException(objectType + " found but it does not match originalStatus provided.  Status in registry = " + status);
         }
 
-        // Make sure current status on document is not the same as the "newStatus".
+        // Make sure current status on registry object is not the same as the "newStatus".
         if (status.equals(this.newStatus)) {
             throw new XdsException(objectType + " found but already matches the newStatus provided.");
         }
@@ -305,5 +310,16 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         backendRegistry.submitSetStatusOnObjectsRequest(objectIds, status);
         // FIXME: Deal with response!!
 
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    @Override
+    protected boolean validate() throws XdsException {
+        // Not used.
+        return true;
     }
 }

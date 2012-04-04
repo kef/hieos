@@ -587,7 +587,34 @@ public abstract class StoredQuery {
         sqb.select("rp");
         sqb.append("FROM RegistryPackage rp, ExternalIdentifier uniq");
         sqb.append(" WHERE rp.lid=");
-        sqb.append(lid);
+        sqb.appendQuoted(lid);
+        sqb.append(" AND uniq.registryObject=rp.id AND uniq.identificationScheme=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_uniqueid_uuid));
+        return this.runQuery(sqb);
+    }
+
+    /**
+     *
+     * @param lid
+     * @param status
+     * @param version
+     * @return
+     * @throws XdsException
+     */
+    public OMElement getFoldersByLID(String lid, String status, String version) throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(returnLeafClass);
+        sqb.select("rp");
+        sqb.append("FROM RegistryPackage rp, ExternalIdentifier uniq");
+        sqb.append(" WHERE rp.lid=");
+        sqb.appendQuoted(lid);
+        if (status != null) {
+            sqb.append(" AND rp.status=");
+            sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
+        }
+        if (version != null) {
+            sqb.append(" AND rp.versionname=");
+            sqb.appendQuoted(version);
+        }
         sqb.append(" AND uniq.registryObject=rp.id AND uniq.identificationScheme=");
         sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_uniqueid_uuid));
         return this.runQuery(sqb);

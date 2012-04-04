@@ -29,6 +29,7 @@ import com.vangent.hieos.xutil.exception.XdsPatientIdDoesNotMatchException;
 import com.vangent.hieos.xutil.exception.XdsUnknownPatientIdException;
 import com.vangent.hieos.xutil.metadata.structure.IdIndex;
 import com.vangent.hieos.xutil.metadata.validation.Validator;
+import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -59,6 +60,7 @@ public class RegistryObjectValidator extends StoredQuery {
     /**
      * 
      * @param m
+     * @param metadataType
      * @param registryErrorList
      * @param registryConfig
      * @throws XdsPatientIdDoesNotMatchException
@@ -69,9 +71,9 @@ public class RegistryObjectValidator extends StoredQuery {
      * @throws XdsInternalException
      * @throws XdsException
      */
-    public void validate(Metadata m, RegistryErrorList registryErrorList, XConfigActor registryConfig) throws XdsPatientIdDoesNotMatchException, MetadataValidationException, XDSNonIdenticalHashException, MetadataException, XdsDeprecatedException, XdsInternalException, XdsException {
-        // Validate that the SOR is internally consistent:
-        Validator val = new Validator(m, registryErrorList, true, this.getLogMessage());
+    public void validate(Metadata m, MetadataType metadataType, RegistryErrorList registryErrorList, XConfigActor registryConfig) throws XdsPatientIdDoesNotMatchException, MetadataValidationException, XDSNonIdenticalHashException, MetadataException, XdsDeprecatedException, XdsInternalException, XdsException {
+        // Validate that the metadata is internally consistent:
+        Validator val = new Validator(m, registryErrorList, metadataType, this.getLogMessage());
         val.run();
 
         // Validate uuid's, etc. -- side effect, will update Metadata instance.

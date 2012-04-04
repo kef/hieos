@@ -21,6 +21,7 @@ import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -34,6 +35,7 @@ import org.apache.axiom.om.OMElement;
  */
 public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMetadataCommand {
 
+    // Scratch pad area.
     private OMElement currentDocumentEntry;
     private Metadata currentMetadata;
 
@@ -48,63 +50,53 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
 
     /**
      * 
+     * @return
      * @throws XdsException
      */
     @Override
-    public boolean execute() throws XdsException {
-        boolean executionSuccess = true;
+    protected boolean execute() throws XdsException {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
-        System.out.println("Executing command ... " + this.getClass().getName());
-        logMessage.addOtherParam("Command", "Update DocumentEntry Metadata");
+        // FIXME: metadata includes the targetObject, but it may contain other details
+        // we do not want.
+        Metadata metadata = this.getMetadata();
+        OMElement targetObject = this.getTargetObject();
 
-        // Validate.
-        boolean validationSuccess = this.validate();
-        if (!validationSuccess) {
-            executionSuccess = false;
-        } else {
+        // Now, fixup the Metadata to be submitted.
 
-            // FIXME: metadata includes the targetObject, but it may contain other details
-            // we do not want.
-            Metadata metadata = this.getMetadata();
-            OMElement targetObject = this.getTargetObject();
+        // Change symbolic names to UUIDs.
+        IdParser idParser = new IdParser(metadata);
+        idParser.compileSymbolicNamesIntoUuids();
 
-            // Now, fixup the Metadata to be submitted.
+        // Adjust the version number (current version number + 1).
+        Metadata.updateRegistryObjectVersion(targetObject, this.getPreviousVersion());
 
-            // Change symbolic names to UUIDs.
-            IdParser idParser = new IdParser(metadata);
-            idParser.compileSymbolicNamesIntoUuids();
+        // DEBUG:
+        logMessage.addOtherParam("Version to Submit", targetObject);
 
-            // Adjust the version number (current version number + 1).
-            Metadata.updateRegistryObjectVersion(targetObject, this.getPreviousVersion());
+        // FIXME: MetadataTypes.METADATA_TYPE_Rb?
+        //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
 
-            // DEBUG:
-            logMessage.addOtherParam("Version to Submit", targetObject);
+        backendRegistry.setReason("Submit New Version");
+        OMElement result = backendRegistry.submit(metadata);
 
-            // FIXME: MetadataTypes.METADATA_TYPE_Rb?
-            //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
-
-            backendRegistry.setReason("Submit New Version");
-            OMElement result = backendRegistry.submit(metadata);
-
-            // FIXME: Should approve in one shot.
-            // Approve.
-            ArrayList approvableObjectIds = metadata.getApprovableObjectIds();
-            if (approvableObjectIds.size() > 0) {
-                backendRegistry.submitApproveObjectsRequest(approvableObjectIds);
-            }
-
-            // Deprecate old.
-            String currentDocumentEntryId = currentMetadata.getId(currentDocumentEntry);
-            ArrayList deprecateObjectIds = new ArrayList<String>();
-            deprecateObjectIds.add(currentDocumentEntryId);
-            backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
+        // FIXME: Should approve in one shot.
+        // Approve.
+        ArrayList approvableObjectIds = metadata.getApprovableObjectIds();
+        if (approvableObjectIds.size() > 0) {
+            backendRegistry.submitApproveObjectsRequest(approvableObjectIds);
         }
-        return executionSuccess;
+
+        // Deprecate old.
+        String currentDocumentEntryId = currentMetadata.getId(currentDocumentEntry);
+        ArrayList deprecateObjectIds = new ArrayList<String>();
+        deprecateObjectIds.add(currentDocumentEntryId);
+        backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
+        return true;
     }
 
     /**
@@ -112,7 +104,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
      * @return
      * @throws XdsException
      */
-    private boolean validate() throws XdsException {
+    @Override
+    protected boolean validate() throws XdsException {
         boolean validationSuccess = true;
 
         // Get metadata update context for use later.
@@ -125,7 +118,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         Metadata submittedMetadata = this.getMetadata();
         OMElement targetObject = this.getTargetObject();
         String previousVersion = this.getPreviousVersion();
-
 
         // Get lid.
         String lid = targetObject.getAttributeValue(MetadataSupport.lid_qname);
@@ -155,7 +147,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
             throw new XdsException("> 1 existing document entry found!");
         }
 
-        // Fall through: we found a single document that matches.
+        // Fall through: we found a document that matches.
         currentDocumentEntry = currentMetadata.getExtrinsicObject(0);
 
         // FIXME: BEEF UP VALIDATIONS!!!!
@@ -166,13 +158,14 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
 
         // Validate the submitted submission set along with its contained content.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validate(submittedMetadata, registryResponse.registryErrorList, configActor);
+        rov.validate(submittedMetadata, MetadataType.UPDATE_SUBMISSION, registryResponse.registryErrorList, configActor);
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {
             // Run further validations.
 
-            // FIXME: Validate same UID?
+            // FIXME: Validate same UID
+            // FIXME: Validate same REPOID
 
             this.validateHashAndSize(submittedMetadata);
         }

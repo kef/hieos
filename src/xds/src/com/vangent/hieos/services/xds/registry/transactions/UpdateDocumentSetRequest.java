@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.registry.transactions;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.SubmitAssociationCommand;
 import com.vangent.hieos.services.xds.registry.mu.UpdateDocumentEntryMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.UpdateFolderMetadataCommand;
@@ -164,14 +165,14 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         try {
             // TBD: Do we need to order commands?
             // Execute each command.
-            boolean executionSuccess = false;
+            boolean runStatus = false;
             for (MetadataUpdateCommand muCommand : muCommands) {
-                executionSuccess = muCommand.execute();
-                if (!executionSuccess) {
+                runStatus = muCommand.run();
+                if (!runStatus) {
                     break;  // Get out.
                 }
             }
-            if (executionSuccess) {
+            if (runStatus) {
                 backendRegistry.commit();
                 commitCompleted = true;
             }
@@ -180,16 +181,6 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 backendRegistry.rollback();
             }
         }
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    // FIXME: Move
-    private boolean isUUID(String id) {
-        return id.startsWith("urn:uuid:");
     }
 
     /**
@@ -279,7 +270,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         String originalStatus = m.getSlotValue(assoc, "OriginalStatus", 0);
         System.out.println("... NewStatus = " + newStatus);
         System.out.println("... OriginalStatus = " + originalStatus);
-        if (!isUUID(targetObjectId)) {
+        if (!MetadataUpdateHelper.isUUID(targetObjectId)) {
             // TBD: Throw exception.
             // Should place into command?
             System.out.println("*** ERROR: " + targetObjectId + " is not in UUID format");
@@ -312,6 +303,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         OMElement targetObject = m.getObjectById(targetObjectId);
         SubmitAssociationCommand submitAssociationCommand = new SubmitAssociationCommand(m, metadataUpdateContext);
         submitAssociationCommand.setTargetObject(targetObject);
+        submitAssociationCommand.setSubmitAssociation(assoc);
         muCommand = submitAssociationCommand;
         return muCommand;
     }

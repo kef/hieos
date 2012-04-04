@@ -24,11 +24,11 @@ public abstract class MetadataUpdateCommand {
     private Metadata metadata;
     private MetadataUpdateContext metadataUpdateContext;
 
-   /**
-    * 
-    * @param metadata
-    * @param metadataUpdateContext
-    */
+    /**
+     *
+     * @param metadata
+     * @param metadataUpdateContext
+     */
     public MetadataUpdateCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
         this.metadata = metadata;
         this.metadataUpdateContext = metadataUpdateContext;
@@ -51,9 +51,31 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public boolean run() throws XdsException {
+        System.out.println("Executing command ... " + this.getClass().getName());
+        this.getMetadataUpdateContext().getLogMessage().addOtherParam("Command", this.getClass().getSimpleName());
+        boolean runStatus = this.validate();
+        if (runStatus) {
+            runStatus = this.execute();
+        }
+        return runStatus;
+    }
+
+    /**
      * 
      * @return
      * @throws XdsException
      */
-    abstract public boolean execute() throws XdsException;
+    abstract protected boolean execute() throws XdsException;
+
+    /**
+     * 
+     * @return
+     * @throws XdsException
+     */
+    abstract protected boolean validate() throws XdsException;
 }
