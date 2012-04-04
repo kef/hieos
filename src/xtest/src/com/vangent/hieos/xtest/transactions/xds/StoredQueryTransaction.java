@@ -35,6 +35,10 @@ import java.util.Locale;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 
+/**
+ *
+ * @author thumbe
+ */
 public class StoredQueryTransaction extends QueryTransaction {
 
     //String metadata_filename = null;

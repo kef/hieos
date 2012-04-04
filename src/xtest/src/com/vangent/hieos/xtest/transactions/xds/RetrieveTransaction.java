@@ -43,6 +43,10 @@ import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author thumbe
+ */
 public class RetrieveTransaction extends BasicTransaction {
 
     String metadata_filename = null;
@@ -92,15 +96,29 @@ public class RetrieveTransaction extends BasicTransaction {
         return (thing == null) ? "null" : "not null";
     }
 
+    /**
+     *
+     * @param isXca
+     */
     public void setIsXca(boolean isXca) {
         is_xca = isXca;
         xds_version = BasicTransaction.xds_b;
     }
 
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     */
     public RetrieveTransaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
         super(s_ctx, instruction, instruction_output);
     }
 
+    /**
+     *
+     * @throws XdsException
+     */
     public void run()
             throws XdsException {
         parse_input(s_ctx, instruction, instruction_output);
@@ -385,6 +403,10 @@ public class RetrieveTransaction extends BasicTransaction {
         return sb.getSha1String();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getRequestAction() {
         // TODO Auto-generated method stub

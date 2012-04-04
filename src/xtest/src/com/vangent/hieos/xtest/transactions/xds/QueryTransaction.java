@@ -24,13 +24,33 @@ import com.vangent.hieos.xtest.validator.TestValidator;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author thumbe
+ */
 abstract public class QueryTransaction extends BasicTransaction {
 	
-	public QueryTransaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     */
+    public QueryTransaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
 		super(s_ctx, instruction, instruction_output);
 	}
 	
-	protected String validate_expected_contents(OMElement result, int metadata_type, OMElement test_assertions) 
+        /**
+         *
+         * @param result
+         * @param metadata_type
+         * @param test_assertions
+         * @return
+         * @throws XdsInternalException
+         * @throws MetadataException
+         * @throws MetadataValidationException
+         */
+        protected String validate_expected_contents(OMElement result, int metadata_type, OMElement test_assertions)
 	throws XdsInternalException, MetadataException, MetadataValidationException {
 
 		Metadata m = MetadataParser.parseNonSubmission(result);

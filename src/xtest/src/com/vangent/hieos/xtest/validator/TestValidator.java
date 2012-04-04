@@ -27,6 +27,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author thumbe
+ */
 public class TestValidator {
 
     Metadata m;
@@ -34,14 +38,28 @@ public class TestValidator {
     boolean error = false;
     OMElement test_assertions;
 
+    /**
+     *
+     * @param m
+     */
     public TestValidator(Metadata m) {
         this.m = m;
     }
 
+    /**
+     *
+     * @param test_assertions
+     */
     public TestValidator(OMElement test_assertions) {
         this.test_assertions = test_assertions;
     }
 
+    /**
+     *
+     * @param test_assertion_file
+     * @param subset_name
+     * @throws XdsInternalException
+     */
     public TestValidator(File test_assertion_file, String subset_name) throws XdsInternalException {
         test_assertions = XMLParser.fileToOM(test_assertion_file);
         if (subset_name != null) {
@@ -54,6 +72,11 @@ public class TestValidator {
 
     // return is ArrayList of ArrayLists.  Each internal ArrayList has two elements, The first is testname, the second is status, third
     // is errors
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public ArrayList<ArrayList> getPatterns() throws MetadataException {
         ArrayList<ArrayList> patterns = new ArrayList<ArrayList>();
 
@@ -138,14 +161,28 @@ public class TestValidator {
         errs = new StringBuffer();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean hasError() {
         return error;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getErrors() {
         return errs.toString();
     }
 
+    /**
+     *
+     * @param count
+     * @return
+     * @throws XdsInternalException
+     */
     public boolean hasObjectRefs(int count) throws XdsInternalException {
         int originalSize = m.getAllObjects().size();
         if (originalSize != count) {
@@ -155,6 +192,10 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean hasSubmissionSet() {
         if (m.getSubmissionSet() == null) {
             err("No Submission Set found");
@@ -163,6 +204,10 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean hasNoSubmissionSet() {
         if (m.getSubmissionSet() != null) {
             err("Submission Set found");
@@ -171,6 +216,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @param count
+     * @return
+     */
     public boolean hasDocuments(int count) {
         if (m.getExtrinsicObjects().size() != count) {
             err("Found " + m.getExtrinsicObjects().size() + " Documents instead of " + count);
@@ -179,6 +229,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @param count
+     * @return
+     */
     public boolean hasFolders(int count) {
         if (m.getFolders().size() != count) {
             err("Found " + m.getFolders().size() + " Folders instead of " + count);
@@ -187,6 +242,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @param count
+     * @return
+     */
     public boolean hasSubmissionSets(int count) {
         if (m.getSubmissionSets().size() != count) {
             err("Found " + m.getSubmissionSets().size() + " SubmissionSets instead of " + count);
@@ -195,6 +255,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @param count
+     * @return
+     */
     public boolean hasAssociations(int count) {
         if (m.getAssociations().size() != count) {
             err("Found " + m.getAssociations().size() + " Associations instead of " + count);
@@ -211,6 +276,14 @@ public class TestValidator {
         return val;
     }
 
+    /**
+     *
+     * @param source
+     * @param target
+     * @param type
+     * @return
+     * @throws MetadataException
+     */
     public OMElement hasAssociation(OMElement source, OMElement target, String type) throws MetadataException {
         String source_id = att_val(source, MetadataSupport.id_qname);
         String target_id = att_val(target, MetadataSupport.id_qname);
@@ -230,14 +303,22 @@ public class TestValidator {
 
             return a;
         }
-        err(type + " assocation missing between sourceObject " +
-                m.getIdentifyingString(source_id) +
-                " and targetObject " +
-                m.getIdentifyingString(target_id) +
-                " expected " + type);
+        err(type + " assocation missing between sourceObject "
+                + m.getIdentifyingString(source_id)
+                + " and targetObject "
+                + m.getIdentifyingString(target_id)
+                + " expected " + type);
         return null;
     }
 
+    /**
+     *
+     * @param source
+     * @param targets
+     * @param type
+     * @return
+     * @throws MetadataException
+     */
     public OMElement hasAssociationWithOneTarget(OMElement source, ArrayList<OMElement> targets, String type) throws MetadataException {
         String source_id = att_val(source, MetadataSupport.id_qname);
         ArrayList<String> target_ids = new ArrayList<String>();
@@ -266,11 +347,11 @@ public class TestValidator {
             }
             return a;
         }
-        err(type + " assocation missing between sourceObject " +
-                m.getIdentifyingString(source_id) +
-                " and targetObject (one of) " +
-                getIdentifyingStrings(target_ids) +
-                " expected " + type);
+        err(type + " assocation missing between sourceObject "
+                + m.getIdentifyingString(source_id)
+                + " and targetObject (one of) "
+                + getIdentifyingStrings(target_ids)
+                + " expected " + type);
         return null;
     }
 
@@ -282,6 +363,11 @@ public class TestValidator {
         return idents;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean ss1Doc() throws MetadataException {
         this.hasSubmissionSet();
         this.hasDocuments(1);
@@ -296,6 +382,11 @@ public class TestValidator {
         return false;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean ss2Doc() throws MetadataException {
         this.hasSubmissionSet();
         this.hasDocuments(2);
@@ -313,6 +404,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean hasRplc() throws MetadataException {
         String docUuid = null;
         boolean found = false;
@@ -334,6 +430,11 @@ public class TestValidator {
         return found;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean docsApproved() throws MetadataException {
         boolean stat = false;
         for (OMElement eo : m.getExtrinsicObjects()) {
@@ -347,6 +448,91 @@ public class TestValidator {
         return stat;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
+    public boolean oneFolderDeprecated() throws MetadataException {
+        int count = 0;
+        for (OMElement fol : m.getFolders()) {
+            String status = fol.getAttributeValue(MetadataSupport.status_qname);
+            if (status.equals(MetadataSupport.status_type_deprecated)) {
+                count++;
+            }
+        }
+        if (count == 1) {
+            return true;
+        }
+        err("Found " + count + " Approved Folders instead of one");
+        return false;
+    }
+
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
+    public boolean oneFolderApproved() throws MetadataException {
+        int count = 0;
+        for (OMElement fol : m.getFolders()) {
+            String status = fol.getAttributeValue(MetadataSupport.status_qname);
+            if (status.equals(MetadataSupport.status_type_approved)) {
+                count++;
+            }
+        }
+        if (count == 1) {
+            return true;
+        }
+        err("Found " + count + " Approved Folders instead of one");
+        return false;
+    }
+
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
+    public boolean oneAssocDeprecated() throws MetadataException {
+        int count = 0;
+        for (OMElement assoc : m.getAssociations()) {
+            String status = assoc.getAttributeValue(MetadataSupport.status_qname);
+            if (status.equals(MetadataSupport.status_type_deprecated)) {
+                count++;
+            }
+        }
+        if (count == 1) {
+            return true;
+        }
+        err("Found " + count + " Deprecated Associations instead of one");
+        return false;
+    }
+
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
+    public boolean oneAssocApproved() throws MetadataException {
+        int count = 0;
+        for (OMElement assoc : m.getAssociations()) {
+            String status = assoc.getAttributeValue(MetadataSupport.status_qname);
+            if (status.equals(MetadataSupport.status_type_approved)) {
+                count++;
+            }
+        }
+        if (count == 1) {
+            return true;
+        }
+        err("Found " + count + " Approved Associations instead of one");
+        return false;
+    }
+
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean folsApproved() throws MetadataException {
         for (OMElement fol : m.getFolders()) {
             String status = fol.getAttributeValue(MetadataSupport.status_qname);
@@ -358,6 +544,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean ssApproved() throws MetadataException {
         OMElement ss = m.getSubmissionSet();
         if (ss == null) {
@@ -372,6 +563,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean docsDeprecated() throws MetadataException {
         for (OMElement eo : m.getExtrinsicObjects()) {
             String status = eo.getAttributeValue(MetadataSupport.status_qname);
@@ -383,6 +579,11 @@ public class TestValidator {
         return true;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean oneDocDeprecated() throws MetadataException {
         int count = 0;
         for (OMElement eo : m.getExtrinsicObjects()) {
@@ -398,6 +599,11 @@ public class TestValidator {
         return false;
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean oneDocApproved() throws MetadataException {
         int count = 0;
         for (OMElement eo : m.getExtrinsicObjects()) {
@@ -413,12 +619,25 @@ public class TestValidator {
         return false;
     }
 
+    /**
+     *
+     * @param xml
+     * @throws MetadataException
+     * @throws XdsInternalException
+     * @throws MetadataValidationException
+     */
     public void run_test_assertions(OMElement xml) throws MetadataException, XdsInternalException, MetadataValidationException {
         Metadata m = new Metadata(xml);
 
         run_test_assertions(m);
     }
 
+    /**
+     *
+     * @param m
+     * @throws MetadataException
+     * @throws XdsInternalException
+     */
     public void run_test_assertions(Metadata m) throws MetadataException, XdsInternalException {
         this.m = m;
 
@@ -441,6 +660,14 @@ public class TestValidator {
                 oneDocDeprecated();
             } else if (ec_name.equals("OneDocApp")) {
                 oneDocApproved();
+            } else if (ec_name.equals("OneFolDep")) {
+                oneFolderDeprecated();
+            } else if (ec_name.equals("OneFolApp")) {
+                oneFolderApproved();
+             } else if (ec_name.equals("OneAssocDep")) {
+                oneAssocDeprecated();
+            } else if (ec_name.equals("OneAssocApp")) {
+                oneAssocApproved();
             } else if (ec_name.equals("FolApp")) {
                 folsApproved();
             } else if (ec_name.equals("SSwithTwoDoc")) {
@@ -488,6 +715,11 @@ public class TestValidator {
         }
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean sswithOneFol() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(0);
@@ -499,6 +731,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean addDocToExistingFolder() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(1);
@@ -527,9 +764,9 @@ public class TestValidator {
                 folDocAssoc = assocA;
             }
 
-            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc)) ||
-                    !m.getSourceObject(ssAssocAssoc).equals(ssId) ||
-                    !m.getTargetObject(ssAssocAssoc).equals(m.getId(folDocAssoc))) {
+            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc))
+                    || !m.getSourceObject(ssAssocAssoc).equals(ssId)
+                    || !m.getTargetObject(ssAssocAssoc).equals(m.getId(folDocAssoc))) {
                 String msg = "";
                 if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc))) {
                     msg = "association type";
@@ -543,8 +780,8 @@ public class TestValidator {
                 err("A HasMember association must link the SubmissionSet and the new Folder-to-Document Association (" + msg + ")");
             }
 
-            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(folDocAssoc)) ||
-                    !m.getTargetObject(folDocAssoc).equals(docId)) {
+            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(folDocAssoc))
+                    || !m.getTargetObject(folDocAssoc).equals(docId)) {
                 err("A HasMember association must link the existing folder and the new Document");
             }
 
@@ -552,6 +789,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean addExistingDocToExistingFolder() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(0);
@@ -577,9 +819,9 @@ public class TestValidator {
                 folDocAssoc = assocA;
             }
 
-            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc)) ||
-                    !m.getSourceObject(ssAssocAssoc).equals(ssId) ||
-                    !m.getTargetObject(ssAssocAssoc).equals(m.getId(folDocAssoc))) {
+            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc))
+                    || !m.getSourceObject(ssAssocAssoc).equals(ssId)
+                    || !m.getTargetObject(ssAssocAssoc).equals(m.getId(folDocAssoc))) {
                 String msg = "";
                 if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssAssocAssoc))) {
                     msg = "association type";
@@ -601,6 +843,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean replaceDocument() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(1);
@@ -627,9 +874,9 @@ public class TestValidator {
                 rplcAssoc = assocA;
             }
 
-            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssDocAssoc)) ||
-                    !m.getSourceObject(ssDocAssoc).equals(ssId) ||
-                    !m.getTargetObject(ssDocAssoc).equals(docId)) {
+            if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssDocAssoc))
+                    || !m.getSourceObject(ssDocAssoc).equals(ssId)
+                    || !m.getTargetObject(ssDocAssoc).equals(docId)) {
                 String msg = "";
                 if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(ssDocAssoc))) {
                     msg = "association type";
@@ -643,8 +890,8 @@ public class TestValidator {
                 err("A HasMember association must link the SubmissionSet and the new Document (" + msg + ")");
             }
 
-            if (!MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(m.getAssocType(rplcAssoc)) ||
-                    !m.getSourceObject(rplcAssoc).equals(docId)) {
+            if (!MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(m.getAssocType(rplcAssoc))
+                    || !m.getSourceObject(rplcAssoc).equals(docId)) {
                 err("A RPLC association must link the submitted Document and the existing Document");
             }
 
@@ -652,6 +899,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean sswithOneDocOneFol() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(1);
@@ -685,6 +937,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean sswithTwoDocOneFol() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(2);
@@ -735,6 +992,11 @@ public class TestValidator {
         return !hasError();
     }
 
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
     public boolean sswithTwoDocOneFolOneDocInFol() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(2);
@@ -791,6 +1053,10 @@ public class TestValidator {
         System.exit(-1);
     }
 
+    /**
+     *
+     * @param args
+     */
     static public void main(String[] args) {
         String filename = null;
         String assertion_filename = null;
@@ -828,8 +1094,8 @@ public class TestValidator {
             }
         }
 
-        if (assertion_filename == null ||
-                filename == null) {
+        if (assertion_filename == null
+                || filename == null) {
             usage();
         }
 

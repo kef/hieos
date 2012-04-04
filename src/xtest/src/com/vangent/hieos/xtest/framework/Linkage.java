@@ -31,6 +31,10 @@ import javax.xml.namespace.QName;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 
+/**
+ *
+ * @author thumbe
+ */
 public class Linkage {
 
     OMElement instruction_output;
@@ -43,6 +47,10 @@ public class Linkage {
     String repUniqueId = null;
     boolean debug = false;
 
+    /**
+     *
+     * @return
+     */
     public String getRepositoryUniqueId() {
         return repUniqueId;
     }
@@ -51,6 +59,12 @@ public class Linkage {
     // instruction_output - log output - place to search previous test steps for linkage targets
     //     - if null only previous testplans will be searched
     // use_id - linkage specification (requests) to previous steps
+    /**
+     *
+     * @param instruction_output
+     * @param m
+     * @param use_id
+     */
     public Linkage(OMElement instruction_output, Metadata m, ArrayList<OMElement> use_id) {
         this.instruction_output = instruction_output;
         this.m = m;
@@ -63,37 +77,71 @@ public class Linkage {
     // l.add_use_value(symbol1, value1);
     // l.add_use_value(symbol2, value2);
     // l.compile();
+    /**
+     *
+     * @param instruction_output
+     * @param m
+     */
     public Linkage(OMElement instruction_output, Metadata m) {
         this.instruction_output = instruction_output;
         this.m = m;
     }
 
+    /**
+     * 
+     */
     public Linkage() {
         instruction_output = null;
         m = null;
     }
 
+    /**
+     *
+     * @param instruction_output
+     */
     public Linkage(OMElement instruction_output) {
         this.instruction_output = instruction_output;
         m = null;
     }
 
+    /**
+     *
+     * @param use_object_ref
+     */
     public void setUseObjectRef(ArrayList<OMElement> use_object_ref) {
         this.use_object_ref = use_object_ref;
     }
 
+    /**
+     *
+     * @param use_repository_unique_id
+     */
     public void setUseRepositoryUniqueId(ArrayList<OMElement> use_repository_unique_id) {
         this.use_repository_unique_id = use_repository_unique_id;
     }
 
+    /**
+     *
+     * @param use_xpath
+     */
     public void setUseXPath(ArrayList<OMElement> use_xpath) {
         this.use_xpath = use_xpath;
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public String get_value(String id) {
         return linkage.get(id);
     }
 
+    /**
+     *
+     * @param symbol
+     * @param value
+     */
     public void add(String symbol, String value) {
         if (linkage == null) {
             linkage = new HashMap<String, String>();
@@ -101,28 +149,32 @@ public class Linkage {
         linkage.put(symbol, value);
     }
 
+    /*
     public String get_value(String testdir, String id, String step, String section) throws XdsInternalException, XdsException {
-        // when used this way, caller is interested in value of id, so use its value as the value for symbol (last parm)
-        add_use_id(testdir, id, step, section, id);
-        compileUseId();
-        return get_value(id);
-    }
-
+    // when used this way, caller is interested in value of id, so use its value as the value for symbol (last parm)
+    add_use_id(testdir, id, step, section, id);
+    compileUseId();
+    return get_value(id);
+    }*/
     // <UseId testdir="../submit1" id="Document01" step="submit_doc"
     //     section="AssignedUids" symbol="$uid$"/>
+    /*
     public void add_use_id(String testdir, String id, String step, String section, String symbol) {
-        if (use_id == null) {
-            use_id = new ArrayList<OMElement>();
-        }
-        OMElement use = MetadataSupport.om_factory.createOMElement(new QName("UseId"));
-        use.addAttribute("testdir", testdir, null);
-        use.addAttribute("id", id, null);
-        use.addAttribute("step", step, null);
-        use.addAttribute("section", section, null);
-        use.addAttribute("symbol", symbol, null);
-        use_id.add(use);
+    if (use_id == null) {
+    use_id = new ArrayList<OMElement>();
     }
-
+    OMElement use = MetadataSupport.om_factory.createOMElement(new QName("UseId"));
+    use.addAttribute("testdir", testdir, null);
+    use.addAttribute("id", id, null);
+    use.addAttribute("step", step, null);
+    use.addAttribute("section", section, null);
+    use.addAttribute("symbol", symbol, null);
+    use_id.add(use);
+    }*/
+    /**
+     *
+     * @param use_xpath
+     */
     public void add_use_xpath(OMElement use_xpath) {
         if (this.use_xpath == null) {
             this.use_xpath = new ArrayList<OMElement>();
@@ -130,17 +182,25 @@ public class Linkage {
         this.use_xpath.add(use_xpath);
     }
 
+    /*
     public void add_use_value(String symbol, String value) {
-        if (use_id == null) {
-            use_id = new ArrayList<OMElement>();
-        }
-        OMElement use = MetadataSupport.om_factory.createOMElement(new QName("UseId"));
-        use.addAttribute("symbol", symbol, null);
-        use.addAttribute("value", value, null);
-        use_id.add(use);
-
+    if (use_id == null) {
+    use_id = new ArrayList<OMElement>();
     }
+    OMElement use = MetadataSupport.om_factory.createOMElement(new QName("UseId"));
+    use.addAttribute("symbol", symbol, null);
+    use.addAttribute("value", value, null);
+    use_id.add(use);
 
+    }*/
+    /**
+     *
+     * @param wrapper
+     * @param target_test_step_id
+     * @param target_transaction_type
+     * @return
+     * @throws XdsException
+     */
     public OMElement find_instruction_output(OMElement wrapper, String target_test_step_id,
             String target_transaction_type) throws XdsException {
         for (Iterator it = wrapper.getChildElements(); it.hasNext();) {
@@ -168,11 +228,23 @@ public class Linkage {
         return null;
     }
 
+    /**
+     *
+     * @param step_id
+     * @param section_name
+     * @return
+     */
     public String format_section_and_step(String step_id, String section_name) {
         String section_and_step = "section " + section_name + " step " + step_id;
         return section_and_step;
     }
 
+    /**
+     *
+     * @param test_dir
+     * @return
+     * @throws XdsInternalException
+     */
     public OMElement get_log_file(String test_dir)
             throws XdsInternalException {
         if (debug) {
@@ -182,10 +254,22 @@ public class Linkage {
         return rootNode;
     }
 
+    /**
+     *
+     * @param test_dir
+     * @return
+     */
     public String getLogFileName(String test_dir) {
         return TestConfig.log_dir + test_dir + "/" + "log.xml";
     }
 
+    /**
+     *
+     * @param root
+     * @param old_text
+     * @param new_text
+     * @throws XdsException
+     */
     public void replace_string_in_text_and_attributes(OMElement root, String old_text, String new_text) throws XdsException {
         for (Iterator it = root.getChildElements(); it.hasNext();) {
             OMElement e = (OMElement) it.next();
@@ -229,6 +313,12 @@ public class Linkage {
         return buf.toString();
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     * @throws XdsInternalException
+     */
     public HashMap<String, String> compile() throws XdsException,
             XdsInternalException {
         HashMap<String, String> result = new HashMap<String, String>();
@@ -258,10 +348,10 @@ public class Linkage {
             String symbol = use.getAttributeValue(new QName("symbol"));
 
             if (debug) {
-                System.out.println("compileUseRepositoryUniqueId:" +
-                        "\ntestdir = " + testdir +
-                        "\nstep = " + step +
-                        "\nsymbol = " + symbol);
+                System.out.println("compileUseRepositoryUniqueId:"
+                        + "\ntestdir = " + testdir
+                        + "\nstep = " + step
+                        + "\nsymbol = " + symbol);
             }
 
             Metadata m = getResult(testdir, step);
@@ -289,6 +379,13 @@ public class Linkage {
         return result;
     }
 
+    /**
+     *
+     * @param testdir
+     * @param step
+     * @return
+     * @throws XdsException
+     */
     public Metadata getResult(String testdir, String step) throws XdsException {
         OMElement result_ele = findResultInLog(step, testdir);
         if (result_ele == null) {
@@ -297,12 +394,12 @@ public class Linkage {
         OMElement ele = result_ele.getFirstElement();
         Metadata m = MetadataParser.parseNonSubmission(ele);
         if (debug) {
-            System.out.println("getResult:" +
-                    "\ntestdir = " + testdir +
-                    "\nstep = " + step +
-                    "\nresult =  " + result_ele.getLocalName() +
-                    "\nele = " + ((ele == null) ? "null" : ele.getLocalName()) +
-                    "\nmetadata is " + m.getMetadataDescription());
+            System.out.println("getResult:"
+                    + "\ntestdir = " + testdir
+                    + "\nstep = " + step
+                    + "\nresult =  " + result_ele.getLocalName()
+                    + "\nele = " + ((ele == null) ? "null" : ele.getLocalName())
+                    + "\nmetadata is " + m.getMetadataDescription());
         }
         return m;
     }
@@ -312,13 +409,13 @@ public class Linkage {
         for (OMElement eo : m.getExtrinsicObjects()) {
             String rui = m.getSlotValue(eo, "repositoryUniqueId", 0);
             if (debug) {
-                System.out.println("eo = " + eo.getAttributeValue(MetadataSupport.id_qname) +
-                        " repositoryUniqueId = " + rui);
+                System.out.println("eo = " + eo.getAttributeValue(MetadataSupport.id_qname)
+                        + " repositoryUniqueId = " + rui);
             }
             if (rui == null || rui.equals("")) {
-                throw new XdsInternalException("RetrieveTransaction: getRepositoryUniqueId(): ExtrinsicObject " +
-                        eo.getAttributeValue(MetadataSupport.id_qname) +
-                        "does not have a repositoryUniqueId attribute");
+                throw new XdsInternalException("RetrieveTransaction: getRepositoryUniqueId(): ExtrinsicObject "
+                        + eo.getAttributeValue(MetadataSupport.id_qname)
+                        + "does not have a repositoryUniqueId attribute");
             }
             if (repUniqueId == null) {
                 repUniqueId = rui;
@@ -343,19 +440,19 @@ public class Linkage {
             String symbol = use.getAttributeValue(new QName("symbol"));
 
             boolean is_testdir =
-                    (testdir != null && !testdir.equals("") &&
-                    step != null && !step.equals("") &&
-                    xpath != null && !xpath.equals("") &&
-                    symbol != null && !symbol.equals(""));
+                    (testdir != null && !testdir.equals("")
+                    && step != null && !step.equals("")
+                    && xpath != null && !xpath.equals("")
+                    && symbol != null && !symbol.equals(""));
             boolean is_mgmt =
-                    (file != null && !file.equals("") &&
-                    xpath != null && !xpath.equals("") &&
-                    symbol != null && !symbol.equals(""));
+                    (file != null && !file.equals("")
+                    && xpath != null && !xpath.equals("")
+                    && symbol != null && !symbol.equals(""));
 
             if (is_testdir == false && is_mgmt == false) {
-                throw new XdsException(": <UseXPath element must contain of these sets of attributes:\n" +
-                        "testdir, step, symbol, with the body of the element holding the xpath OR\n" +
-                        "file, symbol, with the body of the element holding the xpath");
+                throw new XdsException(": <UseXPath element must contain of these sets of attributes:\n"
+                        + "testdir, step, symbol, with the body of the element holding the xpath OR\n"
+                        + "file, symbol, with the body of the element holding the xpath");
             }
             try {
                 if (is_testdir) {
@@ -391,8 +488,8 @@ public class Linkage {
                     }
                 }
             } catch (Exception e) {
-                throw new XdsException("Linkage:compileUseXPath(): problem compiling xpath expression\n" + xpath + "\nunable to access referenced data:\n" + e.getMessage() + "\n" +
-                        ExceptionUtil.exception_details(e));
+                throw new XdsException("Linkage:compileUseXPath(): problem compiling xpath expression\n" + xpath + "\nunable to access referenced data:\n" + e.getMessage() + "\n"
+                        + ExceptionUtil.exception_details(e));
             }
         }
         if (linkage != null) {
@@ -402,6 +499,12 @@ public class Linkage {
         return linkage;
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     * @throws XdsInternalException
+     */
     public HashMap<String, String> compileUseId() throws XdsException,
             XdsInternalException {
         // symbol => id_value
@@ -417,21 +520,21 @@ public class Linkage {
             String test_dir = use.getAttributeValue(new QName("testdir"));
             boolean by_value = false;
 
-            if (symbol != null && !symbol.equals("") &&
-                    value != null && !value.equals("")) {
+            if (symbol != null && !symbol.equals("")
+                    && value != null && !value.equals("")) {
                 by_value = true; // ok combination
-            } else if (id == null || id.equals("") ||
-                    step_id == null || step_id.equals("") ||
-                    section_name == null || section_name.equals("") ||
-                    symbol == null || symbol.equals("")) {
-                throw new XdsException(": <UseId element must have id, type, and symbol attributes" +
-                        "\n OR  symbol and value must be set programatically " +
-                        "\nid = " + id +
-                        "\nstep = " + step_id +
-                        "\nsection = " + section_name +
-                        "\nsymbol = " + symbol +
-                        "\nvalue = " + value +
-                        "\ntestdir = " + test_dir);
+            } else if (id == null || id.equals("")
+                    || step_id == null || step_id.equals("")
+                    || section_name == null || section_name.equals("")
+                    || symbol == null || symbol.equals("")) {
+                throw new XdsException(": <UseId element must have id, type, and symbol attributes"
+                        + "\n OR  symbol and value must be set programatically "
+                        + "\nid = " + id
+                        + "\nstep = " + step_id
+                        + "\nsection = " + section_name
+                        + "\nsymbol = " + symbol
+                        + "\nvalue = " + value
+                        + "\ntestdir = " + test_dir);
             }
 
             OMElement transaction_output;
@@ -449,8 +552,8 @@ public class Linkage {
                     OMElement log = get_log_file(test_dir);
                     transaction_output = find_instruction_output(log, step_id, null);
                     if (transaction_output == null) {
-                        throw new XdsException("Linkage:CompileUseId(): " + format_section_and_step(step_id, section_name) +
-                                " Transaction with step_id " + step_id + " cannot be found in log file " + getLogFileName(test_dir));
+                        throw new XdsException("Linkage:CompileUseId(): " + format_section_and_step(step_id, section_name)
+                                + " Transaction with step_id " + step_id + " cannot be found in log file " + getLogFileName(test_dir));
                     }
                 } else {
                     // look in this log file
@@ -481,14 +584,14 @@ public class Linkage {
                     if (!symbol_value.equals(id)) {
                         continue;
                     }
-                    if (section.equals("AssignedPatientId")) {
-                        new TestMgmt().assignPatientId(m, id_value);
-                    } else {
-                        linkage.put(symbol, id_value);
-                        if (metadata_ele != null) {
-                            replace_string_in_text_and_attributes(metadata_ele, symbol, id_value);
-                        }
+                    //if (section.equals("AssignedPatientId")) {
+                    //    new TestMgmt().assignPatientId(m, id_value);
+                    //} else {
+                    linkage.put(symbol, id_value);
+                    if (metadata_ele != null) {
+                        replace_string_in_text_and_attributes(metadata_ele, symbol, id_value);
                     }
+                    //}
                 }
             }
 
@@ -499,6 +602,10 @@ public class Linkage {
         return linkage;
     }
 
+    /**
+     *
+     * @throws XdsException
+     */
     public void compileLinkage() throws XdsException {
 
         OMElement metadata_ele = (m == null) ? null : m.getRoot();
@@ -509,6 +616,12 @@ public class Linkage {
         }
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     * @throws XdsInternalException
+     */
     public HashMap<String, String> compileUseObjectRef() throws XdsException,
             XdsInternalException {
         // symbol => id_value
@@ -522,14 +635,14 @@ public class Linkage {
             String symbol = use.getAttributeValue(new QName("symbol"));
             String test_dir = use.getAttributeValue(new QName("testdir"));
 
-            if (step_id != null && !step_id.equals("") &&
-                    index != null && !index.equals("") &&
-                    symbol != null && !symbol.equals("")); else {
-                throw new XdsException("<UseObjectRef element must have testdir, step, index, and symbol attributes" +
-                        "\nindex = " + index +
-                        "\nstep = " + step_id +
-                        "\nsymbol = " + symbol +
-                        "\ntestdir = " + test_dir);
+            if (step_id != null && !step_id.equals("")
+                    && index != null && !index.equals("")
+                    && symbol != null && !symbol.equals("")); else {
+                throw new XdsException("<UseObjectRef element must have testdir, step, index, and symbol attributes"
+                        + "\nindex = " + index
+                        + "\nstep = " + step_id
+                        + "\nsymbol = " + symbol
+                        + "\ntestdir = " + test_dir);
             }
             int index_i = Integer.parseInt(index);
             if (index_i < 0) {
@@ -571,8 +684,8 @@ public class Linkage {
             OMElement log = get_log_file(test_dir);
             transaction_output = find_instruction_output(log, step_id, null);
             if (transaction_output == null) {
-                throw new XdsInternalException(format_section_and_step(step_id, "any") +
-                        " Transaction with step_id " + step_id + " cannot be found in log file " + getLogFileName(test_dir));
+                throw new XdsInternalException(format_section_and_step(step_id, "any")
+                        + " Transaction with step_id " + step_id + " cannot be found in log file " + getLogFileName(test_dir));
             }
         } else {
             // look in this log file
@@ -587,6 +700,14 @@ public class Linkage {
         return transaction_output;
     }
 
+    /**
+     *
+     * @param step_id
+     * @param test_dir
+     * @return
+     * @throws XdsInternalException
+     * @throws XdsException
+     */
     public OMElement findResultInLog(String step_id, String test_dir) throws XdsInternalException,
             XdsException {
 
@@ -608,6 +729,14 @@ public class Linkage {
         return result;
     }
 
+    /**
+     *
+     * @param this_instruction_output
+     * @param target_test_step_id
+     * @param target_transaction_type
+     * @return
+     * @throws XdsException
+     */
     protected OMElement find_previous_instruction_output(OMElement this_instruction_output, String target_test_step_id, String target_transaction_type) throws XdsException {
         // example target_transaction_type is "RegisterTransaction"
         //System.out.println("Searching for step id=" + target_test_step_id + " and transaction type " + target_transaction_type);

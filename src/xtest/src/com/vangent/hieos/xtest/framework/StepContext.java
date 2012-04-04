@@ -24,6 +24,7 @@ import com.vangent.hieos.xtest.transactions.xds.MultiPatientStoredQueryTransacti
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xtest.transactions.xds.UpdateDocumentSetTransaction;
 
 import java.util.Iterator;
 import javax.xml.namespace.QName;
@@ -178,7 +179,7 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
         setId(step_id);
         System.out.println("step " + step_id + " [test=" + plan_context.test_num + "]");
         /*if (XTestDriver.l_option) {
-            return;
+        return;
         }*/
         test_step_output = add_simple_element_with_id(
                 plan_context.getResultsDocument(),
@@ -235,6 +236,8 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
                     transaction = new RegisterTransaction(this, instruction, instruction_output);
                 } else if (instruction_name.equals("ProvideAndRegisterTransaction")) {
                     transaction = new ProvideAndRegisterTransaction(this, instruction, instruction_output);
+                } else if (instruction_name.equals("UpdateDocumentSetTransaction")) {
+                    transaction = new UpdateDocumentSetTransaction(this, instruction, instruction_output);
                 } else if (instruction_name.equals("EchoV3Transaction")) {
                     transaction = new EchoV3Transaction(this, instruction, instruction_output);
                 } else {
@@ -296,7 +299,6 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
     public String getRegistryEndpoint() {
         return getRecursive("RegistryEndpoint");
     }
-
     /**
      *
      * @param transaction
@@ -304,7 +306,7 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
      * @return
      */
     /*public String getRegistryEndpoint(String transaction, short xds_version) {
-        // transaction is "pr", "r", "q", "sq", "ret"
-        return XTestDriver.getEndpoint(transaction, xds_version);
+    // transaction is "pr", "r", "q", "sq", "ret"
+    return XTestDriver.getEndpoint(transaction, xds_version);
     }*/
 }

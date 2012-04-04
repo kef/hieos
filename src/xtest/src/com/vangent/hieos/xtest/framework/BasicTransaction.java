@@ -33,6 +33,7 @@ import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.iosupport.Io;
+import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
@@ -209,7 +210,7 @@ public abstract class BasicTransaction extends OmLogger {
         RegistryErrorList rel = null;
 
         try {
-            rel = RegistryUtility.metadata_validator(MetadataParser.parseNonSubmission(registry_result), false);
+            rel = RegistryUtility.metadata_validator(MetadataParser.parseNonSubmission(registry_result), MetadataType.NON_SUBMISSION);
         } catch (NoMetadataException e) {
             // not all responses contain metadata
             rel = new RegistryErrorList();

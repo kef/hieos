@@ -32,15 +32,29 @@ import javax.activation.FileDataSource;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 
+/**
+ *
+ * @author thumbe
+ */
 public class ProvideAndRegisterTransaction extends RegisterTransaction {
 
     boolean use_xop = true;
     HashMap<String, String> document_id_filenames = new HashMap<String, String>();
 
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     */
     public ProvideAndRegisterTransaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
         super(s_ctx, instruction, instruction_output);
     }
 
+    /**
+     *
+     * @throws XdsException
+     */
     @Override
     public void run()
             throws XdsException {
@@ -119,163 +133,7 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
             } catch (Exception e) {
                 throw new XdsInternalException(ExceptionUtil.exception_details(e));
             }
-        }/* else if (my_swa) {  // non-Axis2 implementation
-
-            body = metadata.getV2SubmitObjectsRequest();
-            log_metadata(body);
-
-            try {
-                Swa swa = new Swa();
-                swa.connect(this.endpoint);
-
-                for (String id : this.document_id_filenames.keySet()) {
-                    String filename = document_id_filenames.get(id);
-
-                    String mime_type;
-                    String ext = file_extension(filename);
-                    if (ext.equals("txt")) {
-                        mime_type = "text/plain";
-                    } else if (ext.equals("xml")) {
-                        mime_type = "text/xml";
-                    } else {
-                        mime_type = "application/octet-stream";
-                    }
-
-                    FileDataSource fileDataSource = new FileDataSource(new File(filename));
-                    InputStream is = fileDataSource.getInputStream();
-                    byte[] document = Io.getBytesFromInputStream(is);
-                    swa.addAttachment(document, mime_type, id);
-                }
-
-                OMElement response = swa.send(null, body);
-
-                OMElement soap_header_in = swa.getHeader();
-                s_ctx.add_name_value(instruction_output, "InHeader", Util.deep_copy(soap_header_in));
-
-                OMElement soap_header_out = null;
-                s_ctx.add_name_value(instruction_output, "OutHeader", Util.deep_copy(soap_header_out));
-
-                OMElement result = swa.getBody();
-                if (result == null) {
-                    this.s_ctx.add_name_value(instruction_output, "Result", "None");
-                    s_ctx.add_name_value(instruction_output, "StepStatus", "Failure");
-                    System.out.println("The result was NULL");
-                } else {
-                    OMElement fault = MetadataSupport.firstChildWithLocalName(result, "Fault");
-                    if (fault != null) {
-                        //s_ctx.add_name_value(instruction_output, "StepStatus", "Failure");
-                        OMElement faultstring_ele = MetadataSupport.firstChildWithLocalName(fault, "faultstring");
-                        String faultstring;
-                        if (faultstring_ele != null) {
-                            faultstring = faultstring_ele.getText();
-                        } else {
-                            faultstring = "SOAP Fault: cannot parse message";
-                        }
-                    } else {
-                        OMElement rr = MetadataSupport.firstChildWithLocalName(result, "RegistryResponse");
-                        if (rr == null) {
-                            this.s_ctx.add_name_value(instruction_output, "Result", Util.parse_xml(result.toString()));
-                            s_ctx.add_name_value(instruction_output, "StepStatus", "Failure");
-                            s_ctx.set_error("Result has no RegistryResponse");
-                        } else {
-                            this.s_ctx.add_name_value(instruction_output, "Result", Util.parse_xml(rr.toString()));
-                            validate_registry_response(rr, MetadataTypes.METADATA_TYPE_PR);
-                        }
-                    }
-                }
-            } catch (HttpCodeException e) {
-                throw new XdsInternalException(ExceptionUtil.exception_details(e));
-            } catch (Exception e) {
-                throw new XdsInternalException(ExceptionUtil.exception_details(e));
-            }
-        } else {   // swa
-            body = metadata.getV2SubmitObjectsRequest();
-            log_metadata(body);
-
-            try {
-
-                Options options = new Options();
-                options.setTo(new EndpointReference(endpoint));
-                options.setProperty(Constants.Configuration.ENABLE_SWA,
-                        Constants.VALUE_TRUE);
-                options.setSoapVersionURI(SOAP11Constants.SOAP_ENVELOPE_NAMESPACE_URI);
-                // Increase the time out when sending large attachments
-                options.setTimeOutInMilliSeconds(20000);
-                options.setAction("SubmitObjectsRequest");
-
-
-                ServiceClient sender = new ServiceClient();
-                sender.setOptions(options);
-                OperationClient mepClient = sender.createClient(ServiceClient.ANON_OUT_IN_OP);
-
-                MessageContext mc = new MessageContext();
-
-                if (System.getenv("XDSHTTP10") != null) {
-                    System.out.println("Generating HTTP 1.0");
-
-                    sender.getOptions().setProperty(org.apache.axis2.transport.http.HTTPConstants.HTTP_PROTOCOL_VERSION,
-                            org.apache.axis2.transport.http.HTTPConstants.HEADER_PROTOCOL_10);
-
-                    sender.getOptions().setProperty(org.apache.axis2.transport.http.HTTPConstants.CHUNKED,
-                            Boolean.FALSE);
-
-                }
-
-
-
-                for (String id : this.document_id_filenames.keySet()) {
-                    String filename = document_id_filenames.get(id);
-                    if (nameUuidMap != null) {
-                        String newId = nameUuidMap.get(id);
-                        if (newId != null && !id.equals("")) {
-                            id = newId;
-                        }
-                    }
-                    FileDataSource fileDataSource = new FileDataSource(new File(filename));
-                    DataHandler dataHandler = new DataHandler(fileDataSource);
-                    mc.addAttachment(id, dataHandler);
-                }
-
-                SOAPFactory fac = OMAbstractFactory.getSOAP11Factory();
-                SOAPEnvelope env = fac.getDefaultEnvelope();
-
-                env.getBody().addChild(body);
-                mc.setEnvelope(env);
-                mepClient.addMessageContext(mc);
-
-                mepClient.execute(true);
-
-                MessageContext response = mepClient.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-
-                OMElement soap_header_in = response.getEnvelope().getHeader();
-                s_ctx.add_name_value(instruction_output, "InHeader", Util.deep_copy(soap_header_in));
-
-                MessageContext request = mepClient.getMessageContext(WSDLConstants.MESSAGE_LABEL_OUT_VALUE);
-                OMElement soap_header_out = response.getEnvelope().getHeader();
-                s_ctx.add_name_value(instruction_output, "OutHeader", Util.deep_copy(soap_header_out));
-
-                SOAPBody result = response.getEnvelope().getBody();
-                if (result == null) {
-                    this.s_ctx.add_name_value(instruction_output, "Result", "None");
-                    s_ctx.add_name_value(instruction_output, "StepStatus", "Failure");
-                    System.out.println("The result was NULL");
-                } else {
-                    OMElement rr = MetadataSupport.firstChildWithLocalName(result, "RegistryResponse");
-                    if (rr == null) {
-                        this.s_ctx.add_name_value(instruction_output, "Result", Util.parse_xml(result.toString()));
-                        s_ctx.add_name_value(instruction_output, "StepStatus", "Failure");
-                        s_ctx.set_error("Result has no RegistryResponse");
-                    } else {
-                        this.s_ctx.add_name_value(instruction_output, "Result", Util.parse_xml(rr.toString()));
-                        validate_registry_response(rr, MetadataTypes.METADATA_TYPE_PR);
-                    }
-                }
-            } catch (AxisFault e) {
-                throw new XdsInternalException(ExceptionUtil.exception_details(e, "Error connecting to endpoint\nEndpoint is '" + endpoint));
-            } catch (Exception e) {
-                throw new XdsInternalException(ExceptionUtil.exception_details(e));
-            }
-        } */
+        }
     }
 
     ArrayList<String> singleton(String value) {
@@ -335,6 +193,10 @@ public class ProvideAndRegisterTransaction extends RegisterTransaction {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getRequestAction() {
         if (xds_version == BasicTransaction.xds_b) {

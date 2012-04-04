@@ -33,13 +33,27 @@ import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 
+/**
+ *
+ * @author thumbe
+ */
 public class EchoV3Transaction extends BasicTransaction {
 	
-	public EchoV3Transaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
+    /**
+     *
+     * @param s_ctx
+     * @param instruction
+     * @param instruction_output
+     */
+    public EchoV3Transaction(StepContext s_ctx, OMElement instruction, OMElement instruction_output) {
 		super(s_ctx, instruction, instruction_output);
 	}
 	
-	public void run() 
+    /**
+     *
+     * @throws XdsException
+     */
+    public void run()
 	throws XdsException {
 		String metadata_filename = null;
 		Iterator elements = instruction.getChildElements();
@@ -106,7 +120,11 @@ public class EchoV3Transaction extends BasicTransaction {
 
 	}
 
-	@Override
+        /**
+         *
+         * @return
+         */
+        @Override
 	protected String getRequestAction() {
 		// TODO Auto-generated method stub
 		return null;
