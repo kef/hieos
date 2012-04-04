@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lcm:SubmitObjectsRequest xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
+    <rim:RegistryObjectList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+        <rim:RegistryPackage id="SubmissionSet" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
+            <rim:Slot name="submissionTime">
+                <rim:ValueList>
+                    <rim:Value>20041225235050</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+            <rim:Name>
+                <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="Physical"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="Annual physical"/>
+            </rim:Description>
+            <rim:VersionInfo versionName="1.1"/>
+            <rim:Classification id="scl1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classifiedObject="SubmissionSet" classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd"/>
+            <rim:Classification id="scl2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="SubmissionSet" nodeRepresentation="">
+                <rim:Slot name="authorInstitution">
+                    <rim:ValueList>
+                        <rim:Value>Cleveland Clinic</rim:Value>
+                        <rim:Value>Berea Community</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Slot name="authorPerson">
+                    <rim:ValueList>
+                        <rim:Value>^Dopplemeyer^Sherry^^^</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Slot name="authorRole">
+                    <rim:ValueList>
+                        <rim:Value>Primary Surgon</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Slot name="authorSpecialty">
+                    <rim:ValueList>
+                        <rim:Value>Orthopedic</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Name/>
+                <rim:Description/>
+                <rim:VersionInfo versionName="1.1"/>
+            </rim:Classification>
+            <rim:Classification id="scl3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="SubmissionSet" nodeRepresentation="History and Physical">
+                <rim:Slot name="codingScheme">
+                    <rim:ValueList>
+                        <rim:Value>Connect-a-thon contentTypeCodes</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="History and Physical"/>
+                </rim:Name>
+                <rim:Description/>
+                <rim:VersionInfo versionName="1.1"/>
+            </rim:Classification>
+            <rim:ExternalIdentifier id="sei1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.42.20100709101812.3" registryObject="SubmissionSet">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="XDSSubmissionSet.uniqueId"/>
+                </rim:Name>
+            </rim:ExternalIdentifier>
+            <rim:ExternalIdentifier id="sei3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2010.1.2.900" registryObject="SubmissionSet">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="XDSSubmissionSet.sourceId"/>
+                </rim:Name>
+            </rim:ExternalIdentifier>
+            <rim:ExternalIdentifier id="sei4" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="714f4004f80540c^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO" registryObject="SubmissionSet">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-us" charset="UTF-8" value="XDSSubmissionSet.patientId"/>
+                </rim:Name>
+            </rim:ExternalIdentifier>
+        </rim:RegistryPackage>
+        <rim:Association id="Assoc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" associationType="urn:ihe:iti:2010:AssociationType:UpdateAvailabilityStatus" sourceObject="SubmissionSet" 
+        targetObject="$assoc$">
+            <rim:Slot name="NewStatus">
+                <rim:ValueList>
+                    <rim:Value>$new_status$</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+            <rim:Slot name="OriginalStatus">
+                <rim:ValueList>
+                    <rim:Value>$old_status$</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+        </rim:Association>
+    </rim:RegistryObjectList>
+</lcm:SubmitObjectsRequest>

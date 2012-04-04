@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/submit_assoc</Test>
+    <TestStep id="submit_assoc">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Submit association.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_2doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <UseId testdir="../submit" id="Document01" step="submit_2doc_w_fol" section="AssignedUuids"
+                symbol="$source$"/>
+            <UseId testdir="../submit" id="Document02" step="submit_2doc_w_fol" section="AssignedUuids"
+                symbol="$target$"/>
+            <UseId symbol="$assoc_type$" value="urn:ihe:iti:2007:AssociationType:signs"/>
+            <MetadataFile>submit_assoc.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <!-- TBD - add validations -->
+</TestPlan>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/update_folder_status</Test>
+    <TestStep id="deprecate_folder">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Deprecate folder.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <MetadataFile>update_folder_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_deprecate_folder_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deprecation.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol"
+                section="AssignedUids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderUniqueId">
+                            <ValueList>
+                                <Value>('$folder$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneFolDep/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="approve_folder">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Update folder with approved status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_folder_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_approve_folder_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate approval.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol"
+                section="AssignedUids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderUniqueId">
+                            <ValueList>
+                                <Value>('$folder$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneFolApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="expected_folder_failure">
+        <ExpectedStatus>Failure</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Try to update folder status with invalid status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_folder_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+</TestPlan>

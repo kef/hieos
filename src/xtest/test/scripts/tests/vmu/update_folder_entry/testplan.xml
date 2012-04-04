@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/update_folder_entry</Test>
+    <!-- <RegistryEndpoint>http://129.6.24.109:9080/axis2/services/xdsregistrya</RegistryEndpoint> -->
+    <Rule>Update folder entry metadata</Rule>
+    <TestStep id="submit_update_folder">
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Single folder update submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder_lid$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <MetadataFile>single_folder_update.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_folder_version_installed">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate folder version installed correctly.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol"
+                section="AssignedUuids" symbol="$folder_lid$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderLogicalID">
+                            <ValueList>
+                                <Value>('$folder_lid$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="2"/>
+                <OneFolApp/>
+                <OneFolDep/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="validate_folder_deprecated">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deprecation.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol"
+                section="AssignedUuids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderEntryUUID">
+                            <ValueList>
+                                <Value>('$folder$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="1"/>
+                <OneFolDep/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="validate_folder_approved">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate approved folder.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId id="Folder" step="submit_update_folder"
+                section="AssignedUuids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderEntryUUID">
+                            <ValueList>
+                                <Value>('$folder$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="1"/>
+                <OneFolApp/>
+            </ExpectedContents>
+            <!-- FIXME: evaluate change in meta-data -->
+            <!--<Assertions>
+                <DataRef file="THIS" as="output"/>
+                <Assert id="confidentiality_code_updated">
+                    count(//StoredQueryTransaction[@step="validate_doc_approved"]/Result/*[local-name()='AdhocQueryResponse']/*[local-name()='RegistryObjectList']/*[local-name()='ExtrinsicObject']/*[local-name()='Classification']/.[@classificationScheme='urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f' and @nodeRepresentation='S']) = 1
+                </Assert>
+            </Assertions>-->
+        </StoredQueryTransaction>
+    </TestStep>
+    
+</TestPlan>

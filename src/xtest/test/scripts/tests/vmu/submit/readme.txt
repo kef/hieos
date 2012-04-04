@@ -1,0 +1,1 @@
+Initialize XDS.b for Registry metadata update testing.

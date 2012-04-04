@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/update_assoc_status</Test>
+    <TestStep id="deprecate_assoc">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Deprecate association.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="FolderDocument01Assoc" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$assoc$"/>
+                <!-- FIXME: Should start out as approved -->
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <MetadataFile>update_assoc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_deprecate_assoc_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deprecation.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc_w_fol"
+                section="AssignedUuids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$uuid">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSAssociationStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneAssocDep/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="approve_assoc">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Update document with approved status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="FolderDocument01Assoc" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$assoc$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_assoc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_approve_assoc_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate approval.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc_w_fol"
+                section="AssignedUuids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$uuid">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSAssociationStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneAssocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="expected_assoc_failure">
+        <ExpectedStatus>Failure</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Try to update document status with invalid status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="FolderDocument01Assoc" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$assoc$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_assoc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+</TestPlan>

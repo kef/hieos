@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/update_doc_status</Test>
+    <TestStep id="deprecate_doc">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Deprecate document.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
+                symbol="$document$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <MetadataFile>update_doc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_deprecate_doc_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deprecation.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc"
+                section="AssignedUids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryUniqueId">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneDocDep/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="approve_doc">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Update document with approved status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
+                symbol="$document$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_doc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_approve_doc_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate approval.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc"
+                section="AssignedUids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <AdhocQuery id="urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryUniqueId">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <OneDocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="expected_doc_failure">
+        <ExpectedStatus>Failure</ExpectedStatus>
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Try to update document status with invalid status.</Assertion>
+        </Rule>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
+                symbol="$document$"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
+            <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <MetadataFile>update_doc_status.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+</TestPlan>
