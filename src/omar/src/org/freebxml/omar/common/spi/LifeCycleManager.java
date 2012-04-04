@@ -26,10 +26,8 @@ public interface LifeCycleManager {
     public RegistryResponse approveObjects(RequestContext context) throws RegistryException;
 
     /** Sets the status of specified objects. This is an extension request that will be adde to ebRR 3.1?? */
-    /* HIEOS (REMOVED):
     public RegistryResponse setStatusOnObjects(RequestContext context) throws RegistryException;
-    */
-    
+
     /** Deprecates one or more previously submitted objects */
     public RegistryResponse deprecateObjects(RequestContext context) throws RegistryException;
 

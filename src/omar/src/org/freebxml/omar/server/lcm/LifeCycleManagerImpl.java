@@ -26,14 +26,15 @@ import org.freebxml.omar.server.common.ServerRequestContext;
 import org.freebxml.omar.server.util.ServerResourceBundle;
 import org.oasis.ebxml.registry.bindings.lcm.ApproveObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.DeprecateObjectsRequest;
+import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
 import org.oasis.ebxml.registry.bindings.lcm.SubmitObjectsRequest;
 import org.oasis.ebxml.registry.bindings.rim.Association;
+import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
 import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectListType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryObjectType;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackage;
 import org.oasis.ebxml.registry.bindings.rim.RegistryPackageType;
-import org.oasis.ebxml.registry.bindings.rim.UserType;
 import org.oasis.ebxml.registry.bindings.rs.RegistryResponse;
 
 /*
@@ -186,7 +187,11 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
     }
 
     /** Approves one or more previously submitted objects */
+    // HIEOS (Rewrote).
     public RegistryResponse approveObjects(RequestContext context) throws RegistryException {
+        ApproveObjectsRequest req = (ApproveObjectsRequest) context.getCurrentRegistryRequest();
+        return this.setStatus(context, req.getObjectRefList(), BindingUtility.CANONICAL_STATUS_TYPE_ID_Approved);
+        /*
         ApproveObjectsRequest req = (ApproveObjectsRequest) context.getCurrentRegistryRequest();
         //UserType user = context.getUser();
         RegistryResponse resp = null;
@@ -198,10 +203,10 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //Add explicitly specified oref params
             List orefs = bu.getObjectRefsFromObjectRefList(req.getObjectRefList());
 
-            /* HIEOS (REMOVED):
+            // HIEOS (REMOVED):
             //Append those orefs specified via ad hoc query param
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
-            */
+            //
             
             Iterator orefsIter = orefs.iterator();
             while (orefsIter.hasNext()) {
@@ -224,7 +229,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             throw new RegistryException(e);
         }
         //((ServerRequestContext) context).commit();
-        return resp;
+        return resp;*/
     }
 
     /**
@@ -273,6 +278,20 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
         return resp;
     } */
 
+    /**
+     * Sets the status of specified objects.
+     *
+     * @param context
+     * @return
+     * @throws RegistryException
+     */
+    // HIEOS (Rewrote).
+    public RegistryResponse setStatusOnObjects(RequestContext context) throws RegistryException {
+        SetStatusOnObjectsRequest req = (SetStatusOnObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        String statusId = req.getStatus();
+        return this.setStatus(context, req.getObjectRefList(), statusId);
+    }
+
     /** Sets the status of specified objects. This is an extension request that will be adde to ebRR 3.1?? */
     /* HIEOS (REMOVED):
     public RegistryResponse setStatusOnObjects(RequestContext context) throws RegistryException {
@@ -315,13 +334,54 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
     }*/
 
     /** Deprecates one or more previously submitted objects */
+    // HIEOS (Rewrote).
     public RegistryResponse deprecateObjects(RequestContext context) throws RegistryException {
+        DeprecateObjectsRequest req = (DeprecateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
+        return this.setStatus(context, req.getObjectRefList(), BindingUtility.CANONICAL_STATUS_TYPE_ID_Deprecated);
+
+        /*
         RegistryResponse resp = null;
         DeprecateObjectsRequest req = (DeprecateObjectsRequest) ((ServerRequestContext) context).getCurrentRegistryRequest();
         try {
             List idList = new java.util.ArrayList();
             //Add explicitly specified oref params
             List orefs = bu.getObjectRefsFromObjectRefList(req.getObjectRefList());
+
+            // HIEOS (REMOVED):
+            //Append those orefs specified via ad hoc query param
+            orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
+            //
+            Iterator orefsIter = orefs.iterator();
+            while (orefsIter.hasNext()) {
+                ObjectRefType oref = (ObjectRefType) orefsIter.next();
+                idList.add(oref.getId());
+            }
+
+            pm.updateStatus(((ServerRequestContext) context), idList,
+                    bu.CANONICAL_STATUS_TYPE_ID_Deprecated);
+            resp = bu.rsFac.createRegistryResponse();
+            resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
+            if (((ServerRequestContext) context).getErrorList().getRegistryError().size() > 0) {
+                // warning exists
+                resp.setRegistryErrorList(((ServerRequestContext) context).getErrorList());
+            }
+        } catch (RegistryException e) {
+            //((ServerRequestContext) context).rollback();
+            throw e;
+        } catch (Exception e) {
+            //((ServerRequestContext) context).rollback();
+            throw new RegistryException(e);
+        }
+        //((ServerRequestContext) context).commit();
+        return resp;*/
+    }
+
+    private RegistryResponse setStatus(RequestContext context, ObjectRefListType objectRefList, String status) throws RegistryException {
+        RegistryResponse resp = null;
+        try {
+            List idList = new java.util.ArrayList();
+            //Add explicitly specified oref params
+            List orefs = bu.getObjectRefsFromObjectRefList(objectRefList);
 
             /* HIEOS (REMOVED):
             //Append those orefs specified via ad hoc query param
@@ -333,8 +393,7 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
                 idList.add(oref.getId());
             }
 
-            pm.updateStatus(((ServerRequestContext) context), idList,
-                    bu.CANONICAL_STATUS_TYPE_ID_Deprecated);
+            pm.updateStatus(((ServerRequestContext) context), idList, status);
             resp = bu.rsFac.createRegistryResponse();
             resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
             if (((ServerRequestContext) context).getErrorList().getRegistryError().size() > 0) {

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -440,7 +439,7 @@ public class SQLPersistenceManagerImpl
     public void delete(ServerRequestContext context, List orefs)
             throws RegistryException {
         //Return if nothing specified to delete
-        if (orefs.size() == 0) {
+        if (orefs.isEmpty()) {
             return;
         }
 
@@ -788,12 +787,12 @@ public class SQLPersistenceManagerImpl
 
 // HEIOS/AMS/BHT Added new method to optimize status update operations.
     /**
-     * Return a concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType)
+     * Return a concrete RegistryObjectType (ExtrinsicObjectType, RegistryPackageType or AssociationType)
      * depending on the "objectType" found in the "RegistryObject" table.
      *
      * @param context Holds the context for request processing.
      * @param ref Holds the object reference that we are interested in.
-     * @return A concrete RegistryObjectType (ExtrinsicObjectType or RegistryPackageType).
+     * @return A concrete RegistryObjectType (ExtrinsicObjectType, RegistryPackageType or AssociationType).
      * @throws javax.xml.registry.RegistryException
      */
     public RegistryObjectType getRegistryObjectForStatusUpdate(
@@ -801,27 +800,30 @@ public class SQLPersistenceManagerImpl
             throws RegistryException {
         Connection connection = context.getConnection();
         try {
+            RegistryObjectType concreteRegistryObject = null;
             // Look to see if object is in ExtrinisicObject table first ... hedge bets (this is the
             // most probable case.
-            String objectType = this.getRegistryObjectType(connection, ref, ExtrinsicObjectDAO.getTableNameStatic());
-            if (objectType == null) {
-                // Did not find in ExtrinsicObject table ... look in RegistryPackage table now.
-                objectType = this.getRegistryObjectType(connection, ref, RegistryPackageDAO.getTableNameStatic());
-                if (objectType == null) {
-                    // BAD -- none found!!!
-                    throw new RegistryException(
-                            "Can not find ExtrinsicObject or RegistryPackage for id = " + ref.getId());
-                }
-
-            }
-            // Now instantiate the proper concrete registry object type:
-            RegistryObjectType concreteRegistryObject = null;
-            if (BindingUtility.CANONICAL_OBJECT_TYPE_ID_RegistryPackage.equalsIgnoreCase(objectType)) {
-                concreteRegistryObject = bu.rimFac.createRegistryPackage();
-            } else {
+            boolean exists = this.doesRegistryObjectExist(connection, ref, ExtrinsicObjectDAO.getTableNameStatic());
+            if (exists) {
                 concreteRegistryObject = bu.rimFac.createExtrinsicObject();
+            } else {
+                // Did not find in ExtrinsicObject table ... look in RegistryPackage table now.
+                exists = this.doesRegistryObjectExist(connection, ref, RegistryPackageDAO.getTableNameStatic());
+                if (exists) {
+                    concreteRegistryObject = bu.rimFac.createRegistryPackage();
+                } else {
+                    // Finally, try the Association table.
+                    exists = this.doesRegistryObjectExist(connection, ref, AssociationDAO.getTableNameStatic());
+                    if (exists) {
+                        concreteRegistryObject = bu.rimFac.createAssociation();
+                    }
+                }
             }
-
+            if (!exists) {
+                // BAD -- none found!!!
+                throw new RegistryException(
+                        "Can not find ExtrinsicObject, RegistryPackage or Association for id = " + ref.getId());
+            }
             concreteRegistryObject.setId(ref.getId());  // Just to be in sync.
             return concreteRegistryObject;
         } catch (JAXBException e) {
@@ -842,6 +844,7 @@ public class SQLPersistenceManagerImpl
      * @return The object type if the record is found.  Otherwise, null.
      * @throws RegistryException
      */
+    /* REMOVED (BHT) - NO LONGER USED:
     private String getRegistryObjectType(Connection connection, ObjectRefType ref, String tableName) throws RegistryException {
         String objectType = null;
         PreparedStatement stmt = null;
@@ -869,6 +872,41 @@ public class SQLPersistenceManagerImpl
             }
         }
         return RegistryCodedValueMapper.convertObjectType_CodeToValue(objectType);
+    }*/
+
+    /**
+     * Return true if the registry object exists for the given "tableName".
+     *
+     * @param connection Database connection.
+     * @param ref Object reference in question.
+     * @param tableName The table name to query.
+     * @return true if found.  Otherwise, false.
+     * @throws RegistryException
+     */
+    // HIEOS (ADDED):
+    private boolean doesRegistryObjectExist(Connection connection, ObjectRefType ref, String tableName) throws RegistryException {
+        boolean exists = false;
+        PreparedStatement stmt = null;
+        try {
+            String sql = "SELECT id FROM " + tableName + " WHERE id = ?";
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, ref.getId());
+            log.trace("SQL = " + sql.toString());
+            ResultSet rs = stmt.executeQuery();
+            exists = rs.next();
+
+        } catch (SQLException e) {
+            throw new RegistryException(e);
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException sqle) {
+                    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
+                }
+            }
+        }
+        return exists;
     }
 
     /**
