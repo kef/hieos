@@ -123,7 +123,11 @@ public abstract class InternationalStringDAO extends AbstractDAO {
             }
 
             if (is != null) {
+                long startTime = System.currentTimeMillis();
+                log.trace("InternationalStringDAO.insert: doing executeBatch");
                 int[] updateCounts = pstmt.executeBatch();
+                long endTime = System.currentTimeMillis();
+                log.trace("InternationalStringDAO.insert: done executeBatch elapsedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException e) {
             log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), e);
