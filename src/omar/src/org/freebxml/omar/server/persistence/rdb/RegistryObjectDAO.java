@@ -315,7 +315,9 @@ class RegistryObjectDAO extends IdentifiableDAO {
         }
 
         if ((versionName == null) || (versionName.length() == 0)) {
-            versionName = "1.1";
+            // HIEOS - changed from 1.1 to 1 to support Metadata Update profile.
+            // versionName = "1.1";
+            versionName = "1";
         }
         versionName = "'" + versionName + "'";
 
@@ -326,16 +328,24 @@ class RegistryObjectDAO extends IdentifiableDAO {
             comment = null;
         }*/
 
+        // HIEOS - changed how status is being handled.
+        String objectStatus = ro.getStatus();
+         if (objectStatus == null) {
+            // Need to force the status to Submitted
+            objectStatus = BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted;
+            ro.setStatus(objectStatus);
+        }
+
         String objectType = null;
         if (action == DAO_ACTION_INSERT) {
             objectType = getObjectType(ro);
 
             // Need to force the status to Submitted
-            ro.setStatus(BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted);
+            // ro.setStatus(BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted);
 
             stmtFragment +=
                     ", '" + lid + "', '" + RegistryCodedValueMapper.convertObjectType_ValueToCode(objectType) +
-                    "', '" + RegistryCodedValueMapper.convertStatus_ValueToCode(BindingUtility.CANONICAL_STATUS_TYPE_ID_Submitted) +
+                    "', '" + RegistryCodedValueMapper.convertStatus_ValueToCode(objectStatus) +
                     "', " + versionName + " ";
         } else if (action == DAO_ACTION_UPDATE) {
             objectType = getObjectType(ro);
