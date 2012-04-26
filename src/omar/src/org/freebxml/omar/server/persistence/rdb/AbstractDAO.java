@@ -327,7 +327,7 @@ abstract class AbstractDAO implements OMARDAO {
             log.trace("AbstractDAO.insert: doing executeBatch");
             int[] updateCounts = stmt.executeBatch();
             long endTime = System.currentTimeMillis();
-            log.trace("AbstractDAO.insert: done executeBatch elapedTimeMillis=" + (endTime - startTime));
+            log.trace("AbstractDAO.insert: done executeBatch elapsedTimeMillis=" + (endTime - startTime));
             iter = objects.iterator();
             while (iter.hasNext()) {
                 Object obj = iter.next();
