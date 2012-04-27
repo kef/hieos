@@ -22,52 +22,45 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import java.util.Iterator;
-
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-
 /**
  *
  * @author NIST (Adapted by Bernie Thuman)
  */
 public class Validator {
-    RegistryErrorList rel;
-    Metadata m;
-    boolean is_submit;
-    Structure s;
-    Attribute a;
-    CodeValidation cv;
-    PatientId pid;
-    UniqueId uid;
-    //ArrayList<String> assigning_authorities;
-    XLogMessage log_message;
+
+    private RegistryErrorList rel;
+    private Metadata m;
+    private Structure s;
+    private Attribute a;
+    private CodeValidation cv;
+    private PatientId pid;
+    private UniqueId uid;
+    private XLogMessage logMessage;
 
     /**
-     *
+     * 
      * @param m
      * @param rel
-     * @param is_submit
-     * @param log_message
+     * @param isSubmit
+     * @param logMessage
      * @throws XdsException
      */
-    public Validator(Metadata m, RegistryErrorList rel, boolean is_submit, XLogMessage log_message) throws XdsException {
+    public Validator(Metadata m, RegistryErrorList rel, boolean isSubmit, XLogMessage logMessage) throws XdsException {
         this.rel = rel;
         this.m = m;
-        this.is_submit = is_submit;
-        this.log_message = log_message;
+        this.logMessage = logMessage;
         // Prepare all validation structures:
-        s = new Structure(m, is_submit, rel, log_message);
-        a = new Attribute(m, is_submit, rel, log_message);
+        s = new Structure(m, isSubmit, rel, logMessage);
+        a = new Attribute(m, rel, logMessage);
         try {
-            cv = new CodeValidation(m, is_submit, rel, log_message);
+            cv = new CodeValidation(m, rel, logMessage);
         } catch (XdsInternalException e) {
             rel.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), null);
             throw new XdsInternalException(e.getLocalizedMessage(), e);
         }
         //assigning_authorities = cv.getAssigningAuthorities();
-        pid = new PatientId(m, rel, is_submit);
-        uid = new UniqueId(m, rel);
+        pid = new PatientId(m, rel);
+        uid = new UniqueId(m, isSubmit, rel);
     }
 
     /**
@@ -78,6 +71,7 @@ public class Validator {
      */
     public void run() throws XdsInternalException, MetadataValidationException, XdsException {
         try {
+            // Run series of validations (Structure/Attribute/Codes).
             s.run();
             a.run();
             cv.run();
@@ -86,53 +80,14 @@ public class Validator {
         } catch (MetadataException e) {
             rel.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), null);
         }
-        pid.run();
-        for (OMElement ele : m.getRegistryPackages()) {
-            validate_internal_classifications(ele);
+        pid.run();  // PID validation.
+        /*for (OMElement ele : m.getRegistryPackages()) {
+            validateInternalClassifications(ele);
         }
         for (OMElement ele : m.getExtrinsicObjects()) {
-            validate_internal_classifications(ele);
-        }
-        uid.run();
+            validateInternalClassifications(ele);
+        }*/
+        uid.run();  // UID validations.
         rel.getRegistryErrorList(); // forces output of validation report
     }
-
-    // internal classifications must point to object that contains them
-    /**
-     *
-     * @param e
-     * @throws MetadataValidationException
-     * @throws MetadataException
-     */
-    void validate_internal_classifications(OMElement e) throws MetadataValidationException, MetadataException {
-        String e_id = e.getAttributeValue(MetadataSupport.id_qname);
-        if (e_id == null || e_id.equals("")) {
-            return;
-        }
-        for (Iterator it = e.getChildElements(); it.hasNext();) {
-            OMElement child = (OMElement) it.next();
-            OMAttribute classified_object_att = child.getAttribute(MetadataSupport.classified_object_qname);
-            if (classified_object_att != null) {
-                String value = classified_object_att.getAttributeValue();
-                if (!e_id.equals(value)) {
-                    throw new MetadataValidationException("Classification " + m.getIdentifyingString(child) +
-                            "\n is nested inside " + m.getIdentifyingString(e) +
-                            "\n but classifies object " + m.getIdentifyingString(value));
-                }
-            }
-        }
-    }
-
-    /*
-     void val(String topic, String msg) {
-        if (msg == null) {
-            msg = "Ok";
-        }
-        rel.add_validation(topic, msg, "Validator.java");
-    }*/
-
-    /*
-     void err(String msg) {
-        rel.add_error(MetadataSupport.XDSRegistryMetadataError, msg, this.getClass().getName(), null);
-    } */
 }

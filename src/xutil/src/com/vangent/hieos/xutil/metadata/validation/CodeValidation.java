@@ -44,23 +44,21 @@ import org.apache.axiom.om.OMElement;
  */
 public class CodeValidation {
 
-    static Codes _codes = null;  // Singleton.
+    private static Codes _codes = null;  // Singleton.
     private Metadata m;
     private RegistryErrorList rel;
-    private boolean is_submit;
     private XLogMessage logMessage = null;
 
     /**
      *
      * @param m
-     * @param is_submit
      * @param rel
+     * @param logMessage
      * @throws XdsInternalException
      */
-    public CodeValidation(Metadata m, boolean is_submit, RegistryErrorList rel, XLogMessage logMessage) throws XdsInternalException {
+    public CodeValidation(Metadata m, RegistryErrorList rel, XLogMessage logMessage) throws XdsInternalException {
         this.m = m;
         this.rel = rel;
-        this.is_submit = is_submit;
         this.logMessage = logMessage;
         loadCodes();
     }
@@ -133,9 +131,9 @@ public class CodeValidation {
      * @throws XdsInternalException
      */
     public void run() throws MetadataException, XdsInternalException {
-        ArrayList<String> all_object_ids = m.getObjectIds(m.getAllObjects());
+        List<String> all_object_ids = m.getObjectIds(m.getAllObjects());
         for (String obj_id : all_object_ids) {
-            ArrayList<OMElement> classifications = m.getClassifications(obj_id);
+            List<OMElement> classifications = m.getClassifications(obj_id);
             for (OMElement cl_ele : classifications) {
                 Classification cl = new Classification(cl_ele);
                 validate(cl);

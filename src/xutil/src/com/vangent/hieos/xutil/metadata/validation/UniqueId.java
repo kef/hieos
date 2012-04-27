@@ -10,7 +10,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.xutil.metadata.validation;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -18,117 +17,139 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
+/**
+ *
+ * @author NIST (Adapted for HIEOS).
+ */
 public class UniqueId {
-	Metadata m;
-	RegistryErrorList rel;
 
-	public UniqueId(Metadata m, RegistryErrorList rel) {
-		this.m = m;
-		this.rel = rel;
-	}
+    private Metadata m;
+    private RegistryErrorList rel;
+    private boolean isSubmit = true;
 
-	public void run() throws MetadataException {
-//		ArrayList<String> ids = new ArrayList<String>();
+    /**
+     * 
+     * @param m
+     * @param isSubmit
+     * @param rel
+     */
+    public UniqueId(Metadata m, boolean isSubmit, RegistryErrorList rel) {
+        this.m = m;
+        this.isSubmit = isSubmit;
+        this.rel = rel;
+    }
 
-		ArrayList<String> unique_ids = new ArrayList<String>();
+    /**
+     *
+     * @throws MetadataException
+     */
+    public void run() throws MetadataException {
+        Set<String> uniqueIds = new HashSet<String>();
+        for (String id : m.getFolderIds()) {
+            String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSFolder_uniqueid_uuid);
+            if (isSubmit) {
+                if (uniqueIds.contains(uid)) {
+                    rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage,
+                            "UniqueId " + uid + " is not unique within the submission",
+                            this.getClass().getName(), null);
+                } else {
+                    uniqueIds.add(uid);
+                }
+            }
+            validateFormat(uid);
+        }
 
-//		ids.addAll(m.getFolderIds());
-//		ids.addAll(m.getSubmissionSetIds());
-//		ids.addAll(m.getExtrinsicObjectIds());
+        for (String id : m.getSubmissionSetIds()) {
+            String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+            if (isSubmit) {
+                if (uniqueIds.contains(uid)) {
+                    rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage,
+                            "UniqueId " + uid + " is not unique within the submission",
+                            this.getClass().getName(), null);
+                } else {
+                    uniqueIds.add(uid);
+                }
+            }
+            validateFormat(uid);
+        }
 
-		for (String id : m.getFolderIds()) {
-			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSFolder_uniqueid_uuid);
-			if (unique_ids.contains(uid)) 
-				rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage, 
-						"UniqueId " + uid + " is not unique within the submission", 
-						"validation/UniqueId.java", null);
-			validate_format(uid);
-		}
+        for (String id : m.getExtrinsicObjectIds()) {
+            String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
+            if (uid == null) {
+                rel.add_error(MetadataSupport.XDSRegistryError,
+                        "Document unique ID is null",
+                        this.getClass().getName(), null);
+                return;
+            }
+            if (isSubmit) {
+                if (uniqueIds.contains(uid)) {
+                    rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage,
+                            "UniqueId " + uid + " is not unique within the submission",
+                            this.getClass().getName(), null);
+                } else {
+                    uniqueIds.add(uid);
+                }
+            }
+            validateFormatForDocuments(uid);
+        }
+    }
 
-		for (String id : m.getSubmissionSetIds()) {
-			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
-			if (unique_ids.contains(uid)) 
-				rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage, 
-						"UniqueId " + uid + " is not unique within the submission", 
-						"validation/UniqueId.java", null);
-			validate_format(uid);
-		}
+    /**
+     *
+     * @param uid
+     */
+    private void validateFormat(String uid) {
+        if (!Attribute.isOID(uid)) {
+            rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                    "UniqueId " + uid + " is not formatted as an OID",
+                    "validation/UniqueId.java", null);
+        }
+    }
 
-		for (String id : m.getExtrinsicObjectIds()) {
-			String uid = m.getExternalIdentifierValue(id, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
-			if (uid == null) {
-				rel.add_error(MetadataSupport.XDSRegistryError, 
-						"Document unique ID is null", 
-						"validation/UniqueId.java", null);
-				return;
-			}
-			if (unique_ids.contains(uid)) 
-				rel.add_error(MetadataSupport.XDSRegistryDuplicateUniqueIdInMessage, 
-						"UniqueId " + uid + " is not unique within the submission", 
-						"validation/UniqueId.java", null);
-			validate_format_for_documents(uid);
-		}
-	}
+    /**
+     *
+     * @param uid
+     */
+    private void validateFormatForDocuments(String uid) {
+        if (uid.length() > 0 && uid.indexOf('^') == uid.length() - 1) {
+            rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                    "UniqueId " + uid + ": EXT part is empty but ^ is present",
+                    "validation/UniqueId.java:validate_format_for_documents", null);
+        }
+        String[] parts = uid.split("\\^");
+        if (parts.length == 2) {
+            String oid = parts[0];
+            String ext = parts[1];
+            if (oid.length() > 64) {
+                rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                        "UniqueId " + uid + ": OID part is larger than the allowed 64 characters",
+                        "validation/UniqueId.java:validate_format_for_documents", null);
+            }
+            if (ext.length() > 16) {
+                rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                        "UniqueId " + uid + ": EXT part is larger than the allowed 16 characters",
+                        "validation/UniqueId.java:validate_format_for_documents", null);
+            }
+            if (ext.length() == 0) {
+                rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                        "UniqueId " + uid + ": should not have ^ since no EXT is coded",
+                        "validation/UniqueId.java:validate_format_for_documents", null);
+            }
+            if (!Attribute.isOID(oid)) {
+                rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                        "The OID part of UniqueId, " + oid + " is not formatted as an OID (uid = " + uid + " oid = " + oid + " ext = " + ext + ")",
+                        "validation/UniqueId.java:validate_format_for_documents", null);
+            }
 
-	void validate_format(String uid) {
-		if ( ! Attribute.is_oid(uid))
-//		for (int i=0; i<uid.length(); i++) {
-//			if ("0123456789.".indexOf(uid.charAt(i)) == -1) {
-				rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-						"UniqueId " + uid + " is not formatted as an OID",
-						"validation/UniqueId.java", null);
-//				return;
-//			}
-//
-//		}
-	}
-
-	void validate_format_for_documents(String uid) {
-		if (uid.length() > 0 && uid.indexOf('^') == uid.length()-1)
-			rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-					"UniqueId " + uid + ": EXT part is empty but ^ is present",
-					"validation/UniqueId.java:validate_format_for_documents", null);
-		String[] parts = uid.split("\\^");
-		if (parts.length == 2) {
-			String oid = parts[0];
-			String ext = parts[1];
-			if (oid.length() > 64)
-				rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-						"UniqueId " + uid + ": OID part is larger than the allowed 64 characters",
-						"validation/UniqueId.java:validate_format_for_documents", null);
-			if (ext.length() > 16)
-				rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-						"UniqueId " + uid + ": EXT part is larger than the allowed 16 characters",
-						"validation/UniqueId.java:validate_format_for_documents", null);
-			if (ext.length() == 0)
-				rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-						"UniqueId " + uid + ": should not have ^ since no EXT is coded",
-						"validation/UniqueId.java:validate_format_for_documents", null);
-			if ( ! Attribute.is_oid(oid))
-//			for (int i=0; i<oid.length(); i++) {
-//				if ("0123456789.".indexOf(oid.charAt(i)) == -1) {
-					rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-							"The OID part of UniqueId, " + oid + " is not formatted as an OID (uid = " + uid + " oid = " + oid + " ext = " + ext + ")",
-							"validation/UniqueId.java:validate_format_for_documents", null);
-//					return;
-//				}
-//
-//			}
-		} else {
-			if ( ! Attribute.is_oid(uid))
-//			for (int i=0; i<uid.length(); i++) {
-//				if ("0123456789.".indexOf(uid.charAt(i)) == -1) {
-					rel.add_error(MetadataSupport.XDSRegistryMetadataError,
-							"UniqueId " + uid + " is not formatted as an OID",
-							"validation/UniqueId.java:validate_format_for_documents", null);
-//					return;
-//				}
-//
-//			}
-		}
-	}
-
-
+        } else {
+            if (!Attribute.isOID(uid)) {
+                rel.add_error(MetadataSupport.XDSRegistryMetadataError,
+                        "UniqueId " + uid + " is not formatted as an OID",
+                        "validation/UniqueId.java:validate_format_for_documents", null);
+            }
+        }
+    }
 }
