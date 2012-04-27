@@ -63,15 +63,15 @@ public class RegistryUtility {
     }
 
     /**
-     *
+     * 
      * @param m
-     * @param is_submit
+     * @param isSubmit
      * @return
      * @throws XdsException
      */
-    static public RegistryErrorList metadata_validator(Metadata m, boolean is_submit) throws XdsException {
+    static public RegistryErrorList metadata_validator(Metadata m, boolean isSubmit) throws XdsException {
         RegistryErrorList rel = new RegistryErrorList();
-        Validator v = new Validator(m, rel, is_submit, (XLogMessage) null);
+        Validator v = new Validator(m, rel, isSubmit, (XLogMessage) null);
         v.run();
         return rel;
     }
