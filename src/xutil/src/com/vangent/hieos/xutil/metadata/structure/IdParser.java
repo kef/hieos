@@ -18,6 +18,8 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
@@ -25,23 +27,23 @@ import org.apache.axiom.om.OMElement;
 //import org.apache.log4j.Logger;
 /**
  *
- * @author thumbe
+ * @author NIST (Adapted for HIEOS).
  */
 public class IdParser {
 
-    Metadata m;
-    ArrayList referencingAttributes = null;
-    ArrayList identifyingAttributes = null;
-    ArrayList symbolicIdReplacements = null;
-    HashMap assignedUuids = null;
+    private Metadata m;
+    private List<OMAttribute> referencingAttributes = null;
+    private List<OMAttribute> identifyingAttributes = null;
+    //private ArrayList symbolicIdReplacements = null;
+    private Map<String, String> assignedUuids = null;
 
     /**
      * 
      * @param m
      */
     public IdParser(Metadata m) {
-        referencingAttributes = new ArrayList();
-        identifyingAttributes = new ArrayList();
+        referencingAttributes = new ArrayList<OMAttribute>();
+        identifyingAttributes = new ArrayList<OMAttribute>();
         this.m = m;
         parse();
     }
@@ -50,18 +52,15 @@ public class IdParser {
      *
      * @return
      */
-    public ArrayList getDefinedIds() {
-        ArrayList defined = new ArrayList();
-
+    public List<String> getDefinedIds() {
+        List<String> defined = new ArrayList<String>();
         for (Iterator it = this.identifyingAttributes.iterator(); it.hasNext();) {
             OMAttribute attr = (OMAttribute) it.next();
             String id = attr.getAttributeValue();
-
             if (!defined.contains(id)) {
                 defined.add(id);
             }
         }
-
         return defined;
     }
 
@@ -69,17 +68,15 @@ public class IdParser {
      *
      * @return
      */
-    public ArrayList getReferencedIds() {
-        ArrayList refer = new ArrayList();
+    public List<String> getReferencedIds() {
+        List<String> refer = new ArrayList<String>();
         for (Iterator it = this.referencingAttributes.iterator(); it.hasNext();) {
             OMAttribute attr = (OMAttribute) it.next();
             String id = attr.getAttributeValue();
-
             if (!refer.contains(id)) {
                 refer.add(id);
             }
         }
-
         return refer;
     }
 
@@ -87,26 +84,24 @@ public class IdParser {
      *
      * @return
      */
-    public ArrayList getUndefinedIds() {
-        ArrayList referenced = this.getReferencedIds();
-        ArrayList defined = this.getDefinedIds();
-        ArrayList undefined = new ArrayList();
-
+    public List<String> getUndefinedIds() {
+        List<String> referenced = this.getReferencedIds();
+        List<String> defined = this.getDefinedIds();
+        List<String> undefined = new ArrayList<String>();
         for (Iterator it = referenced.iterator(); it.hasNext();) {
             String id = (String) it.next();
-
             if (!defined.contains(id)) {
                 undefined.add(id);
             }
-
         }
-
         return undefined;
     }
 
-    void parse() {
-        ArrayList<OMElement> allObjects = m.getAllObjects();
-
+    /**
+     *
+     */
+    private void parse() {
+        List<OMElement> allObjects = m.getAllObjects();
         for (int i = 0; i < allObjects.size(); i++) {
             OMElement obj = allObjects.get(i);
             OMAttribute idAtt = obj.getAttribute(MetadataSupport.id_qname);
@@ -138,7 +133,6 @@ public class IdParser {
             for (Iterator it1 = obj.getChildElements(); it1.hasNext();) {
                 OMElement objI = (OMElement) it1.next();
                 String typeI = objI.getLocalName();
-
                 if (typeI.equals("ExternalIdentifier")) {
                     OMAttribute att = objI.getAttribute(MetadataSupport.registry_object_qname);
                     if (att != null) {
@@ -160,7 +154,6 @@ public class IdParser {
                 }
             }
         }
-
     }
 
     /*
@@ -175,9 +168,9 @@ public class IdParser {
         // make list of all symbolic names used in metadata
         // allocate UUID for these names
         // update attributes that define these symbolic names with UUIDs
-        ArrayList symbolicNames = new ArrayList();
-        ArrayList uuids = new ArrayList();
-        assignedUuids = new HashMap();
+        List<String> symbolicNames = new ArrayList<String>();
+        List<String> uuids = new ArrayList<String>();
+        assignedUuids = new HashMap<String, String>();
         for (int i = 0; i < identifyingAttributes.size(); i++) {
             OMAttribute att = (OMAttribute) identifyingAttributes.get(i);
             String name = att.getAttributeValue();
@@ -211,18 +204,18 @@ public class IdParser {
      *
      * @return
      */
-    public HashMap getSymbolicNameUuidMap() {
+    public Map<String, String> getSymbolicNameUuidMap() {
         return assignedUuids;
     }
 
     /*
     boolean is_approveable_object(Metadata m, OMElement o) {
-        if (m.getExtrinsicObjects().contains(o)) {
-            return true;
-        }
-        if (m.getRegistryPackages().contains(o)) {
-            return true;
-        }
-        return false;
+    if (m.getExtrinsicObjects().contains(o)) {
+    return true;
+    }
+    if (m.getRegistryPackages().contains(o)) {
+    return true;
+    }
+    return false;
     }*/
 }
