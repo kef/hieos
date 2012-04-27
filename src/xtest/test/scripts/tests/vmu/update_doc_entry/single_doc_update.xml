@@ -226,7 +226,7 @@
                 </Name>
             </ExternalIdentifier>
             <ExternalIdentifier identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab"
-                value="Document01">
+                value="$document_uid$">
                 <Name>
                     <LocalizedString value="XDSDocumentEntry.uniqueId"/>
                 </Name>
@@ -309,12 +309,12 @@
             </rim:Slot>
             <rim:Slot name="PreviousVersion">
                 <rim:ValueList>
-                    <rim:Value>1.1</rim:Value>
+                    <rim:Value>$previous_version$</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
             <rim:Slot name="AssociationPropagation">
                 <rim:ValueList>
-                    <rim:Value>no</rim:Value>
+                    <rim:Value>yes</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
         </Association>

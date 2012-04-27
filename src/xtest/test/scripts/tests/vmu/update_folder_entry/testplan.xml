@@ -12,11 +12,15 @@
         <UpdateDocumentSetTransaction>
             <XDSb/>
             <NoPatientId/>
+            <NoAssignUids id="Folder"/>
             <AssignUuids/>
             <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
                 symbol="$folder_lid$"/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUids"
+                symbol="$folder_uid$"/>
             <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
                 symbol="$patient_id$"/>
+            <UseId symbol="$previous_version$" value="1"/>
             <MetadataFile>single_folder_update.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
@@ -32,6 +36,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
                     <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$XDSFolderLogicalID">
                             <ValueList>
@@ -40,7 +45,7 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
@@ -65,6 +70,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
                     <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$XDSFolderEntryUUID">
                             <ValueList>
@@ -73,7 +79,7 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
@@ -97,6 +103,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
                     <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$XDSFolderEntryUUID">
                             <ValueList>
@@ -105,7 +112,7 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
@@ -124,5 +131,91 @@
             </Assertions>-->
         </StoredQueryTransaction>
     </TestStep>
-    
+    <TestStep id="validate_assoc_propogation">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate associations were propagated.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId id="Folder" step="submit_update_folder"
+                section="AssignedUuids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolderAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderEntryUUID">
+                            <ValueList>
+                                <Value>'$folder$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="1"/>
+                <Documents count="1"/>
+                <OneDocApp/>
+                <OneFolApp/>
+            </ExpectedContents>
+            <!-- FIXME: evaluate change in meta-data -->
+            <!--<Assertions>
+                <DataRef file="THIS" as="output"/>
+                <Assert id="confidentiality_code_updated">
+                    count(//StoredQueryTransaction[@step="validate_doc_approved"]/Result/*[local-name()='AdhocQueryResponse']/*[local-name()='RegistryObjectList']/*[local-name()='ExtrinsicObject']/*[local-name()='Classification']/.[@classificationScheme='urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f' and @nodeRepresentation='S']) = 1
+                </Assert>
+            </Assertions>-->
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="submit_update_folder_change_pid_failure">
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Try to update PID on folder - should fail since assoc propagation is turned on and
+            this would violate same PID constraint (with an existing document).
+            </Assertion>
+        </Rule>
+        <ExpectedStatus>Failure</ExpectedStatus>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <NoAssignUids id="Folder"/>
+            <AssignUuids/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder_lid$"/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUids"
+                symbol="$folder_uid$"/>
+            <!-- Pick a PID known to the registry already -->
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <UseId symbol="$previous_version$" value="2"/>
+            <MetadataFile>single_folder_update.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="submit_update_folder_2">
+        <Rule>
+            <Transaction>U</Transaction>
+            <Assertion>Another single folder update submission (query validation will test)..</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <UpdateDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <NoAssignUids id="Folder"/>
+            <AssignUuids/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
+                symbol="$folder_lid$"/>
+            <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUids"
+                symbol="$folder_uid$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <UseId symbol="$previous_version$" value="2"/>
+            <MetadataFile>single_folder_update.xml</MetadataFile>
+        </UpdateDocumentSetTransaction>
+    </TestStep>
 </TestPlan>

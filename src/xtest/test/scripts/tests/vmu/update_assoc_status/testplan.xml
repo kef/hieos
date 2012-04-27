@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
     <Test>vmu/update_assoc_status</Test>
+    <TestStep id="validate_current_assoc_status">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate current status</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_doc_w_fol"
+                section="AssignedUuids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetAssociations Stored Query -->
+                    <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$uuid">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <!-- includes submission set -->
+                <Associations count="2"/>
+                <!--<OneAssocApp/>-->
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
     <TestStep id="deprecate_assoc">
         <ExpectedStatus>Success</ExpectedStatus>
         <Rule>
@@ -12,8 +47,7 @@
             <NoPatientId/>
             <UseId testdir="../submit" id="FolderDocument01Assoc" step="submit_doc_w_fol" section="AssignedUuids"
                 symbol="$assoc$"/>
-                <!-- FIXME: Should start out as approved -->
-            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted"/>
+            <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <MetadataFile>update_assoc_status.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
@@ -31,6 +65,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetAssociations Stored Query -->
                     <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$uuid">
                             <ValueList>
@@ -44,13 +79,14 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
             <ExpectedContents>
+                <Associations count="1"/>
                 <OneAssocDep/>
             </ExpectedContents>
         </StoredQueryTransaction>
@@ -84,27 +120,30 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetAssociations Stored Query -->
                     <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$uuid">
                             <ValueList>
                                 <Value>('$document$')</Value>
                             </ValueList>
                         </Slot>
-                        <Slot name="$XDSAssociationStatus">
+                        <!-- query should default to return "Approved" status only. -->
+                        <!--<Slot name="$XDSAssociationStatus">
                             <ValueList>
                                 <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
                             </ValueList>
-                        </Slot>
+                        </Slot>-->
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
                 </query:AdhocQueryRequest>
             </Metadata>
             <ExpectedContents>
-                <OneAssocApp/>
+                <!-- includes submission set -->
+                <Associations count="2"/>
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>

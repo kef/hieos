@@ -71,11 +71,11 @@
             classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd"/>
         <rim:Association associationType="$assoc_type$" sourceObject="$source$" targetObject="$target$" id="assoc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association"></rim:Association>
         <rim:Association associationType="urn:ihe:iti:2010:AssociationType:SubmitAssociation" sourceObject="SubmissionSet01" targetObject="assoc" id="submit_assoc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
-            <rim:Slot name="SubmissionSetStatus">
+            <!--<rim:Slot name="SubmissionSetStatus">
                 <rim:ValueList>
                     <rim:Value>Original</rim:Value>
                 </rim:ValueList>
-            </rim:Slot>
+            </rim:Slot>-->
         </rim:Association>
     </rim:RegistryObjectList>
 </lcm:SubmitObjectsRequest>

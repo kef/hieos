@@ -20,5 +20,95 @@
             <MetadataFile>submit_assoc.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
-    <!-- TBD - add validations -->
+    <TestStep id="verify_assoc_from_source">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Verify association.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document01" step="submit_2doc_w_fol" section="AssignedUuids"
+                symbol="$source$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetRelatedDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryEntryUUID">
+                            <ValueList>
+                                <Value>'$source$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$AssociationTypes">
+                            <ValueList>
+                                <Value>('urn:ihe:iti:2007:AssociationType:signs')</Value>
+                            </ValueList>
+                        </Slot>
+                        <!--
+                        <Slot name="$XDSAssociationStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>-->
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="2"/>
+                <Associations count="1"/>
+                <OneAssocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="verify_assoc_from_target">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Verify association.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="Document02" step="submit_2doc_w_fol" section="AssignedUuids"
+                symbol="$target$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetRelatedDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryEntryUUID">
+                            <ValueList>
+                                <Value>'$target$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$AssociationTypes">
+                            <ValueList>
+                                <Value>('urn:ihe:iti:2007:AssociationType:signs')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSAssociationStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="2"/>
+                <Associations count="1"/>
+                <OneAssocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
 </TestPlan>

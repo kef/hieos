@@ -47,7 +47,7 @@
                 </Slot>
             </Classification>
             <ExternalIdentifier identificationScheme="urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a"
-                value="folder_uniqueid">
+                value="$folder_uid$">
                 <Name>
                     <LocalizedString value="XDSFolder.uniqueId"/>
                 </Name>
@@ -131,19 +131,19 @@
             classificationNode="urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2"/>
         <Association associationType="HasMember" sourceObject="SubmissionSet01"
             targetObject="Folder">
-            <rim:Slot name="SubmissionSetStatus">
+            <!--<rim:Slot name="SubmissionSetStatus">
                 <rim:ValueList>
                     <rim:Value>Original</rim:Value>
                 </rim:ValueList>
-            </rim:Slot>
+            </rim:Slot>-->
             <rim:Slot name="PreviousVersion">
                 <rim:ValueList>
-                    <rim:Value>1.1</rim:Value>
+                    <rim:Value>$previous_version$</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
             <rim:Slot name="AssociationPropagation">
                 <rim:ValueList>
-                    <rim:Value>no</rim:Value>
+                    <rim:Value>yes</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
         </Association>

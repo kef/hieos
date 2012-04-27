@@ -30,6 +30,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
                     <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$XDSFolderUniqueId">
                             <ValueList>
@@ -38,7 +39,7 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>
@@ -78,6 +79,7 @@
             <Metadata>
                 <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
                     <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
                     <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
                         <Slot name="$XDSFolderUniqueId">
                             <ValueList>
@@ -86,7 +88,7 @@
                         </Slot>
                         <Slot name="$MetadataLevel">
                             <ValueList>
-                                <Value>1</Value>
+                                <Value>2</Value>
                             </ValueList>
                         </Slot>
                     </AdhocQuery>

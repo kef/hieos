@@ -16,7 +16,21 @@
             <MetadataFile>single_doc.xml</MetadataFile>
         </RegisterTransaction>
     </TestStep>
+    <TestStep id="submit_fol">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Single folder submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>single_fol.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
     <TestStep id="submit_doc_w_fol">
+        <NewPatientId/>
         <ExpectedStatus>Success</ExpectedStatus>
         <Rule>
             <Transaction>R</Transaction>
@@ -29,6 +43,7 @@
         </RegisterTransaction>
     </TestStep>
     <TestStep id="submit_2doc_w_fol">
+        <NewPatientId/>
         <Rule>
             <Transaction>R</Transaction>
             <Assertion>Two documents in a folder submission</Assertion>
@@ -38,6 +53,32 @@
             <XDSb/>
             <AssignUuids/>
             <MetadataFile>two_doc_w_fol.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+    <TestStep id="submit_2doc_w_fol_doc_avail">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Two documents in a folder submission (with document availability specified).</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>two_doc_w_fol_doc_avail.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+    <TestStep id="submit_single_doc_pid_update">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Single document submission (to support changing PID).</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>single_doc_pid_update.xml</MetadataFile>
         </RegisterTransaction>
     </TestStep>
     <TestStep id="reset_patient_id">
