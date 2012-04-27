@@ -14,8 +14,8 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.SubmitAssociationCommandValidator;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -79,7 +79,7 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
      * @return
      */
     @Override
-    protected UpdateDocumentSetCommandValidator getCommandValidator() {
+    protected MetadataUpdateCommandValidator getCommandValidator() {
         return new SubmitAssociationCommandValidator(this);
     }
 
@@ -90,7 +90,7 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
      * @throws XdsException
      */
     @Override
-    protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException {
+    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 

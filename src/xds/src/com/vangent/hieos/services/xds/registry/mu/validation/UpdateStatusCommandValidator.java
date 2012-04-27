@@ -27,7 +27,7 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
  *
  * @author Bernie Thuman
  */
-public class UpdateStatusCommandValidator extends UpdateDocumentSetCommandValidator {
+public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator {
 
     /**
      * 

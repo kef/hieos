@@ -33,7 +33,7 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-public class UpdateDocumentEntryMetadataCommandValidator extends UpdateDocumentSetCommandValidator {
+public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateCommandValidator {
 
     /**
      * 

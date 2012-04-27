@@ -14,7 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateFolderMetadataCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -43,7 +43,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
      * @return
      */
     @Override
-    protected UpdateDocumentSetCommandValidator getCommandValidator() {
+    protected MetadataUpdateCommandValidator getCommandValidator() {
         return new UpdateFolderMetadataCommandValidator(this);
     }
 
@@ -58,7 +58,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
     protected void handleAssociationPropagation(String targetPatientId, String newFolderEntryId, String currentFolderEntryId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        UpdateDocumentSetCommandValidator validator = this.getCommandValidator();
+        MetadataUpdateCommandValidator validator = this.getCommandValidator();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 

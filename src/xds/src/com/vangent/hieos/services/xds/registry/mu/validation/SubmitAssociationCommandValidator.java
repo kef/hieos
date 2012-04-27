@@ -35,7 +35,7 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-public class SubmitAssociationCommandValidator extends UpdateDocumentSetCommandValidator {
+public class SubmitAssociationCommandValidator extends MetadataUpdateCommandValidator {
 
     private enum RegistryObjectType {
         DOCUMENT, FOLDER

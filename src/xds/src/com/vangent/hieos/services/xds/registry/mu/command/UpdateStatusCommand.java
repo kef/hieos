@@ -14,7 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateStatusCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -98,7 +98,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
      * @return
      */
     @Override
-    protected UpdateDocumentSetCommandValidator getCommandValidator() {
+    protected MetadataUpdateCommandValidator getCommandValidator() {
         return new UpdateStatusCommandValidator(this);
     }
 
@@ -109,7 +109,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
      * @throws XdsException
      */
     @Override
-    protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException {
+    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         String targetObjectId = this.getTargetObjectId();

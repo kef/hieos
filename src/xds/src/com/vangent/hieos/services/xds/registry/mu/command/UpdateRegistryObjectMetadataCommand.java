@@ -15,7 +15,7 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
@@ -225,7 +225,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
      * @throws XdsException
      */
     @Override
-    protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException {
+    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();

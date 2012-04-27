@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -66,7 +66,7 @@ public abstract class MetadataUpdateCommand {
             logMessage.setTestMessage("MU." + className);
             logMessage.addOtherParam("Command", className);
         }
-        UpdateDocumentSetCommandValidator validator = this.getCommandValidator();
+        MetadataUpdateCommandValidator validator = this.getCommandValidator();
         boolean runStatus = validator.validate();
         if (runStatus) {
             runStatus = this.execute(validator);
@@ -79,12 +79,12 @@ public abstract class MetadataUpdateCommand {
      * @return
      * @throws XdsException
      */
-    abstract protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException;
+    abstract protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException;
 
     /**
      *
      * @return
      * @throws XdsException
      */
-    abstract protected UpdateDocumentSetCommandValidator getCommandValidator();
+    abstract protected MetadataUpdateCommandValidator getCommandValidator();
 }

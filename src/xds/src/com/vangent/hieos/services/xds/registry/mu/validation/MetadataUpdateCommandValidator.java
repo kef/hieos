@@ -27,7 +27,7 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-abstract public class UpdateDocumentSetCommandValidator {
+abstract public class MetadataUpdateCommandValidator {
 
     private MetadataUpdateCommand metadataUpdateCommand;
 
@@ -35,7 +35,7 @@ abstract public class UpdateDocumentSetCommandValidator {
      *
      * @param muCommand
      */
-    public UpdateDocumentSetCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
+    public MetadataUpdateCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
         this.metadataUpdateCommand = metadataUpdateCommand;
     }
 
