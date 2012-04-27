@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xds.registry.mu;
+package com.vangent.hieos.services.xds.registry.mu.support;
 
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;

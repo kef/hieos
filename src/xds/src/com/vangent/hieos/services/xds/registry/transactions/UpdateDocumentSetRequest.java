@@ -13,13 +13,13 @@
 package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
-import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateCommand;
-import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.MetadataUpdateHelper;
-import com.vangent.hieos.services.xds.registry.mu.SubmitAssociationCommand;
-import com.vangent.hieos.services.xds.registry.mu.UpdateDocumentEntryMetadataCommand;
-import com.vangent.hieos.services.xds.registry.mu.UpdateFolderMetadataCommand;
-import com.vangent.hieos.services.xds.registry.mu.UpdateStatusCommand;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
+import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationCommand;
+import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
+import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
+import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;

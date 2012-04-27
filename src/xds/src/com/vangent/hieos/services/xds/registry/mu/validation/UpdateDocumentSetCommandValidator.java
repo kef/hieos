@@ -10,11 +10,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xds.registry.mu;
+package com.vangent.hieos.services.xds.registry.mu.validation;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
-import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -67,7 +68,7 @@ abstract public class UpdateDocumentSetCommandValidator {
      * @param targetPatientId
      * @throws XdsException
      */
-    protected void validateDocumentPatientId(String currentDocumentEntryId, String targetPatientId) throws XdsException {
+    public void validateDocumentPatientId(String currentDocumentEntryId, String targetPatientId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -101,7 +102,7 @@ abstract public class UpdateDocumentSetCommandValidator {
      * @param targetPatientId
      * @throws XdsException
      */
-    protected void validateFolderPatientId(String currentFolderEntryId, String targetPatientId) throws XdsException {
+    public void validateFolderPatientId(String currentFolderEntryId, String targetPatientId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();

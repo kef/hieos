@@ -10,8 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.xds.registry.mu;
+package com.vangent.hieos.services.xds.registry.mu.command;
 
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
