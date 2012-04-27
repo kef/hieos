@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.soap.Soap;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -256,15 +257,15 @@ public class RetrieveB extends OmLogger {
     protected String validate_retrieve(boolean validateRequest) throws MetadataException {
         HashMap<String, RetInfo> request = r_ctx.getRequestInfo();
         HashMap<String, RetInfo> response = r_ctx.getResponseInfo();
-        StringBuffer errors = new StringBuffer();
-        HashMap<String, OMElement> uid_doc_map = null;   // UUID -> ExtrinsicObject
+        StringBuilder errors = new StringBuilder();
+        Map<String, OMElement> uid_doc_map = null;   // UUID -> ExtrinsicObject
 
         if (reference_metadata != null) {
             uid_doc_map = reference_metadata.getDocumentUidMap();
         }
 
         if (request.size() != response.size()) {
-            errors.append("Requested [" + request.size() + "] docs, got [" + response.size() + "]\n");
+            errors.append("Requested [").append(request.size()).append("] docs, got [").append(response.size()).append("]\n");
         }
 
         for (String req_doc : request.keySet()) {
@@ -282,7 +283,7 @@ public class RetrieveB extends OmLogger {
             String query_mime_type = null;
             if (uid_doc_map == null) {
             } else if (eo == null) {
-                errors.append("Retrieve validation: Document with uid = [" + doc_uid + "] not present in query output\n");
+                errors.append("Retrieve validation: Document with uid = [").append(doc_uid).append("] not present in query output\n");
             } else {
                 query_size = this.reference_metadata.getSlotValue(eo, "size", 0);
                 query_hash = this.reference_metadata.getSlotValue(eo, "hash", 0);
@@ -294,9 +295,7 @@ public class RetrieveB extends OmLogger {
             }
 
             if (rsp == null) {
-                errors.append("No response for document <" + req_doc +
-                        "> - only have responses for documents <" + response.keySet() +
-                        ">\n");
+                errors.append("No response for document <").append(req_doc).append("> - only have responses for documents <").append(response.keySet()).append(">\n");
                 continue;
             }
             //			errors.append("Request:\n" + req.toString() + "\n");
@@ -308,7 +307,7 @@ public class RetrieveB extends OmLogger {
             }
 
             if (!req.getRep_uid().equals(rsp.getRep_uid())) {
-                errors.append("Request repositoryUniqueId does not match response - [" + req.getRep_uid() + "] vs [" + rsp.getRep_uid() + "]\n");
+                errors.append("Request repositoryUniqueId does not match response - [").append(req.getRep_uid()).append("] vs [").append(rsp.getRep_uid()).append("]\n");
             }
 
             if (rsp.getContents() == null || req.getContents() == null) {
@@ -353,37 +352,37 @@ public class RetrieveB extends OmLogger {
             if (req.getContent_type() == null || req.getContent_type().equals("")) {
                 // in some tests it isn't available
             } else if (rsp.getContent_type() == null) {
-                errors.append("Null Content-Type - expected [" + req.getContent_type() + "]");
+                errors.append("Null Content-Type - expected [").append(req.getContent_type()).append("]");
             } else if (!rsp.getContent_type().equals(req.getContent_type())) {
-                errors.append("Content type does not match - submission has [" + req.getContent_type() + "] and Retrieve response has [" + rsp.getContent_type() + "]\n");
+                errors.append("Content type does not match - submission has [").append(req.getContent_type()).append("] and Retrieve response has [").append(rsp.getContent_type()).append("]\n");
             }
 
             if (query_mime_type != null && !query_mime_type.equals(rsp.getContent_type())) {
-                errors.append("Content type from query response has [" + query_mime_type + "] and Retrieve response has [" + rsp.getContent_type() + "]\n");
+                errors.append("Content type from query response has [").append(query_mime_type).append("] and Retrieve response has [").append(rsp.getContent_type()).append("]\n");
             }
 
             //
             // hash
             //
             if (req.getHash() != null && rsp.getHash() != null && !rsp.getHash().equals(req.getHash().toLowerCase())) {
-                errors.append("Hash does not match - submission has [" + req.getHash() + "] and Retrieve response has [" + rsp.getHash() + "]\n");
+                errors.append("Hash does not match - submission has [").append(req.getHash()).append("] and Retrieve response has [").append(rsp.getHash()).append("]\n");
             }
 
             if (query_hash != null && !query_hash.equals(rsp.getHash())) {
-                errors.append("Hash does not match - query response has [" + query_hash + "] and Retrieve response has [" + rsp.getHash() + "]\n");
+                errors.append("Hash does not match - query response has [").append(query_hash).append("] and Retrieve response has [").append(rsp.getHash()).append("]\n");
             }
 
             //
             // size
             //
             if (rsp.getSize() != req.getSize() && req.getSize() != -1) {
-                errors.append("Size does not match - metadata has [" + req.getSize() + "] and Retrieve response has [" + rsp.getSize() + "]\n");
+                errors.append("Size does not match - metadata has [").append(req.getSize()).append("] and Retrieve response has [").append(rsp.getSize()).append("]\n");
             }
 
             if (query_size != null) {
                 int query_size_int = Integer.parseInt(query_size);
                 if (query_size_int != rsp.getSize()) {
-                    errors.append("Size does not match - query response has [" + query_size_int + "] and Retreive response has [" + rsp.getSize() + "]\n");
+                    errors.append("Size does not match - query response has [").append(query_size_int).append("] and Retreive response has [").append(rsp.getSize()).append("]\n");
                 }
             }
 
