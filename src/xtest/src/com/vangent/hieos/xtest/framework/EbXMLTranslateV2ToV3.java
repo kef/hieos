@@ -10,6 +10,7 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
@@ -28,10 +29,10 @@ public class EbXMLTranslateV2ToV3 {
      * @return
      * @throws XdsInternalException
      */
-    public ArrayList<OMElement> translate(ArrayList<OMElement> in) throws XdsInternalException {
+    public ArrayList<OMElement> translate(List<OMElement> in) throws XdsInternalException {
         ArrayList<OMElement> out = new ArrayList<OMElement>();
         for (int i = 0; i < in.size(); i++) {
-            OMElement e = (OMElement) in.get(i);
+            OMElement e = in.get(i);
             OMElement output = translate(e);
             if (output != null) {
                 out.add(output);
@@ -158,7 +159,7 @@ public class EbXMLTranslateV2ToV3 {
             if (name.equals("status")) {
                 value = m.addNamespace(value, MetadataSupport.status_type_namespace);
             } else if (name.equals("associationType")) {
-                value = m.addNamespace(value, m.v3AssociationNamespace(value));
+                value = m.addNamespace(value, this.v3AssociationNamespace(value));
             } else if (name.equals("minorVersion")) {
                 continue;
             } else if (name.equals("majorVersion")) {
@@ -211,6 +212,31 @@ public class EbXMLTranslateV2ToV3 {
 //			} else {
 //				object_type_att.setAttributeValue("urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ObjectRef");
 //			}
+        }
+    }
+
+    /**
+     * 
+     */
+    private static final List<String> iheAssocTypes = new ArrayList<String>() {
+        {
+            add("APND");
+            add("XFRM");
+            add("RPLC");
+            add("XFRM_RPLC");
+            add("signs");
+        }
+    };
+     /**
+     *
+     * @param simpleAssociationType
+     * @return
+     */
+    private String v3AssociationNamespace(String simpleAssociationType) {
+        if (iheAssocTypes.contains(simpleAssociationType)) {
+            return MetadataSupport.xdsB_ihe_assoc_namespace_uri;
+        } else {
+            return MetadataSupport.xdsB_eb_assoc_namespace_uri;
         }
     }
 }

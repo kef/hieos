@@ -33,7 +33,6 @@ import com.vangent.hieos.xutil.xml.Util;
 import com.vangent.hieos.xtest.main.XTestDriver;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.iosupport.Io;
-import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
@@ -43,6 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -84,7 +84,7 @@ public abstract class BasicTransaction extends OmLogger {
     protected String repositoryUniqueId = null;
     protected boolean async = false;
     private final static Logger logger = Logger.getLogger(BasicTransaction.class);
-    protected HashMap<String, String> nameUuidMap = null;
+    protected Map<String, String> nameUuidMap = null;
     private Soap soap;
     protected boolean useMtom;
     protected boolean useAddressing;
@@ -210,7 +210,7 @@ public abstract class BasicTransaction extends OmLogger {
         RegistryErrorList rel = null;
 
         try {
-            rel = RegistryUtility.metadata_validator(MetadataParser.parseNonSubmission(registry_result), MetadataType.NON_SUBMISSION);
+            rel = RegistryUtility.metadata_validator(MetadataParser.parseNonSubmission(registry_result), false /* isSubmit */);
         } catch (NoMetadataException e) {
             // not all responses contain metadata
             rel = new RegistryErrorList();
@@ -292,7 +292,7 @@ public abstract class BasicTransaction extends OmLogger {
         }
     }
 
-    protected OMElement generate_xml(String root_name, HashMap map) {
+    protected OMElement generate_xml(String root_name, Map<String,String> map) {
         OMElement root = om_factory().createOMElement(root_name, null);
         for (Iterator it = map.keySet().iterator(); it.hasNext();) {
             String key = (String) it.next();
@@ -498,7 +498,7 @@ public abstract class BasicTransaction extends OmLogger {
             }
 
             // assign sourceId
-            HashMap sourceid_map = tm.assignSourceId(metadata);
+            HashMap<String,String> sourceid_map = tm.assignSourceId(metadata);
             this.s_ctx.add_name_value(instruction_output, generate_xml("AssignedSourceId", sourceid_map));
 
             // assign uuids

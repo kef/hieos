@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -288,9 +289,9 @@ public class TestValidator {
         String source_id = att_val(source, MetadataSupport.id_qname);
         String target_id = att_val(target, MetadataSupport.id_qname);
 
-        ArrayList asss = m.getAssociations();
+        List<OMElement> asss = m.getAssociations();
         for (int i = 0; i < asss.size(); i++) {
-            OMElement a = (OMElement) asss.get(i);
+            OMElement a = asss.get(i);
             if (!att_val(a, MetadataSupport.source_object_qname).equals(source_id)) {
                 continue;
             }
@@ -319,17 +320,17 @@ public class TestValidator {
      * @return
      * @throws MetadataException
      */
-    public OMElement hasAssociationWithOneTarget(OMElement source, ArrayList<OMElement> targets, String type) throws MetadataException {
+    public OMElement hasAssociationWithOneTarget(OMElement source, List<OMElement> targets, String type) throws MetadataException {
         String source_id = att_val(source, MetadataSupport.id_qname);
-        ArrayList<String> target_ids = new ArrayList<String>();
+        List<String> target_ids = new ArrayList<String>();
         for (OMElement tgt : targets) {
             String id = att_val(tgt, MetadataSupport.id_qname);
             target_ids.add(id);
         }
 
-        ArrayList asss = m.getAssociations();
+        List<OMElement> asss = m.getAssociations();
         for (int i = 0; i < asss.size(); i++) {
-            OMElement a = (OMElement) asss.get(i);
+            OMElement a = asss.get(i);
             if (!att_val(a, MetadataSupport.source_object_qname).equals(source_id)) {
                 continue; //error
             }
@@ -355,8 +356,14 @@ public class TestValidator {
         return null;
     }
 
-    ArrayList<String> getIdentifyingStrings(ArrayList<String> target_ids) throws MetadataException {
-        ArrayList<String> idents = new ArrayList<String>();
+    /**
+     *
+     * @param target_ids
+     * @return
+     * @throws MetadataException
+     */
+    private List<String> getIdentifyingStrings(List<String> target_ids) throws MetadataException {
+        List<String> idents = new ArrayList<String>();
         for (String id : target_ids) {
             idents.add(m.getIdentifyingString(id));
         }
@@ -736,6 +743,7 @@ public class TestValidator {
      * @return
      * @throws MetadataException
      */
+    /*
     public boolean addDocToExistingFolder() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(1);
@@ -787,13 +795,14 @@ public class TestValidator {
 
         }
         return !hasError();
-    }
+    }*/
 
     /**
      *
      * @return
      * @throws MetadataException
      */
+    /*
     public boolean addExistingDocToExistingFolder() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(0);
@@ -841,13 +850,14 @@ public class TestValidator {
 
         }
         return !hasError();
-    }
+    }*/
 
     /**
      *
      * @return
      * @throws MetadataException
      */
+    /*
     public boolean replaceDocument() throws MetadataException {
         hasSubmissionSet();
         hasDocuments(1);
@@ -897,7 +907,7 @@ public class TestValidator {
 
         }
         return !hasError();
-    }
+    }*/
 
     /**
      *
@@ -910,8 +920,8 @@ public class TestValidator {
         hasFolders(1);
         if (!hasError()) {
             hasAssociations(4);
-            ArrayList<OMElement> unknownAssocs = m.getAssociations();
-            ArrayList<OMElement> folderDocAssocs = new ArrayList<OMElement>();
+            List<OMElement> unknownAssocs = m.getAssociations();
+            List<OMElement> folderDocAssocs = new ArrayList<OMElement>();
             OMElement a;
 
             a = hasAssociation(m.getSubmissionSet(), m.getExtrinsicObject(0), MetadataSupport.xdsB_eb_assoc_type_has_member);
@@ -948,8 +958,8 @@ public class TestValidator {
         hasFolders(1);
         if (!hasError()) {
             hasAssociations(7);
-            ArrayList<OMElement> unknownAssocs = m.getAssociations();
-            ArrayList<OMElement> folderDocAssocs = new ArrayList<OMElement>();
+            List<OMElement> unknownAssocs = m.getAssociations();
+            List<OMElement> folderDocAssocs = new ArrayList<OMElement>();
             OMElement a;
 
             a = hasAssociation(m.getSubmissionSet(), m.getExtrinsicObject(0), MetadataSupport.xdsB_eb_assoc_type_has_member);
@@ -1003,8 +1013,8 @@ public class TestValidator {
         hasFolders(1);
         if (!hasError()) {
             hasAssociations(5);
-            ArrayList<OMElement> unknownAssocs = m.getAssociations();
-            ArrayList<OMElement> folderDocAssocs = new ArrayList<OMElement>();
+            List<OMElement> unknownAssocs = m.getAssociations();
+            List<OMElement> folderDocAssocs = new ArrayList<OMElement>();
             OMElement a;
 
             a = hasAssociation(m.getSubmissionSet(), m.getExtrinsicObject(0), MetadataSupport.xdsB_eb_assoc_type_has_member);

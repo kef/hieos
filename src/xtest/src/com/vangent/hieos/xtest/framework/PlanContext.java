@@ -34,31 +34,68 @@ import java.util.Iterator;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author thumbe
+ */
 public class PlanContext extends BasicContext {
 
-    OMElement results_document = null;
-    String default_registry_endpoint = null;
-    String default_patient_id = null;
-    String registry_endpoint = null;
-    String patient_id = null;
-    boolean status = true;
-    String test_num = "0";
-    short xds_version = BasicTransaction.xds_none;
+    private OMElement results_document = null;
+    protected String default_registry_endpoint = null;
+    private String default_patient_id = null;
+    //private String registry_endpoint = null;
+    //private String patient_id = null;
+    private boolean status = true;
+    protected String test_num = "0";
+    private int numStepFailures = 0;
+    private int numStepSuccesses = 0;
+    //private short xds_version = BasicTransaction.xds_none;
+    /**
+     * 
+     */
     protected boolean phone_home = false;
-    ArrayList<String> phone_home_log_files = null;
+    private ArrayList<String> phone_home_log_files = null;
     private final static Logger logger = Logger.getLogger(PlanContext.class);
 
-    void setRegistryEndpoint(String end_point) {
-        registry_endpoint = end_point;
+    /**
+     *
+     * @param end_point
+     */
+    protected void setRegistryEndpoint(String end_point) {
+        //registry_endpoint = end_point;
         logger.info("Set Registry Endpoint = " + end_point);
         set("RegistryEndpoint", end_point);
     }
 
-    void setPatientId(String patient_id) {
-        this.patient_id = patient_id;
+    /**
+     *
+     * @param patient_id
+     */
+    private void setPatientId(String patient_id) {
+        //this.patient_id = patient_id;
         set("PatientId", patient_id);
     }
 
+    /**
+     *
+     * @return
+     */
+    public int getNumStepFailures() {
+        return numStepFailures;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getNumStepSuccesses() {
+        return numStepSuccesses;
+    }
+
+    /**
+     *
+     * @param phonehome
+     */
     protected void plan_to_phone_home(OMElement phonehome) {
         this.phone_home = true;
         this.phone_home_log_files = new ArrayList<String>();
@@ -69,28 +106,51 @@ public class PlanContext extends BasicContext {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public OMElement getResultsDocument() {
         return results_document;
     }
 
+    /**
+     *
+     */
     public PlanContext() {
         super(null);
     }
 
+    /**
+     *
+     * @param xds_version
+     */
     public PlanContext(short xds_version) {
         super(null);
-        this.xds_version = xds_version;
+        //this.xds_version = xds_version;
     }
 
-    void set_status_in_output() {
+    /**
+     *
+     */
+    private void set_status_in_output() {
         results_document.addAttribute("status", (status) ? "Pass" : "Fail", null);
     }
 
-    boolean getStatus() {
+    /**
+     *
+     * @return
+     */
+    private boolean getStatus() {
         return status;
     }
 
-    void setDefaultConfig(OMElement config) {
+    /**
+     *
+     * @param config
+     */
+    /*
+    private void setDefaultConfig(OMElement config) {
         Iterator<OMElement> elements = config.getChildElements();
         while (elements.hasNext()) {
             OMElement part = elements.next();
@@ -100,20 +160,23 @@ public class PlanContext extends BasicContext {
 
             set(part_name, value);
         }
-    }
+    }*/
 
+    /**
+     *
+     * @param testplan_filename
+     * @param str_sub
+     * @return
+     * @throws XdsException
+     */
     public boolean run(String testplan_filename, StringSub str_sub) throws XdsException {
         try {
             results_document = build_results_document();
-
             add_name_value(results_document, "version", XTestDriver.driver.getVersion());
             add_name_value(results_document, "args", XTestDriver.driver.getArgs());
-
             String testplan_str = Io.stringFromFile(new File(testplan_filename));
             str_sub.setString(testplan_str);
             testplan_str = str_sub.toString();
-
-//			OMElement testplan = Util.parse_xml(new File(testplan_filename));
             OMElement testplan = XMLParser.stringToOM(testplan_str);
 
             Iterator elements = testplan.getChildElements();
@@ -140,9 +203,11 @@ public class PlanContext extends BasicContext {
                 } else if (part_name.equals("TestStep")) {
                     StepContext step_context = new StepContext(this);
                     step_context.run(part, this);
-
                     if (!step_context.getStatus()) {
                         status = false;
+                        ++numStepFailures;
+                    } else {
+                        ++numStepSuccesses;
                     }
                 } else {
                     throw new XdsInternalException("Don't understand test step named " + part_name);
@@ -152,10 +217,7 @@ public class PlanContext extends BasicContext {
             if (test_num.equals("0")) {
                 throw new XdsInternalException("<Test/> missing from testplan");
             }
-
             set_status_in_output();
-
-
         } catch (MetadataValidationException e) {
             add_name_value(results_document, "MetadataValidationError", e.getMessage());
             System.out.println(e.getMessage());
@@ -200,6 +262,11 @@ public class PlanContext extends BasicContext {
 
     }
 
+    /**
+     *
+     * @param log_doc
+     * @throws XdsInternalException
+     */
     private void phone_home_now(OMElement log_doc) throws XdsInternalException {
         OMElement val_req_ele = MetadataSupport.om_factory.createOMElement("ValidateTestRequest", null);
         String[] test_num_parts = test_num.split("/");

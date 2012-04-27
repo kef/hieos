@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -46,19 +47,19 @@ public abstract class IdAllocator {
 	public String assign(Metadata metadata, String object_type, String external_identifier_uuid, HashMap<String, String> assignments, String no_assign_uid_to) 
 	throws XdsInternalException {
 		
-		ArrayList eos = metadata.getMajorObjects(object_type);
+		List<OMElement> eos = metadata.getMajorObjects(object_type);
 		String new_value = null;
 		for (int i=0; i<eos.size(); i++) {
-			OMElement eo = (OMElement) eos.get(i);
+			OMElement eo = eos.get(i);
 			String id = eo.getAttributeValue(MetadataSupport.id_qname);
 			if (no_assign_uid_to != null) {
 				if (id.equals(no_assign_uid_to))
 					continue;
 			}
 			// for all xxx.uniqueId
-			ArrayList eis = metadata.getExternalIdentifiers(eo, external_identifier_uuid);
+			List<OMElement> eis = metadata.getExternalIdentifiers(eo, external_identifier_uuid);
 			for (int j=0; j<eis.size(); j++) {
-				OMElement ei = (OMElement) eis.get(j);
+				OMElement ei = eis.get(j);
 				OMAttribute uniqueid_value_att = ei.getAttribute(new QName("value"));
 				String old_value = uniqueid_value_att.getAttributeValue();
 				new_value = allocate();

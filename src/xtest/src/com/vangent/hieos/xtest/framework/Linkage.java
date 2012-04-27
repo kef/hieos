@@ -25,6 +25,7 @@ import com.vangent.hieos.xutil.xml.XPathHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -658,7 +659,7 @@ public class Linkage {
 
             Metadata m = MetadataParser.parseNonSubmission(result.getFirstElement());
 
-            ArrayList<OMElement> object_refs = m.getObjectRefs();
+            List<OMElement> object_refs = m.getObjectRefs();
             if (index_i >= object_refs.size()) {
                 throw new XdsException("<UseObjectRef requests index of " + index_i + " but query retured only [" + object_refs.size() + "] ObjectRefs");
             }

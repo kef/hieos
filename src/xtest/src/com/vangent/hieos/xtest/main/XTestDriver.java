@@ -42,6 +42,8 @@ public class XTestDriver {
     private String args = "";
     private String logDir = null;
     private StringSub str_sub = new StringSub();
+    private int numStepFailures = 0;
+    private int numStepSuccesses = 0;
 
     /**
      * 
@@ -136,6 +138,8 @@ public class XTestDriver {
         long testRunElapsedTime = testRunStopTime - testRunStartTime;
         System.out.println("\n\n---------------------------------  Test Summary  ------------------------------\n");
         System.out.println("\t Number of test specs: " + testSpecs.size());
+        System.out.println("\t Number of test step (pass): " + driver.numStepSuccesses);
+        System.out.println("\t Number of test step (fail): " + driver.numStepFailures);
         System.out.println("\t Elapsed time: " + testRunElapsedTime / 1000.0 + " seconds");
         System.exit(0);
     }
@@ -355,7 +359,10 @@ public class XTestDriver {
         TestConfig.base_path = testPathName;
         try {
             PlanContext plan = new PlanContext(BasicTransaction.xds_b);
-            return plan.run(testPathName + "testplan.xml", str_sub);
+            boolean runResult = plan.run(testPathName + "testplan.xml", str_sub);
+            numStepSuccesses += plan.getNumStepSuccesses();
+            numStepFailures += plan.getNumStepFailures();
+            return runResult;
         } catch (XdsException e) {
             System.out.println("XdsException thrown: " + exception_details(e));
         } catch (NullPointerException e) {
