@@ -103,7 +103,7 @@ public class UpdateFolderMetadataCommandValidator extends UpdateDocumentSetComma
 
         // Validate the submitted submission set along with its contained content.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validateStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
+        rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {

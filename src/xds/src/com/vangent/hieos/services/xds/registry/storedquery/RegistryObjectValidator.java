@@ -95,7 +95,7 @@ public class RegistryObjectValidator extends StoredQuery {
      * @throws XdsInternalException
      * @throws XdsException
      */
-    public void validateStructure(Metadata metadata, boolean isSubmit, RegistryErrorList registryErrorList) throws XdsPatientIdDoesNotMatchException, MetadataValidationException, XDSNonIdenticalHashException, MetadataException, XdsDeprecatedException, XdsInternalException, XdsException {
+    public void validateMetadataStructure(Metadata metadata, boolean isSubmit, RegistryErrorList registryErrorList) throws XdsPatientIdDoesNotMatchException, MetadataValidationException, XDSNonIdenticalHashException, MetadataException, XdsDeprecatedException, XdsInternalException, XdsException {
         // Validate that the metadata is internally consistent:
         Validator val = new Validator(metadata, registryErrorList, isSubmit, this.getLogMessage());
         val.run();
