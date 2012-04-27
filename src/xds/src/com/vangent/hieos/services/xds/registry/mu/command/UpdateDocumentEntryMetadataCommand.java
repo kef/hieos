@@ -17,7 +17,6 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntryMetadataCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentSetCommandValidator;
-import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -153,34 +152,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         // Now, run deprecations.
         if (!deprecateAssocIds.isEmpty()) {
             backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
-        }
-    }
-
-    /**
-     * 
-     * @param submittedMetadata
-     * @throws XdsException
-     */
-    private void validateHashAndSize(Metadata submittedMetadata) throws XdsException {
-        // NOTE (BHT): I believe that hash validation is already handled in the RegistryObjectValidator
-        // but leaving here anyway.
-        Metadata currentMetadata = this.getCurrentMetadata();
-        OMElement currentDocumentEntry = this.getCurrentRegistryObject();
-
-        // Validate that current document hash = submitted document hash
-        String currentDocumentHash = currentMetadata.getSlotValue(currentDocumentEntry, "hash", 0);
-        String submittedDocumentHash = submittedMetadata.getSlotValue(this.getTargetObject(), "hash", 0);
-        if (!currentDocumentHash.equals(submittedDocumentHash)) {
-            // FIXME: throw exceptions or add to registry response?
-            throw new XDSNonIdenticalHashException("Submitted document and current document 'hash' value does not match");
-        }
-
-        // Validate that current document size = submitted document size
-        String currentDocumentSize = currentMetadata.getSlotValue(currentDocumentEntry, "size", 0);
-        String submittedDocumentSize = submittedMetadata.getSlotValue(this.getTargetObject(), "size", 0);
-        if (!currentDocumentSize.equals(submittedDocumentSize)) {
-            // FIXME: throw exceptions or add to registry response?
-            throw new XdsException("Submitted document and current document 'size' value does not match");
         }
     }
 }

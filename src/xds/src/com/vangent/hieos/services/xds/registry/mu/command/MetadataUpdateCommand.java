@@ -59,12 +59,13 @@ public abstract class MetadataUpdateCommand {
      * @throws XdsException
      */
     public boolean run() throws XdsException {
-        System.out.println("Executing command ... " + this.getClass().getName());
         // FIXME: Probably can't put here (since a transaction can include > 1 command).
         XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
-        String className = this.getClass().getSimpleName();
-        logMessage.setTestMessage("MU." + className);
-        logMessage.addOtherParam("Command", className);
+        if (logMessage.isLogEnabled()) {
+            String className = this.getClass().getSimpleName();
+            logMessage.setTestMessage("MU." + className);
+            logMessage.addOtherParam("Command", className);
+        }
         UpdateDocumentSetCommandValidator validator = this.getCommandValidator();
         boolean runStatus = validator.validate();
         if (runStatus) {

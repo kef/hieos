@@ -39,7 +39,7 @@ public class MetadataUpdateHelper {
      */
     public static void logMetadata(XLogMessage logMessage, Metadata m) throws MetadataException {
         // Log relevant data (if logger is turned on of course).
-        if (logMessage.isLogEnabled() == true) {
+        if (logMessage.isLogEnabled()) {
             // Submissin set unique id.
             logMessage.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
             // Document unique ids.

@@ -67,7 +67,6 @@ public class UpdateDocumentEntryMetadataCommandValidator extends UpdateDocumentS
 
         // Get lid.
         String lid = submittedMetadata.getLID(targetObject);
-        System.out.println("... lid = " + lid);
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
