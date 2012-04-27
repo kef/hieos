@@ -193,6 +193,7 @@ public class MetadataSupport {
     public static final String XDSMissingHomeCommunityId = "XDSMissingHomeCommunityId";
     public static final String XDSUnknownCommunity = "XDSUnknownCommunity";
     public static final String XDSUnavailableCommunity = "XDSUnavailableCommunity";
+    public static final String XDSPatientIDReconciliationError = "XDSPatientIDReconciliationError";
 
     public static final QName response_option_qname = new QName("ResponseOption");
     public static final QName adhoc_query_qname = new QName("AdhocQuery");
