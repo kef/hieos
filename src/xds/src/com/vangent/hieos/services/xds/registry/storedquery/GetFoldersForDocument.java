@@ -17,9 +17,11 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
@@ -65,7 +67,12 @@ public class GetFoldersForDocument extends StoredQuery {
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
-
+         if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+            // association status not specified.
+            // Default association status to "Approved" if not specified.
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
+        }
         if (uuid == null || uuid.equals("")) {
             uuid = this.getDocumentUUIDFromUID(uid);
         }

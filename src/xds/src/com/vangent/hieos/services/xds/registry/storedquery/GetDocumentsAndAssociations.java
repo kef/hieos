@@ -18,9 +18,11 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
 
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -49,7 +51,6 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId");
         validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -67,6 +68,12 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         List<String> uids = params.getListParm("$XDSDocumentEntryUniqueId");
         List<String> uuids = params.getListParm("$XDSDocumentEntryEntryUUID");
         List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
+        if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+            // association status not specified.
+            // Default association status to "Approved" if not specified.
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
+        }
         if (uids != null) {
             OMElement ele = getDocumentByUID(uids);
             metadata = MetadataParser.parseNonSubmission(ele);

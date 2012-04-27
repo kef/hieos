@@ -54,7 +54,6 @@ public class FindFolders extends StoredQuery {
         validateQueryParam("$XDSFolderCodeList", false, true, true, true, true, (String[]) null);
         validateQueryParam("$XDSFolderStatus", true, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -83,13 +82,12 @@ public class FindFolders extends StoredQuery {
      */
     private OMElement impl() throws XdsInternalException, MetadataException, XdsException {
         SqParams params = this.getSqParams();
-        String metadataLevel = params.getIntParm("$MetadataLevel");
+        String metadataLevel = params.getIntParm("$MetadataLevel");  // No real usage here.
         String patientId = params.getStringParm("$XDSFolderPatientId");
         String lastUpdateTimeFrom = params.getIntParm("$XDSFolderLastUpdateTimeFrom");
         String lastUpdateTimeTo = params.getIntParm("$XDSFolderLastUpdateTimeTo");
         SQCodedTerm codes = params.getCodedParm("$XDSFolderCodeList");
         List<String> status = params.getListParm("$XDSFolderStatus");
-
         if (patientId == null || patientId.length() == 0) {
             throw new XdsException("Patient ID parameter empty");
         }
@@ -100,35 +98,26 @@ public class FindFolders extends StoredQuery {
         sqb.select("obj");
         sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
         if (lastUpdateTimeFrom != null) {
-            sqb.newline();
             sqb.append(", Slot updateTimef");
         }
         if (lastUpdateTimeTo != null) {
-            sqb.newline();
             sqb.append(", Slot updateTimet");
         }
-        sqb.newline();
         sqb.appendClassificationDeclaration(codes);
 
         // WHERE clause ...
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
+        sqb.append(" WHERE");
 
         // patientID
-        sqb.append("(obj.id = patId.registryobject AND	");
-        sqb.newline();
+        sqb.append(" (obj.id = patId.registryobject AND");
         sqb.append(" patId.identificationScheme='"
                 + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid)
                 + "' AND ");
-        sqb.newline();
         sqb.append(" patId.value = '");
         sqb.append(patientId);
-        sqb.append("' ) AND");
-        sqb.newline();
-        sqb.append(" obj.status IN ");
+        sqb.append("' ) AND obj.status IN ");
+        //sqb.append(" obj.status IN ");
         sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(status));
-        sqb.newline();
         sqb.addTimes("lastUpdateTime", "updateTimef", "updateTimet", lastUpdateTimeFrom, lastUpdateTimeTo, "obj");
         sqb.addCode(codes);
         return runQuery(sqb);

@@ -49,7 +49,6 @@ public class GetDocuments extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryEntryUUID", true, true, true, false, false, "$XDSDocumentEntryUniqueId", "$XDSDocumentEntryLogicalID");
         validateQueryParam("$XDSDocumentEntryLogicalID", false, true, true, false, false, "$XDSDocumentEntryEntryUUID", "$XDSDocumentEntryUniqueId");
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }

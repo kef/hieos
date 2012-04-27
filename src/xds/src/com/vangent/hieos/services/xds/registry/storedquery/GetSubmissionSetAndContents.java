@@ -55,7 +55,6 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryFormatCode", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -72,6 +71,12 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         String metadataLevel = params.getIntParm("$MetadataLevel");
         String ssUUID = params.getStringParm("$XDSSubmissionSetEntryUUID");
         String ssUID = params.getStringParm("$XDSSubmissionSetUniqueId");
+        List<String> assocStatusValues = null;
+        if (metadataLevel == null || metadataLevel.equals("1")) {
+            // Default association status to "Approved".
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
+        }
         if (ssUUID != null) {
             // starting from uuid
             OMElement x = this.getRegistryPackageByUUID(ssUUID, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
@@ -103,21 +108,25 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         SQCodedTerm confidentialityCodes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
         SQCodedTerm formatCodes = params.getCodedParm("$XDSDocumentEntryFormatCode");
 
-        OMElement docMetadata = this.getSubmissionSetDocuments(ssUUID, formatCodes, confidentialityCodes);
+        // Add documents that match criteria.
+        OMElement docMetadata = this.getSubmissionSetDocuments(ssUUID, assocStatusValues, formatCodes, confidentialityCodes);
         metadata.addMetadata(docMetadata);
 
-        OMElement folderMetadata = this.getSubmissionSetFolders(ssUUID);
+        // Add folders that match criteria.
+        OMElement folderMetadata = this.getSubmissionSetFolders(ssUUID, assocStatusValues);
         metadata.addMetadata(folderMetadata);
 
+        // Add submission set associations that match criteria.
         List<String> ssUuids = new ArrayList<String>();
         ssUuids.add(ssUUID);
-        OMElement assoc1Metadata = this.getRegistryPackageAssociations(ssUuids);
+        OMElement assoc1Metadata = this.getRegistryPackageAssociations(ssUuids, assocStatusValues);
         if (assoc1Metadata != null) {
             metadata.addMetadata(assoc1Metadata);
         }
 
+        // Add folder associations that match criteria (a little redundant passing in assocStatusValues but OK).
         List<String> folderIds = metadata.getFolderIds();
-        OMElement assoc2Metadata = this.getRegistryPackageAssociations(folderIds);
+        OMElement assoc2Metadata = this.getRegistryPackageAssociations(folderIds, assocStatusValues);
         if (assoc2Metadata != null) {
             metadata.addMetadata(assoc2Metadata);
         }
@@ -130,10 +139,10 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         contentIds.addAll(metadata.getFolderIds());
 
         // add in Associations that link the above parts
-        contentIds.addAll(metadata.getIds(metadata.getAssociationsInclusive(contentIds)));
+        contentIds.addAll(metadata.getObjectIds(metadata.getAssociationsInclusive(contentIds)));
 
         // Assocs can link to Assocs to so repeat
-        contentIds.addAll(metadata.getIds(metadata.getAssociationsInclusive(contentIds)));
+        contentIds.addAll(metadata.getObjectIds(metadata.getAssociationsInclusive(contentIds)));
         metadata.filter(contentIds);
         return metadata;
     }

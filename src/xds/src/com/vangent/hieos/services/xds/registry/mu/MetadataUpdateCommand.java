@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu;
 
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 /**
  *
@@ -57,10 +58,15 @@ public abstract class MetadataUpdateCommand {
      */
     public boolean run() throws XdsException {
         System.out.println("Executing command ... " + this.getClass().getName());
-        this.getMetadataUpdateContext().getLogMessage().addOtherParam("Command", this.getClass().getSimpleName());
-        boolean runStatus = this.validate();
+        // FIXME: Probably can't put here (since a transaction can include > 1 command).
+        XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
+        String className = this.getClass().getSimpleName();
+        logMessage.setTestMessage("MU." + className);
+        logMessage.addOtherParam("Command", className);
+        UpdateDocumentSetCommandValidator validator = this.getCommandValidator();
+        boolean runStatus = validator.validate();
         if (runStatus) {
-            runStatus = this.execute();
+            runStatus = this.execute(validator);
         }
         return runStatus;
     }
@@ -70,12 +76,12 @@ public abstract class MetadataUpdateCommand {
      * @return
      * @throws XdsException
      */
-    abstract protected boolean execute() throws XdsException;
+    abstract protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException;
 
     /**
-     * 
+     *
      * @return
      * @throws XdsException
      */
-    abstract protected boolean validate() throws XdsException;
+    abstract protected UpdateDocumentSetCommandValidator getCommandValidator();
 }

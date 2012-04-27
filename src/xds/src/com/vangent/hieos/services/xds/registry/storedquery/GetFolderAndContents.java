@@ -53,7 +53,6 @@ public class GetFolderAndContents extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryConfidentialityCode", false, true, true, true, true, (String[]) null);
         validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -71,7 +70,12 @@ public class GetFolderAndContents extends StoredQuery {
         String folderUUID = params.getStringParm("$XDSFolderEntryUUID");
         String folderUID = params.getStringParm("$XDSFolderUniqueId");
         List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
-
+        if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+            // association status not specified.
+            // Default association status to "Approved" if not specified.
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
+        }
         if (folderUUID != null) {
             // starting from uuid
             OMElement x = this.getFolderByUUID(folderUUID);
@@ -112,7 +116,7 @@ public class GetFolderAndContents extends StoredQuery {
         SQCodedTerm confidentialityCodes = params.getCodedParm("$XDSDocumentEntryConfidentialityCode");
         SQCodedTerm formatCodes = params.getCodedParm("$XDSDocumentEntryFormatCode");
 
-        OMElement documentMetadata = this.getFolderDocuments(folderUUID, formatCodes, confidentialityCodes);
+        OMElement documentMetadata = this.getFolderDocuments(folderUUID, assocStatusValues, formatCodes, confidentialityCodes);
         metadata.addMetadata(documentMetadata);
         List<String> docIds = this.getIdsFromRegistryResponse(documentMetadata);
         contentIds.addAll(docIds);

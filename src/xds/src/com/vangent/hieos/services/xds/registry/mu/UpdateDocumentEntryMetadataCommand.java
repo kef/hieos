@@ -14,16 +14,11 @@ package com.vangent.hieos.services.xds.registry.mu;
 
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
-import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
-import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +29,6 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMetadataCommand {
-
-    // Scratch pad area.
-    private OMElement currentDocumentEntry;
-    private Metadata currentMetadata;
 
     /**
      *
@@ -51,125 +42,115 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
     /**
      * 
      * @return
-     * @throws XdsException
      */
     @Override
-    protected boolean execute() throws XdsException {
-
-        // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
-        // FIXME: metadata includes the targetObject, but it may contain other details
-        // we do not want.
-        Metadata metadata = this.getMetadata();
-        OMElement targetObject = this.getTargetObject();
-
-        // Now, fixup the Metadata to be submitted.
-
-        // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(metadata);
-        idParser.compileSymbolicNamesIntoUuids();
-
-        // Adjust the version number (current version number + 1).
-        Metadata.updateRegistryObjectVersion(targetObject, this.getPreviousVersion());
-
-        // DEBUG:
-        logMessage.addOtherParam("Version to Submit", targetObject);
-
-        // FIXME: MetadataTypes.METADATA_TYPE_Rb?
-        //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
-
-        backendRegistry.setReason("Submit New Version");
-        OMElement result = backendRegistry.submit(metadata);
-
-        // FIXME: Should approve in one shot.
-        // Approve.
-        ArrayList approvableObjectIds = metadata.getApprovableObjectIds();
-        if (approvableObjectIds.size() > 0) {
-            backendRegistry.submitApproveObjectsRequest(approvableObjectIds);
-        }
-
-        // Deprecate old.
-        String currentDocumentEntryId = currentMetadata.getId(currentDocumentEntry);
-        ArrayList deprecateObjectIds = new ArrayList<String>();
-        deprecateObjectIds.add(currentDocumentEntryId);
-        backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
-        return true;
+    protected UpdateDocumentSetCommandValidator getCommandValidator() {
+        return new UpdateDocumentEntryMetadataCommandValidator(this);
     }
 
     /**
      *
-     * @return
+     * @param targetPatientId
+     * @param newDocumentEntryId
+     * @param currentDocumentEntryId
      * @throws XdsException
      */
     @Override
-    protected boolean validate() throws XdsException {
-        boolean validationSuccess = true;
-
+    protected void handleAssociationPropagation(String targetPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
+        UpdateDocumentSetCommandValidator validator = this.getCommandValidator();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
-        Metadata submittedMetadata = this.getMetadata();
-        OMElement targetObject = this.getTargetObject();
-        String previousVersion = this.getPreviousVersion();
-
-        // Get lid.
-        String lid = targetObject.getAttributeValue(MetadataSupport.lid_qname);
-        System.out.println("... lid = " + lid);
-
-        //
-        // Look for an existing document that 1) matches the lid, 2) status is "Approved"
-        // and 3) matches the previous version.
-        //
-
-        // Prepare to issue registry query.
+        // Prepare for queries.
         MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
                 metadataUpdateContext.getRegistryResponse(), logMessage,
                 metadataUpdateContext.getBackendRegistry());
+        muSQ.setReturnLeafClass(false);
 
-        // Issue query.
-        muSQ.setReturnLeafClass(true);
-        OMElement queryResult = muSQ.getDocumentsByLID(lid, MetadataSupport.status_type_approved, previousVersion);
+        // Rules:
+        //  Look for non-deprecated HasMember associations linking the existing DocumentEntry to a Folder.
+        //  Scan for existing non-deprecated HasMember associations (in approved status).
+        //  When found, a new HasMember association is generated linking the new DocumentEntry to the same Folder.
+        //
+        //  Look for non-deprecated relationship associations linked to the existing DocumentEntry.
+        //  When found, these associations are replicated referencing the new DocumentEntry instead of the
+        //  existing DocumentEntry.
 
-        // Convert response into Metadata instance.
-        currentMetadata = MetadataParser.parseNonSubmission(queryResult);
-        List<OMElement> currentDocuments = currentMetadata.getExtrinsicObjects();
-        if (currentDocuments.isEmpty()) {
-            throw new XdsException("Existing approved document entry not found for lid="
-                    + lid + ", version=" + previousVersion);
-        } else if (currentDocuments.size() > 1) {
-            throw new XdsException("> 1 existing document entry found!");
+        // Get all approved associations.
+        Metadata assocMetadata = this.getApprovedAssocs(currentDocumentEntryId);
+
+        // Create new metadata instance.
+        Metadata newAssocMetadata = new Metadata();
+
+        // Keep track of which associations to deprecate.
+        List<String> deprecateAssocIds = new ArrayList<String>();
+
+        // Now, go through each association and create a new one.
+        List<OMElement> assocs = assocMetadata.getAssociations();
+        for (OMElement assoc : assocs) {
+            String assocId = assocMetadata.getId(assoc);
+            String assocType = assocMetadata.getAssocType(assoc);
+            String sourceId = assocMetadata.getSourceObject(assoc);
+            String targetId = assocMetadata.getAssocTarget(assoc);
+            if (sourceId.equals(currentDocumentEntryId)) {
+                // If source is a document, then the target is a document.
+
+                // Now make sure that we do not violate patient id constraints.
+                validator.validateDocumentPatientId(targetId, targetPatientId);
+
+                // Create association between new document version and target document.
+                OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
+                newAssocMetadata.addAssociation(newAssoc);
+            } else {
+                // Target is the current document.  See about the source.
+                if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
+                    // If the association type is not a has member, then the source must be a document.
+                    // For optimization reasons, assuming a document (not verifying here).
+
+                    // Now make sure that we do not violate patient id constraints.
+                    validator.validateDocumentPatientId(sourceId, targetPatientId);
+
+                    // Create association between source document and new document version.
+                    OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                    newAssocMetadata.addAssociation(newAssoc);
+                } else {
+                    // Make sure that the source is a folder (and not a submission set).
+                    backendRegistry.setReason("Assoc Propagation - Validate Source is Folder");
+                    OMElement folderQueryResult = muSQ.getFolderByUUID(sourceId);
+                    backendRegistry.setReason("");
+                    Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
+                    if (!folderMetadata.getObjectRefIds().isEmpty()) {
+
+                        // Now make sure that we do not violate patient id constraints.
+                        validator.validateFolderPatientId(sourceId, targetPatientId);
+
+                        // Create association between source folder entry and new document version.
+                        OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                        newAssocMetadata.addAssociation(newAssoc);
+
+                        // Will need to deprecate the prior Folder->Document association.
+                        deprecateAssocIds.add(assocId);
+                    }
+                }
+            }
         }
 
-        // Fall through: we found a document that matches.
-        currentDocumentEntry = currentMetadata.getExtrinsicObject(0);
+        // Submit new associations to registry.
+        //logMessage.addOtherParam("Association Propagation Submission", newAssocMetadata);
 
-        // FIXME: BEEF UP VALIDATIONS!!!!
-        // Validate that the SOR is internally consistent:
-        // FIXME: Should this go in the TXN?
-        //Validator val = new Validator(this.getMetadata(), registryResponse.registryErrorList, true, logMessage);
-        //val.run();
-
-        // Validate the submitted submission set along with its contained content.
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validate(submittedMetadata, MetadataType.UPDATE_SUBMISSION, registryResponse.registryErrorList, configActor);
-        if (registryResponse.has_errors()) {
-            validationSuccess = false;
-        } else {
-            // Run further validations.
-
-            // FIXME: Validate same UID
-            // FIXME: Validate same REPOID
-
-            this.validateHashAndSize(submittedMetadata);
+        // FIXME: MetadataTypes.METADATA_TYPE_Rb?
+        //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
+        if (!newAssocMetadata.getAssociations().isEmpty()) {
+            backendRegistry.setReason("Association Propagation Submission");
+            OMElement result = backendRegistry.submit(newAssocMetadata);
         }
-        return validationSuccess;
+
+        // Now, run deprecations.
+        if (!deprecateAssocIds.isEmpty()) {
+            backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
+        }
     }
 
     /**
@@ -180,6 +161,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
     private void validateHashAndSize(Metadata submittedMetadata) throws XdsException {
         // NOTE (BHT): I believe that hash validation is already handled in the RegistryObjectValidator
         // but leaving here anyway.
+        Metadata currentMetadata = this.getCurrentMetadata();
+        OMElement currentDocumentEntry = this.getCurrentRegistryObject();
 
         // Validate that current document hash = submitted document hash
         String currentDocumentHash = currentMetadata.getSlotValue(currentDocumentEntry, "hash", 0);

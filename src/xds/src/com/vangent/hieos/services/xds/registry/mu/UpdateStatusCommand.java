@@ -93,13 +93,29 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
     /**
      * 
      * @return
+     */
+    @Override
+    protected UpdateDocumentSetCommandValidator getCommandValidator() {
+        return new UpdateStatusCommandValidator(this);
+    }
+
+    /**
+     *
+     * @param validator
+     * @return
      * @throws XdsException
      */
     @Override
-    protected boolean execute() throws XdsException {
+    protected boolean execute(UpdateDocumentSetCommandValidator validator) throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         String targetObjectId = this.getTargetObjectId();
+
+        // Log parameters.
+        this.getMetadataUpdateContext().getLogMessage().addOtherParam("Input Parameters",
+                "NewStatus = " + newStatus
+                + ", OriginalStatus = " + originalStatus
+                + ", Target Registry Object Id = " + targetObjectId);
 
         // Validate the new status is a valid entry.
         if (!(newStatus.equals(MetadataSupport.status_type_approved)
@@ -166,7 +182,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
                 // Make sure we are not violating any version constraints.
                 this.enforceVersionConstraints(targetObjectId, metadataVersions, targetDocument, versionedDocuments);
             }
-
+            this.getMetadataUpdateContext().getLogMessage().addOtherParam("Document Updated", targetObjectId);
             // Update the document entry status.
             this.updateRegistryObjectStatus(muSQ.getBackendRegistry(), m.getExtrinsicObjectIds(), this.newStatus);
             updated = true;
@@ -204,7 +220,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
                 // Make sure we are not violating any version constraints.
                 this.enforceVersionConstraints(targetObjectId, metadataVersions, targetFolder, versionedFolders);
             }
-
+            this.getMetadataUpdateContext().getLogMessage().addOtherParam("Folder Updated", targetObjectId);
             // Update the folder status.
             this.updateRegistryObjectStatus(muSQ.getBackendRegistry(), m.getFolderIds(), this.newStatus);
             updated = true;
@@ -229,8 +245,9 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
             this.enforceStatusConstraints("Association", m, targetAssoc);
 
             // FIXME: Enforce rules?
-            
+
             // Update the association status.
+            this.getMetadataUpdateContext().getLogMessage().addOtherParam("Association Updated", targetObjectId);
             this.updateRegistryObjectStatus(muSQ.getBackendRegistry(), m.getAssociationIds(), this.newStatus);
             updated = true;
         }
@@ -310,16 +327,5 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         backendRegistry.submitSetStatusOnObjectsRequest(objectIds, status);
         // FIXME: Deal with response!!
 
-    }
-
-    /**
-     *
-     * @return
-     * @throws XdsException
-     */
-    @Override
-    protected boolean validate() throws XdsException {
-        // Not used.
-        return true;
     }
 }

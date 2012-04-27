@@ -160,7 +160,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
         }
 
         // Make sure that the meta-data contains the list of document identifiers.
-        ArrayList<String> extrinsicObjectIds = m.getExtrinsicObjectIds();
+        List<String> extrinsicObjectIds = m.getExtrinsicObjectIds();
         for (String id : extrinsicObjectIds) {
             if (!docIds.contains(id)) {
                 throw new XDSMissingDocumentException("Document with id " + id + " is missing");

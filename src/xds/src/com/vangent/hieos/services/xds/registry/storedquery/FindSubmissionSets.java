@@ -54,7 +54,6 @@ public class FindSubmissionSets extends StoredQuery {
         validateQueryParam("$XDSSubmissionSetAuthorPerson", false, false, true, false, false, (String[]) null);
         validateQueryParam("$XDSSubmissionSetContentType", false, true, true, true, false, (String[]) null);
         validateQueryParam("$XDSSubmissionSetStatus", true, true, true, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -95,70 +94,48 @@ public class FindSubmissionSets extends StoredQuery {
         sqb.select("obj");
         sqb.append("FROM RegistryPackage obj, ExternalIdentifier patId");
         if (sourceId != null) {
-            sqb.newline();
             sqb.append(", ExternalIdentifier srcId");
         }
         if (submissionTimeFrom != null) {
-            sqb.newline();
             sqb.append(", Slot sTimef");
         }
         if (submissionTimeTo != null) {
-            sqb.newline();
             sqb.append(", Slot sTimet");
         }
         if (authorPerson != null) {
-            sqb.newline();
             sqb.append(", Classification author");
-            sqb.newline();
             sqb.append(", Slot authorperson");
         }
-        sqb.newline();
         sqb.appendClassificationDeclaration(contentType);
-        sqb.newline();
 
         // WHERE clause ...
-        sqb.append("WHERE");
-        sqb.newline();
+        sqb.append(" WHERE ");
         // patientID
-        sqb.append("(obj.id = patId.registryobject AND	");
-        sqb.newline();
-        sqb.append("  patId.identificationScheme='"
+        sqb.append("(obj.id = patId.registryobject AND");
+        sqb.append(" patId.identificationScheme='"
                 + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid)
                 + "' AND ");
-        sqb.newline();
-        sqb.append("  patId.value = '");
+        sqb.append(" patId.value = '");
         sqb.append(patientId);
         sqb.append("' ) ");
-        sqb.newline();
-
         if (sourceId != null) {
             sqb.append("AND");
-            sqb.newline();
-            sqb.append("(obj.id = srcId.registryobject AND	");
-            sqb.newline();
-            sqb.append("  srcId.identificationScheme='"
+            sqb.append(" (obj.id = srcId.registryobject AND");
+            sqb.append(" srcId.identificationScheme='"
                     + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_sourceid_uuid)
                     + "' AND ");
-            sqb.newline();
-            sqb.append("  srcId.value IN ");
+            sqb.append(" srcId.value IN ");
             sqb.append(sourceId);
             sqb.append(" ) ");
-            sqb.newline();
         }
         sqb.addTimes("submissionTime", "sTimef", "sTimet", submissionTimeFrom, submissionTimeTo, "obj");
         if (authorPerson != null) {
-            sqb.append("AND");
-            sqb.newline();
-            sqb.append("(obj.id = author.classifiedObject AND ");
-            sqb.newline();
-            sqb.append("  author.classificationScheme='urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d' AND ");
-            sqb.newline();
-            sqb.append("  authorperson.parent = author.id AND");
-            sqb.newline();
-            sqb.append("  authorperson.name_ = 'authorPerson' AND");
-            sqb.newline();
-            sqb.append("  authorperson.value LIKE '" + authorPerson + "' )");
-            sqb.newline();
+            sqb.append(" AND ");
+            sqb.append(" (obj.id = author.classifiedObject AND ");
+            sqb.append(" author.classificationScheme='urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d' AND ");
+            sqb.append(" authorperson.parent = author.id AND");
+            sqb.append(" authorperson.name_ = 'authorPerson' AND");
+            sqb.append(" authorperson.value LIKE '" + authorPerson + "' )");
         }
         sqb.addCode(contentType);
         sqb.append("AND obj.status IN ");

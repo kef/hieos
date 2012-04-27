@@ -20,9 +20,11 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,7 +50,6 @@ public class GetAssociations extends StoredQuery {
         validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
         validateQueryParam("$XDSAssociationStatus", false, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -65,6 +66,13 @@ public class GetAssociations extends StoredQuery {
         String metadataLevel = params.getIntParm("$MetadataLevel");
         List<String> uuids = params.getListParm("$uuid");
         List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
+
+        if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+            // association status not specified.
+            // Default association status to "Approved" if not specified.
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
+        }
         if (uuids != null) {
             OMElement ele = getAssociationsByUUID(uuids, assocStatusValues, null);
             metadata = MetadataParser.parseNonSubmission(ele);

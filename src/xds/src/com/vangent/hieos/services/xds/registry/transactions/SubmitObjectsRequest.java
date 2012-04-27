@@ -25,6 +25,7 @@ import com.vangent.hieos.xutil.exception.XdsPatientIdDoesNotMatchException;
 import com.vangent.hieos.xutil.exception.XdsUnknownPatientIdException;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.storedquery.GetFoldersForDocument;
+import com.vangent.hieos.services.xds.registry.storedquery.SubmitObjectsRequestStoredQuerySupport;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -38,7 +39,6 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
-import com.vangent.hieos.xutil.metadata.validation.Validator.MetadataType;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
@@ -55,10 +55,8 @@ import org.apache.log4j.Logger;
  * @author NIST, Bernie Thuman (overall cleanup).
  */
 public class SubmitObjectsRequest extends XBaseTransaction {
-    //Message context was added when trying to send audit message
 
-    MessageContext messageContext;
-    boolean submit_raw = false;
+    //private MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(SubmitObjectsRequest.class);
 
     /**
@@ -68,7 +66,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      */
     public SubmitObjectsRequest(XLogMessage logMessage, MessageContext messageContext) {
         this.log_message = logMessage;
-        this.messageContext = messageContext;
+        //this.messageContext = messageContext;
         try {
             init(new RegistryResponse(), messageContext);
         } catch (XdsInternalException e) {
@@ -159,9 +157,11 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             Metadata m = new Metadata(sor);
             this.logMetadata(m);
 
+            SubmitObjectsRequestStoredQuerySupport sqSupport = new SubmitObjectsRequestStoredQuerySupport(response, log_message, backendRegistry);
+
             // Run validations.
             RegistryObjectValidator rov = new RegistryObjectValidator(response, log_message, backendRegistry);
-            rov.validate(m, MetadataType.SUBMISSION, response.registryErrorList, this.getConfigActor());
+            rov.validate(m, true /* isSubmit */, response.registryErrorList, this.getConfigActor());
             if (!response.has_errors()) {
                 // Only continue if response does not have any errors (a bit ugly).
 
@@ -175,16 +175,18 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 this.updateFolderContentsOnDocumentReplace(m, backendRegistry);
 
                 // if this submission adds a document to a folder then update that folder's lastUpdateTime Slot
-                this.updateFoldersLastUpdateTimeSlot(m, rov, backendRegistry);
+                this.updateFoldersLastUpdateTimeSlot(m, sqSupport, backendRegistry);
+
+                m.setStatusOnApprovableObjects();
 
                 // Finally, make the actual submission:
-                this.submitRegistryRequest(m, backendRegistry);
+                this.submitRegistryRequest(m, backendRegistry, "SubmitObjectsRequest");
 
                 // Approve
-                this.approveObjects(m, backendRegistry);
+                //this.approveObjects(m, backendRegistry);
 
                 // Deprecate
-                this.deprecateObjects(m, rov, backendRegistry);
+                this.deprecateObjects(m, sqSupport, backendRegistry);
             }
 
             backendRegistry.commit();
@@ -202,8 +204,10 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param backendRegistry
      * @throws XdsInternalException
      */
-    private void submitRegistryRequest(Metadata m, BackendRegistry backendRegistry) throws XdsInternalException {
+    private void submitRegistryRequest(Metadata m, BackendRegistry backendRegistry, String reason) throws XdsInternalException {
+        backendRegistry.setReason(reason);
         backendRegistry.submit(m);
+        backendRegistry.setReason("");
     }
 
     /**
@@ -212,12 +216,12 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param backendRegistry
      * @throws XdsException
      */
-    private void approveObjects(Metadata m, BackendRegistry backendRegistry) throws XdsException {
-        ArrayList approvableObjectIds = m.getApprovableObjectIds();
-        if (approvableObjectIds.size() > 0) {
-            this.submitApproveObjectsRequest(backendRegistry, approvableObjectIds);
-        }
-    }
+    //private void approveObjects(Metadata m, BackendRegistry backendRegistry) throws XdsException {
+    //    List<String> approvableObjectIds = m.getApprovableObjectIds();
+    //    if (approvableObjectIds.size() > 0) {
+    //        this.submitApproveObjectsRequest(backendRegistry, approvableObjectIds);
+    //    }
+    // }
 
     /**
      *
@@ -228,15 +232,15 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @throws MetadataException
      * @throws XdsException
      */
-    private void deprecateObjects(Metadata m, RegistryObjectValidator rov, BackendRegistry backendRegistry) throws MetadataValidationException, MetadataException, XdsException {
-        ArrayList<String> deprecatableObjectIds = m.getDeprecatableObjectIds();
+    private void deprecateObjects(Metadata m, SubmitObjectsRequestStoredQuerySupport sqSupport, BackendRegistry backendRegistry) throws MetadataValidationException, MetadataException, XdsException {
+        List<String> deprecatableObjectIds = m.getDeprecatableObjectIds();
         // add to the list of things to deprecate, any XFRM or APND documents hanging off documents
         // in the deprecatable_object_ids list
-        List<String> XFRMandAPNDDocuments = rov.getXFRMandAPNDDocuments(deprecatableObjectIds);
+        List<String> XFRMandAPNDDocuments = sqSupport.getXFRMandAPNDDocuments(deprecatableObjectIds);
         deprecatableObjectIds.addAll(XFRMandAPNDDocuments);
         if (deprecatableObjectIds.size() > 0) {
             // validate that these are documents first
-            List<String> missing = rov.validateDocuments(deprecatableObjectIds);
+            List<String> missing = sqSupport.getMissingDocuments(deprecatableObjectIds);
             if (missing != null) {
                 throw new XdsException("The following documents were referenced by this submission but are not present in the registry: " + missing);
             }
@@ -265,7 +269,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             String originalDocumentId = rplcToOrigIds.get(replacementDocumentId);
             // for each original document, find the collection of folders it belongs to
             Metadata me = this.findFoldersForDocumentByUuid(originalDocumentId, backendRegistry);
-            ArrayList<String> folderIds = me.getObjectIds(me.getObjectRefs());
+            List<String> folderIds = me.getObjectIds(me.getObjectRefs());
             // for each folder, add an association placing replacment in that folder
             // This brings up interesting question, should the Assoc between SS and Assoc be generated also?  YES!
             for (String fid : folderIds) {
@@ -292,13 +296,13 @@ public class SubmitObjectsRequest extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param m
-     * @param rov
+     * @param sqSupport
      * @param backendRegistry
      * @throws XdsException
      */
-    private void updateFoldersLastUpdateTimeSlot(Metadata m, RegistryObjectValidator rov, BackendRegistry backendRegistry) throws XdsException {
+    private void updateFoldersLastUpdateTimeSlot(Metadata m, SubmitObjectsRequestStoredQuerySupport sqSupport, BackendRegistry backendRegistry) throws XdsException {
         // Update any folders "lastUpdateTime" slot with the current time:
         m.updateFoldersLastUpdateTimeSlot();
 
@@ -309,7 +313,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                 if (!m.getSubmissionSetId().equals(sourceId) && !m.getFolderIds().contains(sourceId)) {
                     // Assoc src not part of the submission
                     logger.info("Adding to Folder (1)" + sourceId);
-                    if (this.isFolder(sourceId, rov)) {
+                    if (this.isFolder(sourceId, sqSupport)) {
                         logger.info("Adding to Folder (2)" + sourceId);
                         OMElement res = backendRegistry.basicQuery("SELECT * from RegistryPackage rp WHERE rp.id='" + sourceId + "'", true);
                         // Update any folders "lastUpdateTime" slot:
@@ -317,7 +321,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
                         fm.updateFoldersLastUpdateTimeSlot();
                         //OMElement to_backend = fm.getV3SubmitObjectsRequest();
                         //log_message.addOtherParam("From Registry Adaptor", to_backend);
-                        this.submitRegistryRequest(fm, backendRegistry);
+                        this.submitRegistryRequest(fm, backendRegistry, "Update Folder LastUpdateTime Slot");
                     }
                 }
             }
@@ -330,7 +334,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param objectIds
      * @throws XdsInternalException
      */
-    private void submitApproveObjectsRequest(BackendRegistry backendRegistry, ArrayList objectIds) throws XdsInternalException {
+    private void submitApproveObjectsRequest(BackendRegistry backendRegistry, List<String> objectIds) throws XdsInternalException {
         backendRegistry.submitApproveObjectsRequest(objectIds);
     }
 
@@ -340,55 +344,30 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param objectIds
      * @throws XdsInternalException
      */
-    private void submitDeprecateObjectsRequest(BackendRegistry backendRegistry, ArrayList<String> objectIds) throws XdsInternalException {
+    private void submitDeprecateObjectsRequest(BackendRegistry backendRegistry, List<String> objectIds) throws XdsInternalException {
         backendRegistry.submitDeprecateObjectsRequest(objectIds);
     }
 
-    //AMS 04/29/2009 - FIXME invoked by XdsRaw. REMOVE at some point.
     /**
      *
-     * @param val
-     */
-    public void setSubmitRaw(boolean val) {
-        submit_raw = val;
-    }
-
-    /**
-     * 
      * @param id
-     * @param rov
+     * @param sqSupport
      * @return
      * @throws XdsException
      */
-    public boolean isFolder(String id, RegistryObjectValidator rov) throws XdsException {
-        //if (m.getFolderIds().contains(id)) {
-        //    return true;
-        //}
+    public boolean isFolder(String id, SubmitObjectsRequestStoredQuerySupport sqSupport) throws XdsException {
         if (!id.startsWith("urn:uuid:")) {
             return false;
         }
-        //RegistryErrorList rel = new RegistryErrorList(false /* log */);
-        //RegistryObjectValidator rov = new RegistryObjectValidator(rel, log_message, backendRegistry);
         ArrayList<String> ids = new ArrayList<String>();
         ids.add(id);
-        List<String> missing = rov.validateAreFolders(ids);
+        List<String> missing = sqSupport.getMissingFolders(ids);
         if (missing != null && missing.contains(id)) {
             return false;
         }
         return true;
     }
 
-    /* AMS 04/21/2009 - Added new method. */
-    /**
-     * 
-     * @param br
-     * @param omElement
-     * @throws XdsException
-     */
-    //private void submitToBackendRegistry(BackendRegistry br, OMElement omElement) throws XdsException {
-    //    OMElement result = br.submit(omElement);
-    //    //return getResult(result);// Method should be renamed to getRegistrySubmissionStatus ...
-    //}
     /**
      *
      * @param m

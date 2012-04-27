@@ -43,7 +43,6 @@ public class GetFolders extends StoredQuery {
         validateQueryParam("$XDSFolderUniqueId", true, true, true, false, false, "$XDSFolderEntryUUID", "$XDSFolderLogicalID");
         validateQueryParam("$XDSFolderLogicalID", false, true, true, false, false, "$XDSFolderUniqueId", "$XDSFolderEntryUUID");
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }

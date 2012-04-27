@@ -12,6 +12,11 @@
  */
 package com.vangent.hieos.services.xds.registry.mu;
 
+import com.vangent.hieos.xutil.exception.MetadataException;
+import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
+
 /**
  *
  * @author Bernie Thuman
@@ -25,5 +30,41 @@ public class MetadataUpdateHelper {
      */
     public static boolean isUUID(String id) {
         return id.startsWith("urn:uuid:");
+    }
+
+    /**
+     *
+     * @param m
+     * @throws MetadataException
+     */
+    public static void logMetadata(XLogMessage logMessage, Metadata m) throws MetadataException {
+        // Log relevant data (if logger is turned on of course).
+        if (logMessage.isLogEnabled() == true) {
+            // Submissin set unique id.
+            logMessage.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
+            // Document unique ids.
+            ArrayList<String> doc_uids = new ArrayList<String>();
+            for (String id : m.getExtrinsicObjectIds()) {
+                String uid = m.getUniqueIdValue(id);
+                if (uid != null && !uid.equals("")) {
+                    doc_uids.add(uid);
+                }
+            }
+            logMessage.addOtherParam("DOCuids", doc_uids);
+            // Document uuids.
+            logMessage.addOtherParam("DOCuuids", m.getExtrinsicObjectIds());
+            // Folder unique ids.
+            ArrayList<String> fol_uids = new ArrayList<String>();
+            for (String id : m.getFolderIds()) {
+                String uid = m.getUniqueIdValue(id);
+                if (uid != null && !uid.equals("")) {
+                    fol_uids.add(uid);
+                }
+            }
+            logMessage.addOtherParam("FOLuids", fol_uids);
+             // Folder uuids.
+            logMessage.addOtherParam("FOLuuids", m.getFolderIds());
+            logMessage.addOtherParam("Structure", m.structure());
+        }
     }
 }

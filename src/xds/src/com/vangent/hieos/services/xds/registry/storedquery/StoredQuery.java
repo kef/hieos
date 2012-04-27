@@ -13,12 +13,14 @@
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
+import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.response.ErrorLogger;
 import com.vangent.hieos.xutil.response.Response;
 import com.vangent.hieos.xutil.exception.XDSRegistryOutOfResourcesException;
+import com.vangent.hieos.xutil.exception.XMLParserException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.SQCodeAnd;
@@ -381,7 +383,7 @@ public abstract class StoredQuery {
      * @throws XdsException
      */
     public OMElement getDocumentByUUID(List<String> uuids) throws XdsException {
-        StoredQueryBuilder sqb = StoredQuery.getSQL_DocumentByUUID(uuids, this.returnLeafClass);
+        StoredQueryBuilder sqb = StoredQuery.getSQL_DocumentByUUID(uuids, this.returnLeafClass, null);
         return this.runQuery(sqb);
     }
 
@@ -467,6 +469,22 @@ public abstract class StoredQuery {
     }
 
     /**
+     *
+     * @param uids
+     * @return
+     * @throws MetadataException
+     * @throws XMLParserException
+     * @throws XdsException
+     */
+    public List<String> queryForObjectRefs_DocumentByUID(List<String> uids) throws MetadataException, XMLParserException, XdsException {
+        if (uids.isEmpty()) {
+            return null;
+        }
+        StoredQueryBuilder sqb = StoredQuery.getSQL_DocumentByUID(uids, false /* LeafClass */);
+        return this.runQueryForObjectRefs(sqb);
+    }
+
+    /**
      * 
      * @param uuids
      * @param assocStatusValues
@@ -483,11 +501,11 @@ public abstract class StoredQuery {
         sqb.append(" OR a.targetObject IN ");
         sqb.append(uuids);
         sqb.append(")");
-        if (assocStatusValues != null) {
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
             sqb.append(" AND a.status IN ");
             sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
         }
-        if (assocTypes != null) {
+        if (assocTypes != null && !assocTypes.isEmpty()) {
             sqb.append(" AND a.associationType IN ");
             sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(assocTypes));
         }
@@ -649,6 +667,41 @@ public abstract class StoredQuery {
 
     /**
      *
+     * @param uids
+     * @return
+     * @throws XdsException
+     */
+    public List<String> queryForObjectRefs_FolderByUID(List<String> uids) throws XdsException {
+        return this.queryForObjectRefs_RegistryPackageByUID(uids, MetadataSupport.XDSFolder_uniqueid_uuid);
+    }
+
+    /**
+     *
+     * @param uids
+     * @param identificationScheme
+     * @return
+     * @throws XdsException
+     */
+    private List<String> queryForObjectRefs_RegistryPackageByUID(List<String> uids, String identificationScheme) throws XdsException {
+        if (uids.isEmpty()) {
+            return null;
+        }
+        StoredQueryBuilder sqb = StoredQuery.getSQL_RegistryPackageByUID(uids, identificationScheme, false /* LeafClass */);
+        return this.runQueryForObjectRefs(sqb);
+    }
+
+    /**
+     *
+     * @param uids
+     * @return
+     * @throws XdsException
+     */
+    public List<String> queryForObjectRefs_SubmissionSetByUID(List<String> uids) throws XdsException {
+        return this.queryForObjectRefs_RegistryPackageByUID(uids, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+    }
+
+    /**
+     *
      * @param uuid
      * @return
      * @throws XdsException
@@ -688,14 +741,15 @@ public abstract class StoredQuery {
     }
 
     /**
-     *
+     * 
      * @param uuid
+     * @param assocStatusValues
      * @param formatCodes
      * @param confidentialityCodes
      * @return
      * @throws XdsException
      */
-    public OMElement getSubmissionSetDocuments(String uuid, SQCodedTerm formatCodes, SQCodedTerm confidentialityCodes)
+    private OMElement getRegistryPackageDocuments(String uuid, List<String> assocStatusValues, SQCodedTerm formatCodes, SQCodedTerm confidentialityCodes)
             throws XdsException {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.returnLeafClass);
         sqb.select("obj");
@@ -711,20 +765,39 @@ public abstract class StoredQuery {
         sqb.append(" AND a.targetObject=obj.id ");
         sqb.addCode(confidentialityCodes);
         sqb.addCode(formatCodes);
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
+            sqb.append(" AND a.status IN ");
+            sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
+        }
         return runQuery(sqb);
     }
 
     /**
      *
      * @param uuid
+     * @param assocStatusValues
      * @param formatCodes
      * @param confidentialityCodes
      * @return
      * @throws XdsException
      */
-    public OMElement getFolderDocuments(String uuid, SQCodedTerm formatCodes, SQCodedTerm confidentialityCodes)
+    public OMElement getFolderDocuments(String uuid, List<String> assocStatusValues, SQCodedTerm formatCodes, SQCodedTerm confidentialityCodes)
             throws XdsException {
-        return getSubmissionSetDocuments(uuid, formatCodes, confidentialityCodes);
+        return getRegistryPackageDocuments(uuid, assocStatusValues, formatCodes, confidentialityCodes);
+    }
+
+    /**
+     * 
+     * @param uuid
+     * @param assocStatusValues
+     * @param formatCodes
+     * @param confidentialityCodes
+     * @return
+     * @throws XdsException
+     */
+    public OMElement getSubmissionSetDocuments(String uuid, List<String> assocStatusValues, SQCodedTerm formatCodes, SQCodedTerm confidentialityCodes)
+            throws XdsException {
+        return getRegistryPackageDocuments(uuid, assocStatusValues, formatCodes, confidentialityCodes);
     }
 
     /**
@@ -744,11 +817,11 @@ public abstract class StoredQuery {
         sqb.append(" OR a.targetObject IN ");
         sqb.append(sourceOrTargetIDs);
         sqb.append(")");
-        if (assocStatusValues != null) {
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
             sqb.append(" AND a.status IN ");
             sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
         }
-        if (assocTypes != null) {
+        if (assocTypes != null && !assocTypes.isEmpty()) {
             sqb.append(" AND a.associationType IN ");
             sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(assocTypes));
         }
@@ -834,7 +907,7 @@ public abstract class StoredQuery {
         }
         sqb.append(")");*/
         //sqb.newline();
-        if (assocStatusValues != null) {
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
             sqb.append(" AND a.status IN ");
             sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
         }
@@ -844,10 +917,11 @@ public abstract class StoredQuery {
     /**
      *
      * @param packageUUIDs
+     * @param assocStatusValues
      * @return
      * @throws XdsException
      */
-    public OMElement getRegistryPackageAssociations(List<String> packageUUIDs) throws XdsException {
+    public OMElement getRegistryPackageAssociations(List<String> packageUUIDs, List<String> assocStatusValues) throws XdsException {
         if (packageUUIDs == null || packageUUIDs.isEmpty()) {
             return null;
         }
@@ -866,6 +940,10 @@ public abstract class StoredQuery {
         sqb.appendQuoted((String) packageUUIDs.get(i));
         }
         sqb.append(")");*/
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
+            sqb.append(" AND a.status IN ");
+            sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
+        }
         return this.runQuery(sqb);
     }
 
@@ -889,12 +967,13 @@ public abstract class StoredQuery {
     }
 
     /**
-     *
+     * 
      * @param submissionSetUUID
+     * @param assocStatusValues
      * @return
      * @throws XdsException
      */
-    public OMElement getSubmissionSetFolders(String submissionSetUUID) throws XdsException {
+    public OMElement getSubmissionSetFolders(String submissionSetUUID, List<String> assocStatusValues) throws XdsException {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.returnLeafClass);
         sqb.select("fol");
         sqb.append("FROM RegistryPackage fol, Association a");
@@ -903,6 +982,10 @@ public abstract class StoredQuery {
         sqb.append(" AND a.sourceObject=");
         sqb.appendQuoted(submissionSetUUID);
         sqb.append(" AND a.targetObject=fol.id ");
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
+            sqb.append(" AND a.status IN ");
+            sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
+        }
         return this.runQuery(sqb);
     }
 
@@ -923,11 +1006,30 @@ public abstract class StoredQuery {
         sqb.appendQuoted(uuid);
         sqb.append(" AND a.sourceObject=fol.id AND uniq.registryObject=fol.id AND uniq.identificationScheme=");
         sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_uniqueid_uuid));
-        if (assocStatusValues != null) {
+        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
             sqb.append(" AND a.status IN ");
             sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
         }
         return this.runQuery(sqb);
+    }
+
+    /**
+     *
+     * @param ids
+     * @param results
+     * @return
+     */
+    protected List<String> findMissingIds(List<String> ids, List<String> results) {
+        List<String> missing = null;
+        for (String id : ids) {
+            if (!results.contains(id)) {
+                if (missing == null) {
+                    missing = new ArrayList<String>();
+                }
+                missing.add(id);
+            }
+        }
+        return missing;
     }
 
     /******************************* StoredQueryBuilder factories ****************************************/
@@ -938,11 +1040,99 @@ public abstract class StoredQuery {
      * @return
      * @throws XdsException
      */
-    public static StoredQueryBuilder getSQL_DocumentByUUID(List<String> uuids, boolean returnLeafClass) throws XdsException {
+    public static StoredQueryBuilder getSQL_DocumentByUUID(List<String> uuids, boolean returnLeafClass, String statusValue) throws XdsException {
         StoredQueryBuilder sqb = new StoredQueryBuilder(returnLeafClass);
         sqb.select("eo");
         sqb.append("FROM ExtrinsicObject eo WHERE eo.id IN ");
         sqb.append(uuids);
+        if (statusValue != null) {
+            sqb.append(" AND eo.status=");
+            sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(statusValue));
+        }
+        return sqb;
+    }
+
+    /**
+     *
+     * @param uuids
+     * @param patientId
+     * @param leafClass
+     * @return
+     * @throws XdsException
+     */
+    public static StoredQueryBuilder getSQL_DocumentsByUUID_PID(List<String> uuids, String patientId, boolean leafClass) throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(leafClass);
+        sqb.select("eo");
+        sqb.append("FROM ExtrinsicObject eo, ExternalIdentifier pid WHERE eo.id IN ");
+        sqb.append(uuids);
+        sqb.append(" AND pid.registryobject=eo.id AND pid.identificationScheme=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid));
+        sqb.append(" AND pid.value=");
+        sqb.appendQuoted(patientId);
+        return sqb;
+    }
+
+    /**
+     * 
+     * @param uuids
+     * @param patientId
+     * @param leafClass
+     * @return
+     * @throws XdsException
+     */
+    public static StoredQueryBuilder getSQL_RegistryPackagesByUUID_PID(List<String> uuids, String patientId, boolean leafClass) throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(leafClass);
+        sqb.select("eo");
+        sqb.append("FROM RegistryPackage eo, ExternalIdentifier pid WHERE eo.id IN ");
+        sqb.append(uuids);
+        sqb.append(" AND pid.registryobject = eo.id AND");
+        sqb.append(" pid.identificationScheme IN (");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSSubmissionSet_patientid_uuid));
+        sqb.append(",");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid));
+        sqb.append(") AND pid.value=");
+        sqb.appendQuoted(patientId);
+        return sqb;
+    }
+
+    /**
+     *
+     * @param uuids
+     * @param leafClass
+     * @return
+     * @throws XdsException
+     */
+    public static StoredQueryBuilder getSQL_XFRMandAPNDDocuments(List<String> uuids, boolean leafClass) throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(leafClass);
+        sqb.select("eo");
+        sqb.append("FROM ExtrinsicObject eo, Association a");
+        sqb.append(" WHERE a.associationType IN (");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_xfrm));
+        sqb.append(",");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertAssocType_ValueToCode(MetadataSupport.xdsB_ihe_assoc_type_apnd));
+        sqb.append(" ) AND a.targetObject IN ");
+        sqb.append(uuids);
+        sqb.append(" AND a.sourceObject = eo.id");
+        return sqb;
+    }
+
+    /**
+     * 
+     * @param uuids
+     * @param leafClass
+     * @return
+     * @throws XdsException
+     */
+    public static StoredQueryBuilder getSQL_ApprovedFolders(List<String> uuids, boolean leafClass) throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(leafClass);
+        sqb.select("rp");
+        sqb.append("FROM RegistryPackage rp, ExternalIdentifier ei");
+        sqb.append(" WHERE rp.status=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(MetadataSupport.status_type_approved));
+        sqb.append(" AND rp.id IN ");
+        sqb.append(uuids);
+        sqb.append(" AND ei.registryObject=rp.id AND ei.identificationScheme=");
+        sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSFolder_patientid_uuid));
         return sqb;
     }
 
@@ -981,6 +1171,27 @@ public abstract class StoredQuery {
         sqb.append(uuids);
         sqb.append(" AND uniq.registryObject=rp.id AND uniq.identificationScheme=");
         sqb.appendQuoted(RegistryCodedValueMapper.convertIdScheme_ValueToCode(identificationScheme));
+        return sqb;
+    }
+
+    /**
+     * 
+     * @param uuids
+     * @param returnLeafClass
+     * @param statusValue
+     * @return
+     * @throws XdsException
+     */
+    public static StoredQueryBuilder getSQL_RegistryPackageByUUID(List<String> uuids, boolean returnLeafClass, String statusValue)
+            throws XdsException {
+        StoredQueryBuilder sqb = new StoredQueryBuilder(returnLeafClass);
+        sqb.select("rp");
+        sqb.append(" FROM RegistryPackage rp WHERE rp.id IN ");
+        sqb.append(uuids);
+        if (statusValue != null) {
+            sqb.append(" AND rp.status=");
+            sqb.appendQuoted(RegistryCodedValueMapper.convertStatus_ValueToCode(statusValue));
+        }
         return sqb;
     }
 

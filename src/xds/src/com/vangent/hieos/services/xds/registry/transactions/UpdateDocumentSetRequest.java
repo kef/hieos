@@ -24,6 +24,7 @@ import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
+import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -77,6 +78,8 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
+        } catch (XDSPatientIDReconciliationException e) {
+            response.add_error(MetadataSupport.XDSPatientIDReconciliationError, e.getMessage(), this.getClass().getName(), log_message);
         } catch (XDSNonIdenticalHashException e) {
             response.add_error(MetadataSupport.XDSNonIdenticalHash, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
@@ -125,6 +128,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
         // Create Metadata instance for SOR.
         Metadata m = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.
+        MetadataUpdateHelper.logMetadata(log_message, m);
 
         List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
 
@@ -232,6 +236,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 System.out.println("... lid = " + lid);
 
                 if (targetObjectType.equals("Folder")) {
+                    // Updating a folder.
                     UpdateFolderMetadataCommand updateFolderCommand =
                             new UpdateFolderMetadataCommand(m, metadataUpdateContext);
                     updateFolderCommand.setPreviousVersion(perviousVersion);
@@ -239,7 +244,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                     updateFolderCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateFolderCommand;
                 } else if (targetObjectType.equals("ExtrinsicObject")) {
-                    UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand = new UpdateDocumentEntryMetadataCommand(m, metadataUpdateContext);
+                    // Updating a document.
+                    UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand =
+                            new UpdateDocumentEntryMetadataCommand(m, metadataUpdateContext);
                     updateDocumentEntryCommand.setPreviousVersion(perviousVersion);
                     updateDocumentEntryCommand.setTargetObject(targetObject);
                     updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);

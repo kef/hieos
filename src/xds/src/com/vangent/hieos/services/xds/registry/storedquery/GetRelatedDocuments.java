@@ -71,9 +71,15 @@ public class GetRelatedDocuments extends StoredQuery {
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         List<String> assocTypes = params.getListParm("$AssociationTypes");
-        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
         if (assocTypes == null || assocTypes.isEmpty()) {
             throw new XdsInternalException("No $AssociationTypes specified in query");
+        }
+        List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
+        if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+            // association status not specified.
+            // Default association status to "Approved" if not specified.
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(MetadataSupport.status_type_approved);
         }
 
         // filter HasMember out of assoc_types if it exists
@@ -200,7 +206,7 @@ public class GetRelatedDocuments extends StoredQuery {
             m.clearObjectRefs();
         }
         List<OMElement> leafClasses = m.getAllLeafClasses();
-        List<String> ids = m.getIdsForObjects(leafClasses);
+        List<String> ids = m.getObjectIds(leafClasses);
         m.makeObjectRefs(ids);
         m.clearLeafClassObjects();
         return m;

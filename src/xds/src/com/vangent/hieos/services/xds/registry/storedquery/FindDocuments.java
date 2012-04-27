@@ -77,7 +77,6 @@ public class FindDocuments extends StoredQuery {
         validateQueryParam("$XDSDocumentEntryAuthorPerson", false, true, true, false, false, (String[]) null);
         validateQueryParam("$XDSDocumentEntryDocumentAvailability", false, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -146,7 +145,6 @@ public class FindDocuments extends StoredQuery {
         StoredQueryBuilder sqb = new StoredQueryBuilder(this.isReturnLeafClass());
         sqb.select("obj");
         sqb.append("FROM ExtrinsicObject obj, ExternalIdentifier patId");
-        sqb.newline();
         sqb.appendClassificationDeclaration(classCodes);
         sqb.appendClassificationDeclaration(typeCodes);
         sqb.appendClassificationDeclaration(practiceSettingCodes);
@@ -155,55 +153,41 @@ public class FindDocuments extends StoredQuery {
         sqb.appendClassificationDeclaration(confidentialityCodes);
         sqb.appendClassificationDeclaration(formatCodes);
         if (creationTimeFrom != null) {
-            sqb.newline();
             sqb.append(", Slot crTimef");
         }
         if (creationTimeTo != null) {
-            sqb.newline();
             sqb.append(", Slot crTimet");
         }
         if (serviceStartTimeFrom != null) {
-            sqb.newline();
             sqb.append(", Slot serStartTimef");
         }
         if (serviceStartTimeTo != null) {
-            sqb.newline();
             sqb.append(", Slot serStartTimet");
         }
         if (serviceStopTimeFrom != null) {
-            sqb.newline();
             sqb.append(", Slot serStopTimef");
         }
         if (serviceStopTimeTo != null) {
-            sqb.newline();
             sqb.append(", Slot serStopTimet");
         }
         if (documentAvailabilityStatus != null) {
-            sqb.newline();
             sqb.append(", Slot das");
         }
         if (authorPerson != null) {
-            sqb.newline();
             sqb.append(", Classification author");
-            sqb.newline();
             sqb.append(", Slot authorperson");
         }
 
         // WHERE clause ...
-        sqb.newline();
-        sqb.append("WHERE");
-        sqb.newline();
+        sqb.append(" WHERE ");
         // patientID
         sqb.append("(obj.id = patId.registryobject AND ");
-        sqb.newline();
-        sqb.append(" patId.identificationScheme='"
+        sqb.append("patId.identificationScheme='"
                 + RegistryCodedValueMapper.convertIdScheme_ValueToCode(MetadataSupport.XDSDocumentEntry_patientid_uuid)
                 + "' AND ");
-        sqb.newline();
         sqb.append(" patId.value = '");
         sqb.append(patientId);
         sqb.append("' ) ");
-        sqb.newline();
 
         sqb.addCode(classCodes);
         sqb.addCode(typeCodes);
@@ -220,18 +204,12 @@ public class FindDocuments extends StoredQuery {
 
         if (authorPerson != null) {
             for (String ap : authorPerson) {
-                sqb.append("AND");
-                sqb.newline();
+                sqb.append(" AND ");
                 sqb.append("(obj.id = author.classifiedObject AND ");
-                sqb.newline();
                 sqb.append(" author.classificationScheme='urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d' AND ");
-                sqb.newline();
                 sqb.append(" authorperson.parent=author.id AND");
-                sqb.newline();
                 sqb.append(" authorperson.name_='authorPerson' AND");
-                sqb.newline();
-                sqb.append(" authorperson.value LIKE '" + ap + "' )");
-                sqb.newline();
+                sqb.append(" authorperson.value LIKE '" + ap + "' ) ");
             }
         }
         sqb.addSlot("documentAvailability", documentAvailabilityStatus, "das", "obj");

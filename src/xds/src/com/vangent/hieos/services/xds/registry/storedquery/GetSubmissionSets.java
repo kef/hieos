@@ -46,7 +46,6 @@ public class GetSubmissionSets extends StoredQuery {
         // param name, required?, multiple?, is string?, is code?, support AND/OR, alternative
         validateQueryParam("$uuid", true, true, true, false, false, (String[]) null);
         validateQueryParam("$MetadataLevel", false, false, false, false, false, (String[]) null);
-
         if (this.hasValidationErrors()) {
             throw new MetadataValidationException("Metadata Validation error present");
         }
@@ -67,7 +66,6 @@ public class GetSubmissionSets extends StoredQuery {
             // this may contain duplicates - parse differently
             metadata = new Metadata();
             metadata.addMetadata(ele, true);
-
             if (this.isReturnLeafClass()) {
                 if (metadata.getSubmissionSetIds().size() > 0) {
                     OMElement assocsEle = this.getAssocations(MetadataSupport.xdsB_eb_assoc_type_has_member, metadata.getSubmissionSetIds(), uuids);
