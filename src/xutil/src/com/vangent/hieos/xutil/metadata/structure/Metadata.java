@@ -18,8 +18,8 @@ import com.vangent.hieos.xutil.exception.NoMetadataException;
 import com.vangent.hieos.xutil.exception.NoSubmissionSetException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xml.Util;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
+import com.vangent.hieos.xutil.uuid.UuidAllocator;
 
 import com.vangent.hieos.xutil.xml.XMLParser;
 import java.io.File;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author thumbe
+ * @author NIST (Adapted for HIEOS).
  */
 public class Metadata {
 
@@ -47,43 +48,73 @@ public class Metadata {
      *
      */
     protected OMFactory fac;
-    boolean grok_metadata = true;
+    private boolean grok_metadata = true;
     private final static Logger logger = Logger.getLogger(Metadata.class);
     /**
      * List of IHE association types:
      */
-    public static final List<String> iheAssocTypes = new ArrayList<String>() {
+    //public static final List<String> iheAssocTypes = new ArrayList<String>() {
+//
+//        {
+//            add("APND");
+//            add("XFRM");
+//            add("RPLC");
+//            add("XFRM_RPLC");
+//            add("signs");
+//        }
+//    };
+    // Valid document->document association types.
+    public static final List<String> validDocumentAssocTypes =
+            new ArrayList<String>() {
 
-        {
-            add("APND");
-            add("XFRM");
-            add("RPLC");
-            add("XFRM_RPLC");
-            add("signs");
-        }
-    };
-    OMElement metadata;
+                {
+                    add(MetadataSupport.xdsB_ihe_assoc_type_apnd);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_xfrm);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_rplc);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_signs);
+                }
+            };
+    // Valid submission set -> registry object assocation types.
+    private static final List<String> validSubmissionSetAssocTypes =
+            new ArrayList<String>() {
+
+                {
+                    add(MetadataSupport.xdsB_eb_assoc_type_has_member);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_submit_association);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_update_availability_status);
+                }
+            };
+    // Valid folder -> document association types.
+    private static final List<String> validFolderAssocTypes =
+            new ArrayList<String>() {
+
+                {
+                    add(MetadataSupport.xdsB_eb_assoc_type_has_member);
+                }
+            };
+    private OMElement metadata;
     // wrapper
-    OMElement wrapper;   // current metadata document being parsed
-    ArrayList<OMElement> wrappers;  // the collection of all metadata documents included in current tables
-    ArrayList<OMElement> extrinsicObjects = null;
-    ArrayList<OMElement> folders = null;
-    OMElement submissionSet = null;
-    ArrayList<OMElement> submissionSets = null;
-    ArrayList<OMElement> registryPackages = null;
-    ArrayList<OMElement> associations = null;
-    ArrayList<OMElement> objectRefs = null;
-    ArrayList<OMElement> classifications = null;
-    ArrayList<OMElement> allObjects = null;
-    ArrayList objectsToDeprecate = null;
-    ArrayList objectsReferenced = null;
-    HashMap<String, ArrayList> classificationsOfId = null;
-    boolean version2;
-    OMElement metadataDup = null;  // both of these are set by dup_wrapper which is used by metadata_copy
-    OMElement wrapperDup = null;
+    private OMElement wrapper;   // current metadata document being parsed
+    private List<OMElement> wrappers;  // the collection of all metadata documents included in current tables
+    private List<OMElement> extrinsicObjects = null;
+    private List<OMElement> folders = null;
+    private OMElement submissionSet = null;
+    private List<OMElement> submissionSets = null;
+    private List<OMElement> registryPackages = null;
+    private List<OMElement> associations = null;
+    private List<OMElement> objectRefs = null;
+    private List<OMElement> classifications = null;
+    private List<OMElement> allObjects = null;
+    private List<String> objectsToDeprecate = null;
+    private List<String> objectsReferenced = null;
+    private Map<String, List> classificationsOfId = null;
+    private boolean version2;
+    //private OMElement metadataDup = null;
+    //private OMElement wrapperDup = null;
     //boolean mustDup = false;
-    int idAllocation = 0;
-    IdIndex idIndex = null;
+    //private int idAllocation = 0;
+    private IdIndex idIndex = null;
 
     /**
      *
@@ -98,16 +129,16 @@ public class Metadata {
 
     /**
      *
-     * @param metadata_file
+     * @param metadataFile
      * @param parse
      * @throws XdsInternalException
      * @throws MetadataException
      * @throws MetadataValidationException
      */
-    public Metadata(File metadata_file, boolean parse) throws XdsInternalException, MetadataException, MetadataValidationException {
-        metadata = XMLParser.fileToOM(metadata_file);
+    public Metadata(File metadataFile, boolean parse) throws XdsInternalException, MetadataException, MetadataValidationException {
+        metadata = XMLParser.fileToOM(metadataFile);
         wrapper = null;
-        wrappers = new ArrayList();
+        wrappers = new ArrayList<OMElement>();
         if (parse) {
             wrapper = find_metadata_wrapper();
             wrappers.add(wrapper);
@@ -126,25 +157,76 @@ public class Metadata {
     }
 
     /**
+     *
+     * @param assocType
+     * @return
+     */
+    public static boolean isValidDocumentAssociationType(String assocType) {
+        return validDocumentAssocTypes.contains(assocType);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static List<String> getValidDocumentAssociationTypes() {
+        return validDocumentAssocTypes;
+    }
+
+    /**
+     *
+     * @param assocType
+     * @return
+     */
+    public static boolean isValidFolderAssociationType(String assocType) {
+        return validFolderAssocTypes.contains(assocType);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static List<String> getValidFolderAssociationTypes() {
+        return validFolderAssocTypes;
+    }
+
+    /**
+     *
+     * @param assocType
+     * @return
+     */
+    public static boolean isValidSubmissionSetAssociationType(String assocType) {
+        return validSubmissionSetAssocTypes.contains(assocType);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static List<String> getValidSubmissionSetAssociationTypes() {
+        return validSubmissionSetAssocTypes;
+    }
+
+    /**
      * 
-     * @param obj
+     * @param registryObject
      * @param previousVersion
      */
     // FIXME: May want to rework and not require passing "previousVersion".
-    public static void updateRegistryObjectVersion(OMElement obj, String previousVersion) {
+    public static void updateRegistryObjectVersion(OMElement registryObject, String previousVersion) {
         // Get version
         //<rim:VersionInfo versionName="1" />
-        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(obj, "VersionInfo");
+        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(registryObject, "VersionInfo");
         if (versionInfoEle == null) {
             // No version info exists, create one.
             versionInfoEle = MetadataSupport.om_factory.createOMElement("VersionInfo", MetadataSupport.ebRIMns3);
 
             // Attach to the version info object (before first Classification).
-            OMElement classificationEle = MetadataSupport.firstChildWithLocalName(obj, "Classification");
+            OMElement classificationEle = MetadataSupport.firstChildWithLocalName(registryObject, "Classification");
             classificationEle.insertSiblingBefore(versionInfoEle);
             //targetObject.addChild(versionInfoEle);
         }
-        Double nextVersion = new Double(previousVersion) + 1.0;
+        Integer nextVersion = new Integer(previousVersion) + 1;
         OMAttribute versionNameAttr = versionInfoEle.getAttribute(new QName("versionName"));
         if (versionNameAttr == null) {
             versionInfoEle.addAttribute("versionName", nextVersion.toString(), null);
@@ -155,12 +237,12 @@ public class Metadata {
 
     /**
      * 
-     * @param obj
+     * @param registryObject
      * @return
      */
-    public static Double getRegistryObjectVersion(OMElement obj) {
+    public static Double getRegistryObjectVersion(OMElement registryObject) {
         // Get version
-        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(obj, "VersionInfo");
+        OMElement versionInfoEle = MetadataSupport.firstChildWithLocalName(registryObject, "VersionInfo");
         if (versionInfoEle == null) {
             return 1.0;  // Default.
         }
@@ -175,11 +257,37 @@ public class Metadata {
 
     /**
      * 
+     * @param registryObject
+     * @param statusValue
+     */
+    public static void setStatusOnRegistryObject(OMElement registryObject, String statusValue) {
+        OMAttribute statusAttr = registryObject.getAttribute(new QName("status"));
+        if (statusAttr == null) {
+            registryObject.addAttribute("status", statusValue, null);
+        } else {
+            statusAttr.setAttributeValue(statusValue);
+        }
+    }
+
+    /**
+     *
+     * @throws MetadataException
+     */
+    public void setStatusOnApprovableObjects() throws MetadataException {
+        List<OMElement> approvableObjects = this.getApprovableObjects();
+        for (OMElement approvableObject : approvableObjects) {
+            Metadata.setStatusOnRegistryObject(approvableObject, MetadataSupport.status_type_approved);
+        }
+    }
+
+    /**
+     * 
      * @return
      */
     private String allocate_id() {
-        idAllocation += 1;
-        return ("ID_" + String.valueOf(this.hashCode()) + "_" + idAllocation);
+        //idAllocation += 1;
+        //return ("ID_" + String.valueOf(this.hashCode()) + "_" + idAllocation);
+        return UuidAllocator.allocate();
     }
 
     /**
@@ -211,7 +319,7 @@ public class Metadata {
      *
      * @param set
      */
-    private void removeDuplicates(ArrayList<OMElement> set) {
+    private void removeDuplicates(List<OMElement> set) {
         boolean running = true;
         while (running) {
             running = false;
@@ -234,7 +342,7 @@ public class Metadata {
      *
      * @param set
      */
-    private void removeFromObjectRefs(ArrayList<OMElement> set) {
+    private void removeFromObjectRefs(List<OMElement> set) {
         for (int i = 0; i < set.size(); i++) {
             String id = id(set.get(i));
             boolean restart = true;
@@ -257,19 +365,38 @@ public class Metadata {
      * @return Boolean result.
      */
     public boolean isObjectRefsOnly() {
-        return submissionSets.isEmpty() && extrinsicObjects.isEmpty() && folders.isEmpty() && associations.isEmpty() && classifications.isEmpty() && !objectRefs.isEmpty();
+        return submissionSets.isEmpty()
+                && extrinsicObjects.isEmpty()
+                && folders.isEmpty()
+                && associations.isEmpty()
+                && classifications.isEmpty()
+                && !objectRefs.isEmpty();
     }
 
     /**
-     * Return list of approvable object (extrinsicObjects and registryPackages) identifiers.
+     * Return list of approvable object (ExtrinsicObjects, RegistryPackages and Associations) identifiers.
+     *
+     * @return The list of approvable object identifiers.
+     */
+    public List<String> getApprovableObjectIds() {
+        List<OMElement> o = new ArrayList<OMElement>();
+        o.addAll(this.extrinsicObjects);
+        o.addAll(this.registryPackages);
+        o.addAll(this.associations);
+        return this.getObjectIds(o);
+    }
+
+    /**
+     * Return list of approvable object (ExtrinsicObjects, RegistryPackages and Associations) identifiers.
      *
      * @return The list of approvable objects.
      */
-    public ArrayList getApprovableObjectIds() {
-        ArrayList o = new ArrayList();
+    public List<OMElement> getApprovableObjects() {
+        List<OMElement> o = new ArrayList<OMElement>();
         o.addAll(this.extrinsicObjects);
         o.addAll(this.registryPackages);
-        return this.getObjectIds(o);
+        o.addAll(this.associations);
+        return o;
     }
 
     /**
@@ -278,7 +405,7 @@ public class Metadata {
      *
      * @param ids The list of ids to maintain in the metadata.
      */
-    public void filter(ArrayList<String> ids) {
+    public void filter(List<String> ids) {
         submissionSets = filter(submissionSets, ids);
         extrinsicObjects = filter(extrinsicObjects, ids);
         folders = filter(folders, ids);
@@ -292,8 +419,8 @@ public class Metadata {
      * @param ids
      * @return
      */
-    private ArrayList<OMElement> filter(ArrayList<OMElement> objects, ArrayList<String> ids) {
-        ArrayList<OMElement> out = new ArrayList<OMElement>();
+    private List<OMElement> filter(List<OMElement> objects, List<String> ids) {
+        List<OMElement> out = new ArrayList<OMElement>();
         for (OMElement object : objects) {
             String id = id(object);
             if (ids.contains(id)) {
@@ -307,8 +434,8 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getNonObjectRefs() {
-        ArrayList<OMElement> objs = new ArrayList<OMElement>();
+    public List<OMElement> getNonObjectRefs() {
+        List<OMElement> objs = new ArrayList<OMElement>();
         objs.addAll(this.submissionSets);
         objs.addAll(this.folders);
         objs.addAll(this.extrinsicObjects);
@@ -322,19 +449,19 @@ public class Metadata {
      *
      * @return
      */
-    private ArrayList<ArrayList<OMElement>> getMetadataContainers() {
-        ArrayList<ArrayList<OMElement>> containers = new ArrayList<ArrayList<OMElement>>();
-        containers.add(extrinsicObjects);
-        containers.add(folders);
-        containers.add(submissionSets);
-        containers.add(associations);
-        containers.add(objectRefs);
-        containers.add(classifications);
-        containers.add(allObjects);
-        containers.add(registryPackages);
-        return containers;
-    }
-
+    /*
+    private List<List<OMElement>> getMetadataContainers() {
+    List<List<OMElement>> containers = new ArrayList<List<OMElement>>();
+    containers.add(extrinsicObjects);
+    containers.add(folders);
+    containers.add(submissionSets);
+    containers.add(associations);
+    containers.add(objectRefs);
+    containers.add(classifications);
+    containers.add(allObjects);
+    containers.add(registryPackages);
+    return containers;
+    }*/
     /**
      *
      * @return
@@ -420,13 +547,12 @@ public class Metadata {
     public void addMetadata(OMElement metadata, boolean discard_duplicates) throws MetadataException, MetadataValidationException {
         init();
         if (wrappers == null) {
-            wrappers = new ArrayList();
+            wrappers = new ArrayList<OMElement>();
         }
         this.metadata = metadata;
         wrapper = find_metadata_wrapper();
         wrappers.add(wrapper);
         reindex();
-
         parse(discard_duplicates);
     }
 
@@ -651,11 +777,11 @@ public class Metadata {
      * @param idScheme
      * @return
      */
-    public ArrayList<OMElement> getExternalIdentifiers(OMElement registryObject, String idScheme) {
-        ArrayList<OMElement> results = new ArrayList<OMElement>();
+    public List<OMElement> getExternalIdentifiers(OMElement registryObject, String idScheme) {
+        List<OMElement> results = new ArrayList<OMElement>();
         QName idSchemeQName = MetadataSupport.identificationscheme_qname;
-        for (Iterator it = registryObject.getChildElements(); it.hasNext();) {
-            OMElement ele = (OMElement) it.next();
+        for (Iterator<OMElement> it = registryObject.getChildElements(); it.hasNext();) {
+            OMElement ele = it.next();
             if (!ele.getLocalName().equals("ExternalIdentifier")) {
                 continue;
             }
@@ -675,8 +801,8 @@ public class Metadata {
      */
     private boolean hasExternalIdentifier(OMElement registryObject, String idScheme) {
         QName idSchemeQName = new QName("identificationScheme");
-        for (Iterator it = registryObject.getChildElements(); it.hasNext();) {
-            OMElement ele = (OMElement) it.next();
+        for (Iterator<OMElement> it = registryObject.getChildElements(); it.hasNext();) {
+            OMElement ele = it.next();
             if (!ele.getLocalName().equals("ExternalIdentifier")) {
                 continue;
             }
@@ -756,30 +882,30 @@ public class Metadata {
     /**
      *
      * @param obj
-     * @param slot_name
-     * @param value_index
+     * @param slotName
+     * @param valueIndex
      * @param value
      */
-    public void setSlotValue(OMElement obj, String slot_name, int value_index, String value) {
+    public void setSlotValue(OMElement obj, String slotName, int valueIndex, String value) {
         if (obj == null) {
             return;
         }
         for (OMElement slot : MetadataSupport.childrenWithLocalName(obj, "Slot")) {
             String name = slot.getAttributeValue(MetadataSupport.slot_name_qname);
-            if (!name.equals(slot_name)) {
+            if (!name.equals(slotName)) {
                 continue;
             }
-            OMElement value_list = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
-            if (value_list == null) {
+            OMElement valueList = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
+            if (valueList == null) {
                 continue;
             }
-            int value_count = 0;
-            for (OMElement value_ele : MetadataSupport.childrenWithLocalName(value_list, "Value")) {
-                if (value_count != value_index) {
-                    value_count++;
+            int valueCount = 0;
+            for (OMElement valueEle : MetadataSupport.childrenWithLocalName(valueList, "Value")) {
+                if (valueCount != valueIndex) {
+                    valueCount++;
                     continue;
                 }
-                value_ele.setText(value);
+                valueEle.setText(value);
             }
         }
     }
@@ -797,7 +923,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getMajorObjects() {
+    public List<OMElement> getMajorObjects() {
         //return getMajorObjects(null);
         return this.allObjects;
     }
@@ -807,12 +933,11 @@ public class Metadata {
      * @param type
      * @return
      */
-    public ArrayList<OMElement> getMajorObjects(String type) {
-        ArrayList<OMElement> objs = new ArrayList<OMElement>();
-
+    public List<OMElement> getMajorObjects(String type) {
+        List<OMElement> objs = new ArrayList<OMElement>();
         if (wrapper != null) {
-            for (Iterator it = wrapper.getChildElements(); it.hasNext();) {
-                OMElement obj = (OMElement) it.next();
+            for (Iterator<OMElement> it = wrapper.getChildElements(); it.hasNext();) {
+                OMElement obj = it.next();
                 if (type == null || type.equals(obj.getLocalName())) {
                     objs.add(obj);
                 }
@@ -879,7 +1004,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getAllObjects() {   // probably the same as Major Objects
+    public List<OMElement> getAllObjects() {   // probably the same as Major Objects
         return allObjects;
     }
 
@@ -888,16 +1013,14 @@ public class Metadata {
      * @param objects
      * @return
      */
-    public ArrayList<String> getIdsForObjects(List<OMElement> objects) {
-        ArrayList<String> ids = new ArrayList<String>();
-        for (int i = 0; i < objects.size(); i++) {
-            OMElement object = (OMElement) objects.get(i);
-            String id = object.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(id);
-        }
-        return ids;
+    /*
+    public List<String> getIdsForObjects(List<OMElement> objects) {
+    List<String> ids = new ArrayList<String>();
+    for (OMElement object : objects) {
+    ids.add(object.getAttributeValue(MetadataSupport.id_qname));
     }
-
+    return ids;
+    }*/
     /**
      *
      * @param id
@@ -917,15 +1040,15 @@ public class Metadata {
      * @param ids
      * @param ele
      */
-    private void addIds(ArrayList<String> ids, OMElement ele) {
+    private void addIds(List<String> ids, OMElement ele) {
         if (!ele.getLocalName().equals("ObjectRef")) {
             String id = ele.getAttributeValue(MetadataSupport.id_qname);
             if (id != null && !ids.contains(id)) {
                 ids.add(id);
             }
         }
-        for (Iterator it = ele.getChildElements(); it.hasNext();) {
-            OMElement ele2 = (OMElement) it.next();
+        for (Iterator<OMElement> it = ele.getChildElements(); it.hasNext();) {
+            OMElement ele2 = it.next();
             addIds(ids, ele2);  // Recurse.
         }
     }
@@ -934,11 +1057,10 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<String> getAllDefinedIds() {
-        ArrayList<String> ids = new ArrayList<String>();
-        ArrayList<OMElement> objects = getAllObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            OMElement object = (OMElement) objects.get(i);
+    public List<String> getAllDefinedIds() {
+        List<String> ids = new ArrayList<String>();
+        List<OMElement> objects = getAllObjects();
+        for (OMElement object : objects) {
             addIds(ids, object);
         }
         return ids;
@@ -948,7 +1070,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getRegistryPackages() {
+    public List<OMElement> getRegistryPackages() {
         return this.registryPackages;
     }
 
@@ -956,7 +1078,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getSubmissionSets() {
+    public List<OMElement> getSubmissionSets() {
         return this.submissionSets;
     }
 
@@ -964,7 +1086,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getExtrinsicObjects() {
+    public List<OMElement> getExtrinsicObjects() {
         return extrinsicObjects;
     }
 
@@ -972,7 +1094,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getObjectRefs() {
+    public List<OMElement> getObjectRefs() {
         return objectRefs;
     }
 
@@ -981,14 +1103,7 @@ public class Metadata {
      * @return
      */
     public List<String> getObjectRefIds() {
-        List<String> ids = new ArrayList<String>();
-
-        for (Iterator<OMElement> it = getObjectRefs().iterator(); it.hasNext();) {
-            OMElement ele = it.next();
-            ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
-        }
-
-        return ids;
+        return this.getObjectIds(this.getObjectRefs());
     }
 
     /**
@@ -997,20 +1112,15 @@ public class Metadata {
      * @return
      */
     public OMElement getExtrinsicObject(int i) {
-        return (OMElement) getExtrinsicObjects().get(i);
+        return getExtrinsicObjects().get(i);
     }
 
     /**
      *
      * @return
      */
-    public ArrayList<String> getExtrinsicObjectIds() {
-        ArrayList<String> ids = new ArrayList<String>();
-        for (Iterator<OMElement> it = getExtrinsicObjects().iterator(); it.hasNext();) {
-            OMElement ele = it.next();
-            ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
-        }
-        return ids;
+    public List<String> getExtrinsicObjectIds() {
+        return this.getObjectIds(this.getExtrinsicObjects());
     }
 
     /**
@@ -1018,15 +1128,38 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public HashMap<String, OMElement> getDocumentUidMap() throws MetadataException {
-        HashMap<String, OMElement> map = new HashMap<String, OMElement>();
-
-        for (Iterator<String> it = getExtrinsicObjectIds().iterator(); it.hasNext();) {
-            String id = it.next();
+    public Map<String, OMElement> getDocumentUidMap() throws MetadataException {
+        Map<String, OMElement> map = new HashMap<String, OMElement>();
+        List<String> ids = this.getExtrinsicObjectIds();
+        for (String id : ids) {
             String uid = this.getUniqueIdValue(id);
             map.put(uid, this.getObjectById(id));
         }
         return map;
+    }
+
+    /**
+     *
+     * @param m
+     * @return
+     * @throws MetadataException
+     */
+    public List<String> getExtrinsicObjectUniqueIds() throws MetadataException {
+        List<String> list = new ArrayList<String>();
+        List<String> ids = this.getExtrinsicObjectIds();
+        for (String id : ids) {
+            OMElement registry_object = this.getObjectById(id);
+            List<OMElement> eis = this.getExternalIdentifiers(id);
+            List<OMElement> eid_eles = this.getExternalIdentifiers(registry_object, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
+            String uid;
+            if (eid_eles.size() > 0) {
+                uid = eid_eles.get(0).getAttributeValue(MetadataSupport.value_qname);
+            } else {
+                throw new MetadataException("Document " + id + " has no uniqueId\nfound " + eis.size() + " external identifiers");
+            }
+            list.add(uid);
+        }
+        return list;
     }
 
     /**
@@ -1050,9 +1183,18 @@ public class Metadata {
 
     /**
      *
+     * @param ro
      * @return
      */
-    public ArrayList<OMElement> getAssociations() {
+    public String getLID(OMElement ro) {
+        return ro.getAttributeValue(MetadataSupport.lid_qname);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<OMElement> getAssociations() {
         return associations;
     }
 
@@ -1062,20 +1204,15 @@ public class Metadata {
      * @return
      */
     public OMElement getAssociation(int i) {
-        return (OMElement) getAssociations().get(i);
+        return getAssociations().get(i);
     }
 
     /**
      *
      * @return
      */
-    public ArrayList<String> getAssociationIds() {
-        ArrayList<String> ids = new ArrayList<String>();
-        for (Iterator<OMElement> it = getAssociations().iterator(); it.hasNext();) {
-            OMElement ele = it.next();
-            ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
-        }
-        return ids;
+    public List<String> getAssociationIds() {
+        return this.getObjectIds(this.getAssociations());
     }
 
     /**
@@ -1104,8 +1241,7 @@ public class Metadata {
      * @return
      */
     private boolean listContains(List<String> list, String value) {
-        for (Iterator<String> it = list.iterator(); it.hasNext();) {
-            String val = it.next();
+        for (String val : list) {
             if (value.equals(val)) {
                 return true;
             }
@@ -1116,17 +1252,17 @@ public class Metadata {
     /**
      *
      * @param ele
-     * @param slot_name
-     * @param slot_value
+     * @param slotName
+     * @param slotValue
      */
-    private void addSlot(OMElement ele, String slot_name, String slot_value) {
+    private void addSlot(OMElement ele, String slotName, String slotValue) {
         OMElement slot = this.om_factory().createOMElement("Slot", getCurrentNamespace());
-        slot.addAttribute("name", slot_name, null);
-        OMElement value_list = this.om_factory().createOMElement("ValueList", getCurrentNamespace());
-        slot.addChild(value_list);
+        slot.addAttribute("name", slotName, null);
+        OMElement valueList = this.om_factory().createOMElement("ValueList", getCurrentNamespace());
+        slot.addChild(valueList);
         OMElement value = this.om_factory().createOMElement("Value", getCurrentNamespace());
-        value_list.addChild(value);
-        value.setText(slot_value);
+        valueList.addChild(value);
+        value.setText(slotValue);
         OMElement firstChild = ele.getFirstElement();
         firstChild.insertSiblingBefore(slot);
         //ele.addChild(slot);
@@ -1136,14 +1272,14 @@ public class Metadata {
     /**
      *
      * @param ele
-     * @param slot_name
+     * @param slotName
      * @return
      */
-    private OMElement addSlot(OMElement ele, String slot_name) {
+    private OMElement addSlot(OMElement ele, String slotName) {
         OMElement slot = this.om_factory().createOMElement("Slot", null);
-        slot.addAttribute("name", slot_name, null);
-        OMElement value_list = this.om_factory().createOMElement("ValueList", null);
-        slot.addChild(value_list);
+        slot.addAttribute("name", slotName, null);
+        OMElement valueList = this.om_factory().createOMElement("ValueList", null);
+        slot.addChild(valueList);
 
         OMElement firstChild = ele.getFirstElement();
         firstChild.insertSiblingBefore(slot);
@@ -1160,10 +1296,10 @@ public class Metadata {
      * @return
      */
     private OMElement addSlotValue(OMElement slot, String value) {
-        OMElement value_list = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
+        OMElement valueList = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
         OMElement valueEle = this.om_factory().createOMElement("Value", null);
         valueEle.setText(value);
-        value_list.addChild(valueEle);
+        valueList.addChild(valueEle);
         //mustDup = true;
         return slot;
     }
@@ -1180,39 +1316,39 @@ public class Metadata {
     /**
      *
      * @param ele
-     * @param slot_name
-     * @param slot_value
+     * @param slotName
+     * @param slotValue
      * @throws MetadataException
      */
-    public void setSlot(OMElement ele, String slot_name, String slot_value) throws MetadataException {
-        OMElement slot = getSlot(id(ele), slot_name);
+    public void setSlot(OMElement ele, String slotName, String slotValue) throws MetadataException {
+        OMElement slot = getSlot(id(ele), slotName);
         if (slot == null) {
-            addSlot(ele, slot_name, slot_value);
+            addSlot(ele, slotName, slotValue);
         } else {
-            OMElement value_list = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
-            if (value_list == null) {
-                throw new MetadataException("Slot without ValueList - slot name is " + slot_name + " of object " + id(ele));
+            OMElement valueList = MetadataSupport.firstChildWithLocalName(slot, "ValueList");
+            if (valueList == null) {
+                throw new MetadataException("Slot without ValueList - slot name is " + slotName + " of object " + id(ele));
             }
-            for (Iterator it = value_list.getChildElements(); it.hasNext();) {
-                OMElement v = (OMElement) it.next();
+            for (Iterator<OMElement> it = valueList.getChildElements(); it.hasNext();) {
+                OMElement v = it.next();
                 v.detach();
             }
             OMElement value = MetadataSupport.om_factory.createOMElement("Value", getCurrentNamespace());
-            value_list.addChild(value);
-            value.addChild(MetadataSupport.om_factory.createOMText(slot_value));
+            valueList.addChild(value);
+            value.addChild(MetadataSupport.om_factory.createOMText(slotValue));
         }
     }
 
     /**
      *
-     * @param rm_dups
+     * @param removeDups
      * @throws MetadataException
      * @throws MetadataValidationException
      */
-    private void reparse(boolean rm_dups) throws MetadataException, MetadataValidationException {
+    private void reparse(boolean removeDups) throws MetadataException, MetadataValidationException {
         reinit();
         reindex();
-        parse(rm_dups);
+        parse(removeDups);
     }
 
     /**
@@ -1231,16 +1367,16 @@ public class Metadata {
      */
     private void init() {
         if (registryPackages == null) {
-            associations = new ArrayList();
-            extrinsicObjects = new ArrayList();
-            registryPackages = new ArrayList();
-            submissionSets = new ArrayList();
-            objectRefs = new ArrayList();
-            folders = new ArrayList();
+            associations = new ArrayList<OMElement>();
+            extrinsicObjects = new ArrayList<OMElement>();
+            registryPackages = new ArrayList<OMElement>();
+            submissionSets = new ArrayList<OMElement>();
+            objectRefs = new ArrayList<OMElement>();
+            folders = new ArrayList<OMElement>();
             submissionSet = null;
-            classifications = new ArrayList();
-            allObjects = new ArrayList();
-            classificationsOfId = new HashMap<String, ArrayList>();
+            classifications = new ArrayList<OMElement>();
+            allObjects = new ArrayList<OMElement>();
+            classificationsOfId = new HashMap<String, List>();
             //objects_to_deprecate = new ArrayList();
             //objects_referenced = new ArrayList();
         }
@@ -1255,36 +1391,36 @@ public class Metadata {
      * @throws MetadataValidationException
      * @throws MetadataException
      */
-    public ArrayList getReferencedObjects() throws MetadataValidationException, MetadataException {
+    public List<String> getReferencedObjects() throws MetadataValidationException, MetadataException {
         if (objectsReferenced == null) {
-            this.objectsReferenced = new ArrayList();
-            this.objectsToDeprecate = new ArrayList();
-            for (Iterator it = associations.iterator(); it.hasNext();) {
-                OMElement association = (OMElement) it.next();
-                String association_type = association.getAttributeValue(MetadataSupport.association_type_qname);
-                String target_object = association.getAttributeValue(MetadataSupport.target_object_qname);
-                String source_object = association.getAttributeValue(MetadataSupport.source_object_qname);
-                if (association_type == null) {
+            this.objectsReferenced = new ArrayList<String>();
+            this.objectsToDeprecate = new ArrayList<String>();
+            for (OMElement association : associations) {
+                //OMElement association = (OMElement) it.next();
+                String associationType = association.getAttributeValue(MetadataSupport.association_type_qname);
+                String targetObject = association.getAttributeValue(MetadataSupport.target_object_qname);
+                String sourceObject = association.getAttributeValue(MetadataSupport.source_object_qname);
+                if (associationType == null) {
                     throw new MetadataValidationException("Association has no associationType attribute");
                 }
-                if (source_object == null) {
-                    throw new MetadataValidationException(association_type + " Association has no sourceObject attribute");
+                if (sourceObject == null) {
+                    throw new MetadataValidationException(associationType + " Association has no sourceObject attribute");
                 }
-                if (target_object == null) {
-                    throw new MetadataValidationException(association_type + " Association has no targetObject attribute");
+                if (targetObject == null) {
+                    throw new MetadataValidationException(associationType + " Association has no targetObject attribute");
                 }
-                if (isUUID(source_object) && !containsObject(source_object)) {
-                    objectsReferenced.add(source_object);
+                if (isUUID(sourceObject) && !containsObject(sourceObject)) {
+                    objectsReferenced.add(sourceObject);
                 }
-                if (isUUID(target_object) && !containsObject(target_object)) {
-                    objectsReferenced.add(target_object);
+                if (isUUID(targetObject) && !containsObject(targetObject)) {
+                    objectsReferenced.add(targetObject);
                 }
-                if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(association_type)
-                        || MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc.equals(association_type)) {
-                    if (!target_object.startsWith("urn:uuid:")) {
-                        throw new MetadataValidationException("RPLC association has targetObject attribute which is not a UUID: " + target_object);
+                if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(associationType)
+                        || MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc.equals(associationType)) {
+                    if (!targetObject.startsWith("urn:uuid:")) {
+                        throw new MetadataValidationException("RPLC association has targetObject attribute which is not a UUID: " + targetObject);
                     }
-                    this.objectsToDeprecate.add(target_object);
+                    this.objectsToDeprecate.add(targetObject);
                 }
             }
         }
@@ -1298,7 +1434,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    private String getPatientId(OMElement ele) throws MetadataException {
+    public String getPatientId(OMElement ele) throws MetadataException {
         if (ele == null) {
             return null;
         }
@@ -1337,14 +1473,14 @@ public class Metadata {
      * @param objects
      * @return
      */
-    public ArrayList<String> idsForObjects(ArrayList<OMElement> objects) {
-        ArrayList<String> ids = new ArrayList<String>();
-        for (OMElement ele : objects) {
-            ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
-        }
-        return ids;
+    /*
+    public List<String> idsForObjects(List<OMElement> objects) {
+    List<String> ids = new ArrayList<String>();
+    for (OMElement ele : objects) {
+    ids.add(ele.getAttributeValue(MetadataSupport.id_qname));
     }
-
+    return ids;
+    }*/
     /**
      * 
      * @param id
@@ -1360,34 +1496,34 @@ public class Metadata {
      * @throws MetadataValidationException
      * @throws MetadataException
      */
-    public ArrayList getReferencedObjectsThatMustHaveSamePatientId() throws MetadataValidationException, MetadataException {
-        ArrayList<String> objects = new ArrayList<String>();
-        for (Iterator it = associations.iterator(); it.hasNext();) {
-            OMElement association = (OMElement) it.next();
-            String association_type = association.getAttributeValue(MetadataSupport.association_type_qname);
-            String target_object = association.getAttributeValue(MetadataSupport.target_object_qname);
-            String source_object = association.getAttributeValue(MetadataSupport.source_object_qname);
-            if (association_type == null) {
+    public List<String> getReferencedObjectsThatMustHaveSamePatientId() throws MetadataValidationException, MetadataException {
+        List<String> objects = new ArrayList<String>();
+        for (OMElement association : associations) {
+            //OMElement association = (OMElement) it.next();
+            String associationType = association.getAttributeValue(MetadataSupport.association_type_qname);
+            String targetObject = association.getAttributeValue(MetadataSupport.target_object_qname);
+            String sourceObject = association.getAttributeValue(MetadataSupport.source_object_qname);
+            if (associationType == null) {
                 throw new MetadataValidationException("Association has no associationType attribute");
             }
-            if (source_object == null) {
-                throw new MetadataValidationException(association_type + " Association has no sourceObject attribute");
+            if (sourceObject == null) {
+                throw new MetadataValidationException(associationType + " Association has no sourceObject attribute");
             }
-            if (target_object == null) {
-                throw new MetadataValidationException(association_type + " Association has no targetObject attribute");
+            if (targetObject == null) {
+                throw new MetadataValidationException(associationType + " Association has no targetObject attribute");
             }
-            if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(association_type) && "Reference".equals(getSlotValue(association, "SubmissionSetStatus", 0))) {
+            if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(associationType) && "Reference".equals(getSlotValue(association, "SubmissionSetStatus", 0))) {
                 continue;
             }
-            if (source_object.startsWith("urn:uuid:") && id_index().getObjectById(source_object) == null) {
-                objects.add(source_object);
+            if (sourceObject.startsWith("urn:uuid:") && id_index().getObjectById(sourceObject) == null) {
+                objects.add(sourceObject);
             }
-            if (target_object.startsWith("urn:uuid:")) {
-                OMElement o = id_index().getObjectById(target_object);
+            if (targetObject.startsWith("urn:uuid:")) {
+                OMElement o = id_index().getObjectById(targetObject);
                 if (o == null) {
-                    objects.add(target_object);
+                    objects.add(targetObject);
                 } else if (o.getLocalName().equals("ObjectRef")) {
-                    objects.add(target_object);
+                    objects.add(targetObject);
                 }
             }
         }
@@ -1414,7 +1550,7 @@ public class Metadata {
      * @throws MetadataValidationException
      * @throws MetadataException
      */
-    public ArrayList getDeprecatableObjectIds() throws MetadataValidationException, MetadataException {
+    public List<String> getDeprecatableObjectIds() throws MetadataValidationException, MetadataException {
         this.getReferencedObjects();
         return objectsToDeprecate;
     }
@@ -1423,7 +1559,7 @@ public class Metadata {
      *
      * @param classifications
      */
-    private void add_to_classifications_of_id(ArrayList<OMElement> classifications) {
+    private void add_to_classifications_of_id(List<OMElement> classifications) {
         for (OMElement classification : classifications) {
             add_to_classifications_of_id(classification);
         }
@@ -1435,9 +1571,9 @@ public class Metadata {
      */
     private void add_to_classifications_of_id(OMElement classification) {
         String id = classification.getAttributeValue(MetadataSupport.id_qname);
-        ArrayList old = this.classificationsOfId.get(id);
+        List<OMElement> old = this.classificationsOfId.get(id);
         if (old == null) {
-            old = new ArrayList();
+            old = new ArrayList<OMElement>();
             classificationsOfId.put(id, old);
         }
         old.add(classification);
@@ -1467,6 +1603,8 @@ public class Metadata {
         assoc.addAttribute(MetadataSupport.om_factory.createOMAttribute("sourceObject", null, sourceUuid));
         assoc.addAttribute(MetadataSupport.om_factory.createOMAttribute("targetObject", null, targetUuid));
         assoc.addAttribute(MetadataSupport.om_factory.createOMAttribute("id", null, allocate_id()));
+        // Include this?
+        assoc.addAttribute(MetadataSupport.om_factory.createOMAttribute("status", null, MetadataSupport.status_type_approved));
         return assoc;
     }
 
@@ -1481,8 +1619,8 @@ public class Metadata {
         OMNamespace namespace = wrapper.getNamespace();
         String namespace_uri = (namespace != null) ? namespace.getNamespaceURI() : "";
         detect_metadata_version(namespace_uri);
-        for (Iterator it = wrapper.getChildElements(); it.hasNext();) {
-            OMElement obj = (OMElement) it.next();
+        for (Iterator<OMElement> it = wrapper.getChildElements(); it.hasNext();) {
+            OMElement obj = it.next();
             String type = obj.getLocalName();
             OMAttribute id_att = obj.getAttribute(MetadataSupport.id_qname);
             // obj has no id attribute - assign it one
@@ -1495,7 +1633,7 @@ public class Metadata {
                     id_att.setAttributeValue(allocate_id());
                 }
             }
-            if (!discard_duplicates || !getIds(allObjects).contains(id(obj))) {
+            if (!discard_duplicates || !getObjectIds(allObjects).contains(id(obj))) {
                 allObjects.add(obj);
             }
 
@@ -1503,7 +1641,7 @@ public class Metadata {
 
             if (type.equals("RegistryPackage")) {
                 if (hasExternalIdentifier(obj, MetadataSupport.XDSSubmissionSet_uniqueid_uuid)) {
-                    if (!discard_duplicates || !getIds(submissionSets).contains(id(obj))) {
+                    if (!discard_duplicates || !getObjectIds(submissionSets).contains(id(obj))) {
                         submissionSets.add(obj);
                     }
 
@@ -1513,43 +1651,43 @@ public class Metadata {
                     submissionSet = obj;
 
                 } else if (hasExternalIdentifier(obj, MetadataSupport.XDSFolder_uniqueid_uuid)) {
-                    if (!discard_duplicates || !getIds(folders).contains(id(obj))) {
+                    if (!discard_duplicates || !getObjectIds(folders).contains(id(obj))) {
                         folders.add(obj);
                     }
                 }
-                if (!discard_duplicates || !getIds(registryPackages).contains(id(obj))) {
+                if (!discard_duplicates || !getObjectIds(registryPackages).contains(id(obj))) {
                     registryPackages.add(obj);
                 }
 
             } else if (type.equals("ExtrinsicObject")) {
-                if (!discard_duplicates || !getIds(extrinsicObjects).contains(id(obj))) {
+                if (!discard_duplicates || !getObjectIds(extrinsicObjects).contains(id(obj))) {
                     extrinsicObjects.add(obj);
                 }
 
             } else if (type.equals("ObjectRef")) {
-                if (!discard_duplicates || !getIds(objectRefs).contains(id(obj))) {
+                if (!discard_duplicates || !getObjectIds(objectRefs).contains(id(obj))) {
                     objectRefs.add(obj);
                 }
 
             } else if (type.equals("Classification")) {
-                if (!discard_duplicates || !getIds(classifications).contains(id(obj))) {
+                if (!discard_duplicates || !getObjectIds(classifications).contains(id(obj))) {
                     classifications.add(obj);
                 }
                 add_to_classifications_of_id(obj);
 
             } else if (type.equals("Association")) {
-                if (!discard_duplicates || !getIds(associations).contains(id(obj))) {
+                if (!discard_duplicates || !getObjectIds(associations).contains(id(obj))) {
                     associations.add(obj);
                 }
             } else {
                 throw new MetadataException("Metadata: parse(): did not expect a " + type + " object at the top level");
             }
 
-            for (Iterator it1 = obj.getChildElements(); it1.hasNext();) {
-                OMElement obj_i = (OMElement) it1.next();
+            for (Iterator<OMElement> it1 = obj.getChildElements(); it1.hasNext();) {
+                OMElement obj_i = it1.next();
                 String type_i = obj_i.getLocalName();
                 if (type_i.equals("Classification")) {
-                    if (!discard_duplicates || !getIds(classifications).contains(id(obj_i))) {
+                    if (!discard_duplicates || !getObjectIds(classifications).contains(id(obj_i))) {
                         classifications.add(obj_i);
                     }
                 }
@@ -1622,8 +1760,8 @@ public class Metadata {
      * @param ids
      * @return
      */
-    public ArrayList<OMElement> getAssociationsInclusive(ArrayList<String> ids) {
-        ArrayList<OMElement> assocs = new ArrayList<OMElement>();
+    public List<OMElement> getAssociationsInclusive(List<String> ids) {
+        List<OMElement> assocs = new ArrayList<OMElement>();
         for (OMElement a : this.getAssociations()) {
             if (ids.contains(getAssocSource(a))
                     && ids.contains(getAssocTarget(a))) {
@@ -1637,15 +1775,8 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<String> getSubmissionSetIds() {
-        ArrayList ids = new ArrayList();
-        ArrayList sss = getSubmissionSets();
-        for (int i = 0; i < sss.size(); i++) {
-            OMElement ss = (OMElement) sss.get(i);
-            String f_id = ss.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(f_id);
-        }
-        return ids;
+    public List<String> getSubmissionSetIds() {
+        return this.getObjectIds(this.getSubmissionSets());
     }
 
     /**
@@ -1683,12 +1814,13 @@ public class Metadata {
     public boolean isPatientIdConsistent() throws MetadataException {
         String patientID = null;
         for (OMElement ele : allObjects) {
-            String pid = getPatientId(ele);
+            String pid = this.getPatientId(ele);
             if (patientID == null) {
-                patientID = pid;
+                patientID = pid;  // First go around.
                 continue;
             }
             if (pid == null) {
+                // No patient id on object.
                 continue;
             }
             if (!patientID.equals(pid)) {
@@ -1702,7 +1834,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getFolders() {
+    public List<OMElement> getFolders() {
         return folders;
     }
 
@@ -1711,29 +1843,21 @@ public class Metadata {
      * @param parts
      * @return
      */
-    public ArrayList<String> getIds(ArrayList<OMElement> parts) {
-        ArrayList<String> ids = new ArrayList<String>();
-        for (int i = 0; i < parts.size(); i++) {
-            OMElement part = (OMElement) parts.get(i);
-            String f_id = part.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(f_id);
-        }
-        return ids;
+    /*
+    public List<String> getIds(List<OMElement> parts) {
+    List<String> ids = new ArrayList<String>();
+    for (OMElement part : parts) {
+    String id = part.getAttributeValue(MetadataSupport.id_qname);
+    ids.add(id);
     }
-
+    return ids;
+    }*/
     /**
      *
      * @return
      */
-    public ArrayList<String> getFolderIds() {
-        ArrayList ids = new ArrayList();
-        ArrayList folders = getFolders();
-        for (int i = 0; i < folders.size(); i++) {
-            OMElement folder = (OMElement) folders.get(i);
-            String f_id = folder.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(f_id);
-        }
-        return ids;
+    public List<String> getFolderIds() {
+        return this.getObjectIds(this.getFolders());
     }
 
     /**
@@ -1742,22 +1866,33 @@ public class Metadata {
      * @return
      */
     public OMElement getFolder(int i) {
-        return (OMElement) getFolders().get(i);
+        return getFolders().get(i);
+    }
+
+    /**
+     *
+     * @return
+     * @throws MetadataException
+     */
+    public List<String> getFolderUniqueIds() throws MetadataException {
+        List<String> list = new ArrayList<String>();
+        List<String> ids = this.getFolderIds();
+        for (String id : ids) {
+            String uid = id_index().getExternalIdentifierValue(id, MetadataSupport.XDSFolder_uniqueid_uuid);
+            if (uid == null || uid.equals("")) {
+                throw new MetadataException("Folder " + id + " has no uniqueId");
+            }
+            list.add(uid);
+        }
+        return list;
     }
 
     /**
      *
      * @return
      */
-    public ArrayList getRegistryPackageIds() {
-        ArrayList ids = new ArrayList();
-        ArrayList rps = this.getRegistryPackages();
-        for (int i = 0; i < rps.size(); i++) {
-            OMElement rp = (OMElement) rps.get(i);
-            String f_id = rp.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(f_id);
-        }
-        return ids;
+    public List<String> getRegistryPackageIds() {
+        return this.getObjectIds(this.getRegistryPackages());
     }
 
     /**
@@ -1766,17 +1901,17 @@ public class Metadata {
      * @return
      */
     public String getIdentifyingString(OMElement ele) {
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         b.append(ele.getLocalName());
         OMElement name_ele = MetadataSupport.firstChildWithLocalName(ele, "Name");
         if (name_ele != null) {
             OMElement loc = MetadataSupport.firstChildWithLocalName(name_ele, "LocalizedString");
             if (loc != null) {
                 String name = loc.getAttributeValue(new QName("value"));
-                b.append(" Name=\"" + name + "\"");
+                b.append(" Name=\"").append(name).append("\"");
             }
         }
-        b.append(" id=\"" + ele.getAttributeValue(MetadataSupport.id_qname) + "\"");
+        b.append(" id=\"").append(ele.getAttributeValue(MetadataSupport.id_qname)).append("\"");
         return "<" + b.toString() + ">";
     }
 
@@ -1785,10 +1920,10 @@ public class Metadata {
      * @param objects
      * @return
      */
-    public ArrayList getObjectNames(ArrayList objects) {
-        ArrayList names = new ArrayList();
-        for (int i = 0; i < objects.size(); i++) {
-            OMElement obj = (OMElement) objects.get(i);
+    public List<String> getObjectNames(List<OMElement> objects) {
+        List<String> names = new ArrayList<String>();
+        for (OMElement obj : objects) {
+            //OMElement obj = (OMElement) objects.get(i);
             names.add(obj.getLocalName());
         }
         return names;
@@ -1830,8 +1965,8 @@ public class Metadata {
                 return MetadataSupport.firstChildWithLocalName(sor, "RegistryObjectList");
             }
         }
-        for (Iterator it = metadata.getChildElements(); it.hasNext();) {
-            OMElement child = (OMElement) it.next();
+        for (Iterator<OMElement> it = metadata.getChildElements(); it.hasNext();) {
+            OMElement child = it.next();
             if (child.getLocalName().equals("RegistryObjectList")) {
                 return child;
             }
@@ -1895,8 +2030,8 @@ public class Metadata {
      * @return
      */
     public OMElement findSlot(OMElement registry_object, String slot_name) {
-        for (Iterator it = registry_object.getChildElements(); it.hasNext();) {
-            OMElement s = (OMElement) it.next();
+        for (Iterator<OMElement> it = registry_object.getChildElements(); it.hasNext();) {
+            OMElement s = it.next();
             if (!s.getLocalName().equals("Slot")) {
                 continue;
             }
@@ -1914,10 +2049,10 @@ public class Metadata {
      * @param classificationScheme
      * @return
      */
-    public ArrayList findClassifications(OMElement registry_object, String classificationScheme) {
-        ArrayList cl = new ArrayList();
-        for (Iterator it = registry_object.getChildElements(); it.hasNext();) {
-            OMElement s = (OMElement) it.next();
+    public List<OMElement> findClassifications(OMElement registry_object, String classificationScheme) {
+        List<OMElement> cl = new ArrayList<OMElement>();
+        for (Iterator<OMElement> it = registry_object.getChildElements(); it.hasNext();) {
+            OMElement s = it.next();
             if (!s.getLocalName().equals("Classification")) {
                 continue;
             }
@@ -1934,10 +2069,10 @@ public class Metadata {
      * @param registry_object
      * @return
      */
-    public ArrayList findClassifications(OMElement registry_object) {
-        ArrayList cl = new ArrayList();
-        for (Iterator it = registry_object.getChildElements(); it.hasNext();) {
-            OMElement s = (OMElement) it.next();
+    public List<OMElement> findClassifications(OMElement registry_object) {
+        List<OMElement> cl = new ArrayList<OMElement>();
+        for (Iterator<OMElement> it = registry_object.getChildElements(); it.hasNext();) {
+            OMElement s = it.next();
             if (!s.getLocalName().equals("Classification")) {
                 continue;
             }
@@ -1952,10 +2087,10 @@ public class Metadata {
      * @param element_name
      * @return
      */
-    public ArrayList findChildElements(OMElement registry_object, String element_name) {
-        ArrayList al = new ArrayList();
-        for (Iterator it = registry_object.getChildElements(); it.hasNext();) {
-            OMElement s = (OMElement) it.next();
+    public List<OMElement> findChildElements(OMElement registry_object, String element_name) {
+        List<OMElement> al = new ArrayList<OMElement>();
+        for (Iterator<OMElement> it = registry_object.getChildElements(); it.hasNext();) {
+            OMElement s = it.next();
             if (s.getLocalName().equals(element_name)) {
                 al.add(s);
             }
@@ -1965,29 +2100,27 @@ public class Metadata {
 
     /**
      *
-     * @param registry_objects
+     * @param registryObjects
      * @return
      */
-    public ArrayList<String> getObjectIds(ArrayList<OMElement> registry_objects) {
-        ArrayList ids = new ArrayList();
-        for (int i = 0; i < registry_objects.size(); i++) {
-            OMElement ele = registry_objects.get(i);
-            String id = ele.getAttributeValue(MetadataSupport.id_qname);
-            ids.add(id);
+    public List<String> getObjectIds(List<OMElement> registryObjects) {
+        List<String> ids = new ArrayList<String>();
+        for (OMElement registryObject : registryObjects) {
+            ids.add(registryObject.getAttributeValue(MetadataSupport.id_qname));
         }
         return ids;
     }
 
     /**
      *
-     * @param registry_objects
+     * @param registryObjects
      * @param version2
      * @return
      */
-    public ArrayList<OMElement> getObjectRefs(ArrayList registry_objects, boolean version2) {
-        ArrayList<OMElement> ors = new ArrayList<OMElement>();
-        for (int i = 0; i < registry_objects.size(); i++) {
-            OMElement ele = (OMElement) registry_objects.get(i);
+    public List<OMElement> getObjectRefs(List<OMElement> registryObjects, boolean version2) {
+        List<OMElement> ors = new ArrayList<OMElement>();
+        for (OMElement ele : registryObjects) {
+            //OMElement ele = registryObjects.get(i);
             String id = ele.getAttributeValue(MetadataSupport.id_qname);
             OMElement or = MetadataSupport.om_factory.createOMElement("ObjectRef",
                     (version2) ? MetadataSupport.ebRIMns2 : MetadataSupport.ebRIMns3);
@@ -2002,7 +2135,7 @@ public class Metadata {
      *
      * @return
      */
-    public ArrayList<OMElement> getClassifications() {
+    public List<OMElement> getClassifications() {
         return classifications;
     }
 
@@ -2023,15 +2156,15 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
+    /*
     private IdIndex id_index(XLogMessage log_message) throws MetadataException {
-        if (idIndex == null) {
-            idIndex = new IdIndex();
-            idIndex.setLogMessage(log_message);
-            idIndex.setMetadata(this);
-        }
-        return idIndex;
+    if (idIndex == null) {
+    idIndex = new IdIndex();
+    idIndex.setLogMessage(log_message);
+    idIndex.setMetadata(this);
     }
-
+    return idIndex;
+    }*/
     /**
      *
      * @param object_id
@@ -2058,7 +2191,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList getSlots(String object_id) throws MetadataException {
+    public List<OMElement> getSlots(String object_id) throws MetadataException {
         return id_index().getSlots(object_id);
     }
 
@@ -2092,12 +2225,12 @@ public class Metadata {
      * @return
      */
     public String getMetadataDescription() {
-        StringBuffer buf = new StringBuffer();
-        buf.append(this.getSubmissionSets().size() + " SubmissionSets\n");
-        buf.append(this.getExtrinsicObjects().size() + " DocumentEntries\n");
-        buf.append(this.getFolders().size() + " Folders\n");
-        buf.append(this.getAssociations().size() + " Associations\n");
-        buf.append(this.getObjectRefs().size() + " ObjectRefs\n");
+        StringBuilder buf = new StringBuilder();
+        buf.append(this.getSubmissionSets().size()).append(" SubmissionSets\n");
+        buf.append(this.getExtrinsicObjects().size()).append(" DocumentEntries\n");
+        buf.append(this.getFolders().size()).append(" Folders\n");
+        buf.append(this.getAssociations().size()).append(" Associations\n");
+        buf.append(this.getObjectRefs().size()).append(" ObjectRefs\n");
         return buf.toString();
     }
 
@@ -2106,10 +2239,10 @@ public class Metadata {
      * @throws MetadataException
      */
     public void fixClassifications() throws MetadataException {
-        ArrayList<String> rpIds = getRegistryPackageIds();
-        for (int i = 0; i < rpIds.size(); i++) {
-            String id = rpIds.get(i);
-            ArrayList<OMElement> classifications = getClassifications(id);
+        List<String> rpIds = getRegistryPackageIds();
+        for (String id : rpIds) {
+            //String id = rpIds.get(i);
+            List<OMElement> classifications = getClassifications(id);
             for (OMElement classification : classifications) {
                 if (classification.getAttribute(MetadataSupport.noderepresentation_qname) != null) {
                     continue;
@@ -2136,7 +2269,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<OMElement> getClassifications(String object_id) throws MetadataException {
+    public List<OMElement> getClassifications(String object_id) throws MetadataException {
         return id_index().getClassifications(object_id);
     }
 
@@ -2146,7 +2279,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<OMElement> getClassifications(OMElement object) throws MetadataException {
+    public List<OMElement> getClassifications(OMElement object) throws MetadataException {
         return id_index().getClassifications(this.getId(object));
     }
 
@@ -2157,7 +2290,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<OMElement> getClassifications(OMElement object, String classification_scheme) throws MetadataException {
+    public List<OMElement> getClassifications(OMElement object, String classification_scheme) throws MetadataException {
         return getClassifications(this.getId(object), classification_scheme);
     }
 
@@ -2186,9 +2319,9 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<String> getClassificationsValues(OMElement object, String classification_scheme) throws MetadataException {
-        ArrayList<OMElement> classes = getClassifications(object, classification_scheme);
-        ArrayList<String> values = new ArrayList<String>();
+    public List<String> getClassificationsValues(OMElement object, String classification_scheme) throws MetadataException {
+        List<OMElement> classes = getClassifications(object, classification_scheme);
+        List<String> values = new ArrayList<String>();
         for (OMElement e : classes) {
             values.add(e.getAttributeValue(MetadataSupport.noderepresentation_qname));
         }
@@ -2202,7 +2335,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<String> getClassificationsValues(String id, String classification_scheme) throws MetadataException {
+    public List<String> getClassificationsValues(String id, String classification_scheme) throws MetadataException {
         return getClassificationsValues(this.getObjectById(id), classification_scheme);
     }
 
@@ -2213,9 +2346,9 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<OMElement> getClassifications(String id, String classification_scheme) throws MetadataException {
-        ArrayList<OMElement> cls = getClassifications(id);
-        ArrayList<OMElement> cls_2 = new ArrayList<OMElement>();
+    public List<OMElement> getClassifications(String id, String classification_scheme) throws MetadataException {
+        List<OMElement> cls = getClassifications(id);
+        List<OMElement> cls_2 = new ArrayList<OMElement>();
         for (OMElement cl : cls) {
             String cl_scheme = cl.getAttributeValue(MetadataSupport.classificationscheme_qname);
             if (cl_scheme != null && cl_scheme.equals(classification_scheme)) {
@@ -2231,7 +2364,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList getExternalIdentifiers(String object_id) throws MetadataException {
+    public List<OMElement> getExternalIdentifiers(String object_id) throws MetadataException {
         return id_index().getExternalIdentifiers(object_id);
     }
 
@@ -2252,7 +2385,7 @@ public class Metadata {
      * @throws MetadataException
      */
     public void updateFoldersLastUpdateTimeSlot() throws MetadataException {
-        ArrayList<OMElement> folderList = this.folders;
+        List<OMElement> folderList = this.folders;
         // Set XDSFolder.lastUpdateTime
         if ((folderList != null) && (!folderList.isEmpty())) {
             String timestamp = Hl7Date.now();
@@ -2290,9 +2423,9 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public ArrayList<String> getAllUids() throws MetadataException {
-        ArrayList<String> all_ids = this.getAllDefinedIds();
-        ArrayList<String> all_uids = new ArrayList<String>();
+    public List<String> getAllUids() throws MetadataException {
+        List<String> all_ids = this.getAllDefinedIds();
+        List<String> all_uids = new ArrayList<String>();
         for (String id : all_ids) {
             String uid = getUniqueIdValue(id);
             if (uid != null) {
@@ -2320,11 +2453,11 @@ public class Metadata {
      * @param uid
      * @param hash
      */
-    private void addToUidHashMap(HashMap<String, ArrayList<String>> map, String uid, String hash) {
+    private void addToUidHashMap(Map<String, List<String>> map, String uid, String hash) {
         if (uid == null) {
             return;
         }
-        ArrayList<String> hash_list = map.get(uid);
+        List<String> hash_list = map.get(uid);
         if (hash_list == null) {
             hash_list = new ArrayList<String>();
             map.put(uid, hash_list);
@@ -2340,15 +2473,15 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public HashMap<String, ArrayList<String>> getUidHashMap() throws MetadataException {
-        HashMap<String, ArrayList<String>> hm = new HashMap<String, ArrayList<String>>();
-        ArrayList<String> ids;
+    public Map<String, List<String>> getUidHashMap() throws MetadataException {
+        Map<String, List<String>> hm = new HashMap<String, List<String>>();
+        List<String> ids;
         ids = this.getExtrinsicObjectIds();
         for (String id : ids) {
             OMElement registry_object = this.getObjectById(id);
             String uid;
-            ArrayList<OMElement> eis = this.getExternalIdentifiers(id);
-            ArrayList<OMElement> eid_eles = this.getExternalIdentifiers(registry_object, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
+            List<OMElement> eis = this.getExternalIdentifiers(id);
+            List<OMElement> eid_eles = this.getExternalIdentifiers(registry_object, MetadataSupport.XDSDocumentEntry_uniqueid_uuid);
             if (eid_eles.size() > 0) {
                 uid = eid_eles.get(0).getAttributeValue(MetadataSupport.value_qname);
             } else {
@@ -2390,6 +2523,25 @@ public class Metadata {
      */
     public String getSubmissionSetUniqueId() throws MetadataException {
         return id_index().getSubmissionSetUniqueId();
+    }
+
+    /**
+     *
+     * @param m
+     * @return
+     * @throws MetadataException
+     */
+    public List<String> getSubmissionSetUniqueIds() throws MetadataException {
+        List<String> list = new ArrayList<String>();
+        List<String> ids = this.getSubmissionSetIds();
+        for (String id : ids) {
+            String uid = id_index().getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+            if (uid == null || uid.equals("")) {
+                throw new MetadataException("Submission Set " + id + " has no uniqueId");
+            }
+            list.add(uid);
+        }
+        return list;
     }
 
     /**
@@ -2452,8 +2604,8 @@ public class Metadata {
         OMElement sor = this.om_factory().createOMElement("SubmitObjectsRequest", lcm);
         OMElement lrol = this.om_factory().createOMElement("RegistryObjectList", rim);
         sor.addChild(lrol);
-        for (int i = 0; i < allObjects.size(); i++) {
-            lrol.addChild(allObjects.get(i));
+        for (OMElement obj : allObjects) {
+            lrol.addChild(obj);
         }
         /*
         ArrayList objects = this.getV3();
@@ -2514,8 +2666,8 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public HashMap<String, OMElement> getUidMap(ArrayList<OMElement> objects) throws MetadataException {
-        HashMap<String, OMElement> map = new HashMap<String, OMElement>();  // uid -> OMElement
+    public Map<String, OMElement> getUidMap(List<OMElement> objects) throws MetadataException {
+        Map<String, OMElement> map = new HashMap<String, OMElement>();  // uid -> OMElement
         for (OMElement non_ref : objects) {
             String non_ref_id = this.getId(non_ref);
             String a_uid = this.getUniqueIdValue(non_ref_id);
@@ -2531,7 +2683,7 @@ public class Metadata {
      * @return
      * @throws MetadataException
      */
-    public HashMap<String, OMElement> getUidMap() throws MetadataException {
+    public Map<String, OMElement> getUidMap() throws MetadataException {
         return getUidMap(this.getNonObjectRefs());
     }
 
@@ -2557,18 +2709,7 @@ public class Metadata {
         return uid != null;
     }
 
-    /**
-     *
-     * @param simpleAssociationType
-     * @return
-     */
-    public String v3AssociationNamespace(String simpleAssociationType) {
-        if (Metadata.iheAssocTypes.contains(simpleAssociationType)) {
-            return MetadataSupport.xdsB_ihe_assoc_namespace_uri;
-        } else {
-            return MetadataSupport.xdsB_eb_assoc_namespace_uri;
-        }
-    }
+   
 
     /**
      *
@@ -2617,7 +2758,7 @@ public class Metadata {
                 }
                 map.put(parts[0], parts[1]);
             }
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             int i = 1;
             for (;; i++) {
                 String iStr = String.valueOf(i);
@@ -2680,7 +2821,7 @@ public class Metadata {
             return;
         }
         OMElement slot = addSlot(eo, "URI");
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int chunkIndex = 1;
         int uriSize = uri.length();
         int strStart = 0;
