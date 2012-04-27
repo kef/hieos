@@ -17,12 +17,14 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.response.RegistryErrorList;
-//import com.vangent.hieos.xutil.query.RegistryObjectValidator;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.ArrayList;
 
 //import java.util.List;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -33,38 +35,27 @@ import org.apache.log4j.Logger;
 public class Structure {
 
     private final static Logger logger = Logger.getLogger(Structure.class);
-    Metadata m;
-    RegistryErrorList rel;
-    boolean is_submit;
-    XLogMessage log_message;
+    private Metadata m;
+    private RegistryErrorList rel;
+    private boolean isSubmit = true;
+    private XLogMessage logMessage;
+    private List<String> associationIds;
+    private List<String> extrinsicObjectIds;
+    private List<String> folderIds;
 
     /**
-     *
+     * 
      * @param m
-     * @param is_submit
-     * @throws XdsInternalException
-     */
-    /*
-    public Structure(Metadata m, boolean is_submit) throws XdsInternalException {
-        this.m = m;
-        rel = new RegistryErrorList(false);
-        this.is_submit = is_submit;
-        log_message = null;
-    }*/
-
-    /**
-     *
-     * @param m
-     * @param is_submit
+     * @param isSubmit
      * @param rel
-     * @param log_message
+     * @param logMessage
      * @throws XdsInternalException
      */
-    public Structure(Metadata m, boolean is_submit, RegistryErrorList rel, XLogMessage log_message) throws XdsInternalException {
+    public Structure(Metadata m, boolean isSubmit, RegistryErrorList rel, XLogMessage logMessage) throws XdsInternalException {
         this.m = m;
-        this.is_submit = is_submit;
+        this.isSubmit = isSubmit;
         this.rel = rel;
-        this.log_message = log_message;
+        this.logMessage = logMessage;
     }
 
     /**
@@ -74,245 +65,89 @@ public class Structure {
      * @throws XdsException
      */
     public void run() throws MetadataException, MetadataValidationException, XdsException {
-        submission_structure();
-    }
+        // To optimize.
+        this.extrinsicObjectIds = m.getExtrinsicObjectIds();
+        this.folderIds = m.getFolderIds();
+        this.associationIds = m.getAssociationIds();
 
-    /**
-     *
-     * @throws MetadataException
-     * @throws MetadataValidationException
-     * @throws XdsException
-     */
-    void submission_structure() throws MetadataException, MetadataValidationException, XdsException {
-        ss_doc_fol_must_have_ids();
-        if (is_submit) {
-            doc_implies_ss();
-            fol_implies_ss();
-            ss_implies_doc_or_fol_or_assoc();
-            docs_in_ss();
-            fols_in_ss();
-            rplced_doc_not_in_submission();
-            ss_status_relates_to_ss();
-            by_value_assoc_in_submission();
-            folder_assocs();
-        }
-        ss_status_single_value();
-        assocs_have_proper_namespace();
-    }
+        // All metadata should have proper registry object ids.
+        validateRegistryObjectsHaveIds();
 
-    /**
-     *
-     */
-    void ss_status_relates_to_ss() {
-        String ss_id = m.getSubmissionSetId();
-        ArrayList assocs = m.getAssociations();
-        for (int i = 0; i < assocs.size(); i++) {
-            OMElement assoc = (OMElement) assocs.get(i);
-            String a_target = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-            String a_type = assoc.getAttributeValue(MetadataSupport.association_type_qname);
-            String a_source = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            boolean target_is_included_is_doc = m.getExtrinsicObjectIds().contains(a_target);
-            if (a_source.equals(ss_id)) {
-                if (!MetadataSupport.xdsB_eb_assoc_type_has_member.equals(a_type)) {
-                    err("Association referencing Submission Set has type " + a_type + " but only type HasMember is allowed");
-                }
-                if (target_is_included_is_doc) {
-                    if (!m.hasSlot(assoc, "SubmissionSetStatus")) {
-                        err("Association " +
-                                assoc.getAttributeValue(MetadataSupport.id_qname) +
-                                " has sourceObject pointing to Submission Set but contains no SubmissionSetStatus Slot");
-                    }
-                } else if (m.getFolderIds().contains(a_target)) {
-                } else {
-                }
-            } else {
-                if (m.hasSlot(assoc, "SubmissionSetStatus") && !"Reference".equals(m.getSlotValue(assoc, "SubmissionSetStatus", 0))) {
-                    err("Association " +
-                            assoc.getAttributeValue(MetadataSupport.id_qname) +
-                            " does not have sourceObject pointing to Submission Set but contains SubmissionSetStatus Slot with value Original");
-                }
-            }
+        validateInternalClassifications();
+
+        // FIXME: Still need to cleanup.
+
+        // Now, run validations for submission sets.
+        if (isSubmit) {
+            validateAssociations(); // NEW
+            validateSubmissionSetHasContent();
+            validateDocumentImpliesSubmissionSet();
+            validateFolderImpliesSubmissionSet();
+            validateDocumentsInSubmissionSet();
+            validateFoldersInSubmissionSet();
+            validateSubmissionSetAssociations();
+            validateByValueAssociationInSubmission();
+            validateFolderAssociations();
+            validateSubmissionSetHasSingleStatus();
+        } else {
+            // FIXME: Consider removing since only used for testing.
+            validateSubmissionSetHasSingleStatus();
+            //validateAssociationsHaveProperNamespace();
         }
     }
 
-    /**
-     *
-     */
-    void ss_doc_fol_must_have_ids() {
-        // Check documents:
-        ArrayList docs = m.getExtrinsicObjects();
-        for (int i = 0; i < docs.size(); i++) {
-            OMElement doc = (OMElement) docs.get(i);
-            String id = doc.getAttributeValue(MetadataSupport.id_qname);
-            if (id == null ||
-                    id.equals("")) {
-                err("All RegistryPackage and ExtrinsicObject objects must have id attributes");
-                return;
-            }
-        }
-        // Check folders:
-        ArrayList rps = m.getRegistryPackages();
-        for (int i = 0; i < rps.size(); i++) {
-            OMElement rp = (OMElement) rps.get(i);
-            String id = rp.getAttributeValue(MetadataSupport.id_qname);
-            if (id == null ||
-                    id.equals("")) {
-                err("All RegistryPackage and ExtrinsicObject objects must have id attributes");
-                return;
-            }
-        }
-    }
-
-    /**
-     *
-     * @throws MetadataValidationException
-     * @throws MetadataException
-     */
-    void by_value_assoc_in_submission() throws MetadataValidationException, MetadataException {
-        ArrayList assocs = m.getAssociations();
-        String ss_id = m.getSubmissionSetId();
-        for (int i = 0; i < assocs.size(); i++) {
-            OMElement assoc = (OMElement) assocs.get(i);
-            String source = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            String type = assoc.getAttributeValue(MetadataSupport.association_type_qname);
-            String target = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-            if (!source.equals(ss_id)) {
-                continue;
-            }
-            boolean target_is_included_doc = m.getExtrinsicObjectIds().contains(target);
-            String ss_status = m.getSlotValue(assoc, "SubmissionSetStatus", 0);
-            if (target_is_included_doc) {
-                if (ss_status == null || ss_status.equals("")) {
-                    err("SubmissionSetStatus Slot on Submission Set association has no value");
-                } else if (ss_status.equals("Original")) {
-                    if (!m.containsObject(target)) {
-                        err("SubmissionSetStatus Slot on Submission Set association has value 'Original' but the targetObject " + target + " references an object not in the submission");
-                    }
-                } else if (ss_status.equals("Reference")) {
-                    if (m.containsObject(target)) {
-                        err("SubmissionSetStatus Slot on Submission Set association has value 'Reference' but the targetObject " + target + " references an object in the submission");
-                    }
-                } else {
-                    err("SubmissionSetStatus Slot on Submission Set association has unrecognized value: " + ss_status);
-                }
-            } else {
-                if (ss_status != null && !ss_status.equals("Reference")) {
-                    err("A SubmissionSet Assocation has the SubmissionSetStatus Slot but the target ExtrinsicObject is not part of the Submission");
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    private void ss_status_single_value() {
-        ArrayList assocs = m.getAssociations();
-        String ss_id = m.getSubmissionSetId();
-        for (int i = 0; i < assocs.size(); i++) {
-            OMElement assoc = (OMElement) assocs.get(i);
-            String source = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            String type = assoc.getAttributeValue(MetadataSupport.association_type_qname);
-            String target = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-            if (!source.equals(ss_id)) {
-                continue;
-            }
-            String ss_status = m.getSlotValue(assoc, "SubmissionSetStatus", 1);
-            if (ss_status != null) {
-                err("SubmissionSetStatus Slot on Submission Set association has more than one value");
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    private void ss_implies_doc_or_fol_or_assoc() {
-        if (m.getSubmissionSet() != null &&
-                !(m.getExtrinsicObjects().size() > 0 ||
-                m.getFolders().size() > 0 ||
-                m.getAssociations().size() > 0)) {
-            err("Submission contains Submission Set but no Documents or Folders or Associations");
-        }
-    }
-
-    // does this id represent a folder in this metadata or in registry?
     /**
      *
      * @param id
      * @return
      * @throws XdsException
      */
-    
-    public boolean isFolder(String id) throws XdsException {
-        if (m.getFolderIds().contains(id)) {
-            return true;
-        } else {
-            return false;
-        }
-        /*
-        if (!id.startsWith("urn:uuid:")) {
-            return false;
-        }
-        RegistryObjectValidator rov = new RegistryObjectValidator(rel, log_message);
-        ArrayList<String> ids = new ArrayList<String>();
-        ids.add(id);
-        List<String> missing = rov.validateAreFolders(ids);
-        if (missing != null && missing.contains(id)) {
-            return false;
-        }
-        return true;*/
+    private boolean isDocument(String id) throws XdsException {
+        return this.extrinsicObjectIds.contains(id);
     }
 
-    // Folder Assocs must be linked to SS by a secondary Assoc
     /**
-     * 
+     *
+     * @param id
+     * @return
      * @throws XdsException
      */
-    private void folder_assocs() throws XdsException {
-        String ssId = m.getSubmissionSetId();
-        ArrayList<OMElement> non_ss_assocs = null;
-        for (OMElement a : m.getAssociations()) {
-            String sourceId = m.getAssocSource(a);
-            if (m.getAssocTarget(a).equals(ssId)) {
-                err("SubmissionSet may not the be target of an Association");
-            }
-            // if sourceId points to a SubmissionSet in this metadata then no further work is needed
-            // if sourceId points to a Folder (in or out of this metadata) then secondary Assoc required
-            if (sourceId.equals(ssId)) {
-                continue;
-            }
-            if (isFolder(sourceId)) {
-                if (non_ss_assocs == null) {
-                    non_ss_assocs = new ArrayList<OMElement>();
-                }
-                non_ss_assocs.add(a);
-            }
-        }
-        if (non_ss_assocs == null) {
-            return;
-        }
+    private boolean isFolder(String id) throws XdsException {
+        return this.folderIds.contains(id);
+    }
 
-        // Show that the non-ss associations are linked to ss via a HasMember association
-        // This only applies when the association's sourceObject is a Folder
-        for (OMElement a : non_ss_assocs) {
-            String aId = a.getAttributeValue(MetadataSupport.id_qname);
-            boolean good = false;
-            for (OMElement a2 : m.getAssociations()) {
-                if (m.getAssocSource(a2).equals(ssId) &&
-                        m.getAssocTarget(a2).equals(aId) &&
-                        MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(a2))) {
-                    if (good) {
-                        err("Multiple HasMember Associations link Submission Set " + ssId +
-                                " and Association\n" + a);
-                    } else {
-                        good = true;
-                    }
-                }
+    /**
+     *
+     * @param id
+     * @return
+     * @throws XdsException
+     */
+    private boolean isAssociation(String id) throws XdsException {
+        return this.associationIds.contains(id);
+    }
+
+    /**
+     *
+     */
+    private void validateRegistryObjectsHaveIds() {
+        // Check documents.
+        List<OMElement> docs = m.getExtrinsicObjects();
+        for (OMElement doc : docs) {
+            String docId = doc.getAttributeValue(MetadataSupport.id_qname);
+            if (docId == null
+                    || docId.equals("")) {
+                err("All ExtrinsicObject objects must have id attributes");
+                return;
             }
-            if (good == false) {
-                err("A HasMember Association is required to link Submission Set " + ssId +
-                        " and Folder/Document Association\n" + a);
+        }
+        // Check registry packages.
+        List<OMElement> registryPackages = m.getRegistryPackages();
+        for (OMElement registryPackage : registryPackages) {
+            String registryPackageId = registryPackage.getAttributeValue(MetadataSupport.id_qname);
+            if (registryPackageId == null
+                    || registryPackageId.equals("")) {
+                err("All RegistryPackage objects must have id attributes");
+                return;
             }
         }
     }
@@ -320,9 +155,21 @@ public class Structure {
     /**
      *
      */
-    private void doc_implies_ss() {
-        if (m.getExtrinsicObjects().size() > 0 &&
-                m.getSubmissionSet() == null) {
+    private void validateSubmissionSetHasContent() {
+        if (m.getSubmissionSet() != null
+                && (m.getExtrinsicObjects().isEmpty()
+                && m.getFolders().isEmpty()
+                && m.getAssociations().isEmpty())) {
+            err("Submission contains Submission Set but no Documents, Folders or Associations");
+        }
+    }
+
+    /**
+     *
+     */
+    private void validateDocumentImpliesSubmissionSet() {
+        if (!m.getExtrinsicObjects().isEmpty()
+                && (m.getSubmissionSet() == null)) {
             err("Submission contains a Document but no Submission Set");
         }
     }
@@ -330,9 +177,9 @@ public class Structure {
     /**
      *
      */
-    private void fol_implies_ss() {
-        if (m.getFolders().size() > 0 &&
-                m.getSubmissionSet() == null) {
+    private void validateFolderImpliesSubmissionSet() {
+        if (!m.getFolders().isEmpty()
+                && (m.getSubmissionSet() == null)) {
             err("Submission contains a Folder but no Submission Set");
         }
     }
@@ -340,11 +187,12 @@ public class Structure {
     /**
      *
      */
-    private void docs_in_ss() {
-        ArrayList docs = m.getExtrinsicObjects();
-        for (int i = 0; i < docs.size(); i++) {
-            OMElement doc = (OMElement) docs.get(i);
-            if (!has_assoc(m.getSubmissionSetId(), MetadataSupport.xdsB_eb_assoc_type_has_member, doc.getAttributeValue(MetadataSupport.id_qname))) {
+    private void validateDocumentsInSubmissionSet() {
+        List<OMElement> docs = m.getExtrinsicObjects();
+        String submissionSetId = m.getSubmissionSetId();
+        for (OMElement doc : docs) {
+            if (!hasAssociation(submissionSetId, MetadataSupport.xdsB_eb_assoc_type_has_member,
+                    doc.getAttributeValue(MetadataSupport.id_qname))) {
                 err("Document " + doc.getAttributeValue(MetadataSupport.id_qname) + " is not linked to Submission Set with " + MetadataSupport.xdsB_eb_assoc_type_has_member + " Association");
             }
         }
@@ -353,12 +201,12 @@ public class Structure {
     /**
      *
      */
-    private void fols_in_ss() {
-        //ArrayList fols = m.getExtrinsicObjects();
-        ArrayList fols = m.getFolders();
-        for (int i = 0; i < fols.size(); i++) {
-            OMElement fol = (OMElement) fols.get(i);
-            if (!has_assoc(m.getSubmissionSetId(), MetadataSupport.xdsB_eb_assoc_type_has_member, fol.getAttributeValue(MetadataSupport.id_qname))) {
+    private void validateFoldersInSubmissionSet() {
+        List<OMElement> fols = m.getFolders();
+        String submissionSetId = m.getSubmissionSetId();
+        for (OMElement fol : fols) {
+            if (!hasAssociation(submissionSetId, MetadataSupport.xdsB_eb_assoc_type_has_member,
+                    fol.getAttributeValue(MetadataSupport.id_qname))) {
                 err("Folder " + fol.getAttributeValue(MetadataSupport.id_qname) + " is not linked to Submission Set with " + MetadataSupport.xdsB_eb_assoc_type_has_member + " Association");
             }
         }
@@ -366,55 +214,205 @@ public class Structure {
 
     /**
      *
-     * @param assocType
-     * @return
+     * @throws XdsException
      */
-    private String associationSimpleType(String assocType) {
-        String[] parts = assocType.split(":");
-        if (parts.length < 2) {
-            return assocType;
-        }
-        return parts[parts.length - 1];
-    }
-
-    /**
-     *
-     */
-    private void assocs_have_proper_namespace() {
-        ArrayList<OMElement> assocs = m.getAssociations();
-        for (OMElement a_ele : assocs) {
-            String a_type = a_ele.getAttributeValue(MetadataSupport.association_type_qname);
-            /*if (m.isVersion2() && a_type.startsWith("urn")) {
-            err("XDS.a does not accept namespace prefix on association type:  found " + a_type);
-            }*/
-            /*if (!m.isVersion2()) { */
-            String simpleType = this.associationSimpleType(a_type);
-            if (Metadata.iheAssocTypes.contains(simpleType)) {
-                if (!a_type.startsWith(MetadataSupport.xdsB_ihe_assoc_namespace_uri)) {
-                    err("XDS.b requires namespace prefix " + MetadataSupport.xdsB_ihe_assoc_namespace_uri + " on association type " + simpleType);
+    private void validateAssociations() throws XdsException {
+        String submissionSetId = m.getSubmissionSetId();
+        List<OMElement> assocs = m.getAssociations();
+        for (OMElement assoc : assocs) {
+            String sourceId = assoc.getAttributeValue(MetadataSupport.source_object_qname);
+            String targetId = assoc.getAttributeValue(MetadataSupport.target_object_qname);
+            String assocType = assoc.getAttributeValue(MetadataSupport.association_type_qname);
+            if (targetId.equals(submissionSetId)) {
+                // Target is submission set (this is not allowed).
+                err("SubmissionSet may not be the target of an Association");
+            } else if (Metadata.isValidDocumentAssociationType(assocType)) {
+                // Source and target's must be documents (but could be references).
+                if (!(isDocument(sourceId) || m.isReferencedObject(sourceId))) {
+                    err("Association has type " + assocType + " but source must be a document (could be by reference)");
+                }
+                if (!(isDocument(targetId) || m.isReferencedObject(targetId))) {
+                    err("Association has type " + assocType + " but target must be a document (could be by reference)");
+                }
+                if ((MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(assocType))
+                        && !m.isReferencedObject(targetId)) {
+                    err("Replaced document (RPLC association type) cannot be in submission\nThe following objects were found in the submission: "
+                            + m.getReferencedObjects().toString());
+                }
+            } else if (assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
+                // Source must be the submission set, folder or reference.
+                if (!(sourceId.equals(submissionSetId) || isFolder(sourceId) || m.isReferencedObject(sourceId))) {
+                    err("Association has type " + assocType + " but source must be the submission set or a folder (could be by reference)");
+                }
+                // Target must be a folder, document, association or reference.
+                if (!(isFolder(targetId) || isDocument(targetId) || isAssociation(targetId) || m.isReferencedObject(targetId))) {
+                    err("Association has type " + assocType + " but target must a folder or document (could be by reference)");
+                }
+                // If 1) the source is a folder (not a reference), 2) the metadata includes the target object and 3) the
+                // target object is not a document ... then, emit an error.
+                if (isFolder(sourceId) && m.containsObject(targetId) && !isDocument(targetId)) {
+                    err("Association has type " + assocType + " and source is a folder but target (by value) is not a document");
+                }
+            } else if (assocType.equals(MetadataSupport.xdsB_ihe_assoc_type_submit_association)) {
+                // Source must be the submission set.
+                if (!sourceId.equals(submissionSetId)) {
+                    err("Association has type " + assocType + " but source must be the submission set");
+                }
+                // Target must be an association.
+                if (!isAssociation(targetId)) {
+                    err("Association has type " + assocType + " but target must be an association");
+                }
+            } else if (assocType.equals(MetadataSupport.xdsB_ihe_assoc_type_update_availability_status)) {
+                // Source must be the submission set.
+                if (!sourceId.equals(submissionSetId)) {
+                    err("Association has type " + assocType + " but source must be the submission set");
+                }
+                // Target must be a referenced object (and not the submission set).
+                if (m.containsObject(targetId)) {
+                    err("Association has type " + assocType + " but target must not be included in submission");
                 }
             } else {
-                if (!a_type.startsWith(MetadataSupport.xdsB_eb_assoc_namespace_uri)) {
-                    err("XDS.b requires namespace prefix " + MetadataSupport.xdsB_eb_assoc_namespace_uri + " on association type " + simpleType);
+                // Error - unknown association type.
+                err("Unknown association type " + assocType);
+            }
+        }
+    }
+
+    /**
+     * 
+     */
+    private void validateSubmissionSetAssociations() throws XdsException {
+        String submissionSetId = m.getSubmissionSetId();
+        List<OMElement> assocs = m.getAssociations();
+        for (OMElement assoc : assocs) {
+            String targetId = assoc.getAttributeValue(MetadataSupport.target_object_qname);
+            String assocType = assoc.getAttributeValue(MetadataSupport.association_type_qname);
+            String sourceId = assoc.getAttributeValue(MetadataSupport.source_object_qname);
+            if (sourceId.equals(submissionSetId)) {
+                if (!Metadata.isValidSubmissionSetAssociationType(assocType)) {
+                    err("Association referencing Submission Set has type " + assocType
+                            + " but only the following association types are allowed: "
+                            + Metadata.getValidSubmissionSetAssociationTypes());
+                }
+                if (isDocument(targetId)) {
+                    if (!m.hasSlot(assoc, "SubmissionSetStatus")) {
+                        err("Association "
+                                + assoc.getAttributeValue(MetadataSupport.id_qname)
+                                + " has sourceObject pointing to Submission Set but contains no SubmissionSetStatus Slot");
+                    }
+                }
+                //else if (isFolder(targetId)) {
+                //} else {
+                //}
+            } else {
+                if (m.hasSlot(assoc, "SubmissionSetStatus") && !"Reference".equals(m.getSlotValue(assoc, "SubmissionSetStatus", 0))) {
+                    err("Association "
+                            + assoc.getAttributeValue(MetadataSupport.id_qname)
+                            + " does not have sourceObject pointing to Submission Set but contains SubmissionSetStatus Slot with value Original");
                 }
             }
-            /*}*/
         }
     }
 
     /**
      *
-     * @throws MetadataException
      * @throws MetadataValidationException
+     * @throws MetadataException
      */
-    private void rplced_doc_not_in_submission() throws MetadataException, MetadataValidationException {
-        ArrayList assocs = m.getAssociations();
-        for (int i = 0; i < assocs.size(); i++) {
-            OMElement assoc = (OMElement) assocs.get(i);
-            String id = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-            String type = assoc.getAttributeValue(MetadataSupport.association_type_qname);
-            if ((MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(type)) && !m.isReferencedObject(id)) {
-                err("Replaced document (RPLC assocation type) cannot be in submission\nThe following objects were found in the submission:" + m.idsForObjects(m.getReferencedObjects()).toString());
+    private void validateByValueAssociationInSubmission() throws MetadataValidationException, MetadataException, XdsException {
+        List<OMElement> assocs = m.getAssociations();
+        String submissionSetId = m.getSubmissionSetId();
+        for (OMElement assoc : assocs) {
+            String sourceId = assoc.getAttributeValue(MetadataSupport.source_object_qname);
+            String targetId = assoc.getAttributeValue(MetadataSupport.target_object_qname);
+            if (sourceId.equals(submissionSetId)) {
+                String submissionSetStatus = m.getSlotValue(assoc, "SubmissionSetStatus", 0);
+                if (isDocument(targetId)) {
+                    if (submissionSetStatus == null || submissionSetStatus.equals("")) {
+                        err("SubmissionSetStatus Slot on Submission Set association has no value");
+                    } else if (submissionSetStatus.equals("Original")) {
+                        if (!m.containsObject(targetId)) {
+                            err("SubmissionSetStatus Slot on Submission Set association has value 'Original' but the targetObject " + targetId + " references an object not in the submission");
+                        }
+                    } else if (submissionSetStatus.equals("Reference")) {
+                        if (m.containsObject(targetId)) {
+                            err("SubmissionSetStatus Slot on Submission Set association has value 'Reference' but the targetObject " + targetId + " references an object in the submission");
+                        }
+                    } else {
+                        err("SubmissionSetStatus Slot on Submission Set association has unrecognized value: " + submissionSetStatus);
+                    }
+                } else {
+                    if (submissionSetStatus != null && !submissionSetStatus.equals("Reference")) {
+                        err("A SubmissionSet Association has the SubmissionSetStatus Slot but the targetObject is not part of the Submission");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    private void validateSubmissionSetHasSingleStatus() {
+        List<OMElement> assocs = m.getAssociations();
+        String submissionSetId = m.getSubmissionSetId();
+        for (OMElement assoc : assocs) {
+            String sourceId = assoc.getAttributeValue(MetadataSupport.source_object_qname);
+            if (sourceId.equals(submissionSetId)) {
+                String submissionSetStatus = m.getSlotValue(assoc, "SubmissionSetStatus", 1);
+                if (submissionSetStatus != null) {
+                    err("SubmissionSetStatus Slot on Submission Set association has more than one value");
+                }
+            }
+        }
+    }
+
+    // Folder Assocs must be linked to SS by a secondary Assoc
+    /**
+     * 
+     * @throws XdsException
+     */
+    private void validateFolderAssociations() throws XdsException {
+        String submissionSetId = m.getSubmissionSetId();
+        List<OMElement> folderAssocs = new ArrayList<OMElement>();
+        for (OMElement assoc : m.getAssociations()) {
+            String sourceId = m.getAssocSource(assoc);
+            if (m.getAssocTarget(assoc).equals(submissionSetId)) {
+                err("SubmissionSet may not the be target of an Association");
+            }
+            // if sourceId points to a SubmissionSet in this metadata then no further work is needed
+            // if sourceId points to a Folder (in or out of this metadata) then secondary Assoc required
+            if (sourceId.equals(submissionSetId)) {
+                continue;
+            }
+            if (isFolder(sourceId)) {
+                folderAssocs.add(assoc);
+            }
+        }
+        if (folderAssocs.isEmpty()) {
+            return;
+        }
+
+        // Show that the non-ss associations are linked to ss via a HasMember association
+        // This only applies when the association's sourceObject is a Folder
+        for (OMElement folderAssoc : folderAssocs) {
+            String folderAssocId = folderAssoc.getAttributeValue(MetadataSupport.id_qname);
+            boolean good = false;
+            for (OMElement assoc : m.getAssociations()) {
+                if (m.getAssocSource(assoc).equals(submissionSetId)
+                        && m.getAssocTarget(assoc).equals(folderAssocId)
+                        && MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(assoc))) {
+                    if (good) {
+                        err("Multiple HasMember Associations link Submission Set " + submissionSetId
+                                + " and Association\n" + folderAssoc);
+                    } else {
+                        good = true;
+                    }
+                }
+            }
+            if (good == false) {
+                err("A HasMember Association is required to link Submission Set " + submissionSetId
+                        + " and Folder/Document Association\n" + folderAssoc);
             }
         }
     }
@@ -426,20 +424,59 @@ public class Structure {
      * @param target
      * @return
      */
-    private boolean has_assoc(String source, String type, String target) {
-        ArrayList assocs = m.getAssociations();
-        for (int i = 0; i < assocs.size(); i++) {
-            OMElement assoc = (OMElement) assocs.get(i);
-            String a_target = assoc.getAttributeValue(MetadataSupport.target_object_qname);
-            String a_type = assoc.getAttributeValue(MetadataSupport.association_type_qname);
-            String a_source = assoc.getAttributeValue(MetadataSupport.source_object_qname);
-            if (a_target != null && a_target.equals(target) &&
-                    a_type != null && a_type.equals(type) &&
-                    a_source != null && a_source.equals(source)) {
+    private boolean hasAssociation(String source, String type, String target) {
+        List<OMElement> assocs = m.getAssociations();
+        for (OMElement assoc : assocs) {
+            String assocTarget = assoc.getAttributeValue(MetadataSupport.target_object_qname);
+            String assocType = assoc.getAttributeValue(MetadataSupport.association_type_qname);
+            String assocSource = assoc.getAttributeValue(MetadataSupport.source_object_qname);
+            if (assocTarget != null && assocTarget.equals(target)
+                    && assocType != null && assocType.equals(type)
+                    && assocSource != null && assocSource.equals(source)) {
                 return true;
             }
         }
         return false;
+    }
+
+    // internal classifications must point to object that contains them
+    /**
+     * 
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
+    private void validateInternalClassifications() throws MetadataValidationException, MetadataException {
+        for (OMElement ele : m.getRegistryPackages()) {
+            validateInternalClassifications(ele);
+        }
+        for (OMElement ele : m.getExtrinsicObjects()) {
+            validateInternalClassifications(ele);
+        }
+    }
+
+    /**
+     *
+     * @param e
+     * @throws MetadataValidationException
+     * @throws MetadataException
+     */
+    private void validateInternalClassifications(OMElement e) throws MetadataValidationException, MetadataException {
+        String e_id = e.getAttributeValue(MetadataSupport.id_qname);
+        if (e_id == null || e_id.equals("")) {
+            return;
+        }
+        for (Iterator it = e.getChildElements(); it.hasNext();) {
+            OMElement child = (OMElement) it.next();
+            OMAttribute classified_object_att = child.getAttribute(MetadataSupport.classified_object_qname);
+            if (classified_object_att != null) {
+                String value = classified_object_att.getAttributeValue();
+                if (!e_id.equals(value)) {
+                    throw new MetadataValidationException("Classification " + m.getIdentifyingString(child)
+                            + "\n is nested inside " + m.getIdentifyingString(e)
+                            + "\n but classifies object " + m.getIdentifyingString(value));
+                }
+            }
+        }
     }
 
     /**
