@@ -386,13 +386,13 @@ public class LifeCycleManagerImpl implements LifeCycleManager {
             //Append those orefs specified via ad hoc query param
             orefs.addAll(((ServerRequestContext) context).getObjectsRefsFromQueryResults(req.getAdhocQuery()));
              */
-            Iterator orefsIter = orefs.iterator();
-            while (orefsIter.hasNext()) {
-                ObjectRefType oref = (ObjectRefType) orefsIter.next();
-                idList.add(oref.getId());
-            }
+            //Iterator orefsIter = orefs.iterator();
+            //while (orefsIter.hasNext()) {
+            //    ObjectRefType oref = (ObjectRefType) orefsIter.next();
+            //    idList.add(oref.getId());
+            //}
 
-            pm.updateStatus(((ServerRequestContext) context), idList, status);
+            pm.updateStatus(((ServerRequestContext) context), orefs, status);
             resp = bu.rsFac.createRegistryResponse();
             resp.setStatus(BindingUtility.CANONICAL_RESPONSE_STATUS_TYPE_ID_Success);
             if (((ServerRequestContext) context).getErrorList().getRegistryError().size() > 0) {

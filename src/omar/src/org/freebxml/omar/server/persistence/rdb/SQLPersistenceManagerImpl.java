@@ -357,7 +357,7 @@ public class SQLPersistenceManagerImpl
      *
      */
     @SuppressWarnings("static-access")
-    public void updateStatus(ServerRequestContext context, List registryObjectsIds,
+    public void updateStatus(ServerRequestContext context, List orefs,
             String status)
             throws RegistryException {
         try {
@@ -365,23 +365,23 @@ public class SQLPersistenceManagerImpl
             /* HIEOS (REMOVED):
             context.checkClassificationNodeRefConstraint(status, bu.CANONICAL_CLASSIFICATION_SCHEME_ID_StatusType, "status");
              */
-            ObjectRefListType orefList = bu.rimFac.createObjectRefList();
+            //ObjectRefListType orefList = bu.rimFac.createObjectRefList();
 
-            List refs = bu.getObjectRefsFromRegistryObjectIds(registryObjectsIds);
-            Iterator iter = refs.iterator();
+            //List refs = bu.getObjectRefsFromRegistryObjectIds(registryObjectsIds);
+            Iterator iter = orefs.iterator();
             while (iter.hasNext()) {
-                ObjectRefType ref = (ObjectRefType) iter.next();
+                ObjectRefType oref = (ObjectRefType) iter.next();
                 // HIEOS/AMS/BHT: Removed next line of code (to speed up process).
                 // RegistryObjectType ro = getRegistryObject(context, ref);
                 // HIEOS/AMS/BHT: Now, calling new method (again, to speed up process).
-                RegistryObjectType ro = getRegistryObjectForUpdate(context, ref);
+                RegistryObjectType ro = getRegistryObjectForUpdate(context, oref);
                 RegistryObjectDAO roDAO = (RegistryObjectDAO) getDAOForObject(ro, context);
                 roDAO.updateStatus(ro, status);
-                orefList.getObjectRef().add(ref);
+                //orefList.getObjectRef().add(ref);
             }
 
-        } catch (JAXBException e) {
-            throw new RegistryException(e);
+        //} catch (JAXBException e) {
+        //    throw new RegistryException(e);
         } catch (JAXRException e) {
             throw new RegistryException(e);
         }
