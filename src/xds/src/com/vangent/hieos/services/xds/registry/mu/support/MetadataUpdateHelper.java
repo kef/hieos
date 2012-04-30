@@ -40,8 +40,10 @@ public class MetadataUpdateHelper {
     public static void logMetadata(XLogMessage logMessage, Metadata m) throws MetadataException {
         // Log relevant data (if logger is turned on of course).
         if (logMessage.isLogEnabled()) {
-            // Submissin set unique id.
-            logMessage.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
+            // Submission set unique id.
+            if (m.getSubmissionSet() != null) {
+                logMessage.addOtherParam("SSuid", m.getSubmissionSetUniqueId());
+            }
             // Document unique ids.
             ArrayList<String> doc_uids = new ArrayList<String>();
             for (String id : m.getExtrinsicObjectIds()) {
@@ -62,7 +64,7 @@ public class MetadataUpdateHelper {
                 }
             }
             logMessage.addOtherParam("FOLuids", fol_uids);
-             // Folder uuids.
+            // Folder uuids.
             logMessage.addOtherParam("FOLuuids", m.getFolderIds());
             logMessage.addOtherParam("Structure", m.structure());
         }

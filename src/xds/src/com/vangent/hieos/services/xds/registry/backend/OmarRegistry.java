@@ -163,7 +163,9 @@ public class OmarRegistry {
             } else if (message instanceof UndeprecateObjectsRequestType) {
                 throw new XdsInternalException("UndeprecateObjectsRequest - not supported by Registry");
             } else if (message instanceof RemoveObjectsRequestType) {
-                throw new XdsInternalException("RemoveObjectsRequest - not supported by Registry");
+                //throw new XdsInternalException("RemoveObjectsRequest - not supported by Registry");
+                rr = lcm.removeObjects(context);
+                log.trace("OMAR: RemoveObjectsRequest ELAPSED TIME: " + new Long(System.currentTimeMillis() - startTime).toString());
             } else if (message instanceof UpdateObjectsRequestType) {
                 throw new XdsInternalException("UpdateObjectsRequest - not supported by Registry");
             } else if (message instanceof RelocateObjectsRequestType) {

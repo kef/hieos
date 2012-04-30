@@ -123,6 +123,18 @@ public class BackendRegistry {
     /**
      *
      * @param objectIds
+     * @return
+     * @throws XdsInternalException
+     */
+    public OMElement submitRemoveObjectsRequest(List<String> objectIds) throws XdsInternalException {
+        OMElement removeObjectsRequest = this.getRemoveObjectsRequest(objectIds);
+        this.setReason("Remove Objects");
+        return this.submit(removeObjectsRequest);
+    }
+
+    /**
+     *
+     * @param objectIds
      * @param status
      * @return
      * @throws XdsInternalException
@@ -310,6 +322,19 @@ public class BackendRegistry {
     private OMElement getDeprecateObjectsRequest(List<String> uuids) {
         OMNamespace lcm = MetadataSupport.ebLcm3;
         OMElement req = MetadataSupport.om_factory.createOMElement("DeprecateObjectsRequest", lcm);
+        req.addChild(this.getObjectRefList(uuids));
+        return req;
+
+    }
+
+     /**
+     *
+     * @param uuids
+     * @return
+     */
+    private OMElement getRemoveObjectsRequest(List<String> uuids) {
+        OMNamespace lcm = MetadataSupport.ebLcm3;
+        OMElement req = MetadataSupport.om_factory.createOMElement("RemoveObjectsRequest", lcm);
         req.addChild(this.getObjectRefList(uuids));
         return req;
 

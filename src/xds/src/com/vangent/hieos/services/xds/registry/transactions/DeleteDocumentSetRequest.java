@@ -12,8 +12,15 @@
  */
 package com.vangent.hieos.services.xds.registry.transactions;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.metadata.structure.MetadataTypes;
 import com.vangent.hieos.xutil.registry.RegistryUtility;
@@ -64,6 +71,8 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             logger.fatal(logger_exception_details(e));
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+        } catch (XdsException e) {
+            response.add_error(MetadataSupport.XDSRegistryError, "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
         }
         OMElement res = null;
         try {
@@ -79,12 +88,44 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
 
     /**
      *
-     * @param submitObjectsRequest
+     * @param removeObjectsRequest
      * @throws XdsInternalException
      * @throws SchemaValidationException
      */
-    private void handleDeleteDocumentSetRequest(OMElement submitObjectsRequest) throws XdsInternalException, SchemaValidationException {
+    private void handleDeleteDocumentSetRequest(OMElement removeObjectsRequest) throws XdsInternalException, SchemaValidationException, XdsException {
         // Validate input message against XML schema.
-        RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
+        RegistryUtility.schema_validate_local(removeObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
+        boolean commitCompleted = false;
+
+        // Get backend registry instance.
+        BackendRegistry backendRegistry = new BackendRegistry(log_message);
+        try {
+
+            // Create the context.
+            MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
+            metadataUpdateContext.setBackendRegistry(backendRegistry);
+            metadataUpdateContext.setLogMessage(log_message);
+            metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
+            metadataUpdateContext.setConfigActor(this.getConfigActor());
+
+            // Create Metadata instance for ROR.
+            Metadata m = MetadataParser.parseNonSubmission(removeObjectsRequest);
+            MetadataUpdateHelper.logMetadata(log_message, m);
+
+            // Create an run command.
+            DeleteDocumentSetCommand cmd = new DeleteDocumentSetCommand(m, metadataUpdateContext);
+            // TBD: Do we need to order commands?
+            // Execute each command.
+            boolean runStatus = cmd.run();
+            if (runStatus) {
+                backendRegistry.commit();
+                commitCompleted = true;
+            }
+        } finally {
+            if (!commitCompleted) {
+                backendRegistry.rollback();
+            }
+        }
+
     }
 }

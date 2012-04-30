@@ -435,20 +435,24 @@ public class AdhocQueryRequest extends XBaseTransaction {
     private List<OMElement> storedQuery(OMElement ahqr, boolean isLeafClassRequest)
             throws XdsResultNotSinglePatientException, XdsException, XDSRegistryOutOfResourcesException, XdsValidationException {
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
-        StoredQueryFactory fact =
-                new StoredQueryFactory(
-                ahqr, // AdhocQueryRequest
-                isLeafClassRequest,
-                response, // The response object.
-                log_message, // For logging.
-                service_name, // For logging.
-                backendRegistry);
-        // If this is not an MPQ request, then validate consistent patient identifiers
-        // in response.
-        List<OMElement> results = fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
-        // No exception - simply commit (which will release the connection).
-        backendRegistry.commit();
-        return results;
+        try {
+            StoredQueryFactory fact =
+                    new StoredQueryFactory(
+                    ahqr, // AdhocQueryRequest
+                    isLeafClassRequest,
+                    response, // The response object.
+                    log_message, // For logging.
+                    service_name, // For logging.
+                    backendRegistry);
+            // If this is not an MPQ request, then validate consistent patient identifiers
+            // in response.
+            List<OMElement> results = fact.run(!this.isMPQRequest(), this.getMaxLeafObjectsAllowedFromQuery());
+            return results;
+        } finally {
+            // No exception - simply commit (which will release the connection).
+            backendRegistry.commit();
+        }
+        //return results;
     }
 
     /**

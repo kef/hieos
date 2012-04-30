@@ -540,12 +540,13 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             externalIdentifierIds = sq.getExternalIdentifiersToSplitOut(activePatientId, documentSourceIds);
         } catch (XdsInternalException ex) {
             throw this.logException(ex.getMessage());
-        }
-         try {
-            // No exception - simply commit (which will release the connection).
-            backendRegistry.commit();
-        } catch (XdsInternalException ex) {
-            throw new PatientIdentityFeedException(ex.getMessage());
+        } finally {
+            try {
+                // No exception - simply commit (which will release the connection).
+                backendRegistry.commit();
+            } catch (XdsInternalException ex) {
+                throw new PatientIdentityFeedException(ex.getMessage());
+            }
         }
         return externalIdentifierIds;
     }

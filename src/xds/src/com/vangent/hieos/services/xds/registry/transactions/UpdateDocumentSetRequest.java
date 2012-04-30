@@ -115,58 +115,58 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
         // FIXME: MetadataTypes.METADATA_TYPE_Rb?
         RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
+        boolean commitCompleted = false;
 
         // Get backend registry instance.
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
-
-        // Create the context.
-        MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
-        metadataUpdateContext.setBackendRegistry(backendRegistry);
-        metadataUpdateContext.setLogMessage(log_message);
-        metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
-        metadataUpdateContext.setConfigActor(this.getConfigActor());
-
-        // Create Metadata instance for SOR.
-        Metadata m = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.
-        MetadataUpdateHelper.logMetadata(log_message, m);
-
-        List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
-
-        // Technical operation cases:
-        // - Update DocumentEntry Metadata
-        // - Update DocumentEntry Status
-        // - Update Folder Metadata
-        // - Update Folder Status
-        // - Update Association Status
-        // - Submit new Assoication object(s)
-
-        String submissionSetId = m.getSubmissionSetId();
-        String submissionSetObjectType = m.getObjectTypeById(submissionSetId);
-        System.out.println("... submissionSetObjectType = " + submissionSetObjectType);
-        for (OMElement assoc : m.getAssociations()) {
-            // See if we are dealing with a proper association.
-            String sourceObjectId = m.getSourceObject(assoc);
-            String targetObjectId = m.getTargetObject(assoc);
-
-            System.out.println("... sourceObjectId = " + sourceObjectId);
-            System.out.println("... targetObjectId = " + targetObjectId);
-            MetadataUpdateCommand muCommand = null;
-            if (MetadataSupport.xdsB_ihe_assoc_type_update_availability_status.equals(m.getAssocType(assoc))) {
-                muCommand = this.handleUpdateAvailabilityStatusAssociation(m, metadataUpdateContext, assoc);
-            } else if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(assoc))) {
-                muCommand = this.handleHasMemberAssociation(m, metadataUpdateContext, assoc);
-            } else if (MetadataSupport.xdsB_ihe_assoc_type_submit_association.equals(m.getAssocType(assoc))) {
-                muCommand = this.handleSubmitAssociation(m, metadataUpdateContext, assoc);
-            } else {
-                System.out.println("Association is not a trigger!");
-            }
-            if (muCommand != null) {
-                muCommands.add(muCommand);
-            }
-        }
-
-        boolean commitCompleted = false;
         try {
+
+            // Create the context.
+            MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
+            metadataUpdateContext.setBackendRegistry(backendRegistry);
+            metadataUpdateContext.setLogMessage(log_message);
+            metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
+            metadataUpdateContext.setConfigActor(this.getConfigActor());
+
+            // Create Metadata instance for SOR.
+            Metadata m = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.
+            MetadataUpdateHelper.logMetadata(log_message, m);
+
+            List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
+
+            // Technical operation cases:
+            // - Update DocumentEntry Metadata
+            // - Update DocumentEntry Status
+            // - Update Folder Metadata
+            // - Update Folder Status
+            // - Update Association Status
+            // - Submit new Assoication object(s)
+
+            String submissionSetId = m.getSubmissionSetId();
+            String submissionSetObjectType = m.getObjectTypeById(submissionSetId);
+            System.out.println("... submissionSetObjectType = " + submissionSetObjectType);
+            for (OMElement assoc : m.getAssociations()) {
+                // See if we are dealing with a proper association.
+                String sourceObjectId = m.getSourceObject(assoc);
+                String targetObjectId = m.getTargetObject(assoc);
+
+                System.out.println("... sourceObjectId = " + sourceObjectId);
+                System.out.println("... targetObjectId = " + targetObjectId);
+                MetadataUpdateCommand muCommand = null;
+                if (MetadataSupport.xdsB_ihe_assoc_type_update_availability_status.equals(m.getAssocType(assoc))) {
+                    muCommand = this.handleUpdateAvailabilityStatusAssociation(m, metadataUpdateContext, assoc);
+                } else if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(m.getAssocType(assoc))) {
+                    muCommand = this.handleHasMemberAssociation(m, metadataUpdateContext, assoc);
+                } else if (MetadataSupport.xdsB_ihe_assoc_type_submit_association.equals(m.getAssocType(assoc))) {
+                    muCommand = this.handleSubmitAssociation(m, metadataUpdateContext, assoc);
+                } else {
+                    System.out.println("Association is not a trigger!");
+                }
+                if (muCommand != null) {
+                    muCommands.add(muCommand);
+                }
+            }
+
             // TBD: Do we need to order commands?
             // Execute each command.
             boolean runStatus = false;
