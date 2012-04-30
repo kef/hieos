@@ -24,6 +24,7 @@ import com.vangent.hieos.xtest.transactions.xds.MultiPatientStoredQueryTransacti
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xtest.main.XTestDriver;
+import com.vangent.hieos.xtest.transactions.xds.DeleteDocumentSetTransaction;
 import com.vangent.hieos.xtest.transactions.xds.UpdateDocumentSetTransaction;
 
 import java.util.Iterator;
@@ -238,6 +239,8 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
                     transaction = new ProvideAndRegisterTransaction(this, instruction, instruction_output);
                 } else if (instruction_name.equals("UpdateDocumentSetTransaction")) {
                     transaction = new UpdateDocumentSetTransaction(this, instruction, instruction_output);
+                } else if (instruction_name.equals("DeleteDocumentSetTransaction")) {
+                    transaction = new DeleteDocumentSetTransaction(this, instruction, instruction_output);
                 } else if (instruction_name.equals("EchoV3Transaction")) {
                     transaction = new EchoV3Transaction(this, instruction, instruction_output);
                 } else {
