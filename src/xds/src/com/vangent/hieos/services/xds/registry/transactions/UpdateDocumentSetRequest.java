@@ -20,6 +20,12 @@ import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationComma
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventRegisterDocumentSet;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
@@ -74,6 +80,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
     public OMElement run(OMElement submitObjectsRequest) {
         try {
             submitObjectsRequest.build();
+            this.auditUpdateDocumentSetRequest(submitObjectsRequest);
             this.handleUpdateDocumentSetRequest(submitObjectsRequest);
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
@@ -313,5 +320,25 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         submitAssociationCommand.setSubmitAssociation(assoc);
         muCommand = submitAssociationCommand;
         return muCommand;
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditUpdateDocumentSetRequest(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                ATNAAuditEventRegisterDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRegisterDocumentSet(rootNode);
+                auditEvent.setActorType(ActorType.REGISTRY);
+                auditEvent.setTransaction(IHETransaction.ITI57);
+                auditEvent.setAuditEventType(ATNAAuditEvent.AuditEventType.IMPORT);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 }

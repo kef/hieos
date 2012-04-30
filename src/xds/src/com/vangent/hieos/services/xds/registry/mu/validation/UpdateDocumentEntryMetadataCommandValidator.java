@@ -48,8 +48,8 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
-        UpdateDocumentEntryMetadataCommand cmd = (UpdateDocumentEntryMetadataCommand)this.getMetadataUpdateCommand();
-         boolean validationSuccess = true;
+        UpdateDocumentEntryMetadataCommand cmd = (UpdateDocumentEntryMetadataCommand) this.getMetadataUpdateCommand();
+        boolean validationSuccess = true;
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
@@ -113,12 +113,12 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
             // Validate unique identifier's match.
             this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
 
-          // Run further validations.
+            // Run further validations.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validateDocumentUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
 
-              // FIXME: Validate same REPOID
+            // FIXME: Validate same REPOID
             this.validateHashAndSize(submittedMetadata, cmd);
         }
         return validationSuccess;

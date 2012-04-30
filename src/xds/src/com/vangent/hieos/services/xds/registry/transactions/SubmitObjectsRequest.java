@@ -88,7 +88,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
             // NOTE!!: Moved above "SubjectObjectsRequestInternal()" method call since the "sor" instance
             // is changed during the execution of "SubjectObjectsRequestInternal() method.  Otherwise,
             // we would need to pay the penalty for a deep copy of the "sor" instance.
-            this.auditSubjectObjectsRequest(sor);
+            this.auditSubmitObjectsRequest(sor);
             //performAudit(
             //        XATNALogger.TXN_ITI42,
             //        sor,
@@ -426,7 +426,7 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * 
      * @param rootNode
      */
-    private void auditSubjectObjectsRequest(OMElement rootNode) {
+    private void auditSubmitObjectsRequest(OMElement rootNode) {
         try {
             XATNALogger xATNALogger = new XATNALogger();
             if (xATNALogger.isPerformAudit()) {

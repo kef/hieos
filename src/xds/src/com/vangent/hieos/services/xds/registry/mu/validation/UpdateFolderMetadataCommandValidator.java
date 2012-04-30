@@ -112,11 +112,6 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
             // Run further validations.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
-            //rov.validate(submittedMetadata, MetadataType.UPDATE_SUBMISSION, registryResponse.registryErrorList, configActor);
-            //if (registryResponse.has_errors()) {
-            //    validationSuccess = false;
-            //} else {
-            //}
         }
         return validationSuccess;
     }

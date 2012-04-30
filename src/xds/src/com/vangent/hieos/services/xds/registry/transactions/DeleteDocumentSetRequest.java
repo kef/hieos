@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -66,6 +67,7 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
     public OMElement run(OMElement removeObjectsRequest) {
         try {
             removeObjectsRequest.build();
+            this.auditDeleteDocumentSetRequest(removeObjectsRequest);
             this.handleDeleteDocumentSetRequest(removeObjectsRequest);
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
@@ -130,5 +132,21 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             }
         }
 
+    }
+
+    /**
+     *
+     * @param rootNode
+     */
+    private void auditDeleteDocumentSetRequest(OMElement rootNode) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                // Create and log audit event.
+                // FIXME: Implement!!!
+            }
+        } catch (Exception ex) {
+            // FIXME?:
+        }
     }
 }

@@ -100,14 +100,14 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
 
         // FIXME: Metadata could include other associations we do not care about.
         OMElement submittedAssoc = cmd.getTargetObject();
-        String sourceObjectUUID = submittedMetadata.getAssocSource(submittedAssoc);
-        String targetObjectUUID = submittedMetadata.getAssocTarget(submittedAssoc);
+        String sourceObjectId = submittedMetadata.getAssocSource(submittedAssoc);
+        String targetObjectId = submittedMetadata.getAssocTarget(submittedAssoc);
 
         // Make sure source and target are in UUID format.
-        this.validateRegistryObjectIds(sourceObjectUUID, targetObjectUUID);
+        this.validateRegistryObjectIds(sourceObjectId, targetObjectId);
 
         // Get metadata for source/target objects (updates scratch pad).
-        this.queryMetadata(muSQ, sourceObjectUUID, targetObjectUUID);
+        this.queryMetadata(muSQ, sourceObjectId, targetObjectId);
 
         // Validate that source and target objects have an APPROVED status.
         this.validateRegistryObjectsApprovedStatus();
@@ -121,7 +121,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         this.validateAssociationType(submittedAssoc);
 
         // Validate that there is not(already) an association between the 2 objects with the same(submitted) association type.
-        this.validateSubmittedAssocDoesNotExist(muSQ, submittedMetadata, submittedAssoc, sourceObjectUUID, targetObjectUUID);
+        this.validateSubmittedAssocDoesNotExist(muSQ, submittedMetadata, submittedAssoc, sourceObjectId, targetObjectId);
 
         // FIXME?? Validate the submitted submission set along with its contained content.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
@@ -142,33 +142,33 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
     /**
      *
      * @param muSQ
-     * @param sourceObjectUUID
-     * @param targetObjectUUID
+     * @param sourceObjectId
+     * @param targetObjectId
      * @throws XdsException
      */
-    private void queryMetadata(MetadataUpdateStoredQuerySupport muSQ, String sourceObjectUUID, String targetObjectUUID) throws XdsException {
+    private void queryMetadata(MetadataUpdateStoredQuerySupport muSQ, String sourceObjectId, String targetObjectId) throws XdsException {
         // Get metadata for source object.
         sourceRegistryObjectType = RegistryObjectType.DOCUMENT;
-        sourceRegistryObjectMetadata = this.getDocumentMetadata(muSQ, sourceObjectUUID);
+        sourceRegistryObjectMetadata = this.getDocumentMetadata(muSQ, sourceObjectId);
         if (sourceRegistryObjectMetadata == null) {
             // Try to find folder.
             sourceRegistryObjectType = RegistryObjectType.FOLDER;
-            sourceRegistryObjectMetadata = this.getFolderMetadata(muSQ, sourceObjectUUID);
+            sourceRegistryObjectMetadata = this.getFolderMetadata(muSQ, sourceObjectId);
         }
         if (sourceRegistryObjectMetadata == null) {
-            throw new XdsException("Can not find source registry object (document or folder) for UUID = " + sourceObjectUUID);
+            throw new XdsException("Can not find source registry object (document or folder) for UUID = " + sourceObjectId);
         }
 
         // Get metadata for target object.
         targetRegistryObjectType = RegistryObjectType.DOCUMENT;
-        targetRegistryObjectMetadata = this.getDocumentMetadata(muSQ, targetObjectUUID);
+        targetRegistryObjectMetadata = this.getDocumentMetadata(muSQ, targetObjectId);
         if (targetRegistryObjectMetadata == null) {
             // Try to find folder.
             targetRegistryObjectType = RegistryObjectType.FOLDER;
-            targetRegistryObjectMetadata = this.getFolderMetadata(muSQ, targetObjectUUID);
+            targetRegistryObjectMetadata = this.getFolderMetadata(muSQ, targetObjectId);
         }
         if (targetRegistryObjectMetadata == null) {
-            throw new XdsException("Can not find target registry object (document or folder) for UUID = " + targetObjectUUID);
+            throw new XdsException("Can not find target registry object (document or folder) for UUID = " + targetObjectId);
         }
 
         // Make sure that the target object is not a folder.
@@ -182,7 +182,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         //   source = DOCUMENT AND target = FOLDER
         if (targetRegistryObjectType.equals(RegistryObjectType.FOLDER)) {
             throw new XdsException("Target registry object is a folder and is not allowed.  Folder UUID = "
-                    + targetObjectUUID);
+                    + targetObjectId);
         }
 
         // Set source and target registry objects.
@@ -203,19 +203,19 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
 
     /**
      *
-     * @param sourceObjectUUID
-     * @param targetObjectUUID
+     * @param sourceObjectId
+     * @param targetObjectId
      * @throws XdsException
      */
-    private void validateRegistryObjectIds(String sourceObjectUUID, String targetObjectUUID) throws XdsException {
-        if (!MetadataUpdateHelper.isUUID(sourceObjectUUID)) {
+    private void validateRegistryObjectIds(String sourceObjectId, String targetObjectId) throws XdsException {
+        if (!MetadataUpdateHelper.isUUID(sourceObjectId)) {
             throw new XdsException("Source registry object is not in UUID format");
         }
-        if (!MetadataUpdateHelper.isUUID(targetObjectUUID)) {
+        if (!MetadataUpdateHelper.isUUID(targetObjectId)) {
             throw new XdsException("Target registry object is not in UUID format");
         }
         // Make sure that both UUIDs are not the same.
-        if (sourceObjectUUID.equals(targetObjectUUID)) {
+        if (sourceObjectId.equals(targetObjectId)) {
             throw new XdsException("Source and target registry objects can not be the same");
         }
     }
@@ -282,16 +282,16 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
      * @param muSQ
      * @param submittedMetadata
      * @param submittedAssoc
-     * @param sourceObjectUUID
-     * @param targetObjectUUID
+     * @param sourceObjectId
+     * @param targetObjectId
      * @throws XdsException
      */
     private void validateSubmittedAssocDoesNotExist(MetadataUpdateStoredQuerySupport muSQ, Metadata submittedMetadata,
-            OMElement submittedAssoc, String sourceObjectUUID, String targetObjectUUID) throws XdsException {
+            OMElement submittedAssoc, String sourceObjectId, String targetObjectId) throws XdsException {
         String assocType = submittedMetadata.getAssocType(submittedAssoc);
         List<String> sourceOrTargetIds = new ArrayList<String>();
-        sourceOrTargetIds.add(sourceObjectUUID);
-        sourceOrTargetIds.add(targetObjectUUID);
+        sourceOrTargetIds.add(sourceObjectId);
+        sourceOrTargetIds.add(targetObjectId);
         List<String> assocTypes = new ArrayList<String>();
         assocTypes.add(assocType);
         OMElement assocQueryResult = muSQ.getAssociations(sourceOrTargetIds, null /* status */, assocTypes /* types */);
@@ -305,12 +305,12 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
     /**
      *
      * @param muSQ
-     * @param uuid
+     * @param registryObjectId
      * @return
      * @throws XdsException
      */
-    private Metadata getDocumentMetadata(MetadataUpdateStoredQuerySupport muSQ, String uuid) throws XdsException {
-        OMElement queryResult = muSQ.getDocumentByUUID(uuid);
+    private Metadata getDocumentMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getDocumentByUUID(registryObjectId);
         Metadata m = MetadataParser.parseNonSubmission(queryResult);
         if (!m.getExtrinsicObjects().isEmpty()) {
             return m;
@@ -321,12 +321,12 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
     /**
      *
      * @param muSQ
-     * @param uuid
+     * @param registryObjectId
      * @return
      * @throws XdsException
      */
-    private Metadata getFolderMetadata(MetadataUpdateStoredQuerySupport muSQ, String uuid) throws XdsException {
-        OMElement queryResult = muSQ.getFolderByUUID(uuid);
+    private Metadata getFolderMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getFolderByUUID(registryObjectId);
         Metadata m = MetadataParser.parseNonSubmission(queryResult);
         if (!m.getFolders().isEmpty()) {
             return m;
