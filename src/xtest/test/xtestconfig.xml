@@ -32,7 +32,7 @@
         <Property name="XUA:UserName">admin</Property>
         <Property name="XUA:Password">a</Property>-->
         <Property name="XUA:STSURL">http://localhost:8127/axis2/services/sts</Property>
-	<Property name="XUA:ServiceURI">http://www.vangent.com/X-ServiceProvider-HIEOS</Property>
+        <Property name="XUA:ServiceURI">http://www.vangent.com/X-ServiceProvider-HIEOS</Property>
         <Property name="XUA:UserName">stsclient</Property>
         <Property name="XUA:Password">stsclient</Property>
         <!-- Will use Cert (over UserName/Password) if specified. -->
@@ -52,6 +52,12 @@
                 <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsregistrybas</Endpoint>
             </Transaction>
             <Transaction name="UpdateDocumentSet">
+                <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsregistrybas</Endpoint>
+            </Transaction>
+            <Transaction name="DeleteDocumentSet">
                 <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsregistryb</Endpoint>
                 <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsregistryb</Endpoint>
                 <Endpoint secure="false" async="true">http://localhost:8080/axis2/services/xdsregistrybas</Endpoint>
@@ -122,97 +128,103 @@
     
     <Site name="dev2">
        <!-- Site specific properties -->
-            <Property name="PidAllocateEndpoint">http://localhost:8080/xwebtools/pidallocate?rest=1</Property>
-            <Property name="DefaultRegistry">localregistry</Property>
-            <Property name="DefaultRepository">1.3.6.1.4.1.21367.2010.1.2.1040</Property>
-            <Property name="DefaultInitiatingGateway">urn:oid:1.3.6.1.4.1.21367.2010.1.2.2026</Property>
-            <Property name="XUA:Enabled">false</Property>
-            <Property name="XUA:STSURL">http://localhost:12530/opensso/sts</Property>
+        <Property name="PidAllocateEndpoint">http://localhost:8080/xwebtools/pidallocate?rest=1</Property>
+        <Property name="DefaultRegistry">localregistry</Property>
+        <Property name="DefaultRepository">1.3.6.1.4.1.21367.2010.1.2.1040</Property>
+        <Property name="DefaultInitiatingGateway">urn:oid:1.3.6.1.4.1.21367.2010.1.2.2026</Property>
+        <Property name="XUA:Enabled">false</Property>
+        <Property name="XUA:STSURL">http://localhost:12530/opensso/sts</Property>
             <!--<Property name="XUA:STSURL">https://localhost:1256/opensso/sts</Property>-->
             <!--<Property name="XUA:STSURL">http://office.tiani-spirit.com:41081/SpiritIdentityProvider4Tivoli/services/SpiritIdentityProvider4Tivoli</Property>-->
-            <Property name="XUA:ServiceURI">http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon</Property>
-            <Property name="XUA:UserName">bernie</Property>
-            <Property name="XUA:Password">test</Property>
+        <Property name="XUA:ServiceURI">http://ihe.connecthaton.XUA/X-ServiceProvider-IHE-Connectathon</Property>
+        <Property name="XUA:UserName">bernie</Property>
+        <Property name="XUA:Password">test</Property>
             <!--
             <Property name="XUA:UserName">admin@tiani-spirit.com</Property>
             <Property name="XUA:Password">a</Property>-->
-            <Property name="XUA:SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
+        <Property name="XUA:SOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:ihe:iti:2007:CrossGatewayQuery;urn:ihe:iti:2007:CrossGatewayRetrieve</Property>
     
        <!-- List of Registries -->
-            <Registry name="localregistry">
-                <UniqueId>NA</UniqueId>
-                <Transaction name="RegisterDocumentSet-b">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
-                </Transaction>
-                <Transaction name="UpdateDocumentSet">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
-                </Transaction>
-                <Transaction name="RegistryStoredQuery">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
-                </Transaction>
-            </Registry>
+        <Registry name="localregistry">
+            <UniqueId>NA</UniqueId>
+            <Transaction name="RegisterDocumentSet-b">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
+            </Transaction>
+            <Transaction name="UpdateDocumentSet">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
+            </Transaction>
+            <Transaction name="DeleteDocumentSet">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
+            </Transaction>
+            <Transaction name="RegistryStoredQuery">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsregistryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsregistrybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsregistrybas</Endpoint>
+            </Transaction>
+        </Registry>
     
        <!-- List of Repositories -->
-            <Repository name="localrepository">
-                <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</UniqueId>
-                <Transaction name="RetrieveDocumentSet">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsrepositoryb</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsrepositoryb</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsrepositorybas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsrepositorybas</Endpoint>
-                </Transaction>
-                <Transaction name="ProvideAndRegisterDocumentSet-b">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsrepositoryb</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsrepositoryb</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsrepositorybas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsrepositorybas</Endpoint>
-                </Transaction>
-            </Repository>
+        <Repository name="localrepository">
+            <UniqueId>1.3.6.1.4.1.21367.2010.1.2.1040</UniqueId>
+            <Transaction name="RetrieveDocumentSet">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsrepositoryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsrepositoryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsrepositorybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsrepositorybas</Endpoint>
+            </Transaction>
+            <Transaction name="ProvideAndRegisterDocumentSet-b">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xdsrepositoryb</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xdsrepositoryb</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xdsrepositorybas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xdsrepositorybas</Endpoint>
+            </Transaction>
+        </Repository>
         
        <!-- List of Initiating Gateways -->   
     
-            <InitiatingGateway name="localig"> <!-- Local Initiating Gateway -->
-                <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId> <!-- Home Community ID -->
-                <Transaction name="RegistryStoredQuery">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcaig</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcaig</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcaigas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcaigas</Endpoint>
-                </Transaction>
-                <Transaction name="RetrieveDocumentSet">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcaig</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcaig</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcaigas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcaigas</Endpoint>
-                </Transaction>
-            </InitiatingGateway>
+        <InitiatingGateway name="localig"> <!-- Local Initiating Gateway -->
+            <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId> <!-- Home Community ID -->
+            <Transaction name="RegistryStoredQuery">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcaig</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcaig</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcaigas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcaigas</Endpoint>
+            </Transaction>
+            <Transaction name="RetrieveDocumentSet">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcaig</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcaig</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcaigas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcaigas</Endpoint>
+            </Transaction>
+        </InitiatingGateway>
     
       <!-- List of Responding Gateways -->   
     
-            <RespondingGateway name="localrg"> <!-- Local Responding Gateway -->
-                <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId>  <!-- Home Community ID -->
-                <Transaction name="CrossGatewayQuery">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcarg</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcarg</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcargas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcargas</Endpoint>
-                </Transaction>
-                <Transaction name="CrossGatewayRetrieve">
-                    <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcarg</Endpoint>
-                    <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcarg</Endpoint>
-                    <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcargas</Endpoint>
-                    <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcargas</Endpoint>
-                </Transaction>
-            </RespondingGateway>
+        <RespondingGateway name="localrg"> <!-- Local Responding Gateway -->
+            <UniqueId>urn:oid:1.3.6.1.4.1.21367.2010.1.2.2025</UniqueId>  <!-- Home Community ID -->
+            <Transaction name="CrossGatewayQuery">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcarg</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcarg</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcargas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcargas</Endpoint>
+            </Transaction>
+            <Transaction name="CrossGatewayRetrieve">
+                <Endpoint secure="false" async="false">http://10.243.0.248:8080/axis2/services/xcarg</Endpoint>
+                <Endpoint secure="true"  async="false">https://10.243.0.248:8181/axis2/services/xcarg</Endpoint>
+                <Endpoint secure="false" async="true">http://10.243.0.248:8080/axis2/services/xcargas</Endpoint>
+                <Endpoint secure="true"  async="true">https://10.243.0.248:8181/axis2/services/xcargas</Endpoint>
+            </Transaction>
+        </RespondingGateway>
     
     </Site>
  
