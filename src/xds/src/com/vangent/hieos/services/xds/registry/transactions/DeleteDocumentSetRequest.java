@@ -17,6 +17,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetComma
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -69,6 +70,8 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
             logger.fatal(logger_exception_details(e));
+        } catch (XDSPatientIDReconciliationException e) {
+            response.add_error(MetadataSupport.XDSPatientIDReconciliationError, e.getMessage(), this.getClass().getName(), log_message);
         } catch (SchemaValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
         } catch (XdsException e) {

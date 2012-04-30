@@ -18,6 +18,7 @@ import org.apache.axiom.om.OMElement;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.SqParams;
@@ -76,5 +77,19 @@ public class GetFolders extends StoredQuery {
         }
         metadata = MetadataParser.parseNonSubmission(ele);
         return metadata;
+    }
+
+    /**
+     *
+     * @param validateConsistentPatientId
+     * @param metadata
+     * @throws XdsException
+     * @throws XdsResultNotSinglePatientException
+     */
+    @Override
+    public void validateConsistentPatientId(boolean validateConsistentPatientId, Metadata metadata)
+            throws XdsException, XdsResultNotSinglePatientException {
+        // Default implementation.
+        // Can't really do anything here, since metadata update is implemented.
     }
 }

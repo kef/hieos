@@ -61,6 +61,24 @@ public abstract class StoredQuery {
     abstract public Metadata runInternal() throws XdsException, XDSRegistryOutOfResourcesException;
 
     /**
+     * 
+     * @param validateConsistentPatientId
+     * @param metadata
+     * @throws XdsException
+     * @throws XdsResultNotSinglePatientException
+     */
+    public void validateConsistentPatientId(boolean validateConsistentPatientId, Metadata metadata)
+            throws XdsException, XdsResultNotSinglePatientException {
+        // Default implementation.
+        
+        // Validate consistent patient identifiers (only if set to true).
+        if ((validateConsistentPatientId == true)
+                && (metadata.isPatientIdConsistent() == false)) {
+            throw new XdsResultNotSinglePatientException("More than one Patient ID in Stored Query result");
+        }
+    }
+
+    /**
      *
      * @param response
      * @param logMessage
@@ -176,13 +194,14 @@ public abstract class StoredQuery {
         if (metadata == null) {
             return null;
         }
+        this.validateConsistentPatientId(validateConsistentPatientId, metadata);
         // Validate consistent patient identifiers (only if set to true).
-        if ((validateConsistentPatientId == true)
-                && (metadata.isPatientIdConsistent() == false)) {
-            throw new XdsResultNotSinglePatientException("More than one Patient ID in Stored Query result");
-        }
+        //if ((validateConsistentPatientId == true)
+        //        && (metadata.isPatientIdConsistent() == false)) {
+        //    throw new XdsResultNotSinglePatientException("More than one Patient ID in Stored Query result");
+        //}
         if (this.returnLeafClass) {
-            return metadata.getAllObjects();//getV3();
+            return metadata.getAllObjects();
         } else {
             return metadata.getObjectRefs(metadata.getMajorObjects(), false);
         }

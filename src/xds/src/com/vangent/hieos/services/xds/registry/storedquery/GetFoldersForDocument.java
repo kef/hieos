@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.registry.storedquery;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -67,7 +68,7 @@ public class GetFoldersForDocument extends StoredQuery {
         String uid = params.getStringParm("$XDSDocumentEntryUniqueId");
         String uuid = params.getStringParm("$XDSDocumentEntryEntryUUID");
         List<String> assocStatusValues = params.getListParm("$XDSAssociationStatus");
-         if (assocStatusValues == null || assocStatusValues.isEmpty()) {
+        if (assocStatusValues == null || assocStatusValues.isEmpty()) {
             // association status not specified.
             // Default association status to "Approved" if not specified.
             assocStatusValues = new ArrayList<String>();
@@ -81,5 +82,19 @@ public class GetFoldersForDocument extends StoredQuery {
         }
         OMElement folders = this.getFoldersForDocument(uuid, assocStatusValues);
         return MetadataParser.parseNonSubmission(folders);
+    }
+
+    /**
+     *
+     * @param validateConsistentPatientId
+     * @param metadata
+     * @throws XdsException
+     * @throws XdsResultNotSinglePatientException
+     */
+    @Override
+    public void validateConsistentPatientId(boolean validateConsistentPatientId, Metadata metadata)
+            throws XdsException, XdsResultNotSinglePatientException {
+        // Default implementation.
+        // Can't really do anything here, since metadata update is implemented.
     }
 }

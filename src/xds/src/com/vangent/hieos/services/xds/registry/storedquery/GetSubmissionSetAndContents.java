@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.registry.storedquery;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
+import com.vangent.hieos.xutil.exception.XdsResultNotSinglePatientException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
@@ -145,5 +146,19 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         contentIds.addAll(metadata.getObjectIds(metadata.getAssociationsInclusive(contentIds)));
         metadata.filter(contentIds);
         return metadata;
+    }
+
+    /**
+     *
+     * @param validateConsistentPatientId
+     * @param metadata
+     * @throws XdsException
+     * @throws XdsResultNotSinglePatientException
+     */
+    @Override
+    public void validateConsistentPatientId(boolean validateConsistentPatientId, Metadata metadata)
+            throws XdsException, XdsResultNotSinglePatientException {
+        // Default implementation.
+        // Can't really do anything here, since metadata update is implemented.
     }
 }
