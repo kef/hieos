@@ -59,7 +59,7 @@ public class Validator {
             throw new XdsInternalException(e.getLocalizedMessage(), e);
         }
         //assigning_authorities = cv.getAssigningAuthorities();
-        pid = new PatientId(m, rel);
+        pid = new PatientId(m, isSubmit, rel);
         uid = new UniqueId(m, isSubmit, rel);
     }
 

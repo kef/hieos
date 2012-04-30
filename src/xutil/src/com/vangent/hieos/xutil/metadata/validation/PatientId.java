@@ -31,15 +31,17 @@ public class PatientId {
     private ArrayList<String> patient_ids;
     private RegistryErrorList rel;
     private Metadata m;
+    private boolean isSubmit;
 
-   /**
-    *
-    * @param m
-    * @param rel
-    */
-    public PatientId(Metadata m, RegistryErrorList rel) {
+    /**
+     *
+     * @param m
+     * @param rel
+     */
+    public PatientId(Metadata m, boolean isSubmit, RegistryErrorList rel) {
         this.rel = rel;
         this.m = m;
+        this.isSubmit = isSubmit;
         patient_ids = new ArrayList<String>();
     }
 
@@ -50,13 +52,13 @@ public class PatientId {
      * @throws MetadataException
      */
     public void run() throws XdsInternalException, MetadataValidationException, MetadataException {
-
-        gather_patient_ids(m, m.getSubmissionSetIds(), MetadataSupport.XDSSubmissionSet_patientid_uuid);
-        gather_patient_ids(m, m.getExtrinsicObjectIds(), MetadataSupport.XDSDocumentEntry_patientid_uuid);
-        gather_patient_ids(m, m.getFolderIds(), MetadataSupport.XDSFolder_patientid_uuid);
-
-        if (patient_ids.size() > 1) {
-            rel.add_error(MetadataSupport.XDSPatientIdDoesNotMatch, "Multiple Patient IDs found in submission: " + patient_ids, this.getClass().getName(), null);
+        if (isSubmit) {
+            gather_patient_ids(m, m.getSubmissionSetIds(), MetadataSupport.XDSSubmissionSet_patientid_uuid);
+            gather_patient_ids(m, m.getExtrinsicObjectIds(), MetadataSupport.XDSDocumentEntry_patientid_uuid);
+            gather_patient_ids(m, m.getFolderIds(), MetadataSupport.XDSFolder_patientid_uuid);
+            if (patient_ids.size() > 1) {
+                rel.add_error(MetadataSupport.XDSPatientIdDoesNotMatch, "Multiple Patient IDs found in submission: " + patient_ids, this.getClass().getName(), null);
+            }
         }
     }
 
