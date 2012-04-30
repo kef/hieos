@@ -1959,6 +1959,7 @@ public class Metadata {
         if (metadata.getLocalName().equals("LeafRegistryObjectList")) {
             return metadata;
         }
+
         if (metadata.getLocalName().equals("ProvideAndRegisterDocumentSetRequest")) {
             OMElement sor = MetadataSupport.firstChildWithLocalName(metadata, "SubmitObjectsRequest");
             if (sor != null) {
@@ -1977,6 +1978,10 @@ public class Metadata {
                 }
             }
             if (child.getLocalName().equals("LeafRegistryObjectList")) {
+                return child;
+            }
+            // Added to support RemoveObjectsRequest.
+            if (child.getLocalName().equals("ObjectRefList")) {
                 return child;
             }
         }
@@ -2708,8 +2713,6 @@ public class Metadata {
         String uid = this.getSlotValue(id, "repositoryUniqueId", 0);
         return uid != null;
     }
-
-   
 
     /**
      *
