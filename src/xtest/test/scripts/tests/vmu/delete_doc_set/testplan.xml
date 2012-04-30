@@ -99,4 +99,24 @@
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
+    <TestStep id="submit_delete_document_expected_failure">
+        <!--<NewPatientId/>-->
+        <Rule>
+            <Transaction>D</Transaction>
+            <Assertion>Delete document submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Failure</ExpectedStatus>
+        <DeleteDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <!-- not yet deleted -->
+            <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
+                symbol="$registry_object_1$"/>
+            <!-- already deleted -->
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_doc_to_delete" section="AssignedUuids"
+                symbol="$registry_object_2$"/>
+            <MetadataFile>delete_two_registry_objects.xml</MetadataFile>
+        </DeleteDocumentSetTransaction>
+    </TestStep>
 </TestPlan>

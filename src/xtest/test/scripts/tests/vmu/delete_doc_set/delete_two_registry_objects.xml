@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lcm:RemoveObjectsRequest
+xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
+    <ObjectRefList xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+        <ObjectRef id="$registry_object_1$"/>
+        <ObjectRef id="$registry_object_2$"/>
+    </ObjectRefList>
+</lcm:RemoveObjectsRequest>
