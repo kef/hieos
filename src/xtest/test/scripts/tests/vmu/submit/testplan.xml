@@ -16,19 +16,6 @@
             <MetadataFile>single_doc.xml</MetadataFile>
         </RegisterTransaction>
     </TestStep>
-    <TestStep id="submit_fol">
-        <NewPatientId/>
-        <Rule>
-            <Transaction>R</Transaction>
-            <Assertion>Single folder submission.</Assertion>
-        </Rule>
-        <ExpectedStatus>Success</ExpectedStatus>
-        <RegisterTransaction>
-            <XDSb/>
-            <AssignUuids/>
-            <MetadataFile>single_fol.xml</MetadataFile>
-        </RegisterTransaction>
-    </TestStep>
     <TestStep id="submit_doc_w_fol">
         <NewPatientId/>
         <ExpectedStatus>Success</ExpectedStatus>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/delete_doc_set</Test>
+    <!-- <RegistryEndpoint>http://129.6.24.109:9080/axis2/services/xdsregistrya</RegistryEndpoint> -->
+    <Rule>Delete document entry metadata</Rule>
+    <TestStep id="submit_delete_document">
+        <!--<NewPatientId/>-->
+        <Rule>
+            <Transaction>D</Transaction>
+            <Assertion>Delete document submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <DeleteDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_doc_to_delete" section="AssignedUuids"
+                symbol="$registry_object$"/>
+            <MetadataFile>delete_one_registry_object.xml</MetadataFile>
+        </DeleteDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_document_deleted">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deletion.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_doc_to_delete"
+                section="AssignedUuids" symbol="$document$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryEntryUUID">
+                            <ValueList>
+                                <Value>('$document$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="0"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="submit_delete_folder">
+        <!--<NewPatientId/>-->
+        <Rule>
+            <Transaction>D</Transaction>
+            <Assertion>Delete document submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <DeleteDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <UseId testdir="../submit_objects_to_delete" id="Folder" step="submit_fol_to_delete" section="AssignedUuids"
+                symbol="$registry_object$"/>
+            <MetadataFile>delete_one_registry_object.xml</MetadataFile>
+        </DeleteDocumentSetTransaction>
+    </TestStep>
+    <TestStep id="validate_folder_deleted">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate deletion.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="Folder" step="submit_fol_to_delete"
+                section="AssignedUuids" symbol="$folder$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- GetFolders Stored Query -->
+                    <AdhocQuery id="urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderEntryUUID">
+                            <ValueList>
+                                <Value>('$folder$')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="0"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+</TestPlan>

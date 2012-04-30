@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/submit_objects_to_delete</Test>
+    <!-- <RegistryEndpoint>http://129.6.24.109:9080/axis2/services/xdsregistrya</RegistryEndpoint> -->
+    <Rule>Submit data to XDS.b to support metadata update testing.</Rule>
+    <TestStep id="submit_doc_to_delete">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Single document submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>single_doc.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+    <TestStep id="submit_fol_to_delete">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Single folder submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>single_fol_to_delete.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
+    <TestStep id="reset_patient_id">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <NewPatientId/>
+    </TestStep>
+</TestPlan>

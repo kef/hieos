@@ -6,3 +6,6 @@ update_doc_entry
 update_folder_entry
 submit_assoc
 query
+submit_objects_to_delete
+delete_doc_set
+

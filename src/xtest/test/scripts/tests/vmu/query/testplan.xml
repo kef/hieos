@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestPlan>
+    <Test>vmu/query</Test>
+    <TestStep id="find_documents">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Find Documents</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_2doc_w_fol_doc_avail" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSDocumentEntryStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                                <!--<Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated')</Value>-->
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="2"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="find_documents_doc_avail_1">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Find Documents - $XDSDocumentEntryDocumentAvailability </Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_2doc_w_fol_doc_avail" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSDocumentEntryStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSDocumentEntryDocumentAvailability">
+                            <ValueList>
+                                <Value>('urn:ihe:iti:2010:DocumentAvailability:Online')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="1"/>
+                <OneDocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="find_documents_doc_avail_2">
+        <ExpectedStatus>Success</ExpectedStatus>
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Find Documents - $XDSDocumentEntryDocumentAvailability </Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_2doc_w_fol_doc_avail" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindDocuments Stored Query -->
+                    <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSDocumentEntryPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSDocumentEntryStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSDocumentEntryDocumentAvailability">
+                            <ValueList>
+                                <Value>('urn:ihe:iti:2010:DocumentAvailability:Offline')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>1</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Documents count="1"/>
+                <OneDocApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="find_folders_1">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate FindFolders Stored Query.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindFolders Stored Query -->
+                    <AdhocQuery id="urn:uuid:958f3006-baad-4929-a4de-ff1114824431" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSFolderStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="1"/>
+                <OneFolApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="find_folders_2">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate FindFolders Stored Query.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindFolders Stored Query -->
+                    <AdhocQuery id="urn:uuid:958f3006-baad-4929-a4de-ff1114824431" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSFolderStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="2"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="find_folders_3">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate FindFolders Stored Query.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                    <!-- FindFolders Stored Query -->
+                    <AdhocQuery id="urn:uuid:958f3006-baad-4929-a4de-ff1114824431" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSFolderPatientId">
+                            <ValueList>
+                                <Value>'$patient_id$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$XDSFolderStatus">
+                            <ValueList>
+                                <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated', 'urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <Folders count="3"/>
+                <OneFolApp/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+</TestPlan>
