@@ -42,9 +42,7 @@ public interface LifeCycleManager {
     */
 
     /** Removes one or more previously submitted objects from the registry */
-    /* HIEOS (REMOVED):
     public RegistryResponse removeObjects(RequestContext context) throws RegistryException;
-    */
     
     /** Approves one or more previously submitted objects */
     /* HIEOS (REMOVED):
