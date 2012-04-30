@@ -21,7 +21,6 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xtest.framework.TestConfig;
-import com.vangent.hieos.xtest.main.XTestDriver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
