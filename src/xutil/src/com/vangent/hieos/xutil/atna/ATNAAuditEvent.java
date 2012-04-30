@@ -193,6 +193,14 @@ public class ATNAAuditEvent {
         /**
          *
          */
+        ITI57("ITI-57"),
+        /**
+         *
+         */
+        ITI62("ITI-62"),
+        /**
+         *
+         */
         START("START"),
         /**
          *
@@ -349,6 +357,12 @@ public class ATNAAuditEvent {
                 break;
             case ITI55:
                 displayName = "Cross Gateway Patient Discovery";
+                break;
+            case ITI57:
+                displayName = "Update Document Set";
+                break;
+            case ITI62:
+                displayName = "Delete Document Set";
                 break;
             case START:
                 displayName = "Application Start";
