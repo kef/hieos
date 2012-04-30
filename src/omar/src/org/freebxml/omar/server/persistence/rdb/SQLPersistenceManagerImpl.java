@@ -374,7 +374,7 @@ public class SQLPersistenceManagerImpl
                 // HIEOS/AMS/BHT: Removed next line of code (to speed up process).
                 // RegistryObjectType ro = getRegistryObject(context, ref);
                 // HIEOS/AMS/BHT: Now, calling new method (again, to speed up process).
-                RegistryObjectType ro = getRegistryObjectForStatusUpdate(context, ref);
+                RegistryObjectType ro = getRegistryObjectForUpdate(context, ref);
                 RegistryObjectDAO roDAO = (RegistryObjectDAO) getDAOForObject(ro, context);
                 roDAO.updateStatus(ro, status);
                 orefList.getObjectRef().add(ref);
@@ -436,61 +436,26 @@ public class SQLPersistenceManagerImpl
      * database and throw RegistryException
      *
      */
+    // HIEOS (REWROTE):
     public void delete(ServerRequestContext context, List orefs)
             throws RegistryException {
         //Return if nothing specified to delete
         if (orefs.isEmpty()) {
             return;
         }
-
-        List idList = new ArrayList();
-        idList.addAll(context.getObjectRefsMap().keySet());
-
-        //First fetch the objects and then delete them
-        String query = "SELECT * FROM RegistryObject ro WHERE ro.id IN ( "
-                + bu.getIdListFromIds(idList)
-                + " ) ";
-        List objs = getRegistryObjectsMatchingQuery(context, query, null, "RegistryObject");
-        List userAliases = null;
-        Iterator iter = objs.iterator();
-        while (iter.hasNext()) {
-            RegistryObjectType ro = (RegistryObjectType) iter.next();
-            if (ro instanceof UserType) {
-                if (userAliases == null) {
-                    userAliases = new ArrayList();
-                }
-
-                userAliases.add(((UserType) ro).getId());
+        try {
+            //List refs = bu.getObjectRefsFromRegistryObjectIds(orefs);
+            Iterator iter = orefs.iterator();
+            while (iter.hasNext()) {
+                ObjectRefType oref = (ObjectRefType) iter.next();
+                RegistryObjectType ro = getRegistryObjectForUpdate(context, oref);
+                RegistryObjectDAO roDAO = (RegistryObjectDAO) getDAOForObject(ro, context);
+                List<RegistryObjectType> deleteList = new ArrayList<RegistryObjectType>();
+                deleteList.add(ro);
+                roDAO.delete(deleteList);
             }
-
-            OMARDAO dao = getDAOForObject(ro, context);
-
-            //Now call delete method
-            List objectsToDelete = new ArrayList();
-            objectsToDelete.add(ro);
-            dao.delete(objectsToDelete);
-        }
-
-        /* HIEOS (REMOVED):
-        //Now delete from ObjectRef table
-        ObjectRefDAO dao = new ObjectRefDAO(context);
-        dao.delete(orefs);
-         */
-//Now, if any of the deleted ROs were of UserType, delete the credentials
-//from the server keystore
-        if (userAliases != null) {
-            Iterator aliasItr = userAliases.iterator();
-            String alias = null;
-            while (aliasItr.hasNext()) {
-                try {
-                    alias = (String) aliasItr.next();
-//                    AuthenticationServiceImpl.getInstance().deleteUserCertificate(alias);
-                } catch (Throwable t) {
-                    ServerResourceBundle.getInstance().getString("message.couldNotDeleteCredentials",
-                            new Object[]{alias});
-                }
-
-            }
+        } catch (JAXRException e) {
+            throw new RegistryException(e);
         }
     }
 
@@ -785,7 +750,7 @@ public class SQLPersistenceManagerImpl
         return obj;
     }
 
-// HEIOS/AMS/BHT Added new method to optimize status update operations.
+// HEIOS/AMS/BHT Added new method to optimize status update and delete operations.
     /**
      * Return a concrete RegistryObjectType (ExtrinsicObjectType, RegistryPackageType or AssociationType)
      * depending on the "objectType" found in the "RegistryObject" table.
@@ -795,7 +760,7 @@ public class SQLPersistenceManagerImpl
      * @return A concrete RegistryObjectType (ExtrinsicObjectType, RegistryPackageType or AssociationType).
      * @throws javax.xml.registry.RegistryException
      */
-    public RegistryObjectType getRegistryObjectForStatusUpdate(
+    public RegistryObjectType getRegistryObjectForUpdate(
             ServerRequestContext context, ObjectRefType ref)
             throws RegistryException {
         Connection connection = context.getConnection();
@@ -846,34 +811,33 @@ public class SQLPersistenceManagerImpl
      */
     /* REMOVED (BHT) - NO LONGER USED:
     private String getRegistryObjectType(Connection connection, ObjectRefType ref, String tableName) throws RegistryException {
-        String objectType = null;
-        PreparedStatement stmt = null;
-        try {
-            String sql = "SELECT objecttype FROM " + tableName + " WHERE id = ?";
-            stmt = connection.prepareStatement(sql);
-            stmt.setString(1, ref.getId());
-            log.trace("SQL = " + sql.toString());
-            ResultSet rs = stmt.executeQuery();
-            boolean exists = rs.next();
-            if (exists == true) {
-                objectType = rs.getString(1);
-            }
+    String objectType = null;
+    PreparedStatement stmt = null;
+    try {
+    String sql = "SELECT objecttype FROM " + tableName + " WHERE id = ?";
+    stmt = connection.prepareStatement(sql);
+    stmt.setString(1, ref.getId());
+    log.trace("SQL = " + sql.toString());
+    ResultSet rs = stmt.executeQuery();
+    boolean exists = rs.next();
+    if (exists == true) {
+    objectType = rs.getString(1);
+    }
 
-        } catch (SQLException e) {
-            throw new RegistryException(e);
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException sqle) {
-                    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
-                }
+    } catch (SQLException e) {
+    throw new RegistryException(e);
+    } finally {
+    if (stmt != null) {
+    try {
+    stmt.close();
+    } catch (SQLException sqle) {
+    log.error(ServerResourceBundle.getInstance().getString("message.CaughtException1"), sqle);
+    }
 
-            }
-        }
-        return RegistryCodedValueMapper.convertObjectType_CodeToValue(objectType);
+    }
+    }
+    return RegistryCodedValueMapper.convertObjectType_CodeToValue(objectType);
     }*/
-
     /**
      * Return true if the registry object exists for the given "tableName".
      *
