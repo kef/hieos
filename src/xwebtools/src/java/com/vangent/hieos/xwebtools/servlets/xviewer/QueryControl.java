@@ -33,6 +33,7 @@ import com.vangent.hieos.xutil.xml.XMLParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.axiom.om.OMElement;
@@ -410,7 +411,7 @@ public final class QueryControl {
         }
 
         // remember returned homeCommunityId for later if it is present
-        ArrayList<OMElement> objects = m.getMajorObjects();
+        List<OMElement> objects = m.getMajorObjects();
         home = "";
         for (OMElement ob : objects) {
             String hom = m.getHome(ob);

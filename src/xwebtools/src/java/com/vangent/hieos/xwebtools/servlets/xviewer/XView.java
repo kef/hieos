@@ -21,6 +21,7 @@ import com.vangent.hieos.xutil.xml.XmlFormatter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -240,7 +241,7 @@ public class XView {
     }
 
     void doc_code_row(String id, String uuid, String label) throws MetadataException {
-        ArrayList<OMElement> classifications = m.getClassifications(id);
+        List<OMElement> classifications = m.getClassifications(id);
         for (OMElement class_ele : classifications) {
             String class_uuid = class_ele.getAttributeValue(MetadataSupport.classificationscheme_qname);
             if (class_uuid != null && class_uuid.equals(uuid)) {
@@ -400,11 +401,11 @@ public class XView {
         row113(null, "unique ID", m.getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_uniqueid_uuid));
         row113(null, "source ID", m.getExternalIdentifierValue(id, MetadataSupport.XDSSubmissionSet_sourceid_uuid));
         row113(null, "submisssion time", m.getSlotValue(id, "submissionTime", 0));
-        ArrayList<String> ctypes = m.getClassificationsValues(id, "urn:uuid:aa543740-bdda-424e-8c96-df4873be8500");
+        List<String> ctypes = m.getClassificationsValues(id, "urn:uuid:aa543740-bdda-424e-8c96-df4873be8500");
         for (String ctype : ctypes) {
             row113(null, "content type", ctype);
         }
-        ArrayList<OMElement> authors = m.getClassifications(id, MetadataSupport.XDSSubmissionSet_author_uuid);
+        List<OMElement> authors = m.getClassifications(id, MetadataSupport.XDSSubmissionSet_author_uuid);
         for (OMElement author : authors) {
             String author_name = m.getSlotValue(author, "authorPerson", 0);
             row113(null, "author", author_name);

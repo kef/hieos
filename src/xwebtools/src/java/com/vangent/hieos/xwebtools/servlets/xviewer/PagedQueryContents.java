@@ -16,6 +16,7 @@ import com.vangent.hieos.xwebtools.servlets.framework.HttpUtils;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -24,8 +25,8 @@ import org.apache.axiom.om.OMElement;
  */
 abstract public class PagedQueryContents extends QueryContents {
 
-    ArrayList<String> ids;
-    ArrayList<OMElement> elements;
+    List<String> ids;
+    List<OMElement> elements;
     short type = 0;
     int pagesize = 5;
     int current;
