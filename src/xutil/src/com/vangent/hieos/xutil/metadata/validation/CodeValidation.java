@@ -147,8 +147,9 @@ public class CodeValidation {
                 val("Mime type " + mime_type, null);
             }
             String objectType = doc_ele.getAttributeValue(MetadataSupport.object_type_qname);
-            if (!objectType.equals(MetadataSupport.XDSDocumentEntry_objectType_uuid)) {
-                err("XDSDocumentEntry has incorrect objectType, found " + objectType + ", must be " + MetadataSupport.XDSDocumentEntry_objectType_uuid);
+            if (!(objectType.equals(MetadataSupport.XDSDocumentEntry_Stable_ObjectType_uuid) ||
+                    objectType.equals(MetadataSupport.XDSDocumentEntry_OnDemand_ObjectType_uuid))) {
+                err("XDSDocumentEntry has incorrect objectType, found " + objectType);
             } else {
                 val("XDSDocumentEntry.objectType", null);
             }
