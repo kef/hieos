@@ -66,7 +66,8 @@ public class RegistryCodedValueMapper {
         objectType_ValueToCodeMap.put("urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage", "RP");
         objectType_ValueToCodeMap.put("urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association", "AS");
         objectType_ValueToCodeMap.put("urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier", "EI");
-        objectType_ValueToCodeMap.put("urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1", "DO"); // XDSb.Document
+        objectType_ValueToCodeMap.put("urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1", "DO"); // XDSb.Document (Stable).
+        objectType_ValueToCodeMap.put("urn:uuid:34268e47-fdf5-41a6-ba33-82133c465248", "OD"); // XDSb.Document (On-Demand).
         objectType_ValueToCodeMap.put("urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification", "CL");
         this.buildCodeValueMap(objectType_ValueToCodeMap, objectType_CodeToValueMap);
 
