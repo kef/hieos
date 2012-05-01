@@ -96,6 +96,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
             String assocType = assocMetadata.getAssocType(assoc);
             String sourceId = assocMetadata.getSourceObject(assoc);
             String targetId = assocMetadata.getAssocTarget(assoc);
+            OMElement newAssoc = null;
             if (sourceId.equals(currentDocumentEntryId)) {
                 // If source is a document, then the target is a document.
 
@@ -103,8 +104,12 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 validator.validateDocumentPatientId(targetId, targetPatientId);
 
                 // Create association between new document version and target document.
-                OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
+                newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
+
+                // Deprecate prior association.
+                //deprecateAssocIds.add(assocId);
+
             } else {
                 // Target is the current document.  See about the source.
                 if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
@@ -115,8 +120,11 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                     validator.validateDocumentPatientId(sourceId, targetPatientId);
 
                     // Create association between source document and new document version.
-                    OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                    newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                     newAssocMetadata.addAssociation(newAssoc);
+
+                    // Deprecate prior association.
+                    //deprecateAssocIds.add(assocId);
                 } else {
                     // Make sure that the source is a folder (and not a submission set).
                     backendRegistry.setReason("Assoc Propagation - Validate Source is Folder");
@@ -129,13 +137,16 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                         validator.validateFolderPatientId(sourceId, targetPatientId);
 
                         // Create association between source folder entry and new document version.
-                        OMElement newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                        newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                         newAssocMetadata.addAssociation(newAssoc);
 
                         // Will need to deprecate the prior Folder->Document association.
-                        deprecateAssocIds.add(assocId);
+                        //deprecateAssocIds.add(assocId);
                     }
                 }
+            }
+            if (newAssoc != null) {
+                deprecateAssocIds.add(assocId);
             }
         }
 

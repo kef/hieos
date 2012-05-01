@@ -76,6 +76,8 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {
+            // Run further validations.
+            
             // Make sure that submission set is unique.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
 

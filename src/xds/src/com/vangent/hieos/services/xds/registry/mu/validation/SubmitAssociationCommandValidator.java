@@ -129,10 +129,10 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {
-            // TBD: Run further validations.
             // Run further validations.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
+            // TBD: Run further validations.
             // TBD: Validate status of association is valid (or did this happen before)?
             // FIXME: Should we deal with current assoc status also here?
         }

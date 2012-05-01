@@ -107,9 +107,8 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {
-            // Validate unique identifier's match.
-            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
             // Run further validations.
+            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
         }

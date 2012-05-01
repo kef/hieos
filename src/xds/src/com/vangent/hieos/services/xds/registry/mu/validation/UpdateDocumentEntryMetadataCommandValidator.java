@@ -110,18 +110,32 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         if (registryResponse.has_errors()) {
             validationSuccess = false;
         } else {
-            // Validate unique identifier's match.
-            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
-
             // Run further validations.
+            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
+            this.validateRepositoryUniqueId(submittedMetadata, cmd);
+            this.validateHashAndSize(submittedMetadata, cmd);
+            this.validateObjectType(cmd);
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validateDocumentUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
-
-            // FIXME: Validate same REPOID
-            this.validateHashAndSize(submittedMetadata, cmd);
         }
         return validationSuccess;
+    }
+
+    /**
+     *
+     * @param submittedMetadata
+     * @param cmd
+     * @throws XdsException
+     */
+    private void validateRepositoryUniqueId(Metadata submittedMetadata, UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        OMElement currentDocumentEntry = cmd.getCurrentRegistryObject();
+        String currentDocumentRepositoryUniqueId = currentMetadata.getSlotValue(currentDocumentEntry, "repositoryUniqueId", 0);
+        String submittedDocumentRepositoryUniqueId = submittedMetadata.getSlotValue(cmd.getTargetObject(), "repositoryUniqueId", 0);
+        if (!currentDocumentRepositoryUniqueId.equals(submittedDocumentRepositoryUniqueId)) {
+            throw new XdsException("Submitted document and current document 'repositoryUniqueId' values do not match");
+        }
     }
 
     /**
@@ -150,6 +164,24 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         if (!currentDocumentSize.equals(submittedDocumentSize)) {
             // FIXME: throw exceptions or add to registry response?
             throw new XdsException("Submitted document and current document 'size' value does not match");
+        }
+    }
+
+    /**
+     *
+     * @param cmd
+     * @throws XdsException
+     */
+    private void validateObjectType(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+        OMElement currentDocumentEntry = cmd.getCurrentRegistryObject();
+        OMElement targetDocumentEntry = cmd.getTargetObject();
+
+        // Validate that current document type = submitted document type
+        String currentDocumentObjectType = currentDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
+        String submittedDocumentObjectType = targetDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
+        if (!currentDocumentObjectType.equals(submittedDocumentObjectType)) {
+            // FIXME: throw exceptions or add to registry response?
+            throw new XdsException("Submitted document and current document 'objectType' value does not match");
         }
     }
 }

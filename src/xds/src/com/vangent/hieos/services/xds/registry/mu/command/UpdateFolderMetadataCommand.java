@@ -20,6 +20,7 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -68,6 +69,9 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         // Create new metadata instance.
         Metadata newAssocMetadata = new Metadata();
 
+        // Keep track of which associations to deprecate.
+        List<String> deprecateAssocIds = new ArrayList<String>();
+
         // Now, go through each association and create a new one.
         List<OMElement> assocs = assocMetadata.getAssociations();
         for (OMElement assoc : assocs) {
@@ -82,6 +86,10 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
                 // Create association between new folder version and target document.
                 OMElement newAssoc = newAssocMetadata.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, newFolderEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
+
+                // Deprecate prior association.
+                String assocId = assocMetadata.getId(assoc);
+                deprecateAssocIds.add(assocId);
             }
         }
 
@@ -90,6 +98,11 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         if (!newAssocMetadata.getAssociations().isEmpty()) {
             backendRegistry.setReason("Association Propagation Submission");
             OMElement result = backendRegistry.submit(newAssocMetadata);
+        }
+
+        // Now, run deprecations.
+        if (!deprecateAssocIds.isEmpty()) {
+            backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
         }
     }
 }
