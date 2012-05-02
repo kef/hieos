@@ -18,7 +18,6 @@ import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
-import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -80,8 +79,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         }
 
         // Prepare to issue registry queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                registryResponse, logMessage, backendRegistry);
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);  // FIXME: Optimize to only get root and not composed elements.
 
         // Load metadata (based on target object id).

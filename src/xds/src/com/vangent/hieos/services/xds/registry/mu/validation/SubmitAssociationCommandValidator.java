@@ -96,9 +96,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         this.validateRegistryObjectIds(sourceObjectId, targetObjectId);
 
         // Prepare to issue registry queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                metadataUpdateContext.getBackendRegistry());
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Get metadata for source/target objects (updates scratch pad).

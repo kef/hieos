@@ -85,9 +85,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         // Prepare to issue registry query.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                backendRegistry);
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Get full metadata for request.

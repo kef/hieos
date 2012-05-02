@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.command;
 
-import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
@@ -63,12 +62,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         MetadataUpdateCommandValidator validator = this.getCommandValidator();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
-        // Prepare for queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                metadataUpdateContext.getBackendRegistry());
-        muSQ.setReturnLeafClass(false);
 
         // Rules:
         //  Look for non-deprecated HasMember associations linking the existing DocumentEntry to a Folder.

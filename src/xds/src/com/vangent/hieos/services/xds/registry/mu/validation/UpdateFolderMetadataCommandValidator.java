@@ -78,9 +78,7 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         //
 
         // Prepare to issue registry query.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                backendRegistry);
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Attempt to find existing folder.

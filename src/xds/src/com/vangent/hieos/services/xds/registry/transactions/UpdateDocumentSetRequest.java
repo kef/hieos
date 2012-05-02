@@ -20,6 +20,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationComma
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
+import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
@@ -128,6 +129,10 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         // Get backend registry instance.
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
         try {
+            // Prepare for queries.
+            MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                    response, log_message, backendRegistry);
+            muSQ.setReturnLeafClass(true);
 
             // Create the context.
             MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
@@ -135,6 +140,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
             metadataUpdateContext.setLogMessage(log_message);
             metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
             metadataUpdateContext.setConfigActor(this.getConfigActor());
+            metadataUpdateContext.setStoredQuerySupport(muSQ);
 
             // Create Metadata instance for SOR.
             Metadata submittedMetadata = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.

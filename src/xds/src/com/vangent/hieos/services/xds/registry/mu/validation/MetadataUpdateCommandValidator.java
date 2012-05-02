@@ -78,9 +78,7 @@ abstract public class MetadataUpdateCommandValidator {
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                metadataUpdateContext.getBackendRegistry());
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Now make sure that we do not violate patient id constraints.
@@ -119,9 +117,7 @@ abstract public class MetadataUpdateCommandValidator {
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                metadataUpdateContext.getBackendRegistry());
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Now make sure that we do not violate patient id constraints.

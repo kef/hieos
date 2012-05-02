@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
@@ -105,6 +106,10 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
         // Get backend registry instance.
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
         try {
+             // Prepare for queries.
+            MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                    response, log_message, backendRegistry);
+            muSQ.setReturnLeafClass(true);
 
             // Create the context.
             MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
@@ -112,6 +117,7 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             metadataUpdateContext.setLogMessage(log_message);
             metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
             metadataUpdateContext.setConfigActor(this.getConfigActor());
+            metadataUpdateContext.setStoredQuerySupport(muSQ);
 
             // Create Metadata instance for ROR.
             Metadata m = MetadataParser.parseNonSubmission(removeObjectsRequest);

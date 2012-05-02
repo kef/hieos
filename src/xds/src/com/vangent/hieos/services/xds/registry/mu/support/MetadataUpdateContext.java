@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.xds.registry.mu.support;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.response.RegistryResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -27,6 +28,7 @@ public class MetadataUpdateContext {
     private BackendRegistry backendRegistry;
     private RegistryResponse registryResponse;
     private XConfigActor configActor;
+    private MetadataUpdateStoredQuerySupport storedQuerySupport;
 
     /**
      *
@@ -90,5 +92,21 @@ public class MetadataUpdateContext {
      */
     public void setConfigActor(XConfigActor configActor) {
         this.configActor = configActor;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public MetadataUpdateStoredQuerySupport getStoredQuerySupport() {
+        return storedQuerySupport;
+    }
+
+    /**
+     *
+     * @param storedQuerySupport
+     */
+    public void setStoredQuerySupport(MetadataUpdateStoredQuerySupport storedQuerySupport) {
+        this.storedQuerySupport = storedQuerySupport;
     }
 }

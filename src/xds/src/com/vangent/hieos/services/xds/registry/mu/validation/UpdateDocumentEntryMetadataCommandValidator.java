@@ -77,12 +77,10 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         //
 
         // Prepare to issue registry query.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                backendRegistry);
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
+        muSQ.setReturnLeafClass(true);
 
         // Issue query.
-        muSQ.setReturnLeafClass(true);
         backendRegistry.setReason("Locate Previous Approved Document (by LID/Version)");
         OMElement queryResult = muSQ.getDocumentsByLID(lid, MetadataSupport.status_type_approved, previousVersion);
         backendRegistry.setReason("");

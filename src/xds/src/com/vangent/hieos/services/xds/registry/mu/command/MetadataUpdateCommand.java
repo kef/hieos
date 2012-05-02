@@ -154,9 +154,7 @@ public abstract class MetadataUpdateCommand {
         backendRegistry.setReason(reason);
 
         // Prepare for queries.
-        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                metadataUpdateContext.getRegistryResponse(), logMessage,
-                metadataUpdateContext.getBackendRegistry());
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Look for associations that have registryObjectEntryId as source or target.
