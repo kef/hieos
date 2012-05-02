@@ -18,6 +18,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
+import com.vangent.hieos.xutil.exception.XDSUnresolvedReferenceException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
@@ -48,21 +49,20 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         // Get list of object references.
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
         if (objectRefIds.isEmpty()) {
-            throw new XdsException("No object references specified");
+            throw new XDSUnresolvedReferenceException("No object references specified");
         }
         boolean validationSuccess = true;
         Metadata loadedMetadata = this.loadRegistryObjects(cmd, objectRefIds);
         if (loadedMetadata.getExtrinsicObjects().isEmpty()
                 && loadedMetadata.getFolders().isEmpty()
                 && loadedMetadata.getAssociations().isEmpty()) {
-            throw new XdsException("No documents, folders or associations found to delete");
+            throw new XDSUnresolvedReferenceException("No documents, folders or associations found to delete");
         }
         // Verify that each specified object reference is in the loaded metadata.
         for (String objectRefId : objectRefIds) {
             OMElement registryObject = loadedMetadata.getObjectById(objectRefId);
             if (registryObject == null) {
-                // FIXME: Add proper MU exception
-                throw new XdsException("Can not find supplied object reference = " + objectRefId);
+                throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
             }
         }
         // TBD: Do some additional validation here - make sure PID constraints are enforced.

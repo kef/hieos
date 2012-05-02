@@ -18,6 +18,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMet
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
+import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -70,15 +71,11 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         //
         this.getCurrentRegistryObject(cmd);
 
-        // Save target patient id for later usage.
-        OMElement targetObject = cmd.getTargetObject();
-        cmd.setTargetPatientId(submittedMetadata.getPatientId(targetObject));
-
         // Run further validations.
-        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
-        this.validateRepositoryUniqueId(submittedMetadata, cmd);
-        this.validateHashAndSize(submittedMetadata, cmd);
-        this.validateObjectType(cmd);
+        this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
+        this.validateRepositoryUniqueIdMatch(cmd);
+        this.validateHashAndSizeMatch(cmd);
+        this.validateObjectTypeMatch(cmd);
 
         return validationSuccess;
     }
@@ -92,9 +89,9 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
-        OMElement targetObject = cmd.getTargetObject();
+        OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
         String previousVersion = cmd.getPreviousVersion();
-        String lid = submittedMetadata.getLID(targetObject);
+        String lid = submittedMetadata.getLID(submittedRegistryObject);
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
@@ -107,14 +104,13 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
 
         // Convert response into Metadata instance.
         Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);
-        //cmd.setCurrentMetadata(MetadataParser.parseNonSubmission(queryResult));
-        //Metadata currentMetadata = cmd.getCurrentMetadata();
         List<OMElement> currentDocuments = currentMetadata.getExtrinsicObjects();
         if (currentDocuments.isEmpty()) {
-            throw new XdsException("Existing approved document entry not found for lid="
+            throw new XDSMetadataVersionException("Existing approved document entry not found for lid="
                     + lid + ", version=" + previousVersion);
         } else if (currentDocuments.size() > 1) {
-            throw new XdsException("> 1 existing document entry found!");
+            throw new XDSMetadataVersionException("> 1 approved document entry found for lid="
+                    + lid + ", version=" + previousVersion);
         }
 
         // Fall through: we found a document that matches.
@@ -125,46 +121,46 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
     }
 
     /**
-     *
-     * @param submittedMetadata
+     * 
      * @param cmd
      * @throws XdsException
      */
-    private void validateRepositoryUniqueId(Metadata submittedMetadata, UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+    private void validateRepositoryUniqueIdMatch(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        OMElement submittedDocumentEntry = cmd.getSubmittedRegistryObject();
         Metadata currentMetadata = cmd.getCurrentMetadata();
         OMElement currentDocumentEntry = cmd.getCurrentRegistryObject();
         String currentDocumentRepositoryUniqueId = currentMetadata.getSlotValue(currentDocumentEntry, "repositoryUniqueId", 0);
-        String submittedDocumentRepositoryUniqueId = submittedMetadata.getSlotValue(cmd.getTargetObject(), "repositoryUniqueId", 0);
+        String submittedDocumentRepositoryUniqueId = submittedMetadata.getSlotValue(submittedDocumentEntry, "repositoryUniqueId", 0);
         if (!currentDocumentRepositoryUniqueId.equals(submittedDocumentRepositoryUniqueId)) {
             throw new XdsException("Submitted document and current document 'repositoryUniqueId' values do not match");
         }
     }
 
     /**
-     * 
-     * @param submittedMetadata
+     *
      * @param cmd
      * @throws XdsException
      */
-    private void validateHashAndSize(Metadata submittedMetadata, UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+    private void validateHashAndSizeMatch(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
         // NOTE (BHT): I believe that hash validation is already handled in the RegistryObjectValidator
         // but leaving here anyway.
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        OMElement submittedDocumentEntry = cmd.getSubmittedRegistryObject();
         Metadata currentMetadata = cmd.getCurrentMetadata();
         OMElement currentDocumentEntry = cmd.getCurrentRegistryObject();
 
         // Validate that current document hash = submitted document hash
         String currentDocumentHash = currentMetadata.getSlotValue(currentDocumentEntry, "hash", 0);
-        String submittedDocumentHash = submittedMetadata.getSlotValue(cmd.getTargetObject(), "hash", 0);
+        String submittedDocumentHash = submittedMetadata.getSlotValue(submittedDocumentEntry, "hash", 0);
         if (!currentDocumentHash.equals(submittedDocumentHash)) {
-            // FIXME: throw exceptions or add to registry response?
             throw new XDSNonIdenticalHashException("Submitted document and current document 'hash' value does not match");
         }
 
         // Validate that current document size = submitted document size
         String currentDocumentSize = currentMetadata.getSlotValue(currentDocumentEntry, "size", 0);
-        String submittedDocumentSize = submittedMetadata.getSlotValue(cmd.getTargetObject(), "size", 0);
+        String submittedDocumentSize = submittedMetadata.getSlotValue(submittedDocumentEntry, "size", 0);
         if (!currentDocumentSize.equals(submittedDocumentSize)) {
-            // FIXME: throw exceptions or add to registry response?
             throw new XdsException("Submitted document and current document 'size' value does not match");
         }
     }
@@ -174,15 +170,14 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
      * @param cmd
      * @throws XdsException
      */
-    private void validateObjectType(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+    private void validateObjectTypeMatch(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
         OMElement currentDocumentEntry = cmd.getCurrentRegistryObject();
-        OMElement targetDocumentEntry = cmd.getTargetObject();
+        OMElement submittedDocumentEntry = cmd.getSubmittedRegistryObject();
 
         // Validate that current document type = submitted document type
         String currentDocumentObjectType = currentDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
-        String submittedDocumentObjectType = targetDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
+        String submittedDocumentObjectType = submittedDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
         if (!currentDocumentObjectType.equals(submittedDocumentObjectType)) {
-            // FIXME: throw exceptions or add to registry response?
             throw new XdsException("Submitted document and current document 'objectType' value does not match");
         }
     }

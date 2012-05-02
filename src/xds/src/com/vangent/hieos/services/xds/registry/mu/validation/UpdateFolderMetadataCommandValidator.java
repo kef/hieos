@@ -18,6 +18,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCo
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
+import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -71,12 +72,8 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         //
         this.getCurrentRegistryObject(cmd);
 
-        // Save target patient id for later usage.
-        OMElement targetObject = cmd.getTargetObject();
-        cmd.setTargetPatientId(submittedMetadata.getPatientId(targetObject));
-
         // Run further validations.
-        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
+        this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
         return validationSuccess;
     }
 
@@ -89,9 +86,9 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
-        OMElement targetObject = cmd.getTargetObject();
+        OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
         String previousVersion = cmd.getPreviousVersion();
-        String lid = submittedMetadata.getLID(targetObject);
+        String lid = submittedMetadata.getLID(submittedRegistryObject);
 
         // Attempt to find existing folder.
         muSQ.setReturnLeafClass(true);
@@ -104,10 +101,11 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         //Metadata currentMetadata = cmd.getCurrentMetadata();
         List<OMElement> currentFolders = currentMetadata.getFolders();
         if (currentFolders.isEmpty()) {
-            throw new XdsException("Existing approved folder entry not found for lid="
+            throw new XDSMetadataVersionException("Existing approved folder entry not found for lid="
                     + lid + ", version=" + previousVersion);
         } else if (currentFolders.size() > 1) {
-            throw new XdsException("> 1 existing folder entry found!");
+            throw new XDSMetadataVersionException("> 1 approved folder entry found for lid="
+                    + lid + ", version=" + previousVersion);
         }
 
         // Fall through: we found a folder that matches.

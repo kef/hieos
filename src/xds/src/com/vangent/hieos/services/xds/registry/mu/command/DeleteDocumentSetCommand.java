@@ -59,19 +59,15 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
         this.deleteRegistryObjects(objectRefIds);
         return true;
     }
-   
+
     /**
      * 
      * @param objectRefIds
      * @throws XdsException
      */
-    private OMElement deleteRegistryObjects(List<String> objectRefIds) throws XdsException
-    {
-         // Get metadata update context for use later.
+    private OMElement deleteRegistryObjects(List<String> objectRefIds) throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
         // Submit RemoveObjectsRequest to registry.
         return backendRegistry.submitRemoveObjectsRequest(objectRefIds);
     }

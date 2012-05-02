@@ -19,7 +19,6 @@ import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntry
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -50,17 +49,17 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
 
     /**
      *
-     * @param targetPatientId
+     * @param submittedPatientId
      * @param newDocumentEntryId
      * @param currentDocumentEntryId
      * @throws XdsException
      */
     @Override
-    protected void handleAssociationPropagation(String targetPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
+    protected void handleAssociationPropagation(String submittedPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getCommandValidator();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Rules:
@@ -92,7 +91,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
             if (sourceId.equals(currentDocumentEntryId)) {
                 // If source is a document, then the target is a document.
                 // Now make sure that we do not violate patient id constraints.
-                validator.validateDocumentPatientId(targetId, targetPatientId);
+                validator.validateDocumentPatientId(targetId, submittedPatientId);
                 // Create association between new document version and target document.
                 newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
@@ -102,14 +101,14 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                     // If the association type is not a has member, then the source must be a document.
                     // For optimization reasons, assuming a document (not verifying here).
                     // Now make sure that we do not violate patient id constraints.
-                    validator.validateDocumentPatientId(sourceId, targetPatientId);
+                    validator.validateDocumentPatientId(sourceId, submittedPatientId);
                     // Create association between source document and new document version.
                     newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                     newAssocMetadata.addAssociation(newAssoc);
                 } else {
                     // Make sure that the source is a folder (and not a submission set).
                     // Now make sure that we do not violate patient id constraints.
-                    boolean foundFolder = validator.validateFolderPatientId(sourceId, targetPatientId);
+                    boolean foundFolder = validator.validateFolderPatientId(sourceId, submittedPatientId);
                     if (foundFolder) {
                         // Create association between source folder entry and new document version.
                         newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);

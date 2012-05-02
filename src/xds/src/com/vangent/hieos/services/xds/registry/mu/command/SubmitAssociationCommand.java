@@ -30,7 +30,7 @@ import org.apache.axiom.om.OMElement;
  */
 public class SubmitAssociationCommand extends MetadataUpdateCommand {
 
-    private OMElement targetObject;
+    private OMElement submittedRegistryObject;
     private OMElement submitAssociation;
 
     /**
@@ -46,16 +46,16 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
      *
      * @return
      */
-    public OMElement getTargetObject() {
-        return targetObject;
+    public OMElement getSubmittedRegistryObject() {
+        return submittedRegistryObject;
     }
 
     /**
      *
-     * @param targetObject
+     * @param submittedRegistryObject
      */
-    public void setTargetObject(OMElement targetObject) {
-        this.targetObject = targetObject;
+    public void setSubmittedRegistryObject(OMElement submittedRegistryObject) {
+        this.submittedRegistryObject = submittedRegistryObject;
     }
 
     /**

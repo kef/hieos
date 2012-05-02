@@ -74,7 +74,7 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
@@ -113,7 +113,7 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
@@ -142,18 +142,21 @@ abstract public class MetadataUpdateCommandValidator {
 
     /**
      *
-     * @param targetRegistryObject
+     * @param submittedRegistryObject
      * @param submittedMetadata
      * @param currentRegistryObject
      * @param currentMetadata
      * @throws XdsException
      */
-    protected void validateUniqueIdMatch(OMElement targetRegistryObject, Metadata submittedMetadata, OMElement currentRegistryObject, Metadata currentMetadata) throws XdsException {
-        String currentUniqueId = submittedMetadata.getUniqueIdValue(submittedMetadata.getId(targetRegistryObject));
-        String targetUniqueId = currentMetadata.getUniqueIdValue(currentMetadata.getId(currentRegistryObject));
-        if (!currentUniqueId.equals(targetUniqueId)) {
-            // FIXME: Be more descriptive.
-            throw new XdsException("Unique ID Mismatch!");
+    protected void validateUniqueIdMatch(OMElement submittedRegistryObject, Metadata submittedMetadata, OMElement currentRegistryObject, Metadata currentMetadata) throws XdsException {
+        String submittedUUID = submittedMetadata.getId(submittedRegistryObject);
+        String currentUUID = currentMetadata.getId(currentRegistryObject);
+        String submittedUniqueId = submittedMetadata.getUniqueIdValue(submittedUUID);
+        String currentUniqueId = currentMetadata.getUniqueIdValue(currentUUID);
+        if (!submittedUniqueId.equals(currentUniqueId)) {
+            throw new XdsException("Unique ID mismatch - UUID(submitted) = "
+                    + submittedUUID + " has UID = " + submittedUniqueId
+                    + " and UUID(current) = " + currentUUID + " has UID = " + currentUniqueId);
         }
     }
 }

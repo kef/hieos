@@ -38,7 +38,6 @@ import org.apache.axiom.om.OMElement;
 public class SubmitAssociationCommandValidator extends MetadataUpdateCommandValidator {
 
     private enum RegistryObjectType {
-
         DOCUMENT, FOLDER
     };
     // Scratch pad area.
@@ -86,7 +85,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         rov.validatePatientId(submittedMetadata, configActor);
 
-        OMElement submittedAssoc = cmd.getTargetObject();
+        OMElement submittedAssoc = cmd.getSubmittedRegistryObject();
         String sourceObjectId = submittedMetadata.getAssocSource(submittedAssoc);
         String targetObjectId = submittedMetadata.getAssocTarget(submittedAssoc);
 

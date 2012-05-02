@@ -19,7 +19,6 @@ import com.vangent.hieos.services.xds.registry.mu.validation.UpdateFolderMetadat
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -50,17 +49,17 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
 
     /**
      * 
-     * @param targetPatientId
+     * @param submittedPatientId
      * @param newFolderEntryId
      * @param currentFolderEntryId
      * @throws XdsException
      */
     @Override
-    protected void handleAssociationPropagation(String targetPatientId, String newFolderEntryId, String currentFolderEntryId) throws XdsException {
+    protected void handleAssociationPropagation(String submittedPatientId, String newFolderEntryId, String currentFolderEntryId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getCommandValidator();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Scan for existing non-deprecated HasMember associations (in approved status).
@@ -80,7 +79,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
                 // source is the folder; target must be a document.
                 String targetId = assocMetadata.getTargetObject(assoc);
                 // Now make sure that we do not violate patient id constraints.
-                validator.validateDocumentPatientId(targetId, targetPatientId);
+                validator.validateDocumentPatientId(targetId, submittedPatientId);
                 // Create association between new folder version and target document.
                 OMElement newAssoc = newAssocMetadata.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, newFolderEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);

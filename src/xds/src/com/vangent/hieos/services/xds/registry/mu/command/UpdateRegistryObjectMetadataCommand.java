@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
+import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
@@ -30,11 +31,10 @@ import org.apache.axiom.om.OMElement;
  */
 public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdateCommand {
 
-    private OMElement targetObject;
+    private OMElement submittedRegistryObject;
     private String previousVersion;
     private boolean associationPropagation;
     // Scratch pad area.
-    private String targetPatientId;
     private OMElement currentRegistryObject;
     private Metadata currentMetadata;
 
@@ -51,16 +51,16 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
      *
      * @return
      */
-    public OMElement getTargetObject() {
-        return targetObject;
+    public OMElement getSubmittedRegistryObject() {
+        return submittedRegistryObject;
     }
 
     /**
      *
-     * @param targetObject
+     * @param submittedRegistryObject
      */
-    public void setTargetObject(OMElement targetObject) {
-        this.targetObject = targetObject;
+    public void setSubmittedRegistryObject(OMElement submittedRegistryObject) {
+        this.submittedRegistryObject = submittedRegistryObject;
     }
 
     /**
@@ -114,17 +114,10 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
     /**
      * 
      * @return
+     * @throws MetadataException
      */
-    public String getTargetPatientId() {
-        return targetPatientId;
-    }
-
-    /**
-     *
-     * @param targetPatientId
-     */
-    public void setTargetPatientId(String targetPatientId) {
-        this.targetPatientId = targetPatientId;
+    public String getSubmittedPatientId() throws MetadataException {
+        return this.getSubmittedMetadata().getPatientId(submittedRegistryObject);
     }
 
     /**
@@ -158,23 +151,23 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
 
         // FIXME: metadata includes the targetObject, but it may contain other details
         // we do not want.
-        Metadata metadata = this.getSubmittedMetadata();
-        OMElement targetObject = this.getTargetObject();
+        Metadata submittedMetadata = this.getSubmittedMetadata();
+        OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
 
         // Now, fixup the Metadata to be submitted.
         // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(metadata);
+        IdParser idParser = new IdParser(submittedMetadata);
         idParser.compileSymbolicNamesIntoUuids();
 
         // Log metadata (after id assignment).
-        MetadataUpdateHelper.logMetadata(logMessage, metadata);
+        MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
 
         // Adjust the version number (current version number + 1).
-        Metadata.updateRegistryObjectVersion(targetObject, this.getPreviousVersion());
+        Metadata.updateRegistryObjectVersion(submittedRegistryObject, this.getPreviousVersion());
 
         // Get current/new registry object ids.
         String currentRegistryObjectId = this.getCurrentMetadata().getId(this.getCurrentRegistryObject());
-        String newRegistryObjectId = metadata.getId(targetObject);
+        String newRegistryObjectId = submittedMetadata.getId(submittedRegistryObject);
 
         // DEBUG:
         // logMessage.addOtherParam("Version to Submit", targetObject);
@@ -183,15 +176,8 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
 
         backendRegistry.setReason("Submit New Version");
-        metadata.setStatusOnApprovableObjects();
-        OMElement result = backendRegistry.submit(metadata);
-
-        // FIXME: Should approve in one shot.
-        // Approve.
-        //List<String> approvableObjectIds = metadata.getApprovableObjectIds();
-        //if (approvableObjectIds.size() > 0) {
-        //    backendRegistry.submitApproveObjectsRequest(approvableObjectIds);
-        //}
+        submittedMetadata.setStatusOnApprovableObjects();
+        OMElement result = backendRegistry.submit(submittedMetadata);
 
         // Deprecate old.
         List<String> deprecateObjectIds = new ArrayList<String>();
@@ -200,17 +186,17 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
 
         // Deal with association propagation if required.
         if (this.isAssociationPropagation()) {
-            this.handleAssociationPropagation(this.getTargetPatientId(), newRegistryObjectId, currentRegistryObjectId);
+            this.handleAssociationPropagation(this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
         }
         return true;
     }
 
     /**
      *
-     * @param targetPatientId
+     * @param submittedPatientId
      * @param newRegistryObjectId
      * @param currentRegistryObjectId
      * @throws XdsException
      */
-    abstract protected void handleAssociationPropagation(String targetPatientId, String newRegistryObjectId, String currentRegistryObjectId) throws XdsException;
+    abstract protected void handleAssociationPropagation(String submittedPatientId, String newRegistryObjectId, String currentRegistryObjectId) throws XdsException;
 }

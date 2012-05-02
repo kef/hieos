@@ -115,38 +115,37 @@ public abstract class MetadataUpdateCommand {
 
     /**
      *
-     * @param registryObjectEntryId
+     * @param registryObjectId
      * @return
      * @throws XdsException
      */
-    public Metadata getApprovedHasMemberAssocs(String registryObjectEntryId) throws XdsException {
-        return this.getAssocs(registryObjectEntryId,
+    public Metadata getApprovedHasMemberAssocs(String registryObjectId) throws XdsException {
+        return this.getAssocs(registryObjectId,
                 MetadataSupport.status_type_approved,
                 MetadataSupport.xdsB_eb_assoc_type_has_member, "Get Approved HasMember Associations");
     }
 
     /**
      *
-     * @param registryObjectEntryId
+     * @param registryObjectId
      * @return
      * @throws XdsException
      */
-    public Metadata getApprovedAssocs(String registryObjectEntryId) throws XdsException {
-        return this.getAssocs(registryObjectEntryId,
-                MetadataSupport.status_type_approved,
-                null, "Get Approved Associations");
+    public Metadata getApprovedAssocs(String registryObjectId) throws XdsException {
+        return this.getAssocs(registryObjectId, MetadataSupport.status_type_approved,
+                null /* assocType */, "Get Approved Associations");
     }
 
     /**
      * 
-     * @param registryObjectEntryId
+     * @param registryObjectId
      * @param status
      * @param assocType
      * @param reason
      * @return
      * @throws XdsException
      */
-    public Metadata getAssocs(String registryObjectEntryId, String status, String assocType, String reason) throws XdsException {
+    public Metadata getAssocs(String registryObjectId, String status, String assocType, String reason) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -159,7 +158,7 @@ public abstract class MetadataUpdateCommand {
 
         // Look for associations that have registryObjectEntryId as source or target.
         List<String> sourceOrTargetIds = new ArrayList<String>();
-        sourceOrTargetIds.add(registryObjectEntryId);
+        sourceOrTargetIds.add(registryObjectId);
 
         // Status.
         List<String> assocStatusValues = null;

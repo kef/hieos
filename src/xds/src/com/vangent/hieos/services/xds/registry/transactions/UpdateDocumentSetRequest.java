@@ -31,6 +31,7 @@ import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
+import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -89,6 +90,8 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
             logger.fatal(logger_exception_details(e));
         } catch (XDSPatientIDReconciliationException e) {
             response.add_error(MetadataSupport.XDSPatientIDReconciliationError, e.getMessage(), this.getClass().getName(), log_message);
+        } catch (XDSMetadataVersionException e) {
+            response.add_error(MetadataSupport.XDSMetadataVersionError, e.getMessage(), this.getClass().getName(), log_message);
         } catch (XDSNonIdenticalHashException e) {
             response.add_error(MetadataSupport.XDSNonIdenticalHash, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
@@ -225,7 +228,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
         // See what type of target object we are dealing with.
         String targetObjectType = m.getObjectTypeById(targetObjectId);
-        OMElement targetObject = m.getObjectById(targetObjectId);
+        OMElement submittedRegistryObject = m.getObjectById(targetObjectId);
         if (sourceObjectId.equals(submissionSetId)) {
             // See if we have a PreviousVersion slot name.
             String perviousVersion = m.getSlotValue(assoc, "PreviousVersion", 0);
@@ -246,7 +249,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                     UpdateFolderMetadataCommand updateFolderCommand =
                             new UpdateFolderMetadataCommand(m, metadataUpdateContext);
                     updateFolderCommand.setPreviousVersion(perviousVersion);
-                    updateFolderCommand.setTargetObject(targetObject);
+                    updateFolderCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateFolderCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateFolderCommand;
                 } else if (targetObjectType.equals("ExtrinsicObject")) {
@@ -254,7 +257,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                     UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand =
                             new UpdateDocumentEntryMetadataCommand(m, metadataUpdateContext);
                     updateDocumentEntryCommand.setPreviousVersion(perviousVersion);
-                    updateDocumentEntryCommand.setTargetObject(targetObject);
+                    updateDocumentEntryCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateDocumentEntryCommand;
                 }
@@ -299,9 +302,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         String targetObjectId = m.getTargetObject(assoc);
         // See what type of target object we are dealing with.
         // String targetObjectType = m.getObjectTypeById(targetObjectId);
-        OMElement targetObject = m.getObjectById(targetObjectId);
+        OMElement submittedRegistryObject = m.getObjectById(targetObjectId);
         SubmitAssociationCommand submitAssociationCommand = new SubmitAssociationCommand(m, metadataUpdateContext);
-        submitAssociationCommand.setTargetObject(targetObject);
+        submitAssociationCommand.setSubmittedRegistryObject(submittedRegistryObject);
         submitAssociationCommand.setSubmitAssociation(assoc);
         muCommand = submitAssociationCommand;
         return muCommand;
