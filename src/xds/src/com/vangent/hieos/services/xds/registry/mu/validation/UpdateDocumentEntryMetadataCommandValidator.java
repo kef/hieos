@@ -58,36 +58,57 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
         XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
-        // Prepare to conduct validation.
+        // Run initial validations on submitted metadata.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        Metadata submittedMetadata = cmd.getMetadata();
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        rov.validateDocumentUniqueIds(submittedMetadata);
+        rov.validatePatientId(submittedMetadata, configActor);
 
-        OMElement targetObject = cmd.getTargetObject();
-        String previousVersion = cmd.getPreviousVersion();
+        //
+        // Look for an existing document that 1) matches the lid, 2) status is "Approved"
+        // and 3) matches the previous version.
+        //
+        this.getCurrentRegistryObject(cmd);
 
         // Save target patient id for later usage.
+        OMElement targetObject = cmd.getTargetObject();
         cmd.setTargetPatientId(submittedMetadata.getPatientId(targetObject));
 
-        // Get lid.
+        // Run further validations.
+        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
+        this.validateRepositoryUniqueId(submittedMetadata, cmd);
+        this.validateHashAndSize(submittedMetadata, cmd);
+        this.validateObjectType(cmd);
+
+        return validationSuccess;
+    }
+
+    /**
+     *
+     * @param cmd
+     * @throws XdsException
+     */
+    private void getCurrentRegistryObject(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
+        BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
+        MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        OMElement targetObject = cmd.getTargetObject();
+        String previousVersion = cmd.getPreviousVersion();
         String lid = submittedMetadata.getLID(targetObject);
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
         // and 3) matches the previous version.
         //
-
-        // Prepare to issue registry query.
-        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
-
-        // Issue query.
         backendRegistry.setReason("Locate Previous Approved Document (by LID/Version)");
         OMElement queryResult = muSQ.getDocumentsByLID(lid, MetadataSupport.status_type_approved, previousVersion);
         backendRegistry.setReason("");
 
         // Convert response into Metadata instance.
-        cmd.setCurrentMetadata(MetadataParser.parseNonSubmission(queryResult));
-        Metadata currentMetadata = cmd.getCurrentMetadata();
+        Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);
+        //cmd.setCurrentMetadata(MetadataParser.parseNonSubmission(queryResult));
+        //Metadata currentMetadata = cmd.getCurrentMetadata();
         List<OMElement> currentDocuments = currentMetadata.getExtrinsicObjects();
         if (currentDocuments.isEmpty()) {
             throw new XdsException("Existing approved document entry not found for lid="
@@ -97,16 +118,10 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         }
 
         // Fall through: we found a document that matches.
-        cmd.setCurrentRegistryObject(currentMetadata.getExtrinsicObject(0));
 
-        // Run further validations.
-        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
-        this.validateRepositoryUniqueId(submittedMetadata, cmd);
-        this.validateHashAndSize(submittedMetadata, cmd);
-        this.validateObjectType(cmd);
-        rov.validateDocumentUniqueIds(submittedMetadata);
-        rov.validatePatientId(submittedMetadata, configActor);
-        return validationSuccess;
+        // Set current metadata and registry object in command instance.
+        cmd.setCurrentMetadata(currentMetadata);
+        cmd.setCurrentRegistryObject(currentMetadata.getExtrinsicObject(0));
     }
 
     /**

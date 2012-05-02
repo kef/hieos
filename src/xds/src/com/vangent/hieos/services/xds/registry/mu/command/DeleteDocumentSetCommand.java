@@ -53,7 +53,7 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
      */
     @Override
     protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
-        Metadata submittedMetadata = this.getMetadata();
+        Metadata submittedMetadata = this.getSubmittedMetadata();
         // Get list of object references.
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
         this.deleteRegistryObjects(objectRefIds);

@@ -60,35 +60,48 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         // Make sure submission does not also include documents or other metadata we don't
         // care about.
 
-        // Prepare to conduct validation.
+        // Run initial validations on submitted metadata.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        Metadata submittedMetadata = cmd.getMetadata();
-        OMElement targetObject = cmd.getTargetObject();
-        String previousVersion = cmd.getPreviousVersion();
-
-        // Save target patient id for later usage.
-        cmd.setTargetPatientId(submittedMetadata.getPatientId(targetObject));
-
-        // Get lid.
-        String lid = submittedMetadata.getLID(targetObject);
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        rov.validatePatientId(submittedMetadata, configActor);
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
         // and 3) matches the previous version.
         //
+        this.getCurrentRegistryObject(cmd);
 
-        // Prepare to issue registry query.
-        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
-        muSQ.setReturnLeafClass(true);
+        // Save target patient id for later usage.
+        OMElement targetObject = cmd.getTargetObject();
+        cmd.setTargetPatientId(submittedMetadata.getPatientId(targetObject));
+
+        // Run further validations.
+        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
+        return validationSuccess;
+    }
+
+    /**
+     *
+     * @param cmd
+     * @throws XdsException
+     */
+    private void getCurrentRegistryObject(UpdateFolderMetadataCommand cmd) throws XdsException {
+        BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
+        MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
+        OMElement targetObject = cmd.getTargetObject();
+        String previousVersion = cmd.getPreviousVersion();
+        String lid = submittedMetadata.getLID(targetObject);
 
         // Attempt to find existing folder.
+        muSQ.setReturnLeafClass(true);
         backendRegistry.setReason("Locate Previous Approved Folder (by LID/Version)");
         OMElement queryResult = muSQ.getFoldersByLID(lid, MetadataSupport.status_type_approved, previousVersion);
         backendRegistry.setReason("");
 
         // Convert response into Metadata instance.
-        cmd.setCurrentMetadata(MetadataParser.parseNonSubmission(queryResult));
-        Metadata currentMetadata = cmd.getCurrentMetadata();
+        Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);
+        //Metadata currentMetadata = cmd.getCurrentMetadata();
         List<OMElement> currentFolders = currentMetadata.getFolders();
         if (currentFolders.isEmpty()) {
             throw new XdsException("Existing approved folder entry not found for lid="
@@ -98,11 +111,9 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         }
 
         // Fall through: we found a folder that matches.
-        cmd.setCurrentRegistryObject(currentMetadata.getFolder(0));
 
-        // Run further validations.
-        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
-        rov.validatePatientId(submittedMetadata, configActor);
-        return validationSuccess;
+        // Set current metadata and registry object in command instance.
+        cmd.setCurrentMetadata(currentMetadata);
+        cmd.setCurrentRegistryObject(currentMetadata.getFolder(0));
     }
 }

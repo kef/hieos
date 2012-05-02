@@ -158,7 +158,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
 
         // FIXME: metadata includes the targetObject, but it may contain other details
         // we do not want.
-        Metadata metadata = this.getMetadata();
+        Metadata metadata = this.getSubmittedMetadata();
         OMElement targetObject = this.getTargetObject();
 
         // Now, fixup the Metadata to be submitted.

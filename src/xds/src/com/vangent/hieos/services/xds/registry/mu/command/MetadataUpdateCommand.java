@@ -31,16 +31,16 @@ import org.apache.axiom.om.OMElement;
  */
 public abstract class MetadataUpdateCommand {
 
-    private Metadata metadata;
+    private Metadata submittedMetadata;
     private MetadataUpdateContext metadataUpdateContext;
 
     /**
      *
-     * @param metadata
+     * @param submittedMetadata
      * @param metadataUpdateContext
      */
-    public MetadataUpdateCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        this.metadata = metadata;
+    public MetadataUpdateCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext) {
+        this.submittedMetadata = submittedMetadata;
         this.metadataUpdateContext = metadataUpdateContext;
     }
 
@@ -48,8 +48,8 @@ public abstract class MetadataUpdateCommand {
      *
      * @return
      */
-    public Metadata getMetadata() {
-        return metadata;
+    public Metadata getSubmittedMetadata() {
+        return submittedMetadata;
     }
 
     /**

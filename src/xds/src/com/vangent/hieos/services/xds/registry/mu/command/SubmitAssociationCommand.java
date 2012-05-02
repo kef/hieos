@@ -94,7 +94,7 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
-        Metadata metadata = this.getMetadata();
+        Metadata metadata = this.getSubmittedMetadata();
         // Hack: Change urn:ihe:iti:2010:AssociationType:SubmitAssociation to a HasMember assocation
         // for submission.
         // FIXME: May not be a good idea ... not returned in any queries ...

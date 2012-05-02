@@ -80,12 +80,10 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         //  3. The sourceObject and targetObject shall not reference a SubmissionSet object.
 
         // FIXME: Metadata could include other associations we do not care about.
-        Metadata submittedMetadata = cmd.getMetadata();
 
-        // Prepare to conduct validation.
+        // Run initial validations on submitted metadata.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-
-        // Run further validations.
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
         rov.validatePatientId(submittedMetadata, configActor);
 
         OMElement submittedAssoc = cmd.getTargetObject();
@@ -240,7 +238,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
      * @throws XdsException
      */
     private void validateAssociationType(OMElement submittedAssoc) throws XdsException {
-        Metadata m = this.getMetadataUpdateCommand().getMetadata();
+        Metadata m = this.getMetadataUpdateCommand().getSubmittedMetadata();
         String assocType = m.getAssocType(submittedAssoc);
         if (sourceRegistryObjectType.equals(RegistryObjectType.FOLDER)) {
             if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {

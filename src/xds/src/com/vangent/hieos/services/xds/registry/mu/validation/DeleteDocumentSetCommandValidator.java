@@ -44,7 +44,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
      */
     public boolean validate() throws XdsException {
         DeleteDocumentSetCommand cmd = (DeleteDocumentSetCommand) this.getMetadataUpdateCommand();
-        Metadata submittedMetadata = cmd.getMetadata();
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
         // Get list of object references.
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
         if (objectRefIds.isEmpty()) {
