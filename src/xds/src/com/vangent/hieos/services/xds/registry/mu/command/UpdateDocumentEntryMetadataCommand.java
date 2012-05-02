@@ -19,7 +19,6 @@ import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateComma
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntryMetadataCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
@@ -106,10 +105,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 // Create association between new document version and target document.
                 newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
-
-                // Deprecate prior association.
-                //deprecateAssocIds.add(assocId);
-
             } else {
                 // Target is the current document.  See about the source.
                 if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
@@ -122,26 +117,14 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                     // Create association between source document and new document version.
                     newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                     newAssocMetadata.addAssociation(newAssoc);
-
-                    // Deprecate prior association.
-                    //deprecateAssocIds.add(assocId);
                 } else {
                     // Make sure that the source is a folder (and not a submission set).
-                    backendRegistry.setReason("Assoc Propagation - Validate Source is Folder");
-                    OMElement folderQueryResult = muSQ.getFolderByUUID(sourceId);
-                    backendRegistry.setReason("");
-                    Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
-                    if (!folderMetadata.getObjectRefIds().isEmpty()) {
-
-                        // Now make sure that we do not violate patient id constraints.
-                        validator.validateFolderPatientId(sourceId, targetPatientId);
-
+                    // Now make sure that we do not violate patient id constraints.
+                    boolean foundFolder = validator.validateFolderPatientId(sourceId, targetPatientId);
+                    if (foundFolder) {
                         // Create association between source folder entry and new document version.
                         newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                         newAssocMetadata.addAssociation(newAssoc);
-
-                        // Will need to deprecate the prior Folder->Document association.
-                        //deprecateAssocIds.add(assocId);
                     }
                 }
             }

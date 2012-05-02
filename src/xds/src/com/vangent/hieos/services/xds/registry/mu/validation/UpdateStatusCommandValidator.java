@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -70,6 +71,13 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             throw new XdsException(newStatus + " is not a valid status for this registry");
         }
 
+        // Make sure target object id is in UUID format.
+        String targetObjectId = cmd.getTargetObjectId();
+        if (!MetadataUpdateHelper.isUUID(targetObjectId)) {
+            // FIXME: Use proper exception?
+            throw new XdsException(targetObjectId + " is not in UUID format");
+        }
+
         Metadata submittedMetadata = cmd.getMetadata();
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
         rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
@@ -77,25 +85,24 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             validationSuccess = false;
         } else {
             // Run further validations.
-            
+
             // Make sure that submission set is unique.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
 
             // Prepare to issue registry queries.
             MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                    metadataUpdateContext.getRegistryResponse(), logMessage,
-                    metadataUpdateContext.getBackendRegistry());
+                    registryResponse, logMessage, backendRegistry);
             muSQ.setReturnLeafClass(true);  // FIXME: Optimize to only get root and not composed elements.
 
             // Load metadata (based on target object id).
-            Metadata loadedMetadata = this.loadMetadata(muSQ, cmd.getTargetObjectId());
+            Metadata loadedMetadata = this.loadMetadata(muSQ, targetObjectId);
             cmd.setLoadedMetadata(loadedMetadata);  // For usage by command.
             if (loadedMetadata == null) {
-                throw new XdsException("Could not find target object = " + cmd.getTargetObjectId());
+                throw new XdsException("Could not find target object = " + targetObjectId);
             }
 
             // Now, run validations.
-            this.validateStatusUpdateOnRegistryObject(cmd, loadedMetadata, muSQ, cmd.getTargetObjectId());
+            this.validateStatusUpdateOnRegistryObject(cmd, loadedMetadata, muSQ, targetObjectId);
         }
         return validationSuccess;
     }
@@ -160,14 +167,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             Metadata loadedMetadata,
             MetadataUpdateStoredQuerySupport muSQ, String targetObjectId) throws XdsException {
         if (!loadedMetadata.getExtrinsicObjects().isEmpty()) {
-            OMElement targetDocument = loadedMetadata.getExtrinsicObject(0);
-            this.validateStatusConstraints(cmd, "DocumentEntry", loadedMetadata, targetDocument);
+            OMElement currentDocument = loadedMetadata.getExtrinsicObject(0);
+            this.validateStatusConstraints(cmd, "DocumentEntry", loadedMetadata, currentDocument);
 
             // Now, make sure that we don't create a situation where there is more than one
             // approved document for the same LID.
             if (cmd.getNewStatus().equals(MetadataSupport.status_type_approved)) {
                 // We are attempting to change the status to approved.  Enforce rules.
-                String lid = targetDocument.getAttributeValue(MetadataSupport.lid_qname);
+                String lid = currentDocument.getAttributeValue(MetadataSupport.lid_qname);
 
                 // Look up by LID.
                 OMElement lidQueryResult = muSQ.getDocumentsByLID(lid, null /* status */, null /* version */);
@@ -175,7 +182,35 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                 List<OMElement> versionedDocuments = metadataVersions.getExtrinsicObjects();
 
                 // Make sure we are not violating any version constraints.
-                this.validateVersionConstraints(targetObjectId, metadataVersions, targetDocument, versionedDocuments);
+                this.validateVersionConstraints(targetObjectId, metadataVersions, currentDocument, versionedDocuments);
+
+                // Get all approved associations.
+                Metadata assocMetadata = cmd.getApprovedAssocs(cmd.getTargetObjectId());
+                List<OMElement> assocs = assocMetadata.getAssociations();
+                for (OMElement assoc : assocs) {
+                    String assocType = assocMetadata.getAssocType(assoc);
+                    String sourceId = assocMetadata.getSourceObject(assoc);
+                    String targetId = assocMetadata.getAssocTarget(assoc);
+                    String targetPatientId = loadedMetadata.getPatientId(currentDocument);
+                    if (sourceId.equals(targetObjectId)) {
+                        // If source is a document, then the target is a document.
+                        // Now make sure that we do not violate patient id constraints.
+                        this.validateDocumentPatientId(targetId, targetPatientId);
+                    } else {
+                        // Target is the current document.  See about the source.
+                        if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
+                            // If the association type is not a has member, then the source must be a document.
+                            // For optimization reasons, assuming a document (not verifying here).
+                            // Now make sure that we do not violate patient id constraints.
+                            this.validateDocumentPatientId(sourceId, targetPatientId);
+
+                        } else {
+                            // Now make sure that we do not violate patient id constraints.
+                            // Note: The below method will not fail if source refers to a submission set.
+                            this.validateFolderPatientId(sourceId, targetPatientId);
+                        }
+                    }
+                }
             }
         }
     }
@@ -192,14 +227,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             Metadata loadedMetadata,
             MetadataUpdateStoredQuerySupport muSQ, String targetObjectId) throws XdsException {
         if (!loadedMetadata.getFolders().isEmpty()) {
-            OMElement targetFolder = loadedMetadata.getFolder(0);
-            this.validateStatusConstraints(cmd, "Folder", loadedMetadata, targetFolder);
+            OMElement currentFolder = loadedMetadata.getFolder(0);
+            this.validateStatusConstraints(cmd, "Folder", loadedMetadata, currentFolder);
 
             // Now, make sure that we don't create a situation where there is more than one
             // approved document for the same LID.
             if (cmd.getNewStatus().equals(MetadataSupport.status_type_approved)) {
                 // We are attempting to change the status to approved.  Enforce rules.
-                String lid = targetFolder.getAttributeValue(MetadataSupport.lid_qname);
+                String lid = currentFolder.getAttributeValue(MetadataSupport.lid_qname);
 
                 // Look up by LID.
                 OMElement lidQueryResult = muSQ.getFolderByLID(lid);
@@ -207,7 +242,21 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                 List<OMElement> versionedFolders = metadataVersions.getFolders();
 
                 // Make sure we are not violating any version constraints.
-                this.validateVersionConstraints(targetObjectId, metadataVersions, targetFolder, versionedFolders);
+                this.validateVersionConstraints(targetObjectId, metadataVersions, currentFolder, versionedFolders);
+
+                // Now, validate PID constraints.
+                // Scan for existing non-deprecated HasMember associations (in approved status).
+                Metadata assocMetadata = cmd.getApprovedHasMemberAssocs(targetObjectId);
+                for (OMElement assoc : assocMetadata.getAssociations()) {
+                    String sourceId = assocMetadata.getSourceObject(assoc);
+                    if (sourceId.equals(targetObjectId)) {
+                        // Source is the folder; target should be a document.
+                        // Now make sure that we do not violate patient id constraints.
+                        String targetId = assocMetadata.getTargetObject(assoc);
+                        String targetPatientId = loadedMetadata.getPatientId(currentFolder);
+                        this.validateDocumentPatientId(targetId, targetPatientId);
+                    }
+                }
             }
         }
     }
@@ -224,12 +273,37 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             Metadata loadedMetadata,
             MetadataUpdateStoredQuerySupport muSQ, String targetObjectId) throws XdsException {
         if (!loadedMetadata.getAssociations().isEmpty()) {
-            OMElement targetAssoc = loadedMetadata.getAssociation(0);
-            this.validateStatusConstraints(cmd, "Association", loadedMetadata, targetAssoc);
-
-            // FIXME: Enforce rules?
-            // Need to look at both ends of association and make sure that an invalid
-            // registry update is not going to occur.
+            OMElement currentAssoc = loadedMetadata.getAssociation(0);
+            this.validateStatusConstraints(cmd, "Association", loadedMetadata, currentAssoc);
+            String assocType = loadedMetadata.getAssocType(currentAssoc);
+            if (cmd.getNewStatus().equals(MetadataSupport.status_type_approved)) {
+                // We are attempting to change the status to approved.  Enforce rules.
+                String sourceRegistryObjectId = loadedMetadata.getAssocSource(currentAssoc);
+                String targetRegistryObjectId = loadedMetadata.getAssocTarget(currentAssoc);
+                if (Metadata.isValidDocumentAssociationType(assocType)) {
+                    // In this case, the source and targets must be documents.
+                    // Get the source/target documents.
+                    muSQ.setReturnLeafClass(true);
+                    Metadata sourceMetadata = this.getDocumentMetadata(muSQ, sourceRegistryObjectId);
+                    if (sourceMetadata == null) {
+                        throw new XdsException("Source registry object metadata not found");
+                    }
+                    String sourcePatientId = sourceMetadata.getPatientId(sourceMetadata.getExtrinsicObject(0));
+                    this.validateDocumentPatientId(targetRegistryObjectId, sourcePatientId);
+                } else if (assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
+                    // HasMember association.
+                    // Make sure that the source object points to a folder and the target objects points
+                    // to a document.
+                    // Get the source folder (must be a folder)
+                    muSQ.setReturnLeafClass(true);
+                    Metadata sourceMetadata = this.getFolderMetadata(muSQ, sourceRegistryObjectId);
+                    if (sourceMetadata == null) {
+                        throw new XdsException("Source folder metadata not found");
+                    }
+                    String sourcePatientId = sourceMetadata.getPatientId(sourceMetadata.getFolder(0));
+                    this.validateDocumentPatientId(targetRegistryObjectId, sourcePatientId);
+                }
+            }
         }
     }
 

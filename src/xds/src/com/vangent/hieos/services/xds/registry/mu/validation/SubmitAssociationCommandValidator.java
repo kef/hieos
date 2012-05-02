@@ -38,21 +38,11 @@ import org.apache.axiom.om.OMElement;
 public class SubmitAssociationCommandValidator extends MetadataUpdateCommandValidator {
 
     private enum RegistryObjectType {
+
         DOCUMENT, FOLDER
     };
-
-    private static final String[] validDocumentToDocumentAssocTypes = {
-        MetadataSupport.xdsB_ihe_assoc_type_rplc,
-        MetadataSupport.xdsB_ihe_assoc_type_xfrm,
-        MetadataSupport.xdsB_ihe_assoc_type_apnd,
-        MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc,
-        MetadataSupport.xdsB_ihe_assoc_type_signs
-    };
-    //private static final String[] validFolderToDocumentAssocTypes = {
-    //    MetadataSupport.xdsB_eb_assoc_type_has_member
-    //};
-
-     // Scratch pad area.
+    
+    // Scratch pad area.
     private RegistryObjectType sourceRegistryObjectType;
     private RegistryObjectType targetRegistryObjectType;
     private OMElement sourceRegistryObject;
@@ -96,32 +86,8 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
                 metadataUpdateContext.getBackendRegistry());
         muSQ.setReturnLeafClass(true);
 
-        Metadata submittedMetadata = cmd.getMetadata();
-
         // FIXME: Metadata could include other associations we do not care about.
-        OMElement submittedAssoc = cmd.getTargetObject();
-        String sourceObjectId = submittedMetadata.getAssocSource(submittedAssoc);
-        String targetObjectId = submittedMetadata.getAssocTarget(submittedAssoc);
-
-        // Make sure source and target are in UUID format.
-        this.validateRegistryObjectIds(sourceObjectId, targetObjectId);
-
-        // Get metadata for source/target objects (updates scratch pad).
-        this.queryMetadata(muSQ, sourceObjectId, targetObjectId);
-
-        // Validate that source and target objects have an APPROVED status.
-        this.validateRegistryObjectsApprovedStatus();
-
-        // Validate that the source and target objects have the same PID.
-        this.validateRegistryObjectPatientIds();
-
-        // Validate proper association type has been submitted.
-        //   HasMember is only allowed for Folder->Document.
-        //   Others are allowed for Document->Document
-        this.validateAssociationType(submittedAssoc);
-
-        // Validate that there is not(already) an association between the 2 objects with the same(submitted) association type.
-        this.validateSubmittedAssocDoesNotExist(muSQ, submittedMetadata, submittedAssoc, sourceObjectId, targetObjectId);
+        Metadata submittedMetadata = cmd.getMetadata();
 
         // FIXME?? Validate the submitted submission set along with its contained content.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
@@ -132,6 +98,31 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
             // Run further validations.
             rov.validateSubmissionSetUniqueIds(submittedMetadata);
             rov.validatePatientId(submittedMetadata, configActor);
+
+            OMElement submittedAssoc = cmd.getTargetObject();
+            String sourceObjectId = submittedMetadata.getAssocSource(submittedAssoc);
+            String targetObjectId = submittedMetadata.getAssocTarget(submittedAssoc);
+
+            // Make sure source and target are in UUID format.
+            this.validateRegistryObjectIds(sourceObjectId, targetObjectId);
+
+            // Get metadata for source/target objects (updates scratch pad).
+            this.queryMetadata(muSQ, sourceObjectId, targetObjectId);
+
+            // Validate that source and target objects have an APPROVED status.
+            this.validateRegistryObjectsApprovedStatus();
+
+            // Validate that the source and target objects have the same PID.
+            this.validateRegistryObjectPatientIds();
+
+            // Validate proper association type has been submitted.
+            //   HasMember is only allowed for Folder->Document.
+            //   Others are allowed for Document->Document
+            this.validateAssociationType(submittedAssoc);
+
+            // Validate that there is not(already) an association between the 2 objects with the same(submitted) association type.
+            this.validateSubmittedAssocDoesNotExist(muSQ, submittedMetadata, submittedAssoc, sourceObjectId, targetObjectId);
+
             // TBD: Run further validations.
             // TBD: Validate status of association is valid (or did this happen before)?
             // FIXME: Should we deal with current assoc status also here?
@@ -264,13 +255,14 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
                         + MetadataSupport.xdsB_eb_assoc_type_has_member);
             }
         } else {
-            boolean foundValidAssocType = false;
-            for (String validDocumentToDocumentAssocType : validDocumentToDocumentAssocTypes) {
-                if (assocType.equals(validDocumentToDocumentAssocType)) {
-                    foundValidAssocType = true;
-                    break;
-                }
-            }
+            //boolean foundValidAssocType = false;
+            boolean foundValidAssocType = Metadata.isValidDocumentAssociationType(assocType);
+            //for (String validDocumentToDocumentAssocType : validDocumentToDocumentAssocTypes) {
+            //    if (assocType.equals(validDocumentToDocumentAssocType)) {
+            //        foundValidAssocType = true;
+            //        break;
+            //    }
+            //}
             if (!foundValidAssocType) {
                 throw new XdsException("Source registry object is a document and valid assocation type not provided.");
             }
@@ -300,37 +292,5 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
             throw new XdsException("Registry already has an association between the source and target registry objects of type = "
                     + assocType);
         }
-    }
-
-    /**
-     *
-     * @param muSQ
-     * @param registryObjectId
-     * @return
-     * @throws XdsException
-     */
-    private Metadata getDocumentMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
-        OMElement queryResult = muSQ.getDocumentByUUID(registryObjectId);
-        Metadata m = MetadataParser.parseNonSubmission(queryResult);
-        if (!m.getExtrinsicObjects().isEmpty()) {
-            return m;
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param muSQ
-     * @param registryObjectId
-     * @return
-     * @throws XdsException
-     */
-    private Metadata getFolderMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
-        OMElement queryResult = muSQ.getFolderByUUID(registryObjectId);
-        Metadata m = MetadataParser.parseNonSubmission(queryResult);
-        if (!m.getFolders().isEmpty()) {
-            return m;
-        }
-        return null;
     }
 }

@@ -284,11 +284,6 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         String originalStatus = m.getSlotValue(assoc, "OriginalStatus", 0);
         System.out.println("... NewStatus = " + newStatus);
         System.out.println("... OriginalStatus = " + originalStatus);
-        if (!MetadataUpdateHelper.isUUID(targetObjectId)) {
-            // TBD: Throw exception.
-            // Should place into command?
-            System.out.println("*** ERROR: " + targetObjectId + " is not in UUID format");
-        }
         UpdateStatusCommand updateStatusCommand = new UpdateStatusCommand(m, metadataUpdateContext);
         updateStatusCommand.setNewStatus(newStatus);
         updateStatusCommand.setOriginalStatus(originalStatus);

@@ -12,11 +12,18 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.command;
 
+import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
+import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.axiom.om.OMElement;
 
 /**
  *
@@ -72,6 +79,78 @@ public abstract class MetadataUpdateCommand {
             runStatus = this.execute(validator);
         }
         return runStatus;
+    }
+
+    /**
+     *
+     * @param registryObjectEntryId
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getApprovedHasMemberAssocs(String registryObjectEntryId) throws XdsException {
+        return this.getAssocs(registryObjectEntryId,
+                MetadataSupport.status_type_approved,
+                MetadataSupport.xdsB_eb_assoc_type_has_member, "Get Approved HasMember Associations");
+    }
+
+    /**
+     *
+     * @param registryObjectEntryId
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getApprovedAssocs(String registryObjectEntryId) throws XdsException {
+        return this.getAssocs(registryObjectEntryId,
+                MetadataSupport.status_type_approved,
+                null, "Get Approved Associations");
+    }
+
+    /**
+     * 
+     * @param registryObjectEntryId
+     * @param status
+     * @param assocType
+     * @param reason
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getAssocs(String registryObjectEntryId, String status, String assocType, String reason) throws XdsException {
+        // Get metadata update context for use later.
+        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
+        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+        backendRegistry.setReason(reason);
+
+        // Prepare for queries.
+        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                metadataUpdateContext.getRegistryResponse(), logMessage,
+                metadataUpdateContext.getBackendRegistry());
+        muSQ.setReturnLeafClass(true);
+
+        // Look for associations that have registryObjectEntryId as source or target.
+        List<String> sourceOrTargetIds = new ArrayList<String>();
+        sourceOrTargetIds.add(registryObjectEntryId);
+
+        // Status.
+        List<String> assocStatusValues = null;
+        if (status != null) {
+            assocStatusValues = new ArrayList<String>();
+            assocStatusValues.add(status);
+        }
+
+        // Association type.
+        List<String> assocTypes = null;
+        if (assocType != null) {
+            assocTypes = new ArrayList<String>();
+            assocTypes.add(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        }
+
+        // Run query.
+        OMElement assocQueryResult = muSQ.getAssociations(sourceOrTargetIds, assocStatusValues, assocTypes);
+
+        // Convert response into Metadata instance.
+        Metadata assocMetadata = MetadataParser.parseNonSubmission(assocQueryResult);
+        return assocMetadata;
     }
 
     /**

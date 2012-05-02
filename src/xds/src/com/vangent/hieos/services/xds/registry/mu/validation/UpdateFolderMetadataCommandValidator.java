@@ -97,7 +97,6 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         // Fall through: we found a folder that matches.
         cmd.setCurrentRegistryObject(currentMetadata.getFolder(0));
 
-        // FIXME: BEEF UP VALIDATIONS!!!!
         // Make sure submission does not also include documents or other metadata we don't
         // care about.
 

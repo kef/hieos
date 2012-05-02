@@ -63,11 +63,47 @@ abstract public class MetadataUpdateCommandValidator {
 
     /**
      *
-     * @param currentDocumentEntryId
-     * @param targetPatientId
+     * @param muSQ
+     * @param registryObjectId
+     * @return
      * @throws XdsException
      */
-    public void validateDocumentPatientId(String currentDocumentEntryId, String targetPatientId) throws XdsException {
+    public Metadata getDocumentMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getDocumentByUUID(registryObjectId);
+        Metadata m = MetadataParser.parseNonSubmission(queryResult);
+        if (!m.getExtrinsicObjects().isEmpty()) {
+            return m;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param muSQ
+     * @param registryObjectId
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getFolderMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getFolderByUUID(registryObjectId);
+        Metadata m = MetadataParser.parseNonSubmission(queryResult);
+        if (!m.getFolders().isEmpty()) {
+            return m;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param currentDocumentEntryId
+     * @param targetPatientId
+     * @return true if document was found, false otherwise.
+     * 
+     * @throws XdsException
+     */
+    public boolean validateDocumentPatientId(String currentDocumentEntryId, String targetPatientId) throws XdsException {
+        boolean foundDocument = false;
+
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -85,23 +121,30 @@ abstract public class MetadataUpdateCommandValidator {
         backendRegistry.setReason("");
 
         Metadata documentMetadata = MetadataParser.parseNonSubmission(documentQueryResult);
-        OMElement document = documentMetadata.getExtrinsicObject(0);
-        String documentPatientId = documentMetadata.getPatientId(document);
-        if (!documentPatientId.equals(targetPatientId)) {
-            throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing document patient id = "
-                    + documentPatientId + ", document UUID = "
-                    + currentDocumentEntryId + " does not match updated registry object's patient id = "
-                    + targetPatientId);
+        foundDocument = documentMetadata.getExtrinsicObjects().size() > 0;
+        if (foundDocument) {
+            OMElement document = documentMetadata.getExtrinsicObject(0);
+            String documentPatientId = documentMetadata.getPatientId(document);
+            if (!documentPatientId.equals(targetPatientId)) {
+                throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing document patient id = "
+                        + documentPatientId + ", document UUID = "
+                        + currentDocumentEntryId + " does not match updated registry object's patient id = "
+                        + targetPatientId);
+            }
         }
+        return foundDocument;
     }
 
     /**
      *
      * @param currentFolderEntryId
      * @param targetPatientId
+     * @return true if folder was found, false otherwise.
      * @throws XdsException
      */
-    public void validateFolderPatientId(String currentFolderEntryId, String targetPatientId) throws XdsException {
+    public boolean validateFolderPatientId(String currentFolderEntryId, String targetPatientId) throws XdsException {
+        boolean foundFolder = false;
+
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -119,14 +162,18 @@ abstract public class MetadataUpdateCommandValidator {
         backendRegistry.setReason("");
 
         Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
-        OMElement folder = folderMetadata.getFolder(0);
-        String folderPatientId = folderMetadata.getPatientId(folder);
-        if (!folderPatientId.equals(targetPatientId)) {
-            throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing folder patient id = "
-                    + folderPatientId + ", folder UUID = "
-                    + currentFolderEntryId + " does not match updated registry object's patient id = "
-                    + targetPatientId);
+        foundFolder = folderMetadata.getFolders().size() > 0;
+        if (foundFolder) {
+            OMElement folder = folderMetadata.getFolder(0);
+            String folderPatientId = folderMetadata.getPatientId(folder);
+            if (!folderPatientId.equals(targetPatientId)) {
+                throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing folder patient id = "
+                        + folderPatientId + ", folder UUID = "
+                        + currentFolderEntryId + " does not match updated registry object's patient id = "
+                        + targetPatientId);
+            }
         }
+        return foundFolder;
     }
 
     /**

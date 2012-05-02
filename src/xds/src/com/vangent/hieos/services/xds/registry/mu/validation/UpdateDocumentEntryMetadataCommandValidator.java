@@ -98,12 +98,6 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         // Fall through: we found a document that matches.
         cmd.setCurrentRegistryObject(currentMetadata.getExtrinsicObject(0));
 
-        // FIXME: BEEF UP VALIDATIONS!!!!
-        // Validate that the SOR is internally consistent:
-        // FIXME: Should this go in the TXN?
-        //Validator val = new Validator(this.getMetadata(), registryResponse.registryErrorList, true, logMessage);
-        //val.run();
-
         // Validate the submitted submission set along with its contained content.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
         rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
