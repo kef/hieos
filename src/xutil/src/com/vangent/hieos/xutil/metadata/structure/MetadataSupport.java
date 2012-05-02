@@ -191,6 +191,8 @@ public class MetadataSupport {
     public static final String XDSUnknownCommunity = "XDSUnknownCommunity";
     public static final String XDSUnavailableCommunity = "XDSUnavailableCommunity";
     public static final String XDSPatientIDReconciliationError = "XDSPatientIDReconciliationError";
+    public static final String XDSUnresolvedReferenceExceptionError = "XDSUnresolvedReferenceException";
+    public static final String XDSMetadataVersionError = "XDSMetadataVersionError";
     public static final QName response_option_qname = new QName("ResponseOption");
     public static final QName adhoc_query_qname = new QName("AdhocQuery");
     // XDR Error Codes
