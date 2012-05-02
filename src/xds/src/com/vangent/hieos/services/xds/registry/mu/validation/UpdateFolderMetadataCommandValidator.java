@@ -57,6 +57,11 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
         XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
+        // Make sure submission does not also include documents or other metadata we don't
+        // care about.
+
+        // Prepare to conduct validation.
+        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
         Metadata submittedMetadata = cmd.getMetadata();
         OMElement targetObject = cmd.getTargetObject();
         String previousVersion = cmd.getPreviousVersion();
@@ -97,20 +102,9 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         // Fall through: we found a folder that matches.
         cmd.setCurrentRegistryObject(currentMetadata.getFolder(0));
 
-        // Make sure submission does not also include documents or other metadata we don't
-        // care about.
-
-        // Validate the submitted submission set along with its contained content.
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
-        if (registryResponse.has_errors()) {
-            validationSuccess = false;
-        } else {
-            // Run further validations.
-            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
-            rov.validateSubmissionSetUniqueIds(submittedMetadata);
-            rov.validatePatientId(submittedMetadata, configActor);
-        }
+        // Run further validations.
+        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
+        rov.validatePatientId(submittedMetadata, configActor);
         return validationSuccess;
     }
 }

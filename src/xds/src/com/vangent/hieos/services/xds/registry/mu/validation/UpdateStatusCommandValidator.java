@@ -64,6 +64,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                     + ", Target Registry Object Id = " + cmd.getTargetObjectId());
         }
 
+        // Run further validations.
         // Validate the new status is a valid entry.
         String newStatus = cmd.getNewStatus();
         if (!(newStatus.equals(MetadataSupport.status_type_approved)
@@ -78,32 +79,20 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             throw new XdsException(targetObjectId + " is not in UUID format");
         }
 
-        Metadata submittedMetadata = cmd.getMetadata();
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
-        if (registryResponse.has_errors()) {
-            validationSuccess = false;
-        } else {
-            // Run further validations.
+        // Prepare to issue registry queries.
+        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                registryResponse, logMessage, backendRegistry);
+        muSQ.setReturnLeafClass(true);  // FIXME: Optimize to only get root and not composed elements.
 
-            // Make sure that submission set is unique.
-            rov.validateSubmissionSetUniqueIds(submittedMetadata);
-
-            // Prepare to issue registry queries.
-            MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                    registryResponse, logMessage, backendRegistry);
-            muSQ.setReturnLeafClass(true);  // FIXME: Optimize to only get root and not composed elements.
-
-            // Load metadata (based on target object id).
-            Metadata loadedMetadata = this.loadMetadata(muSQ, targetObjectId);
-            cmd.setLoadedMetadata(loadedMetadata);  // For usage by command.
-            if (loadedMetadata == null) {
-                throw new XdsException("Could not find target object = " + targetObjectId);
-            }
-
-            // Now, run validations.
-            this.validateStatusUpdateOnRegistryObject(cmd, loadedMetadata, muSQ, targetObjectId);
+        // Load metadata (based on target object id).
+        Metadata loadedMetadata = this.loadMetadata(muSQ, targetObjectId);
+        cmd.setLoadedMetadata(loadedMetadata);  // For usage by command.
+        if (loadedMetadata == null) {
+            throw new XdsException("Could not find target object = " + targetObjectId);
         }
+
+        // Now, run validations.
+        this.validateStatusUpdateOnRegistryObject(cmd, loadedMetadata, muSQ, targetObjectId);
         return validationSuccess;
     }
 
@@ -284,7 +273,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                     // In this case, the source and targets must be documents.
                     // Get the source/target documents.
                     muSQ.setReturnLeafClass(true);
-                    Metadata sourceMetadata = this.getDocumentMetadata(muSQ, sourceRegistryObjectId);
+                    Metadata sourceMetadata = cmd.getDocumentMetadata(muSQ, sourceRegistryObjectId);
                     if (sourceMetadata == null) {
                         throw new XdsException("Source registry object metadata not found");
                     }
@@ -296,7 +285,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                     // to a document.
                     // Get the source folder (must be a folder)
                     muSQ.setReturnLeafClass(true);
-                    Metadata sourceMetadata = this.getFolderMetadata(muSQ, sourceRegistryObjectId);
+                    Metadata sourceMetadata = cmd.getFolderMetadata(muSQ, sourceRegistryObjectId);
                     if (sourceMetadata == null) {
                         throw new XdsException("Source folder metadata not found");
                     }

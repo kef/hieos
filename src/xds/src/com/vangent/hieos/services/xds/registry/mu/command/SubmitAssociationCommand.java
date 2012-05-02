@@ -101,17 +101,12 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         OMAttribute assocTypeAttribute = submitAssociation.getAttribute(MetadataSupport.association_type_qname);
         assocTypeAttribute.setAttributeValue(MetadataSupport.xdsB_eb_assoc_type_has_member);
 
-        // Set status to "Approved" on the submission set HasMember association
-        //Metadata.setStatusOnRegistryObject(submitAssociation, MetadataSupport.status_type_approved);
-
         // Change symbolic names to UUIDs.
         IdParser idParser = new IdParser(metadata);
         idParser.compileSymbolicNamesIntoUuids();
 
         // Set status to "Approved" on the target association.
         metadata.setStatusOnApprovableObjects();
-        //Metadata.setStatusOnRegistryObject(metadata.getSubmissionSet(), MetadataSupport.status_type_approved);
-        //Metadata.setStatusOnRegistryObject(this.getTargetObject(), MetadataSupport.status_type_approved);
 
         // Make registry submission.
         backendRegistry.setReason("Submit Association");

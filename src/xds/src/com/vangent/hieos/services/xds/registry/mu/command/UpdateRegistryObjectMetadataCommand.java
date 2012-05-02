@@ -16,12 +16,9 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
-import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +162,6 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         OMElement targetObject = this.getTargetObject();
 
         // Now, fixup the Metadata to be submitted.
-
         // Change symbolic names to UUIDs.
         IdParser idParser = new IdParser(metadata);
         idParser.compileSymbolicNamesIntoUuids();

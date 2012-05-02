@@ -98,10 +98,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
             OMElement newAssoc = null;
             if (sourceId.equals(currentDocumentEntryId)) {
                 // If source is a document, then the target is a document.
-
                 // Now make sure that we do not violate patient id constraints.
                 validator.validateDocumentPatientId(targetId, targetPatientId);
-
                 // Create association between new document version and target document.
                 newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
@@ -110,10 +108,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
                     // If the association type is not a has member, then the source must be a document.
                     // For optimization reasons, assuming a document (not verifying here).
-
                     // Now make sure that we do not violate patient id constraints.
                     validator.validateDocumentPatientId(sourceId, targetPatientId);
-
                     // Create association between source document and new document version.
                     newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                     newAssocMetadata.addAssociation(newAssoc);

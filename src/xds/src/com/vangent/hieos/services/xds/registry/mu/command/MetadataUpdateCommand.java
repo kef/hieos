@@ -81,6 +81,38 @@ public abstract class MetadataUpdateCommand {
         return runStatus;
     }
 
+      /**
+     *
+     * @param muSQ
+     * @param registryObjectId
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getDocumentMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getDocumentByUUID(registryObjectId);
+        Metadata m = MetadataParser.parseNonSubmission(queryResult);
+        if (!m.getExtrinsicObjects().isEmpty()) {
+            return m;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param muSQ
+     * @param registryObjectId
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getFolderMetadata(MetadataUpdateStoredQuerySupport muSQ, String registryObjectId) throws XdsException {
+        OMElement queryResult = muSQ.getFolderByUUID(registryObjectId);
+        Metadata m = MetadataParser.parseNonSubmission(queryResult);
+        if (!m.getFolders().isEmpty()) {
+            return m;
+        }
+        return null;
+    }
+
     /**
      *
      * @param registryObjectEntryId

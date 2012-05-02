@@ -79,14 +79,11 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
             if (sourceId.equals(currentFolderEntryId)) {
                 // source is the folder; target must be a document.
                 String targetId = assocMetadata.getTargetObject(assoc);
-
                 // Now make sure that we do not violate patient id constraints.
                 validator.validateDocumentPatientId(targetId, targetPatientId);
-
                 // Create association between new folder version and target document.
                 OMElement newAssoc = newAssocMetadata.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, newFolderEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
-
                 // Deprecate prior association.
                 String assocId = assocMetadata.getId(assoc);
                 deprecateAssocIds.add(assocId);

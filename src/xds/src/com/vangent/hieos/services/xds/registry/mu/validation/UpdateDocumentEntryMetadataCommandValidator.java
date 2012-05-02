@@ -58,7 +58,10 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
         XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
+        // Prepare to conduct validation.
+        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
         Metadata submittedMetadata = cmd.getMetadata();
+
         OMElement targetObject = cmd.getTargetObject();
         String previousVersion = cmd.getPreviousVersion();
 
@@ -98,21 +101,13 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         // Fall through: we found a document that matches.
         cmd.setCurrentRegistryObject(currentMetadata.getExtrinsicObject(0));
 
-        // Validate the submitted submission set along with its contained content.
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        rov.validateMetadataStructure(submittedMetadata, true /* isSubmit */, registryResponse.registryErrorList);
-        if (registryResponse.has_errors()) {
-            validationSuccess = false;
-        } else {
-            // Run further validations.
-            this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
-            this.validateRepositoryUniqueId(submittedMetadata, cmd);
-            this.validateHashAndSize(submittedMetadata, cmd);
-            this.validateObjectType(cmd);
-            rov.validateSubmissionSetUniqueIds(submittedMetadata);
-            rov.validateDocumentUniqueIds(submittedMetadata);
-            rov.validatePatientId(submittedMetadata, configActor);
-        }
+        // Run further validations.
+        this.validateUniqueIdMatch(targetObject, submittedMetadata, cmd.getCurrentRegistryObject(), currentMetadata);
+        this.validateRepositoryUniqueId(submittedMetadata, cmd);
+        this.validateHashAndSize(submittedMetadata, cmd);
+        this.validateObjectType(cmd);
+        rov.validateDocumentUniqueIds(submittedMetadata);
+        rov.validatePatientId(submittedMetadata, configActor);
         return validationSuccess;
     }
 
