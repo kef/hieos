@@ -16,7 +16,7 @@ package com.vangent.hieos.xutil.exception;
  *
  * @author Bernie Thuman
  */
-public class XdsResultNotSinglePatientException extends Exception {
+public class XdsResultNotSinglePatientException extends XdsException {
 
     /**
      *
