@@ -29,40 +29,40 @@ SET default_with_oids = false;
 --
 -- DROP Tables
 --
-DROP TABLE IF EXISTS adhocquery;
-DROP TABLE IF EXISTS affectedobject;
+--DROP TABLE IF EXISTS adhocquery;
+--DROP TABLE IF EXISTS affectedobject;
 DROP TABLE IF EXISTS association;
-DROP TABLE IF EXISTS auditableevent;
+--DROP TABLE IF EXISTS auditableevent;
 DROP TABLE IF EXISTS classification;
-DROP TABLE IF EXISTS classificationnode;
-DROP TABLE IF EXISTS classscheme;
+--DROP TABLE IF EXISTS classificationnode;
+--DROP TABLE IF EXISTS classscheme;
 DROP TABLE IF EXISTS description;
-DROP TABLE IF EXISTS emailaddress;
+--DROP TABLE IF EXISTS emailaddress;
 DROP TABLE IF EXISTS externalidentifier;
-DROP TABLE IF EXISTS externallink;
+--DROP TABLE IF EXISTS externallink;
 DROP TABLE IF EXISTS extrinsicobject;
-DROP TABLE IF EXISTS federation;
+--DROP TABLE IF EXISTS federation;
 DROP TABLE IF EXISTS name_;
-DROP TABLE IF EXISTS notification;
-DROP TABLE IF EXISTS notificationobject;
-DROP TABLE IF EXISTS notifyaction;
-DROP TABLE IF EXISTS objectref;
-DROP TABLE IF EXISTS organization;
-DROP TABLE IF EXISTS person;
-DROP TABLE IF EXISTS postaladdress;
-DROP TABLE IF EXISTS registry;
+--DROP TABLE IF EXISTS notification;
+--DROP TABLE IF EXISTS notificationobject;
+--DROP TABLE IF EXISTS notifyaction;
+--DROP TABLE IF EXISTS objectref;
+--DROP TABLE IF EXISTS organization;
+--DROP TABLE IF EXISTS person;
+--DROP TABLE IF EXISTS postaladdress;
+--DROP TABLE IF EXISTS registry;
 --DROP TABLE IF EXISTS registryobject;
 DROP TABLE IF EXISTS registrypackage;
-DROP TABLE IF EXISTS repositoryitem;
-DROP TABLE IF EXISTS service;
-DROP TABLE IF EXISTS servicebinding;
+--DROP TABLE IF EXISTS repositoryitem;
+--DROP TABLE IF EXISTS service;
+--DROP TABLE IF EXISTS servicebinding;
 DROP TABLE IF EXISTS slot;
-DROP TABLE IF EXISTS specificationlink;
-DROP TABLE IF EXISTS subscription;
-DROP TABLE IF EXISTS telephonenumber;
-DROP TABLE IF EXISTS usagedescription;
-DROP TABLE IF EXISTS usageparameter;
-DROP TABLE IF EXISTS user_;
+--DROP TABLE IF EXISTS specificationlink;
+--DROP TABLE IF EXISTS subscription;
+--DROP TABLE IF EXISTS telephonenumber;
+--DROP TABLE IF EXISTS usagedescription;
+--DROP TABLE IF EXISTS usageparameter;
+--DROP TABLE IF EXISTS user_;
 
 --
 -- TOC entry 1567 (class 1259 OID 78400)
@@ -348,6 +348,11 @@ CREATE INDEX type_ass_idx ON association USING btree (associationtype);
 --
 
 CREATE INDEX value_eid_idx ON externalidentifier USING btree (value);
+
+-- Additional indexes (on LID).
+CREATE INDEX lid_class_idx ON classification USING btree(lid);
+CREATE INDEX lid_eo_idx ON extrinsicobject USING btree(lid);
+CREATE INDEX lid_rp_idx ON registrypackage USING btree(lid);
 
 --
 -- TOC entry 1976 (class 0 OID 0)
