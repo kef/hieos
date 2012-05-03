@@ -308,3 +308,8 @@ CREATE INDEX type_ass_idx ON association (associationtype);
 --
 
 CREATE INDEX value_eid_idx ON externalidentifier (value);
+
+-- Additional indexes (on LID).
+CREATE INDEX lid_class_idx ON classification (lid);
+CREATE INDEX lid_eo_idx ON extrinsicobject (lid);
+CREATE INDEX lid_rp_idx ON registrypackage (lid);
