@@ -18,5 +18,6 @@ delete from patient;
 
 delete from mergedobjects;
 delete from mergehistory;
+delete from patientcorrelation;
 
 --commit;
