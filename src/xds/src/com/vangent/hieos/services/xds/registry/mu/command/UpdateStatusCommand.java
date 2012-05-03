@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.axiom.om.OMElement;
 
 /**
  * 
@@ -136,22 +137,21 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
                 logMessage.addOtherParam("Association Updated", targetObjectId);
             }
         }
-        this.updateRegistryObjectStatus(this.getMetadataUpdateContext().getBackendRegistry(), targetObjectId, this.newStatus);
+        this.updateRegistryObjectStatus(targetObjectId, this.newStatus);
         return true; // Success.
     }
 
     /**
-     *
-     * @param backendRegistry
+     * 
      * @param objectId
      * @param status
      * @throws XdsInternalException
      */
-    private void updateRegistryObjectStatus(BackendRegistry backendRegistry,
-            String objectId, String status) throws XdsInternalException {
+    private void updateRegistryObjectStatus(String objectId, String status) throws XdsInternalException {
+        BackendRegistry backendRegistry = this.getMetadataUpdateContext().getBackendRegistry();
         List<String> objectIds = new ArrayList<String>();
         objectIds.add(objectId);
-        backendRegistry.submitSetStatusOnObjectsRequest(objectIds, status);
+        OMElement result = backendRegistry.submitSetStatusOnObjectsRequest(objectIds, status);
         // FIXME: Deal with response!!
     }
 }

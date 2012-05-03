@@ -111,6 +111,7 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         // Make registry submission.
         backendRegistry.setReason("Submit Association");
         OMElement result = backendRegistry.submit(metadata);
+        // FIXME: result?
         return true;
     }
 }

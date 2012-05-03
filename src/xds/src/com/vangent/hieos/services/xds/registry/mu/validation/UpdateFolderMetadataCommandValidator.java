@@ -15,17 +15,12 @@ package com.vangent.hieos.services.xds.registry.mu.validation;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
-import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
-import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -52,19 +47,11 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         boolean validationSuccess = true;
 
         // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        XConfigActor configActor = metadataUpdateContext.getConfigActor();
-
-        // Make sure submission does not also include documents or other metadata we don't
-        // care about.
-
-        // Run initial validations on submitted metadata.
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        Metadata submittedMetadata = cmd.getSubmittedMetadata();
-        rov.validatePatientId(submittedMetadata, configActor);
+        //MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+        //RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
+        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
@@ -73,6 +60,7 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         this.getCurrentRegistryObject(cmd);
 
         // Run further validations.
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
         this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
         return validationSuccess;
     }

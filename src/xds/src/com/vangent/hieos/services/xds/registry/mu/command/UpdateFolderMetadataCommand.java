@@ -94,11 +94,13 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         if (!newAssocMetadata.getAssociations().isEmpty()) {
             backendRegistry.setReason("Association Propagation Submission");
             OMElement result = backendRegistry.submit(newAssocMetadata);
+            // FIXME: result?
         }
 
         // Now, run deprecations.
         if (!deprecateAssocIds.isEmpty()) {
-            backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
+            OMElement result = backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
+            // FIXME: result?
         }
     }
 }

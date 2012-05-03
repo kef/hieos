@@ -57,13 +57,12 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
         RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        XConfigActor configActor = metadataUpdateContext.getConfigActor();
+        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         // Run initial validations on submitted metadata.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         rov.validateDocumentUniqueIds(submittedMetadata);
-        rov.validatePatientId(submittedMetadata, configActor);
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"

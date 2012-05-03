@@ -111,9 +111,6 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         } catch (XdsInternalException e) {
         }
         return res;
-
-        // TBD: Implement
-        //return submitObjectsRequest;
     }
 
     /**
@@ -156,7 +153,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 // Make sure that submission set is unique.
                 rov.validateSubmissionSetUniqueIds(submittedMetadata);
 
-                List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
+                // Make sure registry knows about the patient id.
+                rov.validatePatientId(submittedMetadata, this.getConfigActor());
+                rov.validateConsistentPatientId(true, submittedMetadata);
 
                 // Technical operation cases:
                 // - Update DocumentEntry Metadata
@@ -166,12 +165,10 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 // - Update Association Status
                 // - Submit new Assoication object(s)
 
-                //String submissionSetId = m.getSubmissionSetId();
-                //String submissionSetObjectType = m.getObjectTypeById(submissionSetId);
+                // Build list of commands (Command Pattern) to execute.
+                List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
                 for (OMElement assoc : submittedMetadata.getAssociations()) {
                     // See if we are dealing with a proper association.
-                    //String sourceObjectId = m.getSourceObject(assoc);
-                    //String targetObjectId = m.getTargetObject(assoc);
                     MetadataUpdateCommand muCommand = null;
                     if (MetadataSupport.xdsB_ihe_assoc_type_update_availability_status.equals(submittedMetadata.getAssocType(assoc))) {
                         muCommand = this.handleUpdateAvailabilityStatusAssociation(submittedMetadata, metadataUpdateContext, assoc);
@@ -181,7 +178,6 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                         muCommand = this.handleSubmitAssociation(submittedMetadata, metadataUpdateContext, assoc);
                     } else {
                         // Do nothing.
-                        //System.out.println("Association is not a trigger!");
                     }
                     if (muCommand != null) {
                         muCommands.add(muCommand);
@@ -211,43 +207,38 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
     /**
      *
-     * @param m
+     * @param submittedMetadata
      * @param metadataUpdateContext
      * @param assoc
      * @return
      * @throws MetadataException
      */
-    private MetadataUpdateCommand handleHasMemberAssociation(Metadata m, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
+    private MetadataUpdateCommand handleHasMemberAssociation(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
         MetadataUpdateCommand muCommand = null;
-
-        String submissionSetId = m.getSubmissionSetId();
-        //String submissionSetObjectType = m.getObjectTypeById(submissionSetId);
-
-        String sourceObjectId = m.getSourceObject(assoc);
-        String targetObjectId = m.getTargetObject(assoc);
+        String submissionSetId = submittedMetadata.getSubmissionSetId();
+        String sourceObjectId = submittedMetadata.getSourceObject(assoc);
+        String targetObjectId = submittedMetadata.getTargetObject(assoc);
 
         // See what type of target object we are dealing with.
-        String targetObjectType = m.getObjectTypeById(targetObjectId);
-        OMElement submittedRegistryObject = m.getObjectById(targetObjectId);
+        String targetObjectType = submittedMetadata.getObjectTypeById(targetObjectId);
+        OMElement submittedRegistryObject = submittedMetadata.getObjectById(targetObjectId);
         if (sourceObjectId.equals(submissionSetId)) {
             // See if we have a PreviousVersion slot name.
-            String perviousVersion = m.getSlotValue(assoc, "PreviousVersion", 0);
+            String perviousVersion = submittedMetadata.getSlotValue(assoc, "PreviousVersion", 0);
             if (perviousVersion != null) {
                 boolean associationPropagation = true;
                 // See if "AssociationPropagation" slot is in request.
-                String associationPropagationValueText = m.getSlotValue(assoc, "AssociationPropagation", 0);
+                String associationPropagationValueText = submittedMetadata.getSlotValue(assoc, "AssociationPropagation", 0);
                 // If missing, default is "yes".
                 if (associationPropagationValueText != null) {
                     if (associationPropagationValueText.equalsIgnoreCase("no")) {
                         associationPropagation = false;
                     }
                 }
-                // Get logical id (lid).
-                //String lid = targetObject.getAttributeValue(MetadataSupport.lid_qname);
                 if (targetObjectType.equals("Folder")) {
                     // Updating a folder.
                     UpdateFolderMetadataCommand updateFolderCommand =
-                            new UpdateFolderMetadataCommand(m, metadataUpdateContext);
+                            new UpdateFolderMetadataCommand(submittedMetadata, metadataUpdateContext);
                     updateFolderCommand.setPreviousVersion(perviousVersion);
                     updateFolderCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateFolderCommand.setAssociationPropagation(associationPropagation);
@@ -255,7 +246,7 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 } else if (targetObjectType.equals("ExtrinsicObject")) {
                     // Updating a document.
                     UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand =
-                            new UpdateDocumentEntryMetadataCommand(m, metadataUpdateContext);
+                            new UpdateDocumentEntryMetadataCommand(submittedMetadata, metadataUpdateContext);
                     updateDocumentEntryCommand.setPreviousVersion(perviousVersion);
                     updateDocumentEntryCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);
@@ -268,20 +259,19 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
     /**
      *
-     * @param m
+     * @param submittedMetadata
      * @param metadataUpdateContext
      * @param assoc
      * @return
      * @throws MetadataException
      */
-    private MetadataUpdateCommand handleUpdateAvailabilityStatusAssociation(Metadata m, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
+    private MetadataUpdateCommand handleUpdateAvailabilityStatusAssociation(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
         MetadataUpdateCommand muCommand = null;
-
-        String targetObjectId = m.getTargetObject(assoc);
+        String targetObjectId = submittedMetadata.getTargetObject(assoc);
         // Get "NewStatus" and "OriginalStatus".
-        String newStatus = m.getSlotValue(assoc, "NewStatus", 0);
-        String originalStatus = m.getSlotValue(assoc, "OriginalStatus", 0);
-        UpdateStatusCommand updateStatusCommand = new UpdateStatusCommand(m, metadataUpdateContext);
+        String newStatus = submittedMetadata.getSlotValue(assoc, "NewStatus", 0);
+        String originalStatus = submittedMetadata.getSlotValue(assoc, "OriginalStatus", 0);
+        UpdateStatusCommand updateStatusCommand = new UpdateStatusCommand(submittedMetadata, metadataUpdateContext);
         updateStatusCommand.setNewStatus(newStatus);
         updateStatusCommand.setOriginalStatus(originalStatus);
         updateStatusCommand.setTargetObjectId(targetObjectId);
@@ -291,19 +281,17 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
 
     /**
      *
-     * @param m
+     * @param submittedMetadata
      * @param metadataUpdateContext
      * @param assoc
      * @return
      * @throws MetadataException
      */
-    private MetadataUpdateCommand handleSubmitAssociation(Metadata m, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
+    private MetadataUpdateCommand handleSubmitAssociation(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext, OMElement assoc) throws MetadataException {
         MetadataUpdateCommand muCommand = null;
-        String targetObjectId = m.getTargetObject(assoc);
-        // See what type of target object we are dealing with.
-        // String targetObjectType = m.getObjectTypeById(targetObjectId);
-        OMElement submittedRegistryObject = m.getObjectById(targetObjectId);
-        SubmitAssociationCommand submitAssociationCommand = new SubmitAssociationCommand(m, metadataUpdateContext);
+        String targetObjectId = submittedMetadata.getTargetObject(assoc);
+        OMElement submittedRegistryObject = submittedMetadata.getObjectById(targetObjectId);
+        SubmitAssociationCommand submitAssociationCommand = new SubmitAssociationCommand(submittedMetadata, metadataUpdateContext);
         submitAssociationCommand.setSubmittedRegistryObject(submittedRegistryObject);
         submitAssociationCommand.setSubmitAssociation(assoc);
         muCommand = submitAssociationCommand;

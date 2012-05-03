@@ -178,11 +178,13 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         backendRegistry.setReason("Submit New Version");
         submittedMetadata.setStatusOnApprovableObjects();
         OMElement result = backendRegistry.submit(submittedMetadata);
+        // FIXME: result?
 
         // Deprecate old.
         List<String> deprecateObjectIds = new ArrayList<String>();
         deprecateObjectIds.add(currentRegistryObjectId);
-        backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
+        result = backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
+        // FIXME: result?
 
         // Deal with association propagation if required.
         if (this.isAssociationPropagation()) {
