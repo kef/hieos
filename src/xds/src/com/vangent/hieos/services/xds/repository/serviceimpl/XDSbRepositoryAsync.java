@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.xds.repository.serviceimpl;
 
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
-import com.vangent.hieos.xutil.exception.XdsWSException;
 
 /**
  * XDSbRepositoryAsync is a simple class that overrides a few methods in

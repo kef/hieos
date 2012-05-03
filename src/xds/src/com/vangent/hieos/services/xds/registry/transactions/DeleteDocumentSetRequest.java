@@ -72,16 +72,23 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             this.auditDeleteDocumentSetRequest(removeObjectsRequest);
             this.handleDeleteDocumentSetRequest(removeObjectsRequest);
         } catch (XdsInternalException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSUnresolvedReferenceException e) {
             response.add_error(MetadataSupport.XDSUnresolvedReferenceExceptionError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSPatientIDReconciliationException e) {
             response.add_error(MetadataSupport.XDSPatientIDReconciliationError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (SchemaValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
+        } catch (Exception e) {
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         }
         OMElement res = null;
         try {

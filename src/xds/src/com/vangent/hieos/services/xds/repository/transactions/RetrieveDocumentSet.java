@@ -84,8 +84,11 @@ public class RetrieveDocumentSet extends XBaseTransaction {
         try {
             init(new RetrieveMultipleResponse(), messageContext);
         } catch (XdsInternalException e) {
-            logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
+        } catch (Exception e)
+        {
+
         }
     }
 

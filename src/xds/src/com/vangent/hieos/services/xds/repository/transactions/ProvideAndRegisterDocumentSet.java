@@ -99,7 +99,8 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             pnr.build();
             handleProvideAndRegisterRequest(pnr);
         } catch (XdsFormatException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSMissingDocumentException e) {
             response.add_error(MetadataSupport.XDSMissingDocument, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
@@ -107,28 +108,32 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
             response.add_error(MetadataSupport.XDSMissingDocumentMetadata, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (XdsInternalException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsIOException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "XDS IO Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsConfigurationException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Configuration Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (MetadataValidationException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (MetadataException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (SchemaValidationException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "Schema Validation Errors:\n" + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSRepositoryMetadataError e) {
-            response.add_error(MetadataSupport.XDSRepositoryMetadataError, "Metadata Validation Errors:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsException e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "XDS Internal Error:\n " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (Exception e) {
-            response.add_error(MetadataSupport.XDSRepositoryError, "Input Error - no SOAP Body:\n " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         }
 
         this.log_response();
@@ -372,7 +377,7 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
      * @throws XdsInternalException
      */
     private void performRegisterDocumentSet(Metadata m) throws MetadataException, XdsInternalException {
-      
+
         OMElement register_transaction = m.getV3SubmitObjectsRequest();
         String epr = getRegistryEndpoint();
 

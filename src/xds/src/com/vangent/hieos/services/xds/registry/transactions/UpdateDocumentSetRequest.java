@@ -86,23 +86,32 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
             this.auditUpdateDocumentSetRequest(submitObjectsRequest);
             this.handleUpdateDocumentSetRequest(submitObjectsRequest);
         } catch (XdsInternalException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "XDS Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSPatientIDReconciliationException e) {
             response.add_error(MetadataSupport.XDSPatientIDReconciliationError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSMetadataVersionException e) {
             response.add_error(MetadataSupport.XDSMetadataVersionError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSNonIdenticalHashException e) {
             response.add_error(MetadataSupport.XDSNonIdenticalHash, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (SchemaValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryMetadataError, "Schema Validation Errors: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (MetadataException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (MetadataValidationException e) {
             response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
+        } catch (Exception e) {
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         }
         OMElement res = null;
         try {

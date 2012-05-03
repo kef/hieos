@@ -65,7 +65,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
                 throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
             }
         }
-        // TBD: Do some additional validation here - make sure PID constraints are enforced.
+        // TBD: Do some additional validation here.
         return validationSuccess;
     }
 

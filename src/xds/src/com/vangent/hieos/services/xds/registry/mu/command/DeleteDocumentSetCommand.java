@@ -56,6 +56,8 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
         Metadata submittedMetadata = this.getSubmittedMetadata();
         // Get list of object references.
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
+        // FIXME: Should delete associations to these objects.
+        // FIXME: Will need to get loaded metadata (already exists from validator).
         OMElement result = this.deleteRegistryObjects(objectRefIds);
         // FIXME: result?
         return true;

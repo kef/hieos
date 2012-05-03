@@ -334,9 +334,9 @@ public class SubmitObjectsRequest extends XBaseTransaction {
      * @param objectIds
      * @throws XdsInternalException
      */
-    private void submitApproveObjectsRequest(BackendRegistry backendRegistry, List<String> objectIds) throws XdsInternalException {
-        backendRegistry.submitApproveObjectsRequest(objectIds);
-    }
+    //private void submitApproveObjectsRequest(BackendRegistry backendRegistry, List<String> objectIds) throws XdsInternalException {
+    //    backendRegistry.submitApproveObjectsRequest(objectIds);
+    //}
 
     /**
      *

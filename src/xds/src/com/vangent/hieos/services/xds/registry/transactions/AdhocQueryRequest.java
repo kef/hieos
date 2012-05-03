@@ -135,31 +135,36 @@ public class AdhocQueryRequest extends XBaseTransaction {
             //        XATNALogger.OutcomeIndicator.SUCCESS);
         } catch (XdsResultNotSinglePatientException e) {
             response.add_error(MetadataSupport.XDSResultNotSinglePatient, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Validation Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsFormatException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "SOAP Format Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XDSRegistryOutOfResourcesException e) {
-            // query return limitation
             response.add_error(MetadataSupport.XDSRegistryOutOfResources, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (SchemaValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryMetadataError, "SchemaValidationException: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsInternalException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (MetadataValidationException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Metadata Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
         } catch (MetadataException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "Metadata error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryMetadataError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (SQLException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "SQL error: " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         } catch (XdsException e) {
-            response.add_error(MetadataSupport.XDSRegistryError, "XDS Error: " + e.getMessage(), this.getClass().getName(), log_message);
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));
         } catch (Exception e) {
-            response.add_error("General Exception", "Internal Error: " + e.getMessage(), this.getClass().getName(), log_message);
-            logger.fatal(logger_exception_details(e));
+            response.add_error(MetadataSupport.XDSRegistryError, e.getMessage(), this.getClass().getName(), log_message);
+            logger.warn(logger_exception_details(e));
         }
         this.log_response();
         OMElement res = null;
