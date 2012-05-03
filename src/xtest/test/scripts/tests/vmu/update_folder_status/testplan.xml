@@ -12,6 +12,8 @@
             <NoPatientId/>
             <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
                 symbol="$folder$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <MetadataFile>update_folder_status.xml</MetadataFile>
@@ -61,6 +63,8 @@
             <NoPatientId/>
             <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
                 symbol="$folder$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
             <MetadataFile>update_folder_status.xml</MetadataFile>
@@ -110,6 +114,8 @@
             <NoPatientId/>
             <UseId testdir="../submit" id="Folder" step="submit_doc_w_fol" section="AssignedUuids"
                 symbol="$folder$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc_w_fol" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
             <MetadataFile>update_folder_status.xml</MetadataFile>

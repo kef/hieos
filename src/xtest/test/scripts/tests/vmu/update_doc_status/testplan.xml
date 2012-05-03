@@ -12,6 +12,8 @@
             <NoPatientId/>
             <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
                 symbol="$document$"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <MetadataFile>update_doc_status.xml</MetadataFile>
@@ -63,6 +65,8 @@
                 symbol="$document$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <MetadataFile>update_doc_status.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
@@ -112,6 +116,8 @@
                 symbol="$document$"/>
             <UseId symbol="$old_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"/>
             <UseId symbol="$new_status$" value="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"/>
+            <UseId testdir="../submit" id="SubmissionSet01" step="submit_doc" section="AssignedPatientId"
+                symbol="$patient_id$"/>
             <MetadataFile>update_doc_status.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
