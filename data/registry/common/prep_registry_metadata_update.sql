@@ -12,9 +12,16 @@
 --
 
 -- Database: omar
-
+--
+--  Run this script if you have an existing HIEOS/OMAR database and you 
+--  want to utilize the "IHE Metadata Update" features of the HIEOS XDS.b
+--  Document Registry.
+--
 -- DROP DATABASE omar;
 -- use omar;
+--
+
+
 -- Additional indexes (on LID).
 --CREATE INDEX lid_class_idx ON classification (lid);
 CREATE INDEX lid_eo_idx ON extrinsicobject (lid);
