@@ -350,7 +350,6 @@ CREATE INDEX type_ass_idx ON association USING btree (associationtype);
 CREATE INDEX value_eid_idx ON externalidentifier USING btree (value);
 
 -- Additional indexes (on LID).
-CREATE INDEX lid_class_idx ON classification USING btree(lid);
 CREATE INDEX lid_eo_idx ON extrinsicobject USING btree(lid);
 CREATE INDEX lid_rp_idx ON registrypackage USING btree(lid);
 

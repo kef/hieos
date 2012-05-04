@@ -35,35 +35,35 @@ CREATE DATABASE IF NOT EXISTS omar;
 USE omar;
 
 
-DROP TABLE IF EXISTS `adhocquery`;
-DROP TABLE IF EXISTS `affectedobject`;
-DROP TABLE IF EXISTS `auditableevent`;
-DROP TABLE IF EXISTS `classificationnode`;
-DROP TABLE IF EXISTS `classscheme`;
-DROP TABLE IF EXISTS `emailaddress`;
-DROP TABLE IF EXISTS `externallink`;
-DROP TABLE IF EXISTS `federation`;
-DROP TABLE IF EXISTS `notification`;
-DROP TABLE IF EXISTS `notificationobject`;
-DROP TABLE IF EXISTS `notifyaction`;
-DROP TABLE IF EXISTS `objectref`;
-DROP TABLE IF EXISTS `organization`;
-DROP TABLE IF EXISTS `person`;
-DROP TABLE IF EXISTS `postaladdress`;
-DROP TABLE IF EXISTS `registry`;
-DROP TABLE IF EXISTS `registryobject`;
-DROP VIEW IF EXISTS `registryobject`;
-DROP TABLE IF EXISTS `repositoryitem`;
-DROP TABLE IF EXISTS `service`;
-DROP TABLE IF EXISTS `servicebinding`;
-DROP TABLE IF EXISTS `specificationlink`;
-DROP TABLE IF EXISTS `subscription`;
-DROP TABLE IF EXISTS `telephonenumber`;
-DROP TABLE IF EXISTS `usagedescription`;
-DROP TABLE IF EXISTS `usageparameter`;
-DROP TABLE IF EXISTS `user_`;
-DROP TABLE IF EXISTS `identifiable`;
-DROP VIEW IF EXISTS `identifiable`;
+--DROP TABLE IF EXISTS `adhocquery`;
+--DROP TABLE IF EXISTS `affectedobject`;
+--DROP TABLE IF EXISTS `auditableevent`;
+--DROP TABLE IF EXISTS `classificationnode`;
+--DROP TABLE IF EXISTS `classscheme`;
+--DROP TABLE IF EXISTS `emailaddress`;
+--DROP TABLE IF EXISTS `externallink`;
+--DROP TABLE IF EXISTS `federation`;
+--DROP TABLE IF EXISTS `notification`;
+--DROP TABLE IF EXISTS `notificationobject`;
+--DROP TABLE IF EXISTS `notifyaction`;
+--DROP TABLE IF EXISTS `objectref`;
+--DROP TABLE IF EXISTS `organization`;
+--DROP TABLE IF EXISTS `person`;
+--DROP TABLE IF EXISTS `postaladdress`;
+--DROP TABLE IF EXISTS `registry`;
+--DROP TABLE IF EXISTS `registryobject`;
+--DROP VIEW IF EXISTS `registryobject`;
+--DROP TABLE IF EXISTS `repositoryitem`;
+--DROP TABLE IF EXISTS `service`;
+--DROP TABLE IF EXISTS `servicebinding`;
+--DROP TABLE IF EXISTS `specificationlink`;
+--DROP TABLE IF EXISTS `subscription`;
+--DROP TABLE IF EXISTS `telephonenumber`;
+--DROP TABLE IF EXISTS `usagedescription`;
+--DROP TABLE IF EXISTS `usageparameter`;
+--DROP TABLE IF EXISTS `user_`;
+--DROP TABLE IF EXISTS `identifiable`;
+--DROP VIEW IF EXISTS `identifiable`;
 
 --
 -- Definition of table `association`
@@ -181,7 +181,8 @@ CREATE TABLE `extrinsicobject` (
   `versionName` varchar(16) DEFAULT NULL,
   `isOpaque` char(1) NOT NULL,
   `mimeType` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lid_EO_idx` (`lid`)
 ) TYPE=InnoDB;
 
 --
@@ -223,7 +224,8 @@ CREATE TABLE `registrypackage` (
   `objectType` char(2) DEFAULT NULL,
   `status` char(1) NOT NULL,
   `versionName` varchar(16) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lid_RP_idx` (`lid`)
 ) TYPE=InnoDB;
 
 --

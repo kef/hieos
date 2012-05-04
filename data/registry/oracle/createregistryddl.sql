@@ -18,40 +18,40 @@
 --
 -- DROP Tables
 --
-DROP TABLE adhocquery;
-DROP TABLE affectedobject;
+--DROP TABLE adhocquery;
+--DROP TABLE affectedobject;
 DROP TABLE association;
-DROP TABLE auditableevent;
+--DROP TABLE auditableevent;
 DROP TABLE classification;
-DROP TABLE classificationnode;
-DROP TABLE classscheme;
+--DROP TABLE classificationnode;
+--DROP TABLE classscheme;
 DROP TABLE description;
-DROP TABLE emailaddress;
+--DROP TABLE emailaddress;
 DROP TABLE externalidentifier;
-DROP TABLE externallink;
+--DROP TABLE externallink;
 DROP TABLE extrinsicobject;
-DROP TABLE federation;
+--DROP TABLE federation;
 DROP TABLE name_;
-DROP TABLE notification;
-DROP TABLE notificationobject;
-DROP TABLE notifyaction;
-DROP TABLE objectref;
-DROP TABLE organization;
-DROP TABLE person;
-DROP TABLE postaladdress;
-DROP TABLE registry;
+--DROP TABLE notification;
+--DROP TABLE notificationobject;
+--DROP TABLE notifyaction;
+--DROP TABLE objectref;
+--DROP TABLE organization;
+--DROP TABLE person;
+--DROP TABLE postaladdress;
+--DROP TABLE registry;
 --DROP TABLE registryobject;
 DROP TABLE registrypackage;
-DROP TABLE repositoryitem;
-DROP TABLE service;
-DROP TABLE servicebinding;
+--DROP TABLE repositoryitem;
+--DROP TABLE service;
+--DROP TABLE servicebinding;
 DROP TABLE slot;
-DROP TABLE specificationlink;
-DROP TABLE subscription;
-DROP TABLE telephonenumber;
-DROP TABLE usagedescription;
-DROP TABLE usageparameter;
-DROP TABLE user_;
+--DROP TABLE specificationlink;
+--DROP TABLE subscription;
+--DROP TABLE telephonenumber;
+--DROP TABLE usagedescription;
+--DROP TABLE usageparameter;
+--DROP TABLE user_;
 
 --
 -- TOC entry 1567 (class 1259 OID 78400)
@@ -320,6 +320,6 @@ CREATE INDEX type_ass_idx ON association (associationtype);
 CREATE INDEX value_eid_idx ON externalidentifier (value);
 
 -- Additional indexes (on LID).
-CREATE INDEX lid_class_idx ON classification (lid);
+--CREATE INDEX lid_class_idx ON classification (lid);
 CREATE INDEX lid_eo_idx ON extrinsicobject (lid);
 CREATE INDEX lid_rp_idx ON registrypackage (lid);
