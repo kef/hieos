@@ -44,7 +44,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -193,7 +192,7 @@ public class SubmitDocumentRequestHandler extends XBaseTransaction {
      *
      * @throws AxisFault
      */
-    public OMElement run(MessageContext messageContext, OMElement request)
+    public OMElement run(OMElement request)
             throws AxisFault {
 
         SubmitDocumentResponse sdrResponse =

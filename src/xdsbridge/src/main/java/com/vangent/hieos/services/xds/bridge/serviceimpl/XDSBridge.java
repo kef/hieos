@@ -82,7 +82,7 @@ public class XDSBridge extends XAbstractService {
                     serviceContext);
 
             handler.setConfigActor(this.getConfigActor());
-            response = handler.run(getMessageContext(), request);
+            response = handler.run(request);
             endTransaction(handler.getStatus());
             if (logger.isDebugEnabled()) {
                 logger.debug("== Sending SubmitDocumentResponse");
