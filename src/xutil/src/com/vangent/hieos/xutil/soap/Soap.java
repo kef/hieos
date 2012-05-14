@@ -73,6 +73,7 @@ public class Soap {
     private ServiceClient serviceClient = null;     // Cached Axis2 ServiceClient.
     private OMElement result = null;                // Holds the SOAP result.
     private boolean async = false;                  // Boolean value (determines "async" mode).
+    private MessageContext parentThreadMessageContext = null;
 
     /**
      * Set boolean value to determine if this request should be an asynchronous
@@ -82,6 +83,14 @@ public class Soap {
      */
     public void setAsync(boolean async) {
         this.async = async;
+    }
+
+    /**
+     *
+     * @param parentThreadMessageContext
+     */
+    public void setParentThreadMessageContext(MessageContext parentThreadMessageContext) {
+        this.parentThreadMessageContext = parentThreadMessageContext;
     }
 
     /**
@@ -485,13 +494,9 @@ public class Soap {
      * @return
      */
     private OMElement getCurrentSecurityHeader() {
-
         OMElement securityHeader = null;
-        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+        MessageContext currentMessageContext = this.getCurrentMessageContext();
         if (currentMessageContext != null) {
-            //System.out.println("+++ XUA - Current SOAP Action: "
-            //        + MessageContext.getCurrentMessageContext().getSoapAction());
-
             // Get the SOAP envelope from the current message context
             SOAPEnvelope env = currentMessageContext.getEnvelope();
 
@@ -500,17 +505,22 @@ public class Soap {
             if (header != null) {
                 OMElement securityHeaderFromRequest = header.getFirstChildWithName(
                         new QName(XUAConstants.WS_SECURITY_NS_URL, "Security"));
-                //if (securityHeader != null) {
-                //    System.out.println("+++++ FOUND +++++");
-                //}
                 securityHeader = Util.deep_copy(securityHeaderFromRequest);
             }
         }
         return securityHeader;
+    }
 
-        // Attach assertion to wrapper and
-        //wsseSecurityHeader.addChild(samlTokenEle);
-        // Attach wrapper to SOAP message
-        //requestEnvelope.getHeader().addChild(wsseSecurityHeader);
+    /**
+     *
+     * @return
+     */
+    private MessageContext getCurrentMessageContext() {
+        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+        if (currentMessageContext == null) {
+            // May be sending outbound SOAP requests in multi-threaded mode (i.e. XCA, XCPD).
+            currentMessageContext = this.parentThreadMessageContext;
+        }
+        return currentMessageContext;
     }
 }

@@ -40,7 +40,6 @@ public class XBaseTransaction {
      *
      */
     public XLogMessage log_message = null;
-    private MessageContext messageContext = null;
     private XConfigActor configActor = null;
 
     /**
@@ -63,8 +62,8 @@ public class XBaseTransaction {
      *
      * @return
      */
-    public MessageContext getMessageContext() {
-        return messageContext;
+    protected MessageContext getCurrentMessageContext() {
+        return MessageContext.getCurrentMessageContext();
     }
 
     /**
@@ -77,13 +76,11 @@ public class XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param response
-     * @param messageContext
      */
-    protected void init(Response response, MessageContext messageContext) {
+    protected void init(Response response) {
         this.response = response;
-        this.messageContext = messageContext;
     }
 
     /**

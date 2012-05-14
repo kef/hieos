@@ -146,6 +146,7 @@ public class Hl7Date {
             return date;
         } catch (ParseException ex) {
             // FIXME: Do something?
+            System.out.println("ParseException: " + ex.getMessage());
         }
         return null;
     }

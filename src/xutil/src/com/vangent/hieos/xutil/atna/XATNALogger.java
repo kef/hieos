@@ -60,6 +60,7 @@ public class XATNALogger {
     private String replyTo = "";
     private String userName = "";
     private UserContext userContext = null;
+    private MessageContext parentThreadMessageContext = null;
 
     /**
      *
@@ -81,6 +82,14 @@ public class XATNALogger {
         if (this.performAudit) {
             this.logSAMLAssertion = xconfig.getHomeCommunityConfigPropertyAsBoolean("ATNALogSAMLAssertion", false);
         }
+    }
+
+    /**
+     *
+     * @param parentThreadMessageContext
+     */
+    public void setParentThreadMessageContext(MessageContext parentThreadMessageContext) {
+        this.parentThreadMessageContext = parentThreadMessageContext;
     }
 
     /**
@@ -389,7 +398,7 @@ public class XATNALogger {
             OMElement assertionEle = null;
             try {
                 // Get SAML assertion from the current message context.
-                MessageContext mc = getCurrentMessageContext();
+                MessageContext mc = this.getCurrentMessageContext();
                 if (mc != null) {
                     // if there isn't a MessageContext then there won't
                     // be any SAML assertions, most likely to happen
@@ -641,7 +650,12 @@ public class XATNALogger {
      * @return
      */
     private MessageContext getCurrentMessageContext() {
-        return MessageContext.getCurrentMessageContext();
+        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+        if (currentMessageContext == null) {
+            // May be sending outbound SOAP requests in multi-threaded mode (i.e. XCA, XCPD).
+            currentMessageContext = this.parentThreadMessageContext;
+        }
+        return currentMessageContext;
     }
 
     /**

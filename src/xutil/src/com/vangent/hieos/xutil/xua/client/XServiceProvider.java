@@ -199,7 +199,7 @@ public class XServiceProvider {
         if (requestHeader == null) {
             throw new SOAPFaultException("XUA:Exception: SOAP header should not be null.");
         }
-        OMElement securityEle = requestHeader.getFirstChildWithName(new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+        OMElement securityEle = requestHeader.getFirstChildWithName(new QName(XUAConstants.WS_SECURITY_NS_URL,
                 "Security"));
         OMElement assertion = null;
         if (securityEle != null) {

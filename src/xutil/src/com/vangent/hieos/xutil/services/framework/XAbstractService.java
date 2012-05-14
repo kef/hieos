@@ -129,7 +129,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      *
      * @return
      */
-    protected MessageContext getMessageContext() {
+    protected MessageContext getCurrentMessageContext() {
         return MessageContext.getCurrentMessageContext();
     }
 
@@ -139,8 +139,6 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @throws SOAPFaultException
      */
     public static OMElement getSAMLAssertionFromRequest() throws SOAPFaultException {
-        // Can't rely on "messageContext" to be set above - should look to remove messageContext
-        // variable (not sure the purpose).
         return XServiceProvider.getSAMLAssertionFromRequest(MessageContext.getCurrentMessageContext());
     }
 
@@ -159,7 +157,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected MessageContext getResponseMessageContext() throws SOAPFaultException {
         try {
-            MessageContext messageContext = this.getMessageContext();
+            MessageContext messageContext = this.getCurrentMessageContext();
             MessageContext responseMessageContext = messageContext.getOperationContext().getMessageContext("Out");
             return responseMessageContext;
         } catch (AxisFault ex) {
@@ -172,7 +170,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @return
      */
     public String getSOAPAction() {
-        MessageContext mc = this.getMessageContext();
+        MessageContext mc = this.getCurrentMessageContext();
         return mc.getSoapAction();
     }
 
@@ -184,7 +182,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         checkSOAP12();
         if (isAsync()) {
             this.throwSOAPFaultException("Asynchronous web service request not acceptable on this endpoint"
-                    + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+                    + " - replyTo is " + getCurrentMessageContext().getReplyTo().getAddress());
         }
     }
 
@@ -198,7 +196,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         checkSOAP12();
         if (!isAsync()) {
             this.throwSOAPFaultException("Asynchronous web service required on this endpoint"
-                    + " - replyTo is " + getMessageContext().getReplyTo().getAddress());
+                    + " - replyTo is " + getCurrentMessageContext().getReplyTo().getAddress());
         }
     }
 
@@ -207,7 +205,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @throws SOAPFaultException
      */
     protected void validateNoMTOM() throws SOAPFaultException {
-        if (getMessageContext().isDoingMTOM()) {
+        if (getCurrentMessageContext().isDoingMTOM()) {
             this.throwSOAPFaultException("This transaction must use SIMPLE SOAP, MTOM found");
         }
     }
@@ -217,7 +215,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @throws SOAPFaultException
      */
     protected void validateMTOM() throws SOAPFaultException {
-        if (!getMessageContext().isDoingMTOM()) {
+        if (!getCurrentMessageContext().isDoingMTOM()) {
             this.throwSOAPFaultException("This transaction must use MTOM, SIMPLE SOAP found");
         }
     }
@@ -233,7 +231,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         //System.setProperty("http.nonProxyHosts", "");
         this.serviceName = serviceName;
         //this.mActor = actor;
-        MessageContext messageContext = this.getMessageContext();
+        MessageContext messageContext = this.getCurrentMessageContext();
 
         String remoteIP = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
         XLogger xlogger = XLogger.getInstance();
@@ -310,7 +308,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         // Validate XUA constraints here:
         XServiceProvider xServiceProvider = new XServiceProvider(log_message);
         XServiceProvider.Status response = XServiceProvider.Status.ABORT;
-        MessageContext messageCtx = this.getMessageContext();
+        MessageContext messageCtx = this.getCurrentMessageContext();
         try {
             response = xServiceProvider.run(this.getConfigActor(), messageCtx);
         } catch (Exception ex) {
@@ -488,10 +486,10 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @throws SOAPFaultException
      */
     protected void checkSOAP12() throws SOAPFaultException {
-        if (MessageContext.getCurrentMessageContext().isSOAP11()) {
+        if (this.getCurrentMessageContext().isSOAP11()) {
             throwSOAPFaultException("SOAP 1.1 not supported");
         }
-        SOAPEnvelope env = MessageContext.getCurrentMessageContext().getEnvelope();
+        SOAPEnvelope env = this.getCurrentMessageContext().getEnvelope();
         if (env == null) {
             throwSOAPFaultException("No SOAP envelope found");
         }
@@ -510,10 +508,10 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      */
     protected void checkSOAP11() throws SOAPFaultException {
 
-        if (!MessageContext.getCurrentMessageContext().isSOAP11()) {
+        if (!this.getCurrentMessageContext().isSOAP11()) {
             throwSOAPFaultException("SOAP 1.2 not supported");
         }
-        SOAPEnvelope env = MessageContext.getCurrentMessageContext().getEnvelope();
+        SOAPEnvelope env = this.getCurrentMessageContext().getEnvelope();
         if (env == null) {
             throwSOAPFaultException("No SOAP envelope found");
         }
@@ -524,7 +522,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @throws SOAPFaultException
      */
     protected void checkSOAPAny() throws SOAPFaultException {
-        if (MessageContext.getCurrentMessageContext().isSOAP11()) {
+        if (this.getCurrentMessageContext().isSOAP11()) {
             checkSOAP11();
         } else {
             checkSOAP12();
@@ -578,7 +576,7 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @return
      */
     protected boolean isAsync() {
-        MessageContext mc = getMessageContext();
+        MessageContext mc = getCurrentMessageContext();
         return mc.getMessageID() != null
                 && !mc.getMessageID().equals("")
                 && mc.getReplyTo() != null
