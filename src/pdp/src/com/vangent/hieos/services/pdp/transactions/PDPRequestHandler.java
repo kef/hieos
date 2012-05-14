@@ -17,10 +17,8 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import com.vangent.hieos.policyutil.pdp.impl.PDPImpl;
-import java.util.logging.Level;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 
 import com.sun.xacml.ctx.ResponseCtx;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
@@ -55,13 +53,12 @@ public class PDPRequestHandler extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param log_message
-     * @param mCtx
      */
-    public PDPRequestHandler(XLogMessage log_message, MessageContext mCtx) {
+    public PDPRequestHandler(XLogMessage log_message) {
         this.log_message = log_message;
-        this.init(null, mCtx);
+        this.init(null);
     }
 
     /**

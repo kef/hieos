@@ -21,7 +21,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
@@ -51,7 +50,7 @@ public class PDP extends XAbstractService {
             beginTransaction("PDP:Authorize", request);
             validateWS();
             validateNoMTOM();
-            PDPRequestHandler handler = new PDPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+            PDPRequestHandler handler = new PDPRequestHandler(this.log_message);
             handler.setConfigActor(config);
             response = handler.run(request);
             endTransaction(handler.getStatus());
