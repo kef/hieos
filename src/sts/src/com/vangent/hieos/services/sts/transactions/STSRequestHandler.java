@@ -66,13 +66,12 @@ public class STSRequestHandler extends XBaseTransaction {
     }
 
     /**
-     * 
+     *
      * @param log_message
-     * @param mCtx
      */
-    public STSRequestHandler(XLogMessage log_message, MessageContext mCtx) {
+    public STSRequestHandler(XLogMessage log_message) {
         this.log_message = log_message;
-        this.init(null, mCtx);
+        this.init(null);
     }
 
     /**
@@ -95,7 +94,7 @@ public class STSRequestHandler extends XBaseTransaction {
         log_message.setPass(true);  // Hope for the best.
 
         // First parse and validate the SOAP header.
-        MessageContext mCtx = this.getMessageContext();
+        MessageContext mCtx = this.getCurrentMessageContext();
         STSRequestData requestData = new STSRequestData(this.getConfigActor(), mCtx, request);
         try {
             requestData.parseHeader();

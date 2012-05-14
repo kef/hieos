@@ -25,14 +25,12 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 
 // XATNA
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.MessageContext;
 
 /**
  * STS WS-Trust web service implementation.
@@ -61,7 +59,7 @@ public class STS extends XAbstractService {
             beginTransaction(this.getRequestType(request), request);
             validateWS();
             validateNoMTOM();
-            STSRequestHandler handler = new STSRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+            STSRequestHandler handler = new STSRequestHandler(this.log_message);
             handler.setConfigActor(config);
             response = handler.run(request);
             endTransaction(handler.getStatus());
