@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 // Exceptions.
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
+import org.apache.axis2.context.MessageContext;
 
 /**
  *
@@ -38,6 +39,7 @@ abstract public class XCAAbstractRequestCollection {
     private OMElement result = null;
     private ArrayList<XCAErrorMessage> errors = new ArrayList<XCAErrorMessage>();
     private ATNAAuditEvent.ActorType gatewayActorType;
+    private MessageContext parentThreadMessageContext = null;
 
     abstract String getEndpointURL();
 
@@ -67,6 +69,22 @@ abstract public class XCAAbstractRequestCollection {
         this.configActor = configActor;
         this.isLocalRequest = isLocalRequest;
         this.gatewayActorType = gatewayActorType;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public MessageContext getParentThreadMessageContext() {
+        return parentThreadMessageContext;
+    }
+
+    /**
+     * 
+     * @param parentThreadMessageContext
+     */
+    public void setParentThreadMessageContext(MessageContext parentThreadMessageContext) {
+        this.parentThreadMessageContext = parentThreadMessageContext;
     }
 
     /**

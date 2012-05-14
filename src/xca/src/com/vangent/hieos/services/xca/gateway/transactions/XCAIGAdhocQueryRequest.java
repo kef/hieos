@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -58,10 +57,9 @@ public class XCAIGAdhocQueryRequest extends XCAAdhocQueryRequest {
     /**
      *
      * @param log_message
-     * @param messageContext
      */
-    public XCAIGAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
-        super(log_message, messageContext);
+    public XCAIGAdhocQueryRequest(XLogMessage log_message) {
+        super(log_message);
     }
 
     /**

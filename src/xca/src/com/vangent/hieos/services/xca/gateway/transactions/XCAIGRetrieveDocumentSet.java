@@ -20,7 +20,6 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -33,12 +32,11 @@ public class XCAIGRetrieveDocumentSet extends XCARetrieveDocumentSet {
     private final static Logger logger = Logger.getLogger(XCAIGRetrieveDocumentSet.class);
 
     /**
-     * 
+     *
      * @param log_message
-     * @param messageContext
      */
-    public XCAIGRetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
-        super(log_message, messageContext);
+    public XCAIGRetrieveDocumentSet(XLogMessage log_message) {
+        super(log_message);
     }
 
     /**

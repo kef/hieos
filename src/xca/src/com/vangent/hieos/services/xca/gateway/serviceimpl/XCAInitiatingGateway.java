@@ -49,7 +49,7 @@ public class XCAInitiatingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
-        XCAAdhocQueryRequest request = new XCAIGAdhocQueryRequest(log_message, getMessageContext());
+        XCAAdhocQueryRequest request = new XCAIGAdhocQueryRequest(log_message);
         request.setConfigActor(config);
         request.setGatewayActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
         return request;
@@ -61,7 +61,7 @@ public class XCAInitiatingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
-        XCARetrieveDocumentSet request = new XCAIGRetrieveDocumentSet(log_message, getMessageContext());
+        XCARetrieveDocumentSet request = new XCAIGRetrieveDocumentSet(log_message);
         request.setConfigActor(config);
         request.setGatewayActorType(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
         return request;

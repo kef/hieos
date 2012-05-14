@@ -28,7 +28,6 @@ import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
@@ -98,12 +97,11 @@ public abstract class XCAAbstractTransaction extends XBaseTransaction {
      *
      * @param log_message
      * @param response
-     * @param messageContext
      */
-    protected void init(XLogMessage log_message, Response response, MessageContext messageContext) {
+    protected void init(XLogMessage log_message, Response response) {
         this.log_message = log_message;
         this.requestController = new XCARequestController(response, this.log_message);
-        super.init(response, messageContext); // Initialize superclass whole.
+        super.init(response); // Initialize superclass whole.
     }
 
     /**

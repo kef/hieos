@@ -30,7 +30,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import java.util.ArrayList;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.log4j.Logger;
@@ -55,11 +54,10 @@ public abstract class XCARetrieveDocumentSet extends XCAAbstractTransaction {
     /**
      * 
      * @param log_message
-     * @param messageContext
      */
-    public XCARetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
+    public XCARetrieveDocumentSet(XLogMessage log_message) {
         try {
-            super.init(log_message, new RetrieveMultipleResponse(), messageContext);
+            super.init(log_message, new RetrieveMultipleResponse());
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRepositoryError,

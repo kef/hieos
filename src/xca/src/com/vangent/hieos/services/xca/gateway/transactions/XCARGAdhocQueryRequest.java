@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -37,10 +36,9 @@ public class XCARGAdhocQueryRequest extends XCAAdhocQueryRequest {
     /**
      * 
      * @param log_message
-     * @param messageContext
      */
-    public XCARGAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
-        super(log_message, messageContext);
+    public XCARGAdhocQueryRequest(XLogMessage log_message) {
+        super(log_message);
     }
 
     /**

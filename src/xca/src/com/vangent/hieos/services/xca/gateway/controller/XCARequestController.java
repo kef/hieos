@@ -30,6 +30,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,8 +38,8 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class XCARequestController {
-    private final static Logger logger = Logger.getLogger(XCARequestController.class);
 
+    private final static Logger logger = Logger.getLogger(XCARequestController.class);
     private Response response;
     private XLogMessage logMessage;
     // Key = uniqueId (homeCommunityId or repositoryUniqueId), Value = XCAAbstractRequestCollection
@@ -133,10 +134,15 @@ public class XCARequestController {
         }
         logger.debug("*** multiThreadMode = " + multiThreadMode + " ***");
 
+        // Get current thread's message context.
+        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+
         // Submit work to be conducted in parallel (if required):
         for (Iterator it = allRequests.iterator(); it.hasNext();) {
+            
             // Each pass is for a single entity (Responding Gateway / Repository / Registry).
             XCAAbstractRequestCollection requestCollection = (XCAAbstractRequestCollection) it.next();
+            requestCollection.setParentThreadMessageContext(currentMessageContext);
             GatewayOutboundRequest outboundRequest = new GatewayOutboundRequest(requestCollection);
             if (multiThreadMode == true) {
                 Future<XCAAbstractRequestCollection> future = this.submit(outboundRequest);
@@ -145,6 +151,7 @@ public class XCARequestController {
                 // Not in multi-thread mode.
                 try {
                     // Just call in the current thread.
+
                     requestCollection = outboundRequest.call();
                     this.processOutboundRequestResult(requestCollection, results);
                 } catch (Exception ex) {
@@ -227,7 +234,7 @@ public class XCARequestController {
                 // BHT (FIXUP) -- need to find proper exceptions to return.
             } catch (SOAPFaultException e) {
                 logger.error("+++ EXCEPTION = " + e.getMessage());
-                
+
                 String errorString = String.format("Failure contacting community or repository = %s and returned the following error message: %s.",
                         requestCollection.getUniqueId(), e.getMessage());
                 XCAErrorMessage errorMessage = new XCAErrorMessage(

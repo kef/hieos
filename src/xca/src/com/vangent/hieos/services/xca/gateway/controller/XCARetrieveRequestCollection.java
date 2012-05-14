@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import org.apache.axiom.om.OMElement;
 import javax.xml.namespace.QName;
+import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -153,10 +154,11 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
                 + ", Async: " + isAsyncTxn + ", endpoint: " + endpoint + " ***");
 
         // Do ATNA auditing (FIXME: Always showing success).
-        this.auditRetrieve(request, endpoint, ATNAAuditEvent.OutcomeIndicator.SUCCESS);
+        this.auditRetrieve(request, endpoint, ATNAAuditEvent.OutcomeIndicator.SUCCESS, this.getParentThreadMessageContext());
 
         Soap soap = new Soap();
         soap.setAsync(isAsyncTxn);
+        soap.setParentThreadMessageContext(this.getParentThreadMessageContext());
         boolean soap12 = xconfigTxn.isSOAP12Endpoint();
         soap.soapCall(request, endpoint,
                 true, /* mtom */
@@ -232,15 +234,17 @@ public class XCARetrieveRequestCollection extends XCAAbstractRequestCollection {
     }
 
     /**
-     * 
+     *
      * @param request
      * @param endpoint
      * @param outcome
+     * @param parentThreadMessageContext
      */
-    private void auditRetrieve(OMElement request, String endpoint, ATNAAuditEvent.OutcomeIndicator outcome) {
+    private void auditRetrieve(OMElement request, String endpoint, ATNAAuditEvent.OutcomeIndicator outcome, MessageContext parentThreadMessageContext) {
         try {
             XATNALogger xATNALogger = new XATNALogger();
             if (xATNALogger.isPerformAudit()) {
+                xATNALogger.setParentThreadMessageContext(parentThreadMessageContext);
                 ATNAAuditEvent.IHETransaction transaction = this.getATNATransaction();
                 ATNAAuditEventRetrieveDocumentSet auditEvent = ATNAAuditEventHelper.getATNAAuditEventRetrieveDocumentSet(request);
                 auditEvent.setTargetEndpoint(endpoint);

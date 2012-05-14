@@ -49,7 +49,7 @@ public class XCARespondingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCAAdhocQueryRequest getAdHocQueryTransaction() throws XdsInternalException {
-        XCAAdhocQueryRequest request = new XCARGAdhocQueryRequest(log_message, getMessageContext());
+        XCAAdhocQueryRequest request = new XCARGAdhocQueryRequest(log_message);
         request.setConfigActor(config);
         request.setGatewayActorType(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
         return request;
@@ -61,7 +61,7 @@ public class XCARespondingGateway extends XCAGateway {
      * @throws XdsInternalException
      */
     protected XCARetrieveDocumentSet getRetrieveDocumentSet() throws XdsInternalException {
-        XCARetrieveDocumentSet request = new XCARGRetrieveDocumentSet(log_message, getMessageContext());
+        XCARetrieveDocumentSet request = new XCARGRetrieveDocumentSet(log_message);
         request.setConfigActor(config);
         request.setGatewayActorType(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
         return request;

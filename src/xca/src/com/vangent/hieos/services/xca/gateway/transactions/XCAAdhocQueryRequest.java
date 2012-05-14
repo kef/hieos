@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMNamespace;
@@ -66,13 +65,12 @@ public abstract class XCAAdhocQueryRequest extends XCAAbstractTransaction {
     abstract void processRemoteCommunityRequest(OMElement queryRequest, OMElement responseOption, String homeCommunityId, XConfigActor gatewayConfig) throws XdsInternalException;
 
     /**
-     *
+     * 
      * @param log_message
-     * @param messageContext
      */
-    public XCAAdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
+    public XCAAdhocQueryRequest(XLogMessage log_message) {
         try {
-            super.init(log_message, new XCAAdhocQueryResponse(), messageContext);
+            super.init(log_message, new XCAAdhocQueryResponse());
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
             response.add_error(MetadataSupport.XDSRegistryError,
