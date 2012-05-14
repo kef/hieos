@@ -64,7 +64,7 @@ public class XDSbRegistry extends XAbstractService {
             validateWS();
             validateNoMTOM();
             validateSubmitTransaction(sor);
-            SubmitObjectsRequest s = new SubmitObjectsRequest(log_message, getMessageContext());
+            SubmitObjectsRequest s = new SubmitObjectsRequest(log_message);
             s.setConfigActor(this.getConfigActor());
             response = s.run(sor);
             endTransaction(s.getStatus());
@@ -93,7 +93,7 @@ public class XDSbRegistry extends XAbstractService {
             beginTransaction(getRTransactionName(ahqr), ahqr);
             validateWS();
             validateNoMTOM();
-            AdhocQueryRequest a = new AdhocQueryRequest(log_message, getMessageContext());
+            AdhocQueryRequest a = new AdhocQueryRequest(log_message);
             a.setConfigActor(this.getConfigActor());
             validateQueryTransaction(ahqr);
             //return endTransaction(ahqr, e, XAbstractService.ActorType.REGISTRY, "");
@@ -126,7 +126,7 @@ public class XDSbRegistry extends XAbstractService {
             validateWS();
             validateNoMTOM();
             //validateSubmitTransaction(sor);
-            UpdateDocumentSetRequest txn = new UpdateDocumentSetRequest(log_message, getMessageContext());
+            UpdateDocumentSetRequest txn = new UpdateDocumentSetRequest(log_message);
             txn.setConfigActor(this.getConfigActor());
             response = txn.run(submitObjectsRequest);
             endTransaction(txn.getStatus());
@@ -157,7 +157,7 @@ public class XDSbRegistry extends XAbstractService {
             validateWS();
             validateNoMTOM();
             //validateSubmitTransaction(sor);
-            DeleteDocumentSetRequest txn = new DeleteDocumentSetRequest(log_message, getMessageContext());
+            DeleteDocumentSetRequest txn = new DeleteDocumentSetRequest(log_message);
             txn.setConfigActor(this.getConfigActor());
             response = txn.run(removeObjectsRequest);
             endTransaction(txn.getStatus());

@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,21 +54,16 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class UpdateDocumentSetRequest extends XBaseTransaction {
-    //Message context was added when trying to send audit message
-
-    MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(UpdateDocumentSetRequest.class);
 
     /**
      *
      * @param logMessage
-     * @param messageContext
      */
-    public UpdateDocumentSetRequest(XLogMessage logMessage, MessageContext messageContext) {
+    public UpdateDocumentSetRequest(XLogMessage logMessage) {
         this.log_message = logMessage;
-        this.messageContext = messageContext;
         try {
-            init(new RegistryResponse(), messageContext);
+            init(new RegistryResponse());
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
         }

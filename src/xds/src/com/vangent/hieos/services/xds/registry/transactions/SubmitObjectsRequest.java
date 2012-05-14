@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -56,19 +55,16 @@ import org.apache.log4j.Logger;
  */
 public class SubmitObjectsRequest extends XBaseTransaction {
 
-    //private MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(SubmitObjectsRequest.class);
 
     /**
      *
      * @param logMessage
-     * @param messageContext
      */
-    public SubmitObjectsRequest(XLogMessage logMessage, MessageContext messageContext) {
+    public SubmitObjectsRequest(XLogMessage logMessage) {
         this.log_message = logMessage;
-        //this.messageContext = messageContext;
         try {
-            init(new RegistryResponse(), messageContext);
+            init(new RegistryResponse());
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
         }

@@ -149,8 +149,6 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
-        // FIXME: metadata includes the targetObject, but it may contain other details
-        // we do not want.
         Metadata submittedMetadata = this.getSubmittedMetadata();
         OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
 
@@ -169,12 +167,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         String currentRegistryObjectId = this.getCurrentMetadata().getId(this.getCurrentRegistryObject());
         String newRegistryObjectId = submittedMetadata.getId(submittedRegistryObject);
 
-        // DEBUG:
-        // logMessage.addOtherParam("Version to Submit", targetObject);
-
-        // FIXME: MetadataTypes.METADATA_TYPE_Rb?
-        //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
-
+        // Submit new registry object version.
         backendRegistry.setReason("Submit New Version");
         submittedMetadata.setStatusOnApprovableObjects();
         OMElement result = backendRegistry.submit(submittedMetadata);

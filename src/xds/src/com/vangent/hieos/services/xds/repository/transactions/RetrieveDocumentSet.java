@@ -58,7 +58,6 @@ import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -68,21 +67,18 @@ import org.apache.log4j.Logger;
 public class RetrieveDocumentSet extends XBaseTransaction {
 
     String registry_endpoint = null;
-    MessageContext messageContext;
     boolean optimize = true;
     private Repository repoConfig = null;
     private final static Logger logger = Logger.getLogger(RetrieveDocumentSet.class);
 
     /**
-     *
+     * 
      * @param log_message
-     * @param messageContext
      */
-    public RetrieveDocumentSet(XLogMessage log_message, MessageContext messageContext) {
+    public RetrieveDocumentSet(XLogMessage log_message) {
         this.log_message = log_message;
-        this.messageContext = messageContext;
         try {
-            init(new RetrieveMultipleResponse(), messageContext);
+            init(new RetrieveMultipleResponse());
         } catch (XdsInternalException e) {
             response.add_error(MetadataSupport.XDSRepositoryError, e.getMessage(), this.getClass().getName(), log_message);
             logger.warn(logger_exception_details(e));

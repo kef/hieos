@@ -82,7 +82,7 @@ public class XDSbRepository extends XAbstractService {
             validateWS();
             validateMTOM();
             validatePnRTransaction(sor);
-            ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message, getMessageContext());
+            ProvideAndRegisterDocumentSet s = new ProvideAndRegisterDocumentSet(log_message);
             s.setConfigActor(this.getConfigActor());
             response = s.run(sor);
             endTransaction(s.getStatus());
@@ -118,7 +118,7 @@ public class XDSbRepository extends XAbstractService {
                 endTransaction(false);
                 return res;
             }
-            RetrieveDocumentSet s = new RetrieveDocumentSet(log_message, getMessageContext());
+            RetrieveDocumentSet s = new RetrieveDocumentSet(log_message);
             s.setConfigActor(this.getConfigActor());
             response = s.run(rdsr, true /* optimize */, this);
             endTransaction(s.getStatus());

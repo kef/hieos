@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -59,19 +58,16 @@ import org.apache.log4j.Logger;
  */
 public class AdhocQueryRequest extends XBaseTransaction {
 
-    private MessageContext messageContext;
     private String service_name = "";
     private boolean _isMPQRequest = false;
     private final static Logger logger = Logger.getLogger(AdhocQueryRequest.class);
 
     /**
-     *
+     * 
      * @param log_message
-     * @param messageContext
      */
-    public AdhocQueryRequest(XLogMessage log_message, MessageContext messageContext) {
+    public AdhocQueryRequest(XLogMessage log_message) {
         this.log_message = log_message;
-        this.messageContext = messageContext;
     }
 
     /**
@@ -109,9 +105,9 @@ public class AdhocQueryRequest extends XBaseTransaction {
         String ns_uri = ns.getNamespaceURI();
         try {
             if (ns_uri.equals(MetadataSupport.ebQns3.getNamespaceURI())) {
-                init(new AdhocQueryResponse(), messageContext);
+                init(new AdhocQueryResponse());
             } else {
-                init(new AdhocQueryResponse(), messageContext);
+                init(new AdhocQueryResponse());
                 response.add_error(MetadataSupport.XDSRegistryError, "Invalid XML namespace on AdhocQueryRequest: " + ns_uri, this.getClass().getName(), log_message);
                 return response.getResponse();
             }

@@ -33,7 +33,6 @@ import com.vangent.hieos.xutil.services.framework.XBaseTransaction;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -43,19 +42,16 @@ import org.apache.log4j.Logger;
 public class DeleteDocumentSetRequest extends XBaseTransaction {
     //Message context was added when trying to send audit message
 
-    MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(DeleteDocumentSetRequest.class);
 
     /**
-     *
+     * 
      * @param logMessage
-     * @param messageContext
      */
-    public DeleteDocumentSetRequest(XLogMessage logMessage, MessageContext messageContext) {
+    public DeleteDocumentSetRequest(XLogMessage logMessage) {
         this.log_message = logMessage;
-        this.messageContext = messageContext;
         try {
-            init(new RegistryResponse(), messageContext);
+            init(new RegistryResponse());
         } catch (XdsInternalException e) {
             logger.fatal(logger_exception_details(e));
         }

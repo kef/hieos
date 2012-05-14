@@ -60,7 +60,6 @@ import java.util.List;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 import org.apache.commons.codec.binary.Base64;
@@ -75,14 +74,13 @@ public class ProvideAndRegisterDocumentSet extends XBaseTransaction {
     private Repository repoConfig = null;
 
     /**
-     *
+     * 
      * @param log_message
-     * @param messageContext
      */
-    public ProvideAndRegisterDocumentSet(XLogMessage log_message, MessageContext messageContext) {
+    public ProvideAndRegisterDocumentSet(XLogMessage log_message) {
         this.log_message = log_message;
         try {
-            init(new RegistryResponse(), messageContext);
+            init(new RegistryResponse());
         } catch (XdsInternalException e) {
             logger.fatal("Internal Error creating RegistryResponse: " + e.getMessage());
         }
