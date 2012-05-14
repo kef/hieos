@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import com.vangent.hieos.xutil.xml.XMLParser;
 import com.vangent.hieos.xutil.xml.XPathHelper;
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -43,11 +42,10 @@ public class PIPRequestHandler extends XBaseTransaction {
     /**
      *
      * @param log_message
-     * @param mCtx
      */
-    public PIPRequestHandler(XLogMessage log_message, MessageContext mCtx) {
+    public PIPRequestHandler(XLogMessage log_message) {
         this.log_message = log_message;
-        this.init(null, mCtx);
+        this.init(null);
     }
 
     /**

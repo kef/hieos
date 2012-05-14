@@ -21,7 +21,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
@@ -51,7 +50,7 @@ public class PIP extends XAbstractService {
             beginTransaction("PIP:GetConsentDirectives", request);
             validateWS();
             validateNoMTOM();
-            PIPRequestHandler handler = new PIPRequestHandler(this.log_message, MessageContext.getCurrentMessageContext());
+            PIPRequestHandler handler = new PIPRequestHandler(this.log_message);
             handler.setConfigActor(config);
             response = handler.run(request);
             endTransaction(handler.getStatus());
