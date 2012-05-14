@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.axis2.context.MessageContext;
 
 import org.apache.log4j.Logger;
 
@@ -284,9 +285,13 @@ public class XCPDGatewayRequestController {
         }
         logger.debug("*** multiThreadMode = " + multiThreadMode + " ***");
 
+        // Get current thread's message context.
+        MessageContext currentMessageContext = MessageContext.getCurrentMessageContext();
+
         // Submit work to be conducted in parallel (if required):
         for (GatewayRequest request : requests) {
             // Each pass is for a single entity (Responding Gateway).
+            request.setParentThreadMessageContext(currentMessageContext);
             GatewayCallable callable = new GatewayCallable(requestHandler, request, logMessage);
             if (multiThreadMode == true) {
                 Future<GatewayResponse> future = this.submit(callable);
@@ -520,7 +525,7 @@ public class XCPDGatewayRequestController {
             }
             return null;
         }
-        if (subjects.size() == 0) {
+        if (subjects.isEmpty()) {
             // Just note the fact that we did a search for this patient for the community with
             // no success (so we don't search again until the cache entry expires).
 

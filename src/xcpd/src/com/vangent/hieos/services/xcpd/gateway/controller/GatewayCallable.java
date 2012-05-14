@@ -22,6 +22,7 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import java.util.concurrent.Callable;
+import org.apache.axis2.context.MessageContext;
 
 import org.apache.log4j.Logger;
 
@@ -61,13 +62,18 @@ public class GatewayCallable implements Callable<GatewayResponse> {
                     message.getMessageNode().toString());
         }
 
+        // Get parent thread's message context.
+        MessageContext parentThreadMessageContext = this.request.getParentThreadMessageContext();
+
         // ATNA Audit:
         requestHandler.performAuditPDQQueryInitiator(ATNAAuditEvent.ActorType.INITIATING_GATEWAY,
                 this.request.getRequest(),
-                this.request.getEndpoint());
+                this.request.getEndpoint(),
+                parentThreadMessageContext);
 
         // Make the call.
         XCPDGatewayClient client = new XCPDGatewayClient(request.getRGConfig());
+        client.setParentThreadMessageContext(parentThreadMessageContext);
         GatewayResponse gatewayResponse = null;
         PRPA_IN201306UV02_Message queryResponse;
         try {

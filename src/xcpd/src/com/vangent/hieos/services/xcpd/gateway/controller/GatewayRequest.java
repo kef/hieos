@@ -17,6 +17,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import org.apache.axis2.context.MessageContext;
 
 /**
  *
@@ -30,32 +31,77 @@ public class GatewayRequest {
     private XConfigActor rgConfig;
     private PRPA_IN201305UV02_Message request;
     private SubjectSearchCriteria subjectSearchCriteria;
+    private MessageContext parentThreadMessageContext = null;
 
+    /**
+     *
+     * @return
+     */
     public XConfigActor getRGConfig() {
         return rgConfig;
     }
 
+    /**
+     *
+     * @return
+     */
+    public MessageContext getParentThreadMessageContext() {
+        return parentThreadMessageContext;
+    }
+
+    /**
+     *
+     * @param parentThreadMessageContext
+     */
+    public void setParentThreadMessageContext(MessageContext parentThreadMessageContext) {
+        this.parentThreadMessageContext = parentThreadMessageContext;
+    }
+
+    /**
+     *
+     * @return
+     */
     public String getEndpoint() {
         XConfigTransaction txn = rgConfig.getTransaction("CrossGatewayPatientDiscovery");
         return txn.getEndpointURL();
     }
 
+    /**
+     * 
+     * @param rgConfig
+     */
     public void setRGConfig(XConfigActor rgConfig) {
         this.rgConfig = rgConfig;
     }
 
+    /**
+     *
+     * @return
+     */
     public PRPA_IN201305UV02_Message getRequest() {
         return request;
     }
 
+    /**
+     *
+     * @param request
+     */
     public void setRequest(PRPA_IN201305UV02_Message request) {
         this.request = request;
     }
 
+    /**
+     *
+     * @return
+     */
     public SubjectSearchCriteria getSubjectSearchCriteria() {
         return subjectSearchCriteria;
     }
 
+    /**
+     *
+     * @param subjectSearchCriteria
+     */
     public void setSubjectSearchCriteria(SubjectSearchCriteria subjectSearchCriteria) {
         this.subjectSearchCriteria = subjectSearchCriteria;
     }

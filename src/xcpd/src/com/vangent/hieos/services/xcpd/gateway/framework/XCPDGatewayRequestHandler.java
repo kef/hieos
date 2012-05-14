@@ -36,6 +36,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -243,16 +244,18 @@ public abstract class XCPDGatewayRequestHandler extends XBaseTransaction {
     }
 
     /**
-     *
+     * 
      * @param actorType
      * @param request
      * @param targetEndpoint
+     * @param parentThreadMessageContext
      */
     public void performAuditPDQQueryInitiator(ATNAAuditEvent.ActorType actorType,
-            PRPA_IN201305UV02_Message request, String targetEndpoint) {
+            PRPA_IN201305UV02_Message request, String targetEndpoint, MessageContext parentThreadMessageContext) {
         try {
             XATNALogger xATNALogger = new XATNALogger();
             if (xATNALogger.isPerformAudit()) {
+                xATNALogger.setParentThreadMessageContext(parentThreadMessageContext);
                 String homeCommunityId = this.getGatewayConfig().getUniqueId();
                 ATNAAuditEventQuery auditEvent = ATNAAuditEventHelper.getATNAAuditEventPDQQueryInitiator(
                         actorType, request, homeCommunityId, targetEndpoint);
