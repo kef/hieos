@@ -110,7 +110,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -168,7 +168,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -226,7 +226,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -301,7 +301,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -357,7 +357,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -412,7 +412,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -454,7 +454,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -509,7 +509,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {
@@ -560,7 +560,7 @@ public class SubmitDocumentRequestHandlerTest {
 
         try {
 
-            response = handler.run(null, request);
+            response = handler.run(request);
             logger.debug(DebugUtils.toPrettyString(response));
 
         } catch (Exception e) {

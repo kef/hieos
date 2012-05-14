@@ -73,7 +73,7 @@ public class MockXDSBridge extends XDSBridge {
      * @return
      */
     @Override
-    protected MessageContext getMessageContext() {
+    protected MessageContext getCurrentMessageContext() {
 
         return new MockMessageContext();
     }
