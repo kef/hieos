@@ -75,7 +75,7 @@ public class XDRRecipient extends XAbstractService {
             validateXDRTransaction(xdr);
 
             // Process the Request
-            ProcessXDRPackage s = new ProcessXDRPackage(log_message, getMessageContext());
+            ProcessXDRPackage s = new ProcessXDRPackage(log_message);
             s.setConfigActor(config);
             response = s.processXDRPackage(xdr);
 

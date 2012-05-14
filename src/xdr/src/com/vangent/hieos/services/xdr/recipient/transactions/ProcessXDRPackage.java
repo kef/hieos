@@ -41,7 +41,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import java.io.IOException;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.MessageContext;
 import org.apache.log4j.Logger;
 
 /**
@@ -50,20 +49,16 @@ import org.apache.log4j.Logger;
  */
 public class ProcessXDRPackage extends XBaseTransaction {
 
-    MessageContext messageContext;
     private final static Logger logger = Logger.getLogger(ProcessXDRPackage.class);
 
     /**
      *
      * @param log_message
-     * @param xds_version
-     * @param messageContext
      */
-    public ProcessXDRPackage(XLogMessage log_message, MessageContext messageContext) {
+    public ProcessXDRPackage(XLogMessage log_message) {
         this.log_message = log_message;
-        this.messageContext = messageContext;
         try {
-            init(new RegistryResponse(), messageContext);
+            init(new RegistryResponse());
         } catch (XdsInternalException e) {
             logger.fatal("Internal Error creating XDR Response: " + e.getMessage());
         }
