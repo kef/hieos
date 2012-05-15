@@ -69,6 +69,7 @@ public class MetadataSupport {
     public static final String xdsB_ihe_assoc_type_signs = xdsB_ihe_assoc_namespace_uri + ":signs";
     public static final String xdsB_ihe_assoc_type_update_availability_status = "urn:ihe:iti:2010:AssociationType:UpdateAvailabilityStatus";
     public static final String xdsB_ihe_assoc_type_submit_association = "urn:ihe:iti:2010:AssociationType:SubmitAssociation";
+    public static final String xdsB_ihe_assoc_type_issnapshotof = "urn:ihe:iti:2010:AssociationType:IsSnapshotOf";
 
     /**
      *

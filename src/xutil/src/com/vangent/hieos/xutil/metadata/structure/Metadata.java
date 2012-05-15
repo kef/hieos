@@ -73,12 +73,12 @@ public class Metadata {
                     add(MetadataSupport.xdsB_ihe_assoc_type_rplc);
                     add(MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc);
                     add(MetadataSupport.xdsB_ihe_assoc_type_signs);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_issnapshotof);
                 }
             };
     // Valid submission set -> registry object assocation types.
     private static final List<String> validSubmissionSetAssocTypes =
             new ArrayList<String>() {
-
                 {
                     add(MetadataSupport.xdsB_eb_assoc_type_has_member);
                     add(MetadataSupport.xdsB_ihe_assoc_type_submit_association);
