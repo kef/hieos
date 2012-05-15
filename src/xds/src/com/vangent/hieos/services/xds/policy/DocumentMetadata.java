@@ -37,6 +37,8 @@ public class DocumentMetadata {
     private String title;
     private String mimeType;
     private int size;
+    private String status;
+    private String documentAvailability;
 
     /**
      * 
@@ -263,6 +265,38 @@ public class DocumentMetadata {
      */
     public void setPatientId(SubjectIdentifier patientId) {
         this.patientId = patientId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getDocumentAvailability() {
+        return documentAvailability;
+    }
+
+    /**
+     * 
+     * @param documentAvailability
+     */
+    public void setDocumentAvailability(String documentAvailability) {
+        this.documentAvailability = documentAvailability;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     *
+     * @param status
+     */
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     /**

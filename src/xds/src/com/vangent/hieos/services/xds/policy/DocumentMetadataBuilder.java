@@ -94,6 +94,12 @@ public class DocumentMetadataBuilder {
         //typeCodeNode.setText(typeCode.getCNEFormatted());
         documentMetadataNode.addChild(typeCodeNode);
 
+        // Status:
+        String status = documentMetadata.getStatus();
+        OMElement statusNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "Status", PolicyConstants.HIEOS_PIP_NS_PREFIX));
+        statusNode.setText(status);
+        documentMetadataNode.addChild(statusNode);
+
         // Confidentiality codes (can be multiple):
         List<CodedValue> confidentialityCode = documentMetadata.getConfidentialityCodes();
         OMElement confidentialityCodedValuesNode = this.buildCodedValuesNode(confidentialityCode, "ConfidentialityCodes");
@@ -107,8 +113,6 @@ public class DocumentMetadataBuilder {
         // Return the OMElement (wrapped).
         return new DocumentMetadataElement(documentMetadataNode);
     }
-
-   
 
     //<pip:Role codeSystem="String" displayName="String" codeSystemName="String" code="String"/>
     // FIXME: Move this logic to hl7v3util?
@@ -141,8 +145,8 @@ public class DocumentMetadataBuilder {
         codeNode.addAttribute("displayName", codedValue.getDisplayName(), null);
         codeNode.addAttribute("codeSystem", codedValue.getCodeSystem(), null);
         if (codedValue.getCodeSystemName() != null) {
-            //  May not be there.
-            codeNode.addAttribute("codeSystemName", codedValue.getCodeSystemName(), null);
+        //  May not be there.
+        codeNode.addAttribute("codeSystemName", codedValue.getCodeSystemName(), null);
         }*/
         codeNode.setText(codedValue.getCNEFormatted());
         return codeNode;
@@ -251,6 +255,10 @@ public class DocumentMetadataBuilder {
         CodedValue typeCode = this.getTypeCode(classifications);
         documentMetadata.setTypeCode(typeCode);
 
+        // Status.
+        String status = this.getStatus(registryObject);
+        documentMetadata.setStatus(status);
+
         // Class code.
         CodedValue classCode = this.getClassCode(classifications);
         documentMetadata.setClassCode(classCode);
@@ -272,8 +280,7 @@ public class DocumentMetadataBuilder {
      * @param documentMetadata
      * @param extrinsicObject
      */
-    private void buildIdentifiers(DocumentMetadata documentMetadata, OMElement extrinsicObject)
-    {
+    private void buildIdentifiers(DocumentMetadata documentMetadata, OMElement extrinsicObject) {
         // Get list of ExternalIdentifiers (to use below).
         List<OMElement> externalIdentifiers = this.getExternalIdentifiers(extrinsicObject);
 
@@ -350,6 +357,15 @@ public class DocumentMetadataBuilder {
             }
         }
         return null;  // Not found.
+    }
+
+    /**
+     * 
+     * @param rootNode
+     * @return
+     */
+    public String getStatus(OMElement rootNode) {
+        return rootNode.getAttributeValue(new QName("status"));
     }
 
     /**
