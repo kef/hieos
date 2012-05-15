@@ -100,6 +100,12 @@ public class DocumentMetadataBuilder {
         statusNode.setText(status);
         documentMetadataNode.addChild(statusNode);
 
+        // Document availability:
+        String documentAvailability = documentMetadata.getDocumentAvailability();
+        OMElement documentAvailabilityNode = omfactory.createOMElement(new QName(PolicyConstants.HIEOS_PIP_NS, "Availability", PolicyConstants.HIEOS_PIP_NS_PREFIX));
+        documentAvailabilityNode.setText(documentAvailability);
+        documentMetadataNode.addChild(documentAvailabilityNode);
+
         // Confidentiality codes (can be multiple):
         List<CodedValue> confidentialityCode = documentMetadata.getConfidentialityCodes();
         OMElement confidentialityCodedValuesNode = this.buildCodedValuesNode(confidentialityCode, "ConfidentialityCodes");
@@ -259,6 +265,10 @@ public class DocumentMetadataBuilder {
         String status = this.getStatus(registryObject);
         documentMetadata.setStatus(status);
 
+        // Document availability.
+        String documentAvailability = this.getDocumentAvailability(registryObject);
+        documentMetadata.setDocumentAvailability(documentAvailability);
+
         // Class code.
         CodedValue classCode = this.getClassCode(classifications);
         documentMetadata.setClassCode(classCode);
@@ -361,11 +371,20 @@ public class DocumentMetadataBuilder {
 
     /**
      * 
-     * @param rootNode
+     * @param registryObject
      * @return
      */
-    public String getStatus(OMElement rootNode) {
-        return rootNode.getAttributeValue(new QName("status"));
+    public String getStatus(OMElement registryObject) {
+        return registryObject.getAttributeValue(new QName("status"));
+    }
+
+    /**
+     *
+     * @param extrinsicObject
+     * @return
+     */
+    public String getDocumentAvailability(OMElement extrinsicObject) {
+        return this.getSlotSingleValue(extrinsicObject, "documentAvailability");
     }
 
     /**
