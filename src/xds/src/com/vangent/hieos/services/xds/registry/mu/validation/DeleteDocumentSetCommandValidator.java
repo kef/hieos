@@ -65,6 +65,10 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
                 throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
             }
         }
+
+        // Cache loaded metadata for the command to use later.
+        cmd.setLoadedMetadata(loadedMetadata);
+
         // TBD: Do some additional validation here.
         return validationSuccess;
     }

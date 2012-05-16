@@ -148,7 +148,7 @@ public abstract class MetadataUpdateCommand {
     public Metadata getAssocs(String registryObjectId, String status, String assocType, String reason) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
         backendRegistry.setReason(reason);
 
@@ -171,7 +171,7 @@ public abstract class MetadataUpdateCommand {
         List<String> assocTypes = null;
         if (assocType != null) {
             assocTypes = new ArrayList<String>();
-            assocTypes.add(MetadataSupport.xdsB_eb_assoc_type_has_member);
+            assocTypes.add(assocType);
         }
 
         // Run query.

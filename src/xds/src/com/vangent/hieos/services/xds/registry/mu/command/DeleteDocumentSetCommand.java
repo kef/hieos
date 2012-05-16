@@ -18,6 +18,7 @@ import com.vangent.hieos.services.xds.registry.mu.validation.DeleteDocumentSetCo
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -26,6 +27,8 @@ import org.apache.axiom.om.OMElement;
  * @author Bernie Thuman
  */
 public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
+
+    private Metadata loadedMetadata;
 
     /**
      *
@@ -47,17 +50,44 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
     /**
      *
+     * @return
+     */
+    public Metadata getLoadedMetadata() {
+        return loadedMetadata;
+    }
+
+    /**
+     * 
+     * @param loadedMetadata
+     */
+    public void setLoadedMetadata(Metadata loadedMetadata) {
+        this.loadedMetadata = loadedMetadata;
+    }
+
+    /**
+     *
      * @param validator
      * @return
      * @throws XdsException
      */
     @Override
     protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
+        // Get list of object references (to delete) supplied by initiator.
         Metadata submittedMetadata = this.getSubmittedMetadata();
-        // Get list of object references.
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
-        // FIXME: Should delete associations to these objects.
-        // FIXME: Will need to get loaded metadata (already exists from validator).
+
+        // Get associations (to delete) connected to registry objects targeted for deletion.
+        List<String> assocIdsToDelete = this.getAssocsToDelete(this, loadedMetadata);
+        if (!assocIdsToDelete.isEmpty()) {
+            // Add to associations to list of objects to delete (but only if not already supplied by initiator).
+            for (String assocIdToDelete : assocIdsToDelete) {
+                if (!objectRefIds.contains(assocIdToDelete)) {
+                    objectRefIds.add(assocIdToDelete);
+                }
+            }
+        }
+
+        // Delete object's from registry.
         OMElement result = this.deleteRegistryObjects(objectRefIds);
         // FIXME: result?
         return true;
@@ -73,5 +103,34 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
         // Submit RemoveObjectsRequest to registry.
         return backendRegistry.submitRemoveObjectsRequest(objectRefIds);
+    }
+
+    /**
+     *
+     * @param cmd
+     * @param loadedMetadata
+     * @return
+     * @throws XdsException
+     */
+    private List<String> getAssocsToDelete(DeleteDocumentSetCommand cmd, Metadata loadedMetadata) throws XdsException {
+        List<String> assocIdsToDelete = new ArrayList<String>();
+
+        // Go through each document/folder targeted for deletion.
+        List<String> registryObjectIdsToDelete = loadedMetadata.getExtrinsicObjectIds();
+        List<String> folderIdsToDelete = loadedMetadata.getFolderIds();
+        if (!folderIdsToDelete.isEmpty()) {
+            registryObjectIdsToDelete.addAll(folderIdsToDelete);
+        }
+
+        for (String registryObjectIdToDelete : registryObjectIdsToDelete) {
+            // Get all associations to the registry object.
+            Metadata assocMetadata = cmd.getAssocs(registryObjectIdToDelete, null /* status */, null /* assocType */, "Get Associations To Delete");
+            List<String> assocIds = assocMetadata.getAssociationIds();
+            if (!assocIds.isEmpty()) {
+                // Add them for deletion.
+                assocIdsToDelete.addAll(assocIds);
+            }
+        }
+        return assocIdsToDelete;
     }
 }

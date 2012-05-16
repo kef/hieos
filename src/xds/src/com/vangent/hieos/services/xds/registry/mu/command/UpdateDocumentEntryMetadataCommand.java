@@ -83,11 +83,11 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         // Now, go through each association and create a new one.
         List<OMElement> assocs = assocMetadata.getAssociations();
         for (OMElement assoc : assocs) {
+            OMElement newAssoc = null;
             String assocId = assocMetadata.getId(assoc);
             String assocType = assocMetadata.getAssocType(assoc);
             String sourceId = assocMetadata.getSourceObject(assoc);
             String targetId = assocMetadata.getAssocTarget(assoc);
-            OMElement newAssoc = null;
             if (sourceId.equals(currentDocumentEntryId)) {
                 // If source is a document, then the target is a document.
                 // Now make sure that we do not violate patient id constraints.
