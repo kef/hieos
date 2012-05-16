@@ -133,18 +133,8 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         // Get backend registry instance.
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
         try {
-            // Prepare for queries.
-            MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                    response, log_message, backendRegistry);
-            muSQ.setReturnLeafClass(true);
-
-            // Create the context.
-            MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
-            metadataUpdateContext.setBackendRegistry(backendRegistry);
-            metadataUpdateContext.setLogMessage(log_message);
-            metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
-            metadataUpdateContext.setConfigActor(this.getConfigActor());
-            metadataUpdateContext.setStoredQuerySupport(muSQ);
+            // Build MetadataUpdateContext.
+            MetadataUpdateContext metadataUpdateContext = this.buildMetadataUpdateContext(backendRegistry);
 
             // Create Metadata instance for SOR.
             Metadata submittedMetadata = new Metadata(submitObjectsRequest);  // Create meta-data instance for SOR.
@@ -161,57 +151,104 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 rov.validatePatientId(submittedMetadata, this.getConfigActor());
                 rov.validateConsistentPatientId(true, submittedMetadata);
 
-                // Technical operation cases:
-                // - Update DocumentEntry Metadata
-                // - Update DocumentEntry Status
-                // - Update Folder Metadata
-                // - Update Folder Status
-                // - Update Association Status
-                // - Submit new Assoication object(s)
+                // Build list of MU commands (Command Pattern) to execute.
+                List<MetadataUpdateCommand> muCommands = this.buildMetadataUpdateCommands(submittedMetadata, metadataUpdateContext);
 
-                // Build list of commands (Command Pattern) to execute.
-                List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
-                for (OMElement assoc : submittedMetadata.getAssociations()) {
-                    // See if we are dealing with a proper association.
-                    MetadataUpdateCommand muCommand = null;
-                    if (MetadataSupport.xdsB_ihe_assoc_type_update_availability_status.equals(submittedMetadata.getAssocType(assoc))) {
-                        muCommand = this.handleUpdateAvailabilityStatusAssociation(submittedMetadata, metadataUpdateContext, assoc);
-                    } else if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(submittedMetadata.getAssocType(assoc))) {
-                        muCommand = this.handleHasMemberAssociation(submittedMetadata, metadataUpdateContext, assoc);
-                    } else if (MetadataSupport.xdsB_ihe_assoc_type_submit_association.equals(submittedMetadata.getAssocType(assoc))) {
-                        muCommand = this.handleSubmitAssociation(submittedMetadata, metadataUpdateContext, assoc);
-                    } else {
-                        // Do nothing.
-                    }
-                    if (muCommand != null) {
-                        muCommands.add(muCommand);
-                    }
-                }
-
-                if (muCommands.isEmpty()) {
-                    // FIXME: Use proper exception.
-                    throw new XdsException("No trigger event detected - No updates made to registry");
-                }
-
-                // TBD: Do we need to order commands?
-                // Execute each command.
-                boolean runStatus = false;
-                for (MetadataUpdateCommand muCommand : muCommands) {
-                    runStatus = muCommand.run();
-                    if (!runStatus) {
-                        break;  // Get out.
-                    }
-                }
+                // Execute each MU command.
+                boolean runStatus = this.runMetadataUpdateCommands(muCommands);
                 if (runStatus) {
+                    // Commit on success.
                     backendRegistry.commit();
                     commitCompleted = true;
                 }
             }
         } finally {
+            // Rollback if commit not completed above.
             if (!commitCompleted) {
                 backendRegistry.rollback();
             }
         }
+    }
+
+    /**
+     *
+     * @param backendRegistry
+     * @return
+     */
+    private MetadataUpdateContext buildMetadataUpdateContext(BackendRegistry backendRegistry) {
+        // Prepare for queries.
+        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                response, log_message, backendRegistry);
+        muSQ.setReturnLeafClass(true);
+
+        // Create the context.
+        MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
+        metadataUpdateContext.setBackendRegistry(backendRegistry);
+        metadataUpdateContext.setLogMessage(log_message);
+        metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
+        metadataUpdateContext.setConfigActor(this.getConfigActor());
+        metadataUpdateContext.setStoredQuerySupport(muSQ);
+        return metadataUpdateContext;
+    }
+
+    /**
+     * 
+     * @param submittedMetadata
+     * @param metadataUpdateContext
+     * @return
+     * @throws MetadataException
+     */
+    private List<MetadataUpdateCommand> buildMetadataUpdateCommands(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext) throws MetadataException, XdsException {
+        // Technical operation cases:
+        // - Update DocumentEntry Metadata
+        // - Update DocumentEntry Status
+        // - Update Folder Metadata
+        // - Update Folder Status
+        // - Update Association Status
+        // - Submit new Assoication object(s)
+
+        // Build list of commands (Command Pattern) to execute.
+        List<MetadataUpdateCommand> muCommands = new ArrayList<MetadataUpdateCommand>();
+        for (OMElement assoc : submittedMetadata.getAssociations()) {
+            // See if we are dealing with a proper association.
+            MetadataUpdateCommand muCommand = null;
+            if (MetadataSupport.xdsB_ihe_assoc_type_update_availability_status.equals(submittedMetadata.getAssocType(assoc))) {
+                muCommand = this.handleUpdateAvailabilityStatusAssociation(submittedMetadata, metadataUpdateContext, assoc);
+            } else if (MetadataSupport.xdsB_eb_assoc_type_has_member.equals(submittedMetadata.getAssocType(assoc))) {
+                muCommand = this.handleHasMemberAssociation(submittedMetadata, metadataUpdateContext, assoc);
+            } else if (MetadataSupport.xdsB_ihe_assoc_type_submit_association.equals(submittedMetadata.getAssocType(assoc))) {
+                muCommand = this.handleSubmitAssociation(submittedMetadata, metadataUpdateContext, assoc);
+            } else {
+                // Do nothing.
+            }
+            if (muCommand != null) {
+                muCommands.add(muCommand);
+            }
+        }
+        if (muCommands.isEmpty()) {
+            // FIXME: Use proper exception.
+            throw new XdsException("No trigger event detected - No updates made to registry");
+        }
+        return muCommands;
+    }
+
+    /**
+     *
+     * @param muCommands
+     * @return
+     * @throws XdsException
+     */
+    private boolean runMetadataUpdateCommands(List<MetadataUpdateCommand> muCommands) throws XdsException {
+        // TBD: Do we need to order commands?
+        // Execute each command.
+        boolean runStatus = false;
+        for (MetadataUpdateCommand muCommand : muCommands) {
+            runStatus = muCommand.run();
+            if (!runStatus) {
+                break;  // Get out - do not run any more commands on first failure.
+            }
+        }
+        return runStatus;
     }
 
     /**
