@@ -120,16 +120,25 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         // Add submission set associations that match criteria.
         List<String> ssUuids = new ArrayList<String>();
         ssUuids.add(ssUUID);
-        OMElement assoc1Metadata = this.getRegistryPackageAssociations(ssUuids, assocStatusValues);
-        if (assoc1Metadata != null) {
-            metadata.addMetadata(assoc1Metadata);
+        OMElement ssAssocMetadata = this.getRegistryPackageAssociations(ssUuids, assocStatusValues);
+        if (ssAssocMetadata != null) {
+            metadata.addMetadata(ssAssocMetadata);
         }
 
         // Add folder associations that match criteria (a little redundant passing in assocStatusValues but OK).
         List<String> folderIds = metadata.getFolderIds();
-        OMElement assoc2Metadata = this.getRegistryPackageAssociations(folderIds, assocStatusValues);
-        if (assoc2Metadata != null) {
-            metadata.addMetadata(assoc2Metadata);
+        OMElement folderAssocMetadata = this.getRegistryPackageAssociations(folderIds, assocStatusValues);
+        if (folderAssocMetadata != null) {
+            metadata.addMetadata(folderAssocMetadata);
+        }
+
+        // FIXME (remove?): ? Part of spec ?
+        List<String> documentIds = metadata.getExtrinsicObjectIds();
+        if (!documentIds.isEmpty()) {
+            OMElement docsAssocMetadata = this.getAssociationsByUUID(documentIds, assocStatusValues, null /* assocTypes */);
+            if (docsAssocMetadata != null) {
+                metadata.addMetadata(docsAssocMetadata);
+            }
         }
         metadata.removeDuplicates();
 

@@ -122,15 +122,28 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
             registryObjectIdsToDelete.addAll(folderIdsToDelete);
         }
 
-        for (String registryObjectIdToDelete : registryObjectIdsToDelete) {
-            // Get all associations to the registry object.
-            Metadata assocMetadata = cmd.getAssocs(registryObjectIdToDelete, null /* status */, null /* assocType */, "Get Associations To Delete");
+        // Placed in block to avoid redefining variable names.
+        {
+            // Get all associations to the registry objects.
+            Metadata assocMetadata = cmd.getAssocs(registryObjectIdsToDelete, null /* status */, null /* assocType */, "Get Registry Object Associations To Delete");
             List<String> assocIds = assocMetadata.getAssociationIds();
             if (!assocIds.isEmpty()) {
                 // Add them for deletion.
                 assocIdsToDelete.addAll(assocIds);
             }
         }
+
+        // Now find associations that link to the associations.
+        if (!assocIdsToDelete.isEmpty()) {
+            Metadata assocMetadata = cmd.getAssocs(assocIdsToDelete, null /* status */, null /* assocTypes */, "Get Assoc Associations To Delete");
+            List<String> assocIds = assocMetadata.getAssociationIds();
+            if (!assocIds.isEmpty()) {
+                // Add them for deletion.
+                assocIdsToDelete.addAll(assocIds);
+            }
+        }
+
+        // Note: This may result in duplicate assocIds, but OK - will be removed later.
         return assocIdsToDelete;
     }
 }

@@ -81,7 +81,7 @@ public abstract class MetadataUpdateCommand {
         return runStatus;
     }
 
-      /**
+    /**
      *
      * @param muSQ
      * @param registryObjectId
@@ -146,6 +146,22 @@ public abstract class MetadataUpdateCommand {
      * @throws XdsException
      */
     public Metadata getAssocs(String registryObjectId, String status, String assocType, String reason) throws XdsException {
+        // Look for associations that have registryObjectEntryId as source or target.
+        List<String> sourceOrTargetIds = new ArrayList<String>();
+        sourceOrTargetIds.add(registryObjectId);
+        return this.getAssocs(sourceOrTargetIds, status, assocType, reason);
+    }
+
+    /**
+     * 
+     * @param sourceOrTargetIds
+     * @param status
+     * @param assocType
+     * @param reason
+     * @return
+     * @throws XdsException
+     */
+    public Metadata getAssocs(List<String> sourceOrTargetIds, String status, String assocType, String reason) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -157,8 +173,8 @@ public abstract class MetadataUpdateCommand {
         muSQ.setReturnLeafClass(true);
 
         // Look for associations that have registryObjectEntryId as source or target.
-        List<String> sourceOrTargetIds = new ArrayList<String>();
-        sourceOrTargetIds.add(registryObjectId);
+        //List<String> sourceOrTargetIds = new ArrayList<String>();
+        //sourceOrTargetIds.add(registryObjectId);
 
         // Status.
         List<String> assocStatusValues = null;
