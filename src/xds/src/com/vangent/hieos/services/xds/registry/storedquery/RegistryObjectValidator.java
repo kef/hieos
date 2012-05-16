@@ -148,7 +148,7 @@ public class RegistryObjectValidator extends StoredQuery {
 
         // Throw exception for submission sets that already exist in registry.
         for (String suuid : currentMetadata.getSubmissionSetIds()) {
-            String sid = metadata.getExternalIdentifierValue(suuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
+            String sid = currentMetadata.getExternalIdentifierValue(suuid, MetadataSupport.XDSSubmissionSet_uniqueid_uuid);
             logMessage.addOtherParam("duplicate ssuid", sid);
             throw new MetadataValidationException("SubmissionSet uniqueId "
                     + sid

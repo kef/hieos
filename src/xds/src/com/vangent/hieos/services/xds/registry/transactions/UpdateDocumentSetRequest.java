@@ -54,6 +54,7 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class UpdateDocumentSetRequest extends XBaseTransaction {
+
     private final static Logger logger = Logger.getLogger(UpdateDocumentSetRequest.class);
 
     /**
@@ -185,6 +186,11 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                     if (muCommand != null) {
                         muCommands.add(muCommand);
                     }
+                }
+
+                if (muCommands.isEmpty()) {
+                    // FIXME: Use proper exception.
+                    throw new XdsException("No trigger event detected - No updates made to registry");
                 }
 
                 // TBD: Do we need to order commands?
