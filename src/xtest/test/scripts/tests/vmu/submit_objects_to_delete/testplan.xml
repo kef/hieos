@@ -29,6 +29,19 @@
             <MetadataFile>single_fol_to_delete.xml</MetadataFile>
         </RegisterTransaction>
     </TestStep>
+     <TestStep id="submit_two_doc_fol_to_delete">
+        <NewPatientId/>
+        <Rule>
+            <Transaction>R</Transaction>
+            <Assertion>Single folder submission with 2 documents.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <RegisterTransaction>
+            <XDSb/>
+            <AssignUuids/>
+            <MetadataFile>two_doc_w_fol.xml</MetadataFile>
+        </RegisterTransaction>
+    </TestStep>
     <TestStep id="reset_patient_id">
         <ExpectedStatus>Success</ExpectedStatus>
         <NewPatientId/>

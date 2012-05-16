@@ -3,6 +3,40 @@
     <Test>vmu/delete_doc_set</Test>
     <!-- <RegistryEndpoint>http://129.6.24.109:9080/axis2/services/xdsregistrya</RegistryEndpoint> -->
     <Rule>Delete document entry metadata</Rule>
+    <TestStep id="validate_ss_before_doc_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents before delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_doc_to_delete"
+                section="AssignedUuids" symbol="$document$"/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_doc_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSwithOneDoc/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
     <TestStep id="submit_delete_document">
         <!--<NewPatientId/>-->
         <Rule>
@@ -48,6 +82,74 @@
             </Metadata>
             <ExpectedContents>
                 <Documents count="0"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="validate_ss_after_doc_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents after delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_doc_to_delete"
+                section="AssignedUuids" symbol="$document$"/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_doc_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSApproved/>
+                <Documents count="0"/>
+                <Associations count="0"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="validate_ss_before_fol_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents before folder delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_fol_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSwithOneFol/>
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
@@ -99,6 +201,183 @@
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
+    <TestStep id="validate_ss_after_fol_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents after folder delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_fol_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSApproved/>
+                <Folders count="0"/>
+                <Documents count="0"/>
+                <Associations count="0"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    <TestStep id="validate_ss_before_docs_in_folder_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents after folder delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_two_doc_fol_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSApproved/>
+                <Folders count="1"/>
+                <Documents count="2"/>
+                <Associations count="9"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+    
+    <TestStep id="submit_delete_folder_with_docs">
+        <!--<NewPatientId/>-->
+        <Rule>
+            <Transaction>D</Transaction>
+            <Assertion>Delete folder submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <DeleteDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <UseId testdir="../submit_objects_to_delete" id="Folder" step="submit_two_doc_fol_to_delete"
+                section="AssignedUuids" symbol="$registry_object$"/>
+            <MetadataFile>delete_one_registry_object.xml</MetadataFile>
+        </DeleteDocumentSetTransaction>
+    </TestStep>
+
+    <TestStep id="validate_ss_after_docs_in_folder_delete">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents after folder delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_two_doc_fol_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSApproved/>
+                <Folders count="0"/>
+                <Documents count="2"/>
+                <Associations count="4"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+
+    <TestStep id="submit_delete_one_doc_in_folder">
+        <!--<NewPatientId/>-->
+        <Rule>
+            <Transaction>D</Transaction>
+            <Assertion>Delete folder submission.</Assertion>
+        </Rule>
+        <ExpectedStatus>Success</ExpectedStatus>
+        <DeleteDocumentSetTransaction>
+            <XDSb/>
+            <NoPatientId/>
+            <AssignUuids/>
+            <UseId testdir="../submit_objects_to_delete" id="Document01" step="submit_two_doc_fol_to_delete"
+                section="AssignedUuids" symbol="$registry_object$"/>
+            <MetadataFile>delete_one_registry_object.xml</MetadataFile>
+        </DeleteDocumentSetTransaction>
+    </TestStep>
+
+     <TestStep id="validate_ss_after_docs_in_folder_delete_2">
+        <Rule>
+            <Transaction>SQ</Transaction>
+            <Assertion>Validate submission set contents after document delete.</Assertion>
+        </Rule>
+        <StoredQueryTransaction>
+            <XDSb/>
+            <UseId testdir="../submit_objects_to_delete" id="SubmissionSet01" step="submit_two_doc_fol_to_delete"
+                section="AssignedUuids" symbol="$submission_set$"/>
+            <Metadata>
+                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
+                     <!-- GetSubmissionSetAndContents Stored Query -->
+                    <AdhocQuery id="urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="$XDSSubmissionSetEntryUUID">
+                            <ValueList>
+                                <Value>'$submission_set$'</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="$MetadataLevel">
+                            <ValueList>
+                                <Value>2</Value>
+                            </ValueList>
+                        </Slot>
+                    </AdhocQuery>
+                </query:AdhocQueryRequest>
+            </Metadata>
+            <ExpectedContents>
+                <SSApproved/>
+                <Folders count="0"/>
+                <Documents count="1"/>
+                <Associations count="1"/>
+            </ExpectedContents>
+        </StoredQueryTransaction>
+    </TestStep>
+
     <TestStep id="submit_delete_document_expected_failure">
         <!--<NewPatientId/>-->
         <Rule>
