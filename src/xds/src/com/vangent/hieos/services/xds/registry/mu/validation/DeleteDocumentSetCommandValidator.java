@@ -61,16 +61,8 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         for (String objectRefId : objectRefIds) {
             if (!loadedObjectRefIds.contains(objectRefId)) {
                 throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
-
             }
-            //OMElement registryObject = loadedMetadata.getObjectById(objectRefId);
-            //if (registryObject == null) {
-            //    throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
-            //}
         }
-
-        // Cache loaded metadata for the command to use later.
-        //cmd.setLoadedMetadata(loadedMetadata);
 
         // TBD: Do some additional validation here.
         return validationSuccess;
@@ -88,8 +80,6 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        //RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         // Prepare to issue registry query.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
