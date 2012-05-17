@@ -12,10 +12,8 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationCommand;
-import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
@@ -23,9 +21,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -63,13 +58,6 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
     public boolean validate() throws XdsException {
         SubmitAssociationCommand cmd = (SubmitAssociationCommand) this.getMetadataUpdateCommand();
         boolean validationSuccess = true;
-
-        // Get metadata update context for use later.
-        //MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        //BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        //RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         // Preconditions:
         // The following rules shall be used by the receiving actor to decode and validate a submission:

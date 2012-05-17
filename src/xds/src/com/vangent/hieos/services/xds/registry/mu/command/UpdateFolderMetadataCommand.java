@@ -63,7 +63,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Scan for existing non-deprecated HasMember associations (in approved status).
-        Metadata assocMetadata = this.getApprovedHasMemberAssocs(currentFolderEntryId);
+        Metadata assocMetadata = this.getApprovedHasMemberAssocs(currentFolderEntryId, true /* leafClass */);
 
         // Create new metadata instance.
         Metadata newAssocMetadata = new Metadata();

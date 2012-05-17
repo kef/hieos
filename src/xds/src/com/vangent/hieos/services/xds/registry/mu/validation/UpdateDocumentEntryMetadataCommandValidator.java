@@ -25,7 +25,6 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.List;
 import org.apache.axiom.om.OMElement;

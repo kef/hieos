@@ -46,13 +46,6 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         UpdateFolderMetadataCommand cmd = (UpdateFolderMetadataCommand) this.getMetadataUpdateCommand();
         boolean validationSuccess = true;
 
-        // Get metadata update context for use later.
-        //MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        //BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        //RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
-
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
         // and 3) matches the previous version.

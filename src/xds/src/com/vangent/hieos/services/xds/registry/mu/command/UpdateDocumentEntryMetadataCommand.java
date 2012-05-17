@@ -72,7 +72,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         //  existing DocumentEntry.
 
         // Get all approved associations.
-        Metadata assocMetadata = this.getApprovedAssocs(currentDocumentEntryId);
+        Metadata assocMetadata = this.getApprovedAssocs(currentDocumentEntryId, true /* leafClass */);
 
         // Create new metadata instance.
         Metadata newAssocMetadata = new Metadata();

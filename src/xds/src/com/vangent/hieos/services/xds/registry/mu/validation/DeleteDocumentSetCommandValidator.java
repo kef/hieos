@@ -52,22 +52,25 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
             throw new XDSUnresolvedReferenceException("No object references specified");
         }
         boolean validationSuccess = true;
-        Metadata loadedMetadata = this.loadRegistryObjects(cmd, objectRefIds);
-        if (loadedMetadata.getExtrinsicObjects().isEmpty()
-                && loadedMetadata.getFolders().isEmpty()
-                && loadedMetadata.getAssociations().isEmpty()) {
+        Metadata loadedMetadata = this.findRegistryObjects(cmd, objectRefIds);
+        if (loadedMetadata.getObjectRefs().isEmpty()) {
             throw new XDSUnresolvedReferenceException("No documents, folders or associations found to delete");
         }
         // Verify that each specified object reference is in the loaded metadata.
+        List<String> loadedObjectRefIds = loadedMetadata.getObjectRefIds();
         for (String objectRefId : objectRefIds) {
-            OMElement registryObject = loadedMetadata.getObjectById(objectRefId);
-            if (registryObject == null) {
+            if (!loadedObjectRefIds.contains(objectRefId)) {
                 throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
+
             }
+            //OMElement registryObject = loadedMetadata.getObjectById(objectRefId);
+            //if (registryObject == null) {
+            //    throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
+            //}
         }
 
         // Cache loaded metadata for the command to use later.
-        cmd.setLoadedMetadata(loadedMetadata);
+        //cmd.setLoadedMetadata(loadedMetadata);
 
         // TBD: Do some additional validation here.
         return validationSuccess;
@@ -80,7 +83,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
      * @return
      * @throws XdsException
      */
-    private Metadata loadRegistryObjects(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
+    private Metadata findRegistryObjects(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -90,7 +93,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
 
         // Prepare to issue registry query.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
-        muSQ.setReturnLeafClass(true);
+        muSQ.setReturnLeafClass(false);
 
         // Get full metadata for request.
         Metadata metadata = new Metadata();

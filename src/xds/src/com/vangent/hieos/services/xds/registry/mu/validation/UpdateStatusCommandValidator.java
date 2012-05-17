@@ -51,8 +51,6 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        //BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        //RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
 
         if (logMessage.isLogEnabled()) {
             // Log parameters.
@@ -178,7 +176,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         // Now, validate PID constraints.
 
         // Get all approved associations.
-        Metadata assocMetadata = cmd.getApprovedAssocs(cmd.getTargetObjectId());
+        Metadata assocMetadata = cmd.getApprovedAssocs(cmd.getTargetObjectId(), true /* leafClass */);
         List<OMElement> assocs = assocMetadata.getAssociations();
         String currentPatientId = loadedMetadata.getPatientId(currentDocument);
         for (OMElement assoc : assocs) {
@@ -234,7 +232,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
 
         // Now, validate PID constraints.
         // Scan for existing non-deprecated HasMember associations (in approved status).
-        Metadata assocMetadata = cmd.getApprovedHasMemberAssocs(targetObjectId);
+        Metadata assocMetadata = cmd.getApprovedHasMemberAssocs(targetObjectId, true /* leafClass */);
         String currentPatientId = loadedMetadata.getPatientId(currentFolder);
         for (OMElement assoc : assocMetadata.getAssociations()) {
             String sourceId = assocMetadata.getSourceObject(assoc);

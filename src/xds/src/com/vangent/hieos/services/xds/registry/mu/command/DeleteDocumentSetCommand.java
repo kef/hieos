@@ -28,8 +28,6 @@ import org.apache.axiom.om.OMElement;
  */
 public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
-    private Metadata loadedMetadata;
-
     /**
      *
      * @param metadata
@@ -50,22 +48,6 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
     /**
      *
-     * @return
-     */
-    public Metadata getLoadedMetadata() {
-        return loadedMetadata;
-    }
-
-    /**
-     * 
-     * @param loadedMetadata
-     */
-    public void setLoadedMetadata(Metadata loadedMetadata) {
-        this.loadedMetadata = loadedMetadata;
-    }
-
-    /**
-     *
      * @param validator
      * @return
      * @throws XdsException
@@ -77,7 +59,7 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
 
         // Get associations (to delete) connected to registry objects targeted for deletion.
-        List<String> assocIdsToDelete = this.getAssocsToDelete(this, loadedMetadata);
+        List<String> assocIdsToDelete = this.getAssocsToDelete(this, objectRefIds);
         if (!assocIdsToDelete.isEmpty()) {
             // Add to associations to list of objects to delete (but only if not already supplied by initiator).
             for (String assocIdToDelete : assocIdsToDelete) {
@@ -108,25 +90,29 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
     /**
      *
      * @param cmd
-     * @param loadedMetadata
+     * @param objectRefIds
      * @return
      * @throws XdsException
      */
-    private List<String> getAssocsToDelete(DeleteDocumentSetCommand cmd, Metadata loadedMetadata) throws XdsException {
+    private List<String> getAssocsToDelete(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
         List<String> assocIdsToDelete = new ArrayList<String>();
 
         // Go through each document/folder targeted for deletion.
-        List<String> registryObjectIdsToDelete = loadedMetadata.getExtrinsicObjectIds();
-        List<String> folderIdsToDelete = loadedMetadata.getFolderIds();
-        if (!folderIdsToDelete.isEmpty()) {
-            registryObjectIdsToDelete.addAll(folderIdsToDelete);
-        }
+        //List<String> registryObjectIdsToDelete = loadedMetadata.getExtrinsicObjectIds();
+        //List<String> folderIdsToDelete = loadedMetadata.getFolderIds();
+        //if (!folderIdsToDelete.isEmpty()) {
+        //    registryObjectIdsToDelete.addAll(folderIdsToDelete);
+        //}
 
         // Placed in block to avoid redefining variable names.
         {
             // Get all associations to the registry objects.
-            Metadata assocMetadata = cmd.getAssocs(registryObjectIdsToDelete, null /* status */, null /* assocType */, "Get Registry Object Associations To Delete");
-            List<String> assocIds = assocMetadata.getAssociationIds();
+            Metadata assocMetadata = cmd.getAssocs(objectRefIds,
+                    null /* status */,
+                    null /* assocType */,
+                    false /* leafClass */,
+                    "Get Registry Object Associations To Delete");
+            List<String> assocIds = assocMetadata.getObjectRefIds();
             if (!assocIds.isEmpty()) {
                 // Add them for deletion.
                 assocIdsToDelete.addAll(assocIds);
@@ -135,8 +121,12 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
         // Now find associations that link to the associations.
         if (!assocIdsToDelete.isEmpty()) {
-            Metadata assocMetadata = cmd.getAssocs(assocIdsToDelete, null /* status */, null /* assocTypes */, "Get Assoc Associations To Delete");
-            List<String> assocIds = assocMetadata.getAssociationIds();
+            Metadata assocMetadata = cmd.getAssocs(assocIdsToDelete,
+                    null /* status */,
+                    null /* assocTypes */,
+                    false /* leafClass */,
+                    "Get Assoc Associations To Delete");
+            List<String> assocIds = assocMetadata.getObjectRefIds();
             if (!assocIds.isEmpty()) {
                 // Add them for deletion.
                 assocIdsToDelete.addAll(assocIds);

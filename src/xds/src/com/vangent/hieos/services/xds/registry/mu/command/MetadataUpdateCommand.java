@@ -114,26 +114,29 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
-     *
+     * 
      * @param registryObjectId
+     * @param leafClass
      * @return
      * @throws XdsException
      */
-    public Metadata getApprovedHasMemberAssocs(String registryObjectId) throws XdsException {
+    public Metadata getApprovedHasMemberAssocs(String registryObjectId, boolean leafClass) throws XdsException {
         return this.getAssocs(registryObjectId,
                 MetadataSupport.status_type_approved,
-                MetadataSupport.xdsB_eb_assoc_type_has_member, "Get Approved HasMember Associations");
+                MetadataSupport.xdsB_eb_assoc_type_has_member,
+                leafClass, "Get Approved HasMember Associations");
     }
 
     /**
-     *
+     * 
      * @param registryObjectId
+     * @param leafClass
      * @return
      * @throws XdsException
      */
-    public Metadata getApprovedAssocs(String registryObjectId) throws XdsException {
+    public Metadata getApprovedAssocs(String registryObjectId, boolean leafClass) throws XdsException {
         return this.getAssocs(registryObjectId, MetadataSupport.status_type_approved,
-                null /* assocType */, "Get Approved Associations");
+                null /* assocType */, leafClass, "Get Approved Associations");
     }
 
     /**
@@ -141,27 +144,31 @@ public abstract class MetadataUpdateCommand {
      * @param registryObjectId
      * @param status
      * @param assocType
+     * @param leafClass
      * @param reason
      * @return
      * @throws XdsException
      */
-    public Metadata getAssocs(String registryObjectId, String status, String assocType, String reason) throws XdsException {
+    public Metadata getAssocs(String registryObjectId, 
+            String status, String assocType, boolean leafClass, String reason) throws XdsException {
         // Look for associations that have registryObjectEntryId as source or target.
         List<String> sourceOrTargetIds = new ArrayList<String>();
         sourceOrTargetIds.add(registryObjectId);
-        return this.getAssocs(sourceOrTargetIds, status, assocType, reason);
+        return this.getAssocs(sourceOrTargetIds, status, assocType, leafClass, reason);
     }
 
     /**
-     * 
+     *
      * @param sourceOrTargetIds
      * @param status
      * @param assocType
+     * @param leafClass
      * @param reason
      * @return
      * @throws XdsException
      */
-    public Metadata getAssocs(List<String> sourceOrTargetIds, String status, String assocType, String reason) throws XdsException {
+    public Metadata getAssocs(List<String> sourceOrTargetIds, 
+            String status, String assocType, boolean leafClass, String reason) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -170,7 +177,7 @@ public abstract class MetadataUpdateCommand {
 
         // Prepare for queries.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
-        muSQ.setReturnLeafClass(true);
+        muSQ.setReturnLeafClass(leafClass);
 
         // Look for associations that have registryObjectEntryId as source or target.
         //List<String> sourceOrTargetIds = new ArrayList<String>();
