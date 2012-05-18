@@ -79,6 +79,7 @@ public class Metadata {
     // Valid submission set -> registry object assocation types.
     private static final List<String> validSubmissionSetAssocTypes =
             new ArrayList<String>() {
+
                 {
                     add(MetadataSupport.xdsB_eb_assoc_type_has_member);
                     add(MetadataSupport.xdsB_ihe_assoc_type_submit_association);
@@ -93,6 +94,15 @@ public class Metadata {
                     add(MetadataSupport.xdsB_eb_assoc_type_has_member);
                 }
             };
+    // Valid folder -> document association types.
+    private static final List<String> validMetadataUpdateTriggerAssocTypes =
+            new ArrayList<String>() {
+                {
+                    add(MetadataSupport.xdsB_ihe_assoc_type_update_availability_status);
+                    add(MetadataSupport.xdsB_ihe_assoc_type_submit_association);
+                }
+            };
+            
     private OMElement metadata;
     // wrapper
     private OMElement wrapper;   // current metadata document being parsed
@@ -205,6 +215,23 @@ public class Metadata {
      */
     public static List<String> getValidSubmissionSetAssociationTypes() {
         return validSubmissionSetAssocTypes;
+    }
+
+     /**
+     *
+     * @param assocType
+     * @return
+     */
+    public static boolean isValidMetadataUpdateTriggerAssociationType(String assocType) {
+        return validMetadataUpdateTriggerAssocTypes.contains(assocType);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static List<String> getValidMetadataUpdateTriggerAssociationTypes() {
+        return validMetadataUpdateTriggerAssocTypes;
     }
 
     /**
@@ -640,7 +667,7 @@ public class Metadata {
     /**
      *
      */
-    private void reindex() {
+    public void reindex() {
         this.idIndex = null;  // lazy
     }
 
