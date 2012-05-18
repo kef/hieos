@@ -13,6 +13,7 @@
 package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
+import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateController;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentSetController;
@@ -134,8 +135,8 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
             MetadataUpdateHelper.logMetadata(log_message, submittedMetadata);
 
             // Run commands and register submission set.
-            UpdateDocumentSetController controller = new UpdateDocumentSetController(metadataUpdateContext, submittedMetadata);
-            boolean runStatus = controller.execute();
+            MetadataUpdateController controller = new UpdateDocumentSetController(metadataUpdateContext, submittedMetadata);
+            boolean runStatus = controller.run();
             if (runStatus) {
                 // Commit on success.
                 backendRegistry.commit();

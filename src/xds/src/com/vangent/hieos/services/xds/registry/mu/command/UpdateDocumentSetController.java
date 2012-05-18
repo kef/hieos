@@ -37,10 +37,7 @@ import org.apache.axiom.om.OMElement;
  *
  * @author Bernie Thuman
  */
-public class UpdateDocumentSetController {
-
-    private MetadataUpdateContext metadataUpdateContext;
-    private Metadata submittedMetadata;
+public class UpdateDocumentSetController extends MetadataUpdateController {
 
     /**
      *
@@ -48,8 +45,7 @@ public class UpdateDocumentSetController {
      * @param submittedMetadata
      */
     public UpdateDocumentSetController(MetadataUpdateContext metadataUpdateContext, Metadata submittedMetadata) {
-        this.metadataUpdateContext = metadataUpdateContext;
-        this.submittedMetadata = submittedMetadata;
+        super(metadataUpdateContext, submittedMetadata);
     }
 
     /**
@@ -57,7 +53,8 @@ public class UpdateDocumentSetController {
      * @return
      * @throws XdsException
      */
-    public boolean execute() throws XdsException {
+    @Override
+    public boolean update() throws XdsException {
         // Run initial validations.
         boolean runStatus = this.runBaseValidation();
         if (runStatus) {
@@ -72,6 +69,17 @@ public class UpdateDocumentSetController {
             }
         }
         return runStatus;
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    @Override
+    public boolean enforcePolicy() throws XdsException {
+        // TBD: Implement.
+        return true;
     }
 
     /**

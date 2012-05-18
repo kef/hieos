@@ -14,6 +14,8 @@ package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
+import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetController;
+import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateController;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.validation.DeleteDocumentSetCommandValidator;
@@ -121,12 +123,9 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             Metadata submittedMetadata = MetadataParser.parseNonSubmission(removeObjectsRequest);
             MetadataUpdateHelper.logMetadata(log_message, submittedMetadata);
 
-            // Create and run command.
-            MetadataUpdateCommandValidator validator = new DeleteDocumentSetCommandValidator();
-            DeleteDocumentSetCommand cmd =
-                    new DeleteDocumentSetCommand(submittedMetadata, metadataUpdateContext, validator);
-            // Execute command.
-            boolean runStatus = cmd.validateAndUpdate();
+           // Run commands and register submission set.
+            MetadataUpdateController controller = new DeleteDocumentSetController(metadataUpdateContext, submittedMetadata);
+            boolean runStatus = controller.run();
             if (runStatus) {
                 backendRegistry.commit();
                 commitCompleted = true;
