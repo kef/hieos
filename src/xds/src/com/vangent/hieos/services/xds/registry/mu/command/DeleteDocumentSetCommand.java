@@ -58,7 +58,7 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
         Metadata submittedMetadata = this.getSubmittedMetadata();
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();
 
-        // Get associations (to delete) connected to registry objects targeted for deletion.
+        // Get associations (to delete) connected to the registry objects targeted for deletion.
         List<String> assocIdsToDelete = this.getAssocsToDelete(this, objectRefIds);
         if (!assocIdsToDelete.isEmpty()) {
             // Add to associations to list of objects to delete (but only if not already supplied by initiator).
@@ -76,18 +76,6 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
     }
 
     /**
-     * 
-     * @param objectRefIds
-     * @throws XdsException
-     */
-    private OMElement deleteRegistryObjects(List<String> objectRefIds) throws XdsException {
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        // Submit RemoveObjectsRequest to registry.
-        return backendRegistry.submitRemoveObjectsRequest(objectRefIds);
-    }
-
-    /**
      *
      * @param cmd
      * @param objectRefIds
@@ -96,13 +84,6 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
      */
     private List<String> getAssocsToDelete(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
         List<String> assocIdsToDelete = new ArrayList<String>();
-
-        // Go through each document/folder targeted for deletion.
-        //List<String> registryObjectIdsToDelete = loadedMetadata.getExtrinsicObjectIds();
-        //List<String> folderIdsToDelete = loadedMetadata.getFolderIds();
-        //if (!folderIdsToDelete.isEmpty()) {
-        //    registryObjectIdsToDelete.addAll(folderIdsToDelete);
-        //}
 
         // Placed in block to avoid redefining variable names.
         {
@@ -135,5 +116,17 @@ public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
         // Note: This may result in duplicate assocIds, but OK - will be removed later.
         return assocIdsToDelete;
+    }
+
+    /**
+     *
+     * @param objectRefIds
+     * @throws XdsException
+     */
+    private OMElement deleteRegistryObjects(List<String> objectRefIds) throws XdsException {
+        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
+        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+        // Submit RemoveObjectsRequest to registry.
+        return backendRegistry.submitRemoveObjectsRequest(objectRefIds);
     }
 }

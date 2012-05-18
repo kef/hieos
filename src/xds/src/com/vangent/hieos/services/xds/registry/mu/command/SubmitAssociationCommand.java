@@ -19,9 +19,7 @@ import com.vangent.hieos.services.xds.registry.mu.validation.SubmitAssociationCo
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
-import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -94,23 +92,19 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
-        Metadata metadata = this.getSubmittedMetadata();
-        // Hack: Change urn:ihe:iti:2010:AssociationType:SubmitAssociation to a HasMember assocation
-        // for submission.
-        // FIXME: May not be a good idea ... not returned in any queries ...
-        OMAttribute assocTypeAttribute = submitAssociation.getAttribute(MetadataSupport.association_type_qname);
-        assocTypeAttribute.setAttributeValue(MetadataSupport.xdsB_eb_assoc_type_has_member);
+        Metadata submittedMetadata = this.getSubmittedMetadata();
 
         // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(metadata);
+        IdParser idParser = new IdParser(submittedMetadata);
         idParser.compileSymbolicNamesIntoUuids();
+        submittedMetadata.reindex();
 
         // Set status to "Approved" on the target association.
-        metadata.setStatusOnApprovableObjects();
+        submittedMetadata.setStatusOnApprovableObjects();
 
         // Make registry submission.
         backendRegistry.setReason("Submit Association");
-        OMElement result = backendRegistry.submit(metadata);
+        OMElement result = backendRegistry.submit(submittedMetadata);
         // FIXME: result?
         return true;
     }

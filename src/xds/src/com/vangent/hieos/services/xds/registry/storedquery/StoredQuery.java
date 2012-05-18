@@ -503,34 +503,7 @@ public abstract class StoredQuery {
         return this.runQueryForObjectRefs(sqb);
     }
 
-    /**
-     * 
-     * @param uuids
-     * @param assocStatusValues
-     * @param assocTypes
-     * @return
-     * @throws XdsException
-     */
-    public OMElement getAssociationsByUUID(List<String> uuids, List<String> assocStatusValues, List<String> assocTypes) throws XdsException {
-        StoredQueryBuilder sqb = new StoredQueryBuilder(this.returnLeafClass);
-        sqb.select("a");
-        sqb.append("FROM Association a");
-        sqb.append(" WHERE (a.sourceObject IN ");
-        sqb.append(uuids);
-        sqb.append(" OR a.targetObject IN ");
-        sqb.append(uuids);
-        sqb.append(")");
-        if (assocStatusValues != null && !assocStatusValues.isEmpty()) {
-            sqb.append(" AND a.status IN ");
-            sqb.append(RegistryCodedValueMapper.convertStatus_ValueToCode(assocStatusValues));
-        }
-        if (assocTypes != null && !assocTypes.isEmpty()) {
-            sqb.append(" AND a.associationType IN ");
-            sqb.append(RegistryCodedValueMapper.convertAssocType_ValueToCode(assocTypes));
-        }
-        return this.runQuery(sqb);
-    }
-
+    
     /**
      *
      * @param uuid

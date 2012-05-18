@@ -74,7 +74,7 @@ public class GetAssociations extends StoredQuery {
             assocStatusValues.add(MetadataSupport.status_type_approved);
         }
         if (uuids != null) {
-            OMElement ele = getAssociationsByUUID(uuids, assocStatusValues, null);
+            OMElement ele = this.getAssociations(uuids, assocStatusValues, null /* assocTypes */);
             metadata = MetadataParser.parseNonSubmission(ele);
         } else {
             throw new XdsInternalException("GetAssociations Stored Query: $uuid not found as a multi-value parameter");

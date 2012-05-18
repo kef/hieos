@@ -138,6 +138,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
 
     /**
      *
+     * @param validator
      * @return
      * @throws XdsException
      */
@@ -156,6 +157,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         // Change symbolic names to UUIDs.
         IdParser idParser = new IdParser(submittedMetadata);
         idParser.compileSymbolicNamesIntoUuids();
+        submittedMetadata.reindex();
 
         // Log metadata (after id assignment).
         MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);

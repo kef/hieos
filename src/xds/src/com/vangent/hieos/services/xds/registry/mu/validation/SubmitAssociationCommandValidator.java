@@ -15,6 +15,7 @@ package com.vangent.hieos.services.xds.registry.mu.validation;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper.RegistryObjectType;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -31,10 +32,6 @@ import org.apache.axiom.om.OMElement;
  */
 public class SubmitAssociationCommandValidator extends MetadataUpdateCommandValidator {
 
-    private enum RegistryObjectType {
-
-        DOCUMENT, FOLDER
-    };
     // Scratch pad area.
     private RegistryObjectType sourceRegistryObjectType;
     private RegistryObjectType targetRegistryObjectType;
@@ -53,6 +50,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
 
     /**
      * 
+     * @return
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
@@ -75,7 +73,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
         this.validateRegistryObjectIds(sourceId, targetId);
 
         // Get metadata for source/target objects (updates scratch pad).
-        this.queryMetadata(cmd, sourceId, targetId);
+        this.getCurrentRegistryObjects(cmd, sourceId, targetId);
 
         // Validate that source and target objects have an APPROVED status.
         this.validateRegistryObjectsApprovedStatus();
@@ -101,7 +99,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
      * @param targetId
      * @throws XdsException
      */
-    private void queryMetadata(MetadataUpdateCommand cmd, String sourceId, String targetId) throws XdsException {
+    private void getCurrentRegistryObjects(MetadataUpdateCommand cmd, String sourceId, String targetId) throws XdsException {
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
@@ -222,6 +220,7 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
                         + MetadataSupport.xdsB_eb_assoc_type_has_member);
             }
         } else {
+            // A document ..
             boolean foundValidAssocType = Metadata.isValidDocumentAssociationType(assocType);
             if (!foundValidAssocType) {
                 throw new XdsException("Source registry object is a document and valid assocation type not provided.");
@@ -240,17 +239,24 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
      */
     private void validateSubmittedAssocDoesNotExist(SubmitAssociationCommand cmd, Metadata submittedMetadata,
             OMElement submittedAssoc, String sourceId, String targetId) throws XdsException {
+        // Prepare to query registry.
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
-        muSQ.setReturnLeafClass(true);
-        String assocType = submittedMetadata.getAssocType(submittedAssoc);
+        muSQ.setReturnLeafClass(false);
+
+        // Source or target ids.
         List<String> sourceOrTargetIds = new ArrayList<String>();
         sourceOrTargetIds.add(sourceId);
         sourceOrTargetIds.add(targetId);
+
+        // Association type.
+        String assocType = submittedMetadata.getAssocType(submittedAssoc);
         List<String> assocTypes = new ArrayList<String>();
         assocTypes.add(assocType);
+
+        // Query registry for matching association(s) of the given type.
         OMElement assocQueryResult = muSQ.getAssociations(sourceOrTargetIds, null /* status */, assocTypes /* types */);
         Metadata assocMetadata = MetadataParser.parseNonSubmission(assocQueryResult);
-        if (assocMetadata.getAssociationIds().size() > 0) {
+        if (assocMetadata.getObjectRefs().size() > 0) {
             throw new XdsException("Registry already has an association between the source and target registry objects of type = "
                     + assocType);
         }

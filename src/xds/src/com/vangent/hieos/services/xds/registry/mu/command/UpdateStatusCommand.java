@@ -14,10 +14,13 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper.RegistryObjectType;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateStatusCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
+import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
@@ -30,10 +33,12 @@ import org.apache.axiom.om.OMElement;
  */
 public class UpdateStatusCommand extends MetadataUpdateCommand {
 
+    private RegistryObjectType currentRegistryObjectType;
     private String targetObjectId;
     private String newStatus;
     private String originalStatus;
-    private Metadata loadedMetadata;
+    private Metadata currentMetadata;
+    private OMElement currentRegistryObject;
 
     /**
      *
@@ -42,6 +47,22 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
      */
     public UpdateStatusCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
         super(metadata, metadataUpdateContext);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public RegistryObjectType getCurrentRegistryObjectType() {
+        return currentRegistryObjectType;
+    }
+
+    /**
+     *
+     * @param currentRegistryObjectType
+     */
+    public void setCurrentRegistryObjectType(RegistryObjectType currentRegistryObjectType) {
+        this.currentRegistryObjectType = currentRegistryObjectType;
     }
 
     /**
@@ -96,16 +117,32 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
      *
      * @return
      */
-    public Metadata getLoadedMetadata() {
-        return loadedMetadata;
+    public Metadata getCurrentMetadata() {
+        return currentMetadata;
     }
 
     /**
      *
      * @param loadedMetadata
      */
-    public void setLoadedMetadata(Metadata loadedMetadata) {
-        this.loadedMetadata = loadedMetadata;
+    public void setCurrentMetadata(Metadata loadedMetadata) {
+        this.currentMetadata = loadedMetadata;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public OMElement getCurrentRegistryObject() {
+        return currentRegistryObject;
+    }
+
+    /**
+     * 
+     * @param currentRegistryObject
+     */
+    public void setCurrentRegistryObject(OMElement currentRegistryObject) {
+        this.currentRegistryObject = currentRegistryObject;
     }
 
     /**
@@ -128,17 +165,48 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
         String targetObjectId = this.getTargetObjectId();
         if (logMessage.isLogEnabled()) {
-            Metadata loadedMetadata = this.getLoadedMetadata();
-            if (!loadedMetadata.getExtrinsicObjects().isEmpty()) {
-                logMessage.addOtherParam("Document Updated", targetObjectId);
-            } else if (!loadedMetadata.getFolders().isEmpty()) {
-                logMessage.addOtherParam("Folder Updated", targetObjectId);
-            } else if (!loadedMetadata.getAssociations().isEmpty()) {
-                logMessage.addOtherParam("Association Updated", targetObjectId);
+            //Metadata currentMetadata = this.getCurrentMetadata();
+            switch (this.getCurrentRegistryObjectType()) {
+                case DOCUMENT:
+                    logMessage.addOtherParam("Document Updated", targetObjectId);
+                    break;
+                case FOLDER:
+                    logMessage.addOtherParam("Folder Updated", targetObjectId);
+                    break;
+                case ASSOCIATION:
+                    logMessage.addOtherParam("Association Updated", targetObjectId);
+                    break;
             }
         }
         this.updateRegistryObjectStatus(targetObjectId, this.newStatus);
+        this.registerSubmission(this.getSubmittedMetadata());
         return true; // Success.
+    }
+
+    /**
+     * 
+     * @param submittedMetadata
+     * @throws XdsException
+     */
+    private void registerSubmission(Metadata submittedMetadata) throws XdsException {
+        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
+        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+
+        // Now, fixup the Metadata to be submitted.
+        // Change symbolic names to UUIDs.
+        IdParser idParser = new IdParser(submittedMetadata);
+        idParser.compileSymbolicNamesIntoUuids();
+        submittedMetadata.reindex();
+
+        // Log metadata (after id assignment).
+        MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
+
+        // Submit new registry object version.
+        backendRegistry.setReason("Register Submission Set");
+        submittedMetadata.setStatusOnApprovableObjects();
+        OMElement result = backendRegistry.submit(submittedMetadata);
+        // FIXME: result?
     }
 
     /**

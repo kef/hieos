@@ -40,6 +40,7 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
 
     /**
      * 
+     * @return
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
@@ -79,7 +80,6 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
 
         // Convert response into Metadata instance.
         Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);
-        //Metadata currentMetadata = cmd.getCurrentMetadata();
         List<OMElement> currentFolders = currentMetadata.getFolders();
         if (currentFolders.isEmpty()) {
             throw new XDSMetadataVersionException("Existing approved folder entry not found for lid="

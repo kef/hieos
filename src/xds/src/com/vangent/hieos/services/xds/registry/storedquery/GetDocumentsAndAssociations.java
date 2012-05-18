@@ -97,7 +97,7 @@ public class GetDocumentsAndAssociations extends StoredQuery {
         if (docIds.isEmpty()) {
             return metadata;
         }
-        OMElement ele = getAssociations(docIds, assocStatusValues, null);
+        OMElement ele = this.getAssociations(docIds, assocStatusValues, null /* assocTypes */);
         metadata.addMetadata(ele, true);
         return metadata;
     }

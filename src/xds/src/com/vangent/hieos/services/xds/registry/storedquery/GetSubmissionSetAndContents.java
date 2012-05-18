@@ -135,7 +135,7 @@ public class GetSubmissionSetAndContents extends StoredQuery {
         // FIXME (remove?): ? Part of spec ?
         List<String> documentIds = metadata.getExtrinsicObjectIds();
         if (!documentIds.isEmpty()) {
-            OMElement docsAssocMetadata = this.getAssociationsByUUID(documentIds, assocStatusValues, null /* assocTypes */);
+            OMElement docsAssocMetadata = this.getAssociations(documentIds, assocStatusValues, null /* assocTypes */);
             if (docsAssocMetadata != null) {
                 metadata.addMetadata(docsAssocMetadata);
             }

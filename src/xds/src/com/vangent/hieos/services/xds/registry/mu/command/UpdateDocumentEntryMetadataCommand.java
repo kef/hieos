@@ -18,7 +18,6 @@ import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateComma
 import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntryMetadataCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -59,7 +58,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getCommandValidator();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Rules:
@@ -95,27 +93,36 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 // Create association between new document version and target document.
                 newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
                 newAssocMetadata.addAssociation(newAssoc);
-            } else {
+                
                 // Target is the current document.  See about the source.
-                if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
-                    // If the association type is not a has member, then the source must be a document.
-                    // For optimization reasons, assuming a document (not verifying here).
-                    // Now make sure that we do not violate patient id constraints.
-                    validator.validateDocumentPatientId(sourceId, submittedPatientId);
-                    // Create association between source document and new document version.
+            } else if (Metadata.isValidDocumentAssociationType(assocType)) {
+                // If the association type is a valid document association type, then the
+                // source must be a document.
+                // For optimization reasons, assuming a document (not verifying here).
+                // Now make sure that we do not violate patient id constraints.
+                validator.validateDocumentPatientId(sourceId, submittedPatientId);
+                // Create association between source document and new document version.
+                newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                newAssocMetadata.addAssociation(newAssoc);
+
+            } else if (Metadata.isValidFolderAssociationType(assocType)) {
+                // Have to check here since folder association types overlap with allowed
+                // submission set association types.
+                // Make sure that the source is a folder (and not a submission set).
+                // Now make sure that we do not violate patient id constraints.
+                boolean foundFolder = validator.validateFolderPatientId(sourceId, submittedPatientId);
+                if (foundFolder) {
+                    // Create association between source folder entry and new document version.
                     newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
                     newAssocMetadata.addAssociation(newAssoc);
-                } else {
-                    // Make sure that the source is a folder (and not a submission set).
-                    // Now make sure that we do not violate patient id constraints.
-                    boolean foundFolder = validator.validateFolderPatientId(sourceId, submittedPatientId);
-                    if (foundFolder) {
-                        // Create association between source folder entry and new document version.
-                        newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
-                        newAssocMetadata.addAssociation(newAssoc);
-                    }
                 }
             }
+            //else {
+            // Ignore other cases.
+            //assert Metadata.isValidMetadataUpdateTriggerAssociationType(assocType);
+            //System.out.println("!! Skipped: assocType = " + assocType);
+            //}
+
             if (newAssoc != null) {
                 deprecateAssocIds.add(assocId);
             }

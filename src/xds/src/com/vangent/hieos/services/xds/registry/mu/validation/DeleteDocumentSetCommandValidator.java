@@ -41,6 +41,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
 
     /**
      * 
+     * @return
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
@@ -52,14 +53,14 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
             throw new XDSUnresolvedReferenceException("No object references specified");
         }
         boolean validationSuccess = true;
-        Metadata loadedMetadata = this.findRegistryObjects(cmd, objectRefIds);
-        if (loadedMetadata.getObjectRefs().isEmpty()) {
+        Metadata currentMetadata = this.getCurrentRegistryObjects(cmd, objectRefIds);
+        if (currentMetadata.getObjectRefs().isEmpty()) {
             throw new XDSUnresolvedReferenceException("No documents, folders or associations found to delete");
         }
         // Verify that each specified object reference is in the loaded metadata.
-        List<String> loadedObjectRefIds = loadedMetadata.getObjectRefIds();
+        List<String> currentObjectRefIds = currentMetadata.getObjectRefIds();
         for (String objectRefId : objectRefIds) {
-            if (!loadedObjectRefIds.contains(objectRefId)) {
+            if (!currentObjectRefIds.contains(objectRefId)) {
                 throw new XDSUnresolvedReferenceException("Can not find supplied object reference = " + objectRefId);
             }
         }
@@ -75,7 +76,7 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
      * @return
      * @throws XdsException
      */
-    private Metadata findRegistryObjects(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
+    private Metadata getCurrentRegistryObjects(DeleteDocumentSetCommand cmd, List<String> objectRefIds) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
@@ -86,26 +87,26 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         muSQ.setReturnLeafClass(false);
 
         // Get full metadata for request.
-        Metadata metadata = new Metadata();
+        Metadata currentMetadata = new Metadata();
 
         // Load documents.
         backendRegistry.setReason("Get Existing Documents");
         OMElement documentQueryResult = muSQ.getDocumentByUUID(objectRefIds);
-        metadata.addMetadata(documentQueryResult, true /* discard_duplicates */);
+        currentMetadata.addMetadata(documentQueryResult, true /* discard_duplicates */);
 
         // Load folders.
         backendRegistry.setReason("Get Existing Folders");
         OMElement folderQueryResult = muSQ.getFolderByUUID(objectRefIds);
-        metadata.addMetadata(folderQueryResult, true /* discard_duplicates */);
+        currentMetadata.addMetadata(folderQueryResult, true /* discard_duplicates */);
 
         // Load associations.
         backendRegistry.setReason("Get Existing Associations");
         OMElement assocQueryResult = muSQ.getAssociationByUUID(objectRefIds);
-        metadata.addMetadata(assocQueryResult, true /* discard_duplicates */);
+        currentMetadata.addMetadata(assocQueryResult, true /* discard_duplicates */);
         backendRegistry.setReason("");
 
         // Log metadata found.
-        MetadataUpdateHelper.logMetadata(logMessage, metadata);
-        return metadata;
+        MetadataUpdateHelper.logMetadata(logMessage, currentMetadata);
+        return currentMetadata;
     }
 }

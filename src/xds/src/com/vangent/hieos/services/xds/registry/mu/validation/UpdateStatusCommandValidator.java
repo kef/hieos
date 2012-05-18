@@ -16,6 +16,7 @@ import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper.RegistryObjectType;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -42,6 +43,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
 
     /**
      * 
+     * @return
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
@@ -60,6 +62,8 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                     + ", Target Registry Object Id = " + cmd.getTargetObjectId());
         }
 
+        // Run initial validations.
+
         // Validate the new status is a valid entry.
         String newStatus = cmd.getNewStatus();
         if (!(newStatus.equals(MetadataSupport.status_type_approved)
@@ -74,14 +78,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             throw new XdsException(targetObjectId + " is not in UUID format");
         }
 
-        // Load metadata (based on target object id).
-        Metadata loadedMetadata = this.loadMetadata(cmd, targetObjectId);
-        cmd.setLoadedMetadata(loadedMetadata);  // For usage by command later (and below).
-        if (loadedMetadata == null) {
+        // Get current metadata (based on target object id).
+        this.getCurrentRegistryObject(cmd, targetObjectId);
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        if (currentMetadata == null) {
             throw new XdsException("Could not find target object = " + targetObjectId);
         }
 
-        // Now, run validations.
+        // Now, run further validations.
         this.validateStatusUpdateOnRegistryObject(cmd);
         return validationSuccess;
     }
@@ -90,10 +94,11 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      * 
      * @param cmd
      * @param targetObjectId
-     * @return
      * @throws XdsException
      */
-    private Metadata loadMetadata(UpdateStatusCommand cmd, String targetObjectId) throws XdsException {
+    private void getCurrentRegistryObject(UpdateStatusCommand cmd, String targetObjectId) throws XdsException {
+        cmd.setCurrentMetadata(null);
+
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
@@ -101,22 +106,31 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         OMElement docQueryResult = muSQ.getDocumentByUUID(targetObjectId);
         Metadata docMetadata = MetadataParser.parseNonSubmission(docQueryResult);
         if (!docMetadata.getExtrinsicObjects().isEmpty()) {
-            return docMetadata;
+            cmd.setCurrentRegistryObjectType(RegistryObjectType.DOCUMENT);
+            cmd.setCurrentRegistryObject(docMetadata.getExtrinsicObject(0));
+            cmd.setCurrentMetadata(docMetadata);
+            return;  // Early exit.
         }
+
         // Fall through: Try to load folder.
         OMElement folderQueryResult = muSQ.getFolderByUUID(targetObjectId);
         Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
         if (!folderMetadata.getFolders().isEmpty()) {
-            return folderMetadata;
+            cmd.setCurrentRegistryObjectType(RegistryObjectType.FOLDER);
+            cmd.setCurrentRegistryObject(folderMetadata.getFolder(0));
+            cmd.setCurrentMetadata(folderMetadata);
+            return;  // Early exit.
         }
 
         // Fall through: Try to load association.
         OMElement assocQueryResult = muSQ.getAssociationByUUID(targetObjectId);
         Metadata assocMetadata = MetadataParser.parseNonSubmission(assocQueryResult);
         if (!assocMetadata.getAssociations().isEmpty()) {
-            return assocMetadata;
+            cmd.setCurrentRegistryObjectType(RegistryObjectType.ASSOCIATION);
+            cmd.setCurrentRegistryObject(assocMetadata.getAssociation(0));
+            cmd.setCurrentMetadata(assocMetadata);
+            return;  // Early exit.
         }
-        return null;  // No registry objects found.
     }
 
     /**
@@ -125,26 +139,30 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      * @throws XdsException
      */
     private void validateStatusUpdateOnRegistryObject(UpdateStatusCommand cmd) throws XdsException {
-        Metadata loadedMetadata = cmd.getLoadedMetadata();
+        RegistryObjectType currentRegistryObjectType = cmd.getCurrentRegistryObjectType();
         boolean newStatusIsTypeApproved = cmd.getNewStatus().equals(MetadataSupport.status_type_approved);
-        if (!loadedMetadata.getExtrinsicObjects().isEmpty()) {
-            OMElement currentDocument = loadedMetadata.getExtrinsicObject(0);
-            this.validateStatusConstraints(cmd, "DocumentEntry", loadedMetadata, currentDocument);
-            if (newStatusIsTypeApproved) {
-                this.validateApprovedStatusUpdateOnDocumentEntry(cmd);
-            }
-        } else if (!loadedMetadata.getFolders().isEmpty()) {
-            OMElement currentFolder = loadedMetadata.getFolder(0);
-            this.validateStatusConstraints(cmd, "Folder", loadedMetadata, currentFolder);
-            if (newStatusIsTypeApproved) {
-                this.validateApprovedStatusUpdateOnFolder(cmd);
-            }
-        } else if (!loadedMetadata.getAssociations().isEmpty()) {
-            OMElement currentAssoc = loadedMetadata.getAssociation(0);
-            this.validateStatusConstraints(cmd, "Association", loadedMetadata, currentAssoc);
-            if (newStatusIsTypeApproved) {
-                this.validateApprovedStatusUpdateOnAssociation(cmd);
-            }
+        switch (currentRegistryObjectType) {
+            case DOCUMENT:
+                // Validate document.
+                this.validateStatusConstraints(cmd, "DocumentEntry");
+                if (newStatusIsTypeApproved) {
+                    this.validateApprovedStatusUpdateOnDocumentEntry(cmd);
+                }
+                break;
+            case FOLDER:
+                // Validate folder.
+                this.validateStatusConstraints(cmd, "Folder");
+                if (newStatusIsTypeApproved) {
+                    this.validateApprovedStatusUpdateOnFolder(cmd);
+                }
+                break;
+            case ASSOCIATION:
+                // Validate association.
+                this.validateStatusConstraints(cmd, "Association");
+                if (newStatusIsTypeApproved) {
+                    this.validateApprovedStatusUpdateOnAssociation(cmd);
+                }
+                break;
         }
     }
 
@@ -155,14 +173,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      */
     private void validateApprovedStatusUpdateOnDocumentEntry(UpdateStatusCommand cmd) throws XdsException {
         // We are attempting to change the status to approved.  Enforce rules.
-        Metadata loadedMetadata = cmd.getLoadedMetadata();
-        OMElement currentDocument = loadedMetadata.getExtrinsicObject(0);
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        OMElement currentDocument = cmd.getCurrentRegistryObject();
+        String targetObjectId = cmd.getTargetObjectId();
 
         // Now, make sure that we don't create a situation where there is more than one
         // approved document for the same LID.
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
-        String targetObjectId = cmd.getTargetObjectId();
 
         // Look up by LID.
         String lid = currentDocument.getAttributeValue(MetadataSupport.lid_qname);
@@ -176,9 +194,9 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         // Now, validate PID constraints.
 
         // Get all approved associations.
-        Metadata assocMetadata = cmd.getApprovedAssocs(cmd.getTargetObjectId(), true /* leafClass */);
+        Metadata assocMetadata = cmd.getApprovedAssocs(targetObjectId, true /* leafClass */);
         List<OMElement> assocs = assocMetadata.getAssociations();
-        String currentPatientId = loadedMetadata.getPatientId(currentDocument);
+        String currentPatientId = currentMetadata.getPatientId(currentDocument);
         for (OMElement assoc : assocs) {
             String assocType = assocMetadata.getAssocType(assoc);
             String sourceId = assocMetadata.getSourceObject(assoc);
@@ -187,21 +205,26 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
                 // If source is the document, then the target is a document.
                 // Now make sure that we do not violate patient id constraints.
                 this.validateDocumentPatientId(targetId, currentPatientId);
-            } else {
-                // Target is the current document.  See about the source.
-                if (!assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
-                    // If the association type is not a has member, then the source must be a document.
-                    // For optimization reasons, assuming a document (not verifying here).
-                    // Now make sure that we do not violate patient id constraints.
-                    this.validateDocumentPatientId(sourceId, currentPatientId);
 
-                } else {
-                    // Source is either a folder or submission set.
-                    // Now make sure that we do not violate patient id constraints.
-                    // Note: The below method will not fail if source refers to a submission set.
-                    this.validateFolderPatientId(sourceId, currentPatientId);
-                }
+                // Target is the current document.  See about the source.
+            } else if (Metadata.isValidDocumentAssociationType(assocType)) {
+                // If the association type is a valid document association type, then the
+                // source must be a document.
+                // For optimization reasons, assuming a document (not verifying here).
+                // Now make sure that we do not violate patient id constraints.
+                this.validateDocumentPatientId(sourceId, currentPatientId);
+
+            } else if (Metadata.isValidFolderAssociationType(assocType)) {
+                // Source is either a folder or submission set.
+                // Now make sure that we do not violate patient id constraints.
+                // Note: The below method will not fail if source refers to a submission set.
+                this.validateFolderPatientId(sourceId, currentPatientId);
             }
+            //else {
+            // Ignore other cases.
+            //    assert Metadata.isValidMetadataUpdateTriggerAssociationType(assocType);
+            //    System.out.println("!! Skipped: assocType = " + assocType);
+            //}
         }
     }
 
@@ -212,14 +235,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      */
     private void validateApprovedStatusUpdateOnFolder(UpdateStatusCommand cmd) throws XdsException {
         // We are attempting to change the status to approved.  Enforce rules.
-        Metadata loadedMetadata = cmd.getLoadedMetadata();
-        OMElement currentFolder = loadedMetadata.getFolder(0);
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        OMElement currentFolder = cmd.getCurrentRegistryObject();
+        String targetObjectId = cmd.getTargetObjectId();
 
         // Now, make sure that we don't create a situation where there is more than one
         // approved document for the same LID.
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
-        String targetObjectId = cmd.getTargetObjectId();
 
         // Look up by LID.
         String lid = currentFolder.getAttributeValue(MetadataSupport.lid_qname);
@@ -233,7 +256,7 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         // Now, validate PID constraints.
         // Scan for existing non-deprecated HasMember associations (in approved status).
         Metadata assocMetadata = cmd.getApprovedHasMemberAssocs(targetObjectId, true /* leafClass */);
-        String currentPatientId = loadedMetadata.getPatientId(currentFolder);
+        String currentPatientId = currentMetadata.getPatientId(currentFolder);
         for (OMElement assoc : assocMetadata.getAssociations()) {
             String sourceId = assocMetadata.getSourceObject(assoc);
             if (sourceId.equals(targetObjectId)) {
@@ -252,13 +275,14 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      */
     private void validateApprovedStatusUpdateOnAssociation(UpdateStatusCommand cmd) throws XdsException {
         // We are attempting to change the status to approved.  Enforce rules.
-        Metadata loadedMetadata = cmd.getLoadedMetadata();
-        OMElement currentAssoc = loadedMetadata.getAssociation(0);
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        OMElement currentAssoc = cmd.getCurrentRegistryObject();
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
-        String sourceId = loadedMetadata.getAssocSource(currentAssoc);
-        String targetId = loadedMetadata.getAssocTarget(currentAssoc);
-        String assocType = loadedMetadata.getAssocType(currentAssoc);
+        String sourceId = currentMetadata.getAssocSource(currentAssoc);
+        String targetId = currentMetadata.getAssocTarget(currentAssoc);
+        String assocType = currentMetadata.getAssocType(currentAssoc);
+
         if (Metadata.isValidDocumentAssociationType(assocType)) {
             // In this case, the source and targets must be documents.
             // Validate that source(document) and target(document) reference the same PID.
@@ -268,8 +292,8 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             }
             String sourcePatientId = sourceMetadata.getPatientId(sourceMetadata.getExtrinsicObject(0));
             this.validateDocumentPatientId(targetId, sourcePatientId);
-        } else if (assocType.equals(MetadataSupport.xdsB_eb_assoc_type_has_member)) {
-            // HasMember association - source could be either a submission set (invalid here) or a folder.
+        } else if (Metadata.isValidFolderAssociationType(assocType)) {
+            // Source could be either a submission set (invalid here) or a folder.
             // Make sure that the source object points to a folder.
             Metadata sourceMetadata = cmd.getFolderMetadata(muSQ, sourceId);
             if (sourceMetadata == null) {
@@ -286,11 +310,11 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      * 
      * @param targetObjectId
      * @param versionedMetadata
-     * @param targetedRegistryObject
+     * @param currentRegistryObject
      * @param versionedRegistryObjects
      * @throws XdsException
      */
-    private void validateVersionConstraints(String targetObjectId, Metadata versionedMetadata, OMElement targetedRegistryObject, List<OMElement> versionedRegistryObjects) throws XdsException {
+    private void validateVersionConstraints(String targetObjectId, Metadata versionedMetadata, OMElement currentRegistryObject, List<OMElement> versionedRegistryObjects) throws XdsException {
         // Make sure there is not already an approved registry object for this LID
         // (but not the registry object that we found, we need to skip that one).
         for (OMElement versionedRegistryObject : versionedRegistryObjects) {
@@ -306,7 +330,8 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
         }
 
         // Only allow setting the latest version to approved.
-        Double latestVersion = Metadata.getRegistryObjectVersion(targetedRegistryObject);
+        // Get latest version number.
+        Double latestVersion = Metadata.getRegistryObjectVersion(currentRegistryObject);
         String latestVersionId = targetObjectId;
         for (OMElement versionedRegistryObject : versionedRegistryObjects) {
             String versionedRegistryObjectId = versionedMetadata.getId(versionedRegistryObject);
@@ -326,11 +351,11 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
      * 
      * @param cmd
      * @param objectType
-     * @param currentMetadata
-     * @param currentRegistryObject
      * @throws XdsException
      */
-    private void validateStatusConstraints(UpdateStatusCommand cmd, String objectType, Metadata currentMetadata, OMElement currentRegistryObject) throws XdsException {
+    private void validateStatusConstraints(UpdateStatusCommand cmd, String objectType) throws XdsException {
+        Metadata currentMetadata = cmd.getCurrentMetadata();
+        OMElement currentRegistryObject = cmd.getCurrentRegistryObject();
         String currentStatus = currentMetadata.getStatus(currentRegistryObject);
 
         // Make sure current status on registry object matches the "originalStatus" provided.

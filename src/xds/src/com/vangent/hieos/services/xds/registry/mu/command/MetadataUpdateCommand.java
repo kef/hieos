@@ -207,6 +207,7 @@ public abstract class MetadataUpdateCommand {
 
     /**
      * 
+     * @param validator
      * @return
      * @throws XdsException
      */
@@ -215,7 +216,6 @@ public abstract class MetadataUpdateCommand {
     /**
      *
      * @return
-     * @throws XdsException
      */
     abstract protected MetadataUpdateCommandValidator getCommandValidator();
 }

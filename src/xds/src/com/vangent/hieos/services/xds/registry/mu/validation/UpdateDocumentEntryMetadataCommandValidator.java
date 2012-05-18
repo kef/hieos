@@ -45,6 +45,7 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
 
     /**
      * 
+     * @return 
      * @throws XdsException
      */
     public boolean validate() throws XdsException {
@@ -56,7 +57,6 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
         RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-        //XConfigActor configActor = metadataUpdateContext.getConfigActor();
 
         // Run initial validations on submitted metadata.
         RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
@@ -152,14 +152,14 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         String currentDocumentHash = currentMetadata.getSlotValue(currentDocumentEntry, "hash", 0);
         String submittedDocumentHash = submittedMetadata.getSlotValue(submittedDocumentEntry, "hash", 0);
         if (!currentDocumentHash.equals(submittedDocumentHash)) {
-            throw new XDSNonIdenticalHashException("Submitted document and current document 'hash' value does not match");
+            throw new XDSNonIdenticalHashException("Submitted document and current document 'hash' value do not match");
         }
 
         // Validate that current document size = submitted document size
         String currentDocumentSize = currentMetadata.getSlotValue(currentDocumentEntry, "size", 0);
         String submittedDocumentSize = submittedMetadata.getSlotValue(submittedDocumentEntry, "size", 0);
         if (!currentDocumentSize.equals(submittedDocumentSize)) {
-            throw new XdsException("Submitted document and current document 'size' value does not match");
+            throw new XdsException("Submitted document and current document 'size' value do not match");
         }
     }
 
@@ -176,7 +176,7 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         String currentDocumentObjectType = currentDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
         String submittedDocumentObjectType = submittedDocumentEntry.getAttributeValue(MetadataSupport.object_type_qname);
         if (!currentDocumentObjectType.equals(submittedDocumentObjectType)) {
-            throw new XdsException("Submitted document and current document 'objectType' value does not match");
+            throw new XdsException("Submitted document and current document 'objectType' value do not match");
         }
     }
 }

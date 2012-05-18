@@ -23,6 +23,10 @@ import java.util.ArrayList;
  */
 public class MetadataUpdateHelper {
 
+     public enum RegistryObjectType {
+        DOCUMENT, FOLDER, ASSOCIATION
+    };
+
     /**
      *
      * @param id
@@ -34,6 +38,7 @@ public class MetadataUpdateHelper {
 
     /**
      *
+     * @param logMessage
      * @param m
      * @throws MetadataException
      */

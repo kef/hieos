@@ -20,7 +20,6 @@ import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -33,7 +32,7 @@ abstract public class MetadataUpdateCommandValidator {
 
     /**
      *
-     * @param muCommand
+     * @param metadataUpdateCommand
      */
     public MetadataUpdateCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
         this.metadataUpdateCommand = metadataUpdateCommand;
@@ -57,6 +56,7 @@ abstract public class MetadataUpdateCommandValidator {
 
     /**
      * 
+     * @return 
      * @throws XdsException
      */
     abstract public boolean validate() throws XdsException;
