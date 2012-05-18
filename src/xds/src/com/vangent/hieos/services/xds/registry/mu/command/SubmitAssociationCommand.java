@@ -12,12 +12,9 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.command;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
-import com.vangent.hieos.services.xds.registry.mu.validation.SubmitAssociationCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 
 import org.apache.axiom.om.OMElement;
@@ -81,23 +78,7 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
      */
     @Override
     protected boolean executeUpdate() throws XdsException {
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
-        Metadata submittedMetadata = this.getSubmittedMetadata();
-
-        // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(submittedMetadata);
-        idParser.compileSymbolicNamesIntoUuids();
-        submittedMetadata.reindex();
-
-        // Set status to "Approved" on the target association.
-        submittedMetadata.setStatusOnApprovableObjects();
-
-        // Make registry submission.
-        backendRegistry.setReason("Submit Association");
-        OMElement result = backendRegistry.submit(submittedMetadata);
-        // FIXME: result?
+        // Nothing to do.  The submission set will be submitted to the registry elsewhere.
         return true;
     }
 }

@@ -47,6 +47,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
      */
     @Override
     protected void handleAssociationPropagation(String submittedPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
+        Metadata submittedMetadata = this.getSubmittedMetadata();
+
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
@@ -65,7 +67,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         Metadata assocMetadata = this.getApprovedAssocs(currentDocumentEntryId, true /* leafClass */);
 
         // Create new metadata instance.
-        Metadata newAssocMetadata = new Metadata();
+        //Metadata newAssocMetadata = new Metadata();
 
         // Keep track of which associations to deprecate.
         List<String> deprecateAssocIds = new ArrayList<String>();
@@ -83,9 +85,9 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 // Now make sure that we do not violate patient id constraints.
                 validator.validateDocumentPatientId(targetId, submittedPatientId);
                 // Create association between new document version and target document.
-                newAssoc = newAssocMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
-                newAssocMetadata.addAssociation(newAssoc);
-                
+                newAssoc = submittedMetadata.makeAssociation(assocType, newDocumentEntryId, targetId);
+                submittedMetadata.addAssociation(newAssoc);
+
                 // Target is the current document.  See about the source.
             } else if (Metadata.isValidDocumentAssociationType(assocType)) {
                 // If the association type is a valid document association type, then the
@@ -94,8 +96,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 // Now make sure that we do not violate patient id constraints.
                 validator.validateDocumentPatientId(sourceId, submittedPatientId);
                 // Create association between source document and new document version.
-                newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
-                newAssocMetadata.addAssociation(newAssoc);
+                newAssoc = submittedMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                submittedMetadata.addAssociation(newAssoc);
 
             } else if (Metadata.isValidFolderAssociationType(assocType)) {
                 // Have to check here since folder association types overlap with allowed
@@ -105,8 +107,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 boolean foundFolder = validator.validateFolderPatientId(sourceId, submittedPatientId);
                 if (foundFolder) {
                     // Create association between source folder entry and new document version.
-                    newAssoc = newAssocMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
-                    newAssocMetadata.addAssociation(newAssoc);
+                    newAssoc = submittedMetadata.makeAssociation(assocType, sourceId, newDocumentEntryId);
+                    submittedMetadata.addAssociation(newAssoc);
                 }
             }
             //else {
@@ -120,16 +122,11 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
             }
         }
 
-        // Submit new associations to registry.
-        //logMessage.addOtherParam("Association Propagation Submission", newAssocMetadata);
-
-        // FIXME: MetadataTypes.METADATA_TYPE_Rb?
-        //RegistryUtility.schema_validate_local(submitObjectsRequest, MetadataTypes.METADATA_TYPE_Rb);
-        if (!newAssocMetadata.getAssociations().isEmpty()) {
-            backendRegistry.setReason("Association Propagation Submission");
-            OMElement result = backendRegistry.submit(newAssocMetadata);
-            // FIXME: result?
-        }
+        //if (!newAssocMetadata.getAssociations().isEmpty()) {
+        //    backendRegistry.setReason("Association Propagation Submission");
+        //    OMElement result = backendRegistry.submit(newAssocMetadata);
+        // FIXME: result?
+        //}
 
         // Now, run deprecations.
         if (!deprecateAssocIds.isEmpty()) {

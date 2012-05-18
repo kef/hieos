@@ -13,19 +13,14 @@
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
-import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
-import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
-import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.response.RegistryResponse;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
 
@@ -50,17 +45,6 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         UpdateDocumentEntryMetadataCommand cmd = (UpdateDocumentEntryMetadataCommand) this.getMetadataUpdateCommand();
         boolean validationSuccess = true;
 
-        // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        RegistryResponse registryResponse = metadataUpdateContext.getRegistryResponse();
-
-        // Run initial validations on submitted metadata.
-        RegistryObjectValidator rov = new RegistryObjectValidator(registryResponse, logMessage, backendRegistry);
-        Metadata submittedMetadata = cmd.getSubmittedMetadata();
-        rov.validateDocumentUniqueIds(submittedMetadata);
-
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"
         // and 3) matches the previous version.
@@ -68,6 +52,7 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         this.getCurrentRegistryObject(cmd);
 
         // Run further validations.
+        Metadata submittedMetadata = cmd.getSubmittedMetadata();
         this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
         this.validateRepositoryUniqueIdMatch(cmd);
         this.validateHashAndSizeMatch(cmd);

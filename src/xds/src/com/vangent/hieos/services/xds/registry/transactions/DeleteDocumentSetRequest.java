@@ -114,18 +114,8 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
         // Get backend registry instance.
         BackendRegistry backendRegistry = new BackendRegistry(log_message);
         try {
-            // Prepare for queries.
-            MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
-                    response, log_message, backendRegistry);
-            muSQ.setReturnLeafClass(true);
-
-            // Create the context.
-            MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
-            metadataUpdateContext.setBackendRegistry(backendRegistry);
-            metadataUpdateContext.setLogMessage(log_message);
-            metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
-            metadataUpdateContext.setConfigActor(this.getConfigActor());
-            metadataUpdateContext.setStoredQuerySupport(muSQ);
+            // Build MetadataUpdateContext.
+            MetadataUpdateContext metadataUpdateContext = this.buildMetadataUpdateContext(backendRegistry);
 
             // Create Metadata instance for ROR.
             Metadata submittedMetadata = MetadataParser.parseNonSubmission(removeObjectsRequest);
@@ -133,10 +123,9 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
 
             // Create and run command.
             MetadataUpdateCommandValidator validator = new DeleteDocumentSetCommandValidator();
-            DeleteDocumentSetCommand cmd = 
+            DeleteDocumentSetCommand cmd =
                     new DeleteDocumentSetCommand(submittedMetadata, metadataUpdateContext, validator);
-            // TBD: Do we need to order commands?
-            // Execute each command.
+            // Execute command.
             boolean runStatus = cmd.validateAndUpdate();
             if (runStatus) {
                 backendRegistry.commit();
@@ -147,7 +136,27 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
                 backendRegistry.rollback();
             }
         }
+    }
 
+    /**
+     *
+     * @param backendRegistry
+     * @return
+     */
+    private MetadataUpdateContext buildMetadataUpdateContext(BackendRegistry backendRegistry) {
+        // Prepare for queries.
+        MetadataUpdateStoredQuerySupport muSQ = new MetadataUpdateStoredQuerySupport(
+                response, log_message, backendRegistry);
+        muSQ.setReturnLeafClass(true);
+
+        // Create the context.
+        MetadataUpdateContext metadataUpdateContext = new MetadataUpdateContext();
+        metadataUpdateContext.setBackendRegistry(backendRegistry);
+        metadataUpdateContext.setLogMessage(log_message);
+        metadataUpdateContext.setRegistryResponse((RegistryResponse) response);
+        metadataUpdateContext.setConfigActor(this.getConfigActor());
+        metadataUpdateContext.setStoredQuerySupport(muSQ);
+        return metadataUpdateContext;
     }
 
     /**

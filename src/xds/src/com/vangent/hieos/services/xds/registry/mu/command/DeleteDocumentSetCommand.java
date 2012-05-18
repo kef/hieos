@@ -14,7 +14,6 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.validation.DeleteDocumentSetCommandValidator;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;

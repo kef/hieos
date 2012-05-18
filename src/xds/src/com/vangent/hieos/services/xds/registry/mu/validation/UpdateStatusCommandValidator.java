@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;

@@ -14,11 +14,9 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
-import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.metadata.structure.IdParser;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
@@ -154,15 +152,6 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         Metadata submittedMetadata = this.getSubmittedMetadata();
         OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
 
-        // Now, fixup the Metadata to be submitted.
-        // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(submittedMetadata);
-        idParser.compileSymbolicNamesIntoUuids();
-        submittedMetadata.reindex();
-
-        // Log metadata (after id assignment).
-        MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
-
         // Adjust the version number (current version number + 1).
         Metadata.updateRegistryObjectVersion(submittedRegistryObject, this.getPreviousVersion());
 
@@ -170,22 +159,17 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         String currentRegistryObjectId = this.getCurrentMetadata().getId(this.getCurrentRegistryObject());
         String newRegistryObjectId = submittedMetadata.getId(submittedRegistryObject);
 
-        // Submit new registry object version.
-        backendRegistry.setReason("Submit New Version");
-        submittedMetadata.setStatusOnApprovableObjects();
-        OMElement result = backendRegistry.submit(submittedMetadata);
-        // FIXME: result?
-
         // Deprecate old.
         List<String> deprecateObjectIds = new ArrayList<String>();
         deprecateObjectIds.add(currentRegistryObjectId);
-        result = backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
+        OMElement result = backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
         // FIXME: result?
 
         // Deal with association propagation if required.
         if (this.isAssociationPropagation()) {
             this.handleAssociationPropagation(this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
         }
+
         return true;
     }
 

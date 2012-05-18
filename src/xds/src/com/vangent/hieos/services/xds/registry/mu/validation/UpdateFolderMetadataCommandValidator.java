@@ -13,7 +13,6 @@
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
-import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
