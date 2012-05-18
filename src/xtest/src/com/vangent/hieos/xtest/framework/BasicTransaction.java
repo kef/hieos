@@ -782,7 +782,7 @@ public abstract class BasicTransaction extends OmLogger {
         setXUAConfiguration();
         soap.setXUAObject(this.xuaObject);  // may be null, ok.
         try {
-            System.out.println("  Making SOAP call...");
+            System.out.print("  Making SOAP call...");
             long startTime = System.currentTimeMillis();
             soap.soapCall(metadata_element,
                     endpoint,
@@ -792,7 +792,7 @@ public abstract class BasicTransaction extends OmLogger {
                     getRequestAction(),
                     getResponseAction());
             long stopTime = System.currentTimeMillis();
-            System.out.println("  ...SOAP call complete ("
+            System.out.println("complete ("
                     + new Long(stopTime - startTime).toString() + " msecs)");
         } catch (SOAPFaultException e) {
             s_ctx.set_error(e.getMessage());

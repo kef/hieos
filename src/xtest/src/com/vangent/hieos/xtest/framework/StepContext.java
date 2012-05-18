@@ -178,7 +178,8 @@ public class StepContext extends BasicContext implements ErrorReportingInterface
             return;
         }
         setId(step_id);
-        System.out.println("step " + step_id + " [test=" + plan_context.test_num + "]");
+        //System.out.println("step " + step_id + " [test=" + plan_context.test_num + "]");
+        System.out.println("[test=" + plan_context.test_num + "/" + step_id + "]");
         /*if (XTestDriver.l_option) {
         return;
         }*/
