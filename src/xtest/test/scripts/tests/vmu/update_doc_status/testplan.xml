@@ -9,6 +9,7 @@
         </Rule>
         <UpdateDocumentSetTransaction>
             <XDSb/>
+            <AssignUuids/>
             <NoPatientId/>
             <UseId testdir="../submit" id="Document01" step="submit_doc" section="AssignedUuids"
                 symbol="$document$"/>
