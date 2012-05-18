@@ -20,6 +20,11 @@ import com.vangent.hieos.services.xds.registry.mu.command.SubmitAssociationComma
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateStatusCommand;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.SubmitAssociationCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntryMetadataCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.UpdateFolderMetadataCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.UpdateStatusCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.services.xds.registry.storedquery.RegistryObjectValidator;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
@@ -240,10 +245,46 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
      */
     private boolean runMetadataUpdateCommands(List<MetadataUpdateCommand> muCommands) throws XdsException {
         // TBD: Do we need to order commands?
-        // Execute each command.
+        boolean runStatus = this.runValidations(muCommands);
+        if (runStatus) {
+            runStatus = this.runUpdates(muCommands);
+        }
+        return runStatus;
+    }
+
+    /**
+     *
+     * @param muCommands
+     * @return
+     * @throws XdsException
+     */
+    private boolean runValidations(List<MetadataUpdateCommand> muCommands) throws XdsException {
+        // TBD: Do we need to order commands?
         boolean runStatus = false;
+
+        // Run validations.
         for (MetadataUpdateCommand muCommand : muCommands) {
-            runStatus = muCommand.run();
+            runStatus = muCommand.validate();
+            if (!runStatus) {
+                break;  // Get out - do not run any more commands on first failure.
+            }
+        }
+        return runStatus;
+    }
+
+    /**
+     *
+     * @param muCommands
+     * @return
+     * @throws XdsException
+     */
+    private boolean runUpdates(List<MetadataUpdateCommand> muCommands) throws XdsException {
+        // TBD: Do we need to order commands?
+        boolean runStatus = false;
+
+        // Run validations.
+        for (MetadataUpdateCommand muCommand : muCommands) {
+            runStatus = muCommand.update();
             if (!runStatus) {
                 break;  // Get out - do not run any more commands on first failure.
             }
@@ -283,16 +324,18 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
                 }
                 if (targetObjectType.equals("Folder")) {
                     // Updating a folder.
+                    MetadataUpdateCommandValidator validator = new UpdateFolderMetadataCommandValidator();
                     UpdateFolderMetadataCommand updateFolderCommand =
-                            new UpdateFolderMetadataCommand(submittedMetadata, metadataUpdateContext);
+                            new UpdateFolderMetadataCommand(submittedMetadata, metadataUpdateContext, validator);
                     updateFolderCommand.setPreviousVersion(perviousVersion);
                     updateFolderCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateFolderCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateFolderCommand;
                 } else if (targetObjectType.equals("ExtrinsicObject")) {
                     // Updating a document.
+                    MetadataUpdateCommandValidator validator = new UpdateDocumentEntryMetadataCommandValidator();
                     UpdateDocumentEntryMetadataCommand updateDocumentEntryCommand =
-                            new UpdateDocumentEntryMetadataCommand(submittedMetadata, metadataUpdateContext);
+                            new UpdateDocumentEntryMetadataCommand(submittedMetadata, metadataUpdateContext, validator);
                     updateDocumentEntryCommand.setPreviousVersion(perviousVersion);
                     updateDocumentEntryCommand.setSubmittedRegistryObject(submittedRegistryObject);
                     updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);
@@ -317,7 +360,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         // Get "NewStatus" and "OriginalStatus".
         String newStatus = submittedMetadata.getSlotValue(assoc, "NewStatus", 0);
         String originalStatus = submittedMetadata.getSlotValue(assoc, "OriginalStatus", 0);
-        UpdateStatusCommand updateStatusCommand = new UpdateStatusCommand(submittedMetadata, metadataUpdateContext);
+        MetadataUpdateCommandValidator validator = new UpdateStatusCommandValidator();
+        UpdateStatusCommand updateStatusCommand =
+                new UpdateStatusCommand(submittedMetadata, metadataUpdateContext, validator);
         updateStatusCommand.setNewStatus(newStatus);
         updateStatusCommand.setOriginalStatus(originalStatus);
         updateStatusCommand.setTargetObjectId(targetObjectId);
@@ -337,7 +382,9 @@ public class UpdateDocumentSetRequest extends XBaseTransaction {
         MetadataUpdateCommand muCommand = null;
         String targetObjectId = submittedMetadata.getTargetObject(assoc);
         OMElement submittedRegistryObject = submittedMetadata.getObjectById(targetObjectId);
-        SubmitAssociationCommand submitAssociationCommand = new SubmitAssociationCommand(submittedMetadata, metadataUpdateContext);
+        MetadataUpdateCommandValidator validator = new SubmitAssociationCommandValidator();
+        SubmitAssociationCommand submitAssociationCommand =
+                new SubmitAssociationCommand(submittedMetadata, metadataUpdateContext, validator);
         submitAssociationCommand.setSubmittedRegistryObject(submittedRegistryObject);
         submitAssociationCommand.setSubmitAssociation(assoc);
         muCommand = submitAssociationCommand;

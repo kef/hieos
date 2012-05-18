@@ -17,7 +17,6 @@ import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper.RegistryObjectType;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateStatusCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.IdParser;
@@ -41,12 +40,14 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
     private OMElement currentRegistryObject;
 
     /**
-     *
-     * @param metadata
+     * 
+     * @param submittedMetadata
      * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    public UpdateStatusCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        super(metadata, metadataUpdateContext);
+    public UpdateStatusCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**
@@ -146,22 +147,12 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
     }
 
     /**
-     * 
-     * @return
-     */
-    @Override
-    protected MetadataUpdateCommandValidator getCommandValidator() {
-        return new UpdateStatusCommandValidator(this);
-    }
-
-    /**
      *
-     * @param validator
      * @return
      * @throws XdsException
      */
     @Override
-    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
+    protected boolean executeUpdate() throws XdsException {
         XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
         String targetObjectId = this.getTargetObjectId();
         if (logMessage.isLogEnabled()) {

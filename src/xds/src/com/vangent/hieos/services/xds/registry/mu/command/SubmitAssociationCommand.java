@@ -33,11 +33,13 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
 
     /**
      * 
-     * @param metadata
+     * @param submittedMetadata
      * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    public SubmitAssociationCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        super(metadata, metadataUpdateContext);
+    public SubmitAssociationCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**
@@ -75,20 +77,10 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
     /**
      *
      * @return
-     */
-    @Override
-    protected MetadataUpdateCommandValidator getCommandValidator() {
-        return new SubmitAssociationCommandValidator(this);
-    }
-
-    /**
-     * 
-     * @param validator
-     * @return
      * @throws XdsException
      */
     @Override
-    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
+    protected boolean executeUpdate() throws XdsException {
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 

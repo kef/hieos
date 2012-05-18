@@ -36,11 +36,9 @@ import org.apache.axiom.om.OMElement;
 public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateCommandValidator {
 
     /**
-     * 
-     * @param metadataUpdateCommand
+     *
      */
-    public UpdateDocumentEntryMetadataCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        super(metadataUpdateCommand);
+    public UpdateDocumentEntryMetadataCommandValidator() {
     }
 
     /**

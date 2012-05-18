@@ -20,7 +20,6 @@ import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -33,15 +32,28 @@ public abstract class MetadataUpdateCommand {
 
     private Metadata submittedMetadata;
     private MetadataUpdateContext metadataUpdateContext;
+    private MetadataUpdateCommandValidator metadataUpdateCommandValidator;
 
     /**
-     *
+     * 
+     */
+    private MetadataUpdateCommand() {
+        // Not allowed.
+    }
+
+    /**
+     * 
      * @param submittedMetadata
      * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    public MetadataUpdateCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext) {
+    public MetadataUpdateCommand(
+            Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
         this.submittedMetadata = submittedMetadata;
         this.metadataUpdateContext = metadataUpdateContext;
+        this.metadataUpdateCommandValidator = metadataUpdateCommandValidator;
+        metadataUpdateCommandValidator.setMetadataUpdateCommand(this);  // Link.
     }
 
     /**
@@ -63,24 +75,63 @@ public abstract class MetadataUpdateCommand {
     /**
      *
      * @return
+     */
+    public MetadataUpdateCommandValidator getMetadataUpdateCommandValidator() {
+        return metadataUpdateCommandValidator;
+    }
+
+    /**
+     * 
+     * @return
      * @throws XdsException
      */
-    public boolean run() throws XdsException {
-        // FIXME: Probably can't put here (since a transaction can include > 1 command).
-        XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
-        if (logMessage.isLogEnabled()) {
-            String className = this.getClass().getSimpleName();
-            logMessage.setTestMessage("MU." + className);
-            logMessage.addOtherParam("Command", className);
-        }
-        MetadataUpdateCommandValidator validator = this.getCommandValidator();
-        boolean runStatus = validator.validate();
+    public boolean validateAndUpdate() throws XdsException {
+        boolean runStatus = this.validate();
         if (runStatus) {
-            runStatus = this.execute(validator);
+            runStatus = this.update();
         }
         return runStatus;
     }
 
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public boolean validate() throws XdsException {
+        MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
+        return validator.validate();
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    public boolean update() throws XdsException {
+        return this.executeUpdate();
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsException
+     */
+    /*public boolean run() throws XdsException {
+    // FIXME: Probably can't put here (since a transaction can include > 1 command).
+    XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
+    if (logMessage.isLogEnabled()) {
+    String className = this.getClass().getSimpleName();
+    logMessage.setTestMessage("MU." + className);
+    logMessage.addOtherParam("Command", className);
+    }
+    MetadataUpdateCommandValidator validator = this.getCommandValidator();
+    boolean runStatus = validator.validate();
+    if (runStatus) {
+    runStatus = this.execute(validator);
+    }
+    return runStatus;
+    }*/
     /**
      *
      * @param muSQ
@@ -149,7 +200,7 @@ public abstract class MetadataUpdateCommand {
      * @return
      * @throws XdsException
      */
-    public Metadata getAssocs(String registryObjectId, 
+    public Metadata getAssocs(String registryObjectId,
             String status, String assocType, boolean leafClass, String reason) throws XdsException {
         // Look for associations that have registryObjectEntryId as source or target.
         List<String> sourceOrTargetIds = new ArrayList<String>();
@@ -167,7 +218,7 @@ public abstract class MetadataUpdateCommand {
      * @return
      * @throws XdsException
      */
-    public Metadata getAssocs(List<String> sourceOrTargetIds, 
+    public Metadata getAssocs(List<String> sourceOrTargetIds,
             String status, String assocType, boolean leafClass, String reason) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
@@ -207,15 +258,8 @@ public abstract class MetadataUpdateCommand {
 
     /**
      * 
-     * @param validator
      * @return
      * @throws XdsException
      */
-    abstract protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException;
-
-    /**
-     *
-     * @return
-     */
-    abstract protected MetadataUpdateCommandValidator getCommandValidator();
+    abstract protected boolean executeUpdate() throws XdsException;
 }

@@ -34,11 +34,10 @@ import org.apache.axiom.om.OMElement;
 public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator {
 
     /**
-     * 
-     * @param metadataUpdateCommand
+     *
      */
-    public UpdateStatusCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        super(metadataUpdateCommand);
+    public UpdateStatusCommandValidator() {
+        super();
     }
 
     /**

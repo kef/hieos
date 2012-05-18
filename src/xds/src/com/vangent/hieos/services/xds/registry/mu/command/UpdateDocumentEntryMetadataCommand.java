@@ -15,7 +15,6 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
-import com.vangent.hieos.services.xds.registry.mu.validation.UpdateDocumentEntryMetadataCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import java.util.ArrayList;
@@ -29,21 +28,14 @@ import org.apache.axiom.om.OMElement;
 public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMetadataCommand {
 
     /**
-     *
-     * @param metadata
-     * @param metadataUpdateContext
-     */
-    public UpdateDocumentEntryMetadataCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        super(metadata, metadataUpdateContext);
-    }
-
-    /**
      * 
-     * @return
+     * @param submittedMetadata
+     * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    @Override
-    protected MetadataUpdateCommandValidator getCommandValidator() {
-        return new UpdateDocumentEntryMetadataCommandValidator(this);
+    public UpdateDocumentEntryMetadataCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**
@@ -57,7 +49,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
     protected void handleAssociationPropagation(String submittedPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        MetadataUpdateCommandValidator validator = this.getCommandValidator();
+        MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Rules:

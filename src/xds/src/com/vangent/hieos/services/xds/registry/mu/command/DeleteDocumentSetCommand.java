@@ -29,31 +29,23 @@ import org.apache.axiom.om.OMElement;
 public class DeleteDocumentSetCommand extends MetadataUpdateCommand {
 
     /**
-     *
-     * @param metadata
-     * @param metadataUpdateContext
-     */
-    public DeleteDocumentSetCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        super(metadata, metadataUpdateContext);
-    }
-
-    /**
      * 
-     * @return
+     * @param submittedMetadata
+     * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    @Override
-    protected MetadataUpdateCommandValidator getCommandValidator() {
-        return new DeleteDocumentSetCommandValidator(this);
+    public DeleteDocumentSetCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**
      *
-     * @param validator
      * @return
      * @throws XdsException
      */
     @Override
-    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
+    protected boolean executeUpdate() throws XdsException {
         // Get list of object references (to delete) supplied by initiator.
         Metadata submittedMetadata = this.getSubmittedMetadata();
         List<String> objectRefIds = submittedMetadata.getObjectRefIds();

@@ -16,6 +16,8 @@ import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
+import com.vangent.hieos.services.xds.registry.mu.validation.DeleteDocumentSetCommandValidator;
+import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
@@ -126,14 +128,16 @@ public class DeleteDocumentSetRequest extends XBaseTransaction {
             metadataUpdateContext.setStoredQuerySupport(muSQ);
 
             // Create Metadata instance for ROR.
-            Metadata m = MetadataParser.parseNonSubmission(removeObjectsRequest);
-            MetadataUpdateHelper.logMetadata(log_message, m);
+            Metadata submittedMetadata = MetadataParser.parseNonSubmission(removeObjectsRequest);
+            MetadataUpdateHelper.logMetadata(log_message, submittedMetadata);
 
-            // Create an run command.
-            DeleteDocumentSetCommand cmd = new DeleteDocumentSetCommand(m, metadataUpdateContext);
+            // Create and run command.
+            MetadataUpdateCommandValidator validator = new DeleteDocumentSetCommandValidator();
+            DeleteDocumentSetCommand cmd = 
+                    new DeleteDocumentSetCommand(submittedMetadata, metadataUpdateContext, validator);
             // TBD: Do we need to order commands?
             // Execute each command.
-            boolean runStatus = cmd.run();
+            boolean runStatus = cmd.validateAndUpdate();
             if (runStatus) {
                 backendRegistry.commit();
                 commitCompleted = true;

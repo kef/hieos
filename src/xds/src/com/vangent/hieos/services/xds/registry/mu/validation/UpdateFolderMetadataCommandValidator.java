@@ -32,10 +32,8 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
 
     /**
      * 
-     * @param metadataUpdateCommand
      */
-    public UpdateFolderMetadataCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        super(metadataUpdateCommand);
+    public UpdateFolderMetadataCommandValidator() {
     }
 
     /**

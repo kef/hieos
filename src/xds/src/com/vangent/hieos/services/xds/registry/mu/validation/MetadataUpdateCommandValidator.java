@@ -28,14 +28,13 @@ import org.apache.axiom.om.OMElement;
  */
 abstract public class MetadataUpdateCommandValidator {
 
-    private MetadataUpdateCommand metadataUpdateCommand;
+    private MetadataUpdateCommand metadataUpdateCommand = null;
 
     /**
      *
      * @param metadataUpdateCommand
      */
-    public MetadataUpdateCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        this.metadataUpdateCommand = metadataUpdateCommand;
+    public MetadataUpdateCommandValidator() {
     }
 
     /**

@@ -42,10 +42,8 @@ public class SubmitAssociationCommandValidator extends MetadataUpdateCommandVali
 
     /**
      * 
-     * @param metadataUpdateCommand
      */
-    public SubmitAssociationCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        super(metadataUpdateCommand);
+    public SubmitAssociationCommandValidator() {
     }
 
     /**

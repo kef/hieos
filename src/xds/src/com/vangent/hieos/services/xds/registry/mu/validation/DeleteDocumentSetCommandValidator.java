@@ -32,11 +32,9 @@ import org.apache.axiom.om.OMElement;
 public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandValidator {
 
     /**
-     * 
-     * @param metadataUpdateCommand
+     *
      */
-    public DeleteDocumentSetCommandValidator(MetadataUpdateCommand metadataUpdateCommand) {
-        super(metadataUpdateCommand);
+    public DeleteDocumentSetCommandValidator() {
     }
 
     /**

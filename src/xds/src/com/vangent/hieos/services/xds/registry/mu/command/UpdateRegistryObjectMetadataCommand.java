@@ -39,12 +39,14 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
     private Metadata currentMetadata;
 
     /**
-     *
-     * @param metadata
+     * 
+     * @param submittedMetadata
      * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
      */
-    public UpdateRegistryObjectMetadataCommand(Metadata metadata, MetadataUpdateContext metadataUpdateContext) {
-        super(metadata, metadataUpdateContext);
+    public UpdateRegistryObjectMetadataCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**
@@ -137,13 +139,12 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
     }
 
     /**
-     *
-     * @param validator
+     * 
      * @return
      * @throws XdsException
      */
     @Override
-    protected boolean execute(MetadataUpdateCommandValidator validator) throws XdsException {
+    protected boolean executeUpdate() throws XdsException {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
