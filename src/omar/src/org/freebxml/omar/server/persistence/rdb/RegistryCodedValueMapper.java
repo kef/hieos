@@ -96,6 +96,8 @@ public class RegistryCodedValueMapper {
         assocType_ValueToCodeMap.put("urn:ihe:iti:2007:AssociationType:signs", "SI");
         assocType_ValueToCodeMap.put("urn:ihe:iti:2010:AssociationType:IsSnapshotOf", "SN");
         assocType_ValueToCodeMap.put("urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember", "HM");
+        assocType_ValueToCodeMap.put("urn:ihe:iti:2010:AssociationType:UpdateAvailabilityStatus", "US");
+        assocType_ValueToCodeMap.put("urn:ihe:iti:2010:AssociationType:SubmitAssociation", "SA");
         this.buildCodeValueMap(assocType_ValueToCodeMap, assocType_CodeToValueMap);
     }
 
