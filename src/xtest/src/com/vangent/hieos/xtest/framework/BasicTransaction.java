@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -77,7 +78,7 @@ public abstract class BasicTransaction extends OmLogger {
     protected String metadata_filename = null;
     protected boolean assign_uuids = false;
     protected boolean assign_uids = true;
-    protected String no_assign_uid_to = null;
+    protected List<String> no_assign_uid_to = new ArrayList<String>();
     protected boolean assign_patient_id = true;
     protected Metadata metadata = null;
     protected boolean soap_1_2 = true;
@@ -580,7 +581,7 @@ public abstract class BasicTransaction extends OmLogger {
             assign_uids = false;
             String id = part.getAttributeValue(MetadataSupport.id_qname);
             if (id != null && !id.equals("")) {
-                no_assign_uid_to = id;
+                no_assign_uid_to.add(id);
                 assign_uids = true;
             }
         } else if (part_name.equals("ParseMetadata")) {

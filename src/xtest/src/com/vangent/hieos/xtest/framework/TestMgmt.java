@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.axiom.om.OMElement;
@@ -26,7 +27,7 @@ import org.apache.axiom.om.OMElement;
 public class TestMgmt extends OMGenerator {
 
 
-	public HashMap assignUniqueIds(Metadata metadata, String no_assign_uid_to) throws XdsInternalException {
+	public HashMap assignUniqueIds(Metadata metadata, List<String> no_assign_uid_to) throws XdsInternalException {
 		HashMap unique_ids = new HashMap();    // object id field => uniqueID assigned
 
 
