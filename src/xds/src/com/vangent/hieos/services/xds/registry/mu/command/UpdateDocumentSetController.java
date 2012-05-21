@@ -58,8 +58,12 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
         // Run initial validations.
         boolean runStatus = this.runBaseValidation();
         if (runStatus) {
+
             // Build list of MU commands (Command Pattern) to execute.
             List<MetadataUpdateCommand> muCommands = this.buildMetadataUpdateCommands();
+
+            // Assign UUIDs where necessary.
+            this.compileSymbolicNamesIntoUuids();
 
             // Execute each MU command.
             runStatus = this.runMetadataUpdateCommands(muCommands);
@@ -69,6 +73,16 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
             }
         }
         return runStatus;
+    }
+
+    /**
+     * 
+     * @throws XdsException
+     */
+    private void compileSymbolicNamesIntoUuids() throws XdsException {
+        IdParser idParser = new IdParser(submittedMetadata);
+        idParser.compileSymbolicNamesIntoUuids();
+        submittedMetadata.reindex();
     }
 
     /**
@@ -87,7 +101,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @return
      * @throws XdsException
      */
-    public boolean runBaseValidation() throws XdsException {
+    private boolean runBaseValidation() throws XdsException {
         boolean validationStatus = false;
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
@@ -133,10 +147,9 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     //private boolean run(List<MetadataUpdateCommand> muCommands) throws XdsException {
-        // TBD: Do we need to order commands?
+    // TBD: Do we need to order commands?
     //    boolean runStatus = false;
-
-        // Run validations.
+    // Run validations.
     //    for (MetadataUpdateCommand muCommand : muCommands) {
     //        runStatus = muCommand.validateAndUpdate();
     //        if (!runStatus) {
@@ -145,7 +158,6 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
     //    }
     //    return runStatus;
     //}
-
     /**
      *
      * @param muCommands
@@ -198,9 +210,9 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
 
         // Now, fixup the Metadata to be submitted.
         // Change symbolic names to UUIDs.
-        IdParser idParser = new IdParser(submittedMetadata);
-        idParser.compileSymbolicNamesIntoUuids();
-        submittedMetadata.reindex();  // Only so logging will work.
+        //IdParser idParser = new IdParser(submittedMetadata);
+        //idParser.compileSymbolicNamesIntoUuids();
+        //submittedMetadata.reindex();  // Only so logging will work.
 
         // Log metadata (after id assignment).
         MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
@@ -248,6 +260,10 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
         if (muCommands.isEmpty()) {
             // FIXME: Use proper exception.
             throw new XdsException("No trigger event detected - No updates made to registry");
+        }
+        if (muCommands.size() > 1) {
+            // FIXME: Remove once multiple commands can be accepted.
+            throw new XdsException("This registry does not currently support submission of multiple trigger events - No updates made to registry");
         }
         return muCommands;
     }

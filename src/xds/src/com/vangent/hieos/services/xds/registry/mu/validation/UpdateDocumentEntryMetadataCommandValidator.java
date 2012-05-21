@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu.validation;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XDSNonIdenticalHashException;
@@ -73,6 +74,9 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
         String previousVersion = cmd.getPreviousVersion();
         String lid = submittedMetadata.getLID(submittedRegistryObject);
+        if (!MetadataUpdateHelper.isUUID(lid)) {
+            throw new XdsException("LID is not in UUID format");
+        }
 
         //
         // Look for an existing document that 1) matches the lid, 2) status is "Approved"

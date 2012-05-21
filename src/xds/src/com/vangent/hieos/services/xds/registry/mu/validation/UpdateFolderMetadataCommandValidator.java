@@ -14,6 +14,7 @@ package com.vangent.hieos.services.xds.registry.mu.validation;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XDSMetadataVersionException;
 import com.vangent.hieos.xutil.exception.XdsException;
@@ -68,6 +69,9 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
         String previousVersion = cmd.getPreviousVersion();
         String lid = submittedMetadata.getLID(submittedRegistryObject);
+        if (!MetadataUpdateHelper.isUUID(lid)) {
+            throw new XdsException("LID is not in UUID format");
+        }
 
         // Attempt to find existing folder.
         muSQ.setReturnLeafClass(true);
