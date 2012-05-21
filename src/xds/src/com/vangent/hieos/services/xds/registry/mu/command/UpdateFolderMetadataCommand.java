@@ -48,8 +48,6 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
      */
     @Override
     protected void handleAssociationPropagation(String submittedPatientId, String newFolderEntryId, String currentFolderEntryId) throws XdsException {
-        Metadata submittedMetadata = this.getSubmittedMetadata();
-
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
@@ -60,7 +58,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         Metadata assocMetadata = this.getApprovedHasMemberAssocs(currentFolderEntryId, true /* leafClass */);
 
         // Create new metadata instance.
-        //Metadata newAssocMetadata = new Metadata();
+        Metadata newAssocMetadata = new Metadata();
 
         // Keep track of which associations to deprecate.
         List<String> deprecateAssocIds = new ArrayList<String>();
@@ -75,19 +73,20 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
                 // Now make sure that we do not violate patient id constraints.
                 validator.validateDocumentPatientId(targetId, submittedPatientId);
                 // Create association between new folder version and target document.
-                OMElement newAssoc = submittedMetadata.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, newFolderEntryId, targetId);
-                submittedMetadata.addAssociation(newAssoc);
+                OMElement newAssoc = newAssocMetadata.makeAssociation(MetadataSupport.xdsB_eb_assoc_type_has_member, newFolderEntryId, targetId);
+                newAssocMetadata.addAssociation(newAssoc);
                 // Deprecate prior association.
                 String assocId = assocMetadata.getId(assoc);
                 deprecateAssocIds.add(assocId);
             }
         }
 
-        //if (!newAssocMetadata.getAssociations().isEmpty()) {
-        //    backendRegistry.setReason("Association Propagation Submission");
-        //    OMElement result = backendRegistry.submit(newAssocMetadata);
-        // FIXME: result?
-        //}
+        // Submit new associations.
+        if (!newAssocMetadata.getAssociations().isEmpty()) {
+            backendRegistry.setReason("Association Propagation Submission");
+            OMElement result = backendRegistry.submit(newAssocMetadata);
+            // FIXME: result?
+        }
 
         // Now, run deprecations.
         if (!deprecateAssocIds.isEmpty()) {

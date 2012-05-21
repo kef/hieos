@@ -132,12 +132,33 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @return
      * @throws XdsException
      */
+    //private boolean run(List<MetadataUpdateCommand> muCommands) throws XdsException {
+        // TBD: Do we need to order commands?
+    //    boolean runStatus = false;
+
+        // Run validations.
+    //    for (MetadataUpdateCommand muCommand : muCommands) {
+    //        runStatus = muCommand.validateAndUpdate();
+    //        if (!runStatus) {
+    //            break;  // Get out - do not run any more commands on first failure.
+    //        }
+    //    }
+    //    return runStatus;
+    //}
+
+    /**
+     *
+     * @param muCommands
+     * @return
+     * @throws XdsException
+     */
     private boolean runValidations(List<MetadataUpdateCommand> muCommands) throws XdsException {
         // TBD: Do we need to order commands?
         boolean runStatus = false;
 
         // Run validations.
         for (MetadataUpdateCommand muCommand : muCommands) {
+            System.out.println("Validate - " + muCommand.getClass().getSimpleName());
             runStatus = muCommand.validate();
             if (!runStatus) {
                 break;  // Get out - do not run any more commands on first failure.
@@ -158,6 +179,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
 
         // Run validations.
         for (MetadataUpdateCommand muCommand : muCommands) {
+            System.out.println("Update - " + muCommand.getClass().getSimpleName());
             runStatus = muCommand.update();
             if (!runStatus) {
                 break;  // Get out - do not run any more commands on first failure.
