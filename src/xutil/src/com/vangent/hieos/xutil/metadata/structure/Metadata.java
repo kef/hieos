@@ -97,12 +97,12 @@ public class Metadata {
     // Valid folder -> document association types.
     private static final List<String> validMetadataUpdateTriggerAssocTypes =
             new ArrayList<String>() {
+
                 {
                     add(MetadataSupport.xdsB_ihe_assoc_type_update_availability_status);
                     add(MetadataSupport.xdsB_ihe_assoc_type_submit_association);
                 }
             };
-            
     private OMElement metadata;
     // wrapper
     private OMElement wrapper;   // current metadata document being parsed
@@ -217,7 +217,7 @@ public class Metadata {
         return validSubmissionSetAssocTypes;
     }
 
-     /**
+    /**
      *
      * @param assocType
      * @return
@@ -340,6 +340,18 @@ public class Metadata {
         allObjects.addAll(associations);
         allObjects.addAll(classifications);
         allObjects.addAll(objectRefs);
+    }
+
+    /**
+     *
+     * @param registryObject
+     */
+    public void removeRegistryObject(OMElement registryObject) {
+        registryPackages.remove(registryObject);
+        extrinsicObjects.remove(registryObject);
+        associations.remove(registryObject);
+        allObjects.remove(registryObject);
+        // FIXME?: reindex?
     }
 
     /**
@@ -678,6 +690,16 @@ public class Metadata {
     public void addExtrinsicObjects(List<OMElement> eos) {
         extrinsicObjects.addAll(eos);
         allObjects.addAll(eos);
+    }
+
+    /**
+     *
+     * @param eo
+     */
+    public OMElement addExtrinsicObject(OMElement eo) {
+        extrinsicObjects.add(eo);
+        allObjects.add(eo);
+        return eo;
     }
 
     /**
@@ -1615,6 +1637,17 @@ public class Metadata {
         this.associations.add(a);
         this.allObjects.add(a);
         return a;
+    }
+
+    /**
+     *
+     * @param rp
+     * @return
+     */
+    public OMElement addRegistryPackage(OMElement rp) {
+        this.registryPackages.add(rp);
+        this.allObjects.add(rp);
+        return rp;
     }
 
     /**
@@ -2630,21 +2663,24 @@ public class Metadata {
      * @throws XdsInternalException
      */
     public OMElement getV3SubmitObjectsRequest() throws XdsInternalException {
+        return this.getV3SubmitObjectsRequest(allObjects);
+    }
+
+    /**
+     *
+     * @return
+     * @throws XdsInternalException
+     */
+    public OMElement getV3SubmitObjectsRequest(List<OMElement> objects) throws XdsInternalException {
         //OMNamespace rs = MetadataSupport.ebRSns3;
         OMNamespace lcm = MetadataSupport.ebLcm3;
         OMNamespace rim = MetadataSupport.ebRIMns3;
         OMElement sor = this.om_factory().createOMElement("SubmitObjectsRequest", lcm);
         OMElement lrol = this.om_factory().createOMElement("RegistryObjectList", rim);
         sor.addChild(lrol);
-        for (OMElement obj : allObjects) {
+        for (OMElement obj : objects) {
             lrol.addChild(obj);
         }
-        /*
-        ArrayList objects = this.getV3();
-        for (int i = 0; i < objects.size(); i++) {
-        OMElement ele = (OMElement) objects.get(i);
-        lrol.addChild(ele);
-        }*/
         return sor;
     }
 
