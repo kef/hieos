@@ -98,6 +98,18 @@ public class BackendRegistry {
 
     /**
      *
+     * @param registryObjects
+     * @return
+     * @throws XdsInternalException
+     */
+    public OMElement submit(List<OMElement> registryObjects) throws XdsInternalException {
+        Metadata m = new Metadata();
+        OMElement request = m.getV3SubmitObjectsRequest(registryObjects);
+        return this.submit(request);
+    }
+
+    /**
+     *
      * @param objectIds
      * @return
      * @throws XdsInternalException
