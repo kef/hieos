@@ -67,7 +67,6 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Scan for existing non-deprecated HasMember associations (in approved status).

@@ -154,7 +154,6 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
         XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
         String targetObjectId = this.getTargetObjectId();
         if (logMessage.isLogEnabled()) {
-            //Metadata currentMetadata = this.getCurrentMetadata();
             switch (this.getCurrentRegistryObjectType()) {
                 case DOCUMENT:
                     logMessage.addOtherParam("Document Updated", targetObjectId);

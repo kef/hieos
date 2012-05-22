@@ -54,7 +54,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     @Override
-    public boolean update() throws XdsException {
+    protected boolean update() throws XdsException {
         // Run initial validations.
         boolean runStatus = this.runBaseValidation();
         if (runStatus) {
@@ -91,7 +91,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     @Override
-    public boolean enforcePolicy() throws XdsException {
+    protected boolean enforcePolicy() throws XdsException {
         // TBD: Implement.
         return true;
     }
@@ -137,7 +137,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
         boolean runStatus = false;
         // Run validations and updates (in order).
         for (MetadataUpdateCommand muCommand : muCommands) {
-            runStatus = muCommand.validateAndUpdate();
+            runStatus = muCommand.run();
             if (!runStatus) {
                 break;  // Get out - do not run any more commands on first failure.
             }
@@ -200,10 +200,6 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
             // FIXME: Use proper exception.
             throw new XdsException("No trigger event detected - No updates made to registry");
         }
-        //if (muCommands.size() > 1) {
-        // FIXME: Remove once multiple commands can be accepted.
-        //    throw new XdsException("This registry does not currently support submission of multiple trigger events - No updates made to registry");
-        //}
         return muCommands;
     }
 
@@ -254,7 +250,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
                     updateDocumentEntryCommand.setAssociationPropagation(associationPropagation);
                     muCommand = updateDocumentEntryCommand;
                 }
-                // FIXME: Should make sure the association is OK.
+                // FIXME?: Should make sure the association is OK.
             }
         }
         return muCommand;

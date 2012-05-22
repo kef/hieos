@@ -29,6 +29,17 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
 
     /**
      * 
+     * @param submittedMetadata
+     * @param metadataUpdateContext
+     * @param metadataUpdateCommandValidator
+     */
+    public UpdateDocumentEntryMetadataCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
+            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
+        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
+    }
+
+     /**
+     *
      */
     @Override
     protected void submitNewRegistryObjectVersion() throws XdsException {
@@ -41,17 +52,6 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         // Remove from submitted metadata.
         Metadata submittedMetadata = this.getSubmittedMetadata();
         submittedMetadata.removeRegistryObject(submittedRegistryObject);
-    }
-
-    /**
-     * 
-     * @param submittedMetadata
-     * @param metadataUpdateContext
-     * @param metadataUpdateCommandValidator
-     */
-    public UpdateDocumentEntryMetadataCommand(Metadata submittedMetadata, MetadataUpdateContext metadataUpdateContext,
-            MetadataUpdateCommandValidator metadataUpdateCommandValidator) {
-        super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
     /**

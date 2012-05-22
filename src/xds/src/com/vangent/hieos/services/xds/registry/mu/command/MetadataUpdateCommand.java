@@ -87,7 +87,7 @@ public abstract class MetadataUpdateCommand {
      * @return
      * @throws XdsException
      */
-    public boolean validateAndUpdate() throws XdsException {
+    public boolean run() throws XdsException {
         boolean runStatus = this.validate();
         if (runStatus) {
             runStatus = this.update();
@@ -114,26 +114,6 @@ public abstract class MetadataUpdateCommand {
         return this.executeUpdate();
     }
 
-    /**
-     *
-     * @return
-     * @throws XdsException
-     */
-    /*public boolean run() throws XdsException {
-    // FIXME: Probably can't put here (since a transaction can include > 1 command).
-    XLogMessage logMessage = this.getMetadataUpdateContext().getLogMessage();
-    if (logMessage.isLogEnabled()) {
-    String className = this.getClass().getSimpleName();
-    logMessage.setTestMessage("MU." + className);
-    logMessage.addOtherParam("Command", className);
-    }
-    MetadataUpdateCommandValidator validator = this.getCommandValidator();
-    boolean runStatus = validator.validate();
-    if (runStatus) {
-    runStatus = this.execute(validator);
-    }
-    return runStatus;
-    }*/
     /**
      *
      * @param muSQ
@@ -232,10 +212,6 @@ public abstract class MetadataUpdateCommand {
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(leafClass);
 
-        // Look for associations that have registryObjectEntryId as source or target.
-        //List<String> sourceOrTargetIds = new ArrayList<String>();
-        //sourceOrTargetIds.add(registryObjectId);
-
         // Status.
         List<String> assocStatusValues = null;
         if (status != null) {
@@ -266,12 +242,6 @@ public abstract class MetadataUpdateCommand {
     public void submitMetadataToRegistry(Metadata metadata) throws XdsException {
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
-        // Now, fixup the Metadata to be submitted.
-        // Change symbolic names to UUIDs.
-        //IdParser idParser = new IdParser(submittedMetadata);
-        //idParser.compileSymbolicNamesIntoUuids();
-        //submittedMetadata.reindex();  // Only so logging will work.
 
         // Log metadata (after id assignment).
         MetadataUpdateHelper.logMetadata(logMessage, metadata);

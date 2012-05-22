@@ -73,7 +73,6 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
@@ -112,7 +111,6 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.

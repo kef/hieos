@@ -146,11 +146,9 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         Metadata submittedMetadata = this.getSubmittedMetadata();
-        //OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
 
         // Adjust the version number (current version number + 1).
         Metadata.updateRegistryObjectVersion(submittedRegistryObject, this.getPreviousVersion());

@@ -39,13 +39,13 @@ public class DeleteDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     @Override
-    public boolean update() throws XdsException {
+    protected boolean update() throws XdsException {
         // Create and run command.
         MetadataUpdateCommandValidator validator = new DeleteDocumentSetCommandValidator();
         DeleteDocumentSetCommand cmd =
                 new DeleteDocumentSetCommand(submittedMetadata, metadataUpdateContext, validator);
         // Execute command.
-        return cmd.validateAndUpdate();
+        return cmd.run();
     }
 
     /**
@@ -54,7 +54,7 @@ public class DeleteDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     @Override
-    public boolean enforcePolicy() throws XdsException {
+    protected boolean enforcePolicy() throws XdsException {
         // TBD: Implement.
         return true;
     }
