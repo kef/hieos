@@ -150,7 +150,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         Metadata submittedMetadata = this.getSubmittedMetadata();
-        OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
+        //OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
 
         // Adjust the version number (current version number + 1).
         Metadata.updateRegistryObjectVersion(submittedRegistryObject, this.getPreviousVersion());
@@ -170,8 +170,16 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
             this.handleAssociationPropagation(this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
         }
 
+        // Now, install new version.
+        this.submitNewRegistryObjectVersion();
         return true;
     }
+
+    /**
+     * 
+     * @throws XdsException
+     */
+    abstract protected void submitNewRegistryObjectVersion() throws XdsException;
 
     /**
      *

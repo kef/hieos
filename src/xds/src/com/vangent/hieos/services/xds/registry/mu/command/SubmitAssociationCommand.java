@@ -78,7 +78,14 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
      */
     @Override
     protected boolean executeUpdate() throws XdsException {
-        // Nothing to do.  The submission set will be submitted to the registry elsewhere.
+        // Install new association.
+        Metadata metadata = new Metadata();
+        metadata.addAssociation(submittedRegistryObject);
+        this.submitMetadataToRegistry(metadata);
+
+        // Remove from submitted metadata.
+        Metadata submittedMetadata = this.getSubmittedMetadata();
+        submittedMetadata.removeRegistryObject(submittedRegistryObject);
         return true;
     }
 }

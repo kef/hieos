@@ -29,6 +29,22 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
 
     /**
      * 
+     */
+    @Override
+    protected void submitNewRegistryObjectVersion() throws XdsException {
+        // Install new registry object.
+        Metadata metadata = new Metadata();
+        OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
+        metadata.addExtrinsicObject(submittedRegistryObject);
+        this.submitMetadataToRegistry(metadata);
+
+        // Remove from submitted metadata.
+        Metadata submittedMetadata = this.getSubmittedMetadata();
+        submittedMetadata.removeRegistryObject(submittedRegistryObject);
+    }
+
+    /**
+     * 
      * @param submittedMetadata
      * @param metadataUpdateContext
      * @param metadataUpdateCommandValidator

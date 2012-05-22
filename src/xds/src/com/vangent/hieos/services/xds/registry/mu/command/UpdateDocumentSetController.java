@@ -132,67 +132,12 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      * @throws XdsException
      */
     private boolean runMetadataUpdateCommands(List<MetadataUpdateCommand> muCommands) throws XdsException {
-        // TBD: Do we need to order commands?
-        boolean runStatus = this.runValidations(muCommands);
-        if (runStatus) {
-            runStatus = this.runUpdates(muCommands);
-        }
-        return runStatus;
-    }
+        // FIXME: Should we order commands.
 
-    /**
-     *
-     * @param muCommands
-     * @return
-     * @throws XdsException
-     */
-    //private boolean run(List<MetadataUpdateCommand> muCommands) throws XdsException {
-    // TBD: Do we need to order commands?
-    //    boolean runStatus = false;
-    // Run validations.
-    //    for (MetadataUpdateCommand muCommand : muCommands) {
-    //        runStatus = muCommand.validateAndUpdate();
-    //        if (!runStatus) {
-    //            break;  // Get out - do not run any more commands on first failure.
-    //        }
-    //    }
-    //    return runStatus;
-    //}
-    /**
-     *
-     * @param muCommands
-     * @return
-     * @throws XdsException
-     */
-    private boolean runValidations(List<MetadataUpdateCommand> muCommands) throws XdsException {
-        // TBD: Do we need to order commands?
         boolean runStatus = false;
-
-        // Run validations.
+        // Run validations and updates (in order).
         for (MetadataUpdateCommand muCommand : muCommands) {
-            System.out.println("Validate - " + muCommand.getClass().getSimpleName());
-            runStatus = muCommand.validate();
-            if (!runStatus) {
-                break;  // Get out - do not run any more commands on first failure.
-            }
-        }
-        return runStatus;
-    }
-
-    /**
-     *
-     * @param muCommands
-     * @return
-     * @throws XdsException
-     */
-    private boolean runUpdates(List<MetadataUpdateCommand> muCommands) throws XdsException {
-        // TBD: Do we need to order commands?
-        boolean runStatus = false;
-
-        // Run validations.
-        for (MetadataUpdateCommand muCommand : muCommands) {
-            System.out.println("Update - " + muCommand.getClass().getSimpleName());
-            runStatus = muCommand.update();
+            runStatus = muCommand.validateAndUpdate();
             if (!runStatus) {
                 break;  // Get out - do not run any more commands on first failure.
             }
@@ -208,13 +153,7 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
-        // Now, fixup the Metadata to be submitted.
-        // Change symbolic names to UUIDs.
-        //IdParser idParser = new IdParser(submittedMetadata);
-        //idParser.compileSymbolicNamesIntoUuids();
-        //submittedMetadata.reindex();  // Only so logging will work.
-
-        // Log metadata (after id assignment).
+        // Log metadata.
         MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
 
         // Submit new registry object version.
@@ -261,10 +200,10 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
             // FIXME: Use proper exception.
             throw new XdsException("No trigger event detected - No updates made to registry");
         }
-        if (muCommands.size() > 1) {
-            // FIXME: Remove once multiple commands can be accepted.
-            throw new XdsException("This registry does not currently support submission of multiple trigger events - No updates made to registry");
-        }
+        //if (muCommands.size() > 1) {
+        // FIXME: Remove once multiple commands can be accepted.
+        //    throw new XdsException("This registry does not currently support submission of multiple trigger events - No updates made to registry");
+        //}
         return muCommands;
     }
 

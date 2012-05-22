@@ -40,6 +40,22 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
     }
 
     /**
+     *
+     */
+    @Override
+    protected void submitNewRegistryObjectVersion() throws XdsException {
+        // Install new registry object.
+        Metadata metadata = new Metadata();
+        OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
+        metadata.addRegistryPackage(submittedRegistryObject);
+        this.submitMetadataToRegistry(metadata);
+
+        // Remove from submitted metadata.
+        Metadata submittedMetadata = this.getSubmittedMetadata();
+        submittedMetadata.removeRegistryObject(submittedRegistryObject);
+    }
+
+    /**
      * 
      * @param submittedPatientId
      * @param newFolderEntryId
