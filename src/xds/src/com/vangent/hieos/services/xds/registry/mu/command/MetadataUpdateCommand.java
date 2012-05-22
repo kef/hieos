@@ -14,12 +14,14 @@ package com.vangent.hieos.services.xds.registry.mu.command;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
+import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
 import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
+import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -254,6 +256,31 @@ public abstract class MetadataUpdateCommand {
         // Convert response into Metadata instance.
         Metadata assocMetadata = MetadataParser.parseNonSubmission(assocQueryResult);
         return assocMetadata;
+    }
+
+    /**
+     *
+     * @param registryObject
+     * @throws XdsException
+     */
+    public void submitMetadataToRegistry(Metadata metadata) throws XdsException {
+        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
+        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+
+        // Now, fixup the Metadata to be submitted.
+        // Change symbolic names to UUIDs.
+        //IdParser idParser = new IdParser(submittedMetadata);
+        //idParser.compileSymbolicNamesIntoUuids();
+        //submittedMetadata.reindex();  // Only so logging will work.
+
+        // Log metadata (after id assignment).
+        MetadataUpdateHelper.logMetadata(logMessage, metadata);
+
+        // Submit new registry object version.
+        backendRegistry.setReason("Submit Registry Object");
+        metadata.setStatusOnApprovableObjects();
+        OMElement result = backendRegistry.submit(metadata);
+        // FIXME: result?
     }
 
     /**
