@@ -69,7 +69,8 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
             runStatus = this.runMetadataUpdateCommands(muCommands);
             if (runStatus) {
                 // Register the submission set.
-                this.registerSubmission();
+                OMElement result = this.submitMetadata(submittedMetadata);
+                // FIXME: result?
             }
         }
         return runStatus;
@@ -149,18 +150,19 @@ public class UpdateDocumentSetController extends MetadataUpdateController {
      *
      * @throws XdsException
      */
-    private void registerSubmission() throws XdsException {
+    private OMElement submitMetadata(Metadata metadata) throws XdsException {
+        // First, approve objects.
+        submittedMetadata.setStatusOnApprovableObjects();
+
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Log metadata.
-        MetadataUpdateHelper.logMetadata(logMessage, submittedMetadata);
+        MetadataUpdateHelper.logMetadata(logMessage, metadata);
 
         // Submit new registry object version.
         backendRegistry.setReason("Register Submission Set");
-        submittedMetadata.setStatusOnApprovableObjects();
-        OMElement result = backendRegistry.submit(submittedMetadata);
-        // FIXME: result?
+        return backendRegistry.submit(metadata);
     }
 
     /**

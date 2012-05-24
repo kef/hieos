@@ -13,13 +13,10 @@
 package com.vangent.hieos.services.xds.registry.transactions;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
-import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetController;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateController;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
-import com.vangent.hieos.services.xds.registry.mu.validation.DeleteDocumentSetCommandValidator;
-import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;

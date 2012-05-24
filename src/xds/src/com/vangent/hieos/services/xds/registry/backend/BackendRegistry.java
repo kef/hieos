@@ -22,7 +22,6 @@ import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 
 import com.vangent.hieos.xutil.xml.XMLParser;
-import java.io.StringWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,11 +38,6 @@ import org.apache.log4j.Logger;
 
 import org.freebxml.omar.server.persistence.PersistenceManager;
 import org.freebxml.omar.server.persistence.PersistenceManagerFactory;
-import org.oasis.ebxml.registry.bindings.lcm.SetStatusOnObjectsRequest;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRef;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefList;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefListType;
-import org.oasis.ebxml.registry.bindings.rim.ObjectRefType;
 
 /**
  *
@@ -142,6 +136,19 @@ public class BackendRegistry {
         OMElement removeObjectsRequest = this.getRemoveObjectsRequest(objectIds);
         this.setReason("Remove Objects");
         return this.submit(removeObjectsRequest);
+    }
+
+    /**
+     * 
+     * @param objectId
+     * @param status
+     * @return
+     * @throws XdsException
+     */
+    public OMElement submitSetStatusOnObjectsRequest(String objectId, String status) throws XdsException {
+        List<String> objectIds = new ArrayList<String>();
+        objectIds.add(objectId);
+        return this.submitSetStatusOnObjectsRequest(objectIds, status);
     }
 
     /**

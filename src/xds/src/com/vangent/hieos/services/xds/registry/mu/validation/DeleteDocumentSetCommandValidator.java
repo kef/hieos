@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.DeleteDocumentSetCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
@@ -77,7 +76,6 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = cmd.getMetadataUpdateContext();
         XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare to issue registry query.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
@@ -87,20 +85,20 @@ public class DeleteDocumentSetCommandValidator extends MetadataUpdateCommandVali
         Metadata currentMetadata = new Metadata();
 
         // Load documents.
-        backendRegistry.setReason("Get Existing Documents");
+        muSQ.setReason("Get Existing Documents");
         OMElement documentQueryResult = muSQ.getDocumentByUUID(objectRefIds);
         currentMetadata.addMetadata(documentQueryResult, true /* discard_duplicates */);
 
         // Load folders.
-        backendRegistry.setReason("Get Existing Folders");
+        muSQ.setReason("Get Existing Folders");
         OMElement folderQueryResult = muSQ.getFolderByUUID(objectRefIds);
         currentMetadata.addMetadata(folderQueryResult, true /* discard_duplicates */);
 
         // Load associations.
-        backendRegistry.setReason("Get Existing Associations");
+        muSQ.setReason("Get Existing Associations");
         OMElement assocQueryResult = muSQ.getAssociationByUUID(objectRefIds);
         currentMetadata.addMetadata(assocQueryResult, true /* discard_duplicates */);
-        backendRegistry.setReason("");
+        muSQ.setReason("");
 
         // Log metadata found.
         MetadataUpdateHelper.logMetadata(logMessage, currentMetadata);

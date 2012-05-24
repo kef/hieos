@@ -48,7 +48,8 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
         Metadata metadata = new Metadata();
         OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
         metadata.addRegistryPackage(submittedRegistryObject);
-        this.submitMetadataToRegistry(metadata);
+        OMElement result = this.submitMetadata(metadata);
+        // FIXME: result?
 
         // Remove from submitted metadata.
         Metadata submittedMetadata = this.getSubmittedMetadata();
@@ -65,9 +66,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
     @Override
     protected void handleAssociationPropagation(String submittedPatientId, String newFolderEntryId, String currentFolderEntryId) throws XdsException {
         // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Scan for existing non-deprecated HasMember associations (in approved status).
         Metadata assocMetadata = this.getApprovedHasMemberAssocs(currentFolderEntryId, true /* leafClass */);
@@ -96,6 +95,7 @@ public class UpdateFolderMetadataCommand extends UpdateRegistryObjectMetadataCom
             }
         }
 
+        BackendRegistry backendRegistry = this.getBackendRegistry();
         // Submit new associations.
         if (!newAssocMetadata.getAssociations().isEmpty()) {
             backendRegistry.setReason("Association Propagation Submission");

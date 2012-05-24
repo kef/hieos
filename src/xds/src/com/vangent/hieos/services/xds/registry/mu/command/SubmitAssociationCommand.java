@@ -81,7 +81,8 @@ public class SubmitAssociationCommand extends MetadataUpdateCommand {
         // Install new association.
         Metadata metadata = new Metadata();
         metadata.addAssociation(submittedRegistryObject);
-        this.submitMetadataToRegistry(metadata);
+        OMElement result = this.submitMetadata(metadata);
+        // FIXME: result?
 
         // Remove from submitted metadata.
         Metadata submittedMetadata = this.getSubmittedMetadata();

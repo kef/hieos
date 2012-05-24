@@ -18,7 +18,6 @@ import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateComma
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.axiom.om.OMElement;
@@ -143,11 +142,6 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
      */
     @Override
     protected boolean executeUpdate() throws XdsException {
-
-        // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-
         Metadata submittedMetadata = this.getSubmittedMetadata();
 
         // Adjust the version number (current version number + 1).
@@ -160,12 +154,16 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
         // Deprecate old.
         List<String> deprecateObjectIds = new ArrayList<String>();
         deprecateObjectIds.add(currentRegistryObjectId);
+        BackendRegistry backendRegistry = this.getBackendRegistry();
         OMElement result = backendRegistry.submitDeprecateObjectsRequest(deprecateObjectIds);
         // FIXME: result?
 
         // Deal with association propagation if required.
         if (this.isAssociationPropagation()) {
-            this.handleAssociationPropagation(this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
+            this.handleAssociationPropagation(
+                    this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
+        } else {
+            this.deprecateAndSubmitRegistryObjectAssociations(currentRegistryObjectId);
         }
 
         // Now, install new version.

@@ -83,6 +83,14 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
+     *
+     * @return
+     */
+    public BackendRegistry getBackendRegistry() {
+        return metadataUpdateContext.getBackendRegistry();
+    }
+
+    /**
      * 
      * @return
      * @throws XdsException
@@ -147,7 +155,7 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
-     * 
+     *
      * @param registryObjectId
      * @param leafClass
      * @return
@@ -161,7 +169,7 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
-     * 
+     *
      * @param registryObjectId
      * @param leafClass
      * @return
@@ -173,7 +181,7 @@ public abstract class MetadataUpdateCommand {
     }
 
     /**
-     * 
+     *
      * @param registryObjectId
      * @param status
      * @param assocType
@@ -202,14 +210,9 @@ public abstract class MetadataUpdateCommand {
      */
     public Metadata getAssocs(List<String> sourceOrTargetIds,
             String status, String assocType, boolean leafClass, String reason) throws XdsException {
-        // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
-        //XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
-        backendRegistry.setReason(reason);
-
         // Prepare for queries.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
+        muSQ.setReason(reason);
         muSQ.setReturnLeafClass(leafClass);
 
         // Status.
@@ -236,21 +239,41 @@ public abstract class MetadataUpdateCommand {
 
     /**
      *
-     * @param registryObject
+     * @param registryObjectId
      * @throws XdsException
      */
-    public void submitMetadataToRegistry(Metadata metadata) throws XdsException {
-        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+    public void deprecateAndSubmitRegistryObjectAssociations(String registryObjectId) throws XdsException {
+        // FIXME: Is this going to far -- different than updating a folder entry to approved.
+        // This would include associations to submission set.
+        Metadata assocMetadata = this.getApprovedAssocs(registryObjectId, false /* leafClass */);
+        List<String> deprecateAssocIds = assocMetadata.getAssociationIds();
+        
+        // Submit deprecate objects request to registry.
+        if (!deprecateAssocIds.isEmpty()) {
+            BackendRegistry backendRegistry = this.getBackendRegistry();
+            OMElement result = backendRegistry.submitDeprecateObjectsRequest(deprecateAssocIds);
+            // FIXME: result?
+        }
+    }
 
-        // Log metadata (after id assignment).
+    /**
+     *
+     * @param metadata
+     * @return
+     * @throws XdsException
+     */
+    public OMElement submitMetadata(Metadata metadata) throws XdsException {
+        // First, approve objects.
+        metadata.setStatusOnApprovableObjects();
+
+        // Log metadata.
+        XLogMessage logMessage = metadataUpdateContext.getLogMessage();
         MetadataUpdateHelper.logMetadata(logMessage, metadata);
 
         // Submit new registry object version.
-        backendRegistry.setReason("Submit Registry Object");
-        metadata.setStatusOnApprovableObjects();
-        OMElement result = backendRegistry.submit(metadata);
-        // FIXME: result?
+        BackendRegistry backendRegistry = this.getBackendRegistry();
+        backendRegistry.setReason("Submit Registry Objects");
+        return backendRegistry.submit(metadata);
     }
 
     /**

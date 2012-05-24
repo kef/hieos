@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateFolderMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
@@ -63,7 +62,6 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
      * @throws XdsException
      */
     private void getCurrentRegistryObject(UpdateFolderMetadataCommand cmd) throws XdsException {
-        BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
@@ -75,9 +73,9 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
 
         // Attempt to find existing folder.
         muSQ.setReturnLeafClass(true);
-        backendRegistry.setReason("Locate Previous Approved Folder (by LID/Version)");
+        muSQ.setReason("Locate Previous Approved Folder (by LID/Version)");
         OMElement queryResult = muSQ.getFoldersByLID(lid, MetadataSupport.status_type_approved, previousVersion);
-        backendRegistry.setReason("");
+        muSQ.setReason("");
 
         // Convert response into Metadata instance.
         Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);

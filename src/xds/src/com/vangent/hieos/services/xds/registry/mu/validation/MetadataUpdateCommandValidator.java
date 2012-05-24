@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.MetadataUpdateCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
@@ -32,7 +31,6 @@ abstract public class MetadataUpdateCommandValidator {
 
     /**
      *
-     * @param metadataUpdateCommand
      */
     public MetadataUpdateCommandValidator() {
     }
@@ -73,16 +71,15 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Now make sure that we do not violate patient id constraints.
-        backendRegistry.setReason("Validate document patient identifier constraint");
+        muSQ.setReason("Validate document patient identifier constraint");
         OMElement documentQueryResult = muSQ.getDocumentByUUID(currentDocumentEntryId);
-        backendRegistry.setReason("");
+        muSQ.setReason("");
 
         Metadata documentMetadata = MetadataParser.parseNonSubmission(documentQueryResult);
         foundDocument = documentMetadata.getExtrinsicObjects().size() > 0;
@@ -111,16 +108,15 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Get metadata update context for use later.
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Prepare for queries.
         MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
         muSQ.setReturnLeafClass(true);
 
         // Now make sure that we do not violate patient id constraints.
-        backendRegistry.setReason("Validate folder patient identifier constraint");
+        muSQ.setReason("Validate folder patient identifier constraint");
         OMElement folderQueryResult = muSQ.getFolderByUUID(currentFolderEntryId);
-        backendRegistry.setReason("");
+        muSQ.setReason("");
 
         Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
         foundFolder = folderMetadata.getFolders().size() > 0;

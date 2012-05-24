@@ -10,9 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // FIXME: Do we need this class?
-
 package com.vangent.hieos.services.xds.registry.storedquery;
 
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
@@ -33,7 +31,7 @@ public class MetadataUpdateStoredQuerySupport extends StoredQuery {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-     /**
+    /**
      *
      * @param response
      * @param logMessage
@@ -41,5 +39,13 @@ public class MetadataUpdateStoredQuerySupport extends StoredQuery {
      */
     public MetadataUpdateStoredQuerySupport(ErrorLogger response, XLogMessage logMessage, BackendRegistry backendRegistry) {
         super(response, logMessage, backendRegistry);
+    }
+
+    /**
+     * 
+     * @param reason
+     */
+    public void setReason(String reason) {
+        this.getBackendRegistry().setReason(reason);
     }
 }

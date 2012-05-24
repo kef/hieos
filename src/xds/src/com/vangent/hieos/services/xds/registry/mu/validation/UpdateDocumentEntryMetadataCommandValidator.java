@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.validation;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.command.UpdateDocumentEntryMetadataCommand;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper;
 import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQuerySupport;
@@ -68,7 +67,6 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
      * @throws XdsException
      */
     private void getCurrentRegistryObject(UpdateDocumentEntryMetadataCommand cmd) throws XdsException {
-        BackendRegistry backendRegistry = cmd.getMetadataUpdateContext().getBackendRegistry();
         MetadataUpdateStoredQuerySupport muSQ = cmd.getMetadataUpdateContext().getStoredQuerySupport();
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         OMElement submittedRegistryObject = cmd.getSubmittedRegistryObject();
@@ -83,9 +81,9 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         // and 3) matches the previous version.
         //
         muSQ.setReturnLeafClass(true);
-        backendRegistry.setReason("Locate Previous Approved Document (by LID/Version)");
+        muSQ.setReason("Locate Previous Approved Document (by LID/Version)");
         OMElement queryResult = muSQ.getDocumentsByLID(lid, MetadataSupport.status_type_approved, previousVersion);
-        backendRegistry.setReason("");
+        muSQ.setReason("");
 
         // Convert response into Metadata instance.
         Metadata currentMetadata = MetadataParser.parseNonSubmission(queryResult);

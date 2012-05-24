@@ -23,7 +23,13 @@ import com.vangent.hieos.xutil.metadata.structure.Metadata;
 public abstract class MetadataUpdateController {
 
     // Allow subclasses to access directly (normally don't like to do this).
+    /**
+     *
+     */
     protected MetadataUpdateContext metadataUpdateContext;
+    /**
+     *
+     */
     protected Metadata submittedMetadata;
 
     /**

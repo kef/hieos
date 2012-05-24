@@ -38,7 +38,7 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         super(submittedMetadata, metadataUpdateContext, metadataUpdateCommandValidator);
     }
 
-     /**
+    /**
      *
      */
     @Override
@@ -47,7 +47,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
         Metadata metadata = new Metadata();
         OMElement submittedRegistryObject = this.getSubmittedRegistryObject();
         metadata.addExtrinsicObject(submittedRegistryObject);
-        this.submitMetadataToRegistry(metadata);
+        OMElement result = this.submitMetadata(metadata);
+        // FIXME: result?
 
         // Remove from submitted metadata.
         Metadata submittedMetadata = this.getSubmittedMetadata();
@@ -64,9 +65,9 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
     @Override
     protected void handleAssociationPropagation(String submittedPatientId, String newDocumentEntryId, String currentDocumentEntryId) throws XdsException {
         // Get metadata update context for use later.
-        MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
+        //MetadataUpdateContext metadataUpdateContext = this.getMetadataUpdateContext();
         MetadataUpdateCommandValidator validator = this.getMetadataUpdateCommandValidator();
-        BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
+        //BackendRegistry backendRegistry = metadataUpdateContext.getBackendRegistry();
 
         // Rules:
         //  Look for non-deprecated HasMember associations linking the existing DocumentEntry to a Folder.
@@ -135,6 +136,8 @@ public class UpdateDocumentEntryMetadataCommand extends UpdateRegistryObjectMeta
                 deprecateAssocIds.add(assocId);
             }
         }
+
+        BackendRegistry backendRegistry = this.getBackendRegistry();
 
         // Submit new associations.
         if (!newAssocMetadata.getAssociations().isEmpty()) {

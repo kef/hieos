@@ -12,16 +12,13 @@
  */
 package com.vangent.hieos.services.xds.registry.mu.command;
 
-import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateContext;
 import com.vangent.hieos.services.xds.registry.mu.support.MetadataUpdateHelper.RegistryObjectType;
 import com.vangent.hieos.services.xds.registry.mu.validation.MetadataUpdateCommandValidator;
 import com.vangent.hieos.xutil.exception.XdsException;
-import com.vangent.hieos.xutil.exception.XdsInternalException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -166,22 +163,10 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
                     break;
             }
         }
-        this.updateRegistryObjectStatus(targetObjectId, this.newStatus);
+        if (this.getNewStatus().equals(MetadataSupport.status_type_deprecated)) {
+            this.deprecateAndSubmitRegistryObjectAssociations(this.getTargetObjectId());
+        }
+        OMElement result = this.getBackendRegistry().submitSetStatusOnObjectsRequest(targetObjectId, this.newStatus);
         return true; // Success.
-    }
-
-   
-    /**
-     * 
-     * @param objectId
-     * @param status
-     * @throws XdsInternalException
-     */
-    private void updateRegistryObjectStatus(String objectId, String status) throws XdsInternalException {
-        BackendRegistry backendRegistry = this.getMetadataUpdateContext().getBackendRegistry();
-        List<String> objectIds = new ArrayList<String>();
-        objectIds.add(objectId);
-        OMElement result = backendRegistry.submitSetStatusOnObjectsRequest(objectIds, status);
-        // FIXME: Deal with response!!
     }
 }
