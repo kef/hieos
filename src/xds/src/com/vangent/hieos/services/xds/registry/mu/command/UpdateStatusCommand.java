@@ -164,7 +164,7 @@ public class UpdateStatusCommand extends MetadataUpdateCommand {
             }
         }
         if (this.getNewStatus().equals(MetadataSupport.status_type_deprecated)) {
-            this.deprecateAndSubmitRegistryObjectAssociations(this.getTargetObjectId());
+            this.deprecateRegistryObjectAssociations(this.getTargetObjectId());
         }
         OMElement result = this.getBackendRegistry().submitSetStatusOnObjectsRequest(targetObjectId, this.newStatus);
         return true; // Success.

@@ -242,12 +242,35 @@ public abstract class MetadataUpdateCommand {
      * @param registryObjectId
      * @throws XdsException
      */
-    public void deprecateAndSubmitRegistryObjectAssociations(String registryObjectId) throws XdsException {
-        // FIXME: Is this going to far -- different than updating a folder entry to approved.
-        // This would include associations to submission set.
-        Metadata assocMetadata = this.getApprovedAssocs(registryObjectId, false /* leafClass */);
-        List<String> deprecateAssocIds = assocMetadata.getAssociationIds();
-        
+    public void deprecateRegistryObjectAssociations(String registryObjectId) throws XdsException {
+        List<String> deprecateAssocIds = new ArrayList<String>();
+        Metadata assocMetadata = this.getApprovedAssocs(registryObjectId, true /* leafClass */);
+
+        MetadataUpdateStoredQuerySupport muSQ = metadataUpdateContext.getStoredQuerySupport();
+        muSQ.setReason("Looking for associations to deprecate");
+        muSQ.setReturnLeafClass(false);
+
+        // Go through each association.
+        List<OMElement> assocs = assocMetadata.getAssociations();
+        for (OMElement assoc : assocs) {
+            String assocType = assocMetadata.getAssocType(assoc);
+            String assocId = assocMetadata.getId(assoc);
+
+            // Do not deprecate associations starting from submission set.
+            if (Metadata.isValidSubmissionSetAssociationType(assocType)) {
+
+                // See if "source" is a submission set.
+                String sourceId = assocMetadata.getSourceObject(assoc);
+                OMElement queryResult = muSQ.getSubmissionSetByUUID(sourceId);
+                Metadata submissionSetMetadata = MetadataParser.parseNonSubmission(queryResult);
+                if (submissionSetMetadata.getObjectRefIds().isEmpty()) {
+                    deprecateAssocIds.add(assocId);
+                }
+            } else {
+                deprecateAssocIds.add(assocId);
+            }
+        }
+
         // Submit deprecate objects request to registry.
         if (!deprecateAssocIds.isEmpty()) {
             BackendRegistry backendRegistry = this.getBackendRegistry();

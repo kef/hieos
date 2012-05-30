@@ -163,7 +163,7 @@ public abstract class UpdateRegistryObjectMetadataCommand extends MetadataUpdate
             this.handleAssociationPropagation(
                     this.getSubmittedPatientId(), newRegistryObjectId, currentRegistryObjectId);
         } else {
-            this.deprecateAndSubmitRegistryObjectAssociations(currentRegistryObjectId);
+            this.deprecateRegistryObjectAssociations(currentRegistryObjectId);
         }
 
         // Now, install new version.
