@@ -1,43 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestPlan>
     <Test>vmu/update_assoc_status</Test>
-    <TestStep id="validate_current_assoc_status">
-        <ExpectedStatus>Success</ExpectedStatus>
-        <Rule>
-            <Transaction>SQ</Transaction>
-            <Assertion>Validate current status</Assertion>
-        </Rule>
-        <StoredQueryTransaction>
-            <XDSb/>
-            <UseId testdir="../submit" id="Document01" step="submit_doc_w_fol"
-                section="AssignedUuids" symbol="$document$"/>
-            <Metadata>
-                <query:AdhocQueryRequest xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
-                    <query:ResponseOption returnComposedObjects="true" returnType="LeafClass"/>
-                    <!-- GetAssociations Stored Query -->
-                    <AdhocQuery id="urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
-                        <Slot name="$uuid">
-                            <ValueList>
-                                <Value>('$document$')</Value>
-                            </ValueList>
-                        </Slot>
-                        <Slot name="$MetadataLevel">
-                            <ValueList>
-                                <Value>2</Value>
-                            </ValueList>
-                        </Slot>
-                    </AdhocQuery>
-                </query:AdhocQueryRequest>
-            </Metadata>
-            <ExpectedContents>
-                <!-- includes submission set -->
-                <Associations count="2"/>
-                <!--<OneAssocApp/>-->
-            </ExpectedContents>
-        </StoredQueryTransaction>
-    </TestStep>
     <TestStep id="deprecate_assoc">
-        <ExpectedStatus>Success</ExpectedStatus>
+        <ExpectedStatus>Failure</ExpectedStatus>
         <Rule>
             <Transaction>U</Transaction>
             <Assertion>Deprecate association.</Assertion>
@@ -54,11 +19,11 @@
             <MetadataFile>update_assoc_status.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
-    <TestStep id="validate_deprecate_assoc_status">
+    <TestStep id="validate_current_assoc_status">
         <ExpectedStatus>Success</ExpectedStatus>
         <Rule>
             <Transaction>SQ</Transaction>
-            <Assertion>Validate deprecation.</Assertion>
+            <Assertion>Validate current status</Assertion>
         </Rule>
         <StoredQueryTransaction>
             <XDSb/>
@@ -89,7 +54,7 @@
             </Metadata>
             <ExpectedContents>
                 <Associations count="1"/>
-                <OneAssocDep/>
+                <!--<OneAssocApp/>-->
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
@@ -97,7 +62,7 @@
         <ExpectedStatus>Success</ExpectedStatus>
         <Rule>
             <Transaction>U</Transaction>
-            <Assertion>Update document with approved status.</Assertion>
+            <Assertion>Update association with approved status.</Assertion>
         </Rule>
         <UpdateDocumentSetTransaction>
             <XDSb/>

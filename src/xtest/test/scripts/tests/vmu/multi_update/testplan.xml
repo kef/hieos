@@ -10,7 +10,7 @@
             <Transaction>U</Transaction>
             <Assertion>Single document update submission.</Assertion>
         </Rule>
-        <ExpectedStatus>Failure</ExpectedStatus>
+        <ExpectedStatus>Success</ExpectedStatus>
         <UpdateDocumentSetTransaction>
             <XDSb/>
             <NoPatientId/>
@@ -31,7 +31,6 @@
             <MetadataFile>multi_update.xml</MetadataFile>
         </UpdateDocumentSetTransaction>
     </TestStep>
-    <!-- Enable/expand once > 1 update can be sent on a single submission
     <TestStep id="validate_doc_version_installed">
         <Rule>
             <Transaction>SQ</Transaction>
@@ -266,5 +265,4 @@
             </ExpectedContents>
         </StoredQueryTransaction>
     </TestStep>
- -->
 </TestPlan>
