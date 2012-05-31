@@ -349,9 +349,10 @@ public class Metadata {
     public void removeRegistryObject(OMElement registryObject) {
         registryPackages.remove(registryObject);
         extrinsicObjects.remove(registryObject);
+        folders.remove(registryObject);
         associations.remove(registryObject);
         allObjects.remove(registryObject);
-        // FIXME?: reindex?
+        reindex();
     }
 
     /**
