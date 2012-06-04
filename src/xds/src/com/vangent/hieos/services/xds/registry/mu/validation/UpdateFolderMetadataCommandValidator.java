@@ -50,7 +50,7 @@ public class UpdateFolderMetadataCommandValidator extends MetadataUpdateCommandV
         //
         this.getCurrentRegistryObject(cmd);
 
-        // Run further validations.
+        // Run validations.
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
         return validationSuccess;
