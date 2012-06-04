@@ -286,9 +286,11 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             // Validate that source(document) and target(document) reference the same PID.
             Metadata sourceMetadata = cmd.getDocumentMetadata(muSQ, sourceId);
             if (sourceMetadata == null) {
-                throw new XdsException("Source registry object metadata not found");
+                throw new XdsException("Source document metadata not found");
             }
-            String sourcePatientId = sourceMetadata.getPatientId(sourceMetadata.getExtrinsicObject(0));
+            OMElement sourceRegistryObject = sourceMetadata.getExtrinsicObject(0);
+            this.validateApprovedStatus(sourceMetadata, sourceRegistryObject);
+            String sourcePatientId = sourceMetadata.getPatientId(sourceRegistryObject);
             this.validateDocumentPatientId(targetId, sourcePatientId);
         } else if (Metadata.isValidFolderAssociationType(assocType)) {
             // Source could be either a submission set (invalid here) or a folder.
@@ -297,8 +299,10 @@ public class UpdateStatusCommandValidator extends MetadataUpdateCommandValidator
             if (sourceMetadata == null) {
                 throw new XdsException("Source folder metadata not found");
             }
+            OMElement sourceRegistryObject = sourceMetadata.getFolder(0);
+            this.validateApprovedStatus(sourceMetadata, sourceRegistryObject);
             // If the source is a folder, the target must be a document.
-            String sourcePatientId = sourceMetadata.getPatientId(sourceMetadata.getFolder(0));
+            String sourcePatientId = sourceMetadata.getPatientId(sourceRegistryObject);
             // Validate that source(folder) and target(document) reference the same PID.
             this.validateDocumentPatientId(targetId, sourcePatientId);
         }

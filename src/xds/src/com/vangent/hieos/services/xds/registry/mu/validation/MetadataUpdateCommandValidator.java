@@ -18,7 +18,7 @@ import com.vangent.hieos.services.xds.registry.storedquery.MetadataUpdateStoredQ
 import com.vangent.hieos.xutil.exception.XDSPatientIDReconciliationException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
-import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
+import com.vangent.hieos.xutil.metadata.structure.MetadataSupport;
 import org.apache.axiom.om.OMElement;
 
 /**
@@ -67,9 +67,7 @@ abstract public class MetadataUpdateCommandValidator {
      * @throws XdsException
      */
     public boolean validateDocumentPatientId(String currentDocumentEntryId, String targetPatientId) throws XdsException {
-        boolean foundDocument = false;
-
-        // Get metadata update context for use later.
+        MetadataUpdateCommand cmd = this.getMetadataUpdateCommand();
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
 
         // Prepare for queries.
@@ -78,22 +76,34 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Now make sure that we do not violate patient id constraints.
         muSQ.setReason("Validate document patient identifier constraint");
-        OMElement documentQueryResult = muSQ.getDocumentByUUID(currentDocumentEntryId);
+        Metadata documentMetadata = cmd.getDocumentMetadata(muSQ, currentDocumentEntryId);
         muSQ.setReason("");
 
-        Metadata documentMetadata = MetadataParser.parseNonSubmission(documentQueryResult);
-        foundDocument = documentMetadata.getExtrinsicObjects().size() > 0;
-        if (foundDocument) {
+        if (documentMetadata != null) {
             OMElement document = documentMetadata.getExtrinsicObject(0);
-            String documentPatientId = documentMetadata.getPatientId(document);
-            if (!documentPatientId.equals(targetPatientId)) {
-                throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing document patient id = "
-                        + documentPatientId + ", document UUID = "
-                        + currentDocumentEntryId + " does not match updated registry object's patient id = "
-                        + targetPatientId);
-            }
+            this.validateDocumentPatientId(documentMetadata, document, targetPatientId);
+            // Also, validate that the document is "approved".
+            this.validateApprovedStatus(documentMetadata, document);
         }
-        return foundDocument;
+        return documentMetadata != null;
+    }
+
+    /**
+     *
+     * @param documentMetadata
+     * @param document
+     * @param targetPatientId
+     * @throws XdsException
+     */
+    public void validateDocumentPatientId(Metadata documentMetadata, OMElement document, String targetPatientId) throws XdsException {
+        String documentPatientId = documentMetadata.getPatientId(document);
+        String documentUUID = documentMetadata.getId(document);
+        if (!documentPatientId.equals(targetPatientId)) {
+            throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing document patient id = "
+                    + documentPatientId + ", document UUID = "
+                    + documentUUID + " does not match updated registry object's patient id = "
+                    + targetPatientId);
+        }
     }
 
     /**
@@ -104,9 +114,7 @@ abstract public class MetadataUpdateCommandValidator {
      * @throws XdsException
      */
     public boolean validateFolderPatientId(String currentFolderEntryId, String targetPatientId) throws XdsException {
-        boolean foundFolder = false;
-
-        // Get metadata update context for use later.
+        MetadataUpdateCommand cmd = this.getMetadataUpdateCommand();
         MetadataUpdateContext metadataUpdateContext = metadataUpdateCommand.getMetadataUpdateContext();
 
         // Prepare for queries.
@@ -115,22 +123,46 @@ abstract public class MetadataUpdateCommandValidator {
 
         // Now make sure that we do not violate patient id constraints.
         muSQ.setReason("Validate folder patient identifier constraint");
-        OMElement folderQueryResult = muSQ.getFolderByUUID(currentFolderEntryId);
+        Metadata folderMetadata = cmd.getFolderMetadata(muSQ, currentFolderEntryId);
         muSQ.setReason("");
 
-        Metadata folderMetadata = MetadataParser.parseNonSubmission(folderQueryResult);
-        foundFolder = folderMetadata.getFolders().size() > 0;
-        if (foundFolder) {
+        if (folderMetadata != null) {
             OMElement folder = folderMetadata.getFolder(0);
-            String folderPatientId = folderMetadata.getPatientId(folder);
-            if (!folderPatientId.equals(targetPatientId)) {
-                throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing folder patient id = "
-                        + folderPatientId + ", folder UUID = "
-                        + currentFolderEntryId + " does not match updated registry object's patient id = "
-                        + targetPatientId);
-            }
+            this.validateFolderPatientId(folderMetadata, folder, targetPatientId);
+            // Also, validate that the folder is "approved".
+            this.validateApprovedStatus(folderMetadata, folder);
         }
-        return foundFolder;
+        return folderMetadata != null;
+    }
+
+    /**
+     * 
+     * @param folderMetadata
+     * @param folder
+     * @param targetPatientId
+     * @throws XdsException
+     */
+    public void validateFolderPatientId(Metadata folderMetadata, OMElement folder, String targetPatientId) throws XdsException {
+        String folderPatientId = folderMetadata.getPatientId(folder);
+        String folderUUID = folderMetadata.getId(folder);
+        if (!folderPatientId.equals(targetPatientId)) {
+            throw new XDSPatientIDReconciliationException("Update would violate patient id constraint - existing folder patient id = "
+                    + folderPatientId + ", folder UUID = "
+                    + folderUUID + " does not match updated registry object's patient id = "
+                    + targetPatientId);
+        }
+    }
+
+    /**
+     *
+     * @param metadata
+     * @param registryObject
+     * @throws XdsException
+     */
+    public void validateApprovedStatus(Metadata metadata, OMElement registryObject) throws XdsException {
+        if (!metadata.getStatus(registryObject).equals(MetadataSupport.status_type_approved)) {
+            throw new XdsException("Expected registry object status is approved");
+        }
     }
 
     /**
