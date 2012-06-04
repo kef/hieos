@@ -51,7 +51,7 @@ public class UpdateDocumentEntryMetadataCommandValidator extends MetadataUpdateC
         //
         this.getCurrentRegistryObject(cmd);
 
-        // Run further validations.
+        // Run validations.
         Metadata submittedMetadata = cmd.getSubmittedMetadata();
         this.validateUniqueIdMatch(cmd.getSubmittedRegistryObject(), submittedMetadata, cmd.getCurrentRegistryObject(), cmd.getCurrentMetadata());
         this.validateRepositoryUniqueIdMatch(cmd);
