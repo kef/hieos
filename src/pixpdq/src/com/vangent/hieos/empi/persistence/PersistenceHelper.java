@@ -122,7 +122,8 @@ public class PersistenceHelper {
 
     /**
      *
-     * @param sqlException
+     * @param text
+     * @param ex
      * @return
      */
     public static EMPIException getEMPIException(String text, SQLException ex) {

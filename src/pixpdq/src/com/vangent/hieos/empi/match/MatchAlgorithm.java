@@ -24,7 +24,20 @@ public abstract class MatchAlgorithm {
 
     private PersistenceManager persistenceManager = null;
 
-    public enum MatchType { SUBJECT_FIND, SUBJECT_FEED };
+    /**
+     * 
+     */
+    public enum MatchType {
+
+        /**
+         * 
+         */
+        SUBJECT_FIND,
+        /**
+         * 
+         */
+        SUBJECT_FEED
+    };
 
     /**
      *
@@ -70,6 +83,7 @@ public abstract class MatchAlgorithm {
      * 
      * @param searchRecord
      * @param records
+     * @param matchType
      * @return
      * @throws EMPIException
      */

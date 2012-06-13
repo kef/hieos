@@ -55,6 +55,7 @@ public class ScoredRecord {
 
     /**
      *
+     * @param matchType
      */
     public void computeScores(MatchType matchType) {
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();

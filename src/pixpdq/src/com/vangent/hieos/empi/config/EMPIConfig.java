@@ -98,6 +98,7 @@ public class EMPIConfig {
 
     /**
      *
+     * @param matchType
      * @return
      */
     public MatchConfig getMatchConfig(MatchType matchType) {
@@ -292,7 +293,7 @@ public class EMPIConfig {
 
     /**
      *
-     * @param codeSystem
+     * @param codeSystemName 
      * @return
      */
     public CodeSystem getCodeSystemByName(String codeSystemName) {

@@ -76,7 +76,7 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
 
     /**
      *
-     * @param subjectLanguages
+     * @param subjectCitizenships 
      * @param parentSubject
      * @throws EMPIException
      */

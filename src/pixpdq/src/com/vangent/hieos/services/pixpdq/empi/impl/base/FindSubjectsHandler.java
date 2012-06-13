@@ -99,6 +99,7 @@ public class FindSubjectsHandler extends BaseHandler {
     /**
      *
      * @param searchRecord
+     * @param matchType
      * @return
      * @throws EMPIException
      */

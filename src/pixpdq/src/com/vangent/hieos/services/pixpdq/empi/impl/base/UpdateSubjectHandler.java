@@ -35,6 +35,7 @@ public class UpdateSubjectHandler extends BaseHandler {
      *
      * @param configActor
      * @param persistenceManager
+     * @param senderDeviceInfo
      */
     public UpdateSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
         super(configActor, persistenceManager, senderDeviceInfo);

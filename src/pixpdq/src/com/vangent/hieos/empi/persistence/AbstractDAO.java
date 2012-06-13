@@ -111,7 +111,7 @@ public class AbstractDAO {
     /**
      *
      * @param code
-     * @param codeType
+     * @param codedType
      * @return
      */
     protected CodedValue getCodedValue(String code, CodesConfig.CodedType codedType) {
