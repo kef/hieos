@@ -81,15 +81,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      * @return
      */
     protected DeviceInfo getDeviceInfo() {
-        /*
-        DeviceInfo deviceInfo = new DeviceInfo();
-        XConfigObject config = this.getConfigActor();
-        String deviceId = config.getProperty("DeviceId");
-        String deviceName = config.getProperty("DeviceName");
-        deviceInfo.setId(deviceId);
-        deviceInfo.setName(deviceName);*/
-        DeviceInfo deviceInfo = new DeviceInfo(this.getConfigActor());
-        return deviceInfo;
+        return new DeviceInfo(this.getConfigActor());
     }
 
     /**

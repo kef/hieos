@@ -15,6 +15,7 @@ package com.vangent.hieos.services.pixpdq.serviceimpl;
 import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
+import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
@@ -28,7 +29,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PatientDemographicsSupplier extends PIXPDQServiceBaseImpl {
+public class PatientDemographicsSupplier extends XAbstractService {
 
     private final static Logger logger = Logger.getLogger(PatientDemographicsSupplier.class);
     private static XConfigActor config = null;  // Singleton.
