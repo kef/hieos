@@ -24,12 +24,22 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class MatchConfig implements ConfigItem {
 
+    private static String BLOCKING_CONFIG = "blocking-config(0)";
     private static String ACCEPT_THRESHOLD = "accept-threshold";
     private static String REJECT_THRESHOLD = "reject-threshold";
     private static String MATCH_FIELDS = "match-fields.match-field";
+    private BlockingConfig blockingConfig;
     private double acceptThreshold;
     private double rejectThreshold;
     private List<MatchFieldConfig> matchFieldConfigs = new ArrayList<MatchFieldConfig>();
+
+    /**
+     *
+     * @return
+     */
+    public BlockingConfig getBlockingConfig() {
+        return blockingConfig;
+    }
 
     /**
      *
@@ -77,6 +87,11 @@ public class MatchConfig implements ConfigItem {
      * @throws EMPIException
      */
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
+
+        // Load blocking configuration.
+        blockingConfig = new BlockingConfig();
+        blockingConfig.load(hc.configurationAt(BLOCKING_CONFIG), empiConfig);
+
         this.acceptThreshold = hc.getDouble(ACCEPT_THRESHOLD);
         this.rejectThreshold = hc.getDouble(REJECT_THRESHOLD);
 
@@ -89,5 +104,6 @@ public class MatchConfig implements ConfigItem {
             // FIXME: Put in map?
             matchFieldConfigs.add(matchFieldConfig);
         }
+
     }
 }

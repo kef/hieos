@@ -78,7 +78,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     @Override
     public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
-        MatchConfig matchConfig = empiConfig.getMatchConfig();
+        MatchConfig matchConfig = empiConfig.getMatchConfig(matchType);
         double recordAcceptThreshold = matchConfig.getAcceptThreshold();
         double recordRejectThreshold = matchConfig.getRejectThreshold();
         MatchResults matchResults = new MatchResults();
@@ -131,12 +131,13 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
         int fieldIndex = 0;
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-            if (matchType == MatchType.SUBJECT_ADD && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
+            /*
+            if (matchType == MatchType.SUBJECT_FEED && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
                 scoredRecord.setDistance(fieldIndex, -1.0);  // -1.0 really means nothing (just for debug).
                 ++fieldIndex;
                 // FIXME: This is a temporary FIX (in a rush).
                 continue;
-            }
+            }*/
             String matchFieldName = matchFieldConfig.getName();
 
             // Get the current field's "distance function" configuration.

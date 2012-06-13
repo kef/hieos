@@ -62,23 +62,24 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
         // Get configuration items.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
-        MatchConfig matchConfig = empiConfig.getMatchConfig();
-        BlockingConfig blockingConfig = empiConfig.getBlockingConfig();
+        MatchConfig matchConfig = empiConfig.getMatchConfig(matchType);
+        BlockingConfig blockingConfig = matchConfig.getBlockingConfig();
         List<BlockingPassConfig> blockingPassConfigs = blockingConfig.getBlockingPassConfigs();
 
         // Run through each blocking pass.
         for (BlockingPassConfig blockingPassConfig : blockingPassConfigs) {
+            /*
             boolean isEnabledDuringSubjectAdd = blockingPassConfig.isEnabledDuringSubjectAdd();
             if (matchType == MatchType.SUBJECT_ADD) {
                 if (!isEnabledDuringSubjectAdd) {
                     continue;  // Hate to use continues, but in a rush.....
                 }
-            }
+            }*/
             ResultSet rs = null;
             PreparedStatement stmt = null;
             try {
                 // Get prepared statement to support the blocking pass and then execute query.
-                stmt = this.getBlockingPassPreparedStatement(searchRecord, blockingPassConfig);
+                stmt = this.getBlockingPassPreparedStatement(matchConfig, searchRecord, blockingPassConfig);
                 if (stmt != null) {  // Only process if blocking pass is active based upon search criteria.
                     rs = stmt.executeQuery();
 
@@ -227,19 +228,21 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
+     * @param matchConfig
      * @param searchRecord
      * @param blockingPassConfig
      * @return
      * @throws EMPIException
      */
-    private PreparedStatement getBlockingPassPreparedStatement(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
+    private PreparedStatement getBlockingPassPreparedStatement(MatchConfig matchConfig, Record searchRecord,
+            BlockingPassConfig blockingPassConfig) throws EMPIException {
         // Get active blocking field configs based upon the search record.
         List<BlockingFieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
         PreparedStatement stmt = null;
         if (!activeBlockingFieldConfigs.isEmpty()) {
             // Build prepared statement to support "blocking" phase.
-            String sql = this.buildBlockingPassSQLSelectStatement(activeBlockingFieldConfigs);
+            String sql = this.buildBlockingPassSQLSelectStatement(matchConfig, activeBlockingFieldConfigs);
             stmt = this.getPreparedStatement(sql);
             try {
                 // Set WHERE clause values in the prepared statement.
@@ -283,11 +286,12 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
     /**
      * 
+     * @param matchConfig
      * @param activeBlockingFieldConfigs
      * @return
      * @throws EMPIException
      */
-    private String buildBlockingPassSQLSelectStatement(List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
+    private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
@@ -296,7 +300,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         sb.append("SELECT subject_id,");  // Always extract the subject_id.
 
         // Add list of fields to extract (only those we plan on matching against).
-        MatchConfig matchConfig = empiConfig.getMatchConfig();
+        //MatchConfig matchConfig = empiConfig.getMatchConfig();
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
         int fieldIndex = 0;
         int mumMatchFields = matchFieldConfigs.size();

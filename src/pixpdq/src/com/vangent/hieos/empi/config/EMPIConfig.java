@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.xutil.exception.XConfigException;
@@ -51,14 +52,15 @@ public class EMPIConfig {
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
     private static String DISTANCE_FUNCTIONS = "distance-functions.distance-function";
     private static String FIELDS = "fields.field";
-    private static String BLOCKING_CONFIG = "blocking-config(0)";
-    private static String MATCH_CONFIG = "match-config(0)";
+    private static String MATCH_CONFIG_FEED = "match-config-feed(0)";
+    private static String MATCH_CONFIG_FIND = "match-config-find(0)";
     private static String EUID_CONFIG = "euid-config(0)";
     private static String CROSS_REFERENCE_CONSUMER_CONFIGS = "cross-reference-consumers.cross-reference-consumer";
     private static String IDENTITY_SOURCE_CONFIGS = "identity-sources.identity-source";
     private static EMPIConfig _instance = null;
-    private BlockingConfig blockingConfig;
-    private MatchConfig matchConfig;
+    //private BlockingConfig blockingConfig;
+    private MatchConfig matchConfigFeed;
+    private MatchConfig matchConfigFind;
     private String jndiResourceName;
     private MatchAlgorithm matchAlgorithm;
     private EUIDConfig euidConfig;
@@ -98,16 +100,12 @@ public class EMPIConfig {
      *
      * @return
      */
-    public MatchConfig getMatchConfig() {
-        return matchConfig;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public BlockingConfig getBlockingConfig() {
-        return blockingConfig;
+    public MatchConfig getMatchConfig(MatchType matchType) {
+        if (matchType == MatchType.SUBJECT_FEED) {
+            return matchConfigFeed;
+        } else {
+            return matchConfigFind;
+        }
     }
 
     /**
@@ -358,13 +356,15 @@ public class EMPIConfig {
             // Load field configurations.
             this.loadFieldConfigs(xmlConfig);
 
-            // Load blocking configuration.
-            blockingConfig = new BlockingConfig();
-            blockingConfig.load(xmlConfig.configurationAt(BLOCKING_CONFIG), this);
+            // Load matching configurations.
 
-            // Load matching configuration.
-            matchConfig = new MatchConfig();
-            matchConfig.load(xmlConfig.configurationAt(MATCH_CONFIG), this);
+            // Configuration to support feeds.
+            matchConfigFeed = new MatchConfig();
+            matchConfigFeed.load(xmlConfig.configurationAt(MATCH_CONFIG_FEED), this);
+
+            // Configuration to support finds.
+            matchConfigFind = new MatchConfig();
+            matchConfigFind.load(xmlConfig.configurationAt(MATCH_CONFIG_FIND), this);
 
             // Load EUID configuration.
             euidConfig = new EUIDConfig();

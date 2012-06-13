@@ -86,7 +86,7 @@ public class AddSubjectHandler extends BaseHandler {
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(subject);
         FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager(), this.getSenderDeviceInfo());
-        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_ADD);
+        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
 
         if (recordMatches.isEmpty()) { // No match.
             enterpriseSubjectId = this.insertEnterpriseSubject(subject);

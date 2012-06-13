@@ -24,7 +24,7 @@ public abstract class MatchAlgorithm {
 
     private PersistenceManager persistenceManager = null;
 
-    public enum MatchType { SUBJECT_FIND, SUBJECT_ADD };
+    public enum MatchType { SUBJECT_FIND, SUBJECT_FEED };
 
     /**
      *
