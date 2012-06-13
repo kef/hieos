@@ -361,77 +361,190 @@
         </field>
     </fields>
     
-    <!-- First pass "blocking" configuration -->
-    <blocking-config>
-        <blocking-pass>
-            <blocking-fields>
-                <blocking-field>
-                    <name>familyNameSoundex</name>
-                    <required>true</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>givenNameSoundex</name>
-                    <required>false</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>gender</name>
-                    <required>false</required>
-                </blocking-field>
-            </blocking-fields>
-        </blocking-pass>
-        <blocking-pass>
-            <blocking-fields>
-                <blocking-field>
-                    <name>streetAddressLine1</name>
-                    <required>true</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>city</name>
-                    <required>false</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>state</name>
-                    <required>false</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>postalCode</name>
-                    <required>false</required>
-                </blocking-field>
-            </blocking-fields>
-        </blocking-pass>
-        <blocking-pass>
-            <enabled-during-subject-add>false</enabled-during-subject-add>
-            <blocking-fields>
-                <blocking-field>
-                    <name>birthTime</name>
-                    <required>true</required>
-                </blocking-field>
-            </blocking-fields>
-        </blocking-pass>
-        <blocking-pass>
-            <!-- default for enabled-during-subject-add is "true" -->
-            <enabled-during-subject-add>false</enabled-during-subject-add>
-            <blocking-fields>
-                <blocking-field>
-                    <name>familyNameFuzzy</name>
-                    <required>true</required>
-                </blocking-field>
-                <blocking-field>
-                    <name>givenNameFuzzy</name>
-                    <required>false</required>
-                </blocking-field>
-            </blocking-fields>
-        </blocking-pass>
-    </blocking-config>
-    
-    <match-config>
-        <accept-threshold>1.0</accept-threshold>
+    <match-config-feed>
+        <!-- blocking configuration (first pass) -->
+        <blocking-config>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>familyNameSoundex</name>
+                        <required>true</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>givenNameSoundex</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>gender</name>
+                        <required>false</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>streetAddressLine1</name>
+                        <required>true</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>city</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>state</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>postalCode</name>
+                        <required>false</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+        </blocking-config>
+        <accept-threshold>0.9</accept-threshold>
+        <reject-threshold>1.0</reject-threshold>
+        <match-fields>
+            <match-field>
+                <name>givenName</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>3.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>familyName</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>5.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>birthTime</name>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>3.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>gender</name>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>4.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>streetAddressLine1</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>1.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>city</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>1.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>state</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>1.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+            <match-field>
+                <name>postalCode</name>
+                <accept-threshold>0.8</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>1.0</weight>
+                <distance-function>
+                    <name>Levenshtein</name>
+                </distance-function>
+            </match-field>
+        </match-fields>
+    </match-config-feed>
+
+    <match-config-find>
+         <!-- blocking configuration (first pass) -->
+        <blocking-config>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>familyNameSoundex</name>
+                        <required>true</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>givenNameSoundex</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>gender</name>
+                        <required>false</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>streetAddressLine1</name>
+                        <required>true</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>city</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>state</name>
+                        <required>false</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>postalCode</name>
+                        <required>false</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>birthTime</name>
+                        <required>true</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>familyNameFuzzy</name>
+                        <required>true</required>
+                    </blocking-field>
+                    <blocking-field>
+                        <name>givenNameFuzzy</name>
+                        <required>false</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
+        </blocking-config>
+        <accept-threshold>0.9</accept-threshold>
         <reject-threshold>1.0</reject-threshold>
         <match-fields>
              <!-- new to support SRCH -->
             <match-field>
                 <name>givenNameFuzzy</name>
-                <enabled-during-subject-add>false</enabled-during-subject-add>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>3.0</weight>
@@ -441,7 +554,6 @@
             </match-field>
             <match-field>
                 <name>familyNameFuzzy</name>
-                <enabled-during-subject-add>false</enabled-during-subject-add>
                 <accept-threshold>1.0</accept-threshold>
                 <reject-threshold>0.0</reject-threshold>
                 <weight>3.0</weight>
@@ -521,47 +633,31 @@
                     <name>Levenshtein</name>
                 </distance-function>
             </match-field>
-           
         </match-fields>
-    </match-config>
+    </match-config-find>
 
     <update-notification-enabled>false</update-notification-enabled>
 
     <!-- List of cross reference consumers -->
     <cross-reference-consumers>
+        <!--
         <cross-reference-consumer>
             <name>TIANI</name>
             <enabled>true</enabled>
             <device-id>1.3.6.1.4.1.21367.13.30.6</device-id>
             <device-name>1.3.6.1.4.1.21367.13.30.6</device-name>
-            <!-- List of interested identifier domains -->
             <identifier-domains>
-                <!--<identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE-RED</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.2000</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE-GREEN</namespace-id>
-                </identifier-domain>
-                -->
                 <identifier-domain>
                     <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
                     <universal-id-type>ISO</universal-id-type>
                     <namespace-id>IHE-BLUE</namespace-id>
                 </identifier-domain>
-                <!--<identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.4</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>TIANI</namespace-id>
-                </identifier-domain>-->
             </identifier-domains>
         </cross-reference-consumer>
+        -->
         <cross-reference-consumer>
             <name>NIST PIX PDQ Tool</name>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
             <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
             <device-name>2.16.840.1.113883.3.72.6.1</device-name>
             <!-- List of interested identifier domains -->
@@ -623,8 +719,29 @@
     
     <!-- List of valid identifier sources -->
     <identity-sources>
-
-         <identity-source>
+        <identity-source>
+            <name>NIST PIX-PDQ</name>
+            <device-id>2.16.840.1.113883.3.72.6.2</device-id>
+            <device-name>2.16.840.1.113883.3.72.6.2</device-name>
+            <identifier-domains>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.1</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.2</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010-2</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.3</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010-3</namespace-id>
+                </identifier-domain>
+            </identifier-domains>
+        </identity-source>
+        <identity-source>
             <name>ALERT</name>
             <device-id>1.3.6.1.4.1.21367.13.10.17</device-id>
             <device-name>1.3.6.1.4.1.21367.13.10.17</device-name>
@@ -664,9 +781,9 @@
                 </identifier-domain>
                 -->
                 <identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
+                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
                     <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE_BLUE</namespace-id>
+                    <namespace-id>IHE_RED</namespace-id>
                 </identifier-domain>
             </identifier-domains>
         </identity-source>
