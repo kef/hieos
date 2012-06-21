@@ -174,7 +174,7 @@
                     <name>DoubleMetaphone</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field1</match-db-column>
+            <match-db-column>family_name_double_metaphone</match-db-column>
         </field>
         <field>
             <name>givenNameDoubleMetaphone</name>
@@ -184,7 +184,7 @@
                     <name>DoubleMetaphone</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field2</match-db-column>
+            <match-db-column>given_name_double_metaphone</match-db-column>
         </field>
         <field>
             <name>familyName</name>
@@ -194,7 +194,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field3</match-db-column>
+            <match-db-column>family_name</match-db-column>
         </field>
         <field>
             <name>givenName</name>
@@ -204,7 +204,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field4</match-db-column>
+            <match-db-column>given_name</match-db-column>
         </field>
         <field>
             <name>birthTime</name>
@@ -214,7 +214,7 @@
                     <name>HL7Date</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field5</match-db-column>
+            <match-db-column>birth_time</match-db-column>
         </field>
         <field>
             <name>gender</name>
@@ -224,7 +224,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field6</match-db-column>
+            <match-db-column>gender</match-db-column>
         </field>
         <field>
             <name>familyNameSoundex</name>
@@ -234,7 +234,7 @@
                     <name>Soundex</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field7</match-db-column>
+            <match-db-column>family_name_soundex</match-db-column>
         </field>
         <field>
             <name>givenNameSoundex</name>
@@ -244,7 +244,7 @@
                     <name>Soundex</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field8</match-db-column>
+            <match-db-column>given_name_soundex</match-db-column>
         </field>
         <field>
             <name>streetAddressLine1</name>
@@ -254,7 +254,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field9</match-db-column>
+            <match-db-column>street_address_line1</match-db-column>
         </field>
         <field>
             <name>city</name>
@@ -264,7 +264,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field10</match-db-column>
+            <match-db-column>city</match-db-column>
         </field>
         <field>
             <name>state</name>
@@ -274,7 +274,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field11</match-db-column>
+            <match-db-column>state</match-db-column>
         </field>
         <field>
             <name>postalCode</name>
@@ -284,7 +284,7 @@
                     <name>NormalizeCase</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field12</match-db-column>
+            <match-db-column>postal_code</match-db-column>
         </field>
         <field>
             <name>familyNameCaverphone2</name>
@@ -294,7 +294,7 @@
                     <name>Caverphone2</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field13</match-db-column>
+            <match-db-column>family_name_caverphone2</match-db-column>
         </field>
         <field>
             <name>familyNameCaverphone1</name>
@@ -304,7 +304,7 @@
                     <name>Caverphone1</name>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field14</match-db-column>
+            <match-db-column>family_name_caverphone1</match-db-column>
         </field>
         <field>
             <name>familyNamePrefix</name>
@@ -320,7 +320,7 @@
                     </parameters>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field15</match-db-column>
+            <match-db-column>family_name_prefix</match-db-column>
         </field>
         <field>
             <name>familyNameFuzzy</name>
@@ -339,7 +339,7 @@
                     </parameters>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field3</match-db-column>
+            <match-db-column>family_name</match-db-column>
         </field>
         <field>
             <name>givenNameFuzzy</name>
@@ -357,7 +357,7 @@
                     </parameters>
                 </transform-function>
             </transform-functions>
-            <match-db-column>match_field4</match-db-column>
+            <match-db-column>given_name</match-db-column>
         </field>
     </fields>
     
@@ -518,6 +518,9 @@
                     </blocking-field>
                 </blocking-fields>
             </blocking-pass>
+            <!-- Only used to support Connectathon - not a good notion. -->
+            <!-- would need to create an index on this field. -->
+            <!--
             <blocking-pass>
                 <blocking-fields>
                     <blocking-field>
@@ -526,6 +529,7 @@
                     </blocking-field>
                 </blocking-fields>
             </blocking-pass>
+            -->
             <blocking-pass>
                 <blocking-fields>
                     <blocking-field>
@@ -657,7 +661,7 @@
         -->
         <cross-reference-consumer>
             <name>NIST PIX PDQ Tool</name>
-            <enabled>true</enabled>
+            <enabled>false</enabled>
             <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
             <device-name>2.16.840.1.113883.3.72.6.1</device-name>
             <!-- List of interested identifier domains -->
@@ -792,6 +796,16 @@
             <device-id>1.2.840.114350.1.13.99998.8734</device-id>
             <device-name>TEST</device-name>
             <identifier-domains>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.1000.1.6</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>LOCAL_FACILITY_1</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.3000.1.6</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>LOCAL_FACILITY_2</namespace-id>
+                </identifier-domain>
                 <identifier-domain>
                     <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
                     <universal-id-type>ISO</universal-id-type>
