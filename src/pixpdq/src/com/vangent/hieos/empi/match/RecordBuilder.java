@@ -20,12 +20,15 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class RecordBuilder {
+
+    private final static Logger logger = Logger.getLogger(RecordBuilder.class);
 
     /**
      *
@@ -44,29 +47,36 @@ public class RecordBuilder {
             String sourceObjectPath = fieldConfig.getSourceObjectPath();
             String fieldName = fieldConfig.getName();
             // FIXME: Deal with different types (partially implemented)?
-            System.out.println("field = " + fieldName);
-            System.out.println(" ... sourceObjectPath = " + sourceObjectPath);
+            if (logger.isTraceEnabled()) {
+                logger.trace("field = " + fieldName);
+                logger.trace(" ... sourceObjectPath = " + sourceObjectPath);
+            }
             try {
                 // Access the field value.
                 Object value = PropertyUtils.getProperty(subject, sourceObjectPath);
                 if (value != null) {
-                    System.out.println(" ... value (before transforms) = " + value.toString());
-
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(" ... value (before transforms) = " + value.toString());
+                    }
                     // Now run any transforms (in order).
                     List<TransformFunctionConfig> transformFunctionConfigs = fieldConfig.getTransformFunctionConfigs();
                     for (TransformFunctionConfig transformFunctionConfig : transformFunctionConfigs) {
-                        //System.out.println(" ... transformFunction = " + transformFunctionConfig.getName());
+                        if (logger.isTraceEnabled()) {
+                            logger.trace(" ... transformFunction = " + transformFunctionConfig.getName());
+                        }
                         TransformFunction transformFunction = transformFunctionConfig.getTransformFunction();
                         value = transformFunction.transform(value);
                     }
                     if (value != null) {
-                        System.out.println(" ... value (after transforms) = " + value.toString());
+                        if (logger.isTraceEnabled()) {
+                            logger.trace(" ... value (after transforms) = " + value.toString());
+                        }
                         Field field = new Field(fieldName, value.toString());
                         record.addField(field);
                     }
                 }
             } catch (Exception ex) {
-                System.out.println(
+                logger.info(
                         "Unable to access '" + sourceObjectPath + "' field: "
                         + ex.getMessage());
             }
@@ -90,8 +100,10 @@ public class RecordBuilder {
                 String supersedesFieldName = fieldConfig.getSupersedesField();
                 if (supersedesFieldName != null) {
                     Field supersededField = record.getField(supersedesFieldName);
-                    System.out.println("+++++++++ REMOVING SUPERSEDED FIELD = " + supersedesFieldName);
-                    System.out.println(" .... keeping field = " + fieldName);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("+++++++++ REMOVING SUPERSEDED FIELD = " + supersedesFieldName);
+                        logger.trace(" .... keeping field = " + fieldName);
+                    }
                     record.removeField(supersededField);
                 }
             }

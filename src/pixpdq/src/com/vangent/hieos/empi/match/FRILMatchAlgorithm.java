@@ -21,12 +21,15 @@ import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.Collections;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class FRILMatchAlgorithm extends MatchAlgorithm {
+
+    private static final Logger logger = Logger.getLogger(FRILMatchAlgorithm.class);
 
     /**
      *
@@ -56,15 +59,32 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      */
     @Override
     public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException {
-        System.out.println("Search Record: " + searchRecord);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("Search Record: " + searchRecord);
+        }
+
+        long start = System.currentTimeMillis();
 
         // First, get list of candidate records.
         List<Record> candidateRecords = this.findCandidates(searchRecord, matchType);
 
-        // DEBUG:
-        System.out.println("... number of candidate records = " + candidateRecords.size());
+        if (logger.isDebugEnabled()) {
+            logger.debug("FRIL findCandidates TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+        }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("... number of candidate records = " + candidateRecords.size());
+        }
+        start = System.currentTimeMillis();
+
         // Now, run the findMatches algorithm.
-        return this.findMatches(searchRecord, candidateRecords, matchType);
+        MatchResults matchResults = this.findMatches(searchRecord, candidateRecords, matchType);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("FRIL findMatches TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+        }
+        return matchResults;
     }
 
     /**
@@ -82,22 +102,30 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         double recordAcceptThreshold = matchConfig.getAcceptThreshold();
         double recordRejectThreshold = matchConfig.getRejectThreshold();
         MatchResults matchResults = new MatchResults();
-        System.out.println("... Search Record: " + searchRecord.toString());
+        if (logger.isTraceEnabled()) {
+            logger.trace("... Search Record: " + searchRecord.toString());
+        }
         for (Record record : records) {
             ScoredRecord scoredRecord = this.score(searchRecord, record, matchConfig, matchType);
             double recordScore = scoredRecord.getScore();
             // FIXME: Shouldn't we return a sorted list as the result?
             if (recordScore >= recordAcceptThreshold) {
                 // Match.
-                System.out.println("... Matched Record: " + scoredRecord.toString());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("... Matched Record: " + scoredRecord.toString());
+                }
                 matchResults.addMatch(scoredRecord);
             } else if (recordScore < recordRejectThreshold) {
                 // Non-match.
-                System.out.println("... Non-Matched Record: " + scoredRecord.toString());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("... Non-Matched Record: " + scoredRecord.toString());
+                }
                 matchResults.addNonMatch(scoredRecord);
             } else {
                 // Possible match.
-                System.out.println("... Possible Matched Record: " + scoredRecord.toString());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("... Possible Matched Record: " + scoredRecord.toString());
+                }
                 matchResults.addPossibleMatch(scoredRecord);
             }
         }
@@ -133,10 +161,10 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
             /*
             if (matchType == MatchType.SUBJECT_FEED && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
-                scoredRecord.setDistance(fieldIndex, -1.0);  // -1.0 really means nothing (just for debug).
-                ++fieldIndex;
-                // FIXME: This is a temporary FIX (in a rush).
-                continue;
+            scoredRecord.setDistance(fieldIndex, -1.0);  // -1.0 really means nothing (just for debug).
+            ++fieldIndex;
+            // FIXME: This is a temporary FIX (in a rush).
+            continue;
             }*/
             String matchFieldName = matchFieldConfig.getName();
 
@@ -163,8 +191,10 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         }
         // Now, compute field-level and record scores.
         scoredRecord.computeScores(matchType);
-        //System.out.println("ScoredRecord: " + scoredRecord.toString());
-        //System.out.println("... recordScore = " + scoredRecord.getScore());
+        if (logger.isTraceEnabled()) {
+            logger.trace("ScoredRecord: " + scoredRecord.toString());
+            logger.trace("... recordScore = " + scoredRecord.getScore());
+        }
         return scoredRecord;
     }
 

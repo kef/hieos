@@ -61,6 +61,8 @@ public class Record {
                 return field;
             }
         }
+        //System.out.println("Record: " + this);
+        //System.out.println("+++ Field not found for field name = " + name);
         return null;
     }
 
