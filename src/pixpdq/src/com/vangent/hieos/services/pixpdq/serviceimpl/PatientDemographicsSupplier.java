@@ -48,6 +48,7 @@ public class PatientDemographicsSupplier extends XAbstractService {
     public OMElement PatientRegistryFindCandidatesQuery(OMElement request) throws AxisFault {
         OMElement response = null;
         try {
+            long start = System.currentTimeMillis();
             beginTransaction("FindCandidatesQuery (PDQV3)", request);
             validateWS();
             validateNoMTOM();
@@ -55,6 +56,9 @@ public class PatientDemographicsSupplier extends XAbstractService {
             handler.setConfigActor(config);
             response = handler.run(request, PDSRequestHandler.MessageType.PatientRegistryFindCandidatesQuery);
             endTransaction(handler.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PDQv3 Query TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
         } catch (SOAPFaultException ex) {
             throwAxisFault(ex);
         }

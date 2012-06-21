@@ -145,8 +145,6 @@ public class BaseHandler {
         if (!empiConfig.isValidateIdentitySourcesEnabled()) {
             return;  // Early exit! --  Not doing validation.
         }
-        System.out.println("++++ Validating identity source ... id = " + this.senderDeviceInfo.getId());
-        System.out.println("++++ Validating identity source ... name = " + this.senderDeviceInfo.getName());
 
         // Now, make sure that the current source (by Sender Device Info) is able to ADD/UPDATE/MERGE
         // subjects for the provided identifiers.
@@ -189,6 +187,11 @@ public class BaseHandler {
      * @throws EMPIException
      */
     protected void addSubjectToNotification(EMPINotification notification, String enterpriseSubjectId) throws EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        if (!empiConfig.isUpdateNotificationEnabled()) {
+            // Notifications are turned off -- get out now.
+            return; // Early exit!!
+        }
         PersistenceManager pm = this.getPersistenceManager();
         Subject subject = pm.loadEnterpriseSubjectIdentifiersAndNamesOnly(enterpriseSubjectId);
         notification.addSubject(subject);

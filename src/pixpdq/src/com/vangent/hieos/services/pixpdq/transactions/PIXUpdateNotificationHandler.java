@@ -125,7 +125,9 @@ public class PIXUpdateNotificationHandler {
                 for (SubjectIdentifierDomain interestedIdentifierDomain : interestedIdentifierDomains) {
                     if (subjectIdentifierDomain.equals(interestedIdentifierDomain)) {
                         // Keep this identifier.
-                        System.out.println("Found subject identifier of interest: " + subjectIdentifier.getCXFormatted());
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Found subject identifier of interest: " + subjectIdentifier.getCXFormatted());
+                        }
                         subjectIdentifiersToKeep.add(subjectIdentifier);
                         break;
                     }

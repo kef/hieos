@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.transform;
 
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -21,6 +22,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  */
 public class FuzzyNameSearchTransformFunction extends TransformFunction {
 
+    private final static Logger logger = Logger.getLogger(FuzzyNameSearchTransformFunction.class);
     private static String PARAM_FIELD_NAME = "field-name";
 
     /**
@@ -33,15 +35,14 @@ public class FuzzyNameSearchTransformFunction extends TransformFunction {
         // Get search mode.
         boolean isFuzzySearchMode = subjectName.isFuzzySearchMode();
 
-        // DEBUG:
-        System.out.println(this.getClass().toString()
-                + " fuzzy search mode = " + isFuzzySearchMode);
-
         // Get field name to access from SubjectName.
         String fieldName = this.getFunctionConfig().getParameter(PARAM_FIELD_NAME);
 
-        // DEBUG:
-        System.out.println("... field name = " + fieldName);
+        if (logger.isTraceEnabled()) {
+            logger.trace(this.getClass().toString()
+                    + " fuzzy search mode = " + isFuzzySearchMode);
+            logger.trace("... field name = " + fieldName);
+        }
         String fieldValue = null;
         try {
             // Get field value.
@@ -53,7 +54,8 @@ public class FuzzyNameSearchTransformFunction extends TransformFunction {
                 fieldValue = fieldValue + "%";
             }
         } catch (Exception ex) {
-            System.out.println("Unable to access '" + fieldName + ": " + ex.getMessage());
+            // FIXME?
+            logger.info("Unable to access '" + fieldName + ": " + ex.getMessage());
         }
         return fieldValue;
     }

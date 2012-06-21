@@ -87,11 +87,13 @@ public class AddSubjectHandler extends BaseHandler {
         Record searchRecord = rb.build(subject);
         FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager(), this.getSenderDeviceInfo());
         List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
+        long start = System.currentTimeMillis();
 
         if (recordMatches.isEmpty()) { // No match.
             enterpriseSubjectId = this.insertEnterpriseSubject(subject);
+
         } else if (this.isAnyMatchedRecordInSameIdentifierDomain(subject, recordMatches)) {
-            System.out.println("+++++ Not linking subject with same identifier domain +++++");
+            logger.trace("+++++ Not linking subject with same identifier domain +++++");
             // Do not place record along side any record within the same identifier domain.
             recordMatches.clear();  // Treat as though a match did not occur.
 
@@ -107,7 +109,7 @@ public class AddSubjectHandler extends BaseHandler {
             matchScore = matchedRecord.getMatchScorePercentage();
 
             // Update enterprise subject with latest demographics.
-            System.out.println("+++ Updating demographics on enterprise subject +++");
+            logger.trace("+++ Updating demographics on enterprise subject +++");
             pm.updateEnterpriseSubject(enterpriseSubjectId, subject);
         }
 
@@ -129,6 +131,9 @@ public class AddSubjectHandler extends BaseHandler {
                 subsumedEnterpriseSubjectIds.add(subsumedEnterpriseSubjectId);
                 pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
             }
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("EMPI persistence TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
         }
         EMPINotification notification = new EMPINotification();
         this.addSubjectToNotification(notification, enterpriseSubjectId);
@@ -159,23 +164,23 @@ public class AddSubjectHandler extends BaseHandler {
         // Now, go through each pair in the merge set.
         PersistenceManager pm = this.getPersistenceManager();
         for (ScoredRecord matchedRecord : recordMatches) {
-            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-            // Load identifiers for matched system subject.
-            List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+        // Load identifiers for matched system subject.
+        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
-            for (ScoredRecord compareMatchedRecord : recordMatches) {
-                String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
-                if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
-                    // Load identifiers for matched system subject (to compare).
-                    List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
-                    boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
-                    if (foundMatch) {
-                        // Found a match.
-                        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
-                        return true;  // Early exit!
-                    }
-                }
-            }
+        for (ScoredRecord compareMatchedRecord : recordMatches) {
+        String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
+        if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
+        // Load identifiers for matched system subject (to compare).
+        List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
+        boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
+        if (foundMatch) {
+        // Found a match.
+        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
+        return true;  // Early exit!
+        }
+        }
+        }
         }*/
         return false;
     }
@@ -217,9 +222,11 @@ public class AddSubjectHandler extends BaseHandler {
                 SubjectIdentifierDomain matchedSubjectIdentifierDomain = matchedSubjectIdentifier.getIdentifierDomain();
                 if (subjectIdentifierDomain.equals(matchedSubjectIdentifierDomain)) {
                     // No need to look further.
-                    System.out.println("+++++ Not linking +++++");
-                    System.out.println(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
-                    System.out.println(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("+++++ Not linking +++++");
+                        logger.trace(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
+                        logger.trace(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
+                    }
                     return true;  // Early exit!
                 }
             }

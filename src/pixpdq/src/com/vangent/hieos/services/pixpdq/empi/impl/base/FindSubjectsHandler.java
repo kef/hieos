@@ -67,14 +67,14 @@ public class FindSubjectsHandler extends BaseHandler {
         // FIXME: This is not entirely accurate, how about "other ids"?
         // Determine which path to take.
         if (subjectSearchCriteria.hasSubjectIdentifiers()) {
-            logger.debug("Searching based on identifiers ...");
+            logger.trace("Searching based on identifiers ...");
             subjectSearchResponse = this.loadSubjectByIdentifier(subjectSearchCriteria);
         } else if (subjectSearchCriteria.hasSubjectDemographics()) {
-            logger.debug("Searching based on demographics ...");
+            logger.trace("Searching based on demographics ...");
             subjectSearchResponse = this.loadSubjectMatches(subjectSearchCriteria);
         } else {
             // Do nothing ...
-            logger.debug("Not searching at all!!");
+            logger.trace("Not searching at all!!");
         }
         return subjectSearchResponse;
     }
@@ -151,10 +151,10 @@ public class FindSubjectsHandler extends BaseHandler {
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
             int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
-            if (logger.isDebugEnabled()) {
-                logger.debug("match score = " + scoredRecord.getScore());
-                logger.debug("gof score = " + scoredRecord.getGoodnessOfFitScore());
-                logger.debug("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+            if (logger.isTraceEnabled()) {
+                logger.trace("match score = " + scoredRecord.getScore());
+                logger.trace("gof score = " + scoredRecord.getGoodnessOfFitScore());
+                logger.trace("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
             }
             // See if there is a minimum degree match percentage.
             if (!hasSpecifiedMinimumDegreeMatchPercentage
@@ -176,8 +176,8 @@ public class FindSubjectsHandler extends BaseHandler {
                     }
                 }
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
                 }
             }
         }

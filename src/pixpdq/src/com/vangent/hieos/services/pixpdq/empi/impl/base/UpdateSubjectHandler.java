@@ -115,7 +115,7 @@ public class UpdateSubjectHandler extends BaseHandler {
             pm.deleteSubject(enterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
         } else {
             // Update demographics on enterprise-subject with last updated system-level subject.
-            System.out.println("+++ Updating enterprise subject with last updated demographics +++");
+            logger.trace("+++ Updating enterprise subject with last updated demographics +++");
             String lastUpdatedSystemSubjectId = pm.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
             Subject lastUpdatedSystemSubject = pm.loadSubject(lastUpdatedSystemSubjectId);
             pm.updateEnterpriseSubject(enterpriseSubjectId, lastUpdatedSystemSubject);

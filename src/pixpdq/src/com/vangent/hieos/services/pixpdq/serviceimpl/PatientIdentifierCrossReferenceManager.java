@@ -48,6 +48,7 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
     public OMElement PatientRegistryGetIdentifiersQuery(OMElement request) throws AxisFault {
         OMElement response = null;
         try {
+            long start = System.currentTimeMillis();
             beginTransaction("GetIdentifiersQuery (PIXV3)", request);
             validateWS();
             validateNoMTOM();
@@ -55,6 +56,9 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
             handler.setConfigActor(config);
             response = handler.run(request, PIXRequestHandler.MessageType.PatientRegistryGetIdentifiersQuery);
             endTransaction(handler.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PIXv3 Query TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
         } catch (SOAPFaultException ex) {
             throwAxisFault(ex);
         }
@@ -71,6 +75,7 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
     public OMElement PatientRegistryRecordAdded(OMElement PRPA_IN201301UV02_Message) throws AxisFault {
         OMElement response = null;
         try {
+            long start = System.currentTimeMillis();
             beginTransaction("PIDFEED.Add (PIXV3)", PRPA_IN201301UV02_Message);
             validateWS();
             validateNoMTOM();
@@ -78,13 +83,16 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
             handler.setConfigActor(config);
             response = handler.run(PRPA_IN201301UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordAdded);
             endTransaction(handler.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PIXv3 Add TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
         } catch (SOAPFaultException ex) {
             throwAxisFault(ex);
         }
         return response;
     }
 
-     /**
+    /**
      *
      * @param PRPA_IN201302UV02_Message
      * @return
@@ -93,6 +101,7 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
     public OMElement PatientRegistryRecordRevised(OMElement PRPA_IN201302UV02_Message) throws AxisFault {
         OMElement response = null;
         try {
+            long start = System.currentTimeMillis();
             beginTransaction("PIDFEED.Update (PIXV3)", PRPA_IN201302UV02_Message);
             validateWS();
             validateNoMTOM();
@@ -100,13 +109,16 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
             handler.setConfigActor(config);
             response = handler.run(PRPA_IN201302UV02_Message, PIXRequestHandler.MessageType.PatientRegistryRecordRevised);
             endTransaction(handler.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PIXv3 Update TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
         } catch (SOAPFaultException ex) {
             throwAxisFault(ex);
         }
         return response;
     }
 
-     /**
+    /**
      *
      * @param PRPA_IN201304UV02_Message
      * @return
@@ -115,6 +127,7 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
     public OMElement PatientRegistryDuplicatesResolved(OMElement PRPA_IN201304UV02_Message) throws AxisFault {
         OMElement response = null;
         try {
+            long start = System.currentTimeMillis();
             beginTransaction("PIDFEED.Merge (PIXV3)", PRPA_IN201304UV02_Message);
             validateWS();
             validateNoMTOM();
@@ -122,6 +135,9 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
             handler.setConfigActor(config);
             response = handler.run(PRPA_IN201304UV02_Message, PIXRequestHandler.MessageType.PatientRegistryDuplicatesResolved);
             endTransaction(handler.getStatus());
+            if (logger.isDebugEnabled()) {
+                logger.debug("PIXv3 Merge TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+            }
         } catch (SOAPFaultException ex) {
             throwAxisFault(ex);
         }
@@ -154,6 +170,6 @@ public class PatientIdentifierCrossReferenceManager extends XAbstractService {
     @Override
     public void shutDown(ConfigurationContext configctx, AxisService service) {
         logger.info("PatientIdentifierCrossReferenceManager::shutDown()");
-         this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER);
     }
 }

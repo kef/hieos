@@ -91,9 +91,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
             updateNotificationContent = addSubjectHandler.addSubject(subject);
             pm.commit();
         } catch (EMPIException ex) {
+            // FIXME:
+            ex.printStackTrace(System.out);
             pm.rollback();
             throw ex; // Rethrow.
         } catch (Exception ex) {
+            // FIXME:
+            ex.printStackTrace(System.out);
             pm.rollback();
             throw new EMPIException(ex);
         } finally {
