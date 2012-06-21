@@ -52,7 +52,9 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
         try {
             SubjectDAO subjectDAO = new SubjectDAO(this.getConnection());
             String sql = "SELECT id,subject_personal_relationship_code,personal_relationship_subject_id FROM subject_personal_relationship WHERE subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -96,7 +98,9 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_personal_relationship(id,subject_id,subject_personal_relationship_code,personal_relationship_subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectPersonalRelationship subjectPersonalRelationship : subjectPersonalRelationships) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 subjectPersonalRelationship.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subjectPersonalRelationship.getInternalId());
                 stmt.setString(2, parentSubject.getInternalId());

@@ -222,8 +222,9 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         }
         sb.append(")");
         String sql = sb.toString();
-        System.out.println("SQL = " + sql);
-
+        if (logger.isTraceEnabled()) {
+            logger.trace("SQL = " + sql);
+        }
         return this.getPreparedStatement(sql);
     }
 
@@ -248,11 +249,13 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 // Set WHERE clause values in the prepared statement.
                 int fieldIndex = 0;
                 for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                    System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
                     Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                    System.out.println(" ... WHERE "
-                            + activeBlockingFieldConfig.getFieldConfig().getMatchDatabaseColumn()
-                            + " (" + field.getName() + ") =" + field.getValue());
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Blocking field = " + activeBlockingFieldConfig.getName());
+                        logger.trace(" ... WHERE "
+                                + activeBlockingFieldConfig.getFieldConfig().getMatchDatabaseColumn()
+                                + " (" + field.getName() + ") =" + field.getValue());
+                    }
                     //stmt.setString(++fieldIndex, field.getValue() + "%");
                     stmt.setString(++fieldIndex, field.getValue());
                 }
@@ -341,7 +344,9 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             }
         }
         String sql = sb.toString();
-        System.out.println("SQL = " + sql);
+        if (logger.isTraceEnabled()) {
+            logger.trace("SQL = " + sql);
+        }
 
         return sql;
     }

@@ -50,7 +50,9 @@ public class SubjectAddressDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use FROM subject_address WHERE subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -90,7 +92,9 @@ public class SubjectAddressDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use,subject_id) values(?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Address address : addresses) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 address.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, address.getInternalId());
                 stmt.setString(2, address.getStreetAddressLine1());

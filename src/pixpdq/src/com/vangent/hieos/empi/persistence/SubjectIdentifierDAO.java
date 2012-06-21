@@ -63,7 +63,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT subject_id FROM ").append(this.getTableName()).append(" WHERE identifier=? and subject_identifier_domain_id=?");
             String sql = sb.toString();
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifier.getIdentifier());
             stmt.setInt(2, subjectIdentifierDomainId);
@@ -107,7 +109,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT id,identifier,subject_identifier_domain_id FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
             String sql = sb.toString();
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -154,7 +158,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             stmt = this.getPreparedStatement(sql);
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 stmt.setString(1, PersistenceHelper.getUUID());
                 stmt.setString(2, parentSubject.getInternalId());
                 stmt.setString(3, subjectIdentifier.getIdentifier());

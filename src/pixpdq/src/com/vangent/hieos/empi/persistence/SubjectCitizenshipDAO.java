@@ -50,7 +50,9 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,nation_code,nation_name FROM subject_citizenship WHERE subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -90,7 +92,9 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_citizenship(id,subject_id,nation_code,nation_name) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectCitizenship subjectCitizenship : subjectCitizenships) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 subjectCitizenship.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subjectCitizenship.getInternalId());
                 stmt.setString(2, parentSubject.getInternalId());

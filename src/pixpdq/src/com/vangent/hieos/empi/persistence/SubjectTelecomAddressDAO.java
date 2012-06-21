@@ -50,7 +50,9 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,use,value FROM subject_telecom_address WHERE subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -85,7 +87,9 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_telecom_address(id,use,value,subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (TelecomAddress telecomAddress : telecomAddresses) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 telecomAddress.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, telecomAddress.getInternalId());
                 stmt.setString(2, telecomAddress.getUse());

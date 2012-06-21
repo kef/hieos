@@ -56,7 +56,9 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time FROM subject WHERE id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -158,7 +160,9 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,type FROM subject WHERE id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -214,7 +218,9 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT last_updated_time FROM subject WHERE id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -274,7 +280,9 @@ public class SubjectDAO extends AbstractDAO {
             String sql = "INSERT INTO subject(id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Subject subject : subjects) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
                 subject.setInternalId(PersistenceHelper.getUUID());
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.

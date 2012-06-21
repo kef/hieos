@@ -50,7 +50,9 @@ public class SubjectLanguageDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,preference_indicator,language_code FROM subject_language WHERE subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -89,7 +91,9 @@ public class SubjectLanguageDAO extends AbstractDAO {
             String sql = "INSERT INTO subject_language(id,subject_id,language_code,preference_indicator) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectLanguage subjectLanguage : subjectLanguages) {
-                System.out.println("SQL = " + sql);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SQL = " + sql);
+                }
                 subjectLanguage.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subjectLanguage.getInternalId());
                 stmt.setString(2, parentSubject.getInternalId());

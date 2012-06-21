@@ -52,7 +52,9 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT system_subject_id, match_score FROM subject_xref WHERE enterprise_subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, enterpriseSubjectId);
             // Execute query.
@@ -88,7 +90,9 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT enterprise_subject_id FROM subject_xref WHERE system_subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, systemSubjectId);
             // Execute query.
@@ -114,7 +118,9 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             String sql = "INSERT INTO subject_xref(enterprise_subject_id,system_subject_id, match_score) values(?,?,?)";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectCrossReference.getEnterpriseSubjectId());
             stmt.setString(2, subjectCrossReference.getSystemSubjectId());
@@ -144,7 +150,9 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             String sql = "UPDATE subject_xref SET enterprise_subject_id=? WHERE enterprise_subject_id=?";
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, survivingEnterpriseSubjectId);
             stmt.setString(2, subsumedEnterpriseSubjectId);

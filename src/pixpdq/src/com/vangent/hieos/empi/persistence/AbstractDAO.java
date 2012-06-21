@@ -73,7 +73,9 @@ public class AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("DELETE FROM ").append(tableName).append(" WHERE ").append(idColumnName).append("=?");
             String sql = sb.toString();
-            System.out.println("SQL = " + sql);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, id);
             long startTime = System.currentTimeMillis();
