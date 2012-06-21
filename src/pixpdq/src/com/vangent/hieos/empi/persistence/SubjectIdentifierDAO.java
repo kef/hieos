@@ -63,6 +63,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT subject_id FROM ").append(this.getTableName()).append(" WHERE identifier=? and subject_identifier_domain_id=?");
             String sql = sb.toString();
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifier.getIdentifier());
             stmt.setInt(2, subjectIdentifierDomainId);
@@ -73,7 +74,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectId = rs.getString(1);
             }
         } catch (SQLException ex) {
-             throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
+            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -106,6 +107,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT id,identifier,subject_identifier_domain_id FROM ").append(this.getTableName()).append(" WHERE subject_id=?");
             String sql = sb.toString();
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -126,7 +128,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectIdentifiers.add(subjectIdentifier);
             }
         } catch (SQLException ex) {
-             throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
+            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -141,6 +143,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void insert(List<SubjectIdentifier> subjectIdentifiers, Subject parentSubject) throws EMPIException {
+        if (subjectIdentifiers.isEmpty()) {
+            return; // Early exit!
+        }
         PreparedStatement stmt = null;
         try {
             StringBuilder sb = new StringBuilder();
@@ -149,6 +154,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             stmt = this.getPreparedStatement(sql);
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+                System.out.println("SQL = " + sql);
                 stmt.setString(1, PersistenceHelper.getUUID());
                 stmt.setString(2, parentSubject.getInternalId());
                 stmt.setString(3, subjectIdentifier.getIdentifier());

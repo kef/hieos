@@ -56,6 +56,7 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time FROM subject WHERE id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -157,6 +158,7 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,type FROM subject WHERE id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -212,6 +214,7 @@ public class SubjectDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT last_updated_time FROM subject WHERE id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectId);
             // Execute query.
@@ -262,12 +265,16 @@ public class SubjectDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void insert(List<Subject> subjects) throws EMPIException {
+        if (subjects.isEmpty()) {
+            return; // Early exit!
+        }
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {
             String sql = "INSERT INTO subject(id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Subject subject : subjects) {
+                System.out.println("SQL = " + sql);
                 String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
                 subject.setInternalId(PersistenceHelper.getUUID());
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.
@@ -348,61 +355,61 @@ public class SubjectDAO extends AbstractDAO {
         // Birth time
         if (subject.getBirthTime() != null) {
             updatedEnterpriseSubject.setBirthTime(subject.getBirthTime());
-            System.out.println("... updating birth time");
+            //System.out.println("... updating birth time");
         }
 
         // Gender.
         if (subject.getGender() != null) {
             updatedEnterpriseSubject.setGender(subject.getGender());
-            System.out.println("... updating gender");
+            //System.out.println("... updating gender");
         }
 
         // Deceased indicator.
         if (subject.getDeceasedIndicator() != null) {
             updatedEnterpriseSubject.setDeceasedIndicator(subject.getDeceasedIndicator());
-            System.out.println("... updating deceased indicator");
+            //System.out.println("... updating deceased indicator");
         }
 
         // Deceased time.
         if (subject.getDeceasedTime() != null) {
             updatedEnterpriseSubject.setDeceasedTime(subject.getDeceasedTime());
-            System.out.println("... updating deceased time");
+            //System.out.println("... updating deceased time");
         }
 
         // Multiple birth indicator.
         if (subject.getMultipleBirthIndicator() != null) {
             updatedEnterpriseSubject.setMultipleBirthIndicator(subject.getMultipleBirthIndicator());
-            System.out.println("... updating multiple birth indicator");
+            //System.out.println("... updating multiple birth indicator");
         }
 
         // Multiple birth order.
         if (subject.getMultipleBirthOrderNumber() != null) {
             updatedEnterpriseSubject.setMultipleBirthOrderNumber(subject.getMultipleBirthOrderNumber());
-            System.out.println("... updating multiple birth order number");
+            //System.out.println("... updating multiple birth order number");
         }
 
         // Marital status
         if (subject.getMaritalStatus() != null) {
             updatedEnterpriseSubject.setMaritalStatus(subject.getMaritalStatus());
-            System.out.println("... updating marital status");
+            //System.out.println("... updating marital status");
         }
 
         // Religious affiliation.
         if (subject.getReligiousAffiliation() != null) {
             updatedEnterpriseSubject.setReligiousAffiliation(subject.getReligiousAffiliation());
-            System.out.println("... updating religious affiliation");
+            //System.out.println("... updating religious affiliation");
         }
 
         // Race.
         if (subject.getRace() != null) {
             updatedEnterpriseSubject.setRace(subject.getRace());
-            System.out.println("... updating race");
+            //System.out.println("... updating race");
         }
 
         // Ethnic group.
         if (subject.getEthnicGroup() != null) {
             updatedEnterpriseSubject.setEthnicGroup(subject.getEthnicGroup());
-            System.out.println("... updating ethnic group");
+            //System.out.println("... updating ethnic group");
         }
 
         // Now, deal with lists.
@@ -413,7 +420,7 @@ public class SubjectDAO extends AbstractDAO {
         if (!subject.getAddresses().isEmpty()) {
             updatedEnterpriseSubject.getAddresses().clear();
             updatedEnterpriseSubject.getAddresses().addAll(subject.getAddresses());
-            System.out.println("... updating addresses");
+            //System.out.println("... updating addresses");
 
         }
 
@@ -421,35 +428,35 @@ public class SubjectDAO extends AbstractDAO {
         if (!subject.getTelecomAddresses().isEmpty()) {
             updatedEnterpriseSubject.getTelecomAddresses().clear();
             updatedEnterpriseSubject.getTelecomAddresses().addAll(subject.getTelecomAddresses());
-            System.out.println("... updating telecom addresses");
+            //System.out.println("... updating telecom addresses");
         }
 
         // Names.
         if (!subject.getSubjectNames().isEmpty()) {
             updatedEnterpriseSubject.getSubjectNames().clear();
             updatedEnterpriseSubject.getSubjectNames().addAll(subject.getSubjectNames());
-            System.out.println("... updating names");
+            //System.out.println("... updating names");
         }
 
         // Personal relationships.
         if (!subject.getSubjectPersonalRelationships().isEmpty()) {
             updatedEnterpriseSubject.getSubjectPersonalRelationships().clear();
             updatedEnterpriseSubject.getSubjectPersonalRelationships().addAll(subject.getSubjectPersonalRelationships());
-            System.out.println("... updating personal relationships");
+            //System.out.println("... updating personal relationships");
         }
 
         // Languages.
         if (!subject.getSubjectLanguages().isEmpty()) {
             updatedEnterpriseSubject.getSubjectLanguages().clear();
             updatedEnterpriseSubject.getSubjectLanguages().addAll(subject.getSubjectLanguages());
-            System.out.println("... updating languages");
+            //System.out.println("... updating languages");
         }
 
         // Citizenships.
         if (!subject.getSubjectCitizenships().isEmpty()) {
             updatedEnterpriseSubject.getSubjectCitizenships().clear();
             updatedEnterpriseSubject.getSubjectCitizenships().addAll(subject.getSubjectCitizenships());
-            System.out.println("... updating citizenships");
+            //System.out.println("... updating citizenships");
         }
 
         // Delete subject components (names, addresses, etc.)
@@ -490,6 +497,7 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             String sql = "UPDATE subject SET birth_time=?,gender_code=?,deceased_indicator=?,deceased_time=?,multiple_birth_indicator=?,multiple_birth_order_number=?,marital_status_code=?,religious_affiliation_code=?,race_code=?,ethnic_group_code=?,last_updated_time=? WHERE id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             this.setDate(stmt, 1, subject.getBirthTime());
             this.setCodedValue(stmt, 2, subject.getGender(), CodesConfig.CodedType.GENDER);

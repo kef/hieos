@@ -12,11 +12,15 @@
  */
 package com.vangent.hieos.empi.persistence;
 
+import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.lockmanager.LockManagerException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.lockmanager.LockManager;
+import com.vangent.hieos.empi.lockmanager.LockResource;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import java.sql.Connection;
@@ -376,8 +380,20 @@ public class PersistenceManager {
      * @throws EMPIException
      */
     public void updateEnterpriseSubject(String targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+        LockManager lockManager = new LockManager(EMPIConfig.getInstance().getJndiResourceName());
+        LockResource lockResource = new LockResource(targetEnterpriseSubjectId);
+        try {
+            lockManager.acquireLock(lockResource);
+        } catch (LockManagerException ex) {
+            throw new EMPIException(ex);
+        }
         SubjectDAO dao = new SubjectDAO(connection);
         dao.updateEnterpriseSubject(targetEnterpriseSubjectId, subject);
+        try {
+            lockManager.releaseLock(lockResource);
+        } catch (LockManagerException ex) {
+            throw new EMPIException(ex);
+        }
     }
 
     /**

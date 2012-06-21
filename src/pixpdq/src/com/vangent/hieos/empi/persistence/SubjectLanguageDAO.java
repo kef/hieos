@@ -50,6 +50,7 @@ public class SubjectLanguageDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,preference_indicator,language_code FROM subject_language WHERE subject_id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -80,11 +81,15 @@ public class SubjectLanguageDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void insert(List<SubjectLanguage> subjectLanguages, Subject parentSubject) throws EMPIException {
+        if (subjectLanguages.isEmpty()) {
+            return; // Early exit!
+        }
         PreparedStatement stmt = null;
         try {
             String sql = "INSERT INTO subject_language(id,subject_id,language_code,preference_indicator) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectLanguage subjectLanguage : subjectLanguages) {
+                System.out.println("SQL = " + sql);
                 subjectLanguage.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subjectLanguage.getInternalId());
                 stmt.setString(2, parentSubject.getInternalId());

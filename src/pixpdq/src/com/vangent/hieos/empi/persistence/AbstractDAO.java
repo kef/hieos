@@ -73,6 +73,7 @@ public class AbstractDAO {
             StringBuilder sb = new StringBuilder();
             sb.append("DELETE FROM ").append(tableName).append(" WHERE ").append(idColumnName).append("=?");
             String sql = sb.toString();
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, id);
             long startTime = System.currentTimeMillis();
@@ -104,6 +105,23 @@ public class AbstractDAO {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception getting prepared statement", ex);
+        }
+        return stmt;
+    }
+
+    /**
+     * 
+     * @return
+     * @throws EMPIException
+     */
+    public Statement getStatement() throws EMPIException {
+        // Now, create (and return) the prepared statement with the generated SQL.
+        Statement stmt = null;
+        Connection conn = this.getConnection();
+        try {
+            stmt = conn.createStatement();
+        } catch (SQLException ex) {
+            throw PersistenceHelper.getEMPIException("Exception getting statement", ex);
         }
         return stmt;
     }

@@ -50,6 +50,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,use,value FROM subject_telecom_address WHERE subject_id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -76,11 +77,15 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void insert(List<TelecomAddress> telecomAddresses, Subject parentSubject) throws EMPIException {
+        if (telecomAddresses.isEmpty()) {
+            return; // Early exit!
+        }
         PreparedStatement stmt = null;
         try {
             String sql = "INSERT INTO subject_telecom_address(id,use,value,subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (TelecomAddress telecomAddress : telecomAddresses) {
+                System.out.println("SQL = " + sql);
                 telecomAddress.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, telecomAddress.getInternalId());
                 stmt.setString(2, telecomAddress.getUse());

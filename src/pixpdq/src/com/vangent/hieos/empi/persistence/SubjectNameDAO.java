@@ -50,6 +50,7 @@ public class SubjectNameDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT id,given_name,family_name,prefix,suffix,middle_name FROM subject_name WHERE subject_id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, parentSubject.getInternalId());
             // Execute query.
@@ -79,11 +80,15 @@ public class SubjectNameDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public void insert(List<SubjectName> subjectNames, Subject parentSubject) throws EMPIException {
+        if (subjectNames.isEmpty()) {
+            return; // Early exit!
+        }
         PreparedStatement stmt = null;
         try {
             String sql = "INSERT INTO subject_name(id,given_name,family_name,prefix,suffix,middle_name,subject_id) values(?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (SubjectName subjectName : subjectNames) {
+                System.out.println("SQL = " + sql);
                 subjectName.setInternalId(PersistenceHelper.getUUID());
                 stmt.setString(1, subjectName.getInternalId());
                 stmt.setString(2, subjectName.getGivenName());

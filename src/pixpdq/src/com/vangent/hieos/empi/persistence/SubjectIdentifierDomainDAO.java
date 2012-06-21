@@ -49,6 +49,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
         try {
             // FIXME: Just using universalid right now
             String sql = "SELECT id FROM subject_identifier_domain WHERE universal_id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifierDomain.getUniversalId());
             // Execute query.
@@ -93,6 +94,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             String sql = "SELECT universal_id,universal_id_type,namespace_id FROM subject_identifier_domain WHERE id=?";
+            System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             stmt.setInt(1, id);
             // Execute query.

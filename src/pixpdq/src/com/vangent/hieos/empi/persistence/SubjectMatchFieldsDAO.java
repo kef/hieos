@@ -71,9 +71,9 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             /*
             boolean isEnabledDuringSubjectAdd = blockingPassConfig.isEnabledDuringSubjectAdd();
             if (matchType == MatchType.SUBJECT_ADD) {
-                if (!isEnabledDuringSubjectAdd) {
-                    continue;  // Hate to use continues, but in a rush.....
-                }
+            if (!isEnabledDuringSubjectAdd) {
+            continue;  // Hate to use continues, but in a rush.....
+            }
             }*/
             ResultSet rs = null;
             PreparedStatement stmt = null;
@@ -222,7 +222,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         }
         sb.append(")");
         String sql = sb.toString();
-        System.out.println("INSERT SQL = " + sql);
+        System.out.println("SQL = " + sql);
 
         return this.getPreparedStatement(sql);
     }
@@ -242,7 +242,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         if (!activeBlockingFieldConfigs.isEmpty()) {
             // Build prepared statement to support "blocking" phase.
-            String sql = this.buildBlockingPassSQLSelectStatement(matchConfig, activeBlockingFieldConfigs);
+            String sql = this.buildBlockingPassSQLSelectStatement(matchConfig, searchRecord, activeBlockingFieldConfigs);
             stmt = this.getPreparedStatement(sql);
             try {
                 // Set WHERE clause values in the prepared statement.
@@ -250,7 +250,9 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
                     System.out.println("Blocking field = " + activeBlockingFieldConfig.getName());
                     Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                    System.out.println(" ... WHERE " + field.getName() + "=" + field.getValue());
+                    System.out.println(" ... WHERE "
+                            + activeBlockingFieldConfig.getFieldConfig().getMatchDatabaseColumn()
+                            + " (" + field.getName() + ") =" + field.getValue());
                     //stmt.setString(++fieldIndex, field.getValue() + "%");
                     stmt.setString(++fieldIndex, field.getValue());
                 }
@@ -285,13 +287,14 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
      * @param matchConfig
+     * @param searchRecord
      * @param activeBlockingFieldConfigs
      * @return
      * @throws EMPIException
      */
-    private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
+    private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, Record searchRecord, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
@@ -323,14 +326,22 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             String dbColumnName = fieldConfig.getMatchDatabaseColumn();
             // select * from subject_match_fields where match_field3 LIKE 'moo%' AND match_field4 LIKE 'c%'
             //sb.append(dbColumnName).append(" = ?");
-            sb.append(dbColumnName).append(" LIKE ?");
+            // HACK: See if % is at end of string.
+            Field searchField = searchRecord.getField(activeBlockingFieldConfig.getName());
+            String searchFieldValue = searchField.getValue();
+            sb.append(dbColumnName);
+            if (searchFieldValue.endsWith("%")) {
+                sb.append(" LIKE ?");
+            } else {
+                sb.append(" = ?");
+            }
             ++fieldIndex;
             if (fieldIndex != numActiveBlockingFields) {
                 sb.append(" AND ");
             }
         }
         String sql = sb.toString();
-        System.out.println("SELECT SQL = " + sql);
+        System.out.println("SQL = " + sql);
 
         return sql;
     }
@@ -352,8 +363,8 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         for (BlockingFieldConfig blockingFieldConfig : blockingFieldConfigs) {
             Field field = searchRecord.getField(blockingFieldConfig.getName());
             if (field == null && blockingFieldConfig.isRequired() == true) {
-                System.out.println("+++++ Skipping blocking pass (missing required field = "
-                        + blockingFieldConfig.getName() + ") +++++");
+                //System.out.println("+++++ Skipping blocking pass (missing required field = "
+                //        + blockingFieldConfig.getName() + ") +++++");
 
                 // There is no search field for the blocking field, yet it is required.
                 // This blocking pass is now invalid.
