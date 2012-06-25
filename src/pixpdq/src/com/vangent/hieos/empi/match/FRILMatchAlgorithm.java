@@ -17,7 +17,6 @@ import com.vangent.hieos.empi.config.DistanceFunctionConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.Collections;
 import java.util.List;
@@ -37,18 +36,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     public FRILMatchAlgorithm() {
     }
 
-    /**
-     *
-     * @param searchRecord
-     * @param matchType
-     * @return
-     * @throws EMPIException
-     */
-    @Override
-    public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
-        return pm.findCandidates(searchRecord, matchType);
-    }
+   
 
     /**
      * 
@@ -131,6 +119,18 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         }
         this.sortMatchResults(matchResults);
         return matchResults;
+    }
+
+     /**
+     *
+     * @param searchRecord
+     * @param matchType
+     * @return
+     * @throws EMPIException
+     */
+    private List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
+        CandidateFinder candidateFinder = CandidateFinder.getCandidateFinder(this.getPersistenceManager());
+        return candidateFinder.findCandidates(searchRecord, matchType);
     }
 
     /**

@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
+import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
@@ -53,8 +54,9 @@ public class MergeSubjectsHandler extends BaseHandler {
 
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
-        this.validateIdentitySource(survivingSubject);
-        this.validateIdentitySource(subsumedSubject);
+        Validator validator = this.getValidator();
+        validator.validateIdentitySource(survivingSubject);
+        validator.validateIdentitySource(subsumedSubject);
 
         // Validate input is usable.
         this.validateSubjects(survivingSubject, subsumedSubject);

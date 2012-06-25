@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
+import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.EUIDConfig;
 import com.vangent.hieos.empi.euid.EUIDGenerator;
@@ -58,7 +59,8 @@ public class AddSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification addSubject(Subject newSubject) throws EMPIException {
-        this.validateIdentitySource(newSubject);
+        Validator validator = this.getValidator();
+        validator.validateIdentitySource(newSubject);
         PersistenceManager pm = this.getPersistenceManager();
 
         // FIXME: This is not totally correct, how about "other ids"?
@@ -72,7 +74,7 @@ public class AddSubjectHandler extends BaseHandler {
         }
         // Fall through: The subject does not already exist.
 
-        this.validateSubjectCodes(newSubject);
+        validator.validateSubjectCodes(newSubject);
 
         // Store the subject @ system-level - will stamp with subjectId.
         newSubject.setType(Subject.SubjectType.SYSTEM);
@@ -86,9 +88,8 @@ public class AddSubjectHandler extends BaseHandler {
         // Find matching records.
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(newSubject);
-        FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager(), this.getSenderDeviceInfo());
-        //List<ScoredRecord> recordMatches = findSubjectsHandler.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
-        MatchResults matchResults = findSubjectsHandler.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
+        MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
+        MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
         if (!matchResults.getPossibleMatches().isEmpty()) {
             // FIXME!!!!
             System.out.println("+++++ DO SOMETHING HERE ... store possible matches");

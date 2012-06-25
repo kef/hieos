@@ -13,37 +13,32 @@
 package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import java.util.List;
 
 /**
  *
  * @author Bernie Thuman
  */
-public abstract class MatchAlgorithm {
+public abstract class CandidateFinder {
 
-    private PersistenceManager persistenceManager = null;
+    private PersistenceManager persistenceManager;
 
     /**
      * 
+     * @param persistenceManager
      */
-    public enum MatchType {
-
-        /**
-         * 
-         */
-        SUBJECT_FIND,
-        /**
-         * 
-         */
-        SUBJECT_FEED
-    };
+    public CandidateFinder() {
+    }
 
     /**
      *
+     * @param persistenceManager
      */
-    public MatchAlgorithm() {
+    public void setPersistenceManager(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     /**
@@ -55,31 +50,13 @@ public abstract class MatchAlgorithm {
     }
 
     /**
-     * 
-     * @param persistenceManager
-     */
-    public void setPersistenceManager(PersistenceManager persistenceManager) {
-        this.persistenceManager = persistenceManager;
-    }
-
-    /**
-     * 
+     *
      * @param searchRecord
      * @param matchType
      * @return
      * @throws EMPIException
      */
-    abstract public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException;
-
-    /**
-     * 
-     * @param searchRecord
-     * @param records
-     * @param matchType
-     * @return
-     * @throws EMPIException
-     */
-    abstract public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException;
+    abstract public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException;
 
     /**
      *
@@ -87,17 +64,15 @@ public abstract class MatchAlgorithm {
      * @return
      * @throws EMPIException
      */
-    static public MatchAlgorithm getMatchAlgorithm(PersistenceManager pm) throws EMPIException {
+    static public CandidateFinder getCandidateFinder(PersistenceManager pm) throws EMPIException {
 
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
-        // Get match algorithm (configurable).
-        MatchAlgorithm matchAlgorithm = empiConfig.getMatchAlgorithm();
-        matchAlgorithm.setPersistenceManager(pm);
+        // Get candidate finder (configurable).
+        CandidateFinder candidateFinder = empiConfig.getCandidateFinder();
+        candidateFinder.setPersistenceManager(pm);
 
-        return matchAlgorithm;
+        return candidateFinder;
     }
-
-
 }

@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
-import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
@@ -62,7 +62,8 @@ public class FindSubjectsHandler extends BaseHandler {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
         // First, make sure that we are configured to support supplied identifier domains.
-        this.validateSubjectIdentifierDomains(subjectSearchCriteria);
+        Validator validator = this.getValidator();
+        validator.validateSubjectIdentifierDomains(subjectSearchCriteria);
 
         // FIXME: This is not entirely accurate, how about "other ids"?
         // Determine which path to take.
@@ -89,40 +90,12 @@ public class FindSubjectsHandler extends BaseHandler {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
         // First, make sure that we are configured to support supplied identifier domains.
-        this.validateSubjectIdentifierDomains(subjectSearchCriteria);
+        Validator validator = this.getValidator();
+        validator.validateSubjectIdentifierDomains(subjectSearchCriteria);
 
         // Now, find subjects using the identifier in the search criteria.
         subjectSearchResponse = this.loadIdentifiersForSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
-    }
-
-    /**
-     *
-     * @param searchRecord
-     * @param matchType
-     * @return
-     * @throws EMPIException
-     */
-    public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
-
-        // Get EMPI configuration.
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
-
-        // Get match algorithm (configurable).
-        MatchAlgorithm matchAlgorithm = empiConfig.getMatchAlgorithm();
-        matchAlgorithm.setPersistenceManager(pm);
-
-        // Run the algorithm to get matches.
-        long startTime = System.currentTimeMillis();
-        MatchResults matchResults = matchAlgorithm.findMatches(searchRecord, matchType);
-        long endTime = System.currentTimeMillis();
-        if (logger.isTraceEnabled()) {
-            logger.trace("FindSubjectsHandler.getRecordMatches.findMatches: elapedTimeMillis=" + (endTime - startTime));
-        }
-        return matchResults;
-        // Only return matches.
-        //return matchResults.getMatches();
     }
 
     /**
@@ -143,7 +116,8 @@ public class FindSubjectsHandler extends BaseHandler {
         Record searchRecord = rb.build(searchSubject);
 
         // Run the matching algorithm.
-        MatchResults matchResults = this.findMatches(searchRecord, MatchType.SUBJECT_FIND);
+        MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
+        MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchType.SUBJECT_FIND);
         List<ScoredRecord> recordMatches = matchResults.getMatches();
 
         // Now load subjects from the match results.
@@ -302,40 +276,6 @@ public class FindSubjectsHandler extends BaseHandler {
             enterpriseSubject = pm.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId);
         }
         return enterpriseSubject;
-    }
-
-    /**
-     *
-     * @param subjectSearchCriteria
-     * @throws EMPIException
-     */
-    private void validateSubjectIdentifierDomains(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-
-        // First validate identifier domains assocated with the search subject's identifiers.
-        this.validateSubjectIdentifierDomains(subjectSearchCriteria.getSubject());
-
-        // Now validate identifiers in any scoping organizations.
-        this.validateScopingAssigningAuthorities(subjectSearchCriteria);
-    }
-
-    /**
-     *
-     * @param subjectSearchCriteria
-     * @throws EMPIException
-     */
-    private void validateScopingAssigningAuthorities(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
-
-        // Validate identifiers in any scoping organizations.
-        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
-            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(scopingIdentifierDomain);
-            if (!subjectIdentifierDomainExists) {
-                throw new EMPIException(
-                        scopingIdentifierDomain.getUniversalId()
-                        + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
-            }
-        }
     }
 
     /**

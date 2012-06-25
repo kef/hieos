@@ -100,15 +100,7 @@ public class AbstractDAO {
      * @throws EMPIException
      */
     public PreparedStatement getPreparedStatement(String sql) throws EMPIException {
-        // Now, create (and return) the prepared statement with the generated SQL.
-        PreparedStatement stmt = null;
-        Connection conn = this.getConnection();
-        try {
-            stmt = conn.prepareStatement(sql);
-        } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception getting prepared statement", ex);
-        }
-        return stmt;
+        return PersistenceHelper.getPreparedStatement(sql, this.getConnection());
     }
 
     /**
@@ -117,15 +109,7 @@ public class AbstractDAO {
      * @throws EMPIException
      */
     public Statement getStatement() throws EMPIException {
-        // Now, create (and return) the prepared statement with the generated SQL.
-        Statement stmt = null;
-        Connection conn = this.getConnection();
-        try {
-            stmt = conn.createStatement();
-        } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception getting statement", ex);
-        }
-        return stmt;
+        return PersistenceHelper.getStatement(this.getConnection());
     }
 
     /**
@@ -286,13 +270,7 @@ public class AbstractDAO {
      * @param stmt
      */
     public void close(Statement stmt) {
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException ex) {
-                logger.error("Could not close prepared statement: " + ex.getMessage());
-            }
-        }
+        PersistenceHelper.close(stmt);
     }
 
     /**
@@ -300,12 +278,6 @@ public class AbstractDAO {
      * @param rs
      */
     public void close(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException ex) {
-                logger.error("Could not close result set: " + ex.getMessage());
-            }
-        }
+        PersistenceHelper.close(rs);
     }
 }

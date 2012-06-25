@@ -16,7 +16,10 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.xutil.db.support.SQLConnectionWrapper;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.log4j.Logger;
@@ -73,6 +76,41 @@ public class PersistenceHelper {
 
     /**
      *
+     * @param sql
+     * @param conn
+     * @return
+     * @throws EMPIException
+     */
+    public static PreparedStatement getPreparedStatement(String sql, Connection conn) throws EMPIException {
+        // Now, create (and return) the prepared statement with the generated SQL.
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(sql);
+        } catch (SQLException ex) {
+            throw PersistenceHelper.getEMPIException("Exception getting prepared statement", ex);
+        }
+        return stmt;
+    }
+
+    /**
+     * 
+     * @param conn
+     * @return
+     * @throws EMPIException
+     */
+    public static Statement getStatement(Connection conn) throws EMPIException {
+        // Now, create (and return) the prepared statement with the generated SQL.
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+        } catch (SQLException ex) {
+            throw PersistenceHelper.getEMPIException("Exception getting statement", ex);
+        }
+        return stmt;
+    }
+
+    /**
+     *
      * @param connection
      */
     public static void commit(Connection connection) {
@@ -117,6 +155,34 @@ public class PersistenceHelper {
             logger.error("Could not rollback EMPI connection", ex);
         } finally {
             close(connection);
+        }
+    }
+
+    /**
+     *
+     * @param stmt
+     */
+    public static void close(Statement stmt) {
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException ex) {
+                logger.error("Could not close prepared statement: " + ex.getMessage());
+            }
+        }
+    }
+
+    /**
+     *
+     * @param rs
+     */
+    public static void close(ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException ex) {
+                logger.error("Could not close result set: " + ex.getMessage());
+            }
         }
     }
 

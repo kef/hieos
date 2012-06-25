@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.empi.impl.base;
 
+import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
@@ -48,12 +49,13 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification updateSubject(Subject subject) throws EMPIException {
-        this.validateIdentitySource(subject);
+        Validator validator = this.getValidator();
+        validator.validateIdentitySource(subject);
         PersistenceManager pm = this.getPersistenceManager();
         EMPINotification updateNotificationContent = new EMPINotification();
 
         // First validate identifier domains assocated with the subject's identifiers.
-        this.validateSubjectIdentifierDomains(subject);
+        validator.validateSubjectIdentifierDomains(subject);
 
         // Make sure that subject identifiers are present.
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
@@ -78,7 +80,7 @@ public class UpdateSubjectHandler extends BaseHandler {
                     EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
         }
 
-        this.validateSubjectCodes(subject);
+        validator.validateSubjectCodes(subject);
 
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             updateNotificationContent = this.updateSystemSubject(baseSubject, subject);

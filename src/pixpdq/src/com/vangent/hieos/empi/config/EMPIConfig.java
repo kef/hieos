@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.CandidateFinder;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
@@ -48,6 +49,7 @@ public class EMPIConfig {
     private static String VALIDATE_CODES_ENABLED = "validate-codes-enabled";
     private static String VALIDATE_IDENTITY_SOURCES_ENABLED = "validate-identity-sources-enabled";
     private static String MATCH_ALGORITHM = "match-algorithm";
+    private static String CANDIDATE_FINDER = "candidate-finder";
     private static String DEFAULT_JNDI_RESOURCE_NAME = "jdbc/hieos-empi";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
     private static String DISTANCE_FUNCTIONS = "distance-functions.distance-function";
@@ -63,6 +65,7 @@ public class EMPIConfig {
     private MatchConfig matchConfigFind;
     private String jndiResourceName;
     private MatchAlgorithm matchAlgorithm;
+    private CandidateFinder candidateFinder;
     private EUIDConfig euidConfig;
     private boolean updateNotificationEnabled;
     private boolean validateCodesEnabled;
@@ -123,6 +126,14 @@ public class EMPIConfig {
      */
     public MatchAlgorithm getMatchAlgorithm() {
         return matchAlgorithm;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public CandidateFinder getCandidateFinder() {
+        return candidateFinder;
     }
 
     /**
@@ -348,6 +359,9 @@ public class EMPIConfig {
             validateCodesEnabled = xmlConfig.getBoolean(VALIDATE_CODES_ENABLED, true);
             validateIdentitySourcesEnabled = xmlConfig.getBoolean(VALIDATE_IDENTITY_SOURCES_ENABLED, true);
 
+            // Load the candidate finder.
+            this.loadCandidateFinder(xmlConfig);
+
             // Load the match algorithm.
             this.loadMatchAlgorithm(xmlConfig);
 
@@ -484,6 +498,17 @@ public class EMPIConfig {
         String matchAlgorithmClassName = hc.getString(MATCH_ALGORITHM);
         // Get an instance of the match algorithm.
         this.matchAlgorithm = (MatchAlgorithm) ConfigHelper.loadClassInstance(matchAlgorithmClassName);
+    }
+
+    /**
+     *
+     * @param hc
+     * @throws EMPIException
+     */
+    private void loadCandidateFinder(HierarchicalConfiguration hc) throws EMPIException {
+        String candidateFinderClassName = hc.getString(CANDIDATE_FINDER);
+        // Get an instance of the match algorithm.
+        this.candidateFinder = (CandidateFinder) ConfigHelper.loadClassInstance(candidateFinderClassName);
     }
 
     /**

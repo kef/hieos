@@ -21,7 +21,6 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.lockmanager.LockManager;
 import com.vangent.hieos.empi.lockmanager.LockResource;
-import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -500,17 +499,5 @@ public class PersistenceManager {
     public void deleteSubjectIdentifier(String subjectIdentifierId) throws EMPIException {
         SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
         dao.deleteSubjectIdentifier(subjectIdentifierId);
-    }
-
-    /**
-     *
-     * @param searchRecord
-     * @param matchType
-     * @return
-     * @throws EMPIException
-     */
-    public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
-        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(connection);
-        return dao.findCandidates(searchRecord, matchType);
     }
 }
