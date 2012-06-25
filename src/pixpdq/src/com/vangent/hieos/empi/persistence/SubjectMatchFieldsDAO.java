@@ -68,13 +68,6 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
         // Run through each blocking pass.
         for (BlockingPassConfig blockingPassConfig : blockingPassConfigs) {
-            /*
-            boolean isEnabledDuringSubjectAdd = blockingPassConfig.isEnabledDuringSubjectAdd();
-            if (matchType == MatchType.SUBJECT_ADD) {
-            if (!isEnabledDuringSubjectAdd) {
-            continue;  // Hate to use continues, but in a rush.....
-            }
-            }*/
             ResultSet rs = null;
             PreparedStatement stmt = null;
             try {
@@ -299,7 +292,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
      */
     private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, Record searchRecord, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         // Get EMPI configuration.
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        //EMPIConfig empiConfig = EMPIConfig.getInstance();
 
         // Build
         StringBuilder sb = new StringBuilder();
@@ -327,8 +320,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
             FieldConfig fieldConfig = activeBlockingFieldConfig.getFieldConfig();
             String dbColumnName = fieldConfig.getMatchDatabaseColumn();
-            // select * from subject_match_fields where match_field3 LIKE 'moo%' AND match_field4 LIKE 'c%'
-            //sb.append(dbColumnName).append(" = ?");
+            // FIXME:
             // HACK: See if % is at end of string.
             Field searchField = searchRecord.getField(activeBlockingFieldConfig.getName());
             String searchFieldValue = searchField.getValue();

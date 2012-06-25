@@ -103,7 +103,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public List<ScoredRecord> getRecordMatches(Record searchRecord, MatchType matchType) throws EMPIException {
+    public MatchResults findMatches(Record searchRecord, MatchType matchType) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
 
         // Get EMPI configuration.
@@ -120,8 +120,9 @@ public class FindSubjectsHandler extends BaseHandler {
         if (logger.isTraceEnabled()) {
             logger.trace("FindSubjectsHandler.getRecordMatches.findMatches: elapedTimeMillis=" + (endTime - startTime));
         }
+        return matchResults;
         // Only return matches.
-        return matchResults.getMatches();
+        //return matchResults.getMatches();
     }
 
     /**
@@ -142,7 +143,8 @@ public class FindSubjectsHandler extends BaseHandler {
         Record searchRecord = rb.build(searchSubject);
 
         // Run the matching algorithm.
-        List<ScoredRecord> recordMatches = this.getRecordMatches(searchRecord, MatchType.SUBJECT_FIND);
+        MatchResults matchResults = this.findMatches(searchRecord, MatchType.SUBJECT_FIND);
+        List<ScoredRecord> recordMatches = matchResults.getMatches();
 
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();

@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.config.EUIDConfig;
 import com.vangent.hieos.empi.euid.EUIDGenerator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
+import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
@@ -52,53 +53,60 @@ public class AddSubjectHandler extends BaseHandler {
 
     /**
      *
-     * @param subject
+     * @param newSubject
      * @return
      * @throws EMPIException
      */
-    public EMPINotification addSubject(Subject subject) throws EMPIException {
-        this.validateIdentitySource(subject);
+    public EMPINotification addSubject(Subject newSubject) throws EMPIException {
+        this.validateIdentitySource(newSubject);
         PersistenceManager pm = this.getPersistenceManager();
 
         // FIXME: This is not totally correct, how about "other ids"?
         // See if the subject exists (if it already has identifiers).
-        if (subject.hasSubjectIdentifiers()) {
+        if (newSubject.hasSubjectIdentifiers()) {
 
             // See if the subject already exists.
-            if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
+            if (pm.doesSubjectExist(newSubject.getSubjectIdentifiers())) {
                 throw new EMPIException("Subject already exists!");
             }
         }
         // Fall through: The subject does not already exist.
 
-        this.validateSubjectCodes(subject);
+        this.validateSubjectCodes(newSubject);
 
         // Store the subject @ system-level - will stamp with subjectId.
-        subject.setType(Subject.SubjectType.SYSTEM);
-        pm.insertSubject(subject);
+        newSubject.setType(Subject.SubjectType.SYSTEM);
+        pm.insertSubject(newSubject);
 
         // Get prepared for next steps ..
-        String systemSubjectId = subject.getInternalId();
+        String systemSubjectId = newSubject.getInternalId();
         String enterpriseSubjectId = null;
         int matchScore = 100;    // Default.
 
         // Find matching records.
         RecordBuilder rb = new RecordBuilder();
-        Record searchRecord = rb.build(subject);
+        Record searchRecord = rb.build(newSubject);
         FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), this.getPersistenceManager(), this.getSenderDeviceInfo());
-        List<ScoredRecord> recordMatches = findSubjectsHandler.getRecordMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
+        //List<ScoredRecord> recordMatches = findSubjectsHandler.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
+        MatchResults matchResults = findSubjectsHandler.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
+        if (!matchResults.getPossibleMatches().isEmpty()) {
+            // FIXME!!!!
+            System.out.println("+++++ DO SOMETHING HERE ... store possible matches");
+        }
+        List<ScoredRecord> recordMatches = matchResults.getMatches();
+
         long start = System.currentTimeMillis();
 
         if (recordMatches.isEmpty()) { // No match.
-            enterpriseSubjectId = this.insertEnterpriseSubject(subject);
+            enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
 
-        } else if (this.isAnyMatchedRecordInSameIdentifierDomain(subject, recordMatches)) {
+        } else if (this.isAnyMatchedRecordInSameIdentifierDomain(newSubject, recordMatches)) {
             logger.trace("+++++ Not linking subject with same identifier domain +++++");
             // Do not place record along side any record within the same identifier domain.
             recordMatches.clear();  // Treat as though a match did not occur.
 
             // Insert a new enterprise record.
-            enterpriseSubjectId = this.insertEnterpriseSubject(subject);
+            enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
         } else {
             // >=1 matches
 
@@ -110,7 +118,7 @@ public class AddSubjectHandler extends BaseHandler {
 
             // Update enterprise subject with latest demographics.
             logger.trace("+++ Updating demographics on enterprise subject +++");
-            pm.updateEnterpriseSubject(enterpriseSubjectId, subject);
+            pm.updateEnterpriseSubject(enterpriseSubjectId, newSubject);
         }
 
         // Insert system-level subject match fields (for subsequent find operations).
@@ -142,64 +150,65 @@ public class AddSubjectHandler extends BaseHandler {
 
     /**
      *
-     * @param subject
+     * @param newSubject
      * @param recordMatches
      * @return
      * @throws EMPIException
      */
-    private boolean isAnyMatchedRecordInSameIdentifierDomain(Subject subject, List<ScoredRecord> recordMatches) throws EMPIException {
+    private boolean isAnyMatchedRecordInSameIdentifierDomain(Subject newSubject, List<ScoredRecord> recordMatches) throws EMPIException {
 
         // First check scored record against record matches to see if it is safe to link
         // the records.
         for (ScoredRecord recordMatch : recordMatches) {
-            if (this.isMatchedRecordInSameIdentifierDomain(subject, recordMatch)) {
+            if (this.isMatchedRecordInSameIdentifierDomain(newSubject, recordMatch)) {
                 return true;  // Early exit.
             }
         }
 
+        /* RETHINK!!!
         // FIXME: NEED TO OPTIMIZE ... doing many DB reads where should only read once per
         // record.
 
-        /* WORK ON THIS LATER ... need to think fully through
         // Now, go through each pair in the merge set.
         PersistenceManager pm = this.getPersistenceManager();
         for (ScoredRecord matchedRecord : recordMatches) {
-        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-        // Load identifiers for matched system subject.
-        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+            // Load identifiers for matched system subject.
+            List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
-        for (ScoredRecord compareMatchedRecord : recordMatches) {
-        String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
-        if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
-        // Load identifiers for matched system subject (to compare).
-        List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
-        boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
-        if (foundMatch) {
-        // Found a match.
-        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
-        return true;  // Early exit!
+            for (ScoredRecord compareMatchedRecord : recordMatches) {
+                String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
+                if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
+                    // Load identifiers for matched system subject (to compare).
+                    List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
+                    boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
+                    if (foundMatch) {
+                        // Found a match.
+                        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
+                        return true;  // Early exit!
+                    }
+                }
+            }
         }
-        }
-        }
-        }*/
+         */
         return false;
     }
 
     /**
      * 
-     * @param subject
+     * @param newSubject
      * @param matchedRecord
      * @return
      * @throws EMPIException
      */
-    private boolean isMatchedRecordInSameIdentifierDomain(Subject subject, ScoredRecord matchedRecord) throws EMPIException {
+    private boolean isMatchedRecordInSameIdentifierDomain(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
         String matchedSystemSubjectId = matchedRecord.getRecord().getId();
         // Load identifiers for matched system subject.
         PersistenceManager pm = this.getPersistenceManager();
         List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
         // Get list of the subject's identifiers.
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        List<SubjectIdentifier> subjectIdentifiers = newSubject.getSubjectIdentifiers();
 
         return this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, subjectIdentifiers);
     }
@@ -227,6 +236,10 @@ public class AddSubjectHandler extends BaseHandler {
                         logger.trace(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
                         logger.trace(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
                     }
+                    System.out.println("+++++ Not linking +++++");
+                    System.out.println(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
+                    System.out.println(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
+
                     return true;  // Early exit!
                 }
             }
@@ -236,30 +249,30 @@ public class AddSubjectHandler extends BaseHandler {
 
     /**
      *
-     * @param subject
+     * @param newEnterpriseSubject
      * @param updateNotificationContent
      * @return
      * @throws EMPIException
      */
-    private String insertEnterpriseSubject(Subject subject) throws EMPIException {
+    private String insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 
         // Build (from received subject) and store enterprise-level subject.
-        subject.setType(Subject.SubjectType.ENTERPRISE);
+        newEnterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
 
         // Clear out the subject's identifier lists (since they are already stored at the system-level).
-        subject.clearIdentifiers();
+        newEnterpriseSubject.clearIdentifiers();
 
         // Stamp the subject with an enterprise id (if configured to do so).
         EUIDConfig euidConfig = empiConfig.getEuidConfig();
         if (euidConfig.isEuidAssignEnabled()) {
             SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
-            subject.addSubjectIdentifier(enterpriseSubjectIdentifier);
+            newEnterpriseSubject.addSubjectIdentifier(enterpriseSubjectIdentifier);
         }
 
         // Store the enterprise-level subject.
-        pm.insertSubject(subject);
-        return subject.getInternalId();
+        pm.insertSubject(newEnterpriseSubject);
+        return newEnterpriseSubject.getInternalId();
     }
 }
