@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.empi.impl.base;
+package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.config.EMPIConfig;
@@ -18,7 +18,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.services.pixpdq.empi.api.EMPINotification;
+import com.vangent.hieos.empi.api.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 

@@ -10,10 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.empi.factory;
+package com.vangent.hieos.empi.factory;
 
-import com.vangent.hieos.services.pixpdq.empi.api.EMPIAdapter;
-import com.vangent.hieos.services.pixpdq.empi.impl.base.BaseEMPIAdapter;
+import com.vangent.hieos.empi.api.EMPIAdapter;
+import com.vangent.hieos.empi.impl.base.BaseEMPIAdapter;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
