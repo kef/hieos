@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.EUIDConfig;
 import com.vangent.hieos.empi.euid.EUIDGenerator;
@@ -28,6 +27,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.api.EMPINotification;
+import com.vangent.hieos.empi.validator.AddSubjectValidator;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.HashSet;
 import java.util.List;
@@ -59,22 +59,11 @@ public class AddSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification addSubject(Subject newSubject) throws EMPIException {
-        Validator validator = this.getValidator();
-        validator.validateIdentitySource(newSubject);
         PersistenceManager pm = this.getPersistenceManager();
 
-        // FIXME: This is not totally correct, how about "other ids"?
-        // See if the subject exists (if it already has identifiers).
-        if (newSubject.hasSubjectIdentifiers()) {
-
-            // See if the subject already exists.
-            if (pm.doesSubjectExist(newSubject.getSubjectIdentifiers())) {
-                throw new EMPIException("Subject already exists!");
-            }
-        }
-        // Fall through: The subject does not already exist.
-
-        validator.validateSubjectCodes(newSubject);
+        // First, run validations on input.
+        AddSubjectValidator validator = new AddSubjectValidator(pm, this.getSenderDeviceInfo());
+        validator.validate(newSubject);
 
         // Store the subject @ system-level - will stamp with subjectId.
         newSubject.setType(Subject.SubjectType.SYSTEM);
@@ -130,6 +119,27 @@ public class AddSubjectHandler extends BaseHandler {
         pm.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
+        this.mergeRecordMatches(recordMatches, enterpriseSubjectId);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("EMPI persistence TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+        }
+        EMPINotification notification = new EMPINotification();
+        this.addSubjectToNotification(notification, enterpriseSubjectId);
+        return notification;
+    }
+
+    /**
+     *
+     * @param recordMatches
+     * @param enterpriseSubjectId
+     * @throws EMPIException
+     */
+    private void mergeRecordMatches(List<ScoredRecord> recordMatches, String enterpriseSubjectId) throws EMPIException {
+        // FIXME: Make this configurable.
+        PersistenceManager pm = this.getPersistenceManager();
+
+        // Merge all other matches (if any) into first matched record (surviving enterprise record).
         Set<String> subsumedEnterpriseSubjectIds = new HashSet<String>();
         for (int i = 1; i < recordMatches.size(); i++) {
             ScoredRecord matchedRecord = recordMatches.get(i);
@@ -141,12 +151,6 @@ public class AddSubjectHandler extends BaseHandler {
                 pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
             }
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug("EMPI persistence TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
-        }
-        EMPINotification notification = new EMPINotification();
-        this.addSubjectToNotification(notification, enterpriseSubjectId);
-        return notification;
     }
 
     /**
@@ -173,23 +177,23 @@ public class AddSubjectHandler extends BaseHandler {
         // Now, go through each pair in the merge set.
         PersistenceManager pm = this.getPersistenceManager();
         for (ScoredRecord matchedRecord : recordMatches) {
-            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-            // Load identifiers for matched system subject.
-            List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+        // Load identifiers for matched system subject.
+        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
-            for (ScoredRecord compareMatchedRecord : recordMatches) {
-                String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
-                if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
-                    // Load identifiers for matched system subject (to compare).
-                    List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
-                    boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
-                    if (foundMatch) {
-                        // Found a match.
-                        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
-                        return true;  // Early exit!
-                    }
-                }
-            }
+        for (ScoredRecord compareMatchedRecord : recordMatches) {
+        String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
+        if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
+        // Load identifiers for matched system subject (to compare).
+        List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
+        boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
+        if (foundMatch) {
+        // Found a match.
+        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
+        return true;  // Early exit!
+        }
+        }
+        }
         }
          */
         return false;

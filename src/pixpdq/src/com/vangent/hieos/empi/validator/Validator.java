@@ -23,6 +23,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectCitizenship;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import java.util.List;
@@ -49,37 +50,11 @@ public class Validator {
     }
 
     /**
-     *
-     * @param subjectSearchCriteria
-     * @throws EMPIException
+     * 
+     * @return
      */
-    public void validateSubjectIdentifierDomains(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-
-        // First validate identifier domains assocated with the search subject's identifiers.
-        this.validateSubjectIdentifierDomains(subjectSearchCriteria.getSubject());
-
-        // Now validate identifiers in any scoping organizations.
-        this.validateScopingAssigningAuthorities(subjectSearchCriteria);
-    }
-
-    /**
-     *
-     * @param subjectSearchCriteria
-     * @throws EMPIException
-     */
-    private void validateScopingAssigningAuthorities(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        PersistenceManager pm = this.persistenceManager;
-
-        // Validate identifiers in any scoping organizations.
-        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
-            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(scopingIdentifierDomain);
-            if (!subjectIdentifierDomainExists) {
-                throw new EMPIException(
-                        scopingIdentifierDomain.getUniversalId()
-                        + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
-            }
-        }
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
     }
 
     /**

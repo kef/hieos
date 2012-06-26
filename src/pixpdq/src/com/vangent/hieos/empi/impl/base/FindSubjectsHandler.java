@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
@@ -21,6 +20,7 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.validator.FindSubjectsValidator;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
@@ -59,11 +59,14 @@ public class FindSubjectsHandler extends BaseHandler {
      * @throws EMPIException
      */
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        PersistenceManager pm = this.getPersistenceManager();
 
-        // First, make sure that we are configured to support supplied identifier domains.
-        Validator validator = this.getValidator();
-        validator.validateSubjectIdentifierDomains(subjectSearchCriteria);
+        // First, run validations on input.
+        FindSubjectsValidator validator = new FindSubjectsValidator(pm, this.getSenderDeviceInfo());
+        validator.validate(subjectSearchCriteria);
+
+        // Create default response.
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
         // FIXME: This is not entirely accurate, how about "other ids"?
         // Determine which path to take.
@@ -89,9 +92,10 @@ public class FindSubjectsHandler extends BaseHandler {
     public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
-        // First, make sure that we are configured to support supplied identifier domains.
-        Validator validator = this.getValidator();
-        validator.validateSubjectIdentifierDomains(subjectSearchCriteria);
+        // First, run validations on input.
+        FindSubjectsValidator validator = new FindSubjectsValidator(this.getPersistenceManager(),
+                this.getSenderDeviceInfo());
+        validator.validate(subjectSearchCriteria);
 
         // Now, find subjects using the identifier in the search criteria.
         subjectSearchResponse = this.loadIdentifiersForSubjectByIdentifier(subjectSearchCriteria);

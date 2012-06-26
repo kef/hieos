@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
@@ -20,6 +19,7 @@ import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.api.EMPINotification;
+import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -49,19 +49,14 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     public EMPINotification updateSubject(Subject subject) throws EMPIException {
-        Validator validator = this.getValidator();
-        validator.validateIdentitySource(subject);
         PersistenceManager pm = this.getPersistenceManager();
+
+        // First, run validations on input.
+        UpdateSubjectValidator validator = new UpdateSubjectValidator(pm, this.getSenderDeviceInfo());
+        validator.validate(subject);
+
         EMPINotification updateNotificationContent = new EMPINotification();
 
-        // First validate identifier domains assocated with the subject's identifiers.
-        validator.validateSubjectIdentifierDomains(subject);
-
-        // Make sure that subject identifiers are present.
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-        if (subjectIdentifiers.isEmpty()) {
-            throw new EMPIException("No identifiers provided for subject - skipping update.");
-        }
 
         // Make sure that there is only one subject identifier to update.
         /* CONNECTATHON HACK (for ICW).
@@ -71,6 +66,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         // NOTE: Decided to keep code above commented out - will use first identifier for update.
 
         // Get the subject (using the first identifier).
+        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
         Subject baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
         if (baseSubject == null) {
@@ -79,8 +75,6 @@ public class UpdateSubjectHandler extends BaseHandler {
                     + " is not a known identifier",
                     EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
         }
-
-        validator.validateSubjectCodes(subject);
 
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             updateNotificationContent = this.updateSystemSubject(baseSubject, subject);

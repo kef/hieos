@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
@@ -20,6 +19,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.empi.api.EMPINotification;
+import com.vangent.hieos.empi.validator.MergeSubjectsValidator;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -50,16 +50,15 @@ public class MergeSubjectsHandler extends BaseHandler {
      */
     public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
+
+        // First, run validations on input.
+        MergeSubjectsValidator validator = new MergeSubjectsValidator(pm, this.getSenderDeviceInfo());
+        validator.validate(subjectMergeRequest);
+
         EMPINotification notification = new EMPINotification();
 
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
-        Validator validator = this.getValidator();
-        validator.validateIdentitySource(survivingSubject);
-        validator.validateIdentitySource(subsumedSubject);
-
-        // Validate input is usable.
-        this.validateSubjects(survivingSubject, subsumedSubject);
 
         // Lookup surviving and subsumed subjects.
         Subject baseSurvivingSubject = this.getBaseSubject(survivingSubject, "surviving");
@@ -133,44 +132,6 @@ public class MergeSubjectsHandler extends BaseHandler {
             }
         }
         return null;
-    }
-
-    /**
-     *
-     * @param survivingSubject
-     * @param subsumedSubject
-     * @throws EMPIException
-     */
-    private void validateSubjects(Subject survivingSubject, Subject subsumedSubject) throws EMPIException {
-        this.valididateSubject(survivingSubject, "surviving");
-        this.valididateSubject(subsumedSubject, "subsumed");
-        SubjectIdentifier survivingSubjectIdentifier = survivingSubject.getSubjectIdentifiers().get(0);
-        SubjectIdentifier subsumedSubjectIdentifier = subsumedSubject.getSubjectIdentifiers().get(0);
-        if (survivingSubjectIdentifier.equals(subsumedSubjectIdentifier)) {
-            throw new EMPIException("Same identifier supplied - skipping merge");
-        }
-    }
-
-    /**
-     *
-     * @param subject
-     * @param subjectType
-     * @throws EMPIException
-     */
-    private void valididateSubject(Subject subject, String subjectType) throws EMPIException {
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-        if (subjectIdentifiers.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("No ").append(subjectType).append(" subject identifier supplied - skipping merge");
-            throw new EMPIException(sb.toString());
-        }
-        /* TEMPORARY HACK -- CONNECTATHON (ICW)
-        if (subjectIdentifiers.size() > 1) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(">1 ").append(subjectType).append(" subject identifier supplied - skipping merge");
-        throw new EMPIException(sb.toString());
-        }*/
-        // NOTE: Decided to keep code above commented out - will use first identifier for merge.
     }
 
     /**

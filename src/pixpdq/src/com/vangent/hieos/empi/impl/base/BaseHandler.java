@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.validator.Validator;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
@@ -44,14 +43,6 @@ public class BaseHandler {
         this.configActor = configActor;
         this.persistenceManager = persistenceManager;
         this.senderDeviceInfo = senderDeviceInfo;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    protected Validator getValidator() {
-        return new Validator(this.persistenceManager, this.senderDeviceInfo);
     }
 
     /**
