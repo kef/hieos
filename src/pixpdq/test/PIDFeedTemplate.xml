@@ -1,0 +1,75 @@
+
+<urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+    <urn:creationTime value="20091112115139"/>
+    <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+    <urn:processingCode code="P"/>
+    <urn:processingModeCode code="T"/>
+    <urn:acceptAckCode code="AL"/>
+    <urn:receiver typeCode="RCV">
+        <urn:device classCode="DEV" determinerCode="INSTANCE">
+            <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+            <urn:asAgent classCode="AGNT">
+                <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                    <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                </urn:representedOrganization>
+            </urn:asAgent>
+        </urn:device>
+    </urn:receiver>
+    <urn:sender typeCode="SND">
+        <urn:device classCode="DEV" determinerCode="INSTANCE">
+            <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+            <urn:asAgent classCode="AGNT">
+                <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                    <urn:id root="1.2.840.114350.1.13.99998"/>
+                </urn:representedOrganization>
+            </urn:asAgent>
+        </urn:device>
+    </urn:sender>
+    <urn:controlActProcess classCode="CACT" moodCode="EVN">
+        <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+        <urn:subject typeCode="SUBJ">
+            <urn:registrationEvent classCode="REG" moodCode="EVN">
+                <urn:id nullFlavor="NA"/>
+                <urn:statusCode code="active"/>
+                <urn:subject1 typeCode="SBJ">
+                    <urn:patient classCode="PAT">
+                        <urn:id extension="{PATIENT_ID}" root="{ASSIGNING_AUTHORITY}"/>
+                        <urn:id extension="{LOCAL_PATIENT_ID}" root="{LOCAL_ASSIGNING_AUTHORITY}"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                            <urn:name>
+                                <urn:given>{GIVEN_NAME}</urn:given>
+                                <urn:family>{FAMILY_NAME}</urn:family>
+                            </urn:name>
+                            <urn:administrativeGenderCode code="{GENDER_CODE}"/>
+                            <urn:birthTime value="{BIRTH_TIME}"/>
+                            <urn:addr use="H">
+                                <urn:streetAddressLine>{STREET_ADDRESS_LINE}</urn:streetAddressLine>
+                                <urn:city>{CITY}</urn:city>
+                                <urn:state>{STATE}</urn:state>
+                                <urn:postalCode>{POSTAL_CODE}</urn:postalCode>
+                            </urn:addr>
+                            <urn:raceCode code="{RACE_CODE}"/>
+                            <urn:asOtherIDs classCode="CIT">
+                                <urn:id root="2.16.840.1.113883.4.1" extension="{SSN}"/>
+                                <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                    <urn:id root="2.16.840.1.113883.4.1"/>
+                                </urn:scopingOrganization>
+                            </urn:asOtherIDs>
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                            <urn:id root="1.2.840.114350.1.13.99998.8734" />
+                            <urn:contactParty classCode="CON" />
+                        </urn:providerOrganization>
+                    </urn:patient>
+                </urn:subject1>
+                <urn:custodian typeCode="CST">
+                    <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734" />
+                    </urn:assignedEntity>
+                </urn:custodian>
+            </urn:registrationEvent>
+        </urn:subject>
+    </urn:controlActProcess>
+</urn:PRPA_IN201301UV02>
