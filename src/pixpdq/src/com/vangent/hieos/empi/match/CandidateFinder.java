@@ -28,7 +28,6 @@ public abstract class CandidateFinder {
 
     /**
      * 
-     * @param persistenceManager
      */
     public CandidateFinder() {
     }

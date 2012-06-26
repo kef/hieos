@@ -209,24 +209,24 @@ public class AddSubjectHandler extends BaseHandler {
         List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
         // Get list of the subject's identifiers.
-        List<SubjectIdentifier> subjectIdentifiers = newSubject.getSubjectIdentifiers();
+        List<SubjectIdentifier> newSubjectIdentifiers = newSubject.getSubjectIdentifiers();
 
-        return this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, subjectIdentifiers);
+        return this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, newSubjectIdentifiers);
     }
 
     /**
      * 
      * @param matchedSubjectIdentifiers
-     * @param subjectIdentifiers
+     * @param newSubjectIdentifiers
      * @return
      * @throws EMPIException
      */
-    private boolean isMatchedRecordInSameIdentifierDomain(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    private boolean isMatchedRecordInSameIdentifierDomain(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> newSubjectIdentifiers) throws EMPIException {
 
         // NOTE: Small list, so brute force is OK.
 
         // See if there is a match between the "matched subject" and the subject.
-        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+        for (SubjectIdentifier subjectIdentifier : newSubjectIdentifiers) {
             SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
             for (SubjectIdentifier matchedSubjectIdentifier : matchedSubjectIdentifiers) {
                 SubjectIdentifierDomain matchedSubjectIdentifierDomain = matchedSubjectIdentifier.getIdentifierDomain();

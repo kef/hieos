@@ -22,7 +22,6 @@ import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.empi.persistence.PersistenceHelper;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

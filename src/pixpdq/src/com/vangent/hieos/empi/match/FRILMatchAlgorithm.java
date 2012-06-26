@@ -36,8 +36,6 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     public FRILMatchAlgorithm() {
     }
 
-   
-
     /**
      * 
      * @param searchRecord
@@ -66,8 +64,13 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         }
         start = System.currentTimeMillis();
 
-        // Now, run the findMatches algorithm.
+        // Now, run the matching algorithm.
         MatchResults matchResults = this.findMatches(searchRecord, candidateRecords, matchType);
+        if (logger.isTraceEnabled()) {
+            logger.trace("... number of matches = " + matchResults.getMatches().size());
+            logger.trace("... number of possible matches = " + matchResults.getPossibleMatches().size());
+            logger.trace("... number of non matches = " + matchResults.getNonMatches().size());
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("FRIL findMatches TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
@@ -121,7 +124,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         return matchResults;
     }
 
-     /**
+    /**
      *
      * @param searchRecord
      * @param matchType
@@ -139,7 +142,10 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      */
     private void sortMatchResults(MatchResults matchResults) {
         // Only sort matches (in descending order by score).
-        Collections.sort(matchResults.getMatches(), new ScoredRecordComparator());
+        List<ScoredRecord> matches = matchResults.getMatches();
+        if (!matches.isEmpty()) {
+            Collections.sort(matches, new ScoredRecordComparator());
+        }
     }
 
     /**
@@ -159,13 +165,6 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
         int fieldIndex = 0;
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-            /*
-            if (matchType == MatchType.SUBJECT_FEED && !matchFieldConfig.isEnabledDuringSubjectAdd()) {
-            scoredRecord.setDistance(fieldIndex, -1.0);  // -1.0 really means nothing (just for debug).
-            ++fieldIndex;
-            // FIXME: This is a temporary FIX (in a rush).
-            continue;
-            }*/
             String matchFieldName = matchFieldConfig.getName();
 
             // Get the current field's "distance function" configuration.

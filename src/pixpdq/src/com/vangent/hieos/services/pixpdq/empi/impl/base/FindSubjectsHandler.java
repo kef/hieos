@@ -115,7 +115,7 @@ public class FindSubjectsHandler extends BaseHandler {
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(searchSubject);
 
-        // Run the matching algorithm.
+        // Run the matching algorithm (in "find" mode).
         MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
         MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchType.SUBJECT_FIND);
         List<ScoredRecord> recordMatches = matchResults.getMatches();
@@ -137,6 +137,7 @@ public class FindSubjectsHandler extends BaseHandler {
                     || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
                 String systemSubjectId = record.getId();
                 String enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+                // Avoid adding duplicates to the result.
                 if (!enterpriseSubjectIds.contains(enterpriseSubjectId)) {
                     enterpriseSubjectIds.add(enterpriseSubjectId);
                     Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
@@ -159,7 +160,7 @@ public class FindSubjectsHandler extends BaseHandler {
         }
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
-            logger.trace("FindSubjectsHandler.findSubjectMatches.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
+            logger.trace("FindSubjectsHandler.loadSubjectMatches.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
         }
         subjectSearchResponse.getSubjects().addAll(subjectMatches);
         return subjectSearchResponse;
