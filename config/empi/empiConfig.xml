@@ -3,6 +3,9 @@
     <!-- JNDI resource name for EMPI database -->
     <jndi-resource-name>jdbc/hieos-empi</jndi-resource-name>
 
+    <!-- Name of candidate finder to use -->
+    <candidate-finder>com.vangent.hieos.empi.match.BlockCandidateFinder</candidate-finder>
+
     <!-- Name of match algorithm to use. -->
     <match-algorithm>com.vangent.hieos.empi.match.FRILMatchAlgorithm</match-algorithm>
 
@@ -362,7 +365,7 @@
     </fields>
     
     <match-config-feed>
-        <!-- blocking configuration (first pass) -->
+        <!-- blocking configuration (multi pass) -->
         <blocking-config>
             <blocking-pass>
                 <blocking-fields>
@@ -480,7 +483,7 @@
     </match-config-feed>
 
     <match-config-find>
-         <!-- blocking configuration (first pass) -->
+         <!-- blocking configuration (multi pass) -->
         <blocking-config>
             <blocking-pass>
                 <blocking-fields>
