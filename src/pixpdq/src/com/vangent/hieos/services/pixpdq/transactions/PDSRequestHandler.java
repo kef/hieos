@@ -13,8 +13,8 @@
 package com.vangent.hieos.services.pixpdq.transactions;
 
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
+import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.empi.factory.EMPIFactory;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
@@ -121,7 +121,7 @@ public class PDSRequestHandler extends RequestHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+        EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
         return subjectSearchResponse;
     }

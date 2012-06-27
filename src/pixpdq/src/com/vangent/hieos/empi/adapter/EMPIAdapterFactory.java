@@ -10,9 +10,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.empi.factory;
+package com.vangent.hieos.empi.adapter;
 
-import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.impl.base.BaseEMPIAdapter;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
@@ -20,7 +19,7 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
  *
  * @author Bernie Thuman
  */
-public class EMPIFactory {
+public class EMPIAdapterFactory {
 
     /**
      *

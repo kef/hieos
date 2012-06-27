@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.pixpdq.transactions;
 
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
-import com.vangent.hieos.empi.factory.EMPIFactory;
+import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 
@@ -136,7 +136,7 @@ public class PIXRequestHandler extends RequestHandler {
             Subject subject = builder.buildSubject(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
@@ -170,7 +170,7 @@ public class PIXRequestHandler extends RequestHandler {
             Subject subject = builder.buildSubject(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
@@ -204,7 +204,7 @@ public class PIXRequestHandler extends RequestHandler {
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
             adapter.setSenderDeviceInfo(senderDeviceInfo);
 
             // Merge the subjects (clone first since merge has side-effects).
@@ -277,7 +277,7 @@ public class PIXRequestHandler extends RequestHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+        EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjectByIdentifier(subjectSearchCriteria);
         return subjectSearchResponse;
     }
