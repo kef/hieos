@@ -12,14 +12,8 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
-import com.vangent.hieos.empi.api.EMPIAdapter;
-import com.vangent.hieos.empi.factory.EMPIFactory;
-import com.vangent.hieos.empi.exception.EMPIException;
-
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 
@@ -33,14 +27,14 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public abstract class PIXPDSRequestHandler extends XBaseTransaction {
+public abstract class RequestHandler extends XBaseTransaction {
 
-    private final static Logger logger = Logger.getLogger(PIXPDSRequestHandler.class);
+    private final static Logger logger = Logger.getLogger(RequestHandler.class);
 
     /**
      *
      */
-    protected PIXPDSRequestHandler() {
+    protected RequestHandler() {
         // Do nothing.
     }
 
@@ -48,7 +42,7 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
      *
      * @param log_message
      */
-    public PIXPDSRequestHandler(XLogMessage log_message) {
+    public RequestHandler(XLogMessage log_message) {
         this.log_message = log_message;
     }
 
@@ -59,6 +53,14 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
     @Override
     public boolean getStatus() {
         return log_message.isPass();
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected DeviceInfo getDeviceInfo() {
+        return new DeviceInfo(this.getConfigActor());
     }
 
     /**
@@ -74,25 +76,5 @@ public abstract class PIXPDSRequestHandler extends XBaseTransaction {
             log_message.addErrorParam("EXCEPTION", ex.getMessage());
             throw new SOAPFaultException(ex.getMessage());
         }
-    }
-
-    /**
-     *
-     * @return
-     */
-    protected DeviceInfo getDeviceInfo() {
-        return new DeviceInfo(this.getConfigActor());
-    }
-
-    /**
-     *
-     * @param subjectSearchCriteria
-     * @return
-     * @throws EMPIException
-     */
-    protected SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
-        SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
-        return subjectSearchResponse;
     }
 }

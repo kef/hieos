@@ -12,7 +12,9 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
+import com.vangent.hieos.empi.api.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.factory.EMPIFactory;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
@@ -37,7 +39,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PDSRequestHandler extends PIXPDSRequestHandler {
+public class PDSRequestHandler extends RequestHandler {
 
     private final static Logger logger = Logger.getLogger(PDSRequestHandler.class);
 
@@ -110,6 +112,18 @@ public class PDSRequestHandler extends PIXPDSRequestHandler {
         PRPA_IN201306UV02_Message queryResponse = this.getPatientRegistryFindCandidatesQueryResponse(request, subjectSearchResponse, errorDetail);
         this.validateHL7V3Message(queryResponse);
         return queryResponse;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @return
+     * @throws EMPIException
+     */
+    private SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+        EMPIAdapter adapter = EMPIFactory.getInstance(this.getConfigActor());
+        SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
+        return subjectSearchResponse;
     }
 
     /**

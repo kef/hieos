@@ -55,7 +55,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PIXRequestHandler extends PIXPDSRequestHandler {
+public class PIXRequestHandler extends RequestHandler {
 
     private final static Logger logger = Logger.getLogger(PIXRequestHandler.class);
 
