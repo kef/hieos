@@ -31,8 +31,8 @@ public class PIDFeedRandomLoader {
     // Hack - change variables to vary test.
     private final static String ENDPOINT = "http://localhost:8080/axis2/services/pixmgr";
     private final static String TEMPLATE = "test\\PIDFeedTemplate.xml";
-    private final static int MAX_THREADS = 1;
-    private final static int RUN_COUNT_PER_THREAD = 25;
+    private final static int MAX_THREADS = 16;
+    private final static int RUN_COUNT_PER_THREAD = 1000;
     private final static String ENTERPRISE_ASSIGNING_AUTHORITY = "1.3.6.1.4.1.21367.13.20.1000";
     private final static String LOCAL_ASSIGNING_AUTHORITY = "1.3.6.1.4.1.21367.1000.1.6";
 
@@ -126,14 +126,25 @@ public class PIDFeedRandomLoader {
     public static void main(String[] args) {
         PIDFeedRandomLoader pfl = new PIDFeedRandomLoader();
         long start = System.currentTimeMillis();
-        for (int t = 0; t < MAX_THREADS; t++) {
+        Thread[] threads = new Thread[MAX_THREADS];
+        for (int i = 0; i < MAX_THREADS; i++) {
             PIDFeedRunnable pidFeedRunnable = pfl.getPIDFeedRunnable(TEMPLATE,
                     ENTERPRISE_ASSIGNING_AUTHORITY, LOCAL_ASSIGNING_AUTHORITY,
                     RUN_COUNT_PER_THREAD, ENDPOINT);
-            Thread thread = new Thread(pidFeedRunnable);
-            thread.start();
+            threads[i] = new Thread(pidFeedRunnable);
+            threads[i].start();
         }
-        System.out.println(" done ... TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
+        for (int i = 0; i < threads.length; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException ignore) {
+            }
+        }
+        long elapsedTime = System.currentTimeMillis() - start;
+        double txnSec = ((double) MAX_THREADS * (double) RUN_COUNT_PER_THREAD) / 
+                ((double)elapsedTime / 1000.0);
+        System.out.println(" done ... TOTAL TIME = " + elapsedTime + "ms" + ", txn/sec = "
+                + txnSec);
     }
 
     /**
