@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdq.transactions;
 
-import com.vangent.hieos.empi.api.EMPIAdapter;
+import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.factory.EMPIFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
@@ -38,7 +38,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequestBuilder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
-import com.vangent.hieos.empi.api.EMPINotification;
+import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;

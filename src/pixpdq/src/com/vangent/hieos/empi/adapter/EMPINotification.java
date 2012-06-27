@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.empi.api;
+package com.vangent.hieos.empi.adapter;
 
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import java.util.ArrayList;

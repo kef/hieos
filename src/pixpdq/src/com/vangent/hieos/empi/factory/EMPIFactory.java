@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.factory;
 
-import com.vangent.hieos.empi.api.EMPIAdapter;
+import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.impl.base.BaseEMPIAdapter;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
