@@ -38,6 +38,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * 
      * @param configActor
      */
+    @Override
     public void setConfig(XConfigActor configActor) {
         this.configActor = configActor;
     }
@@ -46,6 +47,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      *
      * @return
      */
+    @Override
     public XConfigActor getConfigActor() {
         return configActor;
     }
@@ -54,6 +56,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      *
      * @param senderDeviceInfo
      */
+    @Override
     public void setSenderDeviceInfo(DeviceInfo senderDeviceInfo) {
         this.senderDeviceInfo = senderDeviceInfo;
     }
@@ -62,6 +65,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * 
      * @return
      */
+    @Override
     public DeviceInfo getSenderDeviceInfo() {
         return this.senderDeviceInfo;
     }

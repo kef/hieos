@@ -20,6 +20,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.MergeSubjectsValidator;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -67,8 +68,8 @@ public class MergeSubjectsHandler extends BaseHandler {
         if (baseSurvivingSubject.getType().equals(Subject.SubjectType.SYSTEM)
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             // Both are system-level subjects.
-            String survivingSubjectSystemSubjectId = baseSurvivingSubject.getInternalId();
-            String subsumedSubjectSystemSubjectId = baseSubsumedSubject.getInternalId();
+            InternalId survivingSubjectSystemSubjectId = baseSurvivingSubject.getInternalId();
+            InternalId subsumedSubjectSystemSubjectId = baseSubsumedSubject.getInternalId();
 
             // See if this is referencing the same system-level subject.
             if (survivingSubjectSystemSubjectId.equals(subsumedSubjectSystemSubjectId)) {
@@ -92,8 +93,8 @@ public class MergeSubjectsHandler extends BaseHandler {
             } else {
 
                 // Get base enterprise subjects.
-                String baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject);
-                String baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject);
+                InternalId baseEnterpriseSurvivingSubjectId = pm.getEnterpriseSubjectId(baseSurvivingSubject);
+                InternalId baseEnterpriseSubsumedSubjectId = pm.getEnterpriseSubjectId(baseSubsumedSubject);
 
                 // Delete the "subsumed" system-level subject.
                 pm.deleteSubject(baseSubsumedSubject);
@@ -108,8 +109,8 @@ public class MergeSubjectsHandler extends BaseHandler {
                 && baseSubsumedSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
             // Both are enterprise-level subjects.
             // Now move all cross references.
-            String baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getInternalId();
-            String baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getInternalId();
+            InternalId baseEnterpriseSurvivingSubjectId = baseSurvivingSubject.getInternalId();
+            InternalId baseEnterpriseSubsumedSubjectId = baseSubsumedSubject.getInternalId();
             pm.mergeEnterpriseSubjects(baseEnterpriseSurvivingSubjectId, baseEnterpriseSubsumedSubjectId);
             this.addSubjectToNotification(notification, baseEnterpriseSurvivingSubjectId);
         }

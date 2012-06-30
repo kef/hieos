@@ -10,19 +10,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.empi.lockmanager;
-
+package com.vangent.hieos.empi.sequence;
 /**
  *
  * @author Bernie Thuman
  */
-public class LockManagerException extends Exception {
+public class SequenceGeneratorException extends Exception {
 
     /**
      *
      * @param msg
      */
-    public LockManagerException(String msg) {
+    public SequenceGeneratorException(String msg) {
         super(msg);
     }
 
@@ -31,7 +30,7 @@ public class LockManagerException extends Exception {
      * @param msg
      * @param cause
      */
-    public LockManagerException(String msg, Throwable cause) {
+    public SequenceGeneratorException(String msg, Throwable cause) {
         super(msg, cause);
     }
 
@@ -39,7 +38,7 @@ public class LockManagerException extends Exception {
      *
      * @param exception
      */
-    public LockManagerException(Exception exception) {
+    public SequenceGeneratorException(Exception exception) {
         super(exception);
     }
 }

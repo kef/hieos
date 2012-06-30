@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.empi.match;
 
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -22,23 +23,23 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class Record {
 
-    private String id;
+    private InternalId internalId;
     private List<Field> fields = new ArrayList<Field>();
 
     /**
      *
      * @return
      */
-    public String getId() {
-        return id;
+    public InternalId getInternalId() {
+        return internalId;
     }
 
     /**
      * 
-     * @param id
+     * @param internalId
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setId(InternalId internalId) {
+        this.internalId = internalId;
     }
 
     /**
@@ -90,6 +91,6 @@ public class Record {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("fields", fields).toString();
+        return new ToStringBuilder(this).append("id", internalId).append("fields", fields).toString();
     }
 }

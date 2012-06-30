@@ -46,6 +46,7 @@ public class EMPIConfig {
     private static String EMPI_CODES_CONFIG_FILE_NAME = "codes.xml";
     private static String JNDI_RESOURCE_NAME = "jndi-resource-name";
     private static String UPDATE_NOTIFICATION_ENABLED = "update-notification-enabled";
+    private static String SUBJECT_SEQUENCE_GENERATOR_SQL = "subject-sequence-generator-sql";
     private static String VALIDATE_CODES_ENABLED = "validate-codes-enabled";
     private static String VALIDATE_IDENTITY_SOURCES_ENABLED = "validate-identity-sources-enabled";
     private static String MATCH_ALGORITHM = "match-algorithm";
@@ -68,6 +69,7 @@ public class EMPIConfig {
     private CandidateFinder candidateFinder;
     private EUIDConfig euidConfig;
     private boolean updateNotificationEnabled;
+    private String subjectSequenceGeneratorSQL;
     private boolean validateCodesEnabled;
     private boolean validateIdentitySourcesEnabled;
     private Map<String, TransformFunctionConfig> transformFunctionConfigs = new HashMap<String, TransformFunctionConfig>();
@@ -118,6 +120,14 @@ public class EMPIConfig {
      */
     public String getJndiResourceName() {
         return jndiResourceName;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getSubjectSequenceGeneratorSQL() {
+        return subjectSequenceGeneratorSQL;
     }
 
     /**
@@ -355,6 +365,7 @@ public class EMPIConfig {
         try {
             XMLConfiguration xmlConfig = new XMLConfiguration(configLocation);
             jndiResourceName = xmlConfig.getString(JNDI_RESOURCE_NAME, DEFAULT_JNDI_RESOURCE_NAME);
+            subjectSequenceGeneratorSQL = xmlConfig.getString(SUBJECT_SEQUENCE_GENERATOR_SQL, "UNKNOWN SUBJECT SEQUENCE GENERATOR SQL");
             updateNotificationEnabled = xmlConfig.getBoolean(UPDATE_NOTIFICATION_ENABLED, false);
             validateCodesEnabled = xmlConfig.getBoolean(VALIDATE_CODES_ENABLED, true);
             validateIdentitySourcesEnabled = xmlConfig.getBoolean(VALIDATE_IDENTITY_SOURCES_ENABLED, true);

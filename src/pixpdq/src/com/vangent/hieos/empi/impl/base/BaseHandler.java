@@ -18,6 +18,7 @@ import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.adapter.EMPINotification;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 
@@ -75,7 +76,7 @@ public class BaseHandler {
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
-    protected void addSubjectToNotification(EMPINotification notification, String enterpriseSubjectId) throws EMPIException {
+    protected void addSubjectToNotification(EMPINotification notification, InternalId enterpriseSubjectId) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         if (!empiConfig.isUpdateNotificationEnabled()) {
             // Notifications are turned off -- get out now.

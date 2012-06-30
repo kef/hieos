@@ -13,6 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.TelecomAddress;
 import java.sql.Connection;
@@ -49,17 +50,20 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,use,value FROM subject_telecom_address WHERE subject_id=?";
+            String sql = "SELECT seq_no,use,value FROM subject_telecom_address WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 TelecomAddress telecomAddress = new TelecomAddress();
-                telecomAddress.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                telecomAddress.setInternalId(internalId);
                 telecomAddress.setUse(rs.getString(2));
                 telecomAddress.setValue(rs.getString(3));
                 telecomAddresses.add(telecomAddress);
@@ -84,17 +88,20 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_telecom_address(id,use,value,subject_id) values(?,?,?,?)";
+            String sql = "INSERT INTO subject_telecom_address(subject_id,seq_no,use,value) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (TelecomAddress telecomAddress : telecomAddresses) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                telecomAddress.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, telecomAddress.getInternalId());
-                stmt.setString(2, telecomAddress.getUse());
-                stmt.setString(3, telecomAddress.getValue());
-                stmt.setString(4, parentSubject.getInternalId());
+               InternalId internalId = new InternalId(subjectId, seqNo);
+                telecomAddress.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
+                stmt.setString(3, telecomAddress.getUse());
+                stmt.setString(4, telecomAddress.getValue());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -116,7 +123,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_telecom_address", "subject_id", this.getClass().getName());
     }
 }

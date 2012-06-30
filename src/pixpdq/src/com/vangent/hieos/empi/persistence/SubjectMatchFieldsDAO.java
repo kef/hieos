@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.config.FieldConfig;
 import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -74,7 +75,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_match_fields", "subject_id", this.getClass().getName());
     }
 
@@ -92,7 +93,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         try {
             // Go through each field and set the proper values in the prepared statement.
             int fieldIndex = 1;
-            stmt.setString(fieldIndex, record.getId());
+            stmt.setLong(fieldIndex, record.getInternalId().getId());
             for (FieldConfig fieldConfig : fieldConfigs) {
                 boolean isStoreField = fieldConfig.isStoreField();
                 if (isStoreField) {

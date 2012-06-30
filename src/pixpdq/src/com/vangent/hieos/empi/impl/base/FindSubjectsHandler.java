@@ -22,6 +22,7 @@ import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.validator.FindSubjectsValidator;
 import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
@@ -115,11 +116,9 @@ public class FindSubjectsHandler extends BaseHandler {
         boolean hasSpecifiedMinimumDegreeMatchPercentage = subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage();
         int minimumDegreeMatchPercentage = subjectSearchCriteria.getMinimumDegreeMatchPercentage();
 
-        // Convert search subject into a record that can be used for matching.
+        // Run the matching algorithm (in "find" mode).
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(searchSubject);
-
-        // Run the matching algorithm (in "find" mode).
         MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
         MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchType.SUBJECT_FIND);
         List<ScoredRecord> recordMatches = matchResults.getMatches();
@@ -127,7 +126,7 @@ public class FindSubjectsHandler extends BaseHandler {
         // Now load subjects from the match results.
         List<Subject> subjectMatches = new ArrayList<Subject>();
         long startTime = System.currentTimeMillis();
-        Set<String> enterpriseSubjectIds = new HashSet<String>();
+        Set<Long> enterpriseSubjectIds = new HashSet<Long>();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
             int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
@@ -139,11 +138,11 @@ public class FindSubjectsHandler extends BaseHandler {
             // See if there is a minimum degree match percentage.
             if (!hasSpecifiedMinimumDegreeMatchPercentage
                     || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
-                String systemSubjectId = record.getId();
-                String enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
+                InternalId systemSubjectId = record.getInternalId();
+                InternalId enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
                 // Avoid adding duplicates to the result.
-                if (!enterpriseSubjectIds.contains(enterpriseSubjectId)) {
-                    enterpriseSubjectIds.add(enterpriseSubjectId);
+                if (!enterpriseSubjectIds.contains(enterpriseSubjectId.getId())) {
+                    enterpriseSubjectIds.add(enterpriseSubjectId.getId());
                     Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
                     enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
 
@@ -265,7 +264,7 @@ public class FindSubjectsHandler extends BaseHandler {
      */
     private Subject loadEnterpriseSubject(Subject baseSubject, boolean loadFullSubject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
-        String enterpriseSubjectId = null;
+        InternalId enterpriseSubjectId = null;
         if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
             enterpriseSubjectId = baseSubject.getInternalId();
         } else {

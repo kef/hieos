@@ -13,11 +13,15 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
+import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.Subject.SubjectType;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
+import com.vangent.hieos.empi.sequence.SequenceGenerator;
+import com.vangent.hieos.empi.sequence.SequenceGeneratorException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,7 +52,7 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public Subject load(String subjectId) throws EMPIException {
+    public Subject load(InternalId subjectId) throws EMPIException {
         Subject subject = new Subject();
 
         // Load the subject.
@@ -60,7 +64,7 @@ public class SubjectDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
+            stmt.setLong(1, subjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
             if (!rs.next()) {
@@ -138,7 +142,7 @@ public class SubjectDAO extends AbstractDAO {
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
 
         // First find the subjectId given the subject identifier.
-        String subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
+        InternalId subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
         Subject subject = null;
         if (subjectId != null) {
             subject = this.loadBaseSubject(subjectId);
@@ -152,7 +156,7 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public Subject loadBaseSubject(String subjectId) throws EMPIException {
+    public Subject loadBaseSubject(InternalId subjectId) throws EMPIException {
         Subject subject = null;
 
         // Load the subject.
@@ -164,7 +168,7 @@ public class SubjectDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
+            stmt.setLong(1, subjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
             if (rs.next()) {
@@ -187,8 +191,8 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public String getLastUpdatedSystemSubjectId(String enterpriseSubjectId) throws EMPIException {
-        String lastUpdatedSystemSubjectId = null;
+    public InternalId getLastUpdatedSystemSubjectId(InternalId enterpriseSubjectId) throws EMPIException {
+        InternalId lastUpdatedSystemSubjectId = null;
         Connection conn = this.getConnection();
         // Get list of cross references.
         SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
@@ -212,7 +216,7 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    private Date getLastUpdatedTime(String subjectId) throws EMPIException {
+    private Date getLastUpdatedTime(InternalId subjectId) throws EMPIException {
         Date lastUpdatedTime = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -222,7 +226,7 @@ public class SubjectDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectId);
+            stmt.setLong(1, subjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
             if (rs.next()) {
@@ -252,7 +256,7 @@ public class SubjectDAO extends AbstractDAO {
             // Go through each identifier (assumes no duplicates across subjects).
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
                 // See if the identifier has a subject.
-                String subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
+                InternalId subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
                 if (subjectId != null) {
                     subjectExists = true;
                     break;
@@ -283,10 +287,12 @@ public class SubjectDAO extends AbstractDAO {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
+                Long subjectId = this.generateSubjectUniqueId();
+                InternalId internalId = new InternalId(subjectId);
+                subject.setInternalId(internalId);
                 String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
-                subject.setInternalId(PersistenceHelper.getUUID());
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.
-                stmt.setString(1, subject.getInternalId());
+                stmt.setLong(1, subjectId);
                 stmt.setString(2, subjectTypeValue);
                 this.setDate(stmt, 3, subject.getBirthTime());
                 this.setCodedValue(stmt, 4, subject.getGender(), CodesConfig.CodedType.GENDER);
@@ -299,6 +305,7 @@ public class SubjectDAO extends AbstractDAO {
                 this.setCodedValue(stmt, 11, subject.getRace(), CodesConfig.CodedType.RACE);
                 this.setCodedValue(stmt, 12, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
                 stmt.setTimestamp(13, this.getTimestamp(subject.getLastUpdatedTime()));
+
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -330,6 +337,8 @@ public class SubjectDAO extends AbstractDAO {
                 subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
                 subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
+        } catch (SequenceGeneratorException ex) {
+            throw new EMPIException(ex);
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception inserting subjects", ex);
         } finally {
@@ -338,12 +347,25 @@ public class SubjectDAO extends AbstractDAO {
     }
 
     /**
+     * 
+     * @return
+     * @throws SequenceGeneratorException
+     * @throws EMPIException
+     */
+    private Long generateSubjectUniqueId() throws SequenceGeneratorException, EMPIException {
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        String sql = empiConfig.getSubjectSequenceGeneratorSQL();
+        SequenceGenerator sg = new SequenceGenerator(this.getConnection(), sql);
+        return sg.getNext();
+    }
+
+    /**
      *
      * @param targetEnterpriseSubjectId
      * @param subject Contains demographics to update.
      * @throws EMPIException 
      */
-    public void updateEnterpriseSubject(String targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException {
         // First, load the enterprise subject.
         Subject enterpriseSubject = this.load(targetEnterpriseSubjectId);
 
@@ -518,7 +540,7 @@ public class SubjectDAO extends AbstractDAO {
             this.setCodedValue(stmt, 9, subject.getRace(), CodesConfig.CodedType.RACE);
             this.setCodedValue(stmt, 10, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
             stmt.setTimestamp(11, this.getTimestamp(subject.getLastUpdatedTime()));
-            stmt.setString(12, subject.getInternalId());
+            stmt.setLong(12, subject.getInternalId().getId());
             stmt.addBatch();
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
@@ -539,7 +561,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(InternalId survivingEnterpriseSubjectId, InternalId subsumedEnterpriseSubjectId) throws EMPIException {
 
         // Only perform merge if the ids are different.
         // Guard is here just in case higher-level logic does not account for this case.
@@ -565,7 +587,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSubject(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
+    public void deleteSubject(InternalId subjectId, Subject.SubjectType subjectType) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             Connection conn = this.getConnection();  // Get connection to use.
@@ -604,7 +626,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    private void deleteSubjectComponents(String subjectId) throws EMPIException {
+    private void deleteSubjectComponents(InternalId subjectId) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             Connection conn = this.getConnection();  // Get connection to use.

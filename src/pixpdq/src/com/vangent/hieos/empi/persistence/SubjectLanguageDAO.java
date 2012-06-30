@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectLanguage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,17 +50,20 @@ public class SubjectLanguageDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,preference_indicator,language_code FROM subject_language WHERE subject_id=?";
+            String sql = "SELECT seq_no,preference_indicator,language_code FROM subject_language WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectLanguage subjectLanguage = new SubjectLanguage();
-                subjectLanguage.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectLanguage.setInternalId(internalId);
                 subjectLanguage.setPreferenceIndicator(this.getBoolean(rs, 2));
 
                 // Load language coded value.
@@ -88,15 +92,18 @@ public class SubjectLanguageDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_language(id,subject_id,language_code,preference_indicator) values(?,?,?,?)";
+            String sql = "INSERT INTO subject_language(subject_id,seq_no,language_code,preference_indicator) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (SubjectLanguage subjectLanguage : subjectLanguages) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                subjectLanguage.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, subjectLanguage.getInternalId());
-                stmt.setString(2, parentSubject.getInternalId());
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectLanguage.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
 
                 // Insert language type coded value.
                 this.setCodedValue(stmt, 3, subjectLanguage.getLanguageCode(), CodesConfig.CodedType.LANGUAGE);
@@ -124,7 +131,7 @@ public class SubjectLanguageDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_language", "subject_id", this.getClass().getName());
     }
 }

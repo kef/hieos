@@ -17,6 +17,7 @@ import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,7 +68,7 @@ public class AbstractDAO {
      * @param className
      * @throws EMPIException
      */
-    protected void deleteRecords(String id, String tableName, String idColumnName, String className) throws EMPIException {
+    protected void deleteRecords(InternalId id, String tableName, String idColumnName, String className) throws EMPIException {
         PreparedStatement stmt = null;
         try {
             StringBuilder sb = new StringBuilder();
@@ -77,7 +78,7 @@ public class AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, id);
+            stmt.setLong(1, id.getId());
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();

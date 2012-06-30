@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,17 +50,20 @@ public class SubjectNameDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,given_name,family_name,prefix,suffix,middle_name FROM subject_name WHERE subject_id=?";
+            String sql = "SELECT seq_no,given_name,family_name,prefix,suffix,middle_name FROM subject_name WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectName subjectName = new SubjectName();
-                subjectName.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectName.setInternalId(internalId);
                 subjectName.setGivenName(rs.getString(2));
                 subjectName.setFamilyName(rs.getString(3));
                 subjectName.setPrefix(rs.getString(4));
@@ -87,20 +91,23 @@ public class SubjectNameDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_name(id,given_name,family_name,prefix,suffix,middle_name,subject_id) values(?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_name(subject_id,seq_no,given_name,family_name,prefix,suffix,middle_name) values(?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (SubjectName subjectName : subjectNames) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                subjectName.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, subjectName.getInternalId());
-                stmt.setString(2, subjectName.getGivenName());
-                stmt.setString(3, subjectName.getFamilyName());
-                stmt.setString(4, subjectName.getPrefix());
-                stmt.setString(5, subjectName.getSuffix());
-                stmt.setString(6, subjectName.getMiddleName());
-                stmt.setString(7, parentSubject.getInternalId());
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectName.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
+                stmt.setString(3, subjectName.getGivenName());
+                stmt.setString(4, subjectName.getFamilyName());
+                stmt.setString(5, subjectName.getPrefix());
+                stmt.setString(6, subjectName.getSuffix());
+                stmt.setString(7, subjectName.getMiddleName());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -122,7 +129,7 @@ public class SubjectNameDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_name", "subject_id", this.getClass().getName());
     }
 }

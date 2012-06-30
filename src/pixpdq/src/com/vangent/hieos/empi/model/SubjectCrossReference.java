@@ -13,21 +13,24 @@
 package com.vangent.hieos.empi.model;
 
 // FIXME: Move class to a more reasonable package??
+
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
+
 /**
  *
  * @author Bernie Thuman
  */
 public class SubjectCrossReference {
 
-    private String enterpriseSubjectId;
-    private String systemSubjectId;
+    private InternalId enterpriseSubjectId;
+    private InternalId systemSubjectId;
     private double matchScore;
 
     /**
      *
      * @return
      */
-    public String getEnterpriseSubjectId() {
+    public InternalId getEnterpriseSubjectId() {
         return enterpriseSubjectId;
     }
 
@@ -35,7 +38,7 @@ public class SubjectCrossReference {
      *
      * @param enterpriseSubjectId
      */
-    public void setEnterpriseSubjectId(String enterpriseSubjectId) {
+    public void setEnterpriseSubjectId(InternalId enterpriseSubjectId) {
         this.enterpriseSubjectId = enterpriseSubjectId;
     }
 
@@ -59,7 +62,7 @@ public class SubjectCrossReference {
      *
      * @return
      */
-    public String getSystemSubjectId() {
+    public InternalId getSystemSubjectId() {
         return systemSubjectId;
     }
 
@@ -67,7 +70,7 @@ public class SubjectCrossReference {
      *
      * @param systemSubjectId
      */
-    public void setSystemSubjectId(String systemSubjectId) {
+    public void setSystemSubjectId(InternalId systemSubjectId) {
         this.systemSubjectId = systemSubjectId;
     }
 }

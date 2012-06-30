@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,24 +52,28 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
         ResultSet rs = null;
         try {
             SubjectDAO subjectDAO = new SubjectDAO(this.getConnection());
-            String sql = "SELECT id,subject_personal_relationship_code,personal_relationship_subject_id FROM subject_personal_relationship WHERE subject_id=?";
+            String sql = "SELECT seq_no,subject_personal_relationship_code,personal_relationship_subject_id FROM subject_personal_relationship WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
-                subjectPersonalRelationship.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectPersonalRelationship.setInternalId(internalId);
 
                 // Load relationship type coded value.
                 subjectPersonalRelationship.setRelationshipType(this.getCodedValue(rs.getString(2), CodesConfig.CodedType.PERSONAL_RELATIONSHIP));
 
                 // Load related subject.
-                String personalRelationshipSubjectId = rs.getString(3);
-                Subject relatedSubject = subjectDAO.load(personalRelationshipSubjectId);
+                Long personalRelationshipSubjectId = rs.getLong(3);
+                internalId = new InternalId(personalRelationshipSubjectId);
+                Subject relatedSubject = subjectDAO.load(internalId);
                 subjectPersonalRelationship.setSubject(relatedSubject);
 
                 // Add personal relationship to the list.
@@ -95,15 +100,18 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             SubjectDAO subjectDAO = new SubjectDAO(this.getConnection());
-            String sql = "INSERT INTO subject_personal_relationship(id,subject_id,subject_personal_relationship_code,personal_relationship_subject_id) values(?,?,?,?)";
+            String sql = "INSERT INTO subject_personal_relationship(subject_id,seq_no,subject_personal_relationship_code,personal_relationship_subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (SubjectPersonalRelationship subjectPersonalRelationship : subjectPersonalRelationships) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                subjectPersonalRelationship.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, subjectPersonalRelationship.getInternalId());
-                stmt.setString(2, parentSubject.getInternalId());
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectPersonalRelationship.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
 
                 // Insert relationship type coded value.
                 this.setCodedValue(stmt, 3, subjectPersonalRelationship.getRelationshipType(), CodesConfig.CodedType.PERSONAL_RELATIONSHIP);
@@ -114,7 +122,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
                 relatedSubject.setType(Subject.SubjectType.PERSONAL_RELATIONSHIP);
                 relatedSubjects.add(relatedSubject);
                 subjectDAO.insert(relatedSubjects);
-                stmt.setString(4, relatedSubject.getInternalId());
+                stmt.setLong(4, relatedSubject.getInternalId().getId());
 
                 stmt.addBatch();
             }
@@ -137,7 +145,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_personal_relationship", "subject_id", this.getClass().getName());
     }
 }

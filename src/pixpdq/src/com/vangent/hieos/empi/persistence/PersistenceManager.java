@@ -12,15 +12,16 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.lockmanager.LockManagerException;
+//import com.vangent.hieos.empi.config.EMPIConfig;
+//import com.vangent.hieos.empi.lockmanager.LockManagerException;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.empi.lockmanager.LockManager;
-import com.vangent.hieos.empi.lockmanager.LockResource;
+//import com.vangent.hieos.empi.lockmanager.LockManager;
+//import com.vangent.hieos.empi.lockmanager.LockResource;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -96,7 +97,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadSubject(String subjectId) throws EMPIException {
+    public Subject loadSubject(InternalId subjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.load(subjectId);
     }
@@ -107,7 +108,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectIdentifier> loadSubjectIdentifiers(String subjectId) throws EMPIException {
+    public List<SubjectIdentifier> loadSubjectIdentifiers(InternalId subjectId) throws EMPIException {
         SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
         return dao.load(subjectId);
     }
@@ -118,7 +119,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectIdentifier> loadSubjectOtherIdentifiers(String subjectId) throws EMPIException {
+    public List<SubjectIdentifier> loadSubjectOtherIdentifiers(InternalId subjectId) throws EMPIException {
         SubjectOtherIdentifierDAO dao = new SubjectOtherIdentifierDAO(connection);
         return dao.load(subjectId);
     }
@@ -140,7 +141,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadBaseSubject(String subjectId) throws EMPIException {
+    public Subject loadBaseSubject(InternalId subjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.loadBaseSubject(subjectId);
     }
@@ -161,7 +162,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
+    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(InternalId enterpriseSubjectId) throws EMPIException {
         SubjectCrossReferenceDAO dao = new SubjectCrossReferenceDAO(connection);
         return dao.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
     }
@@ -172,7 +173,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public String getLastUpdatedSystemSubjectId(String enterpriseSubjectId) throws EMPIException {
+    public InternalId getLastUpdatedSystemSubjectId(InternalId enterpriseSubjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
     }
@@ -183,7 +184,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadEnterpriseSubject(String enterpriseSubjectId) throws EMPIException {
+    public Subject loadEnterpriseSubject(InternalId enterpriseSubjectId) throws EMPIException {
         // Load subject.
         Subject enterpriseSubject = this.loadSubject(enterpriseSubjectId);
 
@@ -199,7 +200,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId) throws EMPIException {
+    public Subject loadEnterpriseSubjectIdentifiersOnly(InternalId enterpriseSubjectId) throws EMPIException {
         return this.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId, false);
     }
 
@@ -209,7 +210,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadEnterpriseSubjectIdentifiersAndNamesOnly(String enterpriseSubjectId) throws EMPIException {
+    public Subject loadEnterpriseSubjectIdentifiersAndNamesOnly(InternalId enterpriseSubjectId) throws EMPIException {
         return this.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId, true);
     }
 
@@ -220,7 +221,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    private Subject loadEnterpriseSubjectIdentifiersOnly(String enterpriseSubjectId, boolean loadNames) throws EMPIException {
+    private Subject loadEnterpriseSubjectIdentifiersOnly(InternalId enterpriseSubjectId, boolean loadNames) throws EMPIException {
         // Create enterprise subject.
         Subject enterpriseSubject = new Subject();
         enterpriseSubject.setInternalId(enterpriseSubjectId);
@@ -280,7 +281,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public String getEnterpriseSubjectId(Subject systemSubject) throws EMPIException {
+    public InternalId getEnterpriseSubjectId(Subject systemSubject) throws EMPIException {
         return this.getEnterpriseSubjectId(systemSubject.getInternalId());
     }
 
@@ -290,7 +291,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public String getEnterpriseSubjectId(String systemSubjectId) throws EMPIException {
+    public InternalId getEnterpriseSubjectId(InternalId systemSubjectId) throws EMPIException {
         SubjectCrossReferenceDAO dao = new SubjectCrossReferenceDAO(connection);
         return dao.getEnterpriseSubjectId(systemSubjectId);
     }
@@ -378,21 +379,21 @@ public class PersistenceManager {
      * @param subject
      * @throws EMPIException
      */
-    public void updateEnterpriseSubject(String targetEnterpriseSubjectId, Subject subject) throws EMPIException {
-        LockManager lockManager = new LockManager(EMPIConfig.getInstance().getJndiResourceName());
-        LockResource lockResource = new LockResource(targetEnterpriseSubjectId);
-        try {
-            lockManager.acquireLock(lockResource);
-        } catch (LockManagerException ex) {
-            throw new EMPIException(ex);
-        }
+    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+        //LockManager lockManager = new LockManager(EMPIConfig.getInstance().getJndiResourceName());
+        //LockResource lockResource = new LockResource(targetEnterpriseSubjectId);
+        //try {
+        //    lockManager.acquireLock(lockResource);
+        //} catch (LockManagerException ex) {
+        //    throw new EMPIException(ex);
+        //}
         SubjectDAO dao = new SubjectDAO(connection);
         dao.updateEnterpriseSubject(targetEnterpriseSubjectId, subject);
-        try {
-            lockManager.releaseLock(lockResource);
-        } catch (LockManagerException ex) {
-            throw new EMPIException(ex);
-        }
+        //try {
+        //    lockManager.releaseLock(lockResource);
+        //} catch (LockManagerException ex) {
+        //    throw new EMPIException(ex);
+        //}
     }
 
     /**
@@ -402,7 +403,7 @@ public class PersistenceManager {
      * @param matchScore
      * @throws EMPIException
      */
-    public void insertSubjectCrossReference(String systemSubjectId, String enterpriseSubjectId, int matchScore) throws EMPIException {
+    public void insertSubjectCrossReference(InternalId systemSubjectId, InternalId enterpriseSubjectId, int matchScore) throws EMPIException {
         SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
         subjectCrossReference.setMatchScore(matchScore);
         subjectCrossReference.setSystemSubjectId(systemSubjectId);
@@ -447,7 +448,7 @@ public class PersistenceManager {
      * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(InternalId survivingEnterpriseSubjectId, InternalId subsumedEnterpriseSubjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         dao.mergeEnterpriseSubjects(survivingEnterpriseSubjectId, subsumedEnterpriseSubjectId);
     }
@@ -477,7 +478,7 @@ public class PersistenceManager {
      * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSubject(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
+    public void deleteSubject(InternalId subjectId, Subject.SubjectType subjectType) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         dao.deleteSubject(subjectId, subjectType);
     }
@@ -496,7 +497,7 @@ public class PersistenceManager {
      * @param subjectIdentifierId
      * @throws EMPIException
      */
-    public void deleteSubjectIdentifier(String subjectIdentifierId) throws EMPIException {
+    public void deleteSubjectIdentifier(InternalId subjectIdentifierId) throws EMPIException {
         SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
         dao.deleteSubjectIdentifier(subjectIdentifierId);
     }

@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectCitizenship;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,17 +50,20 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,nation_code,nation_name FROM subject_citizenship WHERE subject_id=?";
+            String sql = "SELECT seq_no,nation_code,nation_name FROM subject_citizenship WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectCitizenship subjectCitizenship = new SubjectCitizenship();
-                subjectCitizenship.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectCitizenship.setInternalId(internalId);
 
                 // Load language coded value.
                 subjectCitizenship.setNationCode(this.getCodedValue(rs.getString(2), CodesConfig.CodedType.NATION));
@@ -89,15 +93,18 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_citizenship(id,subject_id,nation_code,nation_name) values(?,?,?,?)";
+            String sql = "INSERT INTO subject_citizenship(subject_id,seq_no,nation_code,nation_name) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (SubjectCitizenship subjectCitizenship : subjectCitizenships) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                subjectCitizenship.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, subjectCitizenship.getInternalId());
-                stmt.setString(2, parentSubject.getInternalId());
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                subjectCitizenship.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
 
                 // Insert nation coded value.
                 this.setCodedValue(stmt, 3, subjectCitizenship.getNationCode(), CodesConfig.CodedType.NATION);
@@ -125,7 +132,7 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_citizenship", "subject_id", this.getClass().getName());
     }
 }

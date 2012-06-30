@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.persistence;
 import com.vangent.hieos.hl7v3util.model.subject.Address;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,17 +50,20 @@ public class SubjectAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use FROM subject_address WHERE subject_id=?";
+            String sql = "SELECT seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use FROM subject_address WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, parentSubject.getInternalId());
+            Long subjectId = parentSubject.getInternalId().getId();
+            stmt.setLong(1, subjectId);
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Address address = new Address();
-                address.setInternalId(rs.getString(1));
+                int seqNo = rs.getInt(1);
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                address.setInternalId(internalId);
                 address.setStreetAddressLine1(rs.getString(2));
                 address.setStreetAddressLine2(rs.getString(3));
                 address.setStreetAddressLine3(rs.getString(4));
@@ -89,22 +93,25 @@ public class SubjectAddressDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_address(id,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use,subject_id) values(?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_address(subject_id,seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use) values(?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
+            Long subjectId = parentSubject.getInternalId().getId();
+            int seqNo = 0;
             for (Address address : addresses) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
-                address.setInternalId(PersistenceHelper.getUUID());
-                stmt.setString(1, address.getInternalId());
-                stmt.setString(2, address.getStreetAddressLine1());
-                stmt.setString(3, address.getStreetAddressLine2());
-                stmt.setString(4, address.getStreetAddressLine3());
-                stmt.setString(5, address.getCity());
-                stmt.setString(6, address.getState());
-                stmt.setString(7, address.getPostalCode());
-                stmt.setString(8, address.getUse());
-                stmt.setString(9, parentSubject.getInternalId());
+                InternalId internalId = new InternalId(subjectId, seqNo);
+                address.setInternalId(internalId);
+                stmt.setLong(1, subjectId);
+                stmt.setInt(2, seqNo++);
+                stmt.setString(3, address.getStreetAddressLine1());
+                stmt.setString(4, address.getStreetAddressLine2());
+                stmt.setString(5, address.getStreetAddressLine3());
+                stmt.setString(6, address.getCity());
+                stmt.setString(7, address.getState());
+                stmt.setString(8, address.getPostalCode());
+                stmt.setString(9, address.getUse());
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -126,7 +133,7 @@ public class SubjectAddressDAO extends AbstractDAO {
      * @param subjectId
      * @throws EMPIException
      */
-    public void deleteSubjectRecords(String subjectId) throws EMPIException {
+    public void deleteSubjectRecords(InternalId subjectId) throws EMPIException {
         this.deleteRecords(subjectId, "subject_address", "subject_id", this.getClass().getName());
     }
 }

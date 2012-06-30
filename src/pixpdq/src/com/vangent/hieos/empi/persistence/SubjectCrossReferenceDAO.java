@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,7 +46,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
+    public List<SubjectCrossReference> loadEnterpriseSubjectCrossReferences(InternalId enterpriseSubjectId) throws EMPIException {
         List<SubjectCrossReference> subjectCrossReferences = new ArrayList<SubjectCrossReference>();
         // Load the subject names.
         PreparedStatement stmt = null;
@@ -56,13 +57,14 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, enterpriseSubjectId);
+            stmt.setLong(1, enterpriseSubjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
             while (rs.next()) {
                 SubjectCrossReference subjectCrossReference = new SubjectCrossReference();
                 subjectCrossReference.setEnterpriseSubjectId(enterpriseSubjectId);
-                subjectCrossReference.setSystemSubjectId(rs.getString(1));
+                InternalId internalId = new InternalId(rs.getLong(1));
+                subjectCrossReference.setSystemSubjectId(internalId);
                 subjectCrossReference.setMatchScore(rs.getDouble(2));
 
                 // Add cross-reference to list.
@@ -83,8 +85,8 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public String getEnterpriseSubjectId(String systemSubjectId) throws EMPIException {
-        String enterpriseSubjectId = null;
+    public InternalId getEnterpriseSubjectId(InternalId systemSubjectId) throws EMPIException {
+        InternalId enterpriseSubjectId = null;
         // Load the subject names.
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -94,11 +96,12 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, systemSubjectId);
+            stmt.setLong(1, systemSubjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
             if (rs.next()) {
-                enterpriseSubjectId = rs.getString(1);
+                Long id = rs.getLong(1);
+                enterpriseSubjectId = new InternalId(id);
             }
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
@@ -122,8 +125,8 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectCrossReference.getEnterpriseSubjectId());
-            stmt.setString(2, subjectCrossReference.getSystemSubjectId());
+            stmt.setLong(1, subjectCrossReference.getEnterpriseSubjectId().getId());
+            stmt.setLong(2, subjectCrossReference.getSystemSubjectId().getId());
             stmt.setDouble(3, subjectCrossReference.getMatchScore());
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
@@ -144,7 +147,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
      */
-    public void mergeEnterpriseSubjects(String survivingEnterpriseSubjectId, String subsumedEnterpriseSubjectId) throws EMPIException {
+    public void mergeEnterpriseSubjects(InternalId survivingEnterpriseSubjectId, InternalId subsumedEnterpriseSubjectId) throws EMPIException {
 
         // Move cross references from subsumedEnterpriseSubjectId to survivingEnterpriseSubjectId
         PreparedStatement stmt = null;
@@ -154,8 +157,8 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SQL = " + sql);
             }
             stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, survivingEnterpriseSubjectId);
-            stmt.setString(2, subsumedEnterpriseSubjectId);
+            stmt.setLong(1, survivingEnterpriseSubjectId.getId());
+            stmt.setLong(2, subsumedEnterpriseSubjectId.getId());
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
@@ -175,7 +178,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @param subjectType
      * @throws EMPIException
      */
-    public void deleteSubjectCrossReferences(String subjectId, Subject.SubjectType subjectType) throws EMPIException {
+    public void deleteSubjectCrossReferences(InternalId subjectId, Subject.SubjectType subjectType) throws EMPIException {
         String columnName = "system_subject_id";
         if (subjectType.equals(Subject.SubjectType.ENTERPRISE)) {
             columnName = "enterprise_subject_id";
@@ -188,7 +191,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
-    public void deleteEnterpriseSubjectCrossReferences(String enterpriseSubjectId) throws EMPIException {
+    public void deleteEnterpriseSubjectCrossReferences(InternalId enterpriseSubjectId) throws EMPIException {
         this.deleteRecords(enterpriseSubjectId, "subject_xref", "enterprise_subject_id", this.getClass().getName());
     }
 }

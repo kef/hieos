@@ -20,6 +20,7 @@ import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -79,7 +80,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             updateNotificationContent = this.updateSystemSubject(baseSubject, subject);
         } else {
-            String enterpriseSubjectId = baseSubject.getInternalId();
+            InternalId enterpriseSubjectId = baseSubject.getInternalId();
             // FIXME: MUCH TO DO HERE!!!!
         }
         // FIXME: MUCH TO DO HERE!!!!
@@ -99,7 +100,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         EMPINotification notification = new EMPINotification();
 
         // Get the enterprise subject id.
-        String enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
+        InternalId enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
 
         // delete the system-level subject.
         pm.deleteSubject(baseSubject);
@@ -112,7 +113,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         } else {
             // Update demographics on enterprise-subject with last updated system-level subject.
             logger.trace("+++ Updating enterprise subject with last updated demographics +++");
-            String lastUpdatedSystemSubjectId = pm.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
+            InternalId lastUpdatedSystemSubjectId = pm.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
             Subject lastUpdatedSystemSubject = pm.loadSubject(lastUpdatedSystemSubjectId);
             pm.updateEnterpriseSubject(enterpriseSubjectId, lastUpdatedSystemSubject);
             this.addSubjectToNotification(notification, enterpriseSubjectId);

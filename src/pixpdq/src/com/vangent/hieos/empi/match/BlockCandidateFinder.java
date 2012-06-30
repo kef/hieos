@@ -22,6 +22,7 @@ import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.empi.persistence.PersistenceHelper;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,7 +58,7 @@ public class BlockCandidateFinder extends CandidateFinder {
     @Override
     public List<Record> findCandidates(Record searchRecord, MatchType matchType) throws EMPIException {
         List<Record> records = new ArrayList<Record>();
-        Set<String> candidateRecordIds = new HashSet<String>();
+        Set<Long> candidateRecordIds = new HashSet<Long>();
 
         // Get configuration items.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
@@ -77,7 +78,7 @@ public class BlockCandidateFinder extends CandidateFinder {
 
                     // Process each query result (and avoid duplicates across blocking passes).
                     while (rs.next()) {
-                        String recordId = rs.getString(1); // id is always position 1.
+                        Long recordId = rs.getLong(1); // id is always position 1.
 
                         // Avoid duplicates across blocking passes.
                         if (!candidateRecordIds.contains(recordId)) {
@@ -145,9 +146,10 @@ public class BlockCandidateFinder extends CandidateFinder {
      * @return
      * @throws SQLException
      */
-    private Record buildRecordFromResultSet(ResultSet rs, String recordId, MatchConfig matchConfig) throws SQLException {
+    private Record buildRecordFromResultSet(ResultSet rs, Long recordId, MatchConfig matchConfig) throws SQLException {
         Record record = new Record();
-        record.setId(recordId);
+        InternalId internalId = new InternalId(recordId);
+        record.setId(internalId);
 
         // Fill in the match fields from the result set.
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();

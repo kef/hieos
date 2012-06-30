@@ -28,6 +28,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.AddSubjectValidator;
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.HashSet;
 import java.util.List;
@@ -70,8 +71,8 @@ public class AddSubjectHandler extends BaseHandler {
         pm.insertSubject(newSubject);
 
         // Get prepared for next steps ..
-        String systemSubjectId = newSubject.getInternalId();
-        String enterpriseSubjectId = null;
+        InternalId systemSubjectId = newSubject.getInternalId();
+        InternalId enterpriseSubjectId = null;
         int matchScore = 100;    // Default.
 
         // Find matching records.
@@ -87,10 +88,11 @@ public class AddSubjectHandler extends BaseHandler {
 
         long start = System.currentTimeMillis();
 
-        if (recordMatches.isEmpty()) { // No match.
+        if (recordMatches.isEmpty()) {
+            // No matching records.
             enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
 
-        } else if (this.isAnyMatchedRecordInSameIdentifierDomain(newSubject, recordMatches)) {
+        } else if (!this.isLinkAllowed(newSubject, recordMatches)) {
             logger.trace("+++++ Not linking subject with same identifier domain +++++");
             // Do not place record along side any record within the same identifier domain.
             recordMatches.clear();  // Treat as though a match did not occur.
@@ -102,7 +104,7 @@ public class AddSubjectHandler extends BaseHandler {
 
             // Cross reference will be to first matched record.  All other records will be merged later below.
             ScoredRecord matchedRecord = recordMatches.get(0);
-            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+            InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
             enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
             matchScore = matchedRecord.getMatchScorePercentage();
 
@@ -135,20 +137,27 @@ public class AddSubjectHandler extends BaseHandler {
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
-    private void mergeRecordMatches(List<ScoredRecord> recordMatches, String enterpriseSubjectId) throws EMPIException {
+    private void mergeRecordMatches(List<ScoredRecord> recordMatches, InternalId enterpriseSubjectId) throws EMPIException {
         // FIXME: Make this configurable.
         PersistenceManager pm = this.getPersistenceManager();
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
-        Set<String> subsumedEnterpriseSubjectIds = new HashSet<String>();
+        Set<Long> subsumedEnterpriseSubjectIds = new HashSet<Long>();
         for (int i = 1; i < recordMatches.size(); i++) {
             ScoredRecord matchedRecord = recordMatches.get(i);
-            String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-            String subsumedEnterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+            InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
+            InternalId subsumedEnterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+
             // Make sure that the subject has not already been merged.
-            if (!subsumedEnterpriseSubjectIds.contains(subsumedEnterpriseSubjectId)) {
-                subsumedEnterpriseSubjectIds.add(subsumedEnterpriseSubjectId);
-                pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
+            if (!subsumedEnterpriseSubjectIds.contains(subsumedEnterpriseSubjectId.getId())) {
+
+                // Make sure that subsumed is not already linked to the surviving enterprise subject.
+                if (!subsumedEnterpriseSubjectId.getId().equals(enterpriseSubjectId.getId())) {
+
+                    // FIXME: Add more constraints here (run LinkConstraintController?) ...
+                    subsumedEnterpriseSubjectIds.add(subsumedEnterpriseSubjectId.getId());
+                    pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
+                }
             }
         }
     }
@@ -160,96 +169,9 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private boolean isAnyMatchedRecordInSameIdentifierDomain(Subject newSubject, List<ScoredRecord> recordMatches) throws EMPIException {
-
-        // First check scored record against record matches to see if it is safe to link
-        // the records.
-        for (ScoredRecord recordMatch : recordMatches) {
-            if (this.isMatchedRecordInSameIdentifierDomain(newSubject, recordMatch)) {
-                return true;  // Early exit.
-            }
-        }
-
-        /* RETHINK!!!
-        // FIXME: NEED TO OPTIMIZE ... doing many DB reads where should only read once per
-        // record.
-
-        // Now, go through each pair in the merge set.
-        PersistenceManager pm = this.getPersistenceManager();
-        for (ScoredRecord matchedRecord : recordMatches) {
-        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-        // Load identifiers for matched system subject.
-        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
-
-        for (ScoredRecord compareMatchedRecord : recordMatches) {
-        String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
-        if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
-        // Load identifiers for matched system subject (to compare).
-        List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
-        boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
-        if (foundMatch) {
-        // Found a match.
-        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
-        return true;  // Early exit!
-        }
-        }
-        }
-        }
-         */
-        return false;
-    }
-
-    /**
-     * 
-     * @param newSubject
-     * @param matchedRecord
-     * @return
-     * @throws EMPIException
-     */
-    private boolean isMatchedRecordInSameIdentifierDomain(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
-        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-        // Load identifiers for matched system subject.
-        PersistenceManager pm = this.getPersistenceManager();
-        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
-
-        // Get list of the subject's identifiers.
-        List<SubjectIdentifier> newSubjectIdentifiers = newSubject.getSubjectIdentifiers();
-
-        return this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, newSubjectIdentifiers);
-    }
-
-    /**
-     * 
-     * @param matchedSubjectIdentifiers
-     * @param newSubjectIdentifiers
-     * @return
-     * @throws EMPIException
-     */
-    private boolean isMatchedRecordInSameIdentifierDomain(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> newSubjectIdentifiers) throws EMPIException {
-
-        // NOTE: Small list, so brute force is OK.
-
-        // See if there is a match between the "matched subject" and the subject.
-        for (SubjectIdentifier subjectIdentifier : newSubjectIdentifiers) {
-            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-            for (SubjectIdentifier matchedSubjectIdentifier : matchedSubjectIdentifiers) {
-                SubjectIdentifierDomain matchedSubjectIdentifierDomain = matchedSubjectIdentifier.getIdentifierDomain();
-                if (subjectIdentifierDomain.equals(matchedSubjectIdentifierDomain)) {
-                    // No need to look further.
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("+++++ Not linking +++++");
-                        logger.trace(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
-                        logger.trace(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
-                    }
-                    System.out.println("+++++ Not linking +++++");
-                    System.out.println(" ... subject identifier = " + subjectIdentifier.getCXFormatted());
-                    System.out.println(" ... matched subject identifier (same assigning authority) = " + matchedSubjectIdentifier.getCXFormatted());
-
-                    return true;  // Early exit!
-                }
-            }
-        }
-        return false;
+    private boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> recordMatches) throws EMPIException {
+        LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
+        return linkConstraintController.isLinkAllowed(newSubject, recordMatches);
     }
 
     /**
@@ -259,7 +181,7 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private String insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException {
+    private InternalId insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 

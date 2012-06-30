@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.empi.adapter;
 
+import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.Subject;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class EMPINotification {
      * @param subjectId
      * @return
      */
-    private boolean subjectExists(String subjectId) {
+    private boolean subjectExists(InternalId subjectId) {
         for (Subject subject : subjects) {
             if (subject.getInternalId().equals(subjectId)) {
                 return true;
