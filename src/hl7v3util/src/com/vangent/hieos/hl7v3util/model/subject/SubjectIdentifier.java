@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneable {
 
-    private String subjectId;
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
 
@@ -29,22 +28,6 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      * 
      */
     public SubjectIdentifier() {
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    /**
-     * 
-     * @param subjectId
-     */
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
     }
 
     /**

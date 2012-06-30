@@ -20,7 +20,7 @@ import java.util.Date;
  */
 public class SubjectAbstractEntity {
 
-    private String internalId = null;
+    private InternalId internalId = null;
     private Date lastUpdatedTime = new Date();
 
     /**
@@ -43,7 +43,7 @@ public class SubjectAbstractEntity {
      * 
      * @return
      */
-    public String getInternalId() {
+    public InternalId getInternalId() {
         return internalId;
     }
 
@@ -51,7 +51,7 @@ public class SubjectAbstractEntity {
      *
      * @param internalId
      */
-    public void setInternalId(String internalId) {
+    public void setInternalId(InternalId internalId) {
         this.internalId = internalId;
     }
 
