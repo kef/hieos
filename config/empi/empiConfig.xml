@@ -833,6 +833,9 @@
         </identity-source>
     </identity-sources>
 
+    <!-- configured for postgres -->
+    <subject-sequence-generator-sql>SELECT nextval('subject_seq')</subject-sequence-generator-sql>
+
     <!-- List of valid identifier domains (not yet implemented) -->
     <identifier-domains>
         <identifier-domain>
