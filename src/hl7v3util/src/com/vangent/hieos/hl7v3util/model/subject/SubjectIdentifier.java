@@ -21,8 +21,13 @@ import java.util.List;
  */
 public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneable {
 
+    public enum Type {
+
+        PID, OTHER
+    };
     private String identifier;
     private SubjectIdentifierDomain identifierDomain;
+    private Type identifierType = Type.PID;  // Default.
 
     /**
      * 
@@ -36,6 +41,22 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public SubjectIdentifier(String pidCXFormatted) {
         this.buildFromPIDCXFormatted(pidCXFormatted);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Type getIdentifierType() {
+        return identifierType;
+    }
+
+    /**
+     * 
+     * @param identifierType
+     */
+    public void setIdentifierType(Type identifierType) {
+        this.identifierType = identifierType;
     }
 
     /**

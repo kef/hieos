@@ -499,6 +499,7 @@ public class SubjectBuilder extends BuilderHelper {
         while (iter.hasNext()) {
             OMElement idNode = iter.next();
             SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(idNode);
+            subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.PID);  // Default is PID (but be explicit here).
             subjectIdentifiers.add(subjectIdentifier);
         }
     }
@@ -515,6 +516,7 @@ public class SubjectBuilder extends BuilderHelper {
             for (OMElement asOtherID : asOtherIDs) {
                 OMElement idNode = this.getFirstChildNodeWithName(asOtherID, "id");
                 SubjectIdentifier subjectIdentifier = this.buildSubjectIdentifier(idNode);
+                subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
                 subjectOtherIdentifiers.add(subjectIdentifier);
             }
         } catch (XPathHelperException ex) {

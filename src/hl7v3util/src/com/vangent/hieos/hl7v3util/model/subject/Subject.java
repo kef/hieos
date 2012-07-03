@@ -69,50 +69,6 @@ public class Subject extends SubjectAbstractEntity implements Cloneable {
 
     /**
      *
-     * @param subjectType
-     * @return
-     */
-    public static String getSubjectTypeValue(Subject.SubjectType subjectType) {
-        String value = "";
-        switch (subjectType) {
-            case ENTERPRISE:
-                value = "E";
-                break;
-            case SYSTEM:
-                value = "S";
-                break;
-            case PERSONAL_RELATIONSHIP:
-                value = "P";
-                break;
-            default:
-                value = "V";
-                break;
-        }
-        return value;
-    }
-
-    /**
-     * NOTE: Could have built a full enumeration, but decided to be overkill.
-     *
-     * @param type
-     * @return
-     */
-    public static Subject.SubjectType getSubjectType(String type) {
-        Subject.SubjectType subjectType = SubjectType.ENTERPRISE;
-        if (type.equalsIgnoreCase("E")) {
-            subjectType = SubjectType.ENTERPRISE;
-        } else if (type.equalsIgnoreCase("S")) {
-            subjectType = SubjectType.SYSTEM;
-        } else if (type.equalsIgnoreCase("P")) {
-            subjectType = SubjectType.PERSONAL_RELATIONSHIP;
-        } else {
-            subjectType = SubjectType.VOIDED;
-        }
-        return subjectType;
-    }
-
-    /**
-     *
      * @return
      */
     public int getMatchConfidencePercentage() {
