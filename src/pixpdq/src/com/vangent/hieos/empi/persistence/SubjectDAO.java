@@ -71,7 +71,7 @@ public class SubjectDAO extends AbstractDAO {
                 throw new EMPIException("No subject found for uniqueid = " + subjectId);
             } else {
                 subject.setInternalId(subjectId);
-                subject.setType(Subject.getSubjectType(rs.getString(2)));
+                subject.setType(SubjectDAO.getSubjectType(rs.getString(2)));
                 subject.setBirthTime(this.getDate(rs, 3));
                 subject.setGender(this.getCodedValue(rs.getString(4), CodesConfig.CodedType.GENDER));
                 subject.setDeceasedIndicator(this.getBoolean(rs, 5));
@@ -121,12 +121,12 @@ public class SubjectDAO extends AbstractDAO {
 
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
-        List<SubjectIdentifier> subjectIdentifiers = subjectIdentifierDAO.load(subject);
+        List<SubjectIdentifier> subjectIdentifiers = subjectIdentifierDAO.load(subject, SubjectIdentifier.Type.PID);
         subject.setSubjectIdentifiers(subjectIdentifiers);
 
         // Other identifiers.
-        SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
-        List<SubjectIdentifier> subjectOtherIdentifiers = subjectOtherIdentifierDAO.load(subject);
+        //SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
+        List<SubjectIdentifier> subjectOtherIdentifiers = subjectIdentifierDAO.load(subject, SubjectIdentifier.Type.OTHER);
         subject.setSubjectOtherIdentifiers(subjectOtherIdentifiers);
 
         return subject;
@@ -174,7 +174,7 @@ public class SubjectDAO extends AbstractDAO {
             if (rs.next()) {
                 subject = new Subject();
                 subject.setInternalId(subjectId);
-                subject.setType(Subject.getSubjectType(rs.getString(2)));
+                subject.setType(SubjectDAO.getSubjectType(rs.getString(2)));
             }
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception reading Subject from database", ex);
@@ -290,7 +290,7 @@ public class SubjectDAO extends AbstractDAO {
                 Long subjectId = this.generateSubjectUniqueId();
                 InternalId internalId = new InternalId(subjectId);
                 subject.setInternalId(internalId);
-                String subjectTypeValue = Subject.getSubjectTypeValue(subject.getType());
+                String subjectTypeValue = SubjectDAO.getSubjectTypeValue(subject.getType());
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.
                 stmt.setLong(1, subjectId);
                 stmt.setString(2, subjectTypeValue);
@@ -326,7 +326,7 @@ public class SubjectDAO extends AbstractDAO {
             SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(conn);
             SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(conn);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
-            SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
+            //SubjectOtherIdentifierDAO_OLD subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO_OLD(conn);
             for (Subject subject : subjects) {
                 subjectNameDAO.insert(subject.getSubjectNames(), subject);
                 subjectAddressDAO.insert(subject.getAddresses(), subject);
@@ -334,8 +334,8 @@ public class SubjectDAO extends AbstractDAO {
                 subjectPersonalRelationshipDAO.insert(subject.getSubjectPersonalRelationships(), subject);
                 subjectLanguageDAO.insert(subject.getSubjectLanguages(), subject);
                 subjectCitizenshipDAO.insert(subject.getSubjectCitizenships(), subject);
-                subjectIdentifierDAO.insert(subject.getSubjectIdentifiers(), subject);
-                subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
+                subjectIdentifierDAO.insert(subject);
+                //subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
         } catch (SequenceGeneratorException ex) {
             throw new EMPIException(ex);
@@ -599,12 +599,12 @@ public class SubjectDAO extends AbstractDAO {
 
             // Get DAO instances responsible for deletions.
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(conn);
-            SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
+            //SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
             SubjectCrossReferenceDAO subjectCrossReferenceDAO = new SubjectCrossReferenceDAO(conn);
 
             // Run deletions.
             subjectIdentifierDAO.deleteSubjectRecords(subjectId);
-            subjectOtherIdentifierDAO.deleteSubjectRecords(subjectId);
+            //subjectOtherIdentifierDAO.deleteSubjectRecords(subjectId);
             subjectCrossReferenceDAO.deleteSubjectCrossReferences(subjectId, subjectType);
 
             if (subjectType.equals(SubjectType.SYSTEM)) {
@@ -652,5 +652,49 @@ public class SubjectDAO extends AbstractDAO {
         } finally {
             this.close(stmt);
         }
+    }
+
+     /**
+     *
+     * @param subjectType
+     * @return
+     */
+    private static String getSubjectTypeValue(Subject.SubjectType subjectType) {
+        String value = "";
+        switch (subjectType) {
+            case ENTERPRISE:
+                value = "E";
+                break;
+            case SYSTEM:
+                value = "S";
+                break;
+            case PERSONAL_RELATIONSHIP:
+                value = "P";
+                break;
+            default:
+                value = "V";
+                break;
+        }
+        return value;
+    }
+
+    /**
+     * NOTE: Could have built a full enumeration, but decided to be overkill.
+     *
+     * @param type
+     * @return
+     */
+    private static Subject.SubjectType getSubjectType(String type) {
+        Subject.SubjectType subjectType = SubjectType.ENTERPRISE;
+        if (type.equalsIgnoreCase("E")) {
+            subjectType = SubjectType.ENTERPRISE;
+        } else if (type.equalsIgnoreCase("S")) {
+            subjectType = SubjectType.SYSTEM;
+        } else if (type.equalsIgnoreCase("P")) {
+            subjectType = SubjectType.PERSONAL_RELATIONSHIP;
+        } else {
+            subjectType = SubjectType.VOIDED;
+        }
+        return subjectType;
     }
 }

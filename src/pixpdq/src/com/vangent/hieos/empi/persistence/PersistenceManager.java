@@ -110,7 +110,7 @@ public class PersistenceManager {
      */
     public List<SubjectIdentifier> loadSubjectIdentifiers(InternalId subjectId) throws EMPIException {
         SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
-        return dao.load(subjectId);
+        return dao.load(subjectId, SubjectIdentifier.Type.PID);
     }
 
     /**
@@ -120,8 +120,8 @@ public class PersistenceManager {
      * @throws EMPIException
      */
     public List<SubjectIdentifier> loadSubjectOtherIdentifiers(InternalId subjectId) throws EMPIException {
-        SubjectOtherIdentifierDAO dao = new SubjectOtherIdentifierDAO(connection);
-        return dao.load(subjectId);
+        SubjectIdentifierDAO dao = new SubjectIdentifierDAO(connection);
+        return dao.load(subjectId, SubjectIdentifier.Type.OTHER);
     }
 
     /**
