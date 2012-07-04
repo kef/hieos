@@ -187,7 +187,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             sb.append(subjectIdentifierDomainIds.get(i));
             sb.append(") ");
         }
-        System.out.println("SQL = " + sb.toString());
+        //System.out.println("SQL = " + sb.toString());
         return sb.toString();
     }
 
