@@ -130,9 +130,21 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public Subject loadBaseSubjectByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+    public List<Subject> loadBaseSubjectsByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+        List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
+        subjectIdentifiers.add(subjectIdentifier);
+        return this.loadBaseSubjectsByIdentifier(subjectIdentifiers);
+    }
+
+    /**
+     * 
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
-        return dao.loadBaseSubjectByIdentifier(subjectIdentifier);
+        return dao.loadBaseSubjectsByIdentifier(subjectIdentifiers);
     }
 
     /**

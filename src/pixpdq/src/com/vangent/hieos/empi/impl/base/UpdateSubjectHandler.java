@@ -69,14 +69,20 @@ public class UpdateSubjectHandler extends BaseHandler {
         // Get the subject (using the first identifier).
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
-        Subject baseSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
-        if (baseSubject == null) {
+        List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(subjectIdentifier);
+        if (baseSubjects.isEmpty()) {
             throw new EMPIException(
                     subjectIdentifier.getCXFormatted()
                     + " is not a known identifier",
                     EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
         }
-
+        if (baseSubjects.size() > 1)
+        {
+            throw new EMPIException(
+                    subjectIdentifier.getCXFormatted()
+                    + " identifier resulted in more than one record to update .. no update performed");
+        }
+        Subject baseSubject = baseSubjects.get(0);
         if (baseSubject.getType().equals(Subject.SubjectType.SYSTEM)) {
             updateNotificationContent = this.updateSystemSubject(baseSubject, subject);
         } else {

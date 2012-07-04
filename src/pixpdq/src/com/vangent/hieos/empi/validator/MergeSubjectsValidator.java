@@ -60,6 +60,7 @@ public class MergeSubjectsValidator extends Validator {
     private void validateMergeSubjects(Subject survivingSubject, Subject subsumedSubject) throws EMPIException {
         this.valididateMergeSubject(survivingSubject, "surviving");
         this.valididateMergeSubject(subsumedSubject, "subsumed");
+        // Only using first identifier for merge request.
         SubjectIdentifier survivingSubjectIdentifier = survivingSubject.getSubjectIdentifiers().get(0);
         SubjectIdentifier subsumedSubjectIdentifier = subsumedSubject.getSubjectIdentifiers().get(0);
         if (survivingSubjectIdentifier.equals(subsumedSubjectIdentifier)) {

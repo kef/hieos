@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -138,16 +139,37 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public Subject loadBaseSubjectByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+    /*
+    public List<Subject> loadBaseSubjectsByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
 
-        // First find the subjectId given the subject identifier.
-        InternalId subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
-        Subject subject = null;
-        if (subjectId != null) {
-            subject = this.loadBaseSubject(subjectId);
+        // First the subject internal ids for the given subject identifier.
+        List<InternalId> subjectIds = subjectIdentifierDAO.getSubjectIds(subjectIdentifier);
+        List<Subject> subjects = new ArrayList<Subject>();
+        for (InternalId subjectId : subjectIds) {
+            Subject subject = this.loadBaseSubject(subjectId);
+            subjects.add(subject);
         }
-        return subject;
+        return subjects;
+    }*/
+
+    /**
+     * 
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+        SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
+
+        // First the subject internal ids for the given subject identifier.
+        List<InternalId> subjectIds = subjectIdentifierDAO.getSubjectIds(subjectIdentifiers);
+        List<Subject> subjects = new ArrayList<Subject>();
+        for (InternalId subjectId : subjectIds) {
+            Subject subject = this.loadBaseSubject(subjectId);
+            subjects.add(subject);
+        }
+        return subjects;
     }
 
     /**
@@ -254,13 +276,10 @@ public class SubjectDAO extends AbstractDAO {
         try {
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
             // Go through each identifier (assumes no duplicates across subjects).
-            for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-                // See if the identifier has a subject.
-                InternalId subjectId = subjectIdentifierDAO.getSubjectId(subjectIdentifier);
-                if (subjectId != null) {
-                    subjectExists = true;
-                    break;
-                }
+            // See if the identifier has a subject.
+            List<InternalId> subjectIds = subjectIdentifierDAO.getSubjectIds(subjectIdentifiers);
+            if (!subjectIds.isEmpty()) {
+                subjectExists = true;
             }
         } finally {
             this.close(stmt);
@@ -654,7 +673,7 @@ public class SubjectDAO extends AbstractDAO {
         }
     }
 
-     /**
+    /**
      *
      * @param subjectType
      * @return

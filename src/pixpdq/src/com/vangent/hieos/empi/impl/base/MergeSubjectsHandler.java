@@ -145,13 +145,20 @@ public class MergeSubjectsHandler extends BaseHandler {
     private Subject getBaseSubject(Subject subject, String subjectType) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
+        // Only using first identifier in list to support merge.
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
-        Subject baseMergeSubject = pm.loadBaseSubjectByIdentifier(subjectIdentifier);
-        if (baseMergeSubject == null) {
+        List<Subject> baseMergeSubjects = pm.loadBaseSubjectsByIdentifier(subjectIdentifier);
+        if (baseMergeSubjects.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             sb.append(subjectType).append(" subject not found - skipping merge");
             throw new EMPIException(sb.toString());
         }
-        return baseMergeSubject;
+        if (baseMergeSubjects.size() > 1) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(subjectType).append(baseMergeSubjects.size()).append(" subjects (>1) found - skipping merge");
+            throw new EMPIException(sb.toString());
+        }
+        // Given above constraints - the list has one item in it.  Return the first in list.
+        return baseMergeSubjects.get(0);
     }
 }

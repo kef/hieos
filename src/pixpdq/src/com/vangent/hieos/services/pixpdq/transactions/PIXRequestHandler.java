@@ -278,7 +278,7 @@ public class PIXRequestHandler extends RequestHandler {
      */
     private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
-        SubjectSearchResponse subjectSearchResponse = adapter.findSubjectByIdentifier(subjectSearchCriteria);
+        SubjectSearchResponse subjectSearchResponse = adapter.findSubjectIdentifiers(subjectSearchCriteria);
         return subjectSearchResponse;
     }
 

@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -47,14 +48,15 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public InternalId getSubjectId(SubjectIdentifier subjectIdentifier) throws EMPIException {
-        InternalId internalId = null;
+    /*
+    public List<InternalId> getSubjectIds(SubjectIdentifier subjectIdentifier) throws EMPIException {
+        List<InternalId> internalIds = new ArrayList<InternalId>();
         // First, get the SubjectIdentifierDomainId
         SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
         int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
         if (subjectIdentifierDomainId == -1) {
             // We have no knowledge of the identifier domain (so get out now).
-            return internalId;
+            return internalIds;
         }
 
         PreparedStatement stmt = null;
@@ -62,9 +64,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         try {
             // Now, see if we can locate the subject/identifier within the given identifier domain.
             StringBuilder sb = new StringBuilder();
-            sb.append("SELECT subject_id,seq_no FROM ")
-                    .append(this.getTableName())
-                    .append(" WHERE identifier=? AND subject_identifier_domain_id=? AND type=?");
+            sb.append("SELECT DISTINCT subject_id FROM ").append(this.getTableName()).append(" WHERE identifier=? AND subject_identifier_domain_id=?");
             String sql = sb.toString();
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
@@ -72,14 +72,14 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             stmt = this.getPreparedStatement(sql);
             stmt.setString(1, subjectIdentifier.getIdentifier());
             stmt.setInt(2, subjectIdentifierDomainId);
-            stmt.setString(3, SubjectIdentifierDAO.getSubjectIdentifierTypeValue(subjectIdentifier.getIdentifierType()));
             // Execute query.
             rs = stmt.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 // Found.
                 Long subjectId = rs.getLong(1);
-                int seqNo = rs.getInt(2);
-                internalId = new InternalId(subjectId, seqNo);
+                //int seqNo = rs.getInt(2);
+                InternalId internalId = new InternalId(subjectId);
+                internalIds.add(internalId);
             }
         } catch (SQLException ex) {
             throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
@@ -87,7 +87,108 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             this.close(stmt);
             this.close(rs);
         }
-        return internalId;
+        return internalIds;
+    }*/
+
+    /**
+     *
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    public List<InternalId> getSubjectIds(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+        List<InternalId> internalIds = new ArrayList<InternalId>();
+        String sql = this.getSubjectIdsSQL(subjectIdentifiers);
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            if (logger.isTraceEnabled()) {
+                logger.trace("SQL = " + sql);
+            }
+            stmt = this.getStatement();
+            // Execute query.
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                // Found.
+                Long subjectId = rs.getLong(1);
+                //int seqNo = rs.getInt(2);
+                InternalId internalId = new InternalId(subjectId);
+                internalIds.add(internalId);
+            }
+        } catch (SQLException ex) {
+            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
+        } finally {
+            this.close(stmt);
+            this.close(rs);
+        }
+        return internalIds;
+    }
+
+    /**
+     * 
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    private String getSubjectIdsSQL(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+        // Get list of identifier domain ids (internal ids) for the subject identifiers.
+        List<Integer> subjectIdentifierDomainIds = new ArrayList<Integer>();
+        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
+        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
+            if (subjectIdentifierDomainId == -1) {
+                // We have no knowledge of the identifier domain (so get out now).
+                throw new EMPIException("Unknown identifier domain = "
+                        + subjectIdentifier.getIdentifierDomain().getUniversalId());
+            }
+            subjectIdentifierDomainIds.add(subjectIdentifierDomainId);
+        }
+
+        //SELECT si_0.subject_id
+        //FROM   subject_identifier si_0
+        //JOIN   subject_identifier si_1 ON si_0.subject_id = si_1.subject_id
+        //JOIN   subject_identifier si_2 ON si_0.subject_id = si_2.subject_id
+        //WHERE  (si_0.identifier = '911' and si_0.subject_identifier_domain_id=8)
+        //AND    (si_1.identifier = 'L911' and si_1.subject_identifier_domain_id=7)
+        //AND    (si_2.identifier = 'PDQ11301' and si_2.subject_identifier_domain_id=8)
+        StringBuilder sb = new StringBuilder();
+        String firstAlias = "si_0";
+        sb.append("SELECT DISTINCT si_0.subject_id FROM subject_identifier si_0 ");
+
+        // JOIN clauses.
+        for (int i = 1; i < subjectIdentifiers.size(); i++) {
+            String alias = "si_" + i;
+            sb.append("JOIN subject_identifier ").append(alias);
+            sb.append(" ON ");
+            sb.append(firstAlias).append(".subject_id");
+            sb.append("=");
+            sb.append(alias).append(".subject_id");
+            sb.append(" ");
+        }
+
+        // WHERE clause.
+        //WHERE  (si_0.identifier = '911' AND si_0.subject_identifier_domain_id=8)
+        //AND    (si_1.identifier = 'L911' AND si_1.subject_identifier_domain_id=7)
+        //AND    (si_2.identifier = 'PDQ11301' AND si_2.subject_identifier_domain_id=8)
+        sb.append("WHERE ");
+        for (int i = 0; i < subjectIdentifiers.size(); i++) {
+            if (i > 0) {
+                sb.append(" AND");
+            }
+            SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(i);
+            String alias = "si_" + i;
+            sb.append(" (");
+            sb.append(alias).append(".identifier=");
+            sb.append("'");
+            sb.append(subjectIdentifier.getIdentifier());
+            sb.append("'");
+            sb.append(" AND ");
+            sb.append(alias).append(".subject_identifier_domain_id=");
+            sb.append(subjectIdentifierDomainIds.get(i));
+            sb.append(") ");
+        }
+        System.out.println("SQL = " + sb.toString());
+        return sb.toString();
     }
 
     /**
@@ -166,9 +267,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO ")
-                    .append(this.getTableName())
-                    .append("(subject_id,seq_no,type,identifier,subject_identifier_domain_id) values(?,?,?,?,?)");
+            sb.append("INSERT INTO ").append(this.getTableName()).append("(subject_id,seq_no,type,identifier,subject_identifier_domain_id) values(?,?,?,?,?)");
             String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
@@ -228,8 +327,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("DELETE FROM ").append(this.getTableName())
-                    .append(" WHERE ").append("subject_id=? AND seq_no=?");
+            sb.append("DELETE FROM ").append(this.getTableName()).append(" WHERE ").append("subject_id=? AND seq_no=?");
             String sql = sb.toString();
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
@@ -252,7 +350,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
         }
     }
 
-     /**
+    /**
      *
      * @param idType
      * @return

@@ -94,5 +94,5 @@ public interface EMPIAdapter {
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
+    public SubjectSearchResponse findSubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
 }

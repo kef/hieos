@@ -30,9 +30,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -73,10 +71,10 @@ public class FindSubjectsHandler extends BaseHandler {
         // Determine which path to take.
         if (subjectSearchCriteria.hasSubjectIdentifiers()) {
             logger.trace("Searching based on identifiers ...");
-            subjectSearchResponse = this.loadSubjectByIdentifier(subjectSearchCriteria);
+            subjectSearchResponse = this.loadSubjectMatchesByIdentifiers(subjectSearchCriteria);
         } else if (subjectSearchCriteria.hasSubjectDemographics()) {
             logger.trace("Searching based on demographics ...");
-            subjectSearchResponse = this.loadSubjectMatches(subjectSearchCriteria);
+            subjectSearchResponse = this.loadSubjectMatchesByDemographics(subjectSearchCriteria);
         } else {
             // Do nothing ...
             logger.trace("Not searching at all!!");
@@ -90,7 +88,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse findSubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
         // First, run validations on input.
@@ -99,7 +97,7 @@ public class FindSubjectsHandler extends BaseHandler {
         validator.validate(subjectSearchCriteria);
 
         // Now, find subjects using the identifier in the search criteria.
-        subjectSearchResponse = this.loadIdentifiersForSubjectByIdentifier(subjectSearchCriteria);
+        subjectSearchResponse = this.loadSubjectIdentifiers(subjectSearchCriteria);
         return subjectSearchResponse;
     }
 
@@ -109,7 +107,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse loadSubjectMatches(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    private SubjectSearchResponse loadSubjectMatchesByDemographics(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         Subject searchSubject = subjectSearchCriteria.getSubject();
@@ -124,9 +122,12 @@ public class FindSubjectsHandler extends BaseHandler {
         List<ScoredRecord> recordMatches = matchResults.getMatches();
 
         // Now load subjects from the match results.
-        List<Subject> subjectMatches = new ArrayList<Subject>();
         long startTime = System.currentTimeMillis();
-        Set<Long> enterpriseSubjectIds = new HashSet<Long>();
+
+        // Get EnterpriseSubjectManager to load unique enterprise subjects.
+        EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, true /* loadFullSubjects */);
+
+        //Set<Long> enterpriseSubjectIds = new HashSet<Long>();
         for (ScoredRecord scoredRecord : recordMatches) {
             Record record = scoredRecord.getRecord();
             int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
@@ -139,33 +140,38 @@ public class FindSubjectsHandler extends BaseHandler {
             if (!hasSpecifiedMinimumDegreeMatchPercentage
                     || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
                 InternalId systemSubjectId = record.getInternalId();
-                InternalId enterpriseSubjectId = pm.getEnterpriseSubjectId(systemSubjectId);
-                // Avoid adding duplicates to the result.
-                if (!enterpriseSubjectIds.contains(enterpriseSubjectId.getId())) {
-                    enterpriseSubjectIds.add(enterpriseSubjectId.getId());
-                    Subject enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
+                EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(systemSubjectId);
+                if (!loaderResult.isAlreadyExists()) {
+                    // Only set match confidence percentage on first load.
+                    Subject enterpriseSubject = loaderResult.getEnterpriseSubject();
                     enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
-
-                    // Filter unwanted results (if required).
-                    this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
-
-                    // FIXME: What about "other ids"?
-                    // If we kept at least one identifier ...
-                    if (enterpriseSubject.hasSubjectIdentifiers()) {
-                        subjectMatches.add(enterpriseSubject);
-                    }
                 }
+
             } else {
                 if (logger.isTraceEnabled()) {
                     logger.trace("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
                 }
             }
         }
+
+        // Now, filter results and add to response.
+        for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
+
+            // Filter unwanted results (if required).
+            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null /* subjectIdentifierToRemove */);
+
+            // FIXME: What about "other ids"?
+
+            // If we kept at least one identifier ...
+            if (enterpriseSubject.hasSubjectIdentifiers()) {
+                subjectSearchResponse.getSubjects().add(enterpriseSubject);
+            }
+        }
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
             logger.trace("FindSubjectsHandler.loadSubjectMatches.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
         }
-        subjectSearchResponse.getSubjects().addAll(subjectMatches);
+        //subjectSearchResponse.getSubjects().addAll(subjectMatches);
         return subjectSearchResponse;
     }
 
@@ -175,7 +181,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse loadSubjectByIdentifier(
+    private SubjectSearchResponse loadSubjectMatchesByIdentifiers(
             SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
@@ -184,24 +190,28 @@ public class FindSubjectsHandler extends BaseHandler {
         Subject searchSubject = subjectSearchCriteria.getSubject();
         List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
         if (!searchSubjectIdentifiers.isEmpty()) {
-            // Pull the first identifier.
-            // FIXME: Need to deal with multiple search identifiers (for PDQ .. not sure about PIX) ....
-            SubjectIdentifier searchSubjectIdentifier = searchSubjectIdentifiers.get(0);
 
-            // Get the baseSubject (only base-level information) to determine type and internal id.
-            Subject baseSubject = pm.loadBaseSubjectByIdentifier(searchSubjectIdentifier);
-            if (baseSubject != null) {  // Found a match.
+            // Get EnterpriseSubjectManager to load unique enterprise subjects.
+            EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, true /* loadFullSubjects */);
 
-                // Load enterprise subject (load full instance).
-                Subject enterpriseSubject = this.loadEnterpriseSubject(baseSubject, true);
+            // Get the base subjects (only base-level information) to determine type and internal ids.
+            List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifiers);
+
+            // Load unique enterprise subjects.
+            for (Subject baseSubject : baseSubjects) {
+                EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(baseSubject);
+                loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
+            }
+
+            // Now, filter results and add to response.
+            for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
 
                 // Now, strip out identifiers (if required).
-                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null);
+                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null /* subjectIdentifierToRemove */);
 
                 // FIXME(?): What if no identifiers exist?
 
                 // Put enterprise subject in the response.
-                enterpriseSubject.setMatchConfidencePercentage(100);
                 subjectSearchResponse.getSubjects().add(enterpriseSubject);
             }
         }
@@ -214,7 +224,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse loadIdentifiersForSubjectByIdentifier(
+    private SubjectSearchResponse loadSubjectIdentifiers(
             SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
@@ -223,63 +233,42 @@ public class FindSubjectsHandler extends BaseHandler {
         Subject searchSubject = subjectSearchCriteria.getSubject();
         List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
         if (!searchSubjectIdentifiers.isEmpty()) {
-            // Pull the first identifier.
-            // FIXME: Need to deal with multiple search identifiers (for PDQ .. not sure about PIX) ....
+            // Pull the first identifier (only 1 used for PIX queries).
             SubjectIdentifier searchSubjectIdentifier = searchSubjectIdentifiers.get(0);
 
-            // Get the baseSubject (only base-level information) to determine type and internal id.
-            Subject baseSubject = pm.loadBaseSubjectByIdentifier(searchSubjectIdentifier);
-            if (baseSubject == null) {
+            // Get the base subjects (only base-level information) to determine type and internal ids.
+            List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifier);
+            if (baseSubjects.isEmpty()) {
                 throw new EMPIException(
                         searchSubjectIdentifier.getCXFormatted()
                         + " is not a known identifier",
                         EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
             }
+            // Get EnterpriseSubjectManager to load unique enterprise subjects.
+            EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, false /* loadFullSubjects */);
 
-            // Fall-through.
+            // Load unique enterprise subjects.
+            for (Subject baseSubject : baseSubjects) {
+                EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(baseSubject);
+                loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
+            }
 
-            // Load enterprise subject (id's only).
-            Subject enterpriseSubject = this.loadEnterpriseSubject(baseSubject, false);
+            // Now, filter results and add to response.
+            for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
 
-            // Now, strip out identifiers (if required).
-            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
+                // Now, strip out identifiers (if required).
+                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
 
-            // FIXME: What about "other ids"?
-            if (enterpriseSubject.hasSubjectIdentifiers()) {
+                // FIXME: What about "other ids"?
 
-                // Put enterprise subject in the response.
-                enterpriseSubject.setMatchConfidencePercentage(100);
-                subjectSearchResponse.getSubjects().add(enterpriseSubject);
+                if (enterpriseSubject.hasSubjectIdentifiers()) {
+
+                    // Put enterprise subject in the response.
+                    subjectSearchResponse.getSubjects().add(enterpriseSubject);
+                }
             }
         }
         return subjectSearchResponse;
-    }
-
-    /**
-     *
-     * @param baseSubject
-     * @param loadFullSubject
-     * @return
-     * @throws EMPIException
-     */
-    private Subject loadEnterpriseSubject(Subject baseSubject, boolean loadFullSubject) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
-        InternalId enterpriseSubjectId = null;
-        if (baseSubject.getType().equals(Subject.SubjectType.ENTERPRISE)) {
-            enterpriseSubjectId = baseSubject.getInternalId();
-        } else {
-            // Get enterpiseSubjectId for the system-level subject.
-            enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
-        }
-
-        // Load enterprise subject (id's only).
-        Subject enterpriseSubject = null;
-        if (loadFullSubject) {
-            enterpriseSubject = pm.loadEnterpriseSubject(enterpriseSubjectId);
-        } else {
-            enterpriseSubject = pm.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId);
-        }
-        return enterpriseSubject;
     }
 
     /**
