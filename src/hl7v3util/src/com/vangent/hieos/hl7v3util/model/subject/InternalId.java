@@ -77,4 +77,13 @@ public class InternalId implements Cloneable {
     public void setSeqNo(int seqNo) {
         this.seqNo = seqNo;
     }
+
+    /**
+     *
+     * @param compareId
+     * @return
+     */
+    public boolean equals(InternalId compareId) {
+        return compareId.id.equals(id) && (compareId.seqNo == seqNo);
+    }
 }
