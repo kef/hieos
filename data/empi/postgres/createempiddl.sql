@@ -35,7 +35,6 @@ SET escape_string_warning = off;
 --ALTER DATABASE empi OWNER TO empi;
 
 DROP TABLE IF EXISTS subject_match_fields;
-DROP TABLE IF EXISTS subject_other_identifier;
 DROP TABLE IF EXISTS subject_identifier;
 DROP TABLE IF EXISTS subject_identifier_domain;
 DROP TABLE IF EXISTS subject_xref;
@@ -131,6 +130,7 @@ ALTER TABLE public.subject_citizenship OWNER TO empi;
 CREATE TABLE subject_identifier (
     subject_id bigint NOT NULL,
     seq_no smallint NOT NULL,
+    type character(1) NOT NULL,
     identifier character varying(100) NOT NULL,
     subject_identifier_domain_id integer NOT NULL
 );
@@ -206,18 +206,6 @@ ALTER TABLE public.subject_name OWNER TO empi;
 --
 --
 --
-CREATE TABLE subject_other_identifier (
-    subject_id bigint NOT NULL,
-    seq_no smallint NOT NULL,
-    identifier character varying(100) NOT NULL,
-    subject_identifier_domain_id integer NOT NULL
-);
-
-ALTER TABLE public.subject_other_identifier OWNER TO empi;
-
---
---
---
 CREATE TABLE subject_personal_relationship (
     subject_id bigint NOT NULL,
     seq_no smallint NOT NULL,
@@ -289,9 +277,6 @@ ALTER TABLE ONLY subject_match_fields
 ALTER TABLE ONLY subject_name
     ADD CONSTRAINT subject_name_pkey PRIMARY KEY (subject_id, seq_no);
 
-ALTER TABLE ONLY subject_other_identifier
-    ADD CONSTRAINT subject_other_identifier_pkey PRIMARY KEY (subject_id, seq_no);
-
 ALTER TABLE ONLY subject_personal_relationship
     ADD CONSTRAINT subject_personal_relationship_pkey PRIMARY KEY (subject_id, seq_no);
 
@@ -332,8 +317,6 @@ CREATE INDEX subject_match_fields_block_pass_fuzzy_name_idx ON subject_match_fie
 
 CREATE INDEX subject_name_subject_id_idx ON subject_name USING btree (subject_id);
 
-CREATE INDEX subject_other_identifier_subject_id_idx ON subject_other_identifier USING btree (subject_id);
-
 CREATE INDEX subject_personal_relationship_subject_id_idx ON subject_personal_relationship USING btree (subject_id);
 
 CREATE INDEX subject_telecom_address_subject_id_idx ON subject_telecom_address USING btree (subject_id);
@@ -350,12 +333,6 @@ ALTER TABLE ONLY subject_identifier
 
 ALTER TABLE ONLY subject_identifier
     ADD CONSTRAINT subject_identifier_domain_id_fkey FOREIGN KEY (subject_identifier_domain_id) REFERENCES subject_identifier_domain(id);
-
-ALTER TABLE ONLY subject_other_identifier
-    ADD CONSTRAINT subject_identifier_domain_id_fkey FOREIGN KEY (subject_identifier_domain_id) REFERENCES subject_identifier_domain(id);
-
-ALTER TABLE ONLY subject_other_identifier
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_xref
     ADD CONSTRAINT enterprise_subject_id_fkey FOREIGN KEY (enterprise_subject_id) REFERENCES subject(id);
