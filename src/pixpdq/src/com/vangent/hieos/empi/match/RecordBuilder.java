@@ -52,8 +52,13 @@ public class RecordBuilder {
                 logger.trace(" ... sourceObjectPath = " + sourceObjectPath);
             }
             try {
+                Object value;
                 // Access the field value.
-                Object value = PropertyUtils.getProperty(subject, sourceObjectPath);
+                if (sourceObjectPath.equalsIgnoreCase("subject")) {
+                    value = subject;
+                } else {
+                    value = PropertyUtils.getProperty(subject, sourceObjectPath);
+                }
                 if (value != null) {
                     if (logger.isTraceEnabled()) {
                         logger.trace(" ... value (before transforms) = " + value.toString());
