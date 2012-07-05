@@ -259,9 +259,10 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      */
     public void insert(Subject parentSubject) throws EMPIException {
         // Insert all identifiers in one shot to retain sequence number assignment.
-        List<SubjectIdentifier> subjectIdentifiers = parentSubject.getSubjectIdentifiers();
-        subjectIdentifiers.addAll(parentSubject.getSubjectOtherIdentifiers());
-        if (subjectIdentifiers.isEmpty()) {
+        List<SubjectIdentifier> subjectIdentifiersCopy = new ArrayList<SubjectIdentifier>();
+        subjectIdentifiersCopy.addAll(parentSubject.getSubjectIdentifiers());
+        subjectIdentifiersCopy.addAll(parentSubject.getSubjectOtherIdentifiers());
+        if (subjectIdentifiersCopy.isEmpty()) {
             return; // Early exit!
         }
         PreparedStatement stmt = null;
@@ -273,7 +274,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
             Long subjectId = parentSubject.getInternalId().getId();
             int seqNo = 0;
-            for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
+            for (SubjectIdentifier subjectIdentifier : subjectIdentifiersCopy) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("SQL = " + sql);
                 }
