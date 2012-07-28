@@ -252,7 +252,7 @@ public class PIXRequestHandler extends RequestHandler {
         HL7V3ErrorDetail errorDetail = null;
         try {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
-            subjectSearchResponse = this.findSubjectByIdentifier(subjectSearchCriteria);
+            subjectSearchResponse = this.getBySubjectIdentifiers(subjectSearchCriteria);
             this.performAuditPIXQueryProvider(request, subjectSearchResponse);
         } catch (EMPIException ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
@@ -276,9 +276,9 @@ public class PIXRequestHandler extends RequestHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse findSubjectByIdentifier(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    private SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
-        SubjectSearchResponse subjectSearchResponse = adapter.findSubjectIdentifiers(subjectSearchCriteria);
+        SubjectSearchResponse subjectSearchResponse = adapter.getBySubjectIdentifiers(subjectSearchCriteria);
         return subjectSearchResponse;
     }
 

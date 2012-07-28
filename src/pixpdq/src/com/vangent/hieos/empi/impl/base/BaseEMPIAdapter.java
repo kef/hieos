@@ -194,13 +194,13 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @throws EMPIException
      */
     @Override
-    public SubjectSearchResponse findSubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         PersistenceManager pm = new PersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         try {
             pm.open();
             FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
-            subjectSearchResponse = findSubjectsHandler.findSubjectIdentifiers(subjectSearchCriteria);
+            subjectSearchResponse = findSubjectsHandler.getBySubjectIdentifiers(subjectSearchCriteria);
         } finally {
             pm.close();
         }
