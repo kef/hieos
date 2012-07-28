@@ -83,18 +83,18 @@ public class AddSubjectHandler extends BaseHandler {
             // FIXME!!!!
             System.out.println("+++++ DO SOMETHING HERE ... store possible matches");
         }
-        List<ScoredRecord> recordMatches = matchResults.getMatches();
+        List<ScoredRecord> matchedRecords = matchResults.getMatches();
 
         long start = System.currentTimeMillis();
 
-        if (recordMatches.isEmpty()) {
+        if (matchedRecords.isEmpty()) {
             // No matching records.
             enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
 
-        } else if (!this.isLinkAllowed(newSubject, recordMatches)) {
+        } else if (!this.isLinkAllowed(newSubject, matchedRecords)) {
             logger.trace("+++++ Not linking subject with same identifier domain +++++");
             // Do not place record along side any record within the same identifier domain.
-            recordMatches.clear();  // Treat as though a match did not occur.
+            matchedRecords.clear();  // Treat as though a match did not occur.
 
             // Insert a new enterprise record.
             enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
@@ -102,7 +102,7 @@ public class AddSubjectHandler extends BaseHandler {
             // >=1 matches
 
             // Cross reference will be to first matched record.  All other records will be merged later below.
-            ScoredRecord matchedRecord = recordMatches.get(0);
+            ScoredRecord matchedRecord = matchedRecords.get(0);
             InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
             enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
             matchScore = matchedRecord.getMatchScorePercentage();
@@ -120,7 +120,7 @@ public class AddSubjectHandler extends BaseHandler {
         pm.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
-        this.mergeRecordMatches(recordMatches, enterpriseSubjectId);
+        this.mergeMatchedRecords(matchedRecords, enterpriseSubjectId);
 
         if (logger.isDebugEnabled()) {
             logger.debug("EMPI persistence TOTAL TIME - " + (System.currentTimeMillis() - start) + "ms.");
@@ -132,18 +132,18 @@ public class AddSubjectHandler extends BaseHandler {
 
     /**
      *
-     * @param recordMatches
+     * @param matchedRecords
      * @param enterpriseSubjectId
      * @throws EMPIException
      */
-    private void mergeRecordMatches(List<ScoredRecord> recordMatches, InternalId enterpriseSubjectId) throws EMPIException {
+    private void mergeMatchedRecords(List<ScoredRecord> matchedRecords, InternalId enterpriseSubjectId) throws EMPIException {
         // FIXME: Make this configurable.
         PersistenceManager pm = this.getPersistenceManager();
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
         Set<Long> subsumedEnterpriseSubjectIds = new HashSet<Long>();
-        for (int i = 1; i < recordMatches.size(); i++) {
-            ScoredRecord matchedRecord = recordMatches.get(i);
+        for (int i = 1; i < matchedRecords.size(); i++) {
+            ScoredRecord matchedRecord = matchedRecords.get(i);
             InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
             InternalId subsumedEnterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
 
@@ -164,13 +164,25 @@ public class AddSubjectHandler extends BaseHandler {
     /**
      *
      * @param newSubject
-     * @param recordMatches
+     * @param matchedRecords
      * @return
      * @throws EMPIException
      */
-    private boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> recordMatches) throws EMPIException {
+    private boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
         LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
-        return linkConstraintController.isLinkAllowed(newSubject, recordMatches);
+        return linkConstraintController.isLinkAllowed(newSubject, matchedRecords);
+    }
+
+    /**
+     * 
+     * @param newSubject
+     * @param matchedRecord
+     * @return
+     * @throws EMPIException
+     */
+    private boolean isLinkAllowed(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
+        LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
+        return linkConstraintController.isLinkAllowed(newSubject, matchedRecord);
     }
 
     /**

@@ -49,16 +49,16 @@ public class LinkConstraintController {
     /**
      * 
      * @param newSubject
-     * @param recordMatches
+     * @param matchedRecords
      * @return
      * @throws EMPIException
      */
-    public boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> recordMatches) throws EMPIException {
+    public boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
 
         // First check scored record against record matches to see if it is safe to link
         // the records.
-        for (ScoredRecord recordMatch : recordMatches) {
-            if (this.isLinkAllowed(newSubject, recordMatch)) {
+        for (ScoredRecord matchedRecord : matchedRecords) {
+            if (this.isLinkAllowed(newSubject, matchedRecord)) {
                 // Link is not allowed.
                 return false;  // Early exit.
             }
@@ -100,7 +100,7 @@ public class LinkConstraintController {
      * @return
      * @throws EMPIException
      */
-    private boolean isLinkAllowed(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
+    public boolean isLinkAllowed(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
         InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
 
         // Load identifiers for matched system subject.

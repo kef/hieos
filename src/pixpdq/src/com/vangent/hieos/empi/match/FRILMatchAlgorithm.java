@@ -81,13 +81,13 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
     /**
      * 
      * @param searchRecord
-     * @param records
+     * @param candidateRecords
      * @param matchType
      * @return
      * @throws EMPIException
      */
     @Override
-    public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException {
+    public MatchResults findMatches(Record searchRecord, List<Record> candidateRecords, MatchType matchType) throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         MatchConfig matchConfig = empiConfig.getMatchConfig(matchType);
         double recordAcceptThreshold = matchConfig.getAcceptThreshold();
@@ -96,8 +96,8 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
         if (logger.isTraceEnabled()) {
             logger.trace("... Search Record: " + searchRecord.toString());
         }
-        for (Record record : records) {
-            ScoredRecord scoredRecord = this.score(searchRecord, record, matchConfig, matchType);
+        for (Record candidateRecord : candidateRecords) {
+            ScoredRecord scoredRecord = this.score(searchRecord, candidateRecord, matchConfig, matchType);
             double recordScore = scoredRecord.getScore();
             // FIXME: Shouldn't we return a sorted list as the result?
             if (recordScore >= recordAcceptThreshold) {

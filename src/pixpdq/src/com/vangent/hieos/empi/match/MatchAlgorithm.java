@@ -74,12 +74,12 @@ public abstract class MatchAlgorithm {
     /**
      * 
      * @param searchRecord
-     * @param records
+     * @param candidateRecords
      * @param matchType
      * @return
      * @throws EMPIException
      */
-    abstract public MatchResults findMatches(Record searchRecord, List<Record> records, MatchType matchType) throws EMPIException;
+    abstract public MatchResults findMatches(Record searchRecord, List<Record> candidateRecords, MatchType matchType) throws EMPIException;
 
     /**
      *

@@ -21,6 +21,7 @@ import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
 import com.vangent.hieos.empi.exception.EMPIException;
 //import com.vangent.hieos.empi.lockmanager.LockManager;
 //import com.vangent.hieos.empi.lockmanager.LockResource;
+import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.hl7v3util.model.subject.InternalId;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
 import java.sql.Connection;
@@ -156,6 +157,18 @@ public class PersistenceManager {
     public Subject loadBaseSubject(InternalId subjectId) throws EMPIException {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.loadBaseSubject(subjectId);
+    }
+
+    /**
+     * 
+     * @param subjectId
+     * @param matchType
+     * @return
+     * @throws EMPIException
+     */
+    public Record loadSubjectMatchRecord(InternalId subjectId, MatchType matchType) throws EMPIException {
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(connection);
+        return dao.load(subjectId, matchType);
     }
 
     /**

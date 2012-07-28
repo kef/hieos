@@ -13,16 +13,13 @@
 package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.config.BlockingConfig;
-import com.vangent.hieos.empi.config.BlockingFieldConfig;
 import com.vangent.hieos.empi.config.BlockingPassConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.config.FieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
-import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.empi.persistence.PersistenceHelper;
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
+import com.vangent.hieos.empi.persistence.SubjectMatchFieldsDAO;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,7 +36,6 @@ import org.apache.log4j.Logger;
 public class BlockCandidateFinder extends CandidateFinder {
 
     // FIXME: Make configurable / abstract / interface ?
-
     private final static Logger logger = Logger.getLogger(BlockCandidateFinder.class);
 
     /**
@@ -109,33 +105,8 @@ public class BlockCandidateFinder extends CandidateFinder {
      */
     private PreparedStatement getBlockingPassPreparedStatement(MatchConfig matchConfig, Record searchRecord,
             BlockingPassConfig blockingPassConfig) throws EMPIException {
-        // Get active blocking field configs based upon the search record.
-        List<BlockingFieldConfig> activeBlockingFieldConfigs = this.getActiveBlockingFieldConfigs(searchRecord, blockingPassConfig);
-        PreparedStatement stmt = null;
-        if (!activeBlockingFieldConfigs.isEmpty()) {
-            // Build prepared statement to support "blocking" phase.
-            String sql = this.buildBlockingPassSQLSelectStatement(matchConfig, searchRecord, activeBlockingFieldConfigs);
-            stmt = PersistenceHelper.getPreparedStatement(sql, this.getPersistenceManager().getConnection());
-            try {
-                // Set WHERE clause values in the prepared statement.
-                int fieldIndex = 0;
-                for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-                    Field field = searchRecord.getField(activeBlockingFieldConfig.getName());
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Blocking field = " + activeBlockingFieldConfig.getName());
-                        logger.trace(" ... WHERE "
-                                + activeBlockingFieldConfig.getFieldConfig().getMatchDatabaseColumn()
-                                + " (" + field.getName() + ") =" + field.getValue());
-                    }
-                    //stmt.setString(++fieldIndex, field.getValue() + "%");
-                    stmt.setString(++fieldIndex, field.getValue());
-                }
-            } catch (SQLException ex) {
-                PersistenceHelper.close(stmt);
-                throw PersistenceHelper.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
-            }
-        }
-        return stmt;
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager().getConnection());
+        return dao.getBlockingPassPreparedStatement(matchConfig, searchRecord, blockingPassConfig);
     }
 
     /**
@@ -147,112 +118,7 @@ public class BlockCandidateFinder extends CandidateFinder {
      * @throws SQLException
      */
     private Record buildRecordFromResultSet(ResultSet rs, Long recordId, MatchConfig matchConfig) throws SQLException {
-        Record record = new Record();
-        InternalId internalId = new InternalId(recordId);
-        record.setId(internalId);
-
-        // Fill in the match fields from the result set.
-        List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-        int fieldIndex = 1;
-        for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-            Field field = new Field(matchFieldConfig.getName(), rs.getString(++fieldIndex));
-            record.addField(field);
-        }
-        return record;
-    }
-
-    /**
-     *
-     * @param matchConfig
-     * @param searchRecord
-     * @param activeBlockingFieldConfigs
-     * @return
-     * @throws EMPIException
-     */
-    private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, Record searchRecord, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
-        // Get EMPI configuration.
-        //EMPIConfig empiConfig = EMPIConfig.getInstance();
-
-        // Build
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT subject_id,");  // Always extract the subject_id.
-
-        // Add list of fields to extract (only those we plan on matching against).
-        //MatchConfig matchConfig = empiConfig.getMatchConfig();
-        List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-        int fieldIndex = 0;
-        int mumMatchFields = matchFieldConfigs.size();
-        for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
-            FieldConfig fieldConfig = matchFieldConfig.getFieldConfig();
-            String dbColumnName = fieldConfig.getMatchDatabaseColumn();
-            sb.append(dbColumnName);
-            ++fieldIndex;
-            if (fieldIndex != mumMatchFields) {
-                sb.append(",");
-            }
-        }
-        sb.append(" FROM subject_match_fields WHERE ");
-
-        // Build the where clause (on blocking fields).
-        fieldIndex = 0;
-        int numActiveBlockingFields = activeBlockingFieldConfigs.size();
-        for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
-            FieldConfig fieldConfig = activeBlockingFieldConfig.getFieldConfig();
-            String dbColumnName = fieldConfig.getMatchDatabaseColumn();
-            // FIXME:
-            // HACK: See if % is at end of string.
-            Field searchField = searchRecord.getField(activeBlockingFieldConfig.getName());
-            String searchFieldValue = searchField.getValue();
-            sb.append(dbColumnName);
-            if (searchFieldValue.endsWith("%")) {
-                sb.append(" LIKE ?");
-            } else {
-                sb.append(" = ?");
-            }
-            ++fieldIndex;
-            if (fieldIndex != numActiveBlockingFields) {
-                sb.append(" AND ");
-            }
-        }
-        String sql = sb.toString();
-        if (logger.isTraceEnabled()) {
-            logger.trace("SQL = " + sql);
-        }
-
-        return sql;
-    }
-
-    /**
-     * 
-     * @param searchRecord
-     * @return
-     * @throws EMPIException
-     */
-    private List<BlockingFieldConfig> getActiveBlockingFieldConfigs(Record searchRecord, BlockingPassConfig blockingPassConfig) throws EMPIException {
-        // Get blocking field configs.
-        List<BlockingFieldConfig> blockingFieldConfigs = blockingPassConfig.getBlockingFieldConfigs();
-
-        // Loop through all blocking configs and add only those where the search record
-        // has a value (unless it is required).  If any required field is missing, the blocking
-        // pass is considered invalid and no blocking field configurations are returned.
-        List<BlockingFieldConfig> activeBlockingFieldConfigs = new ArrayList<BlockingFieldConfig>();
-        for (BlockingFieldConfig blockingFieldConfig : blockingFieldConfigs) {
-            Field field = searchRecord.getField(blockingFieldConfig.getName());
-            if (field == null && blockingFieldConfig.isRequired() == true) {
-                //System.out.println("+++++ Skipping blocking pass (missing required field = "
-                //        + blockingFieldConfig.getName() + ") +++++");
-
-                // There is no search field for the blocking field, yet it is required.
-                // This blocking pass is now invalid.
-
-                // Clear out any active blocking field configs.
-                activeBlockingFieldConfigs.clear();
-                break;  // Get out of the loop now!
-            }
-            if (field != null && field.getValue() != null) {
-                activeBlockingFieldConfigs.add(blockingFieldConfig);
-            }
-        }
-        return activeBlockingFieldConfigs;
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager().getConnection());
+        return dao.buildRecordFromResultSet(rs, recordId, matchConfig);
     }
 }

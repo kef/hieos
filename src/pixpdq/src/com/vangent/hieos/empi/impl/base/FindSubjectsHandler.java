@@ -111,65 +111,27 @@ public class FindSubjectsHandler extends BaseHandler {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         Subject searchSubject = subjectSearchCriteria.getSubject();
-        boolean hasSpecifiedMinimumDegreeMatchPercentage = subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage();
-        int minimumDegreeMatchPercentage = subjectSearchCriteria.getMinimumDegreeMatchPercentage();
 
         // Run the matching algorithm (in "find" mode).
         RecordBuilder rb = new RecordBuilder();
         Record searchRecord = rb.build(searchSubject);
         MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
         MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchType.SUBJECT_FIND);
-        List<ScoredRecord> recordMatches = matchResults.getMatches();
 
-        // Now load subjects from the match results.
         long startTime = System.currentTimeMillis();
 
         // Get EnterpriseSubjectManager to load unique enterprise subjects.
         EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, true /* loadFullSubjects */);
 
-        //Set<Long> enterpriseSubjectIds = new HashSet<Long>();
-        for (ScoredRecord scoredRecord : recordMatches) {
-            Record record = scoredRecord.getRecord();
-            int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
-            if (logger.isTraceEnabled()) {
-                logger.trace("match score = " + scoredRecord.getScore());
-                logger.trace("gof score = " + scoredRecord.getGoodnessOfFitScore());
-                logger.trace("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
-            }
-            // See if there is a minimum degree match percentage.
-            if (!hasSpecifiedMinimumDegreeMatchPercentage
-                    || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
-                InternalId systemSubjectId = record.getInternalId();
-                EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(systemSubjectId);
-                if (!loaderResult.isAlreadyExists()) {
-                    // Only set match confidence percentage on first load.
-                    Subject enterpriseSubject = loaderResult.getEnterpriseSubject();
-                    enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
-                }
+        // Now load subjects from the match results.
+        this.loadEnterpriseSubjectsFromMatchResults(subjectSearchCriteria, matchResults, enterpriseSubjectLoader);
 
-            } else {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
-                }
-            }
-        }
+        // Get subject search response.
+        subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
 
-        // Now, filter results and add to response.
-        for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
-
-            // Filter unwanted results (if required).
-            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null /* subjectIdentifierToRemove */);
-
-            // FIXME: What about "other ids"?
-
-            // If we kept at least one identifier ...
-            if (enterpriseSubject.hasSubjectIdentifiers()) {
-                subjectSearchResponse.getSubjects().add(enterpriseSubject);
-            }
-        }
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
-            logger.trace("FindSubjectsHandler.loadSubjectMatches.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
+            logger.trace("FindSubjectsHandler.loadSubjectMatchesByDemographics.loadSubjects: elapedTimeMillis=" + (endTime - startTime));
         }
         //subjectSearchResponse.getSubjects().addAll(subjectMatches);
         return subjectSearchResponse;
@@ -190,32 +152,103 @@ public class FindSubjectsHandler extends BaseHandler {
         Subject searchSubject = subjectSearchCriteria.getSubject();
         List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
         if (!searchSubjectIdentifiers.isEmpty()) {
-
             // Get EnterpriseSubjectManager to load unique enterprise subjects.
             EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, true /* loadFullSubjects */);
 
             // Get the base subjects (only base-level information) to determine type and internal ids.
             List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifiers);
 
-            // Load unique enterprise subjects.
-            for (Subject baseSubject : baseSubjects) {
-                EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(baseSubject);
-                loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
+            // Now, filter on demographics if required.
+            if (!baseSubjects.isEmpty() && subjectSearchCriteria.hasSubjectDemographics()) {
+                // Get a search record.
+                RecordBuilder rb = new RecordBuilder();
+                Record searchRecord = rb.build(searchSubject);
+                List<Record> candidateRecords = new ArrayList<Record>();
+
+                // For each base subject that was found based on the subject identifier(s).
+                for (Subject baseSubject : baseSubjects) {
+                    // Load the subject match fields for this base subject.
+                    Record candidateRecord = pm.loadSubjectMatchRecord(baseSubject.getInternalId(), MatchType.SUBJECT_FIND);
+                    candidateRecords.add(candidateRecord);
+
+                }
+                MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
+
+                // Now, run the matching algorithm.
+                MatchResults matchResults = matchAlgo.findMatches(searchRecord, candidateRecords, MatchType.SUBJECT_FIND);
+
+                // Now load subjects from the match results.
+                this.loadEnterpriseSubjectsFromMatchResults(subjectSearchCriteria, matchResults, enterpriseSubjectLoader);
+            } else {
+
+                // Load unique enterprise subjects.
+                for (Subject baseSubject : baseSubjects) {
+                    EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(baseSubject);
+                    loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
+                }
             }
 
-            // Now, filter results and add to response.
-            for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
-
-                // Now, strip out identifiers (if required).
-                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, null /* subjectIdentifierToRemove */);
-
-                // FIXME(?): What if no identifiers exist?
-
-                // Put enterprise subject in the response.
-                subjectSearchResponse.getSubjects().add(enterpriseSubject);
-            }
+            // Get subject search response.
+            subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
         }
         return subjectSearchResponse;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param matchResults
+     * @param enterpriseSubjectLoader
+     * @throws EMPIException
+     */
+    private void loadEnterpriseSubjectsFromMatchResults(SubjectSearchCriteria subjectSearchCriteria,
+            MatchResults matchResults, EnterpriseSubjectLoader enterpriseSubjectLoader) throws EMPIException {
+        // Now get records that fall within the minimum degree match percentage (if specified).
+        List<ScoredRecord> matchedRecords =
+                this.filterMatchedRecordsByMinimumDegreeMatchPercentage(subjectSearchCriteria, matchResults.getMatches());
+
+        for (ScoredRecord scoredRecord : matchedRecords) {
+            Record record = scoredRecord.getRecord();
+            InternalId systemSubjectId = record.getInternalId();
+            EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(systemSubjectId);
+            if (!loaderResult.isAlreadyExists()) {
+                // Only set match confidence percentage on first load.
+                Subject enterpriseSubject = loaderResult.getEnterpriseSubject();
+                int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
+                enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
+            }
+        }
+    }
+
+  
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param matchedRecords
+     * @return
+     */
+    private List<ScoredRecord> filterMatchedRecordsByMinimumDegreeMatchPercentage(SubjectSearchCriteria subjectSearchCriteria, List<ScoredRecord> matchedRecords) {
+        List<ScoredRecord> results = new ArrayList<ScoredRecord>();
+        boolean hasSpecifiedMinimumDegreeMatchPercentage = subjectSearchCriteria.hasSpecifiedMinimumDegreeMatchPercentage();
+        int minimumDegreeMatchPercentage = subjectSearchCriteria.getMinimumDegreeMatchPercentage();
+        for (ScoredRecord scoredRecord : matchedRecords) {
+            int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
+            if (logger.isTraceEnabled()) {
+                logger.trace("match score = " + scoredRecord.getScore());
+                logger.trace("gof score = " + scoredRecord.getGoodnessOfFitScore());
+                logger.trace("... matchConfidencePercentage (int) = " + matchConfidencePercentage);
+            }
+            // See if there is a minimum degree match percentage.
+            if (!hasSpecifiedMinimumDegreeMatchPercentage
+                    || (matchConfidencePercentage >= minimumDegreeMatchPercentage)) {
+                results.add(scoredRecord);
+            } else {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("... not within specified minimum degree match percentage = " + minimumDegreeMatchPercentage);
+                }
+            }
+        }
+        return results;
     }
 
     /**
@@ -253,19 +286,36 @@ public class FindSubjectsHandler extends BaseHandler {
                 loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
             }
 
-            // Now, filter results and add to response.
-            for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
+            // Now, get subject search response.
+            subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, searchSubjectIdentifier);
+        }
+        return subjectSearchResponse;
+    }
 
-                // Now, strip out identifiers (if required).
-                this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, searchSubjectIdentifier);
+      /**
+     *
+     * @param subjectSearchCriteria
+     * @param enterpriseSubjectLoader
+     * @param subjectIdentifierToRemove
+     * @return
+     */
+    private SubjectSearchResponse getSubjectSearchResponse(
+            SubjectSearchCriteria subjectSearchCriteria,
+            EnterpriseSubjectLoader enterpriseSubjectLoader,
+            SubjectIdentifier subjectIdentifierToRemove) {
+        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
-                // FIXME: What about "other ids"?
+        // Now, filter results and add to response.
+        for (Subject enterpriseSubject : enterpriseSubjectLoader.getEnterpriseSubjects()) {
 
-                if (enterpriseSubject.hasSubjectIdentifiers()) {
+            // Filter unwanted results (if required).
+            this.filterSubjectIdentifiers(subjectSearchCriteria, enterpriseSubject, subjectIdentifierToRemove);
 
-                    // Put enterprise subject in the response.
-                    subjectSearchResponse.getSubjects().add(enterpriseSubject);
-                }
+            // FIXME: What about "other ids"?
+
+            // If we kept at least one identifier ...
+            if (enterpriseSubject.hasSubjectIdentifiers()) {
+                subjectSearchResponse.getSubjects().add(enterpriseSubject);
             }
         }
         return subjectSearchResponse;
