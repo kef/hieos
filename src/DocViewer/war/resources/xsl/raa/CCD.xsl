@@ -241,14 +241,12 @@ $(document).ready(function(){
 	    
         </div>
             
-            
     <div id = "tableContentsPanel">
     	<div id="leftScroll">			 		 			
-				<ul>
- 					<xsl:apply-templates select="n1:component/n1:structuredBody/n1:component/n1:section/n1:title[count(../n1:entry) != 0]" mode="nonzero"/>
- 					<xsl:apply-templates select="n1:component/n1:structuredBody/n1:component/n1:section/n1:title[count(../n1:entry) = 0]" mode="zero"/>
-				</ul>
-			</div>	
+		<ul>
+			<xsl:apply-templates select="n1:component/n1:structuredBody/n1:component/n1:section/n1:title" mode="rowcount"/>
+		</ul>
+	</div>	
 						
 			<div id = "provenance">
 					<ul>
@@ -422,16 +420,10 @@ $(document).ready(function(){
 	</div>
 </xsl:template>
 
-<xsl:template match="n1:title" mode = "nonzero">
-<xsl:variable name ="count" select ="count(../n1:entry)"/>	 
-	<div id = "nonzero">	
-		<a href="#{generate-id(.)}"><xsl:value-of select="."/> (<xsl:value-of select="$count"/>)</a>
-	</div>
-</xsl:template>
-
-<xsl:template match="n1:title" mode = "zero">	
-<xsl:variable name ="count" select ="count(../n1:entry)"/>	 
-	<div id = "zero">	
+<!-- Calculates counts for the left tab totals - modified to count the table rows so counts are correct for all sections -->
+<xsl:template match="n1:title" mode = "rowcount">
+<xsl:variable name ="count" select ="count(../n1:text/n1:table/n1:tbody/n1:tr)"/>	 
+	<div id = "rowcount">
 		<a href="#{generate-id(.)}"><xsl:value-of select="."/> (<xsl:value-of select="$count"/>)</a>
 	</div>
 </xsl:template>
