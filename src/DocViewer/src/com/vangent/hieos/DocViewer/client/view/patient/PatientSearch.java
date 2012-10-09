@@ -25,8 +25,6 @@ import com.smartgwt.client.widgets.form.fields.DateTimeItem;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
-import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
-import com.smartgwt.client.widgets.form.fields.events.ChangeHandler;
 import com.smartgwt.client.widgets.form.events.SubmitValuesHandler;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
@@ -48,6 +46,7 @@ public class PatientSearch extends Canvas implements ClickHandler,
 	private final RadioGroupItem genderGroupItem;
 	private final TextItem ssnLast4Field;
 	private final CheckboxItem fuzzyNameSearchCheckboxItem;
+	private String showFuzzyNameSearch;
 
 	// private final TextItem hrnField = new TextItem("hrn", "HRN");
 
@@ -115,22 +114,20 @@ public class PatientSearch extends Canvas implements ClickHandler,
 		this.fuzzyNameSearchCheckboxItem.setName("fuzzyNameSearchCheckboxItem");
 		this.fuzzyNameSearchCheckboxItem.setTitle("Fuzzy Name Search");
 		this.fuzzyNameSearchCheckboxItem.setValue(true);
+
+		this.showFuzzyNameSearch = controllerConfig.get(Config.KEY_SHOW_FUZZY_NAME_SEARCH);
 		
-		/*
-		this.fuzzyNameSearchCheckboxItem.addChangeHandler(new ChangeHandler() {
-			public void onChange(ChangeEvent event) {
-				// buttonItem.setDisabled(!((Boolean) event.getValue()));
-			}
-		}); */
-
-		// Search fields:
-		this.searchForm.setFields(new FormItem[] { fuzzyNameSearchCheckboxItem, familyNameField,
-				givenNameField, dateOfBirthField, ssnLast4Field,
-				genderGroupItem, btnFind });
-
-		// searchForm.setFields(new FormItem[] { familyNameField,
-		// givenNameField,
-		// dateOfBirthField, genderGroupItem, hrnField, ssnLast4Field });
+		// Check to display Fuzzy Name Search checkbox.
+		if (this.showFuzzyNameSearch.equals("false"))
+			// Search fields:
+			this.searchForm.setFields(new FormItem[] { familyNameField,
+					givenNameField, dateOfBirthField, ssnLast4Field,
+					genderGroupItem, btnFind });
+		else
+			// Search fields:
+			this.searchForm.setFields(new FormItem[] { fuzzyNameSearchCheckboxItem, familyNameField,
+					givenNameField, dateOfBirthField, ssnLast4Field,
+					genderGroupItem, btnFind });
 
 		// Now, lay it out.
 		final VLayout layout = new VLayout();
@@ -193,8 +190,12 @@ public class PatientSearch extends Canvas implements ClickHandler,
 
 		// SSN(last4):
 		criteria.setSsnLast4(ssnLast4Field.getValueAsString());
-		
-		criteria.setFuzzyNameSearch(fuzzyNameSearchCheckboxItem.getValueAsBoolean());
+
+		// Check if there was a Fuzzy Name Search checkbox.
+		if (showFuzzyNameSearch.equals("false"))
+			criteria.setFuzzyNameSearch(false);
+		else
+			criteria.setFuzzyNameSearch(fuzzyNameSearchCheckboxItem.getValueAsBoolean());
 
 		return criteria;
 	}
