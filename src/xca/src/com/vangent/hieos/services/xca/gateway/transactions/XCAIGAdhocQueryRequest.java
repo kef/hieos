@@ -13,12 +13,12 @@
 package com.vangent.hieos.services.xca.gateway.transactions;
 
 import com.vangent.hieos.hl7v3util.client.PIXManagerClient;
-import com.vangent.hieos.hl7v3util.model.subject.Custodian;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.subjectmodel.Custodian;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;

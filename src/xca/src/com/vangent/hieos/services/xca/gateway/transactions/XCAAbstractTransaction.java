@@ -14,7 +14,7 @@ package com.vangent.hieos.services.xca.gateway.transactions;
 
 import com.vangent.hieos.services.xca.gateway.controller.XCARequestController;
 
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent.ActorType;
 
