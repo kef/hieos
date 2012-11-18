@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.services.xds.policy;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.policyutil.util.PolicyConstants;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
