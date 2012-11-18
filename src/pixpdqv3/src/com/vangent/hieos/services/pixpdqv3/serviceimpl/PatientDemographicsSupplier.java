@@ -10,9 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.serviceimpl;
+package com.vangent.hieos.services.pixpdqv3.serviceimpl;
 
-import com.vangent.hieos.services.pixpdq.transactions.PDSRequestHandler;
+import com.vangent.hieos.services.pixpdqv3.transactions.PDSRequestHandler;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;

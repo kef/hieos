@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.services.pixpdq.transactions;
+package com.vangent.hieos.services.pixpdqv3.transactions;
 
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
