@@ -12,6 +12,13 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.SubjectName;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.Address;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201309UV02_Message;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;

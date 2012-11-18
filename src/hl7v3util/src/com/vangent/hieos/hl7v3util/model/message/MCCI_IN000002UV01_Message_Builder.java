@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import org.apache.axiom.om.OMElement;
 
 /**

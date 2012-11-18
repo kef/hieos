@@ -12,11 +12,11 @@
  */
 package com.vangent.hieos.hl7v3util.model.message;
 
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import org.apache.axiom.om.OMElement;
 
 /**

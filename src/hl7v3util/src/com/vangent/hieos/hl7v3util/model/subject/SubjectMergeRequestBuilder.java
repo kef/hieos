@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.hl7v3util.model.subject;
 
+import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201304UV02_Message;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
