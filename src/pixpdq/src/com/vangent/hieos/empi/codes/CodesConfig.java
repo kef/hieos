@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.codes;
 
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.match;
 
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
+import com.vangent.hieos.subjectmodel.InternalId;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;

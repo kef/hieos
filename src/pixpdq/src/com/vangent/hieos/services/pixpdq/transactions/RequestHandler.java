@@ -13,7 +13,7 @@
 package com.vangent.hieos.services.pixpdq.transactions;
 
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 

@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.transform;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
+import com.vangent.hieos.subjectmodel.SubjectName;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 

@@ -22,7 +22,7 @@ import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
+import com.vangent.hieos.subjectmodel.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

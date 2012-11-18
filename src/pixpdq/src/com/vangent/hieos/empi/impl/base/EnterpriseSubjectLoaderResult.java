@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.subjectmodel.Subject;
 
 /**
  *

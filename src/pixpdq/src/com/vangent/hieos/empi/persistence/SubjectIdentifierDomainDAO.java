@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -32,7 +32,8 @@ public class PIDFeedLoader {
     // Hack - change variables to vary test.
     private final static String ENDPOINT = "http://localhost:8080/axis2/services/pixmgr";
     private final static String TEMPLATE = "test\\PIDFeedTemplate.xml";
-    private final static String DEMOGRAPHIC_FILES[] = {"test\\demographics-red.csv", "test\\demographics-green.csv", "test\\demographics-blue.csv"};
+    //private final static String DEMOGRAPHIC_FILES[] = {"test\\demographics-red.csv", "test\\demographics-green.csv", "test\\demographics-blue.csv"};
+    private final static String DEMOGRAPHIC_FILES[] = {"test\\demographics-red.csv"};
 
     // Positions in file to extract demographic elements.
     private final static int PATIENT_ID_TOKEN_POS = 2;

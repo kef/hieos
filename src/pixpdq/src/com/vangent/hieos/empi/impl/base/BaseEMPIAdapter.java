@@ -13,13 +13,13 @@
 package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectMergeRequest;
+import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;

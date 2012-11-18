@@ -14,7 +14,7 @@ package com.vangent.hieos.empi.model;
 
 // FIXME: Move class to a more reasonable package??
 
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
+import com.vangent.hieos.subjectmodel.InternalId;
 
 /**
  *

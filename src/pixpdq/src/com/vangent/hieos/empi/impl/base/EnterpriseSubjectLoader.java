@@ -14,8 +14,8 @@ package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.config;
 
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
 import java.util.Iterator;

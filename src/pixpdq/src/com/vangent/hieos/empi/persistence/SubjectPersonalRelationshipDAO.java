@@ -13,10 +13,10 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.hl7v3util.model.subject.InternalId;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectPersonalRelationship;
+import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
