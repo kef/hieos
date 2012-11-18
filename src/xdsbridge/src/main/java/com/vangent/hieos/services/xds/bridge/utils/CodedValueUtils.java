@@ -11,7 +11,7 @@
 package com.vangent.hieos.services.xds.bridge.utils;
 
 import javax.xml.namespace.QName;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;

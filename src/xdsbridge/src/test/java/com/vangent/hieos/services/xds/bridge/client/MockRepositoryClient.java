@@ -14,7 +14,7 @@
 
 package com.vangent.hieos.services.xds.bridge.client;
 
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.mock.MockXConfigTransaction;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;

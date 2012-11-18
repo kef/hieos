@@ -116,6 +116,7 @@ public class XDSDocumentRegistryClient extends AbstractClient {
                                      useMtom, useWsa, soap12,
                                      PID_ADD_REQUEST_ACTION,
                                      PID_ADD_RESPONSE_ACTION);
+        System.out.println("PID Feed Response = " + responseElem.toString());
 
         if (logger.isDebugEnabled()) {
 

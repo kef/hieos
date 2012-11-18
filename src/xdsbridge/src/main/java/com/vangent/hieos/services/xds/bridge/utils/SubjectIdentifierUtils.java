@@ -1,7 +1,7 @@
 package com.vangent.hieos.services.xds.bridge.utils;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import org.apache.commons.lang.StringUtils;
 
 public class SubjectIdentifierUtils {

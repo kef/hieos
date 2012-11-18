@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 //import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig
 //    .ContentParserConfigName;

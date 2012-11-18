@@ -12,7 +12,7 @@ package com.vangent.hieos.services.xds.bridge.serviceimpl;
 
 import java.util.List;
 import java.util.Map;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.ContentParserConfig;
 import com.vangent.hieos.services.xds.bridge.mapper.DocumentTypeMapping;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;

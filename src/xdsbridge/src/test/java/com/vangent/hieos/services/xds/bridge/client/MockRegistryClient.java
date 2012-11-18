@@ -16,7 +16,7 @@ package com.vangent.hieos.services.xds.bridge.client;
 
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201301UV02_Message;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.services.xds.bridge.message
     .GetDocumentsSQRequestMessage;
 import com.vangent.hieos.services.xds.bridge.message

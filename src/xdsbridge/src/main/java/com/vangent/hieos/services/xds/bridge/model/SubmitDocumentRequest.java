@@ -13,7 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.model;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import java.io.Serializable;
 import java.util.List;
 

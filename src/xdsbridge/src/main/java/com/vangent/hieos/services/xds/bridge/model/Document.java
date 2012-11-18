@@ -14,8 +14,8 @@
 package com.vangent.hieos.services.xds.bridge.model;
 
 import java.io.Serializable;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 
 /**
  * Class description

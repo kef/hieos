@@ -13,7 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.activity;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.services.xds.bridge.mapper.IXDSMapper;
 import com.vangent.hieos.services.xds.bridge.mapper.MapperFactory;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;

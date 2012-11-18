@@ -15,9 +15,9 @@
 package com.vangent.hieos.services.xds.bridge.model;
 
 import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.services.xds.bridge.message
     .SubmitDocumentRequestBuilder;
 import com.vangent.hieos.services.xds.bridge.support.XDSBridgeConfig;

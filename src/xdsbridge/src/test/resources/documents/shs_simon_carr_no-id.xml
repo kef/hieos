@@ -8,7 +8,7 @@
     <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3"/>
     <templateId extension="1.0" root="1.2.36.1.2001.1001.101.100.20000"/>
     <code code="60591-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Shared Health Summary"/>
-    <effectiveTime value="201105271150"/>
+    <effectiveTime value="20111216232239+0000"/>
     <confidentialityCode code="R" codeSystem="2.16.840.1.113883.5.25" displayName="Restricted" />
     <languageCode code="en-AU"/>
     <setId root="6C6BA56C-BC92-11DE-A170-D85556D89593"/>
@@ -49,7 +49,7 @@
                                         <!--
 					<ext:id assigningAuthorityName="IHI" root="1.2.36.1.2001.1003.0.8003601199896908"/>
                                         -->
-                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.2005.3.7.1a6fd7ff75144f7"/>
+                    <ext:id assigningAuthorityName="IHI" root="1.3.6.1.4.1.21367.13.20.1000.SC_HIE2"/>
                                         
                     <ext:assigningGeographicArea classCode="PLC">
                         <ext:name>National Identifier</ext:name>

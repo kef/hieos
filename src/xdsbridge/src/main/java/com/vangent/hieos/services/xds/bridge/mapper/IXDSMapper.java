@@ -14,7 +14,7 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.services.xds.bridge.message.XDSPnRMessage;
 import com.vangent.hieos.services.xds.bridge.model.Document;
 

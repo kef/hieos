@@ -13,7 +13,7 @@
 
 package com.vangent.hieos.services.xds.bridge.mapper;
 
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
+import com.vangent.hieos.subjectmodel.CodedValue;
 
 /**
  * Class description
