@@ -18,10 +18,10 @@ import com.vangent.hieos.hl7v3util.model.message.HL7V3ErrorDetail;
 
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 
 import com.vangent.hieos.hl7v3util.xml.HL7V3SchemaValidator;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
