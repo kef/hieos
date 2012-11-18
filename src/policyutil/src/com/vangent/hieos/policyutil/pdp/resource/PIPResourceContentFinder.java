@@ -13,7 +13,7 @@
 package com.vangent.hieos.policyutil.pdp.resource;
 
 import com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.policyutil.pip.client.PIPClient;
 import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pdp.model.PDPRequest;
