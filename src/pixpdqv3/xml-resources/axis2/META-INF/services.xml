@@ -2,10 +2,10 @@
 <serviceGroup>
 
     <!-- Patient Identifier Cross Reference Manager Actor -->
-    <service name="pixmgr" class="com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager">
+    <service name="pixmgr" class="com.vangent.hieos.services.pixpdqv3.serviceimpl.PatientIdentifierCrossReferenceManager">
         <description>Patient Identifier Cross Reference Manager Interface</description>
         <parameter name="ServiceTCCL">composite</parameter>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientIdentifierCrossReferenceManager</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdqv3.serviceimpl.PatientIdentifierCrossReferenceManager</parameter>
         <operation name="PatientRegistryGetIdentifiersQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201309UV02</actionMapping>
@@ -25,10 +25,10 @@
     </service>
 
     <!-- Patient Demographics Supplier Actor -->
-    <service name="pds" class="com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier">
+    <service name="pds" class="com.vangent.hieos.services.pixpdqv3.serviceimpl.PatientDemographicsSupplier">
         <description>Patient Demographics Supplier Interface</description>
         <parameter name="ServiceTCCL">composite</parameter>
-        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdq.serviceimpl.PatientDemographicsSupplier</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdqv3.serviceimpl.PatientDemographicsSupplier</parameter>
         <operation name="PatientRegistryFindCandidatesQuery">
             <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
             <actionMapping>urn:hl7-org:v3:PRPA_IN201305UV02</actionMapping>
