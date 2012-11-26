@@ -136,7 +136,7 @@ public class PIXRequestHandler extends RequestHandler {
             Subject subject = builder.buildSubject(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
@@ -170,7 +170,7 @@ public class PIXRequestHandler extends RequestHandler {
             Subject subject = builder.buildSubject(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
@@ -204,7 +204,7 @@ public class PIXRequestHandler extends RequestHandler {
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
-            EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
+            EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
 
             // Merge the subjects (clone first since merge has side-effects).
@@ -277,7 +277,7 @@ public class PIXRequestHandler extends RequestHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
+        EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
         SubjectSearchResponse subjectSearchResponse = adapter.getBySubjectIdentifiers(subjectSearchCriteria);
         return subjectSearchResponse;
     }

@@ -121,7 +121,7 @@ public class PDSRequestHandler extends RequestHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        EMPIAdapter adapter = EMPIAdapterFactory.getInstance(this.getConfigActor());
+        EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
         return subjectSearchResponse;
     }
