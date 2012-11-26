@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 *** GENERATED FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 
@@ -17,7 +18,8 @@ is divided into following sections:
   - applet
   - cleanup
 
-        --><project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="subjectmodel-impl">
+        -->
+<project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="subjectmodel-impl">
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
             <not>
@@ -289,15 +291,18 @@ is divided into following sections:
             <attribute default="${build.classes.dir}" name="destdir"/>
             <sequential>
                 <fail unless="javac.includes">Must set javac.includes</fail>
-                <pathconvert pathsep="," property="javac.includes.binary">
+                <pathconvert pathsep="${line.separator}" property="javac.includes.binary">
                     <path>
                         <filelist dir="@{destdir}" files="${javac.includes}"/>
                     </path>
                     <globmapper from="*.java" to="*.class"/>
                 </pathconvert>
+                <tempfile deleteonexit="true" property="javac.includesfile.binary"/>
+                <echo file="${javac.includesfile.binary}" message="${javac.includes.binary}"/>
                 <delete>
-                    <files includes="${javac.includes.binary}"/>
+                    <files includesfile="${javac.includesfile.binary}"/>
                 </delete>
+                <delete file="${javac.includesfile.binary}"/>
             </sequential>
         </macrodef>
     </target>
