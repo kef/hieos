@@ -59,17 +59,18 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
     @Override
     public AuthenticationContext authenticate(Credentials creds) throws AuthUtilException {
         AuthenticationContext authnCtx = new AuthenticationContext();
-        this.configure();
+        this.configure(creds.getAuthDomainTypeKey());
+
         LDAPClient ldapClient = null;
         try {
-            
+
             ldapClient = new LDAPClient(this.ldapURL);
-            
+
         } catch (NamingException e) {
             log.error("Error accessing LDAP.", e);
             throw new AuthUtilException("Error accessing LDAP." + e.getMessage());
         }
-        
+
         try {
 
             boolean status = false;
@@ -77,7 +78,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
             if (creds != null) {
                  username = creds.getUserId();
                 if (StringUtils.isNotBlank(this.userNameFormat)) {
-                    username = StringUtils.replace(this.userNameFormat, 
+                    username = StringUtils.replace(this.userNameFormat,
                             USERNAME_REPLACE_STRING, username);
                 }
 
@@ -98,13 +99,13 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
                 }
             }
         } finally {
-            
+
             // disconnect, release resources!!!!
             if (ldapClient != null) {
                 ldapClient.unbind();
             }
         }
-        
+
         return authnCtx;
     }
 
@@ -112,11 +113,22 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      *
      * @throws AuthUtilException
      */
-    private void configure() {
+    private void configure(String authDomainTypeKey) {
+        // Get the list of authentication domains from the xconfig file.
+        XConfigObject authDomainListConfig = this.config.getXConfigObjectWithName("AuthDomainList", "AuthDomainListType");
+        List<XConfigObject> configObjects = authDomainListConfig.getXConfigObjectsWithType("AuthDomainType");
 
-        this.ldapURL = config.getProperty(LDAP_URL);
-        this.ldapBaseDN = config.getProperty(LDAP_BASE_DN);
-        this.userNameFormat = config.getProperty(LDAP_USERNAME_FORMAT);
+        // Find the LDAP configuration that matches the authentication domain name.
+        for (XConfigObject configObject : configObjects) {
+            // Check if this is the selected authentication domain.
+            if (configObject.getProperty("AuthDomainTypeKey").equals(authDomainTypeKey)) {
+                log.info("AuthDomainTypeKey: " + authDomainTypeKey);
+                this.ldapURL = configObject.getProperty(LDAP_URL);
+                this.ldapBaseDN = configObject.getProperty(LDAP_BASE_DN);
+                this.userNameFormat = configObject.getProperty(LDAP_USERNAME_FORMAT);
+                break;
+            }
+        }
 
         if (log.isInfoEnabled()) {
             log.info("AuthHandlerClassImpl: " + config.getProperty("AuthHandlerClassImpl"));
@@ -154,7 +166,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
     }
 
     /**
-     * 
+     *
      * @param userAttrs
      * @return
      */
@@ -230,7 +242,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
     }
 
     /**
-     * 
+     *
      * @param config
      */
     @Override

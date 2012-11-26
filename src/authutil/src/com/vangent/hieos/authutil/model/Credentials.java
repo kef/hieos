@@ -18,13 +18,21 @@ package com.vangent.hieos.authutil.model;
  */
 
 public class Credentials {
-
+    private String authDomainTypeKey;
     private String userId;
     private String password;
 
     public Credentials(String userId, String password) {
         this.userId =  userId == null ? "" : userId.trim();
         this.password = password == null ? "" : password.trim();
+        // Use the default the authentication domain type
+        this.authDomainTypeKey = "default";
+    }
+
+    public Credentials(String userId, String password, String authDomainTypeKey) {
+        this.userId =  userId == null ? "" : userId.trim();
+        this.password = password == null ? "" : password.trim();
+        this.authDomainTypeKey = authDomainTypeKey == null ? "" : authDomainTypeKey.trim();
     }
 
     public String getUserId() {
@@ -33,6 +41,10 @@ public class Credentials {
 
     public String getPassword() {
         return this.password;
+    }
+
+    public String getAuthDomainTypeKey() {
+        return this.authDomainTypeKey;
     }
 }
 
