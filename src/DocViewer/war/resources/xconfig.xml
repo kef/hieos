@@ -50,14 +50,20 @@
         <Property name="LogoFileName">search_computer.png</Property>
         <Property name="LogoWidth">100</Property>
         <Property name="LogoHeight">100</Property>
+        <!-- AuthDomainDropDownName cannot contain spaces or special characters.  -->
+        <Property name="AuthDomainDropDownName">authDomainSelection</Property>
+        <Property name="AuthDomainLabelText">Hospital List</Property>
         <Property name="TrimDocumentTabTitles">false</Property>
         <Property name="TrimDocumentTabTitlesLength">20</Property>
         <ObjectReference name="DocumentTemplates" refname="DocumentTemplateList" reftype="DocumentTemplateListType"/>
+        <ObjectReference name="AuthDomains" refname="AuthDomainList" reftype="AuthDomainListType"/>
 	
         <!-- Custom Display Configuration -->
         <Property name="ShowTitleBranding">true</Property>
         <Property name="ShowFindDocumentsButton">true</Property>
         <Property name="ShowOrganizationColumn">true</Property>
+        <Property name="ShowAuthDomainList">true</Property>
+        <Property name="ShowFuzzyNameSearch">true</Property>
         
         <Property name="LabelGivenNameText">First Name</Property>
         <Property name="LabelFamilyNameText">Last Name</Property>
@@ -77,18 +83,11 @@
         <Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
         <Property name="PermittedRoles_ViewConsent">Role1</Property>
         <Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
-
+<!--
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
-        <!--
+-->
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>
-        -->
 
-        <!-- if using LDAP ... -->
-        <Property name="AuthHandlerLDAP_URL">ldap://localhost:10389</Property>
-        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc=example,dc=com</Property>
-        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property>
-        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property-->
-        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property-->
 
         <!-- Device information for DocViewer -->
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
@@ -136,7 +135,50 @@
         <Property name="DisplayName">CCR Template</Property>
         <Property name="FileName">ccr/CCR.xsl</Property>
     </Object>
-     
+
+    <!-- Lists available authentication domains -->
+    <Object name="AuthDomainList" type="AuthDomainListType">
+        <ObjectReference refname="facilityDefault" reftype="AuthDomainType"/>    
+        <ObjectReference refname="facility111" reftype="AuthDomainType"/>
+        <ObjectReference refname="facility222" reftype="AuthDomainType"/>
+        <ObjectReference refname="facility333" reftype="AuthDomainType"/>
+    </Object>
+
+    <!-- will extend later with types, etc. -->
+    <Object name="facilityDefault" type="AuthDomainType">
+        <Property name="DisplayName">Default Site</Property>
+        <Property name="AuthDomainTypeKey">default</Property>
+        <Property name="AuthHandlerLDAP_URL">ldap://localhost:10389</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc=example,dc=com</Property>
+        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property-->
+        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property-->
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property>  
+    </Object>
+
+    <Object name="facility111" type="AuthDomainType">
+        <Property name="DisplayName">Facility 1</Property>
+        <Property name="AuthDomainTypeKey">fac-1</Property>
+        <Property name="AuthHandlerLDAP_URL">ldap://localhost:1111</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc1=example,dc=com</Property>
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property>    
+    </Object>
+ 
+    <Object name="facility222" type="AuthDomainType">
+        <Property name="DisplayName">Facility 2</Property>
+        <Property name="AuthDomainTypeKey">fac-2</Property>
+        <Property name="AuthHandlerLDAP_URL">ldap://localhost:2222</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc2=example,dc=com</Property>
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D2\${UserName}</Property> 
+    </Object>
+
+    <Object name="facility333" type="AuthDomainType">
+        <Property name="DisplayName">Facility 3</Property>
+        <Property name="AuthDomainTypeKey">fac-3</Property>
+        <Property name="AuthHandlerLDAP_URL">ldap://localhost:3333</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc3=example,dc=com</Property>
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D3\${UserName}</Property> 
+    </Object>
+    
 
     <!-- Left here since this may be used in the future for XUA client usage -->
     <Object name="XUAProperties" type="XUAPropertiesType">
