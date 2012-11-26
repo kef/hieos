@@ -21,7 +21,6 @@ import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
 import com.vangent.hieos.empi.adapter.EMPINotification;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,26 +30,7 @@ import org.apache.log4j.Logger;
 public class BaseEMPIAdapter implements EMPIAdapter {
 
     private static final Logger logger = Logger.getLogger(BaseEMPIAdapter.class);
-    private XConfigActor configActor = null;
     private DeviceInfo senderDeviceInfo = null;
-
-    /**
-     * 
-     * @param configActor
-     */
-    @Override
-    public void setConfig(XConfigActor configActor) {
-        this.configActor = configActor;
-    }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public XConfigActor getConfigActor() {
-        return configActor;
-    }
 
     /**
      *
@@ -71,15 +51,6 @@ public class BaseEMPIAdapter implements EMPIAdapter {
     }
 
     /**
-     *
-     * @param classLoader
-     */
-    @Override
-    public void startup(ClassLoader classLoader) {
-        // Do nothing here.
-    }
-
-    /**
      * 
      * @param subject
      * @return
@@ -91,7 +62,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         EMPINotification updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
-            AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
+            AddSubjectHandler addSubjectHandler = new AddSubjectHandler(pm, this.senderDeviceInfo);
             updateNotificationContent = addSubjectHandler.addSubject(subject);
             pm.commit();
         } catch (EMPIException ex) {
@@ -123,7 +94,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         EMPINotification updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
-            UpdateSubjectHandler updateSubjectHandler = new UpdateSubjectHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
+            UpdateSubjectHandler updateSubjectHandler = new UpdateSubjectHandler(pm, this.senderDeviceInfo);
             updateNotificationContent = updateSubjectHandler.updateSubject(subject);
             pm.commit();
         } catch (EMPIException ex) {
@@ -151,7 +122,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         EMPINotification updateNotificationContent = null;
         try {
             pm.open();  // Open transaction.
-            MergeSubjectsHandler mergeSubjectsHandler = new MergeSubjectsHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
+            MergeSubjectsHandler mergeSubjectsHandler = new MergeSubjectsHandler(pm, this.senderDeviceInfo);
             updateNotificationContent = mergeSubjectsHandler.mergeSubjects(subjectMergeRequest);
             pm.commit();
         } catch (EMPIException ex) {
@@ -179,7 +150,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         PersistenceManager pm = new PersistenceManager();
         try {
             pm.open();
-            FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
+            FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(pm, this.senderDeviceInfo);
             subjectSearchResponse = findSubjectsHandler.findSubjects(subjectSearchCriteria);
         } finally {
             pm.close();  // No matter what.
@@ -199,7 +170,7 @@ public class BaseEMPIAdapter implements EMPIAdapter {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         try {
             pm.open();
-            FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(this.getConfigActor(), pm, this.senderDeviceInfo);
+            FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(pm, this.senderDeviceInfo);
             subjectSearchResponse = findSubjectsHandler.getBySubjectIdentifiers(subjectSearchCriteria);
         } finally {
             pm.close();

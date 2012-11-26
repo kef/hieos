@@ -19,7 +19,6 @@ import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.subjectmodel.InternalId;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,29 +28,17 @@ import org.apache.log4j.Logger;
 public class BaseHandler {
 
     private static final Logger logger = Logger.getLogger(BaseHandler.class);
-    private XConfigActor configActor = null;
     private PersistenceManager persistenceManager = null;
     private DeviceInfo senderDeviceInfo = null;
 
     /**
-     * 
-     * @param configActor
+     *
      * @param persistenceManager
      * @param senderDeviceInfo
      */
-    protected BaseHandler(XConfigActor configActor,
-            PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
-        this.configActor = configActor;
+    protected BaseHandler(PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
         this.persistenceManager = persistenceManager;
         this.senderDeviceInfo = senderDeviceInfo;
-    }
-
-    /**
-     *
-     * @return
-     */
-    protected XConfigActor getConfigActor() {
-        return this.configActor;
     }
 
     /**

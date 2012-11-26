@@ -21,7 +21,6 @@ import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.MergeSubjectsValidator;
 import com.vangent.hieos.subjectmodel.InternalId;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -35,12 +34,11 @@ public class MergeSubjectsHandler extends BaseHandler {
 
     /**
      *
-     * @param configActor
      * @param persistenceManager
      * @param senderDeviceInfo
      */
-    public MergeSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
-        super(configActor, persistenceManager, senderDeviceInfo);
+    public MergeSubjectsHandler(PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(persistenceManager, senderDeviceInfo);
     }
 
     /**

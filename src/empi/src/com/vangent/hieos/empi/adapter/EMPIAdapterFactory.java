@@ -13,7 +13,6 @@
 package com.vangent.hieos.empi.adapter;
 
 import com.vangent.hieos.empi.impl.base.BaseEMPIAdapter;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
 /**
  *
@@ -22,14 +21,13 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 public class EMPIAdapterFactory {
 
     /**
-     *
-     * @param configActor
+     * 
      * @return
      */
-    static public EMPIAdapter getInstance(XConfigActor configActor) {
+    static public EMPIAdapter getInstance() {
         // FIXME: Replace by dynamic load using xconfig file.
         EMPIAdapter empiAdaptor = new BaseEMPIAdapter();
-        empiAdaptor.setConfig(configActor);
+        //empiAdaptor.setConfig(configActor);
         return empiAdaptor;
     }
 }

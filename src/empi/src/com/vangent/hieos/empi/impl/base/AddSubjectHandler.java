@@ -28,7 +28,6 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.AddSubjectValidator;
 import com.vangent.hieos.subjectmodel.InternalId;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,13 +42,12 @@ public class AddSubjectHandler extends BaseHandler {
     private static final Logger logger = Logger.getLogger(AddSubjectHandler.class);
 
     /**
-     * 
-     * @param configActor
+     *
      * @param persistenceManager
      * @param senderDeviceInfo
      */
-    public AddSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
-        super(configActor, persistenceManager, senderDeviceInfo);
+    public AddSubjectHandler(PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(persistenceManager, senderDeviceInfo);
     }
 
     /**

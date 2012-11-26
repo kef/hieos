@@ -28,7 +28,6 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -43,12 +42,11 @@ public class FindSubjectsHandler extends BaseHandler {
 
     /**
      *
-     * @param configActor
      * @param persistenceManager
      * @param senderDeviceInfo
      */
-    public FindSubjectsHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
-        super(configActor, persistenceManager, senderDeviceInfo);
+    public FindSubjectsHandler(PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(persistenceManager, senderDeviceInfo);
     }
 
     /**

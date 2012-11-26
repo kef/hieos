@@ -21,7 +21,6 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
 import com.vangent.hieos.subjectmodel.InternalId;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -34,13 +33,12 @@ public class UpdateSubjectHandler extends BaseHandler {
     private static final Logger logger = Logger.getLogger(UpdateSubjectHandler.class);
 
     /**
-     *
-     * @param configActor
+     * 
      * @param persistenceManager
      * @param senderDeviceInfo
      */
-    public UpdateSubjectHandler(XConfigActor configActor, PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
-        super(configActor, persistenceManager, senderDeviceInfo);
+    public UpdateSubjectHandler(PersistenceManager persistenceManager, DeviceInfo senderDeviceInfo) {
+        super(persistenceManager, senderDeviceInfo);
     }
 
     /**
@@ -128,7 +126,7 @@ public class UpdateSubjectHandler extends BaseHandler {
         // FIXME: How about existing identifiers?
 
         // Now, run through normal add operation.
-        AddSubjectHandler addSubjectHandler = new AddSubjectHandler(this.getConfigActor(), pm, this.getSenderDeviceInfo());
+        AddSubjectHandler addSubjectHandler = new AddSubjectHandler(pm, this.getSenderDeviceInfo());
         EMPINotification addNotification = addSubjectHandler.addSubject(subject);
         notification.addNotification(addNotification);
 
