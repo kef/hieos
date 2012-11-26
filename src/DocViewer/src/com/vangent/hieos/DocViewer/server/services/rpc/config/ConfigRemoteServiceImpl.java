@@ -10,12 +10,14 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.vangent.hieos.DocViewer.server.services.rpc.config;
+ */
+package com.vangent.hieos.DocViewer.server.services.rpc.config;
 
 import java.util.List;
 
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
+import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
 import com.vangent.hieos.DocViewer.client.services.rpc.ConfigRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -83,6 +85,9 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		// LogoWidth/LogoHeight:
 		String logoWidth = servletUtil.getProperty(Config.KEY_LOGO_WIDTH);
 		String logoHeigth = servletUtil.getProperty(Config.KEY_LOGO_HEIGHT);
+        String showAuthDomainList = servletUtil.getProperty(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+        String authDomainName = servletUtil.getProperty(Config.KEY_LABEL_AUTHDOMAIN_NAME);
+        String authDomainSelect = servletUtil.getProperty(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
 
 		// Fill up the config:
 		config.put(Config.KEY_SEARCH_MODE, defaultSearchMode);
@@ -93,6 +98,9 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
 		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
 		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
+        config.put(Config.KEY_SHOW_AUTHDOMAIN_LIST, showAuthDomainList);
+        config.put(Config.KEY_LABEL_AUTHDOMAIN_NAME, authDomainName);
+        config.put(Config.KEY_LABEL_AUTHDOMAIN_SELECT, authDomainSelect);
                 
                 // copy properties from xconfig to config
                 copyToConfig(config, Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
@@ -109,6 +117,8 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
                         Config.KEY_LABEL_HIE_MODE, Config.DEFAULT_LABEL_HIE_MODE);
                 copyToConfig(config, 
                         Config.KEY_LABEL_NHIN_MODE, Config.DEFAULT_LABEL_NHIN_MODE);
+                // Set the default label to blank, since one already exist.
+                copyToConfig(config, Config.KEY_SHOW_FUZZY_NAME_SEARCH, "");
                 
                 copyToConfig(config, Config.KEY_TOOLTIP_CONFIDENCE);
                 copyToConfig(config, Config.KEY_TOOLTIP_DATE_OF_BIRTH);
@@ -119,6 +129,10 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
                 copyToConfig(config, Config.KEY_TOOLTIP_SSN);
                 
 		this.loadDocumentTemplateConfigs(config);
+
+		// Load the list of authentication domains.
+		this.loadAuthDomainListConfig(config);
+
 		return config;
 	}
 
@@ -168,5 +182,30 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * Load the list of authentication domains.
+	 * @param config
+	 */
+	private void loadAuthDomainListConfig(Config config) {
+		try {
+			XConfig xconf = XConfig.getInstance();
+			XConfigObject propertiesObject = xconf.getXConfigObjectByName("DocViewerProperties", "DocViewerPropertiesType");
+			XConfigObject authDomainListConfig = propertiesObject.getXConfigObjectWithName("AuthDomains", "AuthDomainListType");
+			List<XConfigObject> configObjects = authDomainListConfig.getXConfigObjectsWithType("AuthDomainType");
+			// Get the authentication domains from xconfig.xml.
+			for (XConfigObject configObject : configObjects) {
+				AuthenticationDomainConfig authDomainConfig = new AuthenticationDomainConfig();
+				authDomainConfig.setAuthDomainName(configObject.getProperty("AuthDomainName"));
+				authDomainConfig.setAuthDomainValue(configObject.getProperty("DisplayName"));
+				authDomainConfig.setAuthHandlerLdapBaseDn(configObject.getProperty("AuthHandlerLDAP_BASE_DN"));
+				authDomainConfig.setAuthHandlerLdapUrl("AuthHandlerLDAP_URL");
+				authDomainConfig.setAuthHandlerLdapUsernameFormat("AuthHandlerLDAP_USERNAME_FORMAT");
+				config.addAuthDomainListConfig(authDomainConfig);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

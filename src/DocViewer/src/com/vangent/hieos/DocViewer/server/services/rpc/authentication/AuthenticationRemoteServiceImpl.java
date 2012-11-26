@@ -22,21 +22,21 @@ import com.vangent.hieos.authutil.framework.AuthenticationService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
- * 
+ *
  * @author Anand Sastry
- * 
+ *
  */
 public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		implements AuthenticationRemoteService {
 	private ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8437219381457225576L;
 
 	/**
-	 * 
+	 *
 	 */
 
 	@Override
@@ -50,14 +50,13 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 
 		com.vangent.hieos.authutil.model.AuthenticationContext authCtxt = null;
 		AuthenticationService authService = new AuthenticationService(servletUtil.getConfig());
-		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(
-				guiCreds.getUserId(), guiCreds.getPassword());
+		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(guiCreds.getUserId(), guiCreds.getPassword(), guiCreds.getAuthDomainTypeKey());
 		authCtxt = authService.authenticate(authCredentials);
 		return getAuthenticationContext(authCtxt);
 	}
 
 	/**
-	 * 
+	 *
 	 * @param authCtxt
 	 * @return
 	 */
