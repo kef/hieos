@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.DocViewer.client.entrypoint;
 
+import java.util.List;
+
 import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.event.dom.client.ClickEvent;
 //import com.google.gwt.event.dom.client.ClickHandler;
@@ -32,6 +34,7 @@ import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.smartgwt.client.widgets.form.fields.HeaderItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
+import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
@@ -41,6 +44,7 @@ import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
@@ -55,11 +59,14 @@ public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
+    private String[] authDomainDisplayName;
+    private String[] authDomainValueList;
+    private String authDomainValue;
 	
 	/**
 	 * 
 	 */
-        @Override
+    @Override
 	public void onModuleLoad() {
 		// Load client configuration ...
 		this.loadConfig();
@@ -92,7 +99,7 @@ public class DocViewer implements EntryPoint {
 		final DynamicForm loginForm = new DynamicForm();
 		loginForm.setWidth100();
 		loginForm.setHeight100();
-                
+
 		HeaderItem header = new HeaderItem();
 		header.setDefaultValue(title);
 		header.setAlign(Alignment.CENTER);
@@ -106,19 +113,22 @@ public class DocViewer implements EntryPoint {
 		logonLabel.setContents("Enter your account details below");*/
 
 		final TextItem userIdItem = new TextItem("userid", "User ID");
-		final PasswordItem passwordItem = new PasswordItem("Password",
-				"Password");
+		final PasswordItem passwordItem = new PasswordItem("Password", "Password");
+
+		String authDomainName = config.get(Config.KEY_LABEL_AUTHDOMAIN_NAME);
+		String authDomainSelect = config.get(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
+        final SelectItem authDomainList = new SelectItem(authDomainSelect, authDomainName);
 
 		userIdItem.setRequired(true);
 		userIdItem.setRequiredMessage("Please specify User ID");
 		passwordItem.setRequired(true);
-		passwordItem.setRequiredMessage("Please specify Password");                       
-                        
-                final ButtonItem loginButton = new ButtonItem("Login");
+		passwordItem.setRequiredMessage("Please specify Password");
+
+        final ButtonItem loginButton = new ButtonItem("Login");
 		loginButton.setIcon("login-blue.png");
 		loginButton.setAlign(Alignment.CENTER);
-                loginButton.setEndRow(true);
-                loginButton.setColSpan(2);
+        loginButton.setEndRow(true);
+        loginButton.setColSpan(2);
 		loginButton.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
                         @Override
 			public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
@@ -126,8 +136,23 @@ public class DocViewer implements EntryPoint {
                             loginForm.submit();
                         }
                 });
-                
-		loginForm.setFields(header, userIdItem, passwordItem, loginButton);
+
+        // Get the authentication domains from xconfig.xml.
+        String showAuthDomainList = config.get(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+
+        // Show the authentication domain selection box.
+        if (showAuthDomainList.equals("true")) {
+            this.getAuthDomainList();
+            // Set up the authDomain drop-down box.
+            authDomainList.setShowAllOptions(true);  // true makes sure something is selected. false makes the first selection blank.
+            authDomainList.setValueMap(authDomainDisplayName);
+            authDomainList.setRequired(true);
+			authDomainList.setRequiredMessage("Please specify "
+					+ authDomainName.toLowerCase());
+            loginForm.setFields(header, userIdItem, passwordItem, authDomainList, loginButton);
+        }
+        else
+            loginForm.setFields(header, userIdItem, passwordItem, loginButton);
 
 		final DocViewer entryPoint = this;
                 
@@ -141,10 +166,18 @@ public class DocViewer implements EntryPoint {
 				if (validatedOk == true) {
 					AuthenticationObserver authObserver = new AuthenticationObserver(
 							entryPoint);
-					controller.authenticateUser(authObserver,
-							userIdItem.getValueAsString(),
-							passwordItem.getValueAsString());
-				}
+
+        // Initialize the authDomain select to nothing.
+        String authDomainSelected = "default";
+
+		// Check if the default authDomain is used.
+		if (authDomainList.getValueAsString() != null )
+			authDomainSelected = authDomainList.getValueAsString();
+							controller.authenticateUser(authObserver,
+									userIdItem.getValueAsString(),
+									passwordItem.getValueAsString(),
+									authDomainSelected);
+						}
                     }
                 });               
                 
@@ -357,6 +390,28 @@ public class DocViewer implements EntryPoint {
 		toolStrip.addButton(logoutButton);
 
 		return toolStrip;
+	}
+
+	/**
+	 * Get the list of authentication domains.
+	 */
+	private void getAuthDomainList()
+	{
+		Config config = controller.getConfig();
+		List<AuthenticationDomainConfig> authDomainConfigs = config.getAuthDomainListConfigs();
+		authDomainDisplayName = new String[authDomainConfigs.size()];
+		authDomainValueList = new String[authDomainConfigs.size()];
+		int i = 0;
+	
+		// Loop through all the authentication domains.
+		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs)
+		{
+			authDomainDisplayName[i] = authDomainConfig.getAuthDomainName();
+			authDomainValueList[i] = authDomainConfig.getAuthDomainValue();
+			++i;
+		}
+		// Set the authDomain value to the first authDomain.
+		this.authDomainValue = authDomainValueList[0];
 	}
 
 	/**

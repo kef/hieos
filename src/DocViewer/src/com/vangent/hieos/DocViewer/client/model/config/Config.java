@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Config implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
 	private List<DocumentTemplateConfig> documentTemplateConfigs = new ArrayList<DocumentTemplateConfig>();
+    private List<AuthenticationDomainConfig> authDomainList = new ArrayList<AuthenticationDomainConfig>();
 
 	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static String VAL_SEARCH_MODE_HIE = "hie";
@@ -34,6 +35,10 @@ public class Config implements IsSerializable {
 	public static String KEY_LOGO_FILE_NAME = "LogoFileName";
 	public static String KEY_LOGO_WIDTH = "LogoWidth";
 	public static String KEY_LOGO_HEIGHT = "LogoHeight";
+	public static String KEY_LABEL_AUTHDOMAIN_NAME = "AuthDomainLabelText";
+	public static String KEY_LABEL_AUTHDOMAIN_SELECT = "AuthDomainDropDownName";
+	public static String KEY_SHOW_AUTHDOMAIN_LIST = "ShowAuthDomainList";
+	public static String KEY_SHOW_FUZZY_NAME_SEARCH = "ShowFuzzyNameSearch";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
 	
@@ -139,5 +144,30 @@ public class Config implements IsSerializable {
 	 */
 	public List<DocumentTemplateConfig> getDocumentTemplateConfigs() {
 		return documentTemplateConfigs;
+	}
+
+	/**
+	 * Set a list of facilities.
+	 * @param authDomainConfig List of facilities from xconfig.xml.
+	 */
+	public void setAuthDomainListConfigs(List<AuthenticationDomainConfig> authDomainConfig) {
+		this.authDomainList = authDomainConfig;
+	}
+	
+	/**
+	 * Add a authDomain list
+	 * @param authDomainConfig List of facilities from xconfig.xml.
+	 */
+	public void addAuthDomainListConfig(AuthenticationDomainConfig authDomainConfig)
+	{
+		this.authDomainList.add(authDomainConfig);
+	}
+	
+	/**
+	 * Returns a list of facilities.
+	 * @return List List of facilities.
+	 */
+	public List<AuthenticationDomainConfig> getAuthDomainListConfigs() {
+		return authDomainList;
 	}
 }

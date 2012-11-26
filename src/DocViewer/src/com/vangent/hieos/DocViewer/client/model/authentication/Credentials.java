@@ -18,12 +18,21 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 * @author Anand Sastry
 */
 public class Credentials implements IsSerializable {
+	private String authDomainTypeKey;
 	private String userId;
 	private String password;
 
 	public Credentials() {
 	}
-	
+
+	public String getAuthDomainTypeKey() {
+		return authDomainTypeKey;
+	}
+
+	public void setAuthDomainTypeKey(String authDomainTypeKey) {
+		this.authDomainTypeKey = authDomainTypeKey;
+	}
+
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}

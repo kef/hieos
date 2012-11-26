@@ -65,10 +65,11 @@ public class DocViewerController {
 	 * @param password
 	 */
 	public void authenticateUser(AuthenticationObserver authObserver,
-			String userid, String password) {
+			String userid, String password, String authDomainTypeKey) {
 		Credentials creds = new Credentials();
 		creds.setPassword(password);
 		creds.setUserId(userid);
+		creds.setAuthDomainTypeKey(authDomainTypeKey);
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		timeOutHelper.setPrompt("Authenticating ...");
 		AuthenticationService service = new AuthenticationService(creds,
