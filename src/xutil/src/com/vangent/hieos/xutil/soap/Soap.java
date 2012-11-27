@@ -32,13 +32,17 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.OperationContext;
 
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import java.util.List;
-import org.apache.axis2.engine.Phase;
-import com.vangent.hieos.xutil.xua.handlers.XUAOutPhaseHandler;
+import com.vangent.hieos.xutil.xua.client.XServiceUser;
+//import java.util.List;
+//import org.apache.axis2.engine.Phase;
+//import com.vangent.hieos.xutil.xua.handlers.XUAOutPhaseHandler;
 import com.vangent.hieos.xutil.xua.utils.XUAConstants;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import java.util.Iterator;
 import javax.xml.namespace.QName;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.axiom.soap.SOAPHeader;
 import org.apache.axis2.context.ConfigurationContext;
@@ -147,7 +151,7 @@ public class Soap {
             }
 
             // Setup for XUA (if required).
-            this.setupXUA(serviceClient);
+            this.setupXUA(serviceClient, action);
 
             HttpConnectionManager connMgr =
                     new XUtilSimpleHttpConnectionManager(true);
@@ -446,26 +450,72 @@ public class Soap {
     }
 
     /**
-     * Sets the XUA "Out Phase Handler" (if XUA is enabled).
+     * 
+     * @param serviceClient
+     * @param soapAction
+     * @throws AxisFault
      */
-    private void setupXUA(ServiceClient serviceClient) {
+    private void setupXUA(ServiceClient serviceClient, String soapAction) throws AxisFault {
         OMElement currentSecurityHeader = this.getCurrentSecurityHeader();
         if (currentSecurityHeader != null) {
             // Must be on server-side -- propogate Security header on out-bound requests.
             serviceClient.addHeader(currentSecurityHeader);
-        } else if ((this.xuaObject != null) && (this.xuaObject.isXUAEnabled())) {
+        } else if ((xuaObject != null)
+                && xuaObject.isXUAEnabled()
+                && xuaObject.containsSOAPAction(soapAction)) {
+            this.setupSecurityHeader(serviceClient, soapAction);
+            /*
             List outFlowPhases = serviceClient.getAxisConfiguration().getOutFlowPhases();
             // Check to see if the out phase handler already exists
             for (Iterator it = outFlowPhases.iterator(); it.hasNext();) {
-                Phase phase = (Phase) it.next();
-                if (phase.getName().equals(XUA_OUT_PHASE_NAME)) {
-                    // Already exists.
-                    return;  // EARLY EXIT!
-                }
+            Phase phase = (Phase) it.next();
+            if (phase.getName().equals(XUA_OUT_PHASE_NAME)) {
+            // Already exists.
+            return;  // EARLY EXIT!
+            }
             }
             logger.info("Adding XUA out phase handler!!!");
             Phase xuaOutPhase = this.getXUAOutPhaseHandler();
-            outFlowPhases.add(xuaOutPhase);
+            outFlowPhases.add(xuaOutPhase);*/
+        }
+    }
+
+    /**
+     * 
+     * @param serviceClient
+     * @param soapAction
+     * @throws AxisFault
+     */
+    public void setupSecurityHeader(ServiceClient serviceClient, String soapAction) throws AxisFault {
+
+        // Get SAML assertion from STS issuer.
+        XServiceUser xServiceUser = new XServiceUser();
+        try {
+            // Get the SAML assertion from the STS provider (for the given user):
+            SOAPEnvelope responseEnvelope = xServiceUser.getToken(this.xuaObject);
+            if (logger.isDebugEnabled()) {
+                //logger.debug("XUA: XUAOutPhaseHandler::invoke - STS Response: " + responseEnvelope.toString());
+                logger.info("XUA: XUAOutPhaseHandler::invoke - STS Response: " + responseEnvelope.toString());
+            }
+            OMElement samlTokenEle = xServiceUser.getTokenFromSTSResponse(responseEnvelope);
+            if (logger.isDebugEnabled()) {
+                //logger.debug("XUA: XUAOutPhaseHandler::invoke - SAML Token: " + samlTokenEle.toString());
+                logger.info("XUA: XUAOutPhaseHandler::invoke - SAML Token: " + samlTokenEle.toString());
+            }
+
+            // Create WS-Security wrapper element.
+            OMFactory omFactory = OMAbstractFactory.getOMFactory();
+            OMNamespace wsseNS = omFactory.createOMNamespace(XUAConstants.WS_SECURITY_NS_URL, XUAConstants.WS_SECURITY_NS_PREFIX);
+            OMElement wsseSecurityHeader = omFactory.createOMElement(XUAConstants.WS_SECURITY_ELEMENT_NAME, wsseNS);
+
+            // Attach assertion to security header.
+            logger.info("Attaching WS-Security header with SAML token to SOAP header");
+            wsseSecurityHeader.addChild(samlTokenEle);
+            serviceClient.addHeader(wsseSecurityHeader);
+
+        } catch (Exception ex) {
+            logger.info("Unable to invoke STS to get SAML token" + ex.getLocalizedMessage());
+            throw new AxisFault("Unable to invoke STS to get SAML token" + ex.getLocalizedMessage());
         }
     }
 
@@ -474,21 +524,21 @@ public class Soap {
      * 
      * @return Axis2 Phase (XUAOutPhaseHandler).
      */
+    /*
     private Phase getXUAOutPhaseHandler() {
-        Phase phase = null;
-        try {
-            phase = new Phase(XUA_OUT_PHASE_NAME);
-            XUAOutPhaseHandler xuaOutPhaseHandler = new XUAOutPhaseHandler();
-            xuaOutPhaseHandler.setXUAObject(this.xuaObject);
-            phase.addHandler(xuaOutPhaseHandler);
+    Phase phase = null;
+    try {
+    phase = new Phase(XUA_OUT_PHASE_NAME);
+    XUAOutPhaseHandler xuaOutPhaseHandler = new XUAOutPhaseHandler();
+    xuaOutPhaseHandler.setXUAObject(this.xuaObject);
+    phase.addHandler(xuaOutPhaseHandler);
 
-        } catch (Throwable t) {
-            logger.error("Exception while initializing the XUA out phase handler", t);
-            t.printStackTrace(System.out);
-        }
-        return phase;
+    } catch (Throwable t) {
+    logger.error("Exception while initializing the XUA out phase handler", t);
+    t.printStackTrace(System.out);
     }
-
+    return phase;
+    }*/
     /**
      *
      * @return
