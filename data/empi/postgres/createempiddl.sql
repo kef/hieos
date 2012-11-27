@@ -183,7 +183,8 @@ CREATE TABLE subject_match_fields (
     family_name_caverphone2 character varying(255),
     family_name_caverphone1 character varying(255),
     family_name_prefix character varying(2),
-    gender character(1)
+    gender character(1),
+    ssn character(11)
 );
 
 ALTER TABLE public.subject_match_fields OWNER TO empi;
@@ -312,6 +313,8 @@ CREATE INDEX subject_language_subject_id_idx ON subject_language USING btree (su
 CREATE INDEX subject_match_fields_block_pass_1_idx ON subject_match_fields USING btree (family_name_soundex, given_name_soundex, gender);
 
 CREATE INDEX subject_match_fields_block_pass_2_idx ON subject_match_fields USING btree (street_address_line1, city, state, postal_code);
+
+CREATE INDEX subject_match_fields_block_pass_3_idx ON subject_match_fields USING btree (ssn);
 
 CREATE INDEX subject_match_fields_block_pass_fuzzy_name_idx ON subject_match_fields USING btree (family_name, given_name);
 
