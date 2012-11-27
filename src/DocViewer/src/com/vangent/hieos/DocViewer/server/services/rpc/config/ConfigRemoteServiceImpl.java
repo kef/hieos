@@ -31,7 +31,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = -7923244304825432784L;
-	
+
 	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	@Override
@@ -85,9 +85,17 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		// LogoWidth/LogoHeight:
 		String logoWidth = servletUtil.getProperty(Config.KEY_LOGO_WIDTH);
 		String logoHeigth = servletUtil.getProperty(Config.KEY_LOGO_HEIGHT);
-        String showAuthDomainList = servletUtil.getProperty(Config.KEY_SHOW_AUTHDOMAIN_LIST);
-        String authDomainName = servletUtil.getProperty(Config.KEY_LABEL_AUTHDOMAIN_NAME);
-        String authDomainSelect = servletUtil.getProperty(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
+
+		// Authentication domain list configuration:
+		String showAuthDomainList = servletUtil
+				.getProperty(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+		if (showAuthDomainList == null) {
+			showAuthDomainList = "false";
+		}
+		String authDomainName = servletUtil
+				.getProperty(Config.KEY_LABEL_AUTHDOMAIN_NAME);
+		String authDomainSelect = servletUtil
+				.getProperty(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
 
 		// Fill up the config:
 		config.put(Config.KEY_SEARCH_MODE, defaultSearchMode);
@@ -98,68 +106,68 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
 		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
 		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
-        config.put(Config.KEY_SHOW_AUTHDOMAIN_LIST, showAuthDomainList);
-        config.put(Config.KEY_LABEL_AUTHDOMAIN_NAME, authDomainName);
-        config.put(Config.KEY_LABEL_AUTHDOMAIN_SELECT, authDomainSelect);
-                
-                // copy properties from xconfig to config
-                copyToConfig(config, Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
-                copyToConfig(config, Config.KEY_SHOW_ORGANIZATION_COLUMN);
-                copyToConfig(config, Config.KEY_SHOW_TITLE_BRANDING);
+		config.put(Config.KEY_SHOW_AUTHDOMAIN_LIST, showAuthDomainList);
+		config.put(Config.KEY_LABEL_AUTHDOMAIN_NAME, authDomainName);
+		config.put(Config.KEY_LABEL_AUTHDOMAIN_SELECT, authDomainSelect);
 
-                copyToConfig(config,
-                        Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID);
-                copyToConfig(config,
-                        Config.KEY_LABEL_FAMILY_NAME, Config.DEFAULT_LABEL_FAMILY_NAME);
-                copyToConfig(config,
-                        Config.KEY_LABEL_GIVEN_NAME, Config.DEFAULT_LABEL_GIVEN_NAME);
-                copyToConfig(config,
-                        Config.KEY_LABEL_HIE_MODE, Config.DEFAULT_LABEL_HIE_MODE);
-                copyToConfig(config, 
-                        Config.KEY_LABEL_NHIN_MODE, Config.DEFAULT_LABEL_NHIN_MODE);
-                // Set the default label to blank, since one already exist.
-                copyToConfig(config, Config.KEY_SHOW_FUZZY_NAME_SEARCH, "");
-                
-                copyToConfig(config, Config.KEY_TOOLTIP_CONFIDENCE);
-                copyToConfig(config, Config.KEY_TOOLTIP_DATE_OF_BIRTH);
-                copyToConfig(config, Config.KEY_TOOLTIP_EUID);
-                copyToConfig(config, Config.KEY_TOOLTIP_FAMILY_NAME);
-                copyToConfig(config, Config.KEY_TOOLTIP_GIVEN_NAME);
-                copyToConfig(config, Config.KEY_TOOLTIP_GENDER);
-                copyToConfig(config, Config.KEY_TOOLTIP_SSN);
-                
+		// copy properties from xconfig to config
+		copyToConfig(config, Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+		copyToConfig(config, Config.KEY_SHOW_ORGANIZATION_COLUMN);
+		copyToConfig(config, Config.KEY_SHOW_TITLE_BRANDING);
+
+		copyToConfig(config, Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID);
+		copyToConfig(config, Config.KEY_LABEL_FAMILY_NAME,
+				Config.DEFAULT_LABEL_FAMILY_NAME);
+		copyToConfig(config, Config.KEY_LABEL_GIVEN_NAME,
+				Config.DEFAULT_LABEL_GIVEN_NAME);
+		copyToConfig(config, Config.KEY_LABEL_HIE_MODE,
+				Config.DEFAULT_LABEL_HIE_MODE);
+		copyToConfig(config, Config.KEY_LABEL_NHIN_MODE,
+				Config.DEFAULT_LABEL_NHIN_MODE);
+		// Set the default label to blank, since one already exist.
+		copyToConfig(config, Config.KEY_SHOW_FUZZY_NAME_SEARCH, "");
+
+		copyToConfig(config, Config.KEY_TOOLTIP_CONFIDENCE);
+		copyToConfig(config, Config.KEY_TOOLTIP_DATE_OF_BIRTH);
+		copyToConfig(config, Config.KEY_TOOLTIP_EUID);
+		copyToConfig(config, Config.KEY_TOOLTIP_FAMILY_NAME);
+		copyToConfig(config, Config.KEY_TOOLTIP_GIVEN_NAME);
+		copyToConfig(config, Config.KEY_TOOLTIP_GENDER);
+		copyToConfig(config, Config.KEY_TOOLTIP_SSN);
+
 		this.loadDocumentTemplateConfigs(config);
 
-		// Load the list of authentication domains.
-		this.loadAuthDomainListConfig(config);
+		if (showAuthDomainList.equalsIgnoreCase("true")) {
+			// Load the list of authentication domains.
+			this.loadAuthDomainListConfig(config);
+		}
 
 		return config;
 	}
 
-        private void copyToConfig(Config config, String propertyName) {
-            copyToConfig(config, propertyName, null);
-        }
-        
-        private void copyToConfig(Config config, String propertyName, String defaultName) {
-            
-            if (defaultName != null) {
-                
-                config.put(propertyName,
-                        servletUtil.getProperty(propertyName, defaultName));
-                
-            } else {
-                
-                config.put(propertyName,
-                        servletUtil.getProperty(propertyName));            
-            }
-        }
-        
+	private void copyToConfig(Config config, String propertyName) {
+		copyToConfig(config, propertyName, null);
+	}
+
+	private void copyToConfig(Config config, String propertyName,
+			String defaultName) {
+
+		if (defaultName != null) {
+
+			config.put(propertyName,
+					servletUtil.getProperty(propertyName, defaultName));
+
+		} else {
+
+			config.put(propertyName, servletUtil.getProperty(propertyName));
+		}
+	}
+
 	/**
 	 * 
 	 * @param config
 	 */
-	private void loadDocumentTemplateConfigs(
-			Config config) {
+	private void loadDocumentTemplateConfigs(Config config) {
 		try {
 			XConfig xconf = XConfig.getInstance();
 			XConfigObject propertiesObject = xconf.getXConfigObjectByName(
@@ -186,22 +194,31 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 
 	/**
 	 * Load the list of authentication domains.
+	 * 
 	 * @param config
 	 */
 	private void loadAuthDomainListConfig(Config config) {
 		try {
 			XConfig xconf = XConfig.getInstance();
-			XConfigObject propertiesObject = xconf.getXConfigObjectByName("DocViewerProperties", "DocViewerPropertiesType");
-			XConfigObject authDomainListConfig = propertiesObject.getXConfigObjectWithName("AuthDomains", "AuthDomainListType");
-			List<XConfigObject> configObjects = authDomainListConfig.getXConfigObjectsWithType("AuthDomainType");
+			XConfigObject propertiesObject = xconf.getXConfigObjectByName(
+					"DocViewerProperties", "DocViewerPropertiesType");
+			XConfigObject authDomainListConfig = propertiesObject
+					.getXConfigObjectWithName("AuthDomains",
+							"AuthDomainListType");
+			List<XConfigObject> configObjects = authDomainListConfig
+					.getXConfigObjectsWithType("AuthDomainType");
 			// Get the authentication domains from xconfig.xml.
 			for (XConfigObject configObject : configObjects) {
 				AuthenticationDomainConfig authDomainConfig = new AuthenticationDomainConfig();
-				authDomainConfig.setAuthDomainName(configObject.getProperty("AuthDomainName"));
-				authDomainConfig.setAuthDomainValue(configObject.getProperty("DisplayName"));
-				authDomainConfig.setAuthHandlerLdapBaseDn(configObject.getProperty("AuthHandlerLDAP_BASE_DN"));
+				authDomainConfig.setAuthDomainName(configObject
+						.getProperty("AuthDomainName"));
+				authDomainConfig.setAuthDomainValue(configObject
+						.getProperty("DisplayName"));
+				authDomainConfig.setAuthHandlerLdapBaseDn(configObject
+						.getProperty("AuthHandlerLDAP_BASE_DN"));
 				authDomainConfig.setAuthHandlerLdapUrl("AuthHandlerLDAP_URL");
-				authDomainConfig.setAuthHandlerLdapUsernameFormat("AuthHandlerLDAP_USERNAME_FORMAT");
+				authDomainConfig
+						.setAuthHandlerLdapUsernameFormat("AuthHandlerLDAP_USERNAME_FORMAT");
 				config.addAuthDomainListConfig(authDomainConfig);
 			}
 		} catch (Exception e) {

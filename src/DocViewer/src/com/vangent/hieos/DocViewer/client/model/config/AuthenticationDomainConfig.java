@@ -26,42 +26,82 @@ public class AuthenticationDomainConfig implements IsSerializable {
 	private String authDomainName;
 	private String authDomainValue;
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthHandlerLdapBaseDn() {
 		return authHandlerLdapBaseDn;
 	}
 
+	/**
+	 * 
+	 * @param authHandlerLdapBaseDn
+	 */
 	public void setAuthHandlerLdapBaseDn(String authHandlerLdapBaseDn) {
 		this.authHandlerLdapBaseDn = authHandlerLdapBaseDn;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthHandlerLdapUrl() {
 		return authHandlerLdapUrl;
 	}
 
+	/**
+	 * 
+	 * @param authHandlerLdapUrl
+	 */
 	public void setAuthHandlerLdapUrl(String authHandlerLdapUrl) {
 		this.authHandlerLdapUrl = authHandlerLdapUrl;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthHandlerLdapUsernameFormat() {
 		return authHandlerLdapUsernameFormat;
 	}
 
-	public void setAuthHandlerLdapUsernameFormat(String authHandlerLdapUsernameFormat) {
+	/**
+	 * @param authHandlerLdapUsernameFormat
+	 */
+	public void setAuthHandlerLdapUsernameFormat(
+			String authHandlerLdapUsernameFormat) {
 		this.authHandlerLdapUsernameFormat = authHandlerLdapUsernameFormat;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthDomainName() {
 		return authDomainName;
 	}
 
+	/**
+	 * 
+	 * @param authDomainName
+	 */
 	public void setAuthDomainName(String authDomainName) {
 		this.authDomainName = authDomainName;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthDomainValue() {
 		return authDomainValue;
 	}
 
+	/**
+	 * 
+	 * @param authDomainValue
+	 */
 	public void setAuthDomainValue(String authDomainValue) {
 		this.authDomainValue = authDomainValue;
 	}

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Config implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
 	private List<DocumentTemplateConfig> documentTemplateConfigs = new ArrayList<DocumentTemplateConfig>();
-    private List<AuthenticationDomainConfig> authDomainList = new ArrayList<AuthenticationDomainConfig>();
+	private List<AuthenticationDomainConfig> authDomainList = new ArrayList<AuthenticationDomainConfig>();
 
 	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static String VAL_SEARCH_MODE_HIE = "hie";
@@ -41,31 +41,31 @@ public class Config implements IsSerializable {
 	public static String KEY_SHOW_FUZZY_NAME_SEARCH = "ShowFuzzyNameSearch";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
 	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
-	
-        public static final String KEY_SHOW_TITLE_BRANDING = "ShowTitleBranding";
-        public static final String KEY_SHOW_FIND_DOCUMENTS_BUTTON = "ShowFindDocumentsButton";
-        public static final String KEY_SHOW_ORGANIZATION_COLUMN = "ShowOrganizationColumn";
-        
-        public static final String KEY_LABEL_EUID = "LabelEUIDText";
-        public static final String KEY_LABEL_FAMILY_NAME = "LabelFamilyNameText";
-        public static final String KEY_LABEL_GIVEN_NAME = "LabelGivenNameText";
-        public static final String KEY_LABEL_HIE_MODE = "LabelHIEModeText";
-        public static final String KEY_LABEL_NHIN_MODE = "LabelNHINModeText";
-        
-        public static final String DEFAULT_LABEL_EUID = "EUID";
-        public static final String DEFAULT_LABEL_FAMILY_NAME = "Family name";
-        public static final String DEFAULT_LABEL_GIVEN_NAME = "Given name";
-        public static final String DEFAULT_LABEL_HIE_MODE = "HIE";
-        public static final String DEFAULT_LABEL_NHIN_MODE = "NHIN Exchange";
-        
-        public static final String KEY_TOOLTIP_GIVEN_NAME = "ToolTipGivenNameColumn";
-        public static final String KEY_TOOLTIP_FAMILY_NAME = "ToolTipFamilyNameColumn";
-        public static final String KEY_TOOLTIP_DATE_OF_BIRTH = "ToolTipDateOfBirthColumn";
-        public static final String KEY_TOOLTIP_GENDER = "ToolTipGenderColumn";
-        public static final String KEY_TOOLTIP_SSN = "ToolTipSSNColumn";
-        public static final String KEY_TOOLTIP_EUID = "ToolTipEUIDColumn";
-        public static final String KEY_TOOLTIP_CONFIDENCE = "ToolTipConfidenceColumn";
-        
+
+	public static final String KEY_SHOW_TITLE_BRANDING = "ShowTitleBranding";
+	public static final String KEY_SHOW_FIND_DOCUMENTS_BUTTON = "ShowFindDocumentsButton";
+	public static final String KEY_SHOW_ORGANIZATION_COLUMN = "ShowOrganizationColumn";
+
+	public static final String KEY_LABEL_EUID = "LabelEUIDText";
+	public static final String KEY_LABEL_FAMILY_NAME = "LabelFamilyNameText";
+	public static final String KEY_LABEL_GIVEN_NAME = "LabelGivenNameText";
+	public static final String KEY_LABEL_HIE_MODE = "LabelHIEModeText";
+	public static final String KEY_LABEL_NHIN_MODE = "LabelNHINModeText";
+
+	public static final String DEFAULT_LABEL_EUID = "EUID";
+	public static final String DEFAULT_LABEL_FAMILY_NAME = "Family name";
+	public static final String DEFAULT_LABEL_GIVEN_NAME = "Given name";
+	public static final String DEFAULT_LABEL_HIE_MODE = "HIE";
+	public static final String DEFAULT_LABEL_NHIN_MODE = "NHIN Exchange";
+
+	public static final String KEY_TOOLTIP_GIVEN_NAME = "ToolTipGivenNameColumn";
+	public static final String KEY_TOOLTIP_FAMILY_NAME = "ToolTipFamilyNameColumn";
+	public static final String KEY_TOOLTIP_DATE_OF_BIRTH = "ToolTipDateOfBirthColumn";
+	public static final String KEY_TOOLTIP_GENDER = "ToolTipGenderColumn";
+	public static final String KEY_TOOLTIP_SSN = "ToolTipSSNColumn";
+	public static final String KEY_TOOLTIP_EUID = "ToolTipEUIDColumn";
+	public static final String KEY_TOOLTIP_CONFIDENCE = "ToolTipConfidenceColumn";
+
 	/**
 	 * 
 	 */
@@ -98,7 +98,7 @@ public class Config implements IsSerializable {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param key
@@ -125,16 +125,17 @@ public class Config implements IsSerializable {
 	 * 
 	 * @param documentTemplateConfigs
 	 */
-	public void setDocumentTemplateConfigs(List<DocumentTemplateConfig> documentTemplateConfigs) {
+	public void setDocumentTemplateConfigs(
+			List<DocumentTemplateConfig> documentTemplateConfigs) {
 		this.documentTemplateConfigs = documentTemplateConfigs;
 	}
-	
+
 	/**
 	 * 
 	 * @param documentTemplateConfig
 	 */
-	public void addDocumentTemplateConfig(DocumentTemplateConfig documentTemplateConfig)
-	{
+	public void addDocumentTemplateConfig(
+			DocumentTemplateConfig documentTemplateConfig) {
 		this.documentTemplateConfigs.add(documentTemplateConfig);
 	}
 
@@ -148,23 +149,29 @@ public class Config implements IsSerializable {
 
 	/**
 	 * Set a list of facilities.
-	 * @param authDomainConfig List of facilities from xconfig.xml.
+	 * 
+	 * @param authDomainConfig
+	 *            List of facilities from xconfig.xml.
 	 */
-	public void setAuthDomainListConfigs(List<AuthenticationDomainConfig> authDomainConfig) {
+	public void setAuthDomainListConfigs(
+			List<AuthenticationDomainConfig> authDomainConfig) {
 		this.authDomainList = authDomainConfig;
 	}
-	
+
 	/**
 	 * Add a authDomain list
-	 * @param authDomainConfig List of facilities from xconfig.xml.
+	 * 
+	 * @param authDomainConfig
+	 *            List of facilities from xconfig.xml.
 	 */
-	public void addAuthDomainListConfig(AuthenticationDomainConfig authDomainConfig)
-	{
+	public void addAuthDomainListConfig(
+			AuthenticationDomainConfig authDomainConfig) {
 		this.authDomainList.add(authDomainConfig);
 	}
-	
+
 	/**
 	 * Returns a list of facilities.
+	 * 
 	 * @return List List of facilities.
 	 */
 	public List<AuthenticationDomainConfig> getAuthDomainListConfigs() {

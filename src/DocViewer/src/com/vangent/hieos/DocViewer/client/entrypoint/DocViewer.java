@@ -49,7 +49,6 @@ import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 
-
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  * 
@@ -59,14 +58,15 @@ public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
-    private String[] authDomainDisplayName;
-    private String[] authDomainValueList;
-    private String authDomainValue;
-	
+	private String[] authDomainDisplayName;
+	private String[] authDomainValueList;
+
+	// private String authDomainValue;
+
 	/**
 	 * 
 	 */
-    @Override
+	@Override
 	public void onModuleLoad() {
 		// Load client configuration ...
 		this.loadConfig();
@@ -106,92 +106,103 @@ public class DocViewer implements EntryPoint {
 
 		final Img logo = new Img(logoFileName, logoWidth, logoHeight);
 
-		/*Label logonLabel = new Label();
-		logonLabel.setWidth(200);
-		logonLabel.setHeight100();
-		logonLabel.setAlign(Alignment.CENTER);
-		logonLabel.setContents("Enter your account details below");*/
+		/*
+		 * Label logonLabel = new Label(); logonLabel.setWidth(200);
+		 * logonLabel.setHeight100(); logonLabel.setAlign(Alignment.CENTER);
+		 * logonLabel.setContents("Enter your account details below");
+		 */
 
 		final TextItem userIdItem = new TextItem("userid", "User ID");
-		final PasswordItem passwordItem = new PasswordItem("Password", "Password");
+		final PasswordItem passwordItem = new PasswordItem("Password",
+				"Password");
 
 		String authDomainName = config.get(Config.KEY_LABEL_AUTHDOMAIN_NAME);
-		String authDomainSelect = config.get(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
-        final SelectItem authDomainList = new SelectItem(authDomainSelect, authDomainName);
+		String authDomainSelect = config
+				.get(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
+		final SelectItem authDomainList = new SelectItem(authDomainSelect,
+				authDomainName);
 
 		userIdItem.setRequired(true);
 		userIdItem.setRequiredMessage("Please specify User ID");
 		passwordItem.setRequired(true);
 		passwordItem.setRequiredMessage("Please specify Password");
 
-        final ButtonItem loginButton = new ButtonItem("Login");
+		final ButtonItem loginButton = new ButtonItem("Login");
 		loginButton.setIcon("login-blue.png");
 		loginButton.setAlign(Alignment.CENTER);
-        loginButton.setEndRow(true);
-        loginButton.setColSpan(2);
-		loginButton.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
-                        @Override
-			public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
-                        
-                            loginForm.submit();
-                        }
-                });
+		loginButton.setEndRow(true);
+		loginButton.setColSpan(2);
+		loginButton
+				.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
+					@Override
+					public void onClick(
+							com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
 
-        // Get the authentication domains from xconfig.xml.
-        String showAuthDomainList = config.get(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+						loginForm.submit();
+					}
+				});
 
-        // Show the authentication domain selection box.
-        if (showAuthDomainList.equals("true")) {
-            this.getAuthDomainList();
-            // Set up the authDomain drop-down box.
-            authDomainList.setShowAllOptions(true);  // true makes sure something is selected. false makes the first selection blank.
-            authDomainList.setValueMap(authDomainDisplayName);
-            authDomainList.setRequired(true);
+		// Get the authentication domains from xconfig.xml.
+		String showAuthDomainList = config.get(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+
+		// Show the authentication domain selection box.
+		if (showAuthDomainList.equals("true")) {
+			this.getAuthDomainList();
+			// Set up the authDomain drop-down box.
+			authDomainList.setShowAllOptions(true); // true makes sure something
+													// is selected. false makes
+													// the first selection
+													// blank.
+			authDomainList.setValueMap(authDomainDisplayName);
+			authDomainList.setRequired(true);
 			authDomainList.setRequiredMessage("Please specify "
 					+ authDomainName.toLowerCase());
-            loginForm.setFields(header, userIdItem, passwordItem, authDomainList, loginButton);
-        }
-        else
-            loginForm.setFields(header, userIdItem, passwordItem, loginButton);
-
+			loginForm.setFields(header, userIdItem, passwordItem,
+					authDomainList, loginButton);
+		} else {
+			loginForm.setFields(header, userIdItem, passwordItem, loginButton);
+		}
 		final DocViewer entryPoint = this;
-                
-                loginForm.setAutoFocus(true);
-                loginForm.setSaveOnEnter(true);
-                loginForm.addSubmitValuesHandler(new com.smartgwt.client.widgets.form.events.SubmitValuesHandler() {
 
-                    @Override
-                    public void onSubmitValues(SubmitValuesEvent event) {
-				boolean validatedOk = loginForm.validate();
-				if (validatedOk == true) {
-					AuthenticationObserver authObserver = new AuthenticationObserver(
-							entryPoint);
+		loginForm.setAutoFocus(true);
+		loginForm.setSaveOnEnter(true);
+		loginForm
+				.addSubmitValuesHandler(new com.smartgwt.client.widgets.form.events.SubmitValuesHandler() {
 
-        // Initialize the authDomain select to nothing.
-        String authDomainSelected = "default";
+					@Override
+					public void onSubmitValues(SubmitValuesEvent event) {
+						boolean validatedOk = loginForm.validate();
+						if (validatedOk == true) {
+							AuthenticationObserver authObserver = new AuthenticationObserver(
+									entryPoint);
 
-		// Check if the default authDomain is used.
-		if (authDomainList.getValueAsString() != null )
-			authDomainSelected = authDomainList.getValueAsString();
+							// Initialize the authDomain select to nothing.
+							String authDomainSelected = "default";
+
+							// Check if the default authDomain is used.
+							if (authDomainList.getValueAsString() != null) {
+								authDomainSelected = authDomainList
+										.getValueAsString();
+							}
 							controller.authenticateUser(authObserver,
 									userIdItem.getValueAsString(),
 									passwordItem.getValueAsString(),
 									authDomainSelected);
 						}
-                    }
-                });               
-                
+					}
+				});
+
 		// Now, lay it out.
 		final VStack mainLayout = new VStack();
 		mainLayout.setWidth100();
 		mainLayout.setHeight100();
-		//vLayout.setAlign(Alignment.CENTER);
+		// vLayout.setAlign(Alignment.CENTER);
 		mainLayout.setLayoutAlign(VerticalAlignment.CENTER);
-		
+
 		final VLayout formLayout = new VLayout();
 		formLayout.setLayoutAlign(VerticalAlignment.CENTER);
 
-//		layout.setAlign(Alignment.CENTER);
+		// layout.setAlign(Alignment.CENTER);
 		formLayout.setWidth(300);
 		formLayout.setHeight(220);
 		formLayout.setShowEdges(true);
@@ -199,7 +210,7 @@ public class DocViewer implements EntryPoint {
 		formLayout.setPadding(10);
 		formLayout.addMember(logo);
 		formLayout.addMember(loginForm);
-                
+
 		mainLayout.addMember(formLayout);
 		this.addCanvasToRootPanel(mainLayout);
 	}
@@ -213,7 +224,7 @@ public class DocViewer implements EntryPoint {
 		if (authContext.getSuccessStatus() == true) {
 			// Check if the user has permission to use the application
 			boolean permitted = authContext.hasPermissionToApplication();
-			if (permitted){
+			if (permitted) {
 				loadMainPage();
 			} else {
 				SC.warn("You do not have access to this application");
@@ -281,9 +292,9 @@ public class DocViewer implements EntryPoint {
 	 * @return
 	 */
 	private ToolStrip createToolStrip() {
-            
-            Config config = controller.getConfig();
-            
+
+		Config config = controller.getConfig();
+
 		// Create the "Find Patient" button.
 		final ToolStripButton findPatientButton = new ToolStripButton();
 		findPatientButton.setTitle("Find Patients");
@@ -291,7 +302,7 @@ public class DocViewer implements EntryPoint {
 		findPatientButton.setIcon("person.png");
 		findPatientButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-                                        @Override
+					@Override
 					public void onClick(ClickEvent event) {
 						controller.showFindPatients();
 					}
@@ -305,7 +316,7 @@ public class DocViewer implements EntryPoint {
 		showDocumentsButton.setIcon("document.png");
 		showDocumentsButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-                                        @Override
+					@Override
 					public void onClick(ClickEvent event) {
 						controller.showPatients();
 					}
@@ -318,13 +329,12 @@ public class DocViewer implements EntryPoint {
 		patientConsentButton.setIcon("privacy.png");
 		patientConsentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-                                        @Override
+					@Override
 					public void onClick(ClickEvent event) {
 						SC.warn("Under construction!");
 					}
 				});
 
-                
 		// Create "Logout" button.
 		final ToolStripButton logoutButton = new ToolStripButton();
 		logoutButton.setTooltip("Logout");
@@ -332,7 +342,7 @@ public class DocViewer implements EntryPoint {
 		logoutButton.setIcon("logout.png");
 		logoutButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-                                        @Override
+					@Override
 					public void onClick(ClickEvent event) {
 						// Clear the authentication Context
 						controller.setAuthContext(null);
@@ -341,7 +351,6 @@ public class DocViewer implements EntryPoint {
 					}
 				});
 
-
 		// Now create the tool strip (that holds the buttons).
 		final ToolStrip toolStrip = new ToolStrip();
 		toolStrip.setHeight(30);
@@ -349,43 +358,45 @@ public class DocViewer implements EntryPoint {
 
 		// Layout the tool strip.
 		toolStrip.addSpacer(5);
-                
-                boolean showBranding = config.getAsBoolean(Config.KEY_SHOW_TITLE_BRANDING);
-                if (showBranding) {
-                    // Title:
-                    final Label title = new Label("HIEOS DocViewer");
-                    title.setWidth(120);
-                    title.setIcon("application.png");
-                    toolStrip.addMember(title);
-                    toolStrip.addSeparator();
-                }
-                
+
+		boolean showBranding = config
+				.getAsBoolean(Config.KEY_SHOW_TITLE_BRANDING);
+		if (showBranding) {
+			// Title:
+			final Label title = new Label("HIEOS DocViewer");
+			title.setWidth(120);
+			title.setIcon("application.png");
+			toolStrip.addMember(title);
+			toolStrip.addSeparator();
+		}
+
 		toolStrip.addButton(findPatientButton);
 		toolStrip.addButton(showDocumentsButton);
 		toolStrip.addButton(patientConsentButton);
-                
+
 		// Create "Find Documents" button.
-                boolean showFindDocuments = config.getAsBoolean(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
-                if (showFindDocuments) {
-                    final ToolStripButton findDocumentsButton = new ToolStripButton();
-                    findDocumentsButton.setTooltip("Find documents given a patient id");
-                    findDocumentsButton.setTitle("Find Documents");
-                    findDocumentsButton.setIcon("document.png");
-                    findDocumentsButton
-                                    .addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-                                            @Override
-                                            public void onClick(ClickEvent event) {
-                                                    // SC.showConsole();
-                                                    final PatientIDValueCallback callback = new PatientIDValueCallback(
-                                                                    controller);
-                                                    SC.askforValue("Find Documents", "Patient ID:",
-                                                                    callback);
-                                            }
-                                    });
-                    
-                    toolStrip.addButton(findDocumentsButton);
-                }
-                
+		boolean showFindDocuments = config
+				.getAsBoolean(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+		if (showFindDocuments) {
+			final ToolStripButton findDocumentsButton = new ToolStripButton();
+			findDocumentsButton.setTooltip("Find documents given a patient id");
+			findDocumentsButton.setTitle("Find Documents");
+			findDocumentsButton.setIcon("document.png");
+			findDocumentsButton
+					.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							// SC.showConsole();
+							final PatientIDValueCallback callback = new PatientIDValueCallback(
+									controller);
+							SC.askforValue("Find Documents", "Patient ID:",
+									callback);
+						}
+					});
+
+			toolStrip.addButton(findDocumentsButton);
+		}
+
 		toolStrip.addFill();
 		toolStrip.addButton(logoutButton);
 
@@ -395,23 +406,23 @@ public class DocViewer implements EntryPoint {
 	/**
 	 * Get the list of authentication domains.
 	 */
-	private void getAuthDomainList()
-	{
+	private void getAuthDomainList() {
+		// FIXME: Why do like this?  Rewrite.  Weak means to pass around params.
 		Config config = controller.getConfig();
-		List<AuthenticationDomainConfig> authDomainConfigs = config.getAuthDomainListConfigs();
+		List<AuthenticationDomainConfig> authDomainConfigs = config
+				.getAuthDomainListConfigs();
 		authDomainDisplayName = new String[authDomainConfigs.size()];
 		authDomainValueList = new String[authDomainConfigs.size()];
 		int i = 0;
-	
+
 		// Loop through all the authentication domains.
-		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs)
-		{
+		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
 			authDomainDisplayName[i] = authDomainConfig.getAuthDomainName();
 			authDomainValueList[i] = authDomainConfig.getAuthDomainValue();
 			++i;
 		}
 		// Set the authDomain value to the first authDomain.
-		this.authDomainValue = authDomainValueList[0];
+		// this.authDomainValue = authDomainValueList[0];
 	}
 
 	/**
