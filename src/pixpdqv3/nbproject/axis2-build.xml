@@ -8,16 +8,16 @@
     <target name="axis2-aar" depends="compile">
         <mkdir dir="${build.dir}/axis2/WEB-INF/services"/>
         <mkdir dir="${basedir}/xml-resources/axis2/lib"/>
-        <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="true">
+        <copy todir="${basedir}/xml-resources/axis2/lib" flatten="true" overwrite="false">
             <resources>
                 <file file="${file.reference.xutil.jar}"/>
-                <file file="${file.reference.empi.jar}"/>
                 <file file="${file.reference.hl7v3util.jar}"/>
                 <file file="${file.reference.subjectmodel.jar}"/>
+                <file file="${file.reference.empi.jar}"/>
                 <file file="${file.reference.commons-beanutils-1.8.3.jar}"/>
                 <file file="${file.reference.commons-collections-3.2.1.jar}"/>
                 <file file="${file.reference.commons-configuration-1.7.jar}"/>
-                 <file file="${file.reference.commons-codec-1.5.jar}"/>
+                <file file="${file.reference.commons-codec-1.5.jar}"/>
                 <file file="${file.reference.commons-lang-2.3.jar}"/>
             </resources>
         </copy>
