@@ -354,6 +354,8 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
      * @param requestNode
      * @param rootNode
      * @param errorDetail
+     * @param successCode
+     * @param errorCode
      */
     protected void addAcknowledgementToRequest(
             OMElement requestNode,
@@ -391,6 +393,7 @@ public class HL7V3MessageBuilderHelper extends BuilderHelper {
                 this.setAttribute(codeNode, "code", errorDetail.getCode());
             }
             this.addChildOMElementWithValue(ackDetailNode, "text", errorDetail.getText());
+            // FIXME: Location is not proper - should be higher up.
             this.addChildOMElementWithValue(ackDetailNode, "location", this.getClass().getName());
         }
     }
