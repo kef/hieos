@@ -35,6 +35,7 @@
         <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
+        <ObjectReference name="sts" refname="localsts" reftype="SecureTokenServiceType"/>
         <!--<ObjectReference name="pds" refname="nistpds" reftype="PDSType"/>-->
         <!--<Property name="ContentURL">http://localhost:8888/docview</Property>-->
        
@@ -43,6 +44,7 @@
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
         <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
+        <Property name="SAMLClaimsTemplate">saml_claims_template.xml</Property>
         <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
         <!-- Valid DefaultSearchMode values: hie, nhin_exchange -->
         <Property name="DefaultSearchMode">hie</Property>
@@ -197,6 +199,19 @@
              property or a value set to ALL will constrain all IP addresses. -->
         <Property name="ConstrainedIPAddresses">ALL</Property>
     </Object>
+
+    <!-- Secure Token Service (STS) -->
+    <Actor name="localsts" type="SecureTokenServiceType">
+        <UniqueId>NA</UniqueId>
+
+        <Transaction name="IssueToken" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/sts</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/sts</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+
+    </Actor>
 
     <!-- For direct HIEOS XCA query/retrieves -->
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
