@@ -659,8 +659,16 @@
         <!--<Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>-->
 
         <!-- if using UserNameToken w/ LDAP ... -->
-        <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
-        <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
+        <!-- Lists available authentication domains -->
+        <Object name="AuthDomainList" type="AuthDomainListType">
+           <ObjectReference refname="facilityDefault" reftype="AuthDomainType"/>    
+        </Object>
+    	<Object name="facilityDefault" type="AuthDomainType">
+           <Property name="DisplayName">Default Site</Property>
+           <Property name="AuthDomainTypeKey">default</Property>
+           <Property name="AuthHandlerLDAP_URL">ldap://yourldap.com:389</Property>
+           <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
+    	</Object>
 
     </Actor>
 
