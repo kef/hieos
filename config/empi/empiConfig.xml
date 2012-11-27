@@ -14,7 +14,7 @@
 
     <!-- Enterprise ID configuration items. -->
     <euid-config>
-        <euid-assign-enabled>false</euid-assign-enabled>
+        <euid-assign-enabled>true</euid-assign-enabled>
         <euid-universalid>1.3.6.1.4.1.21367.13.20.9999</euid-universalid>
         <euid-universalid-type>ISO</euid-universalid-type>
     </euid-config>
@@ -126,6 +126,20 @@
         <transform-function>
             <name>fuzzyNameSearch</name>
             <class>com.vangent.hieos.empi.transform.FuzzyNameSearchTransformFunction</class>
+        </transform-function>
+        <transform-function>
+            <name>IdentifierTransform</name>
+            <class>com.vangent.hieos.empi.transform.IdentifierTransformFunction</class>
+            <parameters>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <name></name>
+                    <value></value>
+                </parameter>
+            </parameters>
         </transform-function>
     </transform-functions>
 
@@ -362,11 +376,35 @@
             </transform-functions>
             <match-db-column>given_name</match-db-column>
         </field>
+        <field>
+            <name>ssn</name>
+            <source-object-path>subject</source-object-path>
+            <transform-functions>
+                <transform-function>
+                    <name>IdentifierTransform</name>
+                    <parameters>
+                        <parameter>
+                            <name>universal-id</name>
+                            <value>2.16.840.1.113883.4.1</value>
+                        </parameter>
+                    </parameters>
+                </transform-function>
+            </transform-functions>
+            <match-db-column>ssn</match-db-column>
+        </field>
     </fields>
     
     <match-config-feed>
         <!-- blocking configuration (multi pass) -->
         <blocking-config>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>ssn</name>
+                        <required>true</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
             <blocking-pass>
                 <blocking-fields>
                     <blocking-field>
@@ -443,6 +481,16 @@
                     <name>ExactMatch</name>
                 </distance-function>
             </match-field>
+            <!-- this implies that SSN is required - should set flag here (if not required; i.e. no penalty). -->
+            <match-field>
+                <name>ssn</name>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>4.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
             <match-field>
                 <name>streetAddressLine1</name>
                 <accept-threshold>0.8</accept-threshold>
@@ -485,6 +533,14 @@
     <match-config-find>
          <!-- blocking configuration (multi pass) -->
         <blocking-config>
+            <blocking-pass>
+                <blocking-fields>
+                    <blocking-field>
+                        <name>ssn</name>
+                        <required>true</required>
+                    </blocking-field>
+                </blocking-fields>
+            </blocking-pass>
             <blocking-pass>
                 <blocking-fields>
                     <blocking-field>
@@ -604,6 +660,17 @@
                     <name>ExactMatch</name>
                 </distance-function>
             </match-field>
+            <!-- currently this will not really have an impact since if identifiers are supplied (in search), the
+                 FRIL matching algorithm is not employed.  Only identifiers are used in this case for lookup. -->
+            <match-field>
+                <name>ssn</name>
+                <accept-threshold>1.0</accept-threshold>
+                <reject-threshold>0.0</reject-threshold>
+                <weight>4.0</weight>
+                <distance-function>
+                    <name>ExactMatch</name>
+                </distance-function>
+            </match-field>
             <match-field>
                 <name>streetAddressLine1</name>
                 <accept-threshold>0.8</accept-threshold>
@@ -664,7 +731,7 @@
         -->
         <cross-reference-consumer>
             <name>NIST PIX PDQ Tool</name>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
             <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
             <device-name>2.16.840.1.113883.3.72.6.1</device-name>
             <!-- List of interested identifier domains -->
@@ -722,7 +789,7 @@
         <!-- more cross-reference-consumer(s) go here .... -->
     </cross-reference-consumers>
 
-    <validate-identity-sources-enabled>true</validate-identity-sources-enabled>
+    <validate-identity-sources-enabled>false</validate-identity-sources-enabled>
     
     <!-- List of valid identifier sources -->
     <identity-sources>
