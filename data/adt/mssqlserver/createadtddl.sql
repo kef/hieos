@@ -26,6 +26,7 @@ DROP TABLE patientrace;
 
 DROP TABLE mergedobjects;
 DROP TABLE mergehistory; 
+DROP TABLE patientcorrelation
 
 
 --
@@ -75,3 +76,22 @@ CREATE TABLE mergedobjects (
       REFERENCES mergehistory (uniqueid)
       ON DELETE CASCADE
 );
+
+--
+-- Definition of table patientcorrelation
+--
+CREATE TABLE patientcorrelation (
+  id VARCHAR(64) NOT NULL,
+  localhome VARCHAR(100) NOT NULL,
+  localpatientid VARCHAR(100) NOT NULL,
+  remotehome VARCHAR(100) NOT NULL,
+  remotepatientid VARCHAR(100),
+  status CHAR(1) NOT NULL DEFAULT 'A',
+  lastupdatetime DATETIME,
+  expirationtime DATETIME
+)
+
+ALTER TABLE patientcorrelation
+    ADD CONSTRAINT patientcorrelation_pkey PRIMARY KEY (id);
+    
+CREATE INDEX pc_localpatientid_idx ON patientcorrelation (localpatientid);
