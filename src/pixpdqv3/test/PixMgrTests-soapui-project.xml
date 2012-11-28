@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project name="PIXMgrTests" resourceRoot="" soapui-version="4.0.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="pixmgrSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.pixpdq.services.hieos.vangent.com}pixmgrSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/axis2/services/pixmgr?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/axis2/services/pixmgr?wsdl"><con:part><con:url>http://localhost:8080/axis2/services/pixmgr?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+<con:soapui-project name="PIXMgrTests" resourceRoot="" soapui-version="4.5.1" abortOnError="false" runType="SEQUENTIAL" activeEnvironment="Default" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="pixmgrSoap12Binding" type="wsdl" bindingName="{http://serviceimpl.pixpdq.services.hieos.vangent.com}pixmgrSoap12Binding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/axis2/services/pixmgr?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/axis2/services/pixmgr?wsdl"><con:part><con:url>http://localhost:8080/axis2/services/pixmgr?wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://serviceimpl.pixpdq.services.hieos.vangent.com" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
   <wsdl:documentation>pixmgr</wsdl:documentation>
   <wsdl:types>
     <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://serviceimpl.pixpdq.services.hieos.vangent.com">
@@ -295,7 +295,7 @@
                  
 <!-- 1.3.6.1.4.1.21367.13.20.1000 -->
                   <patientIdentifier>
-                     <value root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="RHIE1_RL_1"/>
                      <!--
 		     <value root="1.3.6.1.4.1.21367.13.20.1000" extension="9ed7c8d0608a11e08f7f00242b818f15"/>
                      -->
@@ -309,7 +309,7 @@
          </controlActProcess>
       </PRPA_IN201309UV02>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201309UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordAdded" name="PatientRegistryRecordAdded" bindingOperationName="PatientRegistryRecordAdded" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201309UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordAdded" name="PatientRegistryRecordAdded" bindingOperationName="PatientRegistryRecordAdded" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201301UV02 xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201301UV02.xsd" ITSVersion="XML_1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3">
@@ -555,7 +555,7 @@
          </urn:controlActProcess>
       </urn:PRPA_IN201301UV02>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="NIST - Unknown Domain" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="NIST - Unknown Domain" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -670,7 +670,7 @@
                   <urn:statusCode code="active"/>
                   <urn:subject1 typeCode="SBJ">
                      <urn:patient classCode="PAT">
-                        <urn:id assigningAuthorityName="IHERED" extension="BT_3" root="1.3.6.1.4.1.21367.13.20.2000"/>
+                        <urn:id assigningAuthorityName="IHERED" extension="BT_2" root="1.3.6.1.4.1.21367.13.20.3000"/>
                         <urn:statusCode code="active"/>
                         <urn:patientPerson>
                            <urn:name>
@@ -773,7 +773,7 @@
          </urn:controlActProcess>
       </urn:PRPA_IN201301UV02>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="NIST - Add Patient 2" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="NIST - Add Patient 2" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <v3:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:v3="urn:hl7-org:v3">
@@ -844,7 +844,712 @@
          </v3:controlActProcess>
       </v3:PRPA_IN201301UV02>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" generateMessageId="true" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordRevised" name="PatientRegistryRecordRevised" bindingOperationName="PatientRegistryRecordRevised" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" generateMessageId="true" addDefaultTo="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Add patient - Ray Lewis (RHIE1)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id assigningAuthorityName="IHERED" extension="RHIE1_RL_1" root="1.3.6.1.4.1.21367.13.20.1000"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>Ray</urn:given>
+                              <urn:family>Lewis</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:571-212-4209"/>
+                           <!--<urn:telecom use="H" value="tel:610-220-4354"/>-->
+                           <urn:administrativeGenderCode code="M"/>
+                           <urn:birthTime value="19640610"/>
+                           <!--<urn:deceasedInd value="true"/>
+                           <urn:deceasedTime value="19840610"/>
+                           <urn:multipleBirthInd value="false"/>-->
+                           <!--<urn:multipleBirthOrderNumber value="2"/>-->
+                           <urn:addr>
+                              <urn:streetAddressLine>1701 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+<!--
+                           <urn:addr use="H">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+                           <urn:addr use="WP">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+-->
+                           <urn:maritalStatusCode code="M"/>
+                           <urn:religiousAffiliationCode code="1001"/>
+                           <urn:raceCode code="1002-5"/>
+                           <urn:ethnicGroupCode code="2135-2"/>
+<!--                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="AUS"/>
+                                 <urn:name>TEST</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+-->
+                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="US"/>
+                                 <urn:name>United States</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Christine</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                           <urn:languageCommunication>
+                              <urn:languageCode code="en-US"/>
+                              <urn:preferenceInd value="true"/>
+                           </urn:languageCommunication>
+                           <!--<urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Tammy</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>-->
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Add patient - Ray Lewis (RHIE2)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id assigningAuthorityName="IHERED" extension="RHIE2_RL_1" root="1.3.6.1.4.1.21367.13.20.2000"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>Ray</urn:given>
+                              <urn:family>Lewis</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:571-212-4209"/>
+                           <!--<urn:telecom use="H" value="tel:610-220-4354"/>-->
+                           <urn:administrativeGenderCode code="M"/>
+                           <urn:birthTime value="19640610"/>
+                           <!--<urn:deceasedInd value="true"/>
+                           <urn:deceasedTime value="19840610"/>
+                           <urn:multipleBirthInd value="false"/>-->
+                           <!--<urn:multipleBirthOrderNumber value="2"/>-->
+                           <urn:addr>
+                              <urn:streetAddressLine>1701 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+<!--
+                           <urn:addr use="H">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+                           <urn:addr use="WP">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+-->
+                           <urn:maritalStatusCode code="M"/>
+                           <urn:religiousAffiliationCode code="1001"/>
+                           <urn:raceCode code="1002-5"/>
+                           <urn:ethnicGroupCode code="2135-2"/>
+<!--                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="AUS"/>
+                                 <urn:name>TEST</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+-->
+                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="US"/>
+                                 <urn:name>United States</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Christine</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                           <urn:languageCommunication>
+                              <urn:languageCode code="en-US"/>
+                              <urn:preferenceInd value="true"/>
+                           </urn:languageCommunication>
+                           <!--<urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Tammy</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>-->
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultAction="false" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Add patient - Sheryl Crow (RHIE1)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id assigningAuthorityName="IHERED" extension="RHIE1_SC_1" root="1.3.6.1.4.1.21367.13.20.1000"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>Sheryl</urn:given>
+                              <urn:family>Crow</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:571-212-4209"/>
+                           <!--<urn:telecom use="H" value="tel:610-220-4354"/>-->
+                           <urn:administrativeGenderCode code="F"/>
+                           <urn:birthTime value="19630812"/>
+                           <!--<urn:deceasedInd value="true"/>
+                           <urn:deceasedTime value="19840610"/>
+                           <urn:multipleBirthInd value="false"/>-->
+                           <!--<urn:multipleBirthOrderNumber value="2"/>-->
+                           <urn:addr>
+                              <urn:streetAddressLine>1701 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+<!--
+                           <urn:addr use="H">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+                           <urn:addr use="WP">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+-->
+                           <urn:maritalStatusCode code="M"/>
+                           <urn:religiousAffiliationCode code="1001"/>
+                           <urn:raceCode code="1002-5"/>
+                           <urn:ethnicGroupCode code="2135-2"/>
+<!--                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="AUS"/>
+                                 <urn:name>TEST</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+-->
+                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="US"/>
+                                 <urn:name>United States</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Christine</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                           <urn:languageCommunication>
+                              <urn:languageCode code="en-US"/>
+                              <urn:preferenceInd value="true"/>
+                           </urn:languageCommunication>
+                           <!--<urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Tammy</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>-->
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultAction="false" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Add patient - Ray Rice (RHIE2)" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id assigningAuthorityName="IHERED" extension="RHIE2_RR_1" root="1.3.6.1.4.1.21367.13.20.2000"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>Ray</urn:given>
+                              <urn:family>Rice</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:571-212-4209"/>
+                           <!--<urn:telecom use="H" value="tel:610-220-4354"/>-->
+                           <urn:administrativeGenderCode code="M"/>
+                           <urn:birthTime value="19670812"/>
+                           <!--<urn:deceasedInd value="true"/>
+                           <urn:deceasedTime value="19840610"/>
+                           <urn:multipleBirthInd value="false"/>-->
+                           <!--<urn:multipleBirthOrderNumber value="2"/>-->
+                           <urn:addr>
+                              <urn:streetAddressLine>1701 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+<!--
+                           <urn:addr use="H">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+                           <urn:addr use="WP">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+-->
+                           <urn:maritalStatusCode code="M"/>
+                           <urn:religiousAffiliationCode code="1001"/>
+                           <urn:raceCode code="1002-5"/>
+                           <urn:ethnicGroupCode code="2135-2"/>
+<!--                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="AUS"/>
+                                 <urn:name>TEST</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+-->
+                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="US"/>
+                                 <urn:name>United States</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Christine</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                           <urn:languageCommunication>
+                              <urn:languageCode code="en-US"/>
+                              <urn:preferenceInd value="true"/>
+                           </urn:languageCommunication>
+                           <!--<urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Tammy</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>-->
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Add patient - Ray Rice (RHIE2) - DUPE" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
+   <soap:Header/>
+   <soap:Body>
+      <urn:PRPA_IN201301UV02 ITSVersion="XML_1.0" xmlns:urn="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <urn:id root="21acf7be-007c-41e6-b176-d0969794983b"/>
+         <urn:creationTime value="20091112115139"/>
+         <urn:interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+         <urn:processingCode code="P"/>
+         <urn:processingModeCode code="T"/>
+         <urn:acceptAckCode code="AL"/>
+         <urn:receiver typeCode="RCV">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99999.4567"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99999.1234"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:receiver>
+         <urn:sender typeCode="SND">
+            <urn:device classCode="DEV" determinerCode="INSTANCE">
+               <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+               <urn:asAgent classCode="AGNT">
+                  <urn:representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                     <urn:id root="1.2.840.114350.1.13.99998"/>
+                  </urn:representedOrganization>
+               </urn:asAgent>
+            </urn:device>
+         </urn:sender>
+         <urn:controlActProcess classCode="CACT" moodCode="EVN">
+            <urn:code code="PRPA_TE201301UV02" codeSystem="2.16.840.1.113883.1.6"/>
+            <urn:subject typeCode="SUBJ">
+               <urn:registrationEvent classCode="REG" moodCode="EVN">
+                  <urn:id nullFlavor="NA"/>
+                  <urn:statusCode code="active"/>
+                  <urn:subject1 typeCode="SBJ">
+                     <urn:patient classCode="PAT">
+                        <urn:id assigningAuthorityName="IHERED" extension="RHIE2_RR_2" root="1.3.6.1.4.1.21367.13.20.2000"/>
+                        <urn:statusCode code="active"/>
+                        <urn:patientPerson>
+                           <urn:name>
+                              <urn:given>Ray</urn:given>
+                              <urn:family>Rice</urn:family>
+                           </urn:name>
+                           <urn:telecom use="H" value="tel:571-212-4209"/>
+                           <!--<urn:telecom use="H" value="tel:610-220-4354"/>-->
+                           <urn:administrativeGenderCode code="M"/>
+                           <urn:birthTime value="19670812"/>
+                           <!--<urn:deceasedInd value="true"/>
+                           <urn:deceasedTime value="19840610"/>
+                           <urn:multipleBirthInd value="false"/>-->
+                           <!--<urn:multipleBirthOrderNumber value="2"/>-->
+                           <urn:addr>
+                              <urn:streetAddressLine>1701 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+<!--
+                           <urn:addr use="H">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+                           <urn:addr use="WP">
+                              <urn:streetAddressLine>1710 Hunt Meadow Drive</urn:streetAddressLine>
+                              <urn:city>Annapolis</urn:city>
+                              <urn:state>MD</urn:state>
+                              <urn:postalCode>21403</urn:postalCode>
+                           </urn:addr>
+-->
+                           <urn:maritalStatusCode code="M"/>
+                           <urn:religiousAffiliationCode code="1001"/>
+                           <urn:raceCode code="1002-5"/>
+                           <urn:ethnicGroupCode code="2135-2"/>
+<!--                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="AUS"/>
+                                 <urn:name>TEST</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+-->
+                           <urn:asCitizen classCode="CIT">
+                              <urn:effectiveTime/>
+                              <urn:politicalNation>
+                                 <urn:code code="US"/>
+                                 <urn:name>United States</urn:name>
+                              </urn:politicalNation>
+                           </urn:asCitizen>
+                           <urn:asOtherIDs classCode="CIT">
+                              <urn:id root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
+                              <urn:scopingOrganization classCode="ORG" determinerCode="INSTANCE">
+                                 <urn:id root="2.16.840.1.113883.4.1"/>
+                              </urn:scopingOrganization>
+                           </urn:asOtherIDs>
+                           <urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Christine</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>
+                           <urn:languageCommunication>
+                              <urn:languageCode code="en-US"/>
+                              <urn:preferenceInd value="true"/>
+                           </urn:languageCommunication>
+                           <!--<urn:personalRelationship classCode="PRS">
+                              <urn:code codeSystem="2.16.840.1.113883.5.111" codeSystemName="PersonalRelationshipRoleType" code="MTH" displayName="Mother"/>
+                              <urn:relationshipHolder1 classCode="PSN" determinerCode="INSTANCE">
+                                 <urn:name xsi:type="urn:PN">
+                                    <urn:given>Tammy</urn:given>
+                                    <urn:family>Shipley</urn:family>
+                                 </urn:name>
+                                 <urn:administrativeGenderCode code="F"/>
+                                 <urn:birthTime value="19240610"/>
+                              </urn:relationshipHolder1>
+                           </urn:personalRelationship>-->
+                        </urn:patientPerson>
+                        <urn:providerOrganization classCode="ORG" determinerCode="INSTANCE">
+                           <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                           <urn:contactParty classCode="CON"/>
+                        </urn:providerOrganization>
+                     </urn:patient>
+                  </urn:subject1>
+                  <urn:custodian typeCode="CST">
+                     <urn:assignedEntity classCode="ASSIGNED">
+                        <urn:id root="1.2.840.114350.1.13.99998.8734"/>
+                     </urn:assignedEntity>
+                  </urn:custodian>
+               </urn:registrationEvent>
+            </urn:subject>
+         </urn:controlActProcess>
+      </urn:PRPA_IN201301UV02>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:credentials><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="urn:hl7-org:v3:PRPA_IN201301UV02" addDefaultTo="true" generateMessageId="true"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="urn:PatientRegistryRecordRevised" name="PatientRegistryRecordRevised" bindingOperationName="PatientRegistryRecordRevised" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1" useWsAddressing="true"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/axis2/services/pixmgr</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ser="http://serviceimpl.pixpdq.services.hieos.vangent.com">
    <soap:Header/>
    <soap:Body>
       <PRPA_IN201302UV02 ITSVersion="XML_1.0" xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
