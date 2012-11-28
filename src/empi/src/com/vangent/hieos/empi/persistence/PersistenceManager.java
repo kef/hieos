@@ -22,6 +22,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 //import com.vangent.hieos.empi.lockmanager.LockManager;
 //import com.vangent.hieos.empi.lockmanager.LockResource;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
+import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import java.sql.Connection;
@@ -465,6 +466,16 @@ public class PersistenceManager {
     public void insertSubjectMatchFields(List<Record> records) throws EMPIException {
         SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(connection);
         dao.insert(records);
+    }
+
+    /**
+     *
+     * @param subjectReviewItems
+     * @throws EMPIException
+     */
+    public void insertSubjecReviewItems(List<SubjectReviewItem> subjectReviewItems) throws EMPIException {
+        SubjectReviewItemDAO dao = new SubjectReviewItemDAO(connection);
+        dao.insert(subjectReviewItems);
     }
 
     /**

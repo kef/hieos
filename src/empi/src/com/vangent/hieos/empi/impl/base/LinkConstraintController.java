@@ -15,10 +15,12 @@ package com.vangent.hieos.empi.impl.base;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -47,18 +49,39 @@ public class LinkConstraintController {
     }
 
     /**
+     *
+     * @param newSubject
+     * @param matchedRecords
+     * @return
+     */
+    public List<SubjectReviewItem> getPotentialDuplicates(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException
+    {
+        List<SubjectReviewItem> subjectReviewItems = new ArrayList<SubjectReviewItem>();
+        for (ScoredRecord matchedRecord : matchedRecords) {
+            if (this.isPotentialDuplicate(newSubject, matchedRecord)) {
+                SubjectReviewItem subjectReviewItem = new SubjectReviewItem();
+                subjectReviewItem.setInternalId(newSubject.getInternalId());
+                subjectReviewItem.setOtherSubjectId(matchedRecord.getRecord().getInternalId());
+                subjectReviewItem.setReviewType(SubjectReviewItem.ReviewType.POTENTIAL_DUPLICATE);
+                subjectReviewItems.add(subjectReviewItem);
+            }
+        }
+        return subjectReviewItems;
+    }
+
+    /**
      * 
      * @param newSubject
      * @param matchedRecords
      * @return
      * @throws EMPIException
      */
-    public boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
+    public boolean isPotentialDuplicate(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
 
         // First check scored record against record matches to see if it is safe to link
         // the records.
         for (ScoredRecord matchedRecord : matchedRecords) {
-            if (this.isLinkAllowed(newSubject, matchedRecord)) {
+            if (this.isPotentialDuplicate(newSubject, matchedRecord)) {
                 // Link is not allowed.
                 return false;  // Early exit.
             }
@@ -100,7 +123,7 @@ public class LinkConstraintController {
      * @return
      * @throws EMPIException
      */
-    public boolean isLinkAllowed(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
+    public boolean isPotentialDuplicate(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
         InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
 
         // Load identifiers for matched system subject.
@@ -109,7 +132,7 @@ public class LinkConstraintController {
         // Get list of the new subject's identifiers.
         List<SubjectIdentifier> newSubjectIdentifiers = newSubject.getSubjectIdentifiers();
 
-        return this.isLinkAllowed(matchedSubjectIdentifiers, newSubjectIdentifiers);
+        return this.isPotentialDuplicate(matchedSubjectIdentifiers, newSubjectIdentifiers);
     }
 
     /**
@@ -119,7 +142,7 @@ public class LinkConstraintController {
      * @return
      * @throws EMPIException
      */
-    private boolean isLinkAllowed(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> newSubjectIdentifiers) throws EMPIException {
+    private boolean isPotentialDuplicate(List<SubjectIdentifier> matchedSubjectIdentifiers, List<SubjectIdentifier> newSubjectIdentifiers) throws EMPIException {
         // NOTE: Small list, so brute force is OK.
 
         // See if there is a match between the "matched subject" and the subject.

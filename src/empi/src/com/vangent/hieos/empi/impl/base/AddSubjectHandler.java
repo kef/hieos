@@ -26,6 +26,7 @@ import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.empi.adapter.EMPINotification;
+import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.empi.validator.AddSubjectValidator;
 import com.vangent.hieos.subjectmodel.InternalId;
 import java.util.HashSet;
@@ -89,25 +90,31 @@ public class AddSubjectHandler extends BaseHandler {
             // No matching records.
             enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
 
-        } else if (!this.isLinkAllowed(newSubject, matchedRecords)) {
-            logger.trace("+++++ Not linking subject with same identifier domain +++++");
-            // Do not place record along side any record within the same identifier domain.
-            matchedRecords.clear();  // Treat as though a match did not occur.
-
-            // Insert a new enterprise record.
-            enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
         } else {
-            // >=1 matches
+            List<SubjectReviewItem> potentialDuplicates = this.getPotentialDuplicates(newSubject, matchedRecords);
+            if (!potentialDuplicates.isEmpty()) {
+                logger.trace("+++++ Not linking subject with same identifier domain +++++");
+                // Do not place record along side any record within the same identifier domain.
+                matchedRecords.clear();  // Treat as though a match did not occur.
 
-            // Cross reference will be to first matched record.  All other records will be merged later below.
-            ScoredRecord matchedRecord = matchedRecords.get(0);
-            InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
-            enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
-            matchScore = matchedRecord.getMatchScorePercentage();
+                // Keep track of potential duplicates (for later review).
+                this.getPersistenceManager().insertSubjecReviewItems(potentialDuplicates);
 
-            // Update enterprise subject with latest demographics.
-            logger.trace("+++ Updating demographics on enterprise subject +++");
-            pm.updateEnterpriseSubject(enterpriseSubjectId, newSubject);
+                // Insert a new enterprise record.
+                enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
+            } else {
+                // >=1 matches
+
+                // Cross reference will be to first matched record.  All other records will be merged later below.
+                ScoredRecord matchedRecord = matchedRecords.get(0);
+                InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
+                enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+                matchScore = matchedRecord.getMatchScorePercentage();
+
+                // Update enterprise subject with latest demographics.
+                logger.trace("+++ Updating demographics on enterprise subject +++");
+                pm.updateEnterpriseSubject(enterpriseSubjectId, newSubject);
+            }
         }
 
         // Insert system-level subject match fields (for subsequent find operations).
@@ -166,11 +173,12 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private boolean isLinkAllowed(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
+    private List<SubjectReviewItem> getPotentialDuplicates(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
         LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
-        return linkConstraintController.isLinkAllowed(newSubject, matchedRecords);
+        return linkConstraintController.getPotentialDuplicates(newSubject, matchedRecords);
     }
 
+    // NOT CURRENTLY USED
     /**
      * 
      * @param newSubject
@@ -178,11 +186,10 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private boolean isLinkAllowed(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
-        LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
-        return linkConstraintController.isLinkAllowed(newSubject, matchedRecord);
-    }
-
+    //private boolean isPotentialDuplicate(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
+    //    LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
+    //    return linkConstraintController.isPotentialDuplicate(newSubject, matchedRecord);
+    //}
     /**
      *
      * @param newEnterpriseSubject
