@@ -28,20 +28,20 @@ public class Config implements IsSerializable {
 	private List<DocumentTemplateConfig> documentTemplateConfigs = new ArrayList<DocumentTemplateConfig>();
 	private List<AuthenticationDomainConfig> authDomainList = new ArrayList<AuthenticationDomainConfig>();
 
-	public static String KEY_SEARCH_MODE = "DefaultSearchMode";
-	public static String VAL_SEARCH_MODE_HIE = "hie";
-	public static String VAL_SEARCH_MODE_NHIN_EXCHANGE = "nhin_exchange";
-	public static String KEY_TITLE = "Title";
-	public static String KEY_LOGO_FILE_NAME = "LogoFileName";
-	public static String KEY_LOGO_WIDTH = "LogoWidth";
-	public static String KEY_LOGO_HEIGHT = "LogoHeight";
-	public static String KEY_LABEL_AUTHDOMAIN_NAME = "AuthDomainLabelText";
-	public static String KEY_LABEL_AUTHDOMAIN_SELECT = "AuthDomainDropDownName";
-	public static String KEY_SHOW_AUTHDOMAIN_LIST = "ShowAuthDomainList";
-	public static String KEY_SHOW_FUZZY_NAME_SEARCH = "ShowFuzzyNameSearch";
-	public static String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
-	public static String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
-
+	public static final String KEY_SEARCH_MODE = "DefaultSearchMode";
+	public static final String VAL_SEARCH_MODE_HIE = "hie";
+	public static final String VAL_SEARCH_MODE_NHIN_EXCHANGE = "nhin_exchange";
+	public static final String KEY_TITLE = "Title";
+	public static final String KEY_LOGO_FILE_NAME = "LogoFileName";
+	public static final String KEY_LOGO_WIDTH = "LogoWidth";
+	public static final String KEY_LOGO_HEIGHT = "LogoHeight";
+	public static final String KEY_LABEL_AUTHDOMAIN_NAME = "AuthDomainLabelText";
+	public static final String KEY_LABEL_AUTHDOMAIN_SELECT = "AuthDomainDropDownName";
+	public static final String KEY_SHOW_AUTHDOMAIN_LIST = "ShowAuthDomainList";
+	public static final String KEY_SHOW_FUZZY_NAME_SEARCH = "ShowFuzzyNameSearch";
+	public static final String KEY_TRIM_DOCUMENT_TAB_TITLES = "TrimDocumentTabTitles";
+	public static final String KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH = "TrimDocumentTabTitlesLength";
+	public static final String KEY_SAML_CLAIMS_TEMPLATE = "SAMLClaimsTemplate";
 	public static final String KEY_SHOW_TITLE_BRANDING = "ShowTitleBranding";
 	public static final String KEY_SHOW_FIND_DOCUMENTS_BUTTON = "ShowFindDocumentsButton";
 	public static final String KEY_SHOW_ORGANIZATION_COLUMN = "ShowOrganizationColumn";

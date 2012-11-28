@@ -29,7 +29,7 @@ public class IHEInitiatingGateway extends InitiatingGateway {
 	}
 	
 	@Override
-	protected String getSOAPAction(TransactionType txnType) {
+	public String getSOAPAction(TransactionType txnType) {
 		if (txnType == TransactionType.DOC_QUERY) {
 			return SoapActionFactory.XDSB_REGISTRY_SQ_ACTION;
 		} else {
@@ -38,7 +38,7 @@ public class IHEInitiatingGateway extends InitiatingGateway {
 	}
 
 	@Override
-	protected String getSOAPActionResponse(TransactionType txnType) {
+	public String getSOAPActionResponse(TransactionType txnType) {
 		if (txnType == TransactionType.DOC_QUERY) {
 			return SoapActionFactory.XDSB_REGISTRY_SQ_ACTION_RESPONSE;
 		} else {
@@ -47,12 +47,12 @@ public class IHEInitiatingGateway extends InitiatingGateway {
 	}
 	
 	@Override
-	protected XConfigActor getIGConfig() {
+	public XConfigActor getIGConfig() {
 		return this.getServletUtil().getActorConfig("ig", "InitiatingGatewayType");
 	}
 
 	@Override
-	protected OMElement getSOAPRequestMessage(TransactionType txnType,
+	public OMElement getSOAPRequestMessage(TransactionType txnType,
 			OMElement request) {
 		// No need to wrap request here -- just echo back request.
 		return request;

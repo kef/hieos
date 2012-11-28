@@ -14,6 +14,7 @@ package com.vangent.hieos.DocViewer.client.services.rpc;
 
 import java.util.List;
 
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,5 +25,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  */
 public interface DocumentRemoteServiceAsync {
-	public void findDocuments(DocumentSearchCriteria criteria, AsyncCallback<List<DocumentMetadata>> callback);
+	public void findDocuments(AuthenticationContext authCtxt, DocumentSearchCriteria criteria, AsyncCallback<List<DocumentMetadata>> callback);
 }

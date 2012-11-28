@@ -115,7 +115,7 @@ public class NHINExchangeInitiatingGateway extends InitiatingGateway {
 	}
 
 	@Override
-	protected XConfigActor getIGConfig() {
+	public XConfigActor getIGConfig() {
 		return this.getServletUtil().getActorConfig("nhinig",
 				"NHINExchangeInitiatingGatewayType");
 	}

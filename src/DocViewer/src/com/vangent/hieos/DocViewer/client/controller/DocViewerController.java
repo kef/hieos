@@ -156,7 +156,7 @@ public class DocViewerController {
 	public void findPatients(PatientSearchCriteria criteria,
 			final PatientListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		PatientQueryService service = new PatientQueryService(criteria,
+		PatientQueryService service = new PatientQueryService(this.getAuthContext(), criteria,
 				observer, timeOutHelper);
 		service.doWork();
 	}
@@ -184,7 +184,7 @@ public class DocViewerController {
 			final DocumentListObserver observer) {
 
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		DocumentQueryService service = new DocumentQueryService(criteria,
+		DocumentQueryService service = new DocumentQueryService(this.getAuthContext(), criteria,
 				observer, timeOutHelper);
 		service.doWork();
 	}

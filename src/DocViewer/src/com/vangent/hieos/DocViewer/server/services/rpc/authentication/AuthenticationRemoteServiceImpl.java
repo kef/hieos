@@ -52,7 +52,10 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		AuthenticationService authService = new AuthenticationService(servletUtil.getConfig());
 		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(guiCreds.getUserId(), guiCreds.getPassword(), guiCreds.getAuthDomainTypeKey());
 		authCtxt = authService.authenticate(authCredentials);
-		return getAuthenticationContext(authCtxt);
+		AuthenticationContext guiAuthCtxt = this.getAuthenticationContext(authCtxt);
+		// Echo back credentials used.
+		guiAuthCtxt.setCredentials(guiCreds);
+		return guiAuthCtxt;
 	}
 
 	/**

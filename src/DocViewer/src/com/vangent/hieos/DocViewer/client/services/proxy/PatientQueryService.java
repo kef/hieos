@@ -18,6 +18,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
@@ -32,13 +33,14 @@ public class PatientQueryService extends ProxyService {
 
 	/**
 	 * 
+	 * @param authCtxt
 	 * @param criteria
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public PatientQueryService(PatientSearchCriteria criteria,
+	public PatientQueryService(AuthenticationContext authCtxt, PatientSearchCriteria criteria,
 			Observer observer, TimeOutHelper timeOutHelper) {
-		super(observer, timeOutHelper);
+		super(authCtxt, observer, timeOutHelper);
 		this.criteria = criteria;
 	}
 
@@ -63,7 +65,7 @@ public class PatientQueryService extends ProxyService {
 		}); */
 
 		// RPC:
-		PDSRemoteService.Util.getInstance().getPatients(criteria,
+		PDSRemoteService.Util.getInstance().getPatients(this.getAuthenticationContext(), criteria,
 				new AsyncCallback<List<Patient>>() {
 
 					/**

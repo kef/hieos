@@ -14,6 +14,7 @@ package com.vangent.hieos.DocViewer.client.services.rpc;
 
 import java.util.List;
 
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,5 +25,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  */
 public interface PDSRemoteServiceAsync {
-	public void getPatients(PatientSearchCriteria criteria, AsyncCallback<List<Patient>> callback);
+	public void getPatients(AuthenticationContext authCtxt, PatientSearchCriteria criteria, AsyncCallback<List<Patient>> callback);
 }

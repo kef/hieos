@@ -19,6 +19,7 @@ import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
 
 /**
  * 
@@ -26,7 +27,9 @@ import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
  * 
  */
 public abstract class InitiatingGateway {
+	
 	private ServletUtilMixin servletUtil;
+	private XUAObject xuaObj = null;
 
 	public enum TransactionType {
 		DOC_QUERY, DOC_RETRIEVE
@@ -50,6 +53,22 @@ public abstract class InitiatingGateway {
 
 	/**
 	 * 
+	 * @return
+	 */
+	public XUAObject getXuaObject() {
+		return xuaObj;
+	}
+
+	/**
+	 * 
+	 * @param xuaObj
+	 */
+	public void setXuaObject(XUAObject xuaObj) {
+		this.xuaObj = xuaObj;
+	}
+
+	/**
+	 * 
 	 * @param txnType
 	 * @param request
 	 * @return
@@ -66,6 +85,7 @@ public abstract class InitiatingGateway {
 		System.out.println("XCA Request ... endpoint = " + endpointURL
 				+ ", action=" + this.getSOAPAction(txnType));
 		Soap soap = new Soap();
+		soap.setXUAObject(this.xuaObj);
 		OMElement response = soap.soapCall(outboundRequest, endpointURL,
 				this.isMTOM(txnType), true /* addressing */,
 				true /* SOAP1.2 */, this.getSOAPAction(txnType),
@@ -73,13 +93,13 @@ public abstract class InitiatingGateway {
 		System.out.println("XCA Request ... complete!");
 		return response;
 	}
-
+	
 	/**
 	 * 
 	 * @param txnType
 	 * @return
 	 */
-	private boolean isMTOM(TransactionType txnType) {
+	public boolean isMTOM(TransactionType txnType) {
 		if (txnType == TransactionType.DOC_RETRIEVE) {
 			return true;
 		}
@@ -91,7 +111,7 @@ public abstract class InitiatingGateway {
 	 * @param txn
 	 * @return
 	 */
-	private String getTransactionEndpointURL(TransactionType txnType) {
+	public String getTransactionEndpointURL(TransactionType txnType) {
 		String txn = "";
 		if (txnType == TransactionType.DOC_QUERY) {
 			txn = "RegistryStoredQuery";
@@ -104,12 +124,12 @@ public abstract class InitiatingGateway {
 	}
 
 	// Methods that must be implemented by subclasses.
-	abstract protected String getSOAPAction(TransactionType txnType);
+	abstract public String getSOAPAction(TransactionType txnType);
 
-	abstract protected String getSOAPActionResponse(TransactionType txnType);
+	abstract public String getSOAPActionResponse(TransactionType txnType);
 
-	abstract protected OMElement getSOAPRequestMessage(TransactionType txnType,
+	abstract public OMElement getSOAPRequestMessage(TransactionType txnType,
 			OMElement request);
 
-	abstract protected XConfigActor getIGConfig();
+	abstract public XConfigActor getIGConfig();
 }

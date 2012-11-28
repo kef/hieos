@@ -14,6 +14,7 @@ package com.vangent.hieos.DocViewer.client.services.proxy;
 
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 
 /**
  * 
@@ -23,16 +24,37 @@ import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 public class ProxyService {
 	private Observer observer;
 	private TimeOutHelper timeOutHelper;
+	private AuthenticationContext authCtxt;
 
 	/**
 	 * 
+	 * @param authCtxt
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public ProxyService(Observer observer, TimeOutHelper timeOutHelper) {
+	public ProxyService(AuthenticationContext authCtxt, Observer observer, TimeOutHelper timeOutHelper) {
+		this.authCtxt = authCtxt;
 		this.observer = observer;
 		this.timeOutHelper = timeOutHelper;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public AuthenticationContext getAuthenticationContext() {
+		return authCtxt;
+	}
+
+	/**
+	 * 
+	 * @param authCtxt
+	 */
+	public void setAuthenticationContext(AuthenticationContext authCtxt) {
+		this.authCtxt = authCtxt;
+	}
+
+
 
 	/**
 	 * 

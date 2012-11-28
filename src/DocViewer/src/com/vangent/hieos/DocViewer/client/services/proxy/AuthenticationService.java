@@ -32,7 +32,7 @@ public class AuthenticationService extends ProxyService {
 	 * @param timeOutHelper
 	 */
 	public AuthenticationService(Credentials creds, Observer observer, TimeOutHelper timeOutHelper) {
-		super(observer, timeOutHelper);
+		super(null /* AuthenticationContext */, observer, timeOutHelper);
 		this.creds = creds;
 	}
 	

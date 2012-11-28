@@ -19,19 +19,20 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.hl7v3util.client.PDSClient;
-import com.vangent.hieos.hl7v3util.model.subject.CodedValue;
-import com.vangent.hieos.hl7v3util.model.subject.DeviceInfo;
-import com.vangent.hieos.hl7v3util.model.subject.Subject;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifier;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectIdentifierDomain;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectName;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchCriteria;
-import com.vangent.hieos.hl7v3util.model.subject.SubjectSearchResponse;
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectName;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import org.apache.commons.lang.StringUtils;
@@ -60,8 +61,10 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	@Override
-	public List<Patient> getPatients(PatientSearchCriteria patientSearchCriteria) {
+	public List<Patient> getPatients(AuthenticationContext authCtxt, PatientSearchCriteria patientSearchCriteria) {
 		// Issue PDQ - and do necessary conversions.
+		
+		// TODO: Implement use of AuthenticationContext (XUA, etc.).
 
 		// Convert PatientSearchCriteria to SubjectSearchCriteria.
 		System.out.println("Converting ...");
