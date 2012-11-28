@@ -1,23 +1,20 @@
-delete from subject_address;
-delete from subject_telecom_address;
-delete from subject_name;
---delete from subject_match_field;
-delete from subject_match_fields;
-delete from subject_xref;
-delete from subject_identifier;
---delete from subject_other_identifier;
-delete from subject_personal_relationship;
-delete from subject_language;
-delete from subject_citizenship;
-delete from resource_lock;
-delete from subject_review;
-delete from subject;
-
+DELETE FROM subject_match_fields;
+DELETE FROM subject_identifier;
+-- generally do not remove the following table(s)
+-- DELETE FROM subject_identifier_domain;
+DELETE FROM subject_xref;
+DELETE FROM subject_address;
+DELETE FROM subject_citizenship;
+DELETE FROM subject_name;
+DELETE FROM subject_language;
+DELETE FROM subject_telecom_address;
+DELETE FROM subject_personal_relationship;
+DELETE FROM subject_review_item;
+DELETE FROM resource_lock;
+DELETE FROM subject;
 
 -- clear stats
 select pg_stat_reset();
 
--- generally do not remove the following table(s)
-delete from subject_identifier_domain;
 
 
