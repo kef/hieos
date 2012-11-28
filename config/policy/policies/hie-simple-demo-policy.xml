@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:pip="urn:hieos:policy:pip"
+           xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+           xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
+           PolicySetId="hie-policy-set"
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable">
+    <Target>
+        <Actions>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">urn:ihe:iti:2007:RegistryStoredQuery</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
+            <Action>
+                <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">urn:ihe:iti:2007:RetrieveDocumentSet</AttributeValue>
+                    <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI"/>
+                </ActionMatch>
+            </Action>
+        </Actions>
+    </Target>
+
+   <!-- These are built as separate policies versus as separate rules in order to give some feedback (via obligations) to the
+         caller as to which rule fired -->
+
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="emergency-access-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Emergency Access Policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="emergency-access-rule" Effect="Permit">
+            <Description>
+                Permit if the subject has an emergency access assertion.
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">EMERGENCY</AttributeValue>
+                    <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse" MustBePresent="false" DataType="http://www.w3.org/2001/XMLSchema#string"  />
+                </Apply>
+            </Condition>
+        </Rule>
+    </Policy>
+         
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="patient-active-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Patient Active Policy</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+        <Rule RuleId="patient-inactive-rule" Effect="Permit">
+            <Description>
+                Permit if patient is active
+            </Description>
+            <Condition>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Active</AttributeValue>
+                    </Apply>
+                    <AttributeSelector RequestContextPath="//xacml-context:Resource/xacml-context:ResourceContent/pip:ConsentDirectives/pip:Status/text()" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Apply>
+            </Condition>
+        </Rule>
+        <Obligations>
+             <!-- Does not mean we are done, the PEP must still evaluate policy at the document-level -->
+            <Obligation ObligationId="evaluate-simple-demo-doc-policy" FulfillOn="Permit"/>
+        </Obligations>
+    </Policy>
+    
+   
+    
+    <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+         PolicyId="final-policy"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+        <Description>Permit if no other policies/rules fired.</Description>
+        <PolicyDefaults>
+            <XPathVersion>http://www.w3.org/TR/1999/Rec-xpath-19991116</XPathVersion>
+        </PolicyDefaults>
+        <Target/>
+
+         <!-- Default Deny rule (if no other rules fired above) -->
+        <Rule RuleId="final-rule" Effect="Deny"/>
+
+        <Obligations>
+            <Obligation ObligationId="final-policy-deny" FulfillOn="Deny"/>
+        </Obligations>
+    </Policy>
+    
+    
+       
+</PolicySet>
