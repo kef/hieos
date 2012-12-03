@@ -45,6 +45,7 @@ DROP TABLE IF EXISTS subject_language;
 DROP TABLE IF EXISTS subject_telecom_address;
 DROP TABLE IF EXISTS subject_personal_relationship;
 DROP TABLE IF EXISTS subject_review_item;
+DROP TABLE IF EXISTS subject_review;  -- old
 DROP TABLE IF EXISTS resource_lock;
 DROP TABLE IF EXISTS subject;
 
@@ -222,7 +223,7 @@ ALTER TABLE public.subject_personal_relationship OWNER TO empi;
 CREATE TABLE subject_review_item (
     subject_id_left bigint NOT NULL,
     subject_id_right bigint NOT NULL,
-    type character(2) NOT NULL
+    review_type character(2) NOT NULL
 );
 
 ALTER TABLE public.subject_review_item OWNER TO empi;
@@ -285,7 +286,7 @@ ALTER TABLE ONLY subject
     ADD CONSTRAINT subject_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY subject_review_item
-    ADD CONSTRAINT subject_review_item_pkey PRIMARY KEY (subject_id_left, subject_id_right, type);
+    ADD CONSTRAINT subject_review_item_pkey PRIMARY KEY (subject_id_left, subject_id_right, review_type);
 
 ALTER TABLE ONLY subject_telecom_address
     ADD CONSTRAINT subject_telecom_address_pkey PRIMARY KEY (subject_id, seq_no);
