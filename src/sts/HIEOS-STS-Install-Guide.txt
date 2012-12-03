@@ -1,3 +1,8 @@
+NOTE: We believe there may be a "conflict" with other libraries when using endorsed as stated below.  So, to be safe,
+please install STS in its own separate Glassfish domain folling the instructions below.  Also, need to start with 
+a properly deployed axis2.war.
+
+
 0. Install sts.aar into targeted Glassfish domain (referenced as <glassfish_domain_root> here).  You should see
    a failure in the system log (look for "Initializing OpenSAML library") when exercising STS web service interface.
 1. Copy <hieos_root>\hieos\lib\opensaml\endorsed\*.* to <glassfish_domain_root>\lib\endorsed\*.*
