@@ -69,13 +69,13 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //          <id root="1.2.840.114350.1.13.99997.2.3412"/>
         //       </assignedDevice>
         // </authorOrPerformer>
-        if (subjectSearchCriteria.getCommunityAssigningAuthority() != null) {
+        if (subjectSearchCriteria.getCommunitySubjectIdentifierDomain() != null) {
             OMElement authorOrPerformerNode = this.addChildOMElement(controlActProcessNode, "authorOrPerformer");
             this.setAttribute(authorOrPerformerNode, "typeCode", "AUT");
             OMElement assignedDeviceNode = this.addChildOMElement(authorOrPerformerNode, "assignedDevice");
             this.setAttribute(assignedDeviceNode, "classCode", "ASSIGNED");
             OMElement idNode = this.addChildOMElement(assignedDeviceNode, "id");
-            SubjectIdentifierDomain identifierDomain = subjectSearchCriteria.getCommunityAssigningAuthority();
+            SubjectIdentifierDomain identifierDomain = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
             this.setAttribute(idNode, "root", identifierDomain.getUniversalId());
         }
 
@@ -211,7 +211,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //   <value root="1.3.6.1.4.1.21367.13.20.2000" extension="GREEN_GLOBAL_05"/>
         //   <semanticsText>LivingSubject.id</semanticsText>
         // </livingSubjectId>
-        //String communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
+        //String communityAssigningAuthority = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
         for (SubjectIdentifier subjectIdentifier : searchSubject.getSubjectIdentifiers()) {
             //String assigningAuthority = subjectIdentifier.getIdentifierDomain().getUniversalId();
             //if (sendCommunityPatientId == true ||
@@ -248,7 +248,7 @@ public class PRPA_IN201305UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //    <value root="1.2.840.114350.1.13.99997.2.3412"/>
         //    <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
         // </otherIDsScopingOrganization>
-        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingSubjectIdentifierDomains()) {
             String assigningAuthority = subjectIdentifierDomain.getUniversalId();
             OMElement otherIDsScopingOrganizationNode = this.addChildOMElement(parameterListNode, "otherIDsScopingOrganization");
             OMElement valueNode = this.addChildOMElement(otherIDsScopingOrganizationNode, "value");
