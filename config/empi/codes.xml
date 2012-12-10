@@ -15,6 +15,8 @@
         <code-set codeSystem="2.16.840.1.113883.5.104" codeSystemName="HL7 Race" codeSystemVersion="1.0">
             <code value="1002-5" displayName="American Indian or Alaska Native"/>
             <code value="1004-1" displayName="American Indian"/>
+            <code value="2106-3" displayName="White"/>
+            <code value="W" displayName="White"/>
         </code-set>
         <code-set codeSystem="2.16.840.1.113883.5.50" codeSystemName="HL7 Ethnicity" codeSystemVersion="1.0">
             <code value="2135-2" displayName="Hispanic or Latino"/>
