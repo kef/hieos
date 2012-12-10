@@ -94,6 +94,7 @@ public class Hl7DateTest {
             "2011121615-0500",
             "201112161513-0500",
             "20111216151330-0500",
+            "20111216151330-05",
             Hl7Date.now()
         };
         for (String dtmExample : dtmExamples) {
