@@ -24,8 +24,8 @@ public class SubjectSearchCriteria implements Cloneable {
     private Subject subject = null;
     private int minimumDegreeMatchPercentage = 100;  // Default.
     private boolean specifiedMinimumDegreeMatchPercentage = false;
-    private SubjectIdentifierDomain communityAssigningAuthority = null;
-    private List<SubjectIdentifierDomain> scopingAssigningAuthorities = new ArrayList<SubjectIdentifierDomain>();
+    private SubjectIdentifierDomain communitySubjectIdentifierDomain = null;
+    private List<SubjectIdentifierDomain> scopingSubjectIdentifierDomains = new ArrayList<SubjectIdentifierDomain>();
 
     /**
      *
@@ -46,11 +46,11 @@ public class SubjectSearchCriteria implements Cloneable {
     /**
      * Return SubjectIdentifier in the given SubjectIdentifierDomain.  Return null if not found.
      *
-     * @param identifierDomain
+     * @param subjectIdentifierDomain
      * @return
      */
-    public SubjectIdentifier getSubjectIdentifier(SubjectIdentifierDomain identifierDomain) {
-        return subject.getSubjectIdentifier(identifierDomain);
+    public SubjectIdentifier getSubjectIdentifier(SubjectIdentifierDomain subjectIdentifierDomain) {
+        return subject.getSubjectIdentifier(subjectIdentifierDomain);
     }
 
     /**
@@ -73,48 +73,48 @@ public class SubjectSearchCriteria implements Cloneable {
      *
      * @return
      */
-    public boolean hasScopingAssigningAuthorities() {
-        return !scopingAssigningAuthorities.isEmpty();
+    public boolean hasScopingSubjectIdentifierDomains() {
+        return !scopingSubjectIdentifierDomains.isEmpty();
     }
 
     /**
      *
      * @return
      */
-    public SubjectIdentifierDomain getCommunityAssigningAuthority() {
-        return communityAssigningAuthority;
+    public SubjectIdentifierDomain getCommunitySubjectIdentifierDomain() {
+        return communitySubjectIdentifierDomain;
     }
 
     /**
      * 
-     * @param communityAssigningAuthority
+     * @param subjectIdentifierDomain
      */
-    public void setCommunityAssigningAuthority(SubjectIdentifierDomain communityAssigningAuthority) {
-        this.communityAssigningAuthority = communityAssigningAuthority;
+    public void setCommunitySubjectIdentifierDomain(SubjectIdentifierDomain subjectIdentifierDomain) {
+        this.communitySubjectIdentifierDomain = subjectIdentifierDomain;
     }
 
     /**
      *
      * @return
      */
-    public List<SubjectIdentifierDomain> getScopingAssigningAuthorities() {
-        return scopingAssigningAuthorities;
+    public List<SubjectIdentifierDomain> getScopingSubjectIdentifierDomains() {
+        return scopingSubjectIdentifierDomains;
     }
 
     /**
      * 
-     * @param assigningAuthority
+     * @param subjectIdentifierDomain
      */
-    public void addScopingAssigningAuthority(SubjectIdentifierDomain assigningAuthority) {
-        scopingAssigningAuthorities.add(assigningAuthority);
+    public void addScopingSubjectIdentifierDomain(SubjectIdentifierDomain subjectIdentifierDomain) {
+        scopingSubjectIdentifierDomains.add(subjectIdentifierDomain);
     }
 
     /**
      *
-     * @param scopingAssigningAuthorities
+     * @param subjectIdentifierDomains
      */
-    public void setScopingAssigningAuthorities(List<SubjectIdentifierDomain> scopingAssigningAuthorities) {
-        this.scopingAssigningAuthorities = scopingAssigningAuthorities;
+    public void setScopingSubjectIdentifierDomains(List<SubjectIdentifierDomain> subjectIdentifierDomains) {
+        this.scopingSubjectIdentifierDomains = subjectIdentifierDomains;
     }
 
     /**
@@ -160,10 +160,10 @@ public class SubjectSearchCriteria implements Cloneable {
         if (subject != null) {
             copy.subject = (Subject) subject.clone();
         }
-        if (communityAssigningAuthority != null) {
-            copy.communityAssigningAuthority = (SubjectIdentifierDomain) communityAssigningAuthority.clone();
+        if (communitySubjectIdentifierDomain != null) {
+            copy.communitySubjectIdentifierDomain = (SubjectIdentifierDomain) communitySubjectIdentifierDomain.clone();
         }
-        copy.scopingAssigningAuthorities = SubjectIdentifierDomain.clone(scopingAssigningAuthorities);
+        copy.scopingSubjectIdentifierDomains = SubjectIdentifierDomain.clone(scopingSubjectIdentifierDomains);
         return copy;
     }
 }

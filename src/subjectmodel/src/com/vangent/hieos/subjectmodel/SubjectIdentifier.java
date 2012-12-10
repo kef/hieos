@@ -66,21 +66,24 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
     private void buildFromPIDCXFormatted(String pidCXFormatted) {
         // 5cfe5f4f31604fa^^^&1.3.6.1.4.1.21367.2005.3.7&ISO
         String parts[] = pidCXFormatted.split("\\^");
-        if (parts.length == 4) {
-            // Get patient id.
+        if (parts.length > 0) {
             this.identifier = parts[0];
-
-            // Assigning authority.
-            String aa[] = parts[3].split("\\&");
-            if (aa.length == 3) {
-                this.identifierDomain = new SubjectIdentifierDomain();
-                // Get universal id (a.k.a. assigning authority).
-                identifierDomain.setUniversalId(aa[1]);
-
-                // Get universal id type (e.g. ISO).
-                identifierDomain.setUniversalIdType(aa[2]);
-            }
         }
+        this.identifierDomain = new SubjectIdentifierDomain(pidCXFormatted);
+
+        /*   String aa[] = parts[3].split("\\&");
+        if (aa.length == 3) {
+        this.identifierDomain = new SubjectIdentifierDomain();
+
+        // Get namespace id
+        //identifierDomain.setNamespaceId(aa[0]);
+
+        // Get universal id (a.k.a. assigning authority).
+        identifierDomain.setUniversalId(aa[1]);
+
+        // Get universal id type (e.g. ISO).
+        identifierDomain.setUniversalIdType(aa[2]);
+        }*/
     }
 
     /**
@@ -89,6 +92,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public String getIdentifier() {
         return identifier;
+
+
     }
 
     /**
@@ -97,6 +102,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+
+
     }
 
     /**
@@ -105,6 +112,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public SubjectIdentifierDomain getIdentifierDomain() {
         return identifierDomain;
+
+
     }
 
     /**
@@ -113,6 +122,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public void setIdentifierDomain(SubjectIdentifierDomain identifierDomain) {
         this.identifierDomain = identifierDomain;
+
+
     }
 
     /**
@@ -121,6 +132,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public String getCXFormatted() {
         return identifier + "^^^&" + identifierDomain.getUniversalId() + "&" + identifierDomain.getUniversalIdType();
+
+
     }
 
     /**
@@ -131,6 +144,8 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
     public boolean equals(SubjectIdentifier subjectIdentifier) {
         return subjectIdentifier.getIdentifier().equals(this.identifier)
                 && subjectIdentifier.getIdentifierDomain().equals(this.identifierDomain);
+
+
     }
 
     /**
@@ -141,10 +156,16 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
     @Override
     public Object clone() throws CloneNotSupportedException {
         SubjectIdentifier copy = (SubjectIdentifier) super.clone();
+
+
         if (identifierDomain != null) {
             copy.identifierDomain = (SubjectIdentifierDomain) identifierDomain.clone();
+
+
         }
         return copy;
+
+
     }
 
     /**
@@ -155,13 +176,20 @@ public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneabl
      */
     public static List<SubjectIdentifier> clone(List<SubjectIdentifier> listToClone) throws CloneNotSupportedException {
         List<SubjectIdentifier> copy = null;
+
+
         if (listToClone != null) {
             copy = new ArrayList<SubjectIdentifier>();
+
+
             for (SubjectIdentifier elementToClone : listToClone) {
                 SubjectIdentifier clonedElement = (SubjectIdentifier) elementToClone.clone();
                 copy.add(clonedElement);
+
+
             }
         }
         return copy;
+
     }
 }

@@ -21,10 +21,48 @@ import java.util.List;
  */
 public class SubjectIdentifierDomain implements Cloneable {
 
-    private int id;
-    private String namespaceId;
-    private String universalId;
-    private String universalIdType;
+    private int id = -1;
+    private String namespaceId = null;
+    private String universalId = null;
+    private String universalIdType = null;
+
+    /**
+     *
+     */
+    public SubjectIdentifierDomain() {
+    }
+
+    /**
+     *
+     * @param domainCXFormatted
+     */
+    public SubjectIdentifierDomain(String domainCXFormatted) {
+        this.buildFromDomainCXFormatted(domainCXFormatted);
+    }
+
+    /**
+     *
+     * @param domainCXFormatted
+     */
+    private void buildFromDomainCXFormatted(String domainCXFormatted) {
+        // 5cfe5f4f31604fa^^^&1.3.6.1.4.1.21367.2005.3.7&ISO
+        String parts[] = domainCXFormatted.split("\\^");
+        if (parts.length == 4) {
+            //this.identifier = parts[0];
+
+            // Assigning authority.
+            String aa[] = parts[3].split("\\&");
+            if (aa.length > 0) {
+                this.setNamespaceId(aa[0]);
+            }
+            if (aa.length > 1) {
+                this.setUniversalId(aa[1]);
+            }
+            if (aa.length > 2) {
+                this.setUniversalIdType(aa[2]);
+            }
+        }
+    }
 
     /**
      *
@@ -92,6 +130,14 @@ public class SubjectIdentifierDomain implements Cloneable {
 
     /**
      *
+     * @return
+     */
+    public boolean isLoaded() {
+        return id != -1;
+    }
+
+    /**
+     *
      * @param subjectIdentifierDomain
      * @return
      */
@@ -99,6 +145,37 @@ public class SubjectIdentifierDomain implements Cloneable {
         // FIXME?: Only looks at ID & Type since namespaceId could be problematic ...
         return subjectIdentifierDomain.getUniversalId().equals(this.universalId)
                 && subjectIdentifierDomain.getUniversalIdType().equals(this.universalIdType);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("Identifier Domain (HD formatted) = ").append(this.getHDFormatted());
+        return result.toString();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getHDFormatted() {
+        StringBuilder result = new StringBuilder();
+        if (namespaceId != null) {
+            result.append(namespaceId);
+        }
+        result.append("^");
+        if (universalId != null) {
+            result.append(universalId);
+        }
+        result.append("^");
+        if (universalIdType != null) {
+            result.append(universalIdType);
+        }
+        return result.toString();
     }
 
     /**
