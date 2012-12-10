@@ -450,8 +450,8 @@ public class XCPDGatewayRequestController {
 
         // Scope PDQ request to local community assigning authority only.
         SubjectIdentifierDomain communityAssigningAuthority = requestHandler.getCommunityAssigningAuthority();
-        pdqSubjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
-        pdqSubjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+        pdqSubjectSearchCriteria.setCommunitySubjectIdentifierDomain(communityAssigningAuthority);
+        pdqSubjectSearchCriteria.addScopingSubjectIdentifierDomain(communityAssigningAuthority);
 
         try {
             // Issue PDQ using demographics supplied by remote community.
