@@ -14,7 +14,7 @@
 
     <!-- Enterprise ID configuration items. -->
     <euid-config>
-        <euid-assign-enabled>true</euid-assign-enabled>
+        <euid-assign-enabled>false</euid-assign-enabled>
         <euid-universalid>1.3.6.1.4.1.21367.13.20.9999</euid-universalid>
         <euid-universalid-type>ISO</euid-universalid-type>
     </euid-config>
@@ -482,6 +482,7 @@
                 </distance-function>
             </match-field>
             <!-- this implies that SSN is required - should set flag here (if not required; i.e. no penalty). -->
+            <!-- FIXME!!!
             <match-field>
                 <name>ssn</name>
                 <accept-threshold>1.0</accept-threshold>
@@ -490,7 +491,7 @@
                 <distance-function>
                     <name>ExactMatch</name>
                 </distance-function>
-            </match-field>
+            </match-field>-->
             <match-field>
                 <name>streetAddressLine1</name>
                 <accept-threshold>0.8</accept-threshold>
