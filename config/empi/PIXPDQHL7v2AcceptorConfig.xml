@@ -1,0 +1,56 @@
+
+<config>
+    <acceptor-listener-port>6661</acceptor-listener-port>
+    <acceptor-enable-tls>false</acceptor-enable-tls>
+    <acceptor-thread-pool-size>20</acceptor-thread-pool-size>
+    <message-handlers>
+        <message-handler>
+            <!-- A01 – Admission of an in-patient into a facility -->
+            <message-type>ADT</message-type>
+            <trigger-event>A01</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientAddMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!-- A04 – Registration of an outpatient for a visit of the facility -->
+            <message-type>ADT</message-type>
+            <trigger-event>A04</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientAddMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!--A05 – Pre-admission of an in-patient (i.e., registration of patient information ahead of actual
+                      admission). -->
+            <message-type>ADT</message-type>
+            <trigger-event>A05</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientAddMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!-- A08 – Update Patient Information -->
+            <message-type>ADT</message-type>
+            <trigger-event>A08</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientUpdateMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!-- A28 – Add Person or Patient Information -->
+            <message-type>ADT</message-type>
+            <trigger-event>A28</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientAddMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!-- A40 – Merge Patient Information -->
+            <message-type>ADT</message-type>
+            <trigger-event>A40</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.ADTPatientMergeMessageHandler</class>
+        </message-handler>
+        <message-handler>
+            <!-- Q23 – Get Corresponding Identifiers (PIX Query) -->
+            <message-type>QBP</message-type>
+            <trigger-event>Q23</trigger-event>
+            <class>com.vangent.hieos.services.pixpdqv2.v2handler.PIXQueryMessageHandler</class>
+        </message-handler>
+        <!--<message-handler>
+            <message-type>*</message-type>
+            <trigger-event>*</trigger-event>
+            <class>com.vangent.hieos.hl7v2util.acceptor.DefaultMessageHandler</class>
+        </message-handler>-->
+    </message-handlers>
+</config>
