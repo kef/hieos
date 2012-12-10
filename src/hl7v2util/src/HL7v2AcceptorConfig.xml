@@ -1,0 +1,18 @@
+
+<config>
+    <acceptor-listener-port>6661</acceptor-listener-port>
+    <acceptor-enable-tls>false</acceptor-enable-tls>
+    <acceptor-thread-pool-size>20</acceptor-thread-pool-size>
+    <message-handlers>
+        <message-handler>
+            <message-type>ADT</message-type>
+            <trigger-event>A01</trigger-event>
+            <class>com.vangent.hieos.hl7v2util.acceptor.DefaultMessageHandler</class>
+        </message-handler>
+        <!--<message-handler>
+            <message-type>*</message-type>
+            <trigger-event>*</trigger-event>
+            <class>com.vangent.hieos.hl7v2util.acceptor.DefaultMessageHandler</class>
+        </message-handler>-->
+    </message-handlers>
+</config>
