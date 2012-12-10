@@ -16,6 +16,8 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.EUIDConfig;
 import com.vangent.hieos.empi.euid.EUIDGenerator;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.Record;
@@ -57,12 +59,13 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public EMPINotification addSubject(Subject newSubject) throws EMPIException {
+    public EMPINotification addSubject(Subject newSubject) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
 
         // First, run validations on input.
         AddSubjectValidator validator = new AddSubjectValidator(pm, this.getSenderDeviceInfo());
-        validator.validate(newSubject);
+        validator.setSubject(newSubject);
+        validator.run();
 
         // Store the subject @ system-level - will stamp with subjectId.
         newSubject.setType(Subject.SubjectType.SYSTEM);
@@ -197,7 +200,7 @@ public class AddSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private InternalId insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException {
+    private InternalId insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
         EMPIConfig empiConfig = EMPIConfig.getInstance();
 

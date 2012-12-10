@@ -13,12 +13,14 @@
 package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.empi.adapter.EMPINotification;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
 import com.vangent.hieos.subjectmodel.InternalId;
 import java.util.List;
@@ -47,12 +49,13 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public EMPINotification updateSubject(Subject subject) throws EMPIException {
+    public EMPINotification updateSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = this.getPersistenceManager();
 
         // First, run validations on input.
         UpdateSubjectValidator validator = new UpdateSubjectValidator(pm, this.getSenderDeviceInfo());
-        validator.validate(subject);
+        validator.setSubject(subject);
+        validator.run();
 
         EMPINotification updateNotificationContent = new EMPINotification();
 
@@ -69,13 +72,11 @@ public class UpdateSubjectHandler extends BaseHandler {
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
         List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(subjectIdentifier);
         if (baseSubjects.isEmpty()) {
-            throw new EMPIException(
+            throw new EMPIExceptionUnknownSubjectIdentifier(
                     subjectIdentifier.getCXFormatted()
-                    + " is not a known identifier",
-                    EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+                    + " is not a known identifier");
         }
-        if (baseSubjects.size() > 1)
-        {
+        if (baseSubjects.size() > 1) {
             throw new EMPIException(
                     subjectIdentifier.getCXFormatted()
                     + " identifier resulted in more than one record to update .. no update performed");
@@ -99,7 +100,7 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @param subject
      * @throws EMPIException
      */
-    private EMPINotification updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException {
+    private EMPINotification updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
         EMPINotification notification = new EMPINotification();
 

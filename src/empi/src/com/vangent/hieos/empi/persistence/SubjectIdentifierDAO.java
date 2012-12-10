@@ -16,6 +16,7 @@ import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.InternalId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,59 +45,12 @@ public class SubjectIdentifierDAO extends AbstractDAO {
 
     /**
      *
-     * @param subjectIdentifier
-     * @return
-     * @throws EMPIException
-     */
-    /*
-    public List<InternalId> getSubjectIds(SubjectIdentifier subjectIdentifier) throws EMPIException {
-        List<InternalId> internalIds = new ArrayList<InternalId>();
-        // First, get the SubjectIdentifierDomainId
-        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
-        int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
-        if (subjectIdentifierDomainId == -1) {
-            // We have no knowledge of the identifier domain (so get out now).
-            return internalIds;
-        }
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            // Now, see if we can locate the subject/identifier within the given identifier domain.
-            StringBuilder sb = new StringBuilder();
-            sb.append("SELECT DISTINCT subject_id FROM ").append(this.getTableName()).append(" WHERE identifier=? AND subject_identifier_domain_id=?");
-            String sql = sb.toString();
-            if (logger.isTraceEnabled()) {
-                logger.trace("SQL = " + sql);
-            }
-            stmt = this.getPreparedStatement(sql);
-            stmt.setString(1, subjectIdentifier.getIdentifier());
-            stmt.setInt(2, subjectIdentifierDomainId);
-            // Execute query.
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                // Found.
-                Long subjectId = rs.getLong(1);
-                //int seqNo = rs.getInt(2);
-                InternalId internalId = new InternalId(subjectId);
-                internalIds.add(internalId);
-            }
-        } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
-        } finally {
-            this.close(stmt);
-            this.close(rs);
-        }
-        return internalIds;
-    }*/
-
-    /**
-     *
      * @param subjectIdentifiers
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain 
      */
-    public List<InternalId> getSubjectIds(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    public List<InternalId> getSubjectIds(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         List<InternalId> internalIds = new ArrayList<InternalId>();
         String sql = this.getSubjectIdsSQL(subjectIdentifiers);
         Statement stmt = null;
@@ -130,16 +84,18 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    private String getSubjectIdsSQL(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    private String getSubjectIdsSQL(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         // Get list of identifier domain ids (internal ids) for the subject identifiers.
         List<Integer> subjectIdentifierDomainIds = new ArrayList<Integer>();
         SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
         for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-            int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifier.getIdentifierDomain());
+            SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
+            int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
             if (subjectIdentifierDomainId == -1) {
                 // We have no knowledge of the identifier domain (so get out now).
-                throw new EMPIException("Unknown identifier domain = "
-                        + subjectIdentifier.getIdentifierDomain().getUniversalId());
+                throw new EMPIExceptionUnknownIdentifierDomain(
+                        subjectIdentifierDomain.getHDFormatted()
+                        + " is not a known identifier domain");
             }
             subjectIdentifierDomainIds.add(subjectIdentifierDomainId);
         }
@@ -256,8 +212,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * 
      * @param parentSubject
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
-    public void insert(Subject parentSubject) throws EMPIException {
+    public void insert(Subject parentSubject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         // Insert all identifiers in one shot to retain sequence number assignment.
         List<SubjectIdentifier> subjectIdentifiersCopy = new ArrayList<SubjectIdentifier>();
         subjectIdentifiersCopy.addAll(parentSubject.getSubjectIdentifiers());
@@ -288,10 +245,9 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
                 int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
                 if (subjectIdentifierDomainId == -1) {
-                    throw new EMPIException(
-                            subjectIdentifierDomain.getUniversalId()
-                            + " is not a known identifier domain",
-                            EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+                    throw new EMPIExceptionUnknownIdentifierDomain(
+                            subjectIdentifierDomain.getHDFormatted()
+                            + " is not a known identifier domain");
                 }
                 stmt.setInt(5, subjectIdentifierDomainId);
                 stmt.addBatch();

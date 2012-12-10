@@ -12,7 +12,9 @@
  */
 package com.vangent.hieos.empi.validator;
 
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -28,6 +30,7 @@ import org.apache.log4j.Logger;
 public class MergeSubjectsValidator extends Validator {
 
     private static final Logger logger = Logger.getLogger(MergeSubjectsValidator.class);
+    private SubjectMergeRequest subjectMergeRequest;
 
     /**
      *
@@ -40,15 +43,42 @@ public class MergeSubjectsValidator extends Validator {
 
     /**
      *
+     * @return
+     */
+    public SubjectMergeRequest getSubjectMergeRequest() {
+        return subjectMergeRequest;
+    }
+
+    /**
+     *
      * @param subjectMergeRequest
+     */
+    public void setSubjectMergeRequest(SubjectMergeRequest subjectMergeRequest) {
+        this.subjectMergeRequest = subjectMergeRequest;
+    }
+
+    /**
+     * 
      * @throws EMPIException
      */
-    public void validate(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    @Override
+    public void validate() throws EMPIException {
         Subject survivingSubject = subjectMergeRequest.getSurvivingSubject();
         Subject subsumedSubject = subjectMergeRequest.getSubsumedSubject();
         this.validateIdentitySource(survivingSubject);
         this.validateIdentitySource(subsumedSubject);
         this.validateMergeSubjects(survivingSubject, subsumedSubject);
+    }
+
+    /**
+     *
+     * @throws EMPIException
+     */
+    @Override
+    public void load() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainLoader loader = new SubjectIdentifierDomainLoader(this.getPersistenceManager());
+        loader.loadSubjectIdentifierDomains(subjectMergeRequest.getSurvivingSubject());
+        loader.loadSubjectIdentifierDomains(subjectMergeRequest.getSubsumedSubject());
     }
 
     /**

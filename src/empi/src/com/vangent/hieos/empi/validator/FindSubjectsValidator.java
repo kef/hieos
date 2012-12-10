@@ -12,11 +12,15 @@
  */
 package com.vangent.hieos.empi.validator;
 
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,6 +30,7 @@ import org.apache.log4j.Logger;
 public class FindSubjectsValidator extends Validator {
 
     private static final Logger logger = Logger.getLogger(FindSubjectsValidator.class);
+    private SubjectSearchCriteria subjectSearchCriteria;
 
     /**
      *
@@ -38,34 +43,58 @@ public class FindSubjectsValidator extends Validator {
 
     /**
      *
-     * @param subjectSearchCriteria
-     * @throws EMPIException
+     * @return
      */
-    public void validate(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        // First validate identifier domains assocated with the search subject's identifiers.
-        this.validateSubjectIdentifierDomains(subjectSearchCriteria.getSubject());
-
-        // Now validate identifiers in any scoping organizations.
-        this.validateScopingAssigningAuthorities(subjectSearchCriteria);
+    public SubjectSearchCriteria getSubjectSearchCriteria() {
+        return subjectSearchCriteria;
     }
 
     /**
      *
      * @param subjectSearchCriteria
+     */
+    public void setSubjectSearchCriteria(SubjectSearchCriteria subjectSearchCriteria) {
+        this.subjectSearchCriteria = subjectSearchCriteria;
+    }
+
+    /**
+     * 
      * @throws EMPIException
      */
-    private void validateScopingAssigningAuthorities(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
-        PersistenceManager pm = this.getPersistenceManager();
+    @Override
+    public void validate() throws EMPIException {
+        // Do nothing ...
+    }
 
-        // Validate identifiers in any scoping organizations.
-        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
-            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(scopingIdentifierDomain);
-            if (!subjectIdentifierDomainExists) {
-                throw new EMPIException(
-                        scopingIdentifierDomain.getUniversalId()
-                        + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+    /**
+     *
+     * @throws EMPIException
+     */
+    @Override
+    public void load() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainLoader loader = new SubjectIdentifierDomainLoader(this.getPersistenceManager());
+
+        // Load identifier domains for the subject (identifiers + other identifiers).
+        loader.loadSubjectIdentifierDomains(subjectSearchCriteria.getSubject());
+
+        // Load/replace subject identifier domains for any supplied scoping assigning authorities.
+        if (subjectSearchCriteria.hasScopingSubjectIdentifierDomains()) {
+            List<SubjectIdentifierDomain> scopingSubjectIdentifierDomains = new ArrayList<SubjectIdentifierDomain>();
+            int pos = 0;
+            for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingSubjectIdentifierDomains()) {
+                try {
+                    SubjectIdentifierDomain loadedSubjectIdentifierDomain = loader.loadSubjectIdentifierDomain(subjectIdentifierDomain);
+                    scopingSubjectIdentifierDomains.add(loadedSubjectIdentifierDomain);
+                    ++pos;
+                } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+                    // Override the default identifier domain type in the exception and keep track of the list position.
+                    ex.setIdentifierDomainType(EMPIExceptionUnknownIdentifierDomain.IdentifierDomainType.SCOPING_IDENTIFIER_DOMAIN);
+                    ex.setListPosition(pos);
+                    throw ex; // Rethrow.
+                }
             }
+            // Replace scoping identifier domain list.
+            subjectSearchCriteria.setScopingSubjectIdentifierDomains(scopingSubjectIdentifierDomains);
         }
     }
 }

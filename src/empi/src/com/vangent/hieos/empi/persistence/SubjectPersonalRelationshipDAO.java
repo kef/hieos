@@ -13,6 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.InternalId;
@@ -93,7 +94,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
      * @param parentSubject
      * @throws EMPIException
      */
-    public void insert(List<SubjectPersonalRelationship> subjectPersonalRelationships, Subject parentSubject) throws EMPIException {
+    public void insert(List<SubjectPersonalRelationship> subjectPersonalRelationships, Subject parentSubject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         if (subjectPersonalRelationships.isEmpty()) {
             return; // Early exit!
         }

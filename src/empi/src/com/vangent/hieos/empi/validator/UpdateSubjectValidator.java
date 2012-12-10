@@ -12,7 +12,9 @@
  */
 package com.vangent.hieos.empi.validator;
 
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -27,6 +29,7 @@ import org.apache.log4j.Logger;
 public class UpdateSubjectValidator extends Validator {
 
     private static final Logger logger = Logger.getLogger(UpdateSubjectValidator.class);
+    private Subject subject;
 
     /**
      *
@@ -39,12 +42,27 @@ public class UpdateSubjectValidator extends Validator {
 
     /**
      *
+     * @return
+     */
+    public Subject getSubject() {
+        return subject;
+    }
+
+    /**
+     *
      * @param subject
+     */
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    /**
+     *
      * @throws EMPIException
      */
-    public void validate(Subject subject) throws EMPIException {
+    @Override
+    public void validate() throws EMPIException {
         this.validateIdentitySource(subject);
-        this.validateSubjectIdentifierDomains(subject);
         this.validateSubjectCodes(subject);
 
         // Make sure that subject identifiers are present.
@@ -52,5 +70,15 @@ public class UpdateSubjectValidator extends Validator {
         if (subjectIdentifiers.isEmpty()) {
             throw new EMPIException("No identifiers provided for subject - skipping update.");
         }
+    }
+
+    /**
+     *
+     * @throws EMPIException
+     */
+    @Override
+    public void load() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainLoader loader = new SubjectIdentifierDomainLoader(this.getPersistenceManager());
+        loader.loadSubjectIdentifierDomains(subject);
     }
 }

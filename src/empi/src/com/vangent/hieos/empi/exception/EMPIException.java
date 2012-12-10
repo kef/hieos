@@ -19,27 +19,11 @@ package com.vangent.hieos.empi.exception;
 public class EMPIException extends Exception {
 
     /**
-     * 
-     */
-    public static String ERROR_CODE_UNKNOWN_KEY_IDENTIFIER = "204";
-    private String code = null;
-
-    /**
      *
      * @param msg
      */
     public EMPIException(String msg) {
         super(msg);
-    }
-
-    /**
-     *
-     * @param msg
-     * @param code
-     */
-    public EMPIException(String msg, String code) {
-        super(msg);
-        this.code = code;
     }
 
     /**
@@ -57,13 +41,5 @@ public class EMPIException extends Exception {
      */
     public EMPIException(Exception exception) {
         super(exception);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getCode() {
-        return code;
     }
 }

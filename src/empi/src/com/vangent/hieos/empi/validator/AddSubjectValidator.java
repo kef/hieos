@@ -12,7 +12,9 @@
  */
 package com.vangent.hieos.empi.validator;
 
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -25,6 +27,7 @@ import org.apache.log4j.Logger;
 public class AddSubjectValidator extends Validator {
 
     private static final Logger logger = Logger.getLogger(AddSubjectValidator.class);
+    private Subject subject;
 
     /**
      *
@@ -37,23 +40,48 @@ public class AddSubjectValidator extends Validator {
 
     /**
      *
-     * @param newSubject
+     * @return
+     */
+    public Subject getSubject() {
+        return subject;
+    }
+
+    /**
+     *
+     * @param subject
+     */
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    /**
+     *
      * @throws EMPIException
      */
-    public void validate(Subject newSubject) throws EMPIException {
-        this.validateIdentitySource(newSubject);
-        this.validateSubjectIdentifierDomains(newSubject);
-        this.validateSubjectCodes(newSubject);
+    @Override
+    public void validate() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        this.validateIdentitySource(subject);
+        //this.validateSubjectIdentifierDomains(subject);
+        this.validateSubjectCodes(subject);
 
         // FIXME: This is not totally correct, how about "other ids"?
         // See if the subject exists (if it already has identifiers).
-        if (newSubject.hasSubjectIdentifiers()) {
+        if (subject.hasSubjectIdentifiers()) {
 
             // See if the subject already exists.
             PersistenceManager pm = this.getPersistenceManager();
-            if (pm.doesSubjectExist(newSubject.getSubjectIdentifiers())) {
+            if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
                 throw new EMPIException("Subject already exists!");
             }
         }
+    }
+
+    /**
+     *
+     * @throws EMPIException
+     */
+    public void load() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainLoader loader = new SubjectIdentifierDomainLoader(this.getPersistenceManager());
+        loader.loadSubjectIdentifierDomains(subject);
     }
 }

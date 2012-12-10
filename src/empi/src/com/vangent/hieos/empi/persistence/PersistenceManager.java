@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.persistence;
 
 //import com.vangent.hieos.empi.config.EMPIConfig;
 //import com.vangent.hieos.empi.lockmanager.LockManagerException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -127,12 +128,48 @@ public class PersistenceManager {
     }
 
     /**
+     * Go to the EMPI database and fully load the identifier domains for the provided input.
+     *
+     * @param subjectIdentifierDomains
+     * @return
+     * @throws EMPIException
+     */
+    public List<SubjectIdentifierDomain> loadSubjectIdentifierDomains(List<SubjectIdentifierDomain> subjectIdentifierDomains) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(connection);
+        return dao.load(subjectIdentifierDomains);
+    }
+
+    /**
+     * Go to the EMPI database and fully load the identifier domain for the provided input.
+     *
+     * @param subjectIdentifierDomain
+     * @return
+     * @throws EMPIException
+     */
+    public SubjectIdentifierDomain loadSubjectIdentifierDomain(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(connection);
+        return dao.load(subjectIdentifierDomain);
+    }
+
+    /**
+     * Go to the EMPI database and fully load the identifier domains for the provided input.
+     *
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     */
+    public List<SubjectIdentifier> loadSubjectIdentifierDomainsForSubjectIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(connection);
+        return dao.loadForSubjectIdentifiers(subjectIdentifiers);
+    }
+
+    /**
      *
      * @param subjectIdentifier
      * @return
      * @throws EMPIException
      */
-    public List<Subject> loadBaseSubjectsByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
+    public List<Subject> loadBaseSubjectsByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
         subjectIdentifiers.add(subjectIdentifier);
         return this.loadBaseSubjectsByIdentifier(subjectIdentifiers);
@@ -144,7 +181,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.loadBaseSubjectsByIdentifier(subjectIdentifiers);
     }
@@ -328,7 +365,7 @@ public class PersistenceManager {
      * @return
      * @throws EMPIException
      */
-    public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectDAO dao = new SubjectDAO(connection);
         return dao.doesSubjectExist(subjectIdentifiers);
     }
@@ -383,7 +420,7 @@ public class PersistenceManager {
      * @param subject
      * @throws EMPIException
      */
-    public void insertSubject(Subject subject) throws EMPIException {
+    public void insertSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         List<Subject> subjects = new ArrayList<Subject>();
         subjects.add(subject);
         this.insertSubjects(subjects);
@@ -394,7 +431,7 @@ public class PersistenceManager {
      * @param subjects
      * @throws EMPIException
      */
-    public void insertSubjects(List<Subject> subjects) throws EMPIException {
+    public void insertSubjects(List<Subject> subjects) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectDAO dao = new SubjectDAO(connection);
         dao.insert(subjects);
     }
@@ -405,7 +442,7 @@ public class PersistenceManager {
      * @param subject
      * @throws EMPIException
      */
-    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         //LockManager lockManager = new LockManager(EMPIConfig.getInstance().getJndiResourceName());
         //LockResource lockResource = new LockResource(targetEnterpriseSubjectId);
         //try {

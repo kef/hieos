@@ -12,6 +12,8 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -55,105 +57,115 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @param subject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     @Override
-    public EMPINotification addSubject(Subject subject) throws EMPIException {
+    public EMPINotification addSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = new PersistenceManager();
         EMPINotification updateNotificationContent = null;
+        boolean success = false;
+
         try {
             pm.open();  // Open transaction.
             AddSubjectHandler addSubjectHandler = new AddSubjectHandler(pm, this.senderDeviceInfo);
             updateNotificationContent = addSubjectHandler.addSubject(subject);
             pm.commit();
-        } catch (EMPIException ex) {
-            // FIXME:
-            ex.printStackTrace(System.out);
-            pm.rollback();
-            throw ex; // Rethrow.
-        } catch (Exception ex) {
-            // FIXME:
-            ex.printStackTrace(System.out);
-            pm.rollback();
-            throw new EMPIException(ex);
+            success = true;
         } finally {
-            pm.close();  // To be sure.
+            if (success) {
+                pm.close();  // To be sure.
+            } else {
+                pm.rollback();
+            }
         }
-        //this.sendUpdateNotifications(updateNotificationContent);
-        return updateNotificationContent;
-    }
-
-    /**
-     *
-     * @param subject
-     * @return
-     * @throws EMPIException
-     */
-    @Override
-    public EMPINotification updateSubject(Subject subject) throws EMPIException {
-        PersistenceManager pm = new PersistenceManager();
-        EMPINotification updateNotificationContent = null;
-        try {
-            pm.open();  // Open transaction.
-            UpdateSubjectHandler updateSubjectHandler = new UpdateSubjectHandler(pm, this.senderDeviceInfo);
-            updateNotificationContent = updateSubjectHandler.updateSubject(subject);
-            pm.commit();
-        } catch (EMPIException ex) {
-            pm.rollback();
-            throw ex; // Rethrow.
-        } catch (Exception ex) {
-            pm.rollback();
-            throw new EMPIException(ex);
-        } finally {
-            pm.close();  // To be sure.
-        }
-        //this.sendUpdateNotifications(updateNotificationContent);
         return updateNotificationContent;
     }
 
     /**
      * 
-     * @param subjectMergeRequest
+     * @param subject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     @Override
-    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    public EMPINotification updateSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = new PersistenceManager();
         EMPINotification updateNotificationContent = null;
+        boolean success = false;
+
         try {
             pm.open();  // Open transaction.
-            MergeSubjectsHandler mergeSubjectsHandler = new MergeSubjectsHandler(pm, this.senderDeviceInfo);
-            updateNotificationContent = mergeSubjectsHandler.mergeSubjects(subjectMergeRequest);
+            UpdateSubjectHandler updateSubjectHandler = new UpdateSubjectHandler(pm, this.senderDeviceInfo);
+            updateNotificationContent = updateSubjectHandler.updateSubject(subject);
             pm.commit();
-        } catch (EMPIException ex) {
-            pm.rollback();
-            throw ex; // Rethrow.
-        } catch (Exception ex) {
-            pm.rollback();
-            throw new EMPIException(ex);
+            success = true;
         } finally {
-            pm.close();  // To be sure.
+            if (success) {
+                pm.close();  // To be sure.
+            } else {
+                pm.rollback();
+            }
         }
-        //this.sendUpdateNotifications(updateNotificationContent);
         return updateNotificationContent;
     }
 
     /**
      *
+     * @param subjectMergeRequest
+     * @return
+     * @throws EMPIException
+     * @throws EMPIExceptionUnknownSubjectIdentifier
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     */
+    @Override
+    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
+        PersistenceManager pm = new PersistenceManager();
+        EMPINotification updateNotificationContent = null;
+        boolean success = false;
+
+        try {
+            pm.open();  // Open transaction.
+            MergeSubjectsHandler mergeSubjectsHandler = new MergeSubjectsHandler(pm, this.senderDeviceInfo);
+            updateNotificationContent = mergeSubjectsHandler.mergeSubjects(subjectMergeRequest);
+            pm.commit();
+            success = true;
+        } finally {
+            if (success) {
+                pm.close();  // To be sure.
+            } else {
+                pm.rollback();
+            }
+        }
+        return updateNotificationContent;
+    }
+
+    /**
+     * 
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     @Override
-    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         PersistenceManager pm = new PersistenceManager();
+        boolean success = false;
         try {
             pm.open();
             FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(pm, this.senderDeviceInfo);
             subjectSearchResponse = findSubjectsHandler.findSubjects(subjectSearchCriteria);
+            success = true;
         } finally {
-            pm.close();  // No matter what.
+            if (success) {
+                pm.close();  // To be sure.
+            } else {
+                pm.rollback();
+            }
         }
         return subjectSearchResponse;
     }
@@ -163,17 +175,25 @@ public class BaseEMPIAdapter implements EMPIAdapter {
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     @Override
-    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = new PersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+        boolean success = false;
         try {
             pm.open();
             FindSubjectsHandler findSubjectsHandler = new FindSubjectsHandler(pm, this.senderDeviceInfo);
             subjectSearchResponse = findSubjectsHandler.getBySubjectIdentifiers(subjectSearchCriteria);
+            success = true;
         } finally {
-            pm.close();
+            if (success) {
+                pm.close();  // To be sure.
+            } else {
+                pm.rollback();
+            }
         }
         return subjectSearchResponse;
     }

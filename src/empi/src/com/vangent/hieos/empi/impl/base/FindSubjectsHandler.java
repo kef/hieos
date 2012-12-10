@@ -13,6 +13,8 @@
 package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.match.MatchAlgorithm;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.empi.match.MatchResults;
@@ -55,12 +57,13 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = this.getPersistenceManager();
 
         // First, run validations on input.
         FindSubjectsValidator validator = new FindSubjectsValidator(pm, this.getSenderDeviceInfo());
-        validator.validate(subjectSearchCriteria);
+        validator.setSubjectSearchCriteria(subjectSearchCriteria);
+        validator.run();
 
         // Create default response.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
@@ -85,13 +88,16 @@ public class FindSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
-        // First, run validations on input.
+        // Run validations on input.
+        // SIDE EFFECT: Loads/validates SubjectIdentifierDomains and places into the provided "subjectSearchCriteria"
+        // in the proper location.
         FindSubjectsValidator validator = new FindSubjectsValidator(this.getPersistenceManager(),
                 this.getSenderDeviceInfo());
-        validator.validate(subjectSearchCriteria);
+        validator.setSubjectSearchCriteria(subjectSearchCriteria);
+        validator.run();
 
         // Now, find subjects using the identifier in the search criteria.
         subjectSearchResponse = this.loadBySubjectIdentifiers(subjectSearchCriteria);
@@ -139,7 +145,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse loadSubjectMatchesByIdentifiers(
-            SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+            SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         long startTime = System.currentTimeMillis();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         PersistenceManager pm = this.getPersistenceManager();
@@ -253,7 +259,7 @@ public class FindSubjectsHandler extends BaseHandler {
      * @throws EMPIException
      */
     private SubjectSearchResponse loadBySubjectIdentifiers(
-            SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+            SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = this.getPersistenceManager();
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
@@ -269,10 +275,9 @@ public class FindSubjectsHandler extends BaseHandler {
             // Get the base subjects (only base-level information) to determine type and internal ids.
             List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifier);
             if (baseSubjects.isEmpty()) {
-                throw new EMPIException(
+                throw new EMPIExceptionUnknownSubjectIdentifier(
                         searchSubjectIdentifier.getCXFormatted()
-                        + " is not a known identifier",
-                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
+                        + " is not a known identifier");
             }
             // Get EnterpriseSubjectManager to load unique enterprise subjects.
             EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, false /* loadFullSubjects */);
@@ -343,7 +348,7 @@ public class FindSubjectsHandler extends BaseHandler {
         }
 
         // Now filter identifiers based upon scoping organization (assigning authority).
-        if (subjectSearchCriteria.hasScopingAssigningAuthorities()) {
+        if (subjectSearchCriteria.hasScopingSubjectIdentifierDomains()) {
 
             List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
             List<SubjectIdentifier> copyOfSubjectIdentifiers = new ArrayList<SubjectIdentifier>();
@@ -376,7 +381,7 @@ public class FindSubjectsHandler extends BaseHandler {
 
         // Now see if we should return the identifier or not.
         boolean shouldKeepSubjectIdentifier = false;
-        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+        for (SubjectIdentifierDomain scopingIdentifierDomain : subjectSearchCriteria.getScopingSubjectIdentifierDomains()) {
             if (subjectIdentifierDomain.equals(scopingIdentifierDomain)) {
                 shouldKeepSubjectIdentifier = true;
                 break;

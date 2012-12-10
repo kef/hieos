@@ -16,6 +16,8 @@ import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
 
@@ -38,28 +40,34 @@ public interface EMPIAdapter {
     public DeviceInfo getSenderDeviceInfo();
 
     /**
-     *
+     * 
      * @param subject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
-    public EMPINotification addSubject(Subject subject) throws EMPIException;
+    public EMPINotification addSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 
     /**
-     *
+     * 
      * @param subject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
-    public EMPINotification updateSubject(Subject subject) throws EMPIException;
+    public EMPINotification updateSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 
     /**
-     *
+     * 
      * @param subjectMergeRequest
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
-    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException;
+    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 
     /**
      * 
@@ -67,13 +75,15 @@ public interface EMPIAdapter {
      * @return
      * @throws EMPIException
      */
-    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
+    public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 
     /**
-     * 
+     *
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
-    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException;
+    public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 }

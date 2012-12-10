@@ -13,6 +13,8 @@
 package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -47,12 +49,13 @@ public class MergeSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException {
+    public EMPINotification mergeSubjects(SubjectMergeRequest subjectMergeRequest) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
 
         // First, run validations on input.
         MergeSubjectsValidator validator = new MergeSubjectsValidator(pm, this.getSenderDeviceInfo());
-        validator.validate(subjectMergeRequest);
+        validator.setSubjectMergeRequest(subjectMergeRequest);
+        validator.run();
 
         EMPINotification notification = new EMPINotification();
 
@@ -140,7 +143,7 @@ public class MergeSubjectsHandler extends BaseHandler {
      * @return
      * @throws EMPIException
      */
-    private Subject getBaseSubject(Subject subject, String subjectType) throws EMPIException {
+    private Subject getBaseSubject(Subject subject, String subjectType) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         // Only using first identifier in list to support merge.

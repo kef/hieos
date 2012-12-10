@@ -14,6 +14,7 @@ package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.Subject.SubjectType;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
@@ -159,7 +160,7 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
 
         // First the subject internal ids for the given subject identifier.
@@ -269,7 +270,7 @@ public class SubjectDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException {
+    public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         boolean subjectExists = false;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -293,7 +294,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subjects
      * @throws EMPIException
      */
-    public void insert(List<Subject> subjects) throws EMPIException {
+    public void insert(List<Subject> subjects) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         if (subjects.isEmpty()) {
             return; // Early exit!
         }
@@ -384,7 +385,7 @@ public class SubjectDAO extends AbstractDAO {
      * @param subject Contains demographics to update.
      * @throws EMPIException 
      */
-    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException {
+    public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         // First, load the enterprise subject.
         Subject enterpriseSubject = this.load(targetEnterpriseSubjectId);
 

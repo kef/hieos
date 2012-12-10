@@ -16,6 +16,8 @@ import com.vangent.hieos.empi.codes.CodesConfig.CodedType;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.IdentitySourceConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -23,9 +25,7 @@ import com.vangent.hieos.subjectmodel.SubjectCitizenship;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectLanguage;
-import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
 import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
-import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class Validator {
+public abstract class Validator {
 
     private static final Logger logger = Logger.getLogger(Validator.class);
     private PersistenceManager persistenceManager = null;
@@ -59,24 +59,25 @@ public class Validator {
 
     /**
      *
-     * @param subject
      * @throws EMPIException
      */
-    public void validateSubjectIdentifierDomains(Subject subject) throws EMPIException {
-        PersistenceManager pm = this.persistenceManager;
-        // Validate identifier domains assocated with the subject's identifiers.
-        List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
-        for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
-            boolean subjectIdentifierDomainExists = pm.doesSubjectIdentifierDomainExist(subjectIdentifier);
-            if (!subjectIdentifierDomainExists) {
-                SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-                throw new EMPIException(
-                        subjectIdentifierDomain.getUniversalId()
-                        + " is not a known identifier domain",
-                        EMPIException.ERROR_CODE_UNKNOWN_KEY_IDENTIFIER);
-            }
-        }
+    public void run() throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
+        this.load();
+        this.validate();
     }
+
+    /**
+     *
+     * @throws EMPIException
+     */
+    abstract public void validate() throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain;
+
+    /**
+     * 
+     * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     */
+    abstract public void load() throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownIdentifierDomain;
 
     /**
      *
