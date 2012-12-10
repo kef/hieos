@@ -241,7 +241,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
                         identifierDomain.setUniversalId(root);
                         //identifierDomain.setNamespaceId(assigningAuthorityName);
                         identifierDomain.setUniversalIdType("ISO"); // FIXME: FIXED VALUE?
-                        subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+                        subjectSearchCriteria.addScopingSubjectIdentifierDomain(identifierDomain);
                     }
                 }
             }
@@ -271,7 +271,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
                         identifierDomain.setUniversalId(root);
                         //identifierDomain.setNamespaceId(assigningAuthorityName);
                         identifierDomain.setUniversalIdType("ISO"); // FIXME: FIXED VALUE?
-                        subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+                        subjectSearchCriteria.addScopingSubjectIdentifierDomain(identifierDomain);
                     }
                 }
             }
@@ -300,7 +300,7 @@ public class SubjectSearchCriteriaBuilder extends SubjectBuilder {
                 SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
                 identifierDomain.setUniversalId(assigningAuthority);
                 identifierDomain.setUniversalIdType("ISO");
-                subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);
+                subjectSearchCriteria.setCommunitySubjectIdentifierDomain(identifierDomain);
             }
         } catch (XPathHelperException ex) {
             // TBD: Do something.
