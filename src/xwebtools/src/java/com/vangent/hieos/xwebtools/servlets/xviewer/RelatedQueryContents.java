@@ -51,10 +51,10 @@ public class RelatedQueryContents extends QueryContents {
             // no idea what to do here
         } else {
             String ref_id = this.getReferenceId();
-            h.indent1(xv.build_details_link(ref_id, cntl) + " (" + xv.build_xml_link(ref_id, cntl) + " " +
-                    ((m.isRetrievable_a(ref_id)) ? xv.build_ret_a_link(ref_id) + " " : "") +
-                    ((m.isRetrievable_b(ref_id)) ? xv.build_ret_b_link(ref_id) + " " : "") +
-                    ")");
+            h.indent1(xv.build_details_link(ref_id, cntl) + " (" + xv.build_xml_link(ref_id, cntl) + " "
+                    + ((m.isRetrievable_a(ref_id)) ? xv.build_ret_a_link(ref_id) + " " : "")
+                    + ((m.isRetrievable_b(ref_id)) ? xv.build_ret_b_link(ref_id) + " " : "")
+                    + ")");
 
             // AMS 04/24/2009 - FIXME - Refactor this - 'else-if' and 'else' are pretty similar
             for (OMElement a_ele : m.getAssociations()) {
@@ -70,17 +70,19 @@ public class RelatedQueryContents extends QueryContents {
                         a_type = "has appended";
                     } else if (MetadataSupport.xdsB_ihe_assoc_type_xfrm.equals(a_type)) {
                         a_type = "transformed to";
+                    } else if (MetadataSupport.xdsB_ihe_assoc_type_issnapshotof.equals(a_type)) {
+                        a_type = "is snapshot of";
                     } else {
                         a_type = a_type + " by";
                     }
-                    h.indent2(xv.build_assoc_link(a_id, a_type, cntl) + " " +
-                            xv.build_details_link(src_id, cntl) +
-                            " (" + xv.build_xml_link(src_id, cntl) + " " +
-                            ((m.isRetrievable_a(tgt_id)) ? xv.build_ret_a_link(tgt_id) + " " : "") +
-                            ((m.isRetrievable_b(tgt_id)) ? xv.build_ret_b_link(tgt_id) + " " : "") +
-                            ") " +
-                            " [" + ((q_cntl.hasEndpoint()) ? xv.build_related_link(src_id) : "") +
-                            "]");
+                    h.indent2(xv.build_assoc_link(a_id, a_type, cntl) + " "
+                            + xv.build_details_link(src_id, cntl)
+                            + " (" + xv.build_xml_link(src_id, cntl) + " "
+                            + ((m.isRetrievable_a(tgt_id)) ? xv.build_ret_a_link(tgt_id) + " " : "")
+                            + ((m.isRetrievable_b(tgt_id)) ? xv.build_ret_b_link(tgt_id) + " " : "")
+                            + ") "
+                            + " [" + ((q_cntl.hasEndpoint()) ? xv.build_related_link(src_id) : "")
+                            + "]");
                 } else {
                     if (MetadataSupport.xdsB_ihe_assoc_type_rplc.equals(a_type)) {
                         a_type = "replaces";
@@ -90,14 +92,14 @@ public class RelatedQueryContents extends QueryContents {
                         a_type = "transform of";
                     }
 
-                    h.indent2(xv.build_assoc_link(a_id, a_type, cntl) + " " +
-                            xv.build_details_link(tgt_id, cntl) +
-                            " (" + xv.build_xml_link(tgt_id, cntl) + " " +
-                            ((m.isRetrievable_a(tgt_id)) ? xv.build_ret_a_link(tgt_id) + " " : "") +
-                            ((m.isRetrievable_b(tgt_id)) ? xv.build_ret_b_link(tgt_id) + " " : "") +
-                            ") " +
-                            " [" + ((q_cntl.hasEndpoint()) ? xv.build_related_link(tgt_id) : "") +
-                            "]");
+                    h.indent2(xv.build_assoc_link(a_id, a_type, cntl) + " "
+                            + xv.build_details_link(tgt_id, cntl)
+                            + " (" + xv.build_xml_link(tgt_id, cntl) + " "
+                            + ((m.isRetrievable_a(tgt_id)) ? xv.build_ret_a_link(tgt_id) + " " : "")
+                            + ((m.isRetrievable_b(tgt_id)) ? xv.build_ret_b_link(tgt_id) + " " : "")
+                            + ") "
+                            + " [" + ((q_cntl.hasEndpoint()) ? xv.build_related_link(tgt_id) : "")
+                            + "]");
                 }
             }
         }
