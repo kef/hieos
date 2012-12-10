@@ -189,8 +189,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
                     */
                     // FIXME: Should strip out all ids except for the one that matches the
                     // communityAssigningAuthority
-                    SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
-                    patientDiscoverySearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+                    SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
+                    patientDiscoverySearchCriteria.setCommunitySubjectIdentifierDomain(communityAssigningAuthority);
 
                     // Fan out CGPD requests and get collective response.
                     patientDiscoverySearchResponse = requestController.performCrossGatewayPatientDiscovery(patientDiscoverySearchCriteria);
@@ -255,7 +255,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
-            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
+            subjectSearchCriteria.setCommunitySubjectIdentifierDomain(communityAssigningAuthority);
             this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
             return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
@@ -275,8 +275,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder();
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteria(request);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
-            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
-            subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+            subjectSearchCriteria.setCommunitySubjectIdentifierDomain(communityAssigningAuthority);
+            subjectSearchCriteria.addScopingSubjectIdentifierDomain(communityAssigningAuthority);
             this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
             return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
@@ -298,8 +298,8 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
             SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
             subjectSearchCriteria.setSubject(searchSubject);
             SubjectIdentifierDomain communityAssigningAuthority = this.getCommunityAssigningAuthority();
-            subjectSearchCriteria.setCommunityAssigningAuthority(communityAssigningAuthority);
-            //subjectSearchCriteria.addScopingAssigningAuthority(communityAssigningAuthority);
+            subjectSearchCriteria.setCommunitySubjectIdentifierDomain(communityAssigningAuthority);
+            //subjectSearchCriteria.addScopingSubjectIdentifierDomain(communityAssigningAuthority);
             this.setMinimumDegreeMatchPercentage(subjectSearchCriteria);
             return subjectSearchCriteria;
         } catch (ModelBuilderException ex) {
@@ -313,7 +313,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @throws XCPDException
      */
     private void validateSearchCriteriaRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
-        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
+        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
 
         // Validate request:
         Subject subject = subjectSearchCriteria.getSubject();
@@ -352,7 +352,7 @@ public class XCPDInitiatingGatewayRequestHandler extends XCPDGatewayRequestHandl
      * @throws XCPDException
      */
     private void validateSearchCriteriaPIXRequest(SubjectSearchCriteria subjectSearchCriteria) throws XCPDException {
-        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunityAssigningAuthority();
+        SubjectIdentifierDomain communityAssigningAuthority = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
 
         // Validate request:
         Subject subject = subjectSearchCriteria.getSubject();

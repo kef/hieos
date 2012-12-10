@@ -123,12 +123,12 @@ public class XCPDRespondingGatewayRequestHandler extends XCPDGatewayRequestHandl
             }
 
             // Again to be safe, remove any existing scoping assigning authorities.
-            subjectSearchCriteria.setScopingAssigningAuthorities(new ArrayList<SubjectIdentifierDomain>());
+            subjectSearchCriteria.setScopingSubjectIdentifierDomains(new ArrayList<SubjectIdentifierDomain>());
 
             // Make sure that only matches for the CommunityAssigningAuthority are returned.
             SubjectIdentifierDomain identifierDomain = this.getCommunityAssigningAuthority();
-            subjectSearchCriteria.setCommunityAssigningAuthority(identifierDomain);
-            subjectSearchCriteria.addScopingAssigningAuthority(identifierDomain);
+            subjectSearchCriteria.setCommunitySubjectIdentifierDomain(identifierDomain);
+            subjectSearchCriteria.addScopingSubjectIdentifierDomain(identifierDomain);
 
             // Issue PDQ to PDS.
             patientDiscoverySearchResponse = this.findCandidatesQuery(senderDeviceInfo, subjectSearchCriteria);
