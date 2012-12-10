@@ -38,11 +38,12 @@ public class GetRelatedDocuments extends Sq {
 
 
 		atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_rplc + "')");
-        atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_xfrm + "')");
+                atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_xfrm + "')");
 		atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_apnd + "')");
 		atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_xfrm_rplc + "')");
 		atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_signs + "')");
 		atypes.add("('" + MetadataSupport.xdsB_eb_assoc_type_has_member + "')");
+                atypes.add("('" + MetadataSupport.xdsB_ihe_assoc_type_issnapshotof + "')");
 
 		add_slot(query, "$AssociationTypes", atypes);
 		return query.get(0);
