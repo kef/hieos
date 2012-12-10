@@ -63,13 +63,13 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //          <id root="1.2.840.114350.1.13.99997.2.3412"/>
         //       </assignedDevice>
         // </authorOrPerformer>
-        if (subjectSearchCriteria.getCommunityAssigningAuthority() != null) {
+        if (subjectSearchCriteria.getCommunitySubjectIdentifierDomain() != null) {
             OMElement authorOrPerformerNode = this.addChildOMElement(controlActProcessNode, "authorOrPerformer");
             this.setAttribute(authorOrPerformerNode, "typeCode", "AUT");
             OMElement assignedDeviceNode = this.addChildOMElement(authorOrPerformerNode, "assignedDevice");
             this.setAttribute(assignedDeviceNode, "classCode", "ASSIGNED");
             OMElement idNode = this.addChildOMElement(assignedDeviceNode, "id");
-            SubjectIdentifierDomain identifierDomain = subjectSearchCriteria.getCommunityAssigningAuthority();
+            SubjectIdentifierDomain identifierDomain = subjectSearchCriteria.getCommunitySubjectIdentifierDomain();
             this.setAttribute(idNode, "root", identifierDomain.getUniversalId());
         }
 
@@ -141,7 +141,7 @@ public class PRPA_IN201309UV02_Message_Builder extends HL7V3MessageBuilderHelper
         //    <value root="1.2.840.114350.1.13.99997.2.3412"/>
         //    <semanticsText>DataSource.id</semanticsText>
         // </dataSource>
-        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingAssigningAuthorities()) {
+        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectSearchCriteria.getScopingSubjectIdentifierDomains()) {
             String assigningAuthority = subjectIdentifierDomain.getUniversalId();
             OMElement dataSourceNode = this.addChildOMElement(parameterListNode, "dataSource");
             OMElement valueNode = this.addChildOMElement(dataSourceNode, "value");
