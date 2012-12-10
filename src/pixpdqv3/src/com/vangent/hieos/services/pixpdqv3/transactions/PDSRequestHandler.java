@@ -15,6 +15,8 @@ package com.vangent.hieos.services.pixpdqv3.transactions;
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3Message;
 import com.vangent.hieos.hl7v3util.model.message.HL7V3MessageBuilderHelper;
@@ -32,6 +34,7 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+import java.util.logging.Level;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
@@ -100,10 +103,15 @@ public class PDSRequestHandler extends RequestHandler {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.findSubjects(subjectSearchCriteria);
             this.performAuditPDQQueryProvider(request, subjectSearchResponse);
+        } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownSubjectIdentifier.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (ModelBuilderException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (EMPIException ex) {
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (Exception ex) {
-            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
@@ -120,7 +128,7 @@ public class PDSRequestHandler extends RequestHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    private SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
         SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
         return subjectSearchResponse;

@@ -15,8 +15,9 @@ package com.vangent.hieos.services.pixpdqv3.transactions;
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
-
 import com.vangent.hieos.hl7v3util.model.message.MCCI_IN000002UV01_Message_Builder;
 import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -44,8 +45,8 @@ import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
-
 import com.vangent.hieos.xutil.xlog.client.XLogMessage;
+
 import java.util.List;
 
 import org.apache.axiom.om.OMElement;
@@ -141,10 +142,17 @@ public class PIXRequestHandler extends RequestHandler {
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
             this.performAuditPatientIdentityFeed(request, false /* update mode */, subjectIdentifiers);
+        } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownSubjectIdentifier.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (CloneNotSupportedException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+        } catch (ModelBuilderException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (EMPIException ex) {
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (Exception ex) {
-            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
@@ -175,10 +183,17 @@ public class PIXRequestHandler extends RequestHandler {
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
             this.sendUpdateNotifications(updateNotificationContent);
             this.performAuditPatientIdentityFeed(request, true /* update mode */, subjectIdentifiers);
+        } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownSubjectIdentifier.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (CloneNotSupportedException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+        } catch (ModelBuilderException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (EMPIException ex) {
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (Exception ex) {
-            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
@@ -211,10 +226,17 @@ public class PIXRequestHandler extends RequestHandler {
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
             this.sendUpdateNotifications(updateNotificationContent);
             this.performAuditPatientIdentityFeed(request, true /* update mode */, survivingSubjectIdentifiers);
+        } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownSubjectIdentifier.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (CloneNotSupportedException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+        } catch (ModelBuilderException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (EMPIException ex) {
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (Exception ex) {
-            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
@@ -254,10 +276,15 @@ public class PIXRequestHandler extends RequestHandler {
             SubjectSearchCriteria subjectSearchCriteria = this.getSubjectSearchCriteria(request);
             subjectSearchResponse = this.getBySubjectIdentifiers(subjectSearchCriteria);
             this.performAuditPIXQueryProvider(request, subjectSearchResponse);
+        } catch (ModelBuilderException ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
+        } catch (EMPIExceptionUnknownIdentifierDomain ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
+        } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownSubjectIdentifier.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
         } catch (EMPIException ex) {
-            errorDetail = new HL7V3ErrorDetail(ex.getMessage(), ex.getCode());
+            errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         } catch (Exception ex) {
-            // Other exceptions.
             errorDetail = new HL7V3ErrorDetail(ex.getMessage());
         }
         if (log_message.isLogEnabled() && errorDetail != null) {
@@ -276,7 +303,7 @@ public class PIXRequestHandler extends RequestHandler {
      * @return
      * @throws EMPIException
      */
-    private SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
+    private SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
         SubjectSearchResponse subjectSearchResponse = adapter.getBySubjectIdentifiers(subjectSearchCriteria);
         return subjectSearchResponse;
