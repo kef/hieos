@@ -9,15 +9,16 @@ INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespa
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (7,'1.3.6.1.4.1.21367.3000.1.6', 'ISO', 'IHEFACILITY');
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (8,'1.3.6.1.4.1.21367.13.20.1000', 'ISO', 'IHERED');
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (9,'1.3.6.1.4.1.21367.13.20.2000', 'ISO', 'IHEGREEN');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (10,'1.3.6.1.4.1.21367.2010.1.1', 'ISO', 'IHE2010');
 
 
 -- NEW (Connectathon)
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (10,'1.3.6.1.4.1.21367.13.20.3', 'ISO', 'IHE_GENEVA');
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (11,'1.3.6.1.4.1.21367.13.20.32', 'ISO', 'ICW');
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (12,'1.3.6.1.4.1.21367.13.20.48', 'ISO', 'LAMS');
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (13,'1.3.6.1.4.1.21367.13.20.4', 'ISO', 'TIANI');
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (14,'1.3.6.1.4.1.21367.13.20.61', 'ISO', 'ALE2');
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (15,'1.3.6.1.4.1.21367.13.20.13', 'ISO', 'ALEH');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (200,'1.3.6.1.4.1.21367.13.20.3', 'ISO', 'IHE_GENEVA');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (201,'1.3.6.1.4.1.21367.13.20.32', 'ISO', 'ICW');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (202,'1.3.6.1.4.1.21367.13.20.48', 'ISO', 'LAMS');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (203,'1.3.6.1.4.1.21367.13.20.4', 'ISO', 'TIANI');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (204,'1.3.6.1.4.1.21367.13.20.61', 'ISO', 'ALE2');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (205,'1.3.6.1.4.1.21367.13.20.13', 'ISO', 'ALEH');
 
-INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (16,'1.3.6.1.4.1.21367.1000.1.6', 'ISO', 'IHEFACILITY_2');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (400,'1.3.6.1.4.1.21367.1000.1.6', 'ISO', 'IHEFACILITY_2');
 
