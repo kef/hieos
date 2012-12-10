@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+
+    <!-- Admin interface -->
+    <service name="pixpdqv2_admin" class="com.vangent.hieos.services.pixpdqv2.serviceimpl.AdminService">
+        <description>Patient Identifier Cross Reference Manager Interface</description>
+        <parameter name="ServiceTCCL">composite</parameter>
+        <parameter name="ServiceClass" locked="false">com.vangent.hieos.services.pixpdqv2.serviceimpl.AdminService</parameter>
+        <operation name="GetConfig">
+            <messageReceiver class="com.vangent.hieos.xutil.services.framework.XMLInOutMessageReceiver"/>
+            <actionMapping>urn:hieos:pixpdqv2:GetConfigRequest</actionMapping>
+        </operation>
+    </service>
+
+</serviceGroup>
