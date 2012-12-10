@@ -303,7 +303,8 @@ CREATE INDEX subject_citizenship_subject_id_idx ON subject_citizenship USING btr
 
 CREATE UNIQUE INDEX subject_id_idx ON subject USING btree (id);
 
-CREATE INDEX subject_identifier_domain_universal_id_idx ON subject_identifier_domain USING btree (universal_id);
+CREATE UNIQUE INDEX subject_identifier_domain_universal_id_idx ON subject_identifier_domain USING btree (universal_id);
+CREATE UNIQUE INDEX subject_identifier_domain_namespace_id_idx ON subject_identifier_domain USING btree (namespace_id);
 
 CREATE INDEX subject_identifier_search_idx ON subject_identifier USING btree (identifier, subject_identifier_domain_id);
 
