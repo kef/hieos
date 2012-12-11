@@ -901,8 +901,13 @@
         </identity-source>
     </identity-sources>
 
-    <!-- configured for postgres -->
+    <!-- Sequence number generators - database specific -->
+    <!-- Postgres -->
+    <!--
     <subject-sequence-generator-sql>SELECT nextval('subject_seq')</subject-sequence-generator-sql>
+    -->
+    <!-- Microsoft SQL Server -->
+    <subject-sequence-generator-sql>SELECT NEXT VALUE FOR subject_seq</subject-sequence-generator-sql>
 
     <!-- List of valid identifier domains (not yet implemented) -->
     <identifier-domains>
