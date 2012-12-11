@@ -50,7 +50,7 @@ public class SubjectAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use FROM subject_address WHERE subject_id=?";
+            String sql = "SELECT seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use_ FROM subject_address WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
@@ -93,7 +93,7 @@ public class SubjectAddressDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_address(subject_id,seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use) values(?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject_address(subject_id,seq_no,street_address_line1,street_address_line2,street_address_line3,city,state,postal_code,use_) values(?,?,?,?,?,?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             Long subjectId = parentSubject.getInternalId().getId();
             int seqNo = 0;

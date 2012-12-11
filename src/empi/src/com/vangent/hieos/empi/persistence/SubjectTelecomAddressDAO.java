@@ -50,7 +50,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT seq_no,use,value FROM subject_telecom_address WHERE subject_id=?";
+            String sql = "SELECT seq_no,use_,value FROM subject_telecom_address WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
@@ -88,7 +88,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject_telecom_address(subject_id,seq_no,use,value) values(?,?,?,?)";
+            String sql = "INSERT INTO subject_telecom_address(subject_id,seq_no,use_,value) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             Long subjectId = parentSubject.getInternalId().getId();
             int seqNo = 0;
