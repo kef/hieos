@@ -79,13 +79,13 @@ ALTER TABLE public.resource_lock OWNER TO empi;
 --
 --
 CREATE TABLE subject (
-    id bigint NOT NULL,
+    id int NOT NULL,
     birth_time date,
     type character(1),
     deceased_indicator boolean,
     deceased_time date,
     multiple_birth_indicator boolean,
-    multiple_birth_order_number integer,
+    multiple_birth_order_number smallint,
     last_updated_time timestamp without time zone,
     gender_code character varying(2),
     marital_status_code character varying(25),
@@ -100,7 +100,7 @@ ALTER TABLE public.subject OWNER TO empi;
 --
 --
 CREATE TABLE subject_address (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
     street_address_line1 character varying(100),
     street_address_line2 character varying(100),
@@ -108,7 +108,7 @@ CREATE TABLE subject_address (
     city character varying(100),
     state character varying(100),
     postal_code character varying(50),
-    use character varying(50)
+    use_ character varying(50)
 );
 
 ALTER TABLE public.subject_address OWNER TO empi;
@@ -117,7 +117,7 @@ ALTER TABLE public.subject_address OWNER TO empi;
 --
 --
 CREATE TABLE subject_citizenship (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
     nation_code character varying(25),
     nation_name character varying(100)
@@ -129,11 +129,11 @@ ALTER TABLE public.subject_citizenship OWNER TO empi;
 --
 --
 CREATE TABLE subject_identifier (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
     type character(1) NOT NULL,
     identifier character varying(100) NOT NULL,
-    subject_identifier_domain_id integer NOT NULL
+    subject_identifier_domain_id int NOT NULL
 );
 
 ALTER TABLE public.subject_identifier OWNER TO empi;
@@ -142,7 +142,7 @@ ALTER TABLE public.subject_identifier OWNER TO empi;
 --
 --
 CREATE TABLE subject_identifier_domain (
-    id integer NOT NULL,
+    id int NOT NULL,
     namespace_id character varying(50),
     universal_id character varying(50) NOT NULL,
     universal_id_type character varying(25)
@@ -154,7 +154,7 @@ ALTER TABLE public.subject_identifier_domain OWNER TO empi;
 --
 --
 CREATE TABLE subject_language (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
     preference_indicator boolean,
     language_code character varying(25) NOT NULL
@@ -169,18 +169,18 @@ ALTER TABLE public.subject_language OWNER TO empi;
 -- blocking passes (also specified in "empiConfig.xml).
 --
 CREATE TABLE subject_match_fields (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     family_name_double_metaphone character varying(255),
     given_name_double_metaphone character varying(255),
-    family_name character varying(255),
-    given_name character varying(255),
-    birth_time character varying(255),
-    family_name_soundex character varying(255),
-    given_name_soundex character varying(255),
-    street_address_line1 character varying(255),
-    city character varying(255),
-    state character varying(255),
-    postal_code character varying(255),
+    family_name character varying(100),
+    given_name character varying(100),
+    birth_time character(8),
+    family_name_soundex character(4),
+    given_name_soundex character(4),
+    street_address_line1 character varying(100),
+    city character varying(100),
+    state character varying(100),
+    postal_code character varying(50),
     family_name_caverphone2 character varying(255),
     family_name_caverphone1 character varying(255),
     family_name_prefix character varying(2),
@@ -194,7 +194,7 @@ ALTER TABLE public.subject_match_fields OWNER TO empi;
 --
 --
 CREATE TABLE subject_name (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
     given_name character varying(100),
     family_name character varying(100),
@@ -209,9 +209,9 @@ ALTER TABLE public.subject_name OWNER TO empi;
 --
 --
 CREATE TABLE subject_personal_relationship (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
-    personal_relationship_subject_id bigint,
+    personal_relationship_subject_id int,
     subject_personal_relationship_code character varying(25)
 );
 
@@ -221,8 +221,8 @@ ALTER TABLE public.subject_personal_relationship OWNER TO empi;
 --
 --
 CREATE TABLE subject_review_item (
-    subject_id_left bigint NOT NULL,
-    subject_id_right bigint NOT NULL,
+    subject_id_left int NOT NULL,
+    subject_id_right int NOT NULL,
     review_type character(2) NOT NULL
 );
 
@@ -232,9 +232,9 @@ ALTER TABLE public.subject_review_item OWNER TO empi;
 --
 --
 CREATE TABLE subject_telecom_address (
-    subject_id bigint NOT NULL,
+    subject_id int NOT NULL,
     seq_no smallint NOT NULL,
-    use character varying(50),
+    use_ character varying(50),
     value character varying(255)
 );
 
@@ -244,8 +244,8 @@ ALTER TABLE public.subject_telecom_address OWNER TO empi;
 --
 --
 CREATE TABLE subject_xref (
-    enterprise_subject_id bigint NOT NULL,
-    system_subject_id bigint NOT NULL,
+    enterprise_subject_id int NOT NULL,
+    system_subject_id int NOT NULL,
     match_score double precision
 );
 
@@ -274,7 +274,7 @@ ALTER TABLE ONLY subject_language
     ADD CONSTRAINT subject_language_pkey PRIMARY KEY (subject_id, seq_no);
 
 ALTER TABLE ONLY subject_match_fields
-    ADD CONSTRAINT subject_match_pkey PRIMARY KEY (subject_id);
+    ADD CONSTRAINT subject_match_fields_pkey PRIMARY KEY (subject_id);
 
 ALTER TABLE ONLY subject_name
     ADD CONSTRAINT subject_name_pkey PRIMARY KEY (subject_id, seq_no);
@@ -334,43 +334,43 @@ CREATE INDEX subject_xref_system_subject_id_idx ON subject_xref USING btree (sys
 -- Foreign key references.
 ---------------------------
 ALTER TABLE ONLY subject_identifier
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_identifier_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_identifier
-    ADD CONSTRAINT subject_identifier_domain_id_fkey FOREIGN KEY (subject_identifier_domain_id) REFERENCES subject_identifier_domain(id);
+    ADD CONSTRAINT subject_identifier_subject_identifier_domain_id_fkey FOREIGN KEY (subject_identifier_domain_id) REFERENCES subject_identifier_domain(id);
 
 ALTER TABLE ONLY subject_xref
-    ADD CONSTRAINT enterprise_subject_id_fkey FOREIGN KEY (enterprise_subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_xref_enterprise_subject_id_fkey FOREIGN KEY (enterprise_subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_xref
-    ADD CONSTRAINT system_subject_id_fkey FOREIGN KEY (system_subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_xref_system_subject_id_fkey FOREIGN KEY (system_subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_address
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_address_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_name
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_name_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_telecom_address
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_telecom_address_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_match_fields
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_match_fields_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_personal_relationship
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_personal_relationship_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_language
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_language_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_citizenship
-    ADD CONSTRAINT subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
+    ADD CONSTRAINT subject_citizenship_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_review_item
-    ADD CONSTRAINT subject_id_left_fkey FOREIGN KEY (subject_id_left) REFERENCES subject(id);
+    ADD CONSTRAINT subject_review_item_subject_id_left_fkey FOREIGN KEY (subject_id_left) REFERENCES subject(id);
 
 ALTER TABLE ONLY subject_review_item
-    ADD CONSTRAINT subject_id_right_fkey FOREIGN KEY (subject_id_right) REFERENCES subject(id);
+    ADD CONSTRAINT subject_review_item_subject_id_right_fkey FOREIGN KEY (subject_id_right) REFERENCES subject(id);
 
 --REVOKE ALL ON SCHEMA public FROM PUBLIC;
 --REVOKE ALL ON SCHEMA public FROM postgres;
