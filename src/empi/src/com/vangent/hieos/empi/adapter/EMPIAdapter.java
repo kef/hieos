@@ -12,14 +12,14 @@
  */
 package com.vangent.hieos.empi.adapter;
 
-import com.vangent.hieos.subjectmodel.Subject;
-import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
-import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 
 /**
  *
@@ -74,6 +74,8 @@ public interface EMPIAdapter {
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier  
      */
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
 

@@ -12,11 +12,10 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,11 +32,11 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
     private static final Logger logger = Logger.getLogger(SubjectCrossReferenceDAO.class);
 
     /**
-     *
-     * @param connection
+     * 
+     * @param persistenceManager 
      */
-    public SubjectCrossReferenceDAO(Connection connection) {
-        super(connection);
+    public SubjectCrossReferenceDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -71,7 +70,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 subjectCrossReferences.add(subjectCrossReference);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -104,7 +103,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 enterpriseSubjectId = new InternalId(id);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading SubjectCrossReference(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -135,7 +134,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SubjectCrossReferenceDAO.insert: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject cross references", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject cross references", ex);
         } finally {
             this.close(stmt);
         }
@@ -166,7 +165,7 @@ public class SubjectCrossReferenceDAO extends AbstractDAO {
                 logger.trace("SubjectCrossReferenceDAO.mergeEnterpriseSubjects: done executeUpdate elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception updating subject cross references", ex);
+            throw PersistenceManager.getEMPIException("Exception updating subject cross references", ex);
         } finally {
             this.close(stmt);
         }

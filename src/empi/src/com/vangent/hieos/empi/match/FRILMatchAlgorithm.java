@@ -12,11 +12,11 @@
  */
 package com.vangent.hieos.empi.match;
 
-import com.vangent.hieos.empi.distance.DistanceFunction;
 import com.vangent.hieos.empi.config.DistanceFunctionConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.config.MatchFieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
+import com.vangent.hieos.empi.config.MatchFieldConfig;
+import com.vangent.hieos.empi.distance.DistanceFunction;
 import com.vangent.hieos.empi.exception.EMPIException;
 import java.util.Collections;
 import java.util.List;

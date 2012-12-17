@@ -60,6 +60,8 @@ public abstract class Validator {
     /**
      *
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownSubjectIdentifier 
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
     public void run() throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         this.load();
@@ -69,6 +71,8 @@ public abstract class Validator {
     /**
      *
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownSubjectIdentifier 
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
     abstract public void validate() throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain;
 

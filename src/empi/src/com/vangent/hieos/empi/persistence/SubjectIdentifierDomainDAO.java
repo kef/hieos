@@ -12,11 +12,10 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
-import java.sql.Connection;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +33,10 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectIdentifierDomainDAO(Connection connection) {
-        super(connection);
+    public SubjectIdentifierDomainDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -85,7 +84,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject identifier domain from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject identifier domain from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -98,21 +97,23 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
      * @param subjectIdentifierDomains
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
-    public List<SubjectIdentifierDomain> load(List<SubjectIdentifierDomain> subjectIdentifierDomains) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
-        List<SubjectIdentifierDomain> loadedSubjectIdentifierDomains = new ArrayList<SubjectIdentifierDomain>();
-        for (SubjectIdentifierDomain subjectIdentifierDomain : subjectIdentifierDomains) {
-            SubjectIdentifierDomain loadedSubjectIdentifierDomain = this.load(subjectIdentifierDomain);
-            loadedSubjectIdentifierDomains.add(loadedSubjectIdentifierDomain);
-        }
-        return loadedSubjectIdentifierDomains;
-    }
+    //public List<SubjectIdentifierDomain> load(List<SubjectIdentifierDomain> subjectIdentifierDomains) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+    //    List<SubjectIdentifierDomain> loadedSubjectIdentifierDomains = new ArrayList<SubjectIdentifierDomain>();
+    //    for (SubjectIdentifierDomain subjectIdentifierDomain : subjectIdentifierDomains) {
+    //        SubjectIdentifierDomain loadedSubjectIdentifierDomain = this.load(subjectIdentifierDomain);
+    //        loadedSubjectIdentifierDomains.add(loadedSubjectIdentifierDomain);
+    //    }
+    //    return loadedSubjectIdentifierDomains;
+    //}
 
     /**
      * 
      * @param subjectIdentifiers
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
     public List<SubjectIdentifier> loadForSubjectIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         List<SubjectIdentifier> loadedSubjectIdentifiers = new ArrayList<SubjectIdentifier>();
@@ -132,6 +133,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
      * @param subjectIdentifierDomain
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
     public SubjectIdentifierDomain load(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectIdentifierDomain loadedSubjectIdentifierDomain = null;
@@ -175,7 +177,7 @@ public class SubjectIdentifierDomainDAO extends AbstractDAO {
                 subjectIdentifierDomain.setNamespaceId(rs.getString(3));
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading from subject_identifier_domain table", ex);
+            throw PersistenceManager.getEMPIException("Exception reading from subject_identifier_domain table", ex);
         } finally {
             this.close(stmt);
             this.close(rs);

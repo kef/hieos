@@ -18,12 +18,11 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.FieldConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
 import com.vangent.hieos.empi.config.MatchFieldConfig;
-import com.vangent.hieos.empi.match.Field;
-import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.Field;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
+import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.subjectmodel.InternalId;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,10 +40,10 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectMatchFieldsDAO(Connection connection) {
-        super(connection);
+    public SubjectMatchFieldsDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -73,7 +72,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 record = this.buildRecordFromResultSet(rs, subjectId.getId(), matchConfig);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject_match_fields(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject_match_fields(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -168,8 +167,8 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                     stmt.setString(++fieldIndex, field.getValue());
                 }
             } catch (SQLException ex) {
-                PersistenceHelper.close(stmt);
-                throw PersistenceHelper.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
+                this.close(stmt);
+                throw PersistenceManager.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
             }
         }
         return stmt;
@@ -287,7 +286,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting Subject match fields", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting Subject match fields", ex);
         } finally {
             this.close(stmt);
         }
@@ -327,7 +326,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception prepared statement", ex);
+            throw PersistenceManager.getEMPIException("Exception prepared statement", ex);
         }
     }
 

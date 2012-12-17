@@ -12,11 +12,10 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.subjectmodel.Subject;
-import com.vangent.hieos.subjectmodel.SubjectName;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.InternalId;
-import java.sql.Connection;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectName;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,10 +32,10 @@ public class SubjectNameDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectNameDAO(Connection connection) {
-        super(connection);
+    public SubjectNameDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -72,7 +71,7 @@ public class SubjectNameDAO extends AbstractDAO {
                 subjectNames.add(subjectName);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject name(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject name(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -118,7 +117,7 @@ public class SubjectNameDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject names", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject names", ex);
         } finally {
             this.close(stmt);
         }

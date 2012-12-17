@@ -15,6 +15,7 @@ package com.vangent.hieos.empi.impl.base;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -53,9 +54,9 @@ public class LinkConstraintController {
      * @param newSubject
      * @param matchedRecords
      * @return
+     * @throws EMPIException
      */
-    public List<SubjectReviewItem> getPotentialDuplicates(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException
-    {
+    public List<SubjectReviewItem> getPotentialDuplicates(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
         List<SubjectReviewItem> subjectReviewItems = new ArrayList<SubjectReviewItem>();
         for (ScoredRecord matchedRecord : matchedRecords) {
             if (this.isPotentialDuplicate(newSubject, matchedRecord)) {
@@ -70,7 +71,7 @@ public class LinkConstraintController {
     }
 
     /**
-     * 
+     *
      * @param newSubject
      * @param matchedRecords
      * @return
@@ -88,30 +89,30 @@ public class LinkConstraintController {
         }
 
         /* RETHINK!!!
-        // FIXME: NEED TO OPTIMIZE ... doing many DB reads where should only read once per
-        // record.
+         // FIXME: NEED TO OPTIMIZE ... doing many DB reads where should only read once per
+         // record.
 
-        // Now, go through each pair in the merge set.
-        PersistenceManager pm = this.getPersistenceManager();
-        for (ScoredRecord matchedRecord : recordMatches) {
-        String matchedSystemSubjectId = matchedRecord.getRecord().getId();
-        // Load identifiers for matched system subject.
-        List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
+         // Now, go through each pair in the merge set.
+         PersistenceManager pm = this.getPersistenceManager();
+         for (ScoredRecord matchedRecord : recordMatches) {
+         String matchedSystemSubjectId = matchedRecord.getRecord().getId();
+         // Load identifiers for matched system subject.
+         List<SubjectIdentifier> matchedSubjectIdentifiers = pm.loadSubjectIdentifiers(matchedSystemSubjectId);
 
-        for (ScoredRecord compareMatchedRecord : recordMatches) {
-        String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
-        if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
-        // Load identifiers for matched system subject (to compare).
-        List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
-        boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
-        if (foundMatch) {
-        // Found a match.
-        System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
-        return true;  // Early exit!
-        }
-        }
-        }
-        }
+         for (ScoredRecord compareMatchedRecord : recordMatches) {
+         String compareMatchedSystemSubjectId = compareMatchedRecord.getRecord().getId();
+         if (!matchedSystemSubjectId.equals(compareMatchedSystemSubjectId)) {
+         // Load identifiers for matched system subject (to compare).
+         List<SubjectIdentifier> compareMatchedSubjectIdentifiers = pm.loadSubjectIdentifiers(compareMatchedSystemSubjectId);
+         boolean foundMatch = this.isMatchedRecordInSameIdentifierDomain(matchedSubjectIdentifiers, compareMatchedSubjectIdentifiers);
+         if (foundMatch) {
+         // Found a match.
+         System.out.println("+++++ Not linking subject with same identifier domain (multi-merge) +++++");
+         return true;  // Early exit!
+         }
+         }
+         }
+         }
          */
         return true;  // Link is allowed.
     }
@@ -127,7 +128,8 @@ public class LinkConstraintController {
         InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
 
         // Load identifiers for matched system subject.
-        List<SubjectIdentifier> matchedSubjectIdentifiers = persistenceManager.loadSubjectIdentifiers(matchedSystemSubjectId);
+        SubjectController subjectController = new SubjectController(persistenceManager);
+        List<SubjectIdentifier> matchedSubjectIdentifiers = subjectController.loadSubjectIdentifiers(matchedSystemSubjectId);
 
         // Get list of the new subject's identifiers.
         List<SubjectIdentifier> newSubjectIdentifiers = newSubject.getSubjectIdentifiers();

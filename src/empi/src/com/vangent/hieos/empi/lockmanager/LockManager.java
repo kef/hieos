@@ -37,7 +37,7 @@ public class LockManager {
 
     /**
      * 
-     * @param conn
+     * @param jndiResourceName 
      */
     public LockManager(String jndiResourceName) {
         this.jndiResourceName = jndiResourceName;

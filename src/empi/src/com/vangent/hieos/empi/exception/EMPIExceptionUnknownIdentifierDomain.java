@@ -20,6 +20,9 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
  */
 public class EMPIExceptionUnknownIdentifierDomain extends Exception {
 
+    /**
+     *
+     */
     public static final String UNKNOWN_KEY_IDENTIFIER_ERROR_CODE = "204";
     private SubjectIdentifierDomain subjectIdentifierDomain;
     private int listPosition;

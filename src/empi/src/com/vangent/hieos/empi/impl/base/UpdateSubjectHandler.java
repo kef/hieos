@@ -12,17 +12,19 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
+import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.model.SubjectCrossReference;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.EnterpriseSubjectController;
+import com.vangent.hieos.empi.persistence.SubjectController;
+import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
-import com.vangent.hieos.empi.adapter.EMPINotification;
-import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
-import com.vangent.hieos.empi.validator.UpdateSubjectValidator;
-import com.vangent.hieos.subjectmodel.InternalId;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -35,7 +37,7 @@ public class UpdateSubjectHandler extends BaseHandler {
     private static final Logger logger = Logger.getLogger(UpdateSubjectHandler.class);
 
     /**
-     * 
+     *
      * @param persistenceManager
      * @param senderDeviceInfo
      */
@@ -48,6 +50,8 @@ public class UpdateSubjectHandler extends BaseHandler {
      * @param subject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     public EMPINotification updateSubject(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = this.getPersistenceManager();
@@ -62,15 +66,16 @@ public class UpdateSubjectHandler extends BaseHandler {
 
         // Make sure that there is only one subject identifier to update.
         /* CONNECTATHON HACK (for ICW).
-        if (subjectIdentifiers.size() > 1) {
-        throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
-        }*/
+         if (subjectIdentifiers.size() > 1) {
+         throw new EMPIException("Only one identifier should be provided for the subject - skipping update.");
+         }*/
         // NOTE: Decided to keep code above commented out - will use first identifier for update.
 
         // Get the subject (using the first identifier).
         List<SubjectIdentifier> subjectIdentifiers = subject.getSubjectIdentifiers();
         SubjectIdentifier subjectIdentifier = subjectIdentifiers.get(0);
-        List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(subjectIdentifier);
+        SubjectController subjectController = new SubjectController(this.getPersistenceManager());
+        List<Subject> baseSubjects = subjectController.loadBaseSubjects(subjectIdentifier);
         if (baseSubjects.isEmpty()) {
             throw new EMPIExceptionUnknownSubjectIdentifier(
                     subjectIdentifier.getCXFormatted()
@@ -103,24 +108,26 @@ public class UpdateSubjectHandler extends BaseHandler {
     private EMPINotification updateSystemSubject(Subject baseSubject, Subject subject) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
         EMPINotification notification = new EMPINotification();
+        EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(this.getPersistenceManager());
+        SubjectController subjectController = new SubjectController(this.getPersistenceManager());
 
         // Get the enterprise subject id.
-        InternalId enterpriseSubjectId = pm.getEnterpriseSubjectId(baseSubject);
+        InternalId enterpriseSubjectId = enterpriseSubjectController.getEnterpriseSubjectId(baseSubject);
 
         // delete the system-level subject.
-        pm.deleteSubject(baseSubject);
+        subjectController.delete(baseSubject);
 
         // See if this subject was the only cross reference to the enterprise.
-        List<SubjectCrossReference> subjectCrossReferences = pm.loadEnterpriseSubjectCrossReferences(enterpriseSubjectId);
+        List<SubjectCrossReference> subjectCrossReferences = enterpriseSubjectController.loadSubjectCrossReferences(enterpriseSubjectId);
         if (subjectCrossReferences.isEmpty()) {
             // In this case, delete the enterprise record
-            pm.deleteSubject(enterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
+            subjectController.delete(enterpriseSubjectId, Subject.SubjectType.ENTERPRISE);
         } else {
             // Update demographics on enterprise-subject with last updated system-level subject.
             logger.trace("+++ Updating enterprise subject with last updated demographics +++");
-            InternalId lastUpdatedSystemSubjectId = pm.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
-            Subject lastUpdatedSystemSubject = pm.loadSubject(lastUpdatedSystemSubjectId);
-            pm.updateEnterpriseSubject(enterpriseSubjectId, lastUpdatedSystemSubject);
+            InternalId lastUpdatedSystemSubjectId = enterpriseSubjectController.getLastUpdatedSystemSubjectId(enterpriseSubjectId);
+            Subject lastUpdatedSystemSubject = subjectController.load(lastUpdatedSystemSubjectId);
+            enterpriseSubjectController.update(enterpriseSubjectId, lastUpdatedSystemSubject);
             this.addSubjectToNotification(notification, enterpriseSubjectId);
         }
 

@@ -13,12 +13,11 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
-import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
-import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,10 +35,10 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectPersonalRelationshipDAO(Connection connection) {
-        super(connection);
+    public SubjectPersonalRelationshipDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -52,7 +51,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            SubjectDAO subjectDAO = new SubjectDAO(this.getConnection());
+            SubjectDAO subjectDAO = new SubjectDAO(this.getPersistenceManager());
             String sql = "SELECT seq_no,subject_personal_relationship_code,personal_relationship_subject_id FROM subject_personal_relationship WHERE subject_id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
@@ -81,7 +80,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
                 subjectPersonalRelationships.add(subjectPersonalRelationship);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading SubjectPersonalRelationship(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading SubjectPersonalRelationship(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -93,6 +92,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
      * @param subjectPersonalRelationships
      * @param parentSubject
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain  
      */
     public void insert(List<SubjectPersonalRelationship> subjectPersonalRelationships, Subject parentSubject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         if (subjectPersonalRelationships.isEmpty()) {
@@ -100,7 +100,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            SubjectDAO subjectDAO = new SubjectDAO(this.getConnection());
+            SubjectDAO subjectDAO = new SubjectDAO(this.getPersistenceManager());
             String sql = "INSERT INTO subject_personal_relationship(subject_id,seq_no,subject_personal_relationship_code,personal_relationship_subject_id) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             Long subjectId = parentSubject.getInternalId().getId();
@@ -135,7 +135,7 @@ public class SubjectPersonalRelationshipDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject personal relationships", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject personal relationships", ex);
         } finally {
             this.close(stmt);
         }

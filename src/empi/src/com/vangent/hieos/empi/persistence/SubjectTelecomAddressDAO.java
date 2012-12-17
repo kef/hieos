@@ -16,7 +16,6 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.TelecomAddress;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,10 +32,10 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectTelecomAddressDAO(Connection connection) {
-        super(connection);
+    public SubjectTelecomAddressDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -69,7 +68,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
                 telecomAddresses.add(telecomAddress);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject TelecomAddresses(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject TelecomAddresses(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -112,7 +111,7 @@ public class SubjectTelecomAddressDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting telecom addresses", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting telecom addresses", ex);
         } finally {
             this.close(stmt);
         }

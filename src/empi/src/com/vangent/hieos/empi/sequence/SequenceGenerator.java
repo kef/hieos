@@ -10,14 +10,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hieos.empi.sequence;
 
-import java.sql.Connection;
+import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
+
 /**
  *
  * @author Bernie Thuman
@@ -26,7 +27,7 @@ public class SequenceGenerator {
 
     private final static Logger logger = Logger.getLogger(SequenceGenerator.class);
     private String sql;
-    private Connection connection;
+    private PersistenceManager persistenceManager;
 
     /**
      *
@@ -37,48 +38,37 @@ public class SequenceGenerator {
 
     /**
      *
-     * @param conn
+     * @param persistenceManager 
      * @param sql
      */
-    public SequenceGenerator(Connection conn, String sql) {
+    public SequenceGenerator(PersistenceManager persistenceManager, String sql) {
         //this.jndiResourceName = jndiResourceName;
-        this.connection = conn;
+        this.persistenceManager = persistenceManager;
         this.sql = sql;
     }
 
     /**
      *
-     * @param resource
-     * @throws LockManagerException
+     * @return @throws EMPIException 
+     * @throws EMPIException ]
      */
-    public long getNext() throws SequenceGeneratorException {
-        // Get the database connection.
+    public long getNext() throws EMPIException {
         long sequenceNumber = -1;
 
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         try {
-            //conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            //conn.setAutoCommit(false);
-            // Try to acquire lock for the given resource.
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            //stmt.setString(1, resource.getId());
-            ResultSet rs = stmt.executeQuery();
-            // Loop through the result set
+            stmt = persistenceManager.getPreparedStatement(sql);
+            rs = stmt.executeQuery();
             if (rs.next()) {
                 sequenceNumber = rs.getLong(1);
             }
-            stmt.close();
-            rs.close();
-            //conn.commit();
         } catch (SQLException ex) {
-            //try {
-            //    conn.rollback();
-            //} catch (SQLException ex1) {
-            // Do nothing (already had an exception).
-            //}
             logger.info("Unable to acquire sequence number [sequence = " + this.sql + "]: " + ex.getMessage());
-            throw new SequenceGeneratorException("Unable to acquire sequence number [sequence = " + this.sql + "]: " + ex.getMessage());
+            throw new EMPIException("Unable to acquire sequence number [sequence = " + this.sql + "]: " + ex.getMessage());
         } finally {
-            // Do something.
+            PersistenceManager.close(stmt);
+            PersistenceManager.close(rs);
         }
         return sequenceNumber;
     }

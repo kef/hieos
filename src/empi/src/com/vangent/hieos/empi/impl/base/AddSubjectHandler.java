@@ -12,9 +12,7 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
-import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.config.EUIDConfig;
-import com.vangent.hieos.empi.euid.EUIDGenerator;
+import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
@@ -24,13 +22,13 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.subjectmodel.DeviceInfo;
-import com.vangent.hieos.subjectmodel.Subject;
-import com.vangent.hieos.subjectmodel.SubjectIdentifier;
-import com.vangent.hieos.empi.adapter.EMPINotification;
+import com.vangent.hieos.empi.persistence.EnterpriseSubjectController;
+import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.empi.validator.AddSubjectValidator;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,9 +56,13 @@ public class AddSubjectHandler extends BaseHandler {
      * @param newSubject
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownSubjectIdentifier
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public EMPINotification addSubject(Subject newSubject) throws EMPIException, EMPIExceptionUnknownSubjectIdentifier, EMPIExceptionUnknownIdentifierDomain {
         PersistenceManager pm = this.getPersistenceManager();
+        EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(pm);
+        SubjectController subjectController = new SubjectController(pm);
 
         // First, run validations on input.
         AddSubjectValidator validator = new AddSubjectValidator(pm, this.getSenderDeviceInfo());
@@ -69,11 +71,11 @@ public class AddSubjectHandler extends BaseHandler {
 
         // Store the subject @ system-level - will stamp with subjectId.
         newSubject.setType(Subject.SubjectType.SYSTEM);
-        pm.insertSubject(newSubject);
+        subjectController.insert(newSubject);
 
         // Get prepared for next steps ..
         InternalId systemSubjectId = newSubject.getInternalId();
-        InternalId enterpriseSubjectId = null;
+        InternalId enterpriseSubjectId;
         int matchScore = 100;    // Default.
 
         // Find matching records.
@@ -83,49 +85,50 @@ public class AddSubjectHandler extends BaseHandler {
         MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchAlgorithm.MatchType.SUBJECT_FEED);
         if (!matchResults.getPossibleMatches().isEmpty()) {
             // FIXME!!!!
-            System.out.println("+++++ DO SOMETHING HERE ... store possible matches");
+            logger.warn("+++++ DO SOMETHING HERE ... store possible matches");
         }
-        List<ScoredRecord> matchedRecords = matchResults.getMatches();
 
         long start = System.currentTimeMillis();
-
+        List<ScoredRecord> matchedRecords = matchResults.getMatches();
         if (matchedRecords.isEmpty()) {
-            // No matching records.
-            enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
+            // No matching records - insert new enterprise record.
+            enterpriseSubjectId = enterpriseSubjectController.insert(newSubject);
 
         } else {
+            // Look for potential duplicates.
             List<SubjectReviewItem> potentialDuplicates = this.getPotentialDuplicates(newSubject, matchedRecords);
             if (!potentialDuplicates.isEmpty()) {
-                logger.trace("+++++ Not linking subject with same identifier domain +++++");
+                logger.info("+++++ Not linking subject with same identifier domain +++++");
                 // Do not place record along side any record within the same identifier domain.
                 matchedRecords.clear();  // Treat as though a match did not occur.
 
                 // Keep track of potential duplicates (for later review).
-                this.getPersistenceManager().insertSubjecReviewItems(potentialDuplicates);
+                subjectController.insertSubjecReviewItems(potentialDuplicates);
 
                 // Insert a new enterprise record.
-                enterpriseSubjectId = this.insertEnterpriseSubject(newSubject);
+                enterpriseSubjectId = enterpriseSubjectController.insert(newSubject);
             } else {
                 // >=1 matches
 
                 // Cross reference will be to first matched record.  All other records will be merged later below.
                 ScoredRecord matchedRecord = matchedRecords.get(0);
                 InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
-                enterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+
+                enterpriseSubjectId = enterpriseSubjectController.getEnterpriseSubjectId(matchedSystemSubjectId);
                 matchScore = matchedRecord.getMatchScorePercentage();
 
                 // Update enterprise subject with latest demographics.
                 logger.trace("+++ Updating demographics on enterprise subject +++");
-                pm.updateEnterpriseSubject(enterpriseSubjectId, newSubject);
+                enterpriseSubjectController.update(enterpriseSubjectId, newSubject);
             }
         }
 
         // Insert system-level subject match fields (for subsequent find operations).
         searchRecord.setId(systemSubjectId);
-        pm.insertSubjectMatchFields(searchRecord);
+        subjectController.insert(searchRecord);
 
-        // Create and store cross-reference.
-        pm.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
+        // Create and store cross-reference to enterprise subject.
+        enterpriseSubjectController.insertSubjectCrossReference(systemSubjectId, enterpriseSubjectId, matchScore);
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
         this.mergeMatchedRecords(matchedRecords, enterpriseSubjectId);
@@ -145,15 +148,15 @@ public class AddSubjectHandler extends BaseHandler {
      * @throws EMPIException
      */
     private void mergeMatchedRecords(List<ScoredRecord> matchedRecords, InternalId enterpriseSubjectId) throws EMPIException {
-        // FIXME: Make this configurable.
-        PersistenceManager pm = this.getPersistenceManager();
+        // FIXME: Make this method configurable.
+        EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(this.getPersistenceManager());
 
         // Merge all other matches (if any) into first matched record (surviving enterprise record).
         Set<Long> subsumedEnterpriseSubjectIds = new HashSet<Long>();
         for (int i = 1; i < matchedRecords.size(); i++) {
             ScoredRecord matchedRecord = matchedRecords.get(i);
             InternalId matchedSystemSubjectId = matchedRecord.getRecord().getInternalId();
-            InternalId subsumedEnterpriseSubjectId = pm.getEnterpriseSubjectId(matchedSystemSubjectId);
+            InternalId subsumedEnterpriseSubjectId = enterpriseSubjectController.getEnterpriseSubjectId(matchedSystemSubjectId);
 
             // Make sure that the subject has not already been merged.
             if (!subsumedEnterpriseSubjectIds.contains(subsumedEnterpriseSubjectId.getId())) {
@@ -163,7 +166,7 @@ public class AddSubjectHandler extends BaseHandler {
 
                     // FIXME: Add more constraints here (run LinkConstraintController?) ...
                     subsumedEnterpriseSubjectIds.add(subsumedEnterpriseSubjectId.getId());
-                    pm.mergeEnterpriseSubjects(enterpriseSubjectId, subsumedEnterpriseSubjectId);
+                    enterpriseSubjectController.merge(enterpriseSubjectId, subsumedEnterpriseSubjectId);
                 }
             }
         }
@@ -179,46 +182,5 @@ public class AddSubjectHandler extends BaseHandler {
     private List<SubjectReviewItem> getPotentialDuplicates(Subject newSubject, List<ScoredRecord> matchedRecords) throws EMPIException {
         LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
         return linkConstraintController.getPotentialDuplicates(newSubject, matchedRecords);
-    }
-
-    // NOT CURRENTLY USED
-    /**
-     * 
-     * @param newSubject
-     * @param matchedRecord
-     * @return
-     * @throws EMPIException
-     */
-    //private boolean isPotentialDuplicate(Subject newSubject, ScoredRecord matchedRecord) throws EMPIException {
-    //    LinkConstraintController linkConstraintController = new LinkConstraintController(this.getPersistenceManager());
-    //    return linkConstraintController.isPotentialDuplicate(newSubject, matchedRecord);
-    //}
-    /**
-     *
-     * @param newEnterpriseSubject
-     * @param updateNotificationContent
-     * @return
-     * @throws EMPIException
-     */
-    private InternalId insertEnterpriseSubject(Subject newEnterpriseSubject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
-        PersistenceManager pm = this.getPersistenceManager();
-        EMPIConfig empiConfig = EMPIConfig.getInstance();
-
-        // Build (from received subject) and store enterprise-level subject.
-        newEnterpriseSubject.setType(Subject.SubjectType.ENTERPRISE);
-
-        // Clear out the subject's identifier lists (since they are already stored at the system-level).
-        newEnterpriseSubject.clearIdentifiers();
-
-        // Stamp the subject with an enterprise id (if configured to do so).
-        EUIDConfig euidConfig = empiConfig.getEuidConfig();
-        if (euidConfig.isEuidAssignEnabled()) {
-            SubjectIdentifier enterpriseSubjectIdentifier = EUIDGenerator.getEUID();
-            newEnterpriseSubject.addSubjectIdentifier(enterpriseSubjectIdentifier);
-        }
-
-        // Store the enterprise-level subject.
-        pm.insertSubject(newEnterpriseSubject);
-        return newEnterpriseSubject.getInternalId();
     }
 }

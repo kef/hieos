@@ -12,11 +12,10 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.subjectmodel.Address;
-import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.subjectmodel.Address;
 import com.vangent.hieos.subjectmodel.InternalId;
-import java.sql.Connection;
+import com.vangent.hieos.subjectmodel.Subject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,11 +31,11 @@ public class SubjectAddressDAO extends AbstractDAO {
     private static final Logger logger = Logger.getLogger(SubjectAddressDAO.class);
 
     /**
-     *
-     * @param connection
+     * 
+     * @param persistenceManager 
      */
-    public SubjectAddressDAO(Connection connection) {
-        super(connection);
+    public SubjectAddressDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -74,7 +73,7 @@ public class SubjectAddressDAO extends AbstractDAO {
                 addresses.add(address);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading SubjectAddress(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading SubjectAddress(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -122,7 +121,7 @@ public class SubjectAddressDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject addresses", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject addresses", ex);
         } finally {
             this.close(stmt);
         }

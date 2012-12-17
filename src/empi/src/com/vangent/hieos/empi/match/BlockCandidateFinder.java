@@ -18,7 +18,7 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.MatchConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
-import com.vangent.hieos.empi.persistence.PersistenceHelper;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.persistence.SubjectMatchFieldsDAO;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -85,10 +85,10 @@ public class BlockCandidateFinder extends CandidateFinder {
                     }
                 }
             } catch (SQLException ex) {
-                throw PersistenceHelper.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
+                throw PersistenceManager.getEMPIException("Exception reading 'subject_match_fields' records from database", ex);
             } finally {
-                PersistenceHelper.close(stmt);
-                PersistenceHelper.close(rs);
+                PersistenceManager.close(stmt);
+                PersistenceManager.close(rs);
             }
         }
 
@@ -105,7 +105,7 @@ public class BlockCandidateFinder extends CandidateFinder {
      */
     private PreparedStatement getBlockingPassPreparedStatement(MatchConfig matchConfig, Record searchRecord,
             BlockingPassConfig blockingPassConfig) throws EMPIException {
-        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager().getConnection());
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager());
         return dao.getBlockingPassPreparedStatement(matchConfig, searchRecord, blockingPassConfig);
     }
 
@@ -118,7 +118,7 @@ public class BlockCandidateFinder extends CandidateFinder {
      * @throws SQLException
      */
     private Record buildRecordFromResultSet(ResultSet rs, Long recordId, MatchConfig matchConfig) throws SQLException {
-        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager().getConnection());
+        SubjectMatchFieldsDAO dao = new SubjectMatchFieldsDAO(this.getPersistenceManager());
         return dao.buildRecordFromResultSet(rs, recordId, matchConfig);
     }
 }

@@ -12,13 +12,12 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.subjectmodel.Subject;
-import com.vangent.hieos.subjectmodel.SubjectIdentifier;
-import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.subjectmodel.InternalId;
-import java.sql.Connection;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,10 +36,10 @@ public class SubjectIdentifierDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectIdentifierDAO(Connection connection) {
-        super(connection);
+    public SubjectIdentifierDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -70,7 +69,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 internalIds.add(internalId);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -87,7 +86,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
     private String getSubjectIdsSQL(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         // Get list of identifier domain ids (internal ids) for the subject identifiers.
         List<Integer> subjectIdentifierDomainIds = new ArrayList<Integer>();
-        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
+        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getPersistenceManager());
         for (SubjectIdentifier subjectIdentifier : subjectIdentifiers) {
             SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
             int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
@@ -182,7 +181,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             stmt.setString(2, SubjectIdentifierDAO.getSubjectIdentifierTypeValue(idType));
             // Execute query.
             rs = stmt.executeQuery();
-            SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
+            SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getPersistenceManager());
             while (rs.next()) {
                 SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
                 int seqNo = rs.getInt(1);
@@ -200,7 +199,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 subjectIdentifiers.add(subjectIdentifier);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject identifiers", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject identifiers", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -228,7 +227,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             sb.append("INSERT INTO ").append(this.getTableName()).append("(subject_id,seq_no,type,identifier,subject_identifier_domain_id) values(?,?,?,?,?)");
             String sql = sb.toString();
             stmt = this.getPreparedStatement(sql);
-            SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getConnection());
+            //SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(this.getPersistenceManager());
             Long subjectId = parentSubject.getInternalId().getId();
             int seqNo = 0;
             for (SubjectIdentifier subjectIdentifier : subjectIdentifiersCopy) {
@@ -243,12 +242,14 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 stmt.setString(4, subjectIdentifier.getIdentifier());
                 // Get foreign key reference to subjectidentifierdomain.
                 SubjectIdentifierDomain subjectIdentifierDomain = subjectIdentifier.getIdentifierDomain();
-                int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
-                if (subjectIdentifierDomainId == -1) {
-                    throw new EMPIExceptionUnknownIdentifierDomain(
-                            subjectIdentifierDomain.getHDFormatted()
-                            + " is not a known identifier domain");
-                }
+                int subjectIdentifierDomainId = subjectIdentifierDomain.getId();
+                
+                //int subjectIdentifierDomainId = sidDAO.getId(subjectIdentifierDomain);
+                //if (subjectIdentifierDomainId == -1) {
+                //    throw new EMPIExceptionUnknownIdentifierDomain(
+                //            subjectIdentifierDomain.getHDFormatted()
+                //            + " is not a known identifier domain");
+                //}
                 stmt.setInt(5, subjectIdentifierDomainId);
                 stmt.addBatch();
             }
@@ -260,7 +261,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject identifiers", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject identifiers", ex);
         } finally {
             this.close(stmt);
         }
@@ -301,7 +302,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
                 logger.trace(sbTrace.toString());
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception deleting records", ex);
+            throw PersistenceManager.getEMPIException("Exception deleting records", ex);
         } finally {
             this.close(stmt);
         }
@@ -313,7 +314,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @return
      */
     public static String getSubjectIdentifierTypeValue(SubjectIdentifier.Type idType) {
-        String value = "";
+        String value;
         switch (idType) {
             case PID:
                 value = "P";
@@ -333,7 +334,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
      * @return
      */
     public static SubjectIdentifier.Type getSubjectIdentifierType(String type) {
-        SubjectIdentifier.Type idType = SubjectIdentifier.Type.PID;
+        SubjectIdentifier.Type idType;
         if (type.equalsIgnoreCase("P")) {
             idType = SubjectIdentifier.Type.PID;
         } else {

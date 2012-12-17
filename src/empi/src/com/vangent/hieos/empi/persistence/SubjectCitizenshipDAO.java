@@ -13,11 +13,10 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
-import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectCitizenship;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +33,10 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectCitizenshipDAO(Connection connection) {
-        super(connection);
+    public SubjectCitizenshipDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -74,7 +73,7 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
                 subjectCitizenships.add(subjectCitizenship);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject citizenship(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject citizenship(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -121,7 +120,7 @@ public class SubjectCitizenshipDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject language(s)", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject language(s)", ex);
         } finally {
             this.close(stmt);
         }

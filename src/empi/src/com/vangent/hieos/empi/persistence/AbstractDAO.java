@@ -18,7 +18,6 @@ import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.InternalId;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,30 +33,22 @@ import org.apache.log4j.Logger;
 public class AbstractDAO {
 
     private static final Logger logger = Logger.getLogger(AbstractDAO.class);
-    private Connection connection = null;
+    private PersistenceManager persistenceManager = null;
 
     /**
      * 
-     * @param connection
+     * @param persistenceManager 
      */
-    public AbstractDAO(Connection connection) {
-        this.connection = connection;
+    public AbstractDAO(PersistenceManager persistenceManager) {
+        this.persistenceManager = persistenceManager;
     }
 
     /**
      *
      * @return
      */
-    public Connection getConnection() {
-        return connection;
-    }
-
-    /**
-     * 
-     * @param connection
-     */
-    public void setConnection(Connection connection) {
-        this.connection = connection;
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
     }
 
     /**
@@ -88,7 +79,7 @@ public class AbstractDAO {
                 logger.trace(sbTrace.toString());
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception deleting records", ex);
+            throw PersistenceManager.getEMPIException("Exception deleting records", ex);
         } finally {
             this.close(stmt);
         }
@@ -101,7 +92,7 @@ public class AbstractDAO {
      * @throws EMPIException
      */
     public PreparedStatement getPreparedStatement(String sql) throws EMPIException {
-        return PersistenceHelper.getPreparedStatement(sql, this.getConnection());
+        return persistenceManager.getPreparedStatement(sql);
     }
 
     /**
@@ -110,7 +101,7 @@ public class AbstractDAO {
      * @throws EMPIException
      */
     public Statement getStatement() throws EMPIException {
-        return PersistenceHelper.getStatement(this.getConnection());
+        return persistenceManager.getStatement();
     }
 
     /**
@@ -182,11 +173,26 @@ public class AbstractDAO {
      */
     protected void setDate(PreparedStatement stmt, int index, Date value) throws SQLException {
         if (value != null) {
-            stmt.setDate(index, PersistenceHelper.getSQLDate(value));
+            stmt.setDate(index, this.getSQLDate(value));
         } else {
             stmt.setNull(index, java.sql.Types.DATE);
         }
     }
+    
+    /**
+     *
+     * @param date
+     * @return
+     */
+    private java.sql.Date getSQLDate(Date date) {
+        if (date == null) {
+            return null;
+        } else {
+            return new java.sql.Date(date.getTime());
+        }
+    }
+
+   
 
     /**
      *
@@ -271,7 +277,7 @@ public class AbstractDAO {
      * @param stmt
      */
     public void close(Statement stmt) {
-        PersistenceHelper.close(stmt);
+        PersistenceManager.close(stmt);
     }
 
     /**
@@ -279,6 +285,6 @@ public class AbstractDAO {
      * @param rs
      */
     public void close(ResultSet rs) {
-        PersistenceHelper.close(rs);
+        PersistenceManager.close(rs);
     }
 }

@@ -13,7 +13,11 @@
 package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.match.Record;
+import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.EnterpriseSubjectController;
+import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import java.util.ArrayList;
@@ -37,7 +41,7 @@ public class EnterpriseSubjectLoader {
     }
 
     /**
-     * 
+     *
      * @param persistenceManager
      * @param loadFullSubjects
      */
@@ -55,14 +59,15 @@ public class EnterpriseSubjectLoader {
     }
 
     /**
-     * 
+     *
      * @param systemSubjectId
      * @return
      * @throws EMPIException
      */
     public EnterpriseSubjectLoaderResult loadEnterpriseSubject(InternalId systemSubjectId) throws EMPIException {
         // Get enterpiseSubjectId for the system-level subject.
-        InternalId enterpriseSubjectId = persistenceManager.getEnterpriseSubjectId(systemSubjectId);
+        EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(persistenceManager);
+        InternalId enterpriseSubjectId = enterpriseSubjectController.getEnterpriseSubjectId(systemSubjectId);
 
         // Return cached enterprise subject.
         return this.getEnterpriseSubject(enterpriseSubjectId);
@@ -80,11 +85,46 @@ public class EnterpriseSubjectLoader {
             enterpriseSubjectId = baseSubject.getInternalId();
         } else {
             // Get enterpiseSubjectId for the system-level subject.
-            enterpriseSubjectId = persistenceManager.getEnterpriseSubjectId(baseSubject);
+            EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(persistenceManager);
+            enterpriseSubjectId = enterpriseSubjectController.getEnterpriseSubjectId(baseSubject);
         }
 
         // See if we already know this enterprise subject.
         return this.getEnterpriseSubject(enterpriseSubjectId);
+    }
+    
+    /**
+     * 
+     * @param baseSubjects
+     * @throws EMPIException 
+     */
+    public void loadEnterpriseSubjects(List<Subject> baseSubjects) throws EMPIException {
+        // Load unique enterprise subjects.
+        for (Subject baseSubject : baseSubjects) {
+            EnterpriseSubjectLoaderResult loaderResult = this.loadEnterpriseSubject(baseSubject);
+            loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
+        }
+    }
+    
+    /**
+     * 
+     * @param matchedRecords
+     * @throws EMPIException 
+     */
+    public void loadEnterpriseSubjectsForMatchedRecords(List<ScoredRecord> matchedRecords) throws EMPIException
+    {
+        // Go through each record and load the enterprise subject and set the match confidence percentage.
+        for (ScoredRecord scoredRecord : matchedRecords) {
+            Record record = scoredRecord.getRecord();
+            InternalId systemSubjectId = record.getInternalId();
+            EnterpriseSubjectLoaderResult loaderResult = this.loadEnterpriseSubject(systemSubjectId);
+            if (!loaderResult.isAlreadyExists()) {
+                // Only set match confidence percentage on first load.
+                Subject enterpriseSubject = loaderResult.getEnterpriseSubject();
+                int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
+                enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
+            }
+        }
     }
 
     /**
@@ -93,7 +133,7 @@ public class EnterpriseSubjectLoader {
      * @return
      * @throws EMPIException
      */
-    public EnterpriseSubjectLoaderResult getEnterpriseSubject(InternalId enterpriseSubjectId) throws EMPIException {
+    private EnterpriseSubjectLoaderResult getEnterpriseSubject(InternalId enterpriseSubjectId) throws EMPIException {
         EnterpriseSubjectLoaderResult loadResult = new EnterpriseSubjectLoaderResult();
         loadResult.setEnterpriseSubject(null);
 
@@ -109,12 +149,13 @@ public class EnterpriseSubjectLoader {
         if (loadResult.getEnterpriseSubject() == null) {
             // .. not in list, load it.
             Subject enterpriseSubject;
+            EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(persistenceManager);
             if (loadFullSubjects) {
                 // Load full enterprise subject.
-                enterpriseSubject = persistenceManager.loadEnterpriseSubject(enterpriseSubjectId);
+                enterpriseSubject = enterpriseSubjectController.load(enterpriseSubjectId);
             } else {
                 // Load enterprise subject (id's only).
-                enterpriseSubject = persistenceManager.loadEnterpriseSubjectIdentifiersOnly(enterpriseSubjectId);
+                enterpriseSubject = enterpriseSubjectController.loadSubjectIdentifiersOnly(enterpriseSubjectId);
             }
             loadResult.setAlreadyExists(false);
             loadResult.setEnterpriseSubject(enterpriseSubject);

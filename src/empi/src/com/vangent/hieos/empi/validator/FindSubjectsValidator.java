@@ -12,10 +12,10 @@
  */
 package com.vangent.hieos.empi.validator;
 
-import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;

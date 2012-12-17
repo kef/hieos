@@ -22,9 +22,9 @@ import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.empi.validator.FindSubjectsValidator;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
-import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
@@ -56,11 +56,15 @@ public class FindSubjectsHandler extends BaseHandler {
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     public SubjectSearchResponse findSubjects(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
         PersistenceManager pm = this.getPersistenceManager();
 
-        // First, run validations on input.
+        // Run validations on input.
+        // SIDE EFFECT: Loads/validates SubjectIdentifierDomains and places into the provided "subjectSearchCriteria"
+        // in the proper location.
         FindSubjectsValidator validator = new FindSubjectsValidator(pm, this.getSenderDeviceInfo());
         validator.setSubjectSearchCriteria(subjectSearchCriteria);
         validator.run();
@@ -87,21 +91,19 @@ public class FindSubjectsHandler extends BaseHandler {
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier {
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
-
         // Run validations on input.
         // SIDE EFFECT: Loads/validates SubjectIdentifierDomains and places into the provided "subjectSearchCriteria"
         // in the proper location.
-        FindSubjectsValidator validator = new FindSubjectsValidator(this.getPersistenceManager(),
-                this.getSenderDeviceInfo());
+        FindSubjectsValidator validator = new FindSubjectsValidator(this.getPersistenceManager(), this.getSenderDeviceInfo());
         validator.setSubjectSearchCriteria(subjectSearchCriteria);
         validator.run();
 
         // Now, find subjects using the identifier in the search criteria.
-        subjectSearchResponse = this.loadBySubjectIdentifiers(subjectSearchCriteria);
-        return subjectSearchResponse;
+        return this.loadBySubjectIdentifiers(subjectSearchCriteria);
     }
 
     /**
@@ -113,7 +115,6 @@ public class FindSubjectsHandler extends BaseHandler {
     private SubjectSearchResponse loadSubjectMatchesByDemographics(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException {
         long startTime = System.currentTimeMillis();
         PersistenceManager pm = this.getPersistenceManager();
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         Subject searchSubject = subjectSearchCriteria.getSubject();
 
         // Run the matching algorithm (in "find" mode).
@@ -122,14 +123,12 @@ public class FindSubjectsHandler extends BaseHandler {
         MatchAlgorithm matchAlgo = MatchAlgorithm.getMatchAlgorithm(pm);
         MatchResults matchResults = matchAlgo.findMatches(searchRecord, MatchType.SUBJECT_FIND);
 
-        // Get EnterpriseSubjectManager to load unique enterprise subjects.
+        // Load unique enterprise subjects from match results.
         EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, true /* loadFullSubjects */);
-
-        // Now load subjects from the match results.
         this.loadEnterpriseSubjectsFromMatchResults(subjectSearchCriteria, matchResults, enterpriseSubjectLoader);
 
         // Get subject search response.
-        subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
+        SubjectSearchResponse subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
 
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
@@ -147,7 +146,6 @@ public class FindSubjectsHandler extends BaseHandler {
     private SubjectSearchResponse loadSubjectMatchesByIdentifiers(
             SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         long startTime = System.currentTimeMillis();
-        SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
         PersistenceManager pm = this.getPersistenceManager();
 
         // Get EnterpriseSubjectManager to load unique enterprise subjects.
@@ -156,7 +154,8 @@ public class FindSubjectsHandler extends BaseHandler {
         // Get the base subjects (only base-level information) to determine type and internal ids.
         Subject searchSubject = subjectSearchCriteria.getSubject();
         List<SubjectIdentifier> searchSubjectIdentifiers = searchSubject.getSubjectIdentifiers();
-        List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifiers);
+        SubjectController subjectController = new SubjectController(pm);
+        List<Subject> baseSubjects = subjectController.loadBaseSubjects(searchSubjectIdentifiers);
 
         // Now, filter on demographics if required.
         if (!baseSubjects.isEmpty() && subjectSearchCriteria.hasSubjectDemographics()) {
@@ -168,7 +167,7 @@ public class FindSubjectsHandler extends BaseHandler {
             // For each base subject that was found (based on the subject identifier(s)).
             for (Subject baseSubject : baseSubjects) {
                 // Load the subject match fields for this base subject.
-                Record candidateRecord = pm.loadSubjectMatchRecord(baseSubject.getInternalId(), MatchType.SUBJECT_FIND);
+                Record candidateRecord = subjectController.load(baseSubject.getInternalId(), MatchType.SUBJECT_FIND);
                 candidateRecords.add(candidateRecord);
 
             }
@@ -181,11 +180,11 @@ public class FindSubjectsHandler extends BaseHandler {
         } else {
 
             // Load unique enterprise subjects.
-            this.loadEnterpriseSubjects(baseSubjects, enterpriseSubjectLoader);
+            enterpriseSubjectLoader.loadEnterpriseSubjects(baseSubjects);
         }
 
         // Get subject search response.
-        subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
+        SubjectSearchResponse subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, null /* subjectIdentifierToRemove */);
         long endTime = System.currentTimeMillis();
         if (logger.isTraceEnabled()) {
             logger.trace("FindSubjectsHandler.loadSubjectMatchesByIdentifiers: elapedTimeMillis=" + (endTime - startTime));
@@ -206,18 +205,8 @@ public class FindSubjectsHandler extends BaseHandler {
         List<ScoredRecord> matchedRecords =
                 this.filterMatchedRecordsByMinimumDegreeMatchPercentage(subjectSearchCriteria, matchResults.getMatches());
 
-        // Go through each record and load the enterprise subject and set the match confidence percentage.
-        for (ScoredRecord scoredRecord : matchedRecords) {
-            Record record = scoredRecord.getRecord();
-            InternalId systemSubjectId = record.getInternalId();
-            EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(systemSubjectId);
-            if (!loaderResult.isAlreadyExists()) {
-                // Only set match confidence percentage on first load.
-                Subject enterpriseSubject = loaderResult.getEnterpriseSubject();
-                int matchConfidencePercentage = scoredRecord.getMatchScorePercentage();
-                enterpriseSubject.setMatchConfidencePercentage(matchConfidencePercentage);
-            }
-        }
+        // Load enterprise subjects for matched records.
+        enterpriseSubjectLoader.loadEnterpriseSubjectsForMatchedRecords(matchedRecords);
     }
 
     /**
@@ -253,7 +242,7 @@ public class FindSubjectsHandler extends BaseHandler {
     }
 
     /**
-     * 
+     *
      * @param subjectSearchCriteria
      * @return
      * @throws EMPIException
@@ -269,40 +258,27 @@ public class FindSubjectsHandler extends BaseHandler {
         if (!searchSubjectIdentifiers.isEmpty()) {
             // Pull the first identifier (only 1 used for PIX queries).
             // We only use one identifier here (as required by PIX); however, code should work if modified to
-            // load subjects use >1 identifier.
+            // loadBaseSubjects subjects use >1 identifier.
             SubjectIdentifier searchSubjectIdentifier = searchSubjectIdentifiers.get(0);
 
             // Get the base subjects (only base-level information) to determine type and internal ids.
-            List<Subject> baseSubjects = pm.loadBaseSubjectsByIdentifier(searchSubjectIdentifier);
+            SubjectController subjectController = new SubjectController(pm);
+            List<Subject> baseSubjects = subjectController.loadBaseSubjects(searchSubjectIdentifier);
             if (baseSubjects.isEmpty()) {
                 throw new EMPIExceptionUnknownSubjectIdentifier(
                         searchSubjectIdentifier.getCXFormatted()
                         + " is not a known identifier");
             }
-            // Get EnterpriseSubjectManager to load unique enterprise subjects.
+            // Get EnterpriseSubjectLoader to load unique enterprise subjects.
             EnterpriseSubjectLoader enterpriseSubjectLoader = new EnterpriseSubjectLoader(pm, false /* loadFullSubjects */);
 
             // Load unique enterprise subjects.
-            this.loadEnterpriseSubjects(baseSubjects, enterpriseSubjectLoader);
+            enterpriseSubjectLoader.loadEnterpriseSubjects(baseSubjects);
 
             // Now, get subject search response.
             subjectSearchResponse = this.getSubjectSearchResponse(subjectSearchCriteria, enterpriseSubjectLoader, searchSubjectIdentifier);
         }
         return subjectSearchResponse;
-    }
-
-    /**
-     *
-     * @param baseSubjects
-     * @param enterpriseSubjectLoader
-     * @throws EMPIException
-     */
-    private void loadEnterpriseSubjects(List<Subject> baseSubjects, EnterpriseSubjectLoader enterpriseSubjectLoader) throws EMPIException {
-        // Load unique enterprise subjects.
-        for (Subject baseSubject : baseSubjects) {
-            EnterpriseSubjectLoaderResult loaderResult = enterpriseSubjectLoader.loadEnterpriseSubject(baseSubject);
-            loaderResult.getEnterpriseSubject().setMatchConfidencePercentage(100);
-        }
     }
 
     /**

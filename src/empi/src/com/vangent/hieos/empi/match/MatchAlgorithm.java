@@ -13,8 +13,8 @@
 package com.vangent.hieos.empi.match;
 
 import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.exception.EMPIException;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import java.util.List;
 
 /**

@@ -14,13 +14,12 @@ package com.vangent.hieos.empi.euid;
 
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.config.EUIDConfig;
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
-import com.vangent.hieos.empi.persistence.PersistenceHelper;
+import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainDAO;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
-import com.vangent.hieos.empi.exception.EMPIException;
-import java.sql.Connection;
 import java.util.UUID;
 import org.apache.log4j.Logger;
 
@@ -33,29 +32,29 @@ public class EUIDGenerator {
     private static final Logger logger = Logger.getLogger(EUIDGenerator.class);
 
     /**
-     * 
-     * @return
+     *
+     * @return @throws EMPIException 
      * @throws EMPIException
      */
     public static SubjectIdentifier getEUID() throws EMPIException {
-        Connection connection = null;
         SubjectIdentifier subjectIdentifier = null;
+        PersistenceManager pm = new PersistenceManager();
         try {
-            connection = PersistenceHelper.getConnection();
-            subjectIdentifier = EUIDGenerator.getEUID(connection);
+            pm.open();
+            subjectIdentifier = EUIDGenerator.getEUID(pm);
         } finally {
-            PersistenceHelper.close(connection);
+            pm.close();
         }
         return subjectIdentifier;
     }
 
     /**
-     *
-     * @param connection
+     * 
+     * @param pm
      * @return
-     * @throws EMPIException
+     * @throws EMPIException 
      */
-    public static SubjectIdentifier getEUID(Connection connection) throws EMPIException {
+    public static SubjectIdentifier getEUID(PersistenceManager pm) throws EMPIException {
         // FIXME?: Would be nice to cache here.
 
         // Get configuration.
@@ -63,7 +62,7 @@ public class EUIDGenerator {
         EUIDConfig euidConfig = empiConfig.getEuidConfig();
 
         // Load the SubjectIdentifierDomain for the EUID configuration.
-        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(connection);
+        SubjectIdentifierDomainDAO sidDAO = new SubjectIdentifierDomainDAO(pm);
         SubjectIdentifierDomain subjectIdentifierDomain = new SubjectIdentifierDomain();
         subjectIdentifierDomain.setUniversalId(euidConfig.getEuidUniversalId());
         subjectIdentifierDomain.setUniversalIdType(euidConfig.getEuidUniversalIdType());

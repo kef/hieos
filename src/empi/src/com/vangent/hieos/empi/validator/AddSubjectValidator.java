@@ -12,10 +12,11 @@
  */
 package com.vangent.hieos.empi.validator;
 
-import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.SubjectIdentifierDomainLoader;
+import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import org.apache.log4j.Logger;
@@ -57,6 +58,7 @@ public class AddSubjectValidator extends Validator {
     /**
      *
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     @Override
     public void validate() throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
@@ -69,8 +71,8 @@ public class AddSubjectValidator extends Validator {
         if (subject.hasSubjectIdentifiers()) {
 
             // See if the subject already exists.
-            PersistenceManager pm = this.getPersistenceManager();
-            if (pm.doesSubjectExist(subject.getSubjectIdentifiers())) {
+            SubjectController subjectController = new SubjectController(this.getPersistenceManager());
+            if (subjectController.doesSubjectExist(subject.getSubjectIdentifiers())) {
                 throw new EMPIException("Subject already exists!");
             }
         }

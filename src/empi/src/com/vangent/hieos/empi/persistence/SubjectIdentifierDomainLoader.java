@@ -32,7 +32,6 @@ public class SubjectIdentifierDomainLoader {
     /**
      *
      * @param persistenceManager
-     * @param senderDeviceInfo
      */
     public SubjectIdentifierDomainLoader(PersistenceManager persistenceManager) {
         this.persistenceManager = persistenceManager;
@@ -50,40 +49,58 @@ public class SubjectIdentifierDomainLoader {
      *
      * @param subject
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public void loadSubjectIdentifierDomains(Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
-        PersistenceManager pm = this.getPersistenceManager();
 
         // Load/replace subject identifier domains for supplied subject identifiers.
-        List<SubjectIdentifier> loadedSubjectIdentifiers = pm.loadSubjectIdentifierDomainsForSubjectIdentifiers(subject.getSubjectIdentifiers());
+        List<SubjectIdentifier> loadedSubjectIdentifiers = this.loadSubjectIdentifierDomainsForSubjectIdentifiers(subject.getSubjectIdentifiers());
         subject.setSubjectIdentifiers(loadedSubjectIdentifiers);
 
         // Do the same for "other identifiers".
-        List<SubjectIdentifier> loadedSubjectOtherIdentifiers = pm.loadSubjectIdentifierDomainsForSubjectIdentifiers(subject.getSubjectOtherIdentifiers());
+        List<SubjectIdentifier> loadedSubjectOtherIdentifiers = this.loadSubjectIdentifierDomainsForSubjectIdentifiers(subject.getSubjectOtherIdentifiers());
         subject.setSubjectOtherIdentifiers(loadedSubjectOtherIdentifiers);
     }
 
     /**
+     * Go to the EMPI database and fully load the identifier domains for the
+     * provided input.
+     *
+     * @param subjectIdentifiers
+     * @return
+     * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
+     */
+    private List<SubjectIdentifier> loadSubjectIdentifierDomainsForSubjectIdentifiers(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(persistenceManager);
+        return dao.loadForSubjectIdentifiers(subjectIdentifiers);
+    }
+
+    /**
+     * Go to the EMPI database and fully load the identifier domains for the
+     * provided input.
      *
      * @param subjectIdentifierDomains
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
-    public List<SubjectIdentifierDomain> loadSubjectIdentifierDomains(List<SubjectIdentifierDomain> subjectIdentifierDomains) throws EMPIException, EMPIExceptionUnknownIdentifierDomain
-    {
-        PersistenceManager pm = this.getPersistenceManager();
-        return pm.loadSubjectIdentifierDomains(subjectIdentifierDomains);
-    }
+    //public List<SubjectIdentifierDomain> loadSubjectIdentifierDomains(List<SubjectIdentifierDomain> subjectIdentifierDomains) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+    //    SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(persistenceManager);
+    //    return dao.load(subjectIdentifierDomains);
+    //}
 
     /**
-     * 
+     * Go to the EMPI database and fully load the identifier domain for the
+     * provided input.
+     *
      * @param subjectIdentifierDomain
      * @return
      * @throws EMPIException
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
-    public SubjectIdentifierDomain loadSubjectIdentifierDomain(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException, EMPIExceptionUnknownIdentifierDomain
-    {
-        PersistenceManager pm = this.getPersistenceManager();
-        return pm.loadSubjectIdentifierDomain(subjectIdentifierDomain);
+    public SubjectIdentifierDomain loadSubjectIdentifierDomain(SubjectIdentifierDomain subjectIdentifierDomain) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
+        SubjectIdentifierDomainDAO dao = new SubjectIdentifierDomainDAO(persistenceManager);
+        return dao.load(subjectIdentifierDomain);
     }
 }

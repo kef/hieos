@@ -12,13 +12,14 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
+import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.persistence.EnterpriseSubjectController;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
-import com.vangent.hieos.subjectmodel.Subject;
-import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import org.apache.log4j.Logger;
 
 /**
@@ -50,7 +51,7 @@ public class BaseHandler {
     }
 
     /**
-     * 
+     *
      * @return
      */
     protected PersistenceManager getPersistenceManager() {
@@ -58,7 +59,7 @@ public class BaseHandler {
     }
 
     /**
-     * 
+     *
      * @param notification
      * @param enterpriseSubjectId
      * @throws EMPIException
@@ -69,8 +70,8 @@ public class BaseHandler {
             // Notifications are turned off -- get out now.
             return; // Early exit!!
         }
-        PersistenceManager pm = this.getPersistenceManager();
-        Subject subject = pm.loadEnterpriseSubjectIdentifiersAndNamesOnly(enterpriseSubjectId);
-        notification.addSubject(subject);
+        EnterpriseSubjectController enterpriseSubjectController = new EnterpriseSubjectController(this.getPersistenceManager());
+        Subject enterpriseSubject = enterpriseSubjectController.loadSubjectIdentifiersAndNamesOnly(enterpriseSubjectId);
+        notification.addSubject(enterpriseSubject);
     }
 }

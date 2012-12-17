@@ -18,6 +18,9 @@ package com.vangent.hieos.empi.exception;
  */
 public class EMPIExceptionUnknownSubjectIdentifier extends Exception {
 
+    /**
+     *
+     */
     public static final String UNKNOWN_KEY_IDENTIFIER_ERROR_CODE = "204";
 
     /**

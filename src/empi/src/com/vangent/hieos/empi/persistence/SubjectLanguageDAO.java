@@ -13,11 +13,10 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.codes.CodesConfig;
-import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.subjectmodel.InternalId;
+import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectLanguage;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,10 +33,10 @@ public class SubjectLanguageDAO extends AbstractDAO {
 
     /**
      *
-     * @param connection
+     * @param persistenceManager
      */
-    public SubjectLanguageDAO(Connection connection) {
-        super(connection);
+    public SubjectLanguageDAO(PersistenceManager persistenceManager) {
+        super(persistenceManager);
     }
 
     /**
@@ -73,7 +72,7 @@ public class SubjectLanguageDAO extends AbstractDAO {
                 subjectLanguages.add(subjectLanguage);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception reading subject language(s) from database", ex);
+            throw PersistenceManager.getEMPIException("Exception reading subject language(s) from database", ex);
         } finally {
             this.close(stmt);
             this.close(rs);
@@ -120,7 +119,7 @@ public class SubjectLanguageDAO extends AbstractDAO {
                         + " Number Records Added: " + insertCounts.length);
             }
         } catch (SQLException ex) {
-            throw PersistenceHelper.getEMPIException("Exception inserting subject language(s)", ex);
+            throw PersistenceManager.getEMPIException("Exception inserting subject language(s)", ex);
         } finally {
             this.close(stmt);
         }
