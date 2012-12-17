@@ -21,6 +21,7 @@ import com.vangent.hieos.empi.match.MatchResults;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.RecordBuilder;
 import com.vangent.hieos.empi.match.ScoredRecord;
+import com.vangent.hieos.empi.persistence.EnterpriseSubjectLoader;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.empi.validator.FindSubjectsValidator;

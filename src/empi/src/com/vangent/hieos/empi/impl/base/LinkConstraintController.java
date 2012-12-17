@@ -14,9 +14,9 @@ package com.vangent.hieos.empi.impl.base;
 
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.ScoredRecord;
+import com.vangent.hieos.empi.model.SubjectReviewItem;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.persistence.SubjectController;
-import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;

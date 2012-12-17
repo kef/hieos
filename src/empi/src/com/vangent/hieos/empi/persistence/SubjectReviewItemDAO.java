@@ -13,7 +13,7 @@
 package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.empi.subjectreview.model.SubjectReviewItem;
+import com.vangent.hieos.empi.model.SubjectReviewItem;
 import com.vangent.hieos.subjectmodel.Address;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;

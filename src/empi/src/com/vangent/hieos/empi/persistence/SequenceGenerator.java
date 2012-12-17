@@ -10,10 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.empi.sequence;
+package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.exception.EMPIException;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

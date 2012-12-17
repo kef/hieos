@@ -10,14 +10,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.empi.impl.base;
+package com.vangent.hieos.empi.persistence;
 
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.match.Record;
 import com.vangent.hieos.empi.match.ScoredRecord;
-import com.vangent.hieos.empi.persistence.PersistenceManager;
-import com.vangent.hieos.empi.persistence.EnterpriseSubjectController;
-import com.vangent.hieos.empi.persistence.SubjectController;
 import com.vangent.hieos.subjectmodel.InternalId;
 import com.vangent.hieos.subjectmodel.Subject;
 import java.util.ArrayList;
