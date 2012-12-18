@@ -68,6 +68,7 @@ public class EUIDGenerator {
         subjectIdentifierDomain.setUniversalIdType(euidConfig.getEuidUniversalIdType());
         SubjectIdentifierDomain loadedSubjectIdentifierDomain;
         try {
+            // FIXME: CACHE
             loadedSubjectIdentifierDomain = sidDAO.load(subjectIdentifierDomain);
             // Create the subject identifier (assign the identifier domain).
             SubjectIdentifier subjectIdentifier = new SubjectIdentifier();
