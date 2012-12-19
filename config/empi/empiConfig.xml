@@ -2,6 +2,9 @@
 <config>
     <!-- JNDI resource name for EMPI database -->
     <jndi-resource-name>jdbc/hieos-empi</jndi-resource-name>
+    
+    <!-- JBOSS 
+    <jndi-resource-name>java:/jdbc/hieos-empi</jndi-resource-name>-->
 
     <!-- Name of candidate finder to use -->
     <candidate-finder>com.vangent.hieos.empi.match.BlockCandidateFinder</candidate-finder>
