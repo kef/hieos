@@ -1,4 +1,5 @@
 DELETE FROM subject_match_fields;
+DELETE FROM subject_demographics;
 DELETE FROM subject_identifier;
 -- generally do not remove the following table(s)
 -- DELETE FROM subject_identifier_domain;
@@ -13,8 +14,8 @@ DELETE FROM subject_review_item;
 DELETE FROM resource_lock;
 DELETE FROM subject;
 
--- clear stats
-select pg_stat_reset();
+-- clear stats (postgres)
+-- select pg_stat_reset();
 
 
 
