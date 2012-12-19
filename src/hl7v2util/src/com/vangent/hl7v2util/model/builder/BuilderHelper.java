@@ -10,23 +10,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.vangent.hl7v2util.model.builder;
 
 import ca.uhn.hl7v2.model.v231.datatype.CE;
 import ca.uhn.hl7v2.model.v231.datatype.ID;
 import ca.uhn.hl7v2.model.v231.datatype.IS;
 import ca.uhn.hl7v2.model.v231.datatype.NM;
+import ca.uhn.hl7v2.model.v231.datatype.ST;
+import ca.uhn.hl7v2.model.v231.datatype.XPN;
 import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.SubjectName;
 
 // FIXME: How to handle > HL7v2.3.1 without breaking code.
-
 /**
  *
  * @author Bernie Thuman
  */
 public class BuilderHelper {
-/**
+
+    /**
      *
      * @param value
      * @return
@@ -84,4 +86,32 @@ public class BuilderHelper {
         return booleanValue;
     }
 
+    /**
+     *
+     * @param value
+     * @return
+     */
+    public static String buildString(ST value) {
+        String stringValue = null;
+        // Relies on CAND
+        if (value != null && value.getValue() != null) {
+            stringValue = value.getValue();
+        }
+        return stringValue;
+    }
+
+    /**
+     *
+     * @param patientName
+     * @return
+     */
+    public static SubjectName buildSubjectName(XPN patientName) {
+        SubjectName subjectName = new SubjectName();
+        subjectName.setGivenName(patientName.getGivenName().getValue());
+        subjectName.setFamilyName(patientName.getFamilyLastName().getFamilyName().getValue());
+        subjectName.setMiddleName(patientName.getMiddleInitialOrName().getValue());
+        subjectName.setPrefix(patientName.getPrefixEgDR().getValue());
+        subjectName.setSuffix(patientName.getSuffixEgJRorIII().getValue());
+        return subjectName;
+    }
 }

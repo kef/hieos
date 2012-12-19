@@ -13,15 +13,22 @@
 package com.vangent.hieos.hl7v2util.model.subject;
 
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.v231.datatype.CE;
 import ca.uhn.hl7v2.model.v231.datatype.CX;
+import ca.uhn.hl7v2.model.v231.datatype.DLN;
 import ca.uhn.hl7v2.model.v231.datatype.XAD;
 import ca.uhn.hl7v2.model.v231.datatype.XPN;
+import ca.uhn.hl7v2.model.v231.datatype.XTN;
 import ca.uhn.hl7v2.model.v231.segment.PID;
 import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.subjectmodel.Address;
+import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectCitizenship;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectName;
+import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
+import com.vangent.hieos.subjectmodel.TelecomAddress;
 import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
 import com.vangent.hl7v2util.model.builder.BuilderHelper;
 
@@ -42,9 +49,8 @@ public class SubjectBuilder {
     }
 
     /**
-     * 
-     * @return
-     * @throws HL7Exception
+     *
+     * @return @throws HL7Exception
      */
     public Subject buildSubject() throws HL7Exception {
         // Build Subject.
@@ -60,6 +66,7 @@ public class SubjectBuilder {
             // Patient id is used.  We will build the list for now.
             CX patientIdentifierCX = patientIdentfierListCX[i];
             String patientIdentifierCXFormatted = patientIdentifierCX.encode();
+            System.out.println("patientIdentifierCXFormatted = " + patientIdentifierCXFormatted);
             if (!HL7FormatUtil.isCX_Formatted(patientIdentifierCXFormatted)) {
                 throw new HL7Exception("Invalid CX format for patient identifier");
             }
@@ -68,7 +75,27 @@ public class SubjectBuilder {
         }
 
         // Other identifiers (SSN, account number, etc).
-        // TBD
+
+        // SSN:
+        System.out.println("SSN = " + BuilderHelper.buildString(pid.getSSNNumberPatient()));
+        // TODO - SSN
+
+        // Account number:
+        CX patientAccountNumberCX = pid.getPatientAccountNumber();
+        if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
+            String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
+            System.out.println("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
+            SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
+            subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+            subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
+        }
+
+        // Driver's license number:
+        DLN driversLicenseNumberDLN = pid.getDriverSLicenseNumberPatient();
+        if (driversLicenseNumberDLN != null) {
+            System.out.println("driversLicenseNumberDLN = " + driversLicenseNumberDLN.encode());
+        }
+        // TBD - Driver's License Number
 
         // Coded values.
         subject.setGender(BuilderHelper.buildCodedValue(pid.getSex()));
@@ -77,17 +104,18 @@ public class SubjectBuilder {
         // Birth time.
         subject.setBirthTime(pid.getDateTimeOfBirth().getTimeOfAnEvent().getValueAsDate());
 
+        // Multiple birth order/indicator.
+        subject.setMultipleBirthOrderNumber(BuilderHelper.buildInteger(pid.getBirthOrder()));
+        subject.setMultipleBirthIndicator(BuilderHelper.buildBoolean(pid.getMultipleBirthIndicator())); // Y - Yes, N - No
+
+        // More complex types ...
 
         // Name(s).
         XPN[] patientNamesXPN = pid.getPatientName();
         for (int i = 0; i < patientNamesXPN.length; i++) {
             XPN patientNameXPN = patientNamesXPN[i];
-            SubjectName subjectName = new SubjectName();
-            subjectName.setGivenName(patientNameXPN.getGivenName().getValue());
-            subjectName.setFamilyName(patientNameXPN.getFamilyLastName().getFamilyName().getValue());
-            subjectName.setMiddleName(patientNameXPN.getMiddleInitialOrName().getValue());
-            subjectName.setPrefix(patientNameXPN.getPrefixEgDR().getValue());
-            subjectName.setSuffix(patientNameXPN.getSuffixEgJRorIII().getValue());
+            System.out.println("patientNameXPN = " + patientNameXPN.encode());
+            SubjectName subjectName = BuilderHelper.buildSubjectName(patientNameXPN);
             subject.addSubjectName(subjectName);
         }
 
@@ -95,6 +123,7 @@ public class SubjectBuilder {
         XAD[] patientAddressesXAD = pid.getPatientAddress();
         for (int i = 0; i < patientAddressesXAD.length; i++) {
             XAD patientAddressXAD = patientAddressesXAD[i];
+            System.out.println("patientAddressXAD = " + patientAddressXAD.encode());
             Address subjectAddress = new Address();
             subjectAddress.setStreetAddressLine1(patientAddressXAD.getStreetAddress().getValue());
             // FIXME: Multiple address lines?
@@ -108,10 +137,101 @@ public class SubjectBuilder {
             subject.addAddress(subjectAddress);
         }
 
-        // Multiple birth order/indicator.
-        subject.setMultipleBirthOrderNumber(BuilderHelper.buildInteger(pid.getBirthOrder()));
-        // Y - Yes, N - No
-        subject.setMultipleBirthIndicator(BuilderHelper.buildBoolean(pid.getMultipleBirthIndicator()));
+        // Telecom addresses [Home]
+        XTN[] homePhoneNumbersXTN = pid.getPhoneNumberHome();
+        // FIXME: Decompose into finer grain parts -- impact on HL7 v3 also
+        for (int i = 0; i < homePhoneNumbersXTN.length; i++) {
+            XTN homePhoneNumberXTN = homePhoneNumbersXTN[i];
+            System.out.println("homePhoneNumberXTN = " + homePhoneNumberXTN.encode());
+            TelecomAddress subjectTelecomAddress = new TelecomAddress();
+            subjectTelecomAddress.setUse(homePhoneNumberXTN.getTelecommunicationUseCode().getValue());
+            subjectTelecomAddress.setValue(homePhoneNumberXTN.getPhoneNumber().getValue());
+            subject.addTelecomAddress(subjectTelecomAddress);
+        }
+
+        // Telecom addresses [Business]:
+        // FIXME: Decompose into finer grain parts -- impact on HL7 v3 also
+        XTN[] bizPhoneNumbersXTN = pid.getPhoneNumberBusiness();
+        for (int i = 0; i < bizPhoneNumbersXTN.length; i++) {
+            XTN bizPhoneNumberXTN = bizPhoneNumbersXTN[i];
+            System.out.println("bizPhoneNumberXTN = " + bizPhoneNumberXTN.encode());
+            TelecomAddress subjectTelecomAddress = new TelecomAddress();
+            subjectTelecomAddress.setUse(bizPhoneNumberXTN.getTelecommunicationUseCode().getValue());
+            subjectTelecomAddress.setValue(bizPhoneNumberXTN.getPhoneNumber().getValue());
+            subject.addTelecomAddress(subjectTelecomAddress);
+        }
+
+        // Ethnic group:
+        if (pid.getEthnicGroupReps() > 0) {
+            CE ethnicGroupCE = pid.getEthnicGroup(0);  // FIXME: ?We only grab the first ethnic group
+            if (ethnicGroupCE != null) {
+                System.out.println("ethnicGroupCE = " + ethnicGroupCE.encode());
+            }
+            subject.setEthnicGroup(BuilderHelper.buildCodedValue(ethnicGroupCE));
+        }
+
+        // Race:
+        if (pid.getRaceReps() > 0) {
+            CE raceCE = pid.getRace(0); // FIXME: ?We only grab the first race
+            if (raceCE != null) {
+                System.out.println("raceCE = " + raceCE.encode());
+            }
+            subject.setRace(BuilderHelper.buildCodedValue(raceCE));
+        }
+
+        // Religion:
+        CE religionCE = pid.getReligion();
+        if (religionCE != null) {
+            System.out.println("religionCE = " + religionCE.encode());
+        }
+        subject.setReligiousAffiliation(BuilderHelper.buildCodedValue(religionCE));
+
+        // Mother's maiden name:
+        // TODO - Mother's maiden name
+
+        // Deceased indicator/time:
+        subject.setDeceasedIndicator(BuilderHelper.buildBoolean(pid.getPatientDeathIndicator())); // Y - Yes, N - No
+        if (subject.getDeceasedIndicator()) {
+            if (pid.getPatientDeathDateAndTime() != null && pid.getPatientDeathDateAndTime().getTimeOfAnEvent() != null) {
+                System.out.println("Deceased Time = " + pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
+                subject.setDeceasedTime(pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
+            }
+        }
+
+        // Citizenships:
+        CE[] citizenshipsCE = pid.getCitizenship();
+        for (int i = 0; i < citizenshipsCE.length; i++) {
+            CE citizenshipCE = citizenshipsCE[i];
+            System.out.println("citizenshipCE = " + citizenshipCE.encode());
+            SubjectCitizenship subjectCitizenship = new SubjectCitizenship();
+            subjectCitizenship.setNationCode(BuilderHelper.buildCodedValue(citizenshipCE));
+            subjectCitizenship.setNationName(citizenshipCE.getName());
+            subject.addSubjectCitizenship(subjectCitizenship);
+        }
+
+        // Language:
+        // TODO - Language
+
+        // Mother's maiden name:
+        //XPN[] mothersMaidenNameXPN[] = pid.getMotherSMaidenName();
+        // FIXME - just use one maiden name.
+        if (pid.getMotherSMaidenNameReps() > 0) {
+            XPN mothersMaidenNameXPN = pid.getMotherSMaidenName(0);
+            if (mothersMaidenNameXPN != null) {
+                System.out.println("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());
+                // FIXME: Simplify storing maiden names (@ root level of subject), etc. 
+                SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
+                CodedValue relationshipTypeCode = new CodedValue();
+                relationshipTypeCode.setCode("MTH");
+                subjectPersonalRelationship.setRelationshipType(relationshipTypeCode);
+                Subject relatedSubject = new Subject();
+                SubjectName relatedSubjectName = BuilderHelper.buildSubjectName(mothersMaidenNameXPN);
+                relatedSubject.addSubjectName(relatedSubjectName);
+                subjectPersonalRelationship.setSubject(relatedSubject);
+                subject.getSubjectPersonalRelationships().add(subjectPersonalRelationship);
+            }
+        }
+
         return subject;
     }
 }

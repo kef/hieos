@@ -23,16 +23,14 @@ import java.io.IOException;
  *
  * @author Bernie Thuman
  */
-public class AckMessageBuilder {
-
-    private Message inMessage;
+public class AckMessageBuilder extends MessageBuilder {
 
     /**
      *
      * @param inMessage
      */
     public AckMessageBuilder(Message inMessage) {
-        this.inMessage = inMessage;
+        super(inMessage);
     }
 
     /**
@@ -44,6 +42,7 @@ public class AckMessageBuilder {
      * @throws HL7Exception
      */
     public Message buildAck(String responseText, String errorText, String errorCode) throws HL7Exception {
+        Message inMessage = this.getInMessage();
         Segment inHeader = (Segment) inMessage.get("MSH");
         Message retVal;
         try {
