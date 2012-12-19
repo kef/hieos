@@ -16,7 +16,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v25.datatype.ERL;
-import ca.uhn.hl7v2.model.v25.message.RSP_K23;
+import ca.uhn.hl7v2.model.v25.message.RSP_K21;
 import ca.uhn.hl7v2.model.v25.segment.ERR;
 import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
@@ -25,7 +25,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v2util.acceptor.Connection;
-import com.vangent.hieos.hl7v2util.model.message.PIXQueryResponseMessageBuilder;
+import com.vangent.hieos.hl7v2util.model.message.PDQResponseMessageBuilder;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
@@ -36,12 +36,12 @@ import org.apache.log4j.Logger;
  *
  * @author Bernie Thuman
  */
-public class PIXQueryMessageHandler extends HL7V2MessageHandler {
+public class PDQMessageHandler extends HL7V2MessageHandler {
 
-    private final static Logger logger = Logger.getLogger(PIXQueryMessageHandler.class);
+    private final static Logger logger = Logger.getLogger(PDQMessageHandler.class);
 
     /**
-     * 
+     *
      * @param connection
      * @param inMessage
      * @return
@@ -50,7 +50,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      */
     @Override
     public Message processMessage(Connection connection, Message inMessage) throws ApplicationException, HL7Exception {
-        logger.info("Processing PIX Query message ...");
+        logger.info("Processing PDQ message ...");
         Message outMessage;
         try {
             // Get Terser.
@@ -62,7 +62,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
 
             // Build SubjectSearchCriteria from HL7v2 message.
             SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(terser);
-            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPIXQuery();
+            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPDQ();
 
             // Clone identifiers (for audit later).
             //List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
@@ -70,7 +70,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
             // Get subject cross references from EMPI.
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
-            SubjectSearchResponse subjectSearchResponse = adapter.getBySubjectIdentifiers(subjectSearchCriteria);
+            SubjectSearchResponse subjectSearchResponse = adapter.findSubjects(subjectSearchCriteria);
 
             // Build response.
             outMessage = this.buildResponse(inMessage, subjectSearchResponse);
@@ -94,8 +94,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @return
      */
     private Message buildResponse(Message inMessage, SubjectSearchResponse subjectSearchResponse) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
-        return responseBuilder.buildPIXQueryResponse(subjectSearchResponse);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        return responseBuilder.buildPDQResponse(subjectSearchResponse);
     }
 
     /**
@@ -106,7 +106,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, String errorText) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
         return responseBuilder.buildErrorResponse(errorText);
     }
 
@@ -118,8 +118,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownSubjectIdentifier ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
-        RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        RSP_K21 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]
         ERR err = outMessage.getERR();
@@ -143,8 +143,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownIdentifierDomain ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
-        RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        RSP_K21 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]
         ERR err = outMessage.getERR();
@@ -158,7 +158,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
             erl.getComponentNumber().setValue("4");
         } else {
             erl.getSegmentSequence().setValue("1");
-            erl.getFieldPosition().setValue("4");
+            erl.getFieldPosition().setValue("8");
             int listPosition = ex.getListPosition();
             int ordinalPosition = listPosition + 1;
             erl.getFieldRepetition().setValue(new Integer(ordinalPosition).toString());

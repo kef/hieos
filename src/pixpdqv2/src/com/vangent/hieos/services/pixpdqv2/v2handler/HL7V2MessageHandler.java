@@ -22,7 +22,7 @@ import com.vangent.hieos.subjectmodel.DeviceInfo;
 
 /**
  *
- * @author Bernie
+ * @author Bernie Thuman
  */
 public class HL7V2MessageHandler implements MessageHandler {
 
