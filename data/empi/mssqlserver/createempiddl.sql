@@ -20,6 +20,7 @@
 
 USE empi;
 
+DROP TABLE subject_demographics;
 DROP TABLE subject_match_fields;
 DROP TABLE subject_identifier;
 DROP TABLE subject_identifier_domain;
@@ -67,13 +68,22 @@ CREATE TABLE resource_lock (
 --
 CREATE TABLE subject (
     id int NOT NULL,
-    birth_time date,
     type char(1),
+    last_updated_time datetime
+);
+
+--ALTER TABLE public.resource_lock OWNER TO empi;
+
+--
+--
+--
+CREATE TABLE subject_demographics (
+    subject_id int NOT NULL,
+    birth_time date,
     deceased_indicator bit,
     deceased_time date,
     multiple_birth_indicator bit,
     multiple_birth_order_number smallint,
-    last_updated_time datetime,
     gender_code varchar(2),
     marital_status_code varchar(25),
     ethnic_group_code varchar(25),
@@ -245,6 +255,9 @@ CREATE TABLE subject_xref (
 ALTER TABLE resource_lock
     ADD CONSTRAINT resource_lock_pkey PRIMARY KEY (resource_id);
 
+ALTER TABLE subject_demographics
+    ADD CONSTRAINT subject_address_pkey PRIMARY KEY (subject_id, seq_no);
+
 ALTER TABLE subject_address
     ADD CONSTRAINT subject_address_pkey PRIMARY KEY (subject_id, seq_no);
 
@@ -284,6 +297,7 @@ ALTER TABLE subject_xref
 ---------------------------
 -- Indexes.
 ---------------------------
+CREATE INDEX subject_demogrpahics_subject_id_idx ON subject_demographics (subject_id);
 
 CREATE INDEX subject_address_subject_id_idx ON subject_address (subject_id);
 
@@ -332,6 +346,9 @@ ALTER TABLE subject_xref
 
 ALTER TABLE subject_xref
     ADD CONSTRAINT subject_xref_system_subject_id_fkey FOREIGN KEY (system_subject_id) REFERENCES subject(id);
+
+ALTER TABLE subject_demographics
+    ADD CONSTRAINT subject_demographics_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
 
 ALTER TABLE subject_address
     ADD CONSTRAINT subject_address_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES subject(id);
