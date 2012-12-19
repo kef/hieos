@@ -131,12 +131,12 @@
                      <semanticsText>LivingSubject.birthTime</semanticsText>
                   </livingSubjectBirthTime>
                   -->
-                  <!--
+                  
                   <livingSubjectId>
                      <value root="2.16.840.1.113883.4.1" extension="999-99-9999"/>
                      <semanticsText>LivingSubject.id</semanticsText>
                   </livingSubjectId>
-                  -->
+                  
                   <!--<livingSubjectId>
                      <value root="1.3.6.1.4.1.21367.13.20.2000" extension="BT_3"/>
                      <semanticsText>LivingSubject.id</semanticsText>
@@ -146,13 +146,14 @@
                      <value root="2.16.840.1.113883.3.72.5.9.2" extension="JW26957-v3"/>
                      <semanticsText>LivingSubject.id</semanticsText>
                   </livingSubjectId>-->
-                  <livingSubjectName>
+                 <!-- <livingSubjectName>
                      <value use="SRCH">
                         <given>Ray</given>
                         <family>Lewis</family>
                      </value>
                      <semanticsText>LivingSubject.name</semanticsText>
                   </livingSubjectName>
+                  -->
                   <!--<livingSubjectName>
                      <value use="SRCH">
                         <given></given>
@@ -176,7 +177,7 @@
                      <value root="1.3.6.1.4.1.21367.2005.1.1"/>
                      <semanticsText>OtherIDs.scopingOrganization.id</semanticsText>
                   </otherIDsScopingOrganization>-->
-                  <patientAddress>
+                  <!--<patientAddress>
                      <value>
                         <streetAddressLine>1701 hunt meadow drive</streetAddressLine>
                         <city>annapolis</city>
@@ -184,7 +185,7 @@
                         <postalCode/>
                      </value>
                      <semanticsText>Patient.addr</semanticsText>
-                  </patientAddress>
+                  </patientAddress>-->
                </parameterList>
             </queryByParameter>
          </controlActProcess>
