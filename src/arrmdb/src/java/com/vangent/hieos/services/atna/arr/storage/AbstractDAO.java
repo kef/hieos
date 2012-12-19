@@ -292,6 +292,14 @@ abstract class AbstractDAO {
             }
 
         } catch (SQLException e) {
+              System.out.println("\n--- SQLException caught ---\n");
+              SQLException e1 = e;
+            while (e1 != null) {
+                System.out.println("Message:   "
+                        + e1.getMessage());
+                e1 = e1.getNextException();
+                System.out.println("");
+            }
             log.error(e);
             throw new AuditException(e);
         } finally {

@@ -90,11 +90,11 @@ public class ParticipantObjectDAO extends AbstractDAO {
     protected PreparedStatement createPreparedStatement() throws AuditException {
         String stmtFragment = null;
         if (action == DAO_ACTION_INSERT) {
-            stmtFragment = "INSERT INTO " + getTableName() +
-                    " values(?,?,?,?,?,?,?,?,?)";
+            stmtFragment = "INSERT INTO " + getTableName()
+                    + " values(?,?,?,?,?,?,?,?,?)";
         } else if (action == DAO_ACTION_DELETE) {
-            stmtFragment = "DELETE " + getTableName() +
-                    " where uniqueid = ?";
+            stmtFragment = "DELETE " + getTableName()
+                    + " where uniqueid = ?";
         }
 
         try {
