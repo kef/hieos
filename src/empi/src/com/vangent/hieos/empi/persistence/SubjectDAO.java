@@ -12,7 +12,6 @@
  */
 package com.vangent.hieos.empi.persistence;
 
-import com.vangent.hieos.empi.codes.CodesConfig;
 import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
@@ -31,15 +30,15 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author thumbe
+ * @author Bernie Thuman
  */
 public class SubjectDAO extends AbstractDAO {
 
     private static final Logger logger = Logger.getLogger(SubjectDAO.class);
 
     /**
-     * 
-     * @param persistenceManager 
+     *
+     * @param persistenceManager
      */
     public SubjectDAO(PersistenceManager persistenceManager) {
         super(persistenceManager);
@@ -52,71 +51,17 @@ public class SubjectDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public Subject load(InternalId subjectId) throws EMPIException {
-        Subject subject = new Subject();
-
-        // Load the subject.
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            String sql = "SELECT id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time FROM subject WHERE id=?";
-            if (logger.isTraceEnabled()) {
-                logger.trace("SQL = " + sql);
-            }
-            stmt = this.getPreparedStatement(sql);
-            stmt.setLong(1, subjectId.getId());
-            // Execute query.
-            rs = stmt.executeQuery();
-            if (!rs.next()) {
-                throw new EMPIException("No subject found for uniqueid = " + subjectId);
-            } else {
-                subject.setInternalId(subjectId);
-                subject.setType(SubjectDAO.getSubjectType(rs.getString(2)));
-                subject.setBirthTime(this.getDate(rs, 3));
-                subject.setGender(this.getCodedValue(rs.getString(4), CodesConfig.CodedType.GENDER));
-                subject.setDeceasedIndicator(this.getBoolean(rs, 5));
-                subject.setDeceasedTime(this.getDate(rs, 6));
-                subject.setMultipleBirthIndicator(this.getBoolean(rs, 7));
-                subject.setMultipleBirthOrderNumber(this.getInteger(rs, 8));
-                subject.setMaritalStatus(this.getCodedValue(rs.getString(9), CodesConfig.CodedType.MARITAL_STATUS));
-                subject.setReligiousAffiliation(this.getCodedValue(rs.getString(10), CodesConfig.CodedType.RELIGIOUS_AFFILIATION));
-                subject.setRace(this.getCodedValue(rs.getString(11), CodesConfig.CodedType.RACE));
-                subject.setEthnicGroup(this.getCodedValue(rs.getString(12), CodesConfig.CodedType.ETHNIC_GROUP));
-                Date lastUpdatedTime = this.getDate(rs.getTimestamp(13));
-                subject.setLastUpdatedTime(lastUpdatedTime);
-            }
-        } catch (SQLException ex) {
-            throw PersistenceManager.getEMPIException("Exception reading Subject from database", ex);
-        } finally {
-            this.close(stmt);
-            this.close(rs);
-        }
+        // Load the base subject.
+        Subject subject = this.loadBaseSubject(subjectId);
 
         // Now, load composed objects.
         PersistenceManager pm = this.getPersistenceManager();
-
-        // Names.
-        SubjectNameDAO subjectNameDAO = new SubjectNameDAO(pm);
-        subjectNameDAO.load(subject);
-
-        // Addresses.
-        SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(pm);
-        subjectAddressDAO.load(subject);
-
-        // Telecom addresses.
-        SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(pm);
-        subjectTelecomAddressDAO.load(subject);
+        SubjectDemographicsDAO subjectDemographicsDAO = new SubjectDemographicsDAO(pm);
+        subjectDemographicsDAO.load(subject);
 
         // Personal relationships.
         SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(pm);
         subjectPersonalRelationshipDAO.load(subject);
-
-        // Languages.
-        SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(pm);
-        subjectLanguageDAO.load(subject);
-
-        // Citizenships.
-        SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(pm);
-        subjectCitizenshipDAO.load(subject);
 
         // Identifiers.
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(pm);
@@ -124,7 +69,6 @@ public class SubjectDAO extends AbstractDAO {
         subject.setSubjectIdentifiers(subjectIdentifiers);
 
         // Other identifiers.
-        //SubjectOtherIdentifierDAO subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO(conn);
         List<SubjectIdentifier> subjectOtherIdentifiers = subjectIdentifierDAO.load(subject, SubjectIdentifier.Type.OTHER);
         subject.setSubjectOtherIdentifiers(subjectOtherIdentifiers);
 
@@ -133,30 +77,10 @@ public class SubjectDAO extends AbstractDAO {
 
     /**
      *
-     * @param subjectIdentifier
-     * @return
-     * @throws EMPIException
-     */
-    /*
-    public List<Subject> loadBaseSubjectsByIdentifier(SubjectIdentifier subjectIdentifier) throws EMPIException {
-        SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getConnection());
-
-        // First the subject internal ids for the given subject identifier.
-        List<InternalId> subjectIds = subjectIdentifierDAO.getSubjectIds(subjectIdentifier);
-        List<Subject> subjects = new ArrayList<Subject>();
-        for (InternalId subjectId : subjectIds) {
-            Subject subject = this.loadBaseSubject(subjectId);
-            subjects.add(subject);
-        }
-        return subjects;
-    }*/
-
-    /**
-     * 
      * @param subjectIdentifiers
      * @return
      * @throws EMPIException
-     * @throws EMPIExceptionUnknownIdentifierDomain  
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public List<Subject> loadBaseSubjectsByIdentifier(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(this.getPersistenceManager());
@@ -178,13 +102,13 @@ public class SubjectDAO extends AbstractDAO {
      * @throws EMPIException
      */
     public Subject loadBaseSubject(InternalId subjectId) throws EMPIException {
-        Subject subject = null;
+        Subject subject = new Subject();
 
         // Load the subject.
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id,type FROM subject WHERE id=?";
+            String sql = "SELECT type,last_updated_time FROM subject WHERE id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
@@ -192,10 +116,13 @@ public class SubjectDAO extends AbstractDAO {
             stmt.setLong(1, subjectId.getId());
             // Execute query.
             rs = stmt.executeQuery();
-            if (rs.next()) {
-                subject = new Subject();
+            if (!rs.next()) {
+                throw new EMPIException("No subject found for uniqueid = " + subjectId);
+            } else {
                 subject.setInternalId(subjectId);
-                subject.setType(SubjectDAO.getSubjectType(rs.getString(2)));
+                subject.setType(SubjectDAO.getSubjectType(rs.getString(1)));
+                Date lastUpdatedTime = this.getDate(rs.getTimestamp(2));
+                subject.setLastUpdatedTime(lastUpdatedTime);
             }
         } catch (SQLException ex) {
             throw PersistenceManager.getEMPIException("Exception reading Subject from database", ex);
@@ -231,7 +158,7 @@ public class SubjectDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
      * @param subjectId
      * @return
      * @throws EMPIException
@@ -262,11 +189,11 @@ public class SubjectDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
      * @param subjectIdentifiers
      * @return
      * @throws EMPIException
-     * @throws EMPIExceptionUnknownIdentifierDomain  
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public boolean doesSubjectExist(List<SubjectIdentifier> subjectIdentifiers) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         boolean subjectExists = false;
@@ -291,7 +218,7 @@ public class SubjectDAO extends AbstractDAO {
      *
      * @param subjects
      * @throws EMPIException
-     * @throws EMPIExceptionUnknownIdentifierDomain  
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public void insert(List<Subject> subjects) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         if (subjects.isEmpty()) {
@@ -299,7 +226,7 @@ public class SubjectDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject(id,type,birth_time,gender_code,deceased_indicator,deceased_time,multiple_birth_indicator,multiple_birth_order_number,marital_status_code,religious_affiliation_code,race_code,ethnic_group_code,last_updated_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO subject(id,type,last_updated_time) values(?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Subject subject : subjects) {
                 if (logger.isTraceEnabled()) {
@@ -312,18 +239,7 @@ public class SubjectDAO extends AbstractDAO {
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.
                 stmt.setLong(1, subjectId);
                 stmt.setString(2, subjectTypeValue);
-                this.setDate(stmt, 3, subject.getBirthTime());
-                this.setCodedValue(stmt, 4, subject.getGender(), CodesConfig.CodedType.GENDER);
-                this.setBoolean(stmt, 5, subject.getDeceasedIndicator());
-                this.setDate(stmt, 6, subject.getDeceasedTime());
-                this.setBoolean(stmt, 7, subject.getMultipleBirthIndicator());
-                this.setInteger(stmt, 8, subject.getMultipleBirthOrderNumber());
-                this.setCodedValue(stmt, 9, subject.getMaritalStatus(), CodesConfig.CodedType.MARITAL_STATUS);
-                this.setCodedValue(stmt, 10, subject.getReligiousAffiliation(), CodesConfig.CodedType.RELIGIOUS_AFFILIATION);
-                this.setCodedValue(stmt, 11, subject.getRace(), CodesConfig.CodedType.RACE);
-                this.setCodedValue(stmt, 12, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
-                stmt.setTimestamp(13, this.getTimestamp(subject.getLastUpdatedTime()));
-
+                stmt.setTimestamp(3, this.getTimestamp(subject.getLastUpdatedTime()));
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();
@@ -338,23 +254,13 @@ public class SubjectDAO extends AbstractDAO {
 
             // Now, insert composed objects.
             PersistenceManager pm = this.getPersistenceManager();
-            SubjectNameDAO subjectNameDAO = new SubjectNameDAO(pm);
-            SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(pm);
-            SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(pm);
+            SubjectDemographicsDAO subjectDemographicsDAO = new SubjectDemographicsDAO(pm);
             SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(pm);
-            SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(pm);
-            SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(pm);
             SubjectIdentifierDAO subjectIdentifierDAO = new SubjectIdentifierDAO(pm);
-            //SubjectOtherIdentifierDAO_OLD subjectOtherIdentifierDAO = new SubjectOtherIdentifierDAO_OLD(conn);
             for (Subject subject : subjects) {
-                subjectNameDAO.insert(subject.getSubjectNames(), subject);
-                subjectAddressDAO.insert(subject.getAddresses(), subject);
-                subjectTelecomAddressDAO.insert(subject.getTelecomAddresses(), subject);
+                subjectDemographicsDAO.insert(subject);
                 subjectPersonalRelationshipDAO.insert(subject.getSubjectPersonalRelationships(), subject);
-                subjectLanguageDAO.insert(subject.getSubjectLanguages(), subject);
-                subjectCitizenshipDAO.insert(subject.getSubjectCitizenships(), subject);
                 subjectIdentifierDAO.insert(subject);
-                //subjectOtherIdentifierDAO.insert(subject.getSubjectOtherIdentifiers(), subject);
             }
         } catch (SQLException ex) {
             throw PersistenceManager.getEMPIException("Exception inserting subjects", ex);
@@ -363,11 +269,10 @@ public class SubjectDAO extends AbstractDAO {
         }
     }
 
-   /**
-    * 
-    * @return
-    * @throws EMPIException 
-    */
+    /**
+     *
+     * @return @throws EMPIException
+     */
     private Long generateSubjectUniqueId() throws EMPIException {
         EMPIConfig empiConfig = EMPIConfig.getInstance();
         String sql = empiConfig.getSubjectSequenceGeneratorSQL();
@@ -380,190 +285,62 @@ public class SubjectDAO extends AbstractDAO {
      * @param targetEnterpriseSubjectId
      * @param subject Contains demographics to update.
      * @throws EMPIException
-     * @throws EMPIExceptionUnknownIdentifierDomain  
+     * @throws EMPIExceptionUnknownIdentifierDomain
      */
     public void updateEnterpriseSubject(InternalId targetEnterpriseSubjectId, Subject subject) throws EMPIException, EMPIExceptionUnknownIdentifierDomain {
         // First, load the enterprise subject.
-        Subject enterpriseSubject = this.load(targetEnterpriseSubjectId);
+        //Subject enterpriseSubject = this.load(targetEnterpriseSubjectId);
 
         // Create updated enterprise subject.
         Subject updatedEnterpriseSubject;
         try {
-            updatedEnterpriseSubject = (Subject) enterpriseSubject.clone();
+            updatedEnterpriseSubject = (Subject) subject.clone();
+            updatedEnterpriseSubject.setInternalId(targetEnterpriseSubjectId);
         } catch (CloneNotSupportedException ex) {
             throw new EMPIException("Internal exception - unable to clone subject");
         }
         updatedEnterpriseSubject.setLastUpdatedTime(new Date());
 
-        // Overlay demographics
-
-        // Overlay simple demographics.
-
-        // Birth time
-        if (subject.getBirthTime() != null) {
-            updatedEnterpriseSubject.setBirthTime(subject.getBirthTime());
-            //System.out.println("... updating birth time");
-        }
-
-        // Gender.
-        if (subject.getGender() != null) {
-            updatedEnterpriseSubject.setGender(subject.getGender());
-            //System.out.println("... updating gender");
-        }
-
-        // Deceased indicator.
-        if (subject.getDeceasedIndicator() != null) {
-            updatedEnterpriseSubject.setDeceasedIndicator(subject.getDeceasedIndicator());
-            //System.out.println("... updating deceased indicator");
-        }
-
-        // Deceased time.
-        if (subject.getDeceasedTime() != null) {
-            updatedEnterpriseSubject.setDeceasedTime(subject.getDeceasedTime());
-            //System.out.println("... updating deceased time");
-        }
-
-        // Multiple birth indicator.
-        if (subject.getMultipleBirthIndicator() != null) {
-            updatedEnterpriseSubject.setMultipleBirthIndicator(subject.getMultipleBirthIndicator());
-            //System.out.println("... updating multiple birth indicator");
-        }
-
-        // Multiple birth order.
-        if (subject.getMultipleBirthOrderNumber() != null) {
-            updatedEnterpriseSubject.setMultipleBirthOrderNumber(subject.getMultipleBirthOrderNumber());
-            //System.out.println("... updating multiple birth order number");
-        }
-
-        // Marital status
-        if (subject.getMaritalStatus() != null) {
-            updatedEnterpriseSubject.setMaritalStatus(subject.getMaritalStatus());
-            //System.out.println("... updating marital status");
-        }
-
-        // Religious affiliation.
-        if (subject.getReligiousAffiliation() != null) {
-            updatedEnterpriseSubject.setReligiousAffiliation(subject.getReligiousAffiliation());
-            //System.out.println("... updating religious affiliation");
-        }
-
-        // Race.
-        if (subject.getRace() != null) {
-            updatedEnterpriseSubject.setRace(subject.getRace());
-            //System.out.println("... updating race");
-        }
-
-        // Ethnic group.
-        if (subject.getEthnicGroup() != null) {
-            updatedEnterpriseSubject.setEthnicGroup(subject.getEthnicGroup());
-            //System.out.println("... updating ethnic group");
-        }
-
-        // Now, deal with lists.
-        // FIXME??: Right now, we do a full replace.  Would do based upon type and/or use, but
-        // there can be nulls in these fields.  Need to revisit.
-
-        // Addresses.
-        if (!subject.getAddresses().isEmpty()) {
-            updatedEnterpriseSubject.getAddresses().clear();
-            updatedEnterpriseSubject.getAddresses().addAll(subject.getAddresses());
-            //System.out.println("... updating addresses");
-
-        }
-
-        // Telecom addresses.
-        if (!subject.getTelecomAddresses().isEmpty()) {
-            updatedEnterpriseSubject.getTelecomAddresses().clear();
-            updatedEnterpriseSubject.getTelecomAddresses().addAll(subject.getTelecomAddresses());
-            //System.out.println("... updating telecom addresses");
-        }
-
-        // Names.
-        if (!subject.getSubjectNames().isEmpty()) {
-            updatedEnterpriseSubject.getSubjectNames().clear();
-            updatedEnterpriseSubject.getSubjectNames().addAll(subject.getSubjectNames());
-            //System.out.println("... updating names");
-        }
-
-        // Personal relationships.
-        if (!subject.getSubjectPersonalRelationships().isEmpty()) {
-            updatedEnterpriseSubject.getSubjectPersonalRelationships().clear();
-            updatedEnterpriseSubject.getSubjectPersonalRelationships().addAll(subject.getSubjectPersonalRelationships());
-            //System.out.println("... updating personal relationships");
-        }
-
-        // Languages.
-        if (!subject.getSubjectLanguages().isEmpty()) {
-            updatedEnterpriseSubject.getSubjectLanguages().clear();
-            updatedEnterpriseSubject.getSubjectLanguages().addAll(subject.getSubjectLanguages());
-            //System.out.println("... updating languages");
-        }
-
-        // Citizenships.
-        if (!subject.getSubjectCitizenships().isEmpty()) {
-            updatedEnterpriseSubject.getSubjectCitizenships().clear();
-            updatedEnterpriseSubject.getSubjectCitizenships().addAll(subject.getSubjectCitizenships());
-            //System.out.println("... updating citizenships");
-        }
+        // FIXME: For now, simply replace all demographics from the supplied subject.  Also, should move code.
 
         // Delete subject components (names, addresses, etc.)
         this.deleteSubjectComponents(targetEnterpriseSubjectId);
 
-        // Insert composed parts.
         // Now, insert composed objects.
 
         // Get DAO instances.
         PersistenceManager pm = this.getPersistenceManager();
-        SubjectNameDAO subjectNameDAO = new SubjectNameDAO(pm);
-        SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(pm);
-        SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(pm);
+        SubjectDemographicsDAO subjectDemographicsDAO = new SubjectDemographicsDAO(pm);
         SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(pm);
-        SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(pm);
-        SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(pm);
 
-        // Insert list content.
-        subjectNameDAO.insert(updatedEnterpriseSubject.getSubjectNames(), updatedEnterpriseSubject);
-        subjectAddressDAO.insert(updatedEnterpriseSubject.getAddresses(), updatedEnterpriseSubject);
-        subjectTelecomAddressDAO.insert(updatedEnterpriseSubject.getTelecomAddresses(), updatedEnterpriseSubject);
+        // Insert content.
+        subjectDemographicsDAO.insert(updatedEnterpriseSubject);
         subjectPersonalRelationshipDAO.insert(updatedEnterpriseSubject.getSubjectPersonalRelationships(), updatedEnterpriseSubject);
-        subjectLanguageDAO.insert(updatedEnterpriseSubject.getSubjectLanguages(), updatedEnterpriseSubject);
-        subjectCitizenshipDAO.insert(updatedEnterpriseSubject.getSubjectCitizenships(), updatedEnterpriseSubject);
 
-        // Now update the simple demographic parts.
-        this.updateSubjectSimpleParts(updatedEnterpriseSubject);
+        this.updateLastUpdateTime(updatedEnterpriseSubject);
 
         // Note, identifiers are not touched
     }
-
+    
     /**
      *
      * @param subject
      * @throws EMPIException
      */
-    private void updateSubjectSimpleParts(Subject subject) throws EMPIException {
+    private void updateLastUpdateTime(Subject subject) throws EMPIException {
         PreparedStatement stmt = null;
         try {
-            String sql = "UPDATE subject SET birth_time=?,gender_code=?,deceased_indicator=?,deceased_time=?,multiple_birth_indicator=?,multiple_birth_order_number=?,marital_status_code=?,religious_affiliation_code=?,race_code=?,ethnic_group_code=?,last_updated_time=? WHERE id=?";
+            String sql = "UPDATE subject SET last_updated_time=? WHERE id=?";
             System.out.println("SQL = " + sql);
             stmt = this.getPreparedStatement(sql);
             this.setDate(stmt, 1, subject.getBirthTime());
-            this.setCodedValue(stmt, 2, subject.getGender(), CodesConfig.CodedType.GENDER);
-            this.setBoolean(stmt, 3, subject.getDeceasedIndicator());
-            this.setDate(stmt, 4, subject.getDeceasedTime());
-            this.setBoolean(stmt, 5, subject.getMultipleBirthIndicator());
-            this.setInteger(stmt, 6, subject.getMultipleBirthOrderNumber());
-            this.setCodedValue(stmt, 7, subject.getMaritalStatus(), CodesConfig.CodedType.MARITAL_STATUS);
-            this.setCodedValue(stmt, 8, subject.getReligiousAffiliation(), CodesConfig.CodedType.RELIGIOUS_AFFILIATION);
-            this.setCodedValue(stmt, 9, subject.getRace(), CodesConfig.CodedType.RACE);
-            this.setCodedValue(stmt, 10, subject.getEthnicGroup(), CodesConfig.CodedType.ETHNIC_GROUP);
-            stmt.setTimestamp(11, this.getTimestamp(subject.getLastUpdatedTime()));
-            stmt.setLong(12, subject.getInternalId().getId());
+            stmt.setLong(2, subject.getInternalId().getId());
             stmt.addBatch();
             long startTime = System.currentTimeMillis();
             stmt.executeUpdate();
             long endTime = System.currentTimeMillis();
             if (logger.isTraceEnabled()) {
-                logger.trace("SubjectDAO.updateSubjectSimpleParts: done executeBatch elapedTimeMillis=" + (endTime - startTime));
+                logger.trace("SubjectDAO.updateLastUpdateTime: done executeBatch elapedTimeMillis=" + (endTime - startTime));
             }
         } catch (SQLException ex) {
             throw PersistenceManager.getEMPIException("Exception updated subject", ex);
@@ -573,7 +350,7 @@ public class SubjectDAO extends AbstractDAO {
     }
 
     /**
-     * 
+     *
      * @param survivingEnterpriseSubjectId
      * @param subsumedEnterpriseSubjectId
      * @throws EMPIException
@@ -646,24 +423,13 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         try {
             PersistenceManager pm = this.getPersistenceManager();
-
-            // First delete component parts.
-
             // Get DAO instances responsible for deletions.
-            SubjectNameDAO subjectNameDAO = new SubjectNameDAO(pm);
-            SubjectAddressDAO subjectAddressDAO = new SubjectAddressDAO(pm);
-            SubjectTelecomAddressDAO subjectTelecomAddressDAO = new SubjectTelecomAddressDAO(pm);
+            SubjectDemographicsDAO subjectDemographicsDAO = new SubjectDemographicsDAO(pm);
             SubjectPersonalRelationshipDAO subjectPersonalRelationshipDAO = new SubjectPersonalRelationshipDAO(pm);
-            SubjectLanguageDAO subjectLanguageDAO = new SubjectLanguageDAO(pm);
-            SubjectCitizenshipDAO subjectCitizenshipDAO = new SubjectCitizenshipDAO(pm);
 
             // Run deletions.
-            subjectNameDAO.deleteSubjectRecords(subjectId);
-            subjectAddressDAO.deleteSubjectRecords(subjectId);
-            subjectTelecomAddressDAO.deleteSubjectRecords(subjectId);
+            subjectDemographicsDAO.deleteSubjectRecords(subjectId);
             subjectPersonalRelationshipDAO.deleteSubjectRecords(subjectId);
-            subjectLanguageDAO.deleteSubjectRecords(subjectId);
-            subjectCitizenshipDAO.deleteSubjectRecords(subjectId);
 
         } finally {
             this.close(stmt);

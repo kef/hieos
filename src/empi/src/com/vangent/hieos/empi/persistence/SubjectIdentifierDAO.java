@@ -99,7 +99,7 @@ public class SubjectIdentifierDAO extends AbstractDAO {
             subjectIdentifierDomainIds.add(subjectIdentifierDomainId);
         }
 
-        //SELECT si_0.subject_id
+        //SELECT DISTINCT si_0.subject_id
         //FROM   subject_identifier si_0
         //JOIN   subject_identifier si_1 ON si_0.subject_id = si_1.subject_id
         //JOIN   subject_identifier si_2 ON si_0.subject_id = si_2.subject_id
