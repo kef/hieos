@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hl7v2util.model.builder;
+package com.vangent.hieos.hl7v2util.model.builder;
 
 import ca.uhn.hl7v2.model.v231.datatype.CE;
 import ca.uhn.hl7v2.model.v231.datatype.ID;

@@ -30,7 +30,7 @@ import com.vangent.hieos.subjectmodel.SubjectName;
 import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
 import com.vangent.hieos.subjectmodel.TelecomAddress;
 import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
-import com.vangent.hl7v2util.model.builder.BuilderHelper;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderHelper;
 
 /**
  *
