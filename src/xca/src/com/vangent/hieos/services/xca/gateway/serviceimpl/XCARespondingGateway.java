@@ -16,10 +16,7 @@ import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCARGAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCARGRetrieveDocumentSet;
 
-// Axis2 LifeCycle support.
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 
 // XATNA
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
@@ -83,14 +80,13 @@ public class XCARespondingGateway extends XCAGateway {
         return "XGR (XCA)";
     }
 
-// BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCARespondingGateway::startUp()");
+    public void startup() {
+        logger.info("XCARespondingGateway::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -107,8 +103,8 @@ public class XCARespondingGateway extends XCAGateway {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCARespondingGateway::shutDown()");
+    public void shutdown() {
+        logger.info("XCARespondingGateway::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.RESPONDING_GATEWAY);
     }
 }

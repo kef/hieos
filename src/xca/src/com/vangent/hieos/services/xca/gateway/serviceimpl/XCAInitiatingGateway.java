@@ -16,11 +16,8 @@ import com.vangent.hieos.services.xca.gateway.transactions.XCAAdhocQueryRequest;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAIGRetrieveDocumentSet;
 import com.vangent.hieos.services.xca.gateway.transactions.XCAIGAdhocQueryRequest;
 
-// Axis2 LifeCycle support.
 import com.vangent.hieos.services.xca.gateway.transactions.XCARetrieveDocumentSet;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 
 // XATNA
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -83,14 +80,13 @@ public class XCAInitiatingGateway extends XCAGateway {
         return "RET.b (XCA)";
     }
 
-    // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCAInitiatingGateway::startUp()");
+    public void startup() {
+        logger.info("XCAInitiatingGateway::startup()");
         try {
             XConfig xconf = XConfig.getInstance();
             XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
@@ -106,8 +102,8 @@ public class XCAInitiatingGateway extends XCAGateway {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCAInitiatingGateway::shutDown()");
+    public void shutdown() {
+        logger.info("XCAInitiatingGateway::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 }
