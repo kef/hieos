@@ -31,8 +31,8 @@ public class PIDFeedRandomLoader {
     // Hack - change variables to vary test.
     private final static String ENDPOINT = "http://localhost:8080/axis2/services/pixmgr";
     private final static String TEMPLATE = "test\\PIDFeedTemplate.xml";
-    private final static int MAX_THREADS = 25;
-    private final static int RUN_COUNT_PER_THREAD = 200;
+    private final static int MAX_THREADS = 30;
+    private final static int RUN_COUNT_PER_THREAD = 25;
     private final static String ENTERPRISE_ASSIGNING_AUTHORITY = "1.3.6.1.4.1.21367.13.20.1000";
     private final static String LOCAL_ASSIGNING_AUTHORITY = "1.3.6.1.4.1.21367.1000.1.6";
 
