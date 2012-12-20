@@ -82,7 +82,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
         } catch (EMPIException ex) {
             outMessage = this.buildErrorResponse(inMessage, ex.getMessage());
         } catch (Exception ex) {
-            outMessage = this.buildErrorResponse(inMessage, ex.getMessage());
+            outMessage = this.buildErrorResponse(inMessage, "Exception: " + ex.getClass().getName() + " - " + ex.getMessage());
         }
         return outMessage;
     }

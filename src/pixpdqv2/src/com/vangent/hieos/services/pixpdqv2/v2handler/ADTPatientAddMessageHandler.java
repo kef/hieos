@@ -79,7 +79,7 @@ public class ADTPatientAddMessageHandler extends ADTMessageHandler {
         } catch (EMPIException ex) {
             outMessage = this.buildAck(inMessage, null /* responseText */, ex.getMessage(), null /* errorCode */);
         } catch (Exception ex) {
-            outMessage = this.buildAck(inMessage, null /* responseText */, ex.getMessage(), null /* errorCode */);
+            outMessage = this.buildAck(inMessage, null /* responseText */, "Exception: " + ex.getClass().getName() + " - " + ex.getMessage(), null /* errorCode */);
         }
         return outMessage;
     }
