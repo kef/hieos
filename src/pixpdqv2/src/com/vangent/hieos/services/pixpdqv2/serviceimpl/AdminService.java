@@ -23,8 +23,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -71,8 +69,8 @@ public class AdminService extends XAbstractService {
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("PIXPDQV2:AdminService:startUp()");
+    public void startup() {
+        logger.info("PIXPDQV2:AdminService:startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -100,8 +98,8 @@ public class AdminService extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("PatientIdentifierCrossReferenceManager::shutDown()");
+    public void shutdown() {
+        logger.info("PatientIdentifierCrossReferenceManager::shutdown()");
         AdminService.hl7v2Acceptor.shutdownAndAwaitTermination();
         this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER);
     }
