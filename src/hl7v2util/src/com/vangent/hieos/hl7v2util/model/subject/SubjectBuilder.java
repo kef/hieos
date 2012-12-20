@@ -191,7 +191,7 @@ public class SubjectBuilder {
 
         // Deceased indicator/time:
         subject.setDeceasedIndicator(BuilderHelper.buildBoolean(pid.getPatientDeathIndicator())); // Y - Yes, N - No
-        if (subject.getDeceasedIndicator()) {
+        if (subject.getDeceasedIndicator() != null) {
             if (pid.getPatientDeathDateAndTime() != null && pid.getPatientDeathDateAndTime().getTimeOfAnEvent() != null) {
                 System.out.println("Deceased Time = " + pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
                 subject.setDeceasedTime(pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
@@ -217,19 +217,17 @@ public class SubjectBuilder {
         // FIXME - just use one maiden name.
         if (pid.getMotherSMaidenNameReps() > 0) {
             XPN mothersMaidenNameXPN = pid.getMotherSMaidenName(0);
-            if (mothersMaidenNameXPN != null) {
-                System.out.println("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());
-                // FIXME: Simplify storing maiden names (@ root level of subject), etc. 
-                SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
-                CodedValue relationshipTypeCode = new CodedValue();
-                relationshipTypeCode.setCode("MTH");
-                subjectPersonalRelationship.setRelationshipType(relationshipTypeCode);
-                Subject relatedSubject = new Subject();
-                SubjectName relatedSubjectName = BuilderHelper.buildSubjectName(mothersMaidenNameXPN);
-                relatedSubject.addSubjectName(relatedSubjectName);
-                subjectPersonalRelationship.setSubject(relatedSubject);
-                subject.getSubjectPersonalRelationships().add(subjectPersonalRelationship);
-            }
+            System.out.println("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());
+            // FIXME: Simplify storing maiden names (@ root level of subject), etc.
+            SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
+            CodedValue relationshipTypeCode = new CodedValue();
+            relationshipTypeCode.setCode("MTH");
+            subjectPersonalRelationship.setRelationshipType(relationshipTypeCode);
+            Subject relatedSubject = new Subject();
+            SubjectName relatedSubjectName = BuilderHelper.buildSubjectName(mothersMaidenNameXPN);
+            relatedSubject.addSubjectName(relatedSubjectName);
+            subjectPersonalRelationship.setSubject(relatedSubject);
+            subject.getSubjectPersonalRelationships().add(subjectPersonalRelationship);
         }
 
         return subject;
