@@ -20,10 +20,6 @@ import com.vangent.hieos.xutil.services.framework.XAbstractService;
 
 import org.apache.log4j.Logger;
 
-// Axis2 LifeCycle support.
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
-
 // XATNA
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -96,8 +92,8 @@ public class STS extends XAbstractService {
      * @param service
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("STS::startUp()");
+    public void startup() {
+        logger.info("STS::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -115,7 +111,7 @@ public class STS extends XAbstractService {
      * @param service
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("STS::shutDown()");
+    public void shutdown() {
+        logger.info("STS::shutdown()");
     }
 }
