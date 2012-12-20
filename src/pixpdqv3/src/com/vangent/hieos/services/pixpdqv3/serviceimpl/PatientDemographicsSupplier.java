@@ -21,8 +21,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -71,8 +69,8 @@ public class PatientDemographicsSupplier extends XAbstractService {
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("PatientDemographicsSupplier::startUp()");
+    public void startup() {
+        logger.info("PatientDemographicsSupplier::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -89,8 +87,8 @@ public class PatientDemographicsSupplier extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("PatientDemographicsSupplier::shutDown()");
+    public void shutdown() {
+        logger.info("PatientDemographicsSupplier::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER);
     }
 }
