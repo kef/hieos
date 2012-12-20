@@ -24,10 +24,6 @@ import org.apache.axiom.om.OMNamespace;
 
 import org.apache.log4j.Logger;
 
-// Axis2 LifeCycle support:
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
-
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.SchemaValidationException;
 import com.vangent.hieos.xutil.exception.XdsInternalException;
@@ -169,14 +165,13 @@ public class XDSbRepository extends XAbstractService {
         }
     }
 
-    // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("DocumentRepository::startUp()");
+    public void startup() {
+        logger.info("DocumentRepository::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -193,8 +188,8 @@ public class XDSbRepository extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("DocumentRepository::shutDown()");
+    public void shutdown() {
+        logger.info("DocumentRepository::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.REPOSITORY);
     }
 }

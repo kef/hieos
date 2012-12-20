@@ -27,14 +27,11 @@ import org.apache.axis2.AxisFault;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 
-// Axis2 LifeCycle support:
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
-
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 /**
  *
@@ -383,18 +380,23 @@ public class XDSbRegistry extends XAbstractService {
     }
     }
      */
-    // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("DocumentRegistry::startUp()");
+    public void startup() {
+        logger.info("DocumentRegistry::startup()");
         try {
-            XConfig xconf = XConfig.getInstance();
-            String xConfigName = (String) service.getParameter("XConfigName").getValue();
-            config = xconf.getRegistryConfigByName(xConfigName);
+            XConfig xconf;
+            xconf = XConfig.getInstance();
+            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("registry", XConfig.XDSB_DOCUMENT_REGISTRY_TYPE);
+            if (config == null) {
+                // Fall back case.
+                logger.warn("Attempting to load default 'localregistry' configuration");
+                config = xconf.getRegistryConfigByName("localregistry");
+            }
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
@@ -406,8 +408,8 @@ public class XDSbRegistry extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("DocumentRegistry::shutDown()");
+    public void shutdown() {
+        logger.info("DocumentRegistry::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.REGISTRY);
     }
 }
