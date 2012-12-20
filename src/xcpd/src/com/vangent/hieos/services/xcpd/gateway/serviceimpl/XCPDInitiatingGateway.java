@@ -21,8 +21,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -112,14 +110,13 @@ public class XCPDInitiatingGateway extends XCPDGateway {
         return response;
     }
 
-    // BHT (ADDED Axis2 LifeCycle methods):
     /**
      * This will be called during the deployment time of the service.
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCPDInitiatingGateway::startUp()");
+    public void startup() {
+        logger.info("XCPDInitiatingGateway::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -136,8 +133,8 @@ public class XCPDInitiatingGateway extends XCPDGateway {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("XCPDInitiatingGateway::shutDown()");
+    public void shutdown() {
+        logger.info("XCPDInitiatingGateway::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.INITIATING_GATEWAY);
     }
 }
