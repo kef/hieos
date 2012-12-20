@@ -10,14 +10,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.xutil.xlog.client;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class XLogMessage implements Serializable {
+public class XLogMessage {
 
     private String messageID;   // Message identifier.
     private String ipAddress;   // Source of message.
@@ -34,17 +28,17 @@ public class XLogMessage implements Serializable {
     private boolean pass = true;    // Transaction failed or completed.
     private boolean secureConnection;   // True if secure transaction.
     private long timeStamp;     // Time when message was created (current time in milliseconds).
-    private XLogger xlogger;    // Reference back to creator.
+    private XLogger xlog;    // Reference back to creator.
     private HashMap<String, List<XLogMessageNameValue>> entries = new HashMap<String, List<XLogMessageNameValue>>();
 
     /**
      *
-     * @param xlogger
+     * @param xlog
      * @param messageID
      */
-    public XLogMessage(XLogger xlogger, String messageID) {
+    public XLogMessage(XLogger xlog, String messageID) {
         this.messageID = messageID;
-        this.xlogger = xlogger;
+        this.xlog = xlog;
     }
 
     /**
@@ -52,7 +46,7 @@ public class XLogMessage implements Serializable {
      * @return
      */
     public boolean isLogEnabled() {
-        return xlogger == null ? false : xlogger.isLogEnabled();
+        return xlog == null ? false : xlog.isLogEnabled();
     }
 
     /**
@@ -149,7 +143,7 @@ public class XLogMessage implements Serializable {
      * @param value
      */
     public void addHTTPParam(String name, String value) {
-        if (xlogger.isLogEnabled()) {
+        if (isLogEnabled()) {
             this.addParam("http", name, value);
         }
     }
@@ -159,19 +153,8 @@ public class XLogMessage implements Serializable {
      * @param name
      * @param value
      */
-    /*
-    public void addSOAPParam(String name, String value) {
-    if (xlogger.isLogEnabled()) {
-    this.addParam("soap", name, value);
-    }
-    }*/
-    /**
-     *
-     * @param name
-     * @param value
-     */
     public void addSOAPParam(String name, Object value) {
-        if (xlogger.isLogEnabled()) {
+        if (isLogEnabled()) {
             this.addParam("soap", name, value.toString());
         }
     }
@@ -183,29 +166,18 @@ public class XLogMessage implements Serializable {
      */
     public void addErrorParam(String name, String value) {
         this.setPass(false);
-        if (xlogger.isLogEnabled()) {
+        if (isLogEnabled()) {
             this.addParam("error", name, value);
         }
     }
 
-    /**
-     *
-     * @param name
-     * @param value
-     */
-    /*
-    public void addOtherParam(String name, String value) {
-    if (xlogger.isLogEnabled()) {
-    this.addParam("other", name, value);
-    }
-    }*/
     /**
      * 
      * @param name
      * @param value
      */
     public void addOtherParam(String name, Object value) {
-        if (xlogger.isLogEnabled()) {
+        if (isLogEnabled()) {
             this.addParam("other", name, value.toString());
         }
     }
@@ -244,16 +216,15 @@ public class XLogMessage implements Serializable {
      * 
      */
     public void store() {
-        XLogger delegate = xlogger;
-        xlogger = null;  // So not to serialize.
-        //if (true) return;  // DEBUG (BERNIE -- get out).
-        delegate.store(this);  // Delegate back to the creator.
+        if (isLogEnabled()) {
+            xlog.store(this);  // Delegate back to the creator.
+        }
     }
 
     /**
      *
      */
-    public class XLogMessageNameValue implements Serializable {
+    public class XLogMessageNameValue {
 
         private String name;
         private String value;

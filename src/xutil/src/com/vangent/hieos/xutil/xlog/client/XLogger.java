@@ -10,23 +10,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vangent.hieos.xutil.xlog.client;
 
 import com.vangent.hieos.xutil.exception.XdsInternalException;
-import com.vangent.hieos.xutil.jms.JMSHandler;
-
-import javax.jms.JMSException;
-import javax.naming.NamingException;
-
+import com.vangent.hieos.xutil.xconfig.XConfig;
 import java.util.GregorianCalendar;
 import java.util.UUID;
-
-import com.vangent.hieos.xutil.xconfig.XConfig;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,8 +26,9 @@ import org.apache.log4j.Logger;
 public class XLogger {
 
     private final static Logger logger = Logger.getLogger(XLogger.class);
-    static XLogger _instance = null;
-    boolean logEnabled = false;  // Default (no logging).
+    private static XLogger _instance = null;  // Singleton.
+    private boolean logEnabled = false;
+    private XLogListener logListener;
 
     /**
      *
@@ -46,6 +37,7 @@ public class XLogger {
     synchronized static public XLogger getInstance() {
         if (_instance == null) {
             _instance = new XLogger();
+            _instance.setLogEnabledState();
         }
         return _instance;
     }
@@ -54,11 +46,46 @@ public class XLogger {
      *
      */
     private XLogger() {
-        this.setLogEnabled();
+        // Do not allow construction by outside parties - Singleton.
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isLogEnabled() {
+        return logEnabled;
     }
 
     /**
      * 
+     */
+    synchronized public void startup() {
+        if (!logEnabled) {
+            return;  // Early exit.
+        }
+        if (logListener == null) {
+            logListener = new XLogListener();
+            logListener.startup();
+        }
+    }
+
+    /**
+     *
+     */
+    synchronized public void shutdown() {
+        if (!logEnabled) {
+            return;  // Early exit.
+        }
+        if (logListener != null) {
+            logListener.shutdownAndAwaitTermination();
+            logListener = null;
+        }
+    }
+
+    /**
+     *
+     * @param ipAddress
      * @return
      */
     public XLogMessage getNewMessage(String ipAddress) {
@@ -78,46 +105,27 @@ public class XLogger {
      * @param messageData
      */
     protected void store(XLogMessage messageData) {
-        if (this.logEnabled == true) {
+        if (logEnabled && (logListener != null)) {
             try {
-                this.sendJMSMessageToXLogger(messageData);
+                LinkedBlockingQueue<XLogMessage> logMessageQueue = logListener.getLogMessageQueue();
+                boolean offerStatusResult = logMessageQueue.offer(messageData);
+                //logger.info("Put message on XLogger message queue - " + messageData.getMessageID());
+                if (!offerStatusResult) {
+                    logger.warn("XLogger unable to place message on log queue");
+                }
+                //this.sendJMSMessageToXLogger(messageData);
             } catch (Exception ex) {
-                logger.warn("XLogger exception: " + ex.getMessage());
+                logger.warn("XLogger exception trying to place message on log queue:", ex);
             }
         }
     }
 
     /**
      *
-     * @param messageData
-     * @throws javax.naming.NamingException
-     * @throws javax.jms.JMSException
      */
-    private void sendJMSMessageToXLogger(XLogMessage messageData) throws NamingException, JMSException {
-        JMSHandler jms = new JMSHandler("jms/XLoggerFactory", "jms/XLogger");
+    private void setLogEnabledState() {
         try {
-            jms.createConnectionFactoryFromPool();
-            jms.createJMSSession();
-            jms.sendMessage(messageData);
-        } finally {
-            jms.close();
-        }
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isLogEnabled() {
-        return this.logEnabled;
-    }
-
-    /**
-     *
-     */
-    private void setLogEnabled() {
-        try {
-            this.logEnabled = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("LogEnabled");
+            logEnabled = XConfig.getInstance().getHomeCommunityConfigPropertyAsBoolean("LogEnabled");
         } catch (XdsInternalException ex) {
             logger.warn("XLogger XLogger exception: " + ex.getMessage());
         }

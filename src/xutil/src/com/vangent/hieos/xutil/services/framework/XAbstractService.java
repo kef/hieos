@@ -234,8 +234,8 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
         MessageContext messageContext = this.getCurrentMessageContext();
 
         String remoteIP = (String) messageContext.getProperty(MessageContext.REMOTE_ADDR);
-        XLogger xlogger = XLogger.getInstance();
-        log_message = xlogger.getNewMessage(remoteIP);
+        XLogger xlog = XLogger.getInstance();
+        log_message = xlog.getNewMessage(remoteIP);
         log_message.setTestMessage(this.serviceName);
         logger.info("Start " + serviceName + " " + log_message.getMessageID() + " : " + remoteIP + " : " + messageContext.getTo().toString());
 
@@ -620,7 +620,10 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param service
      */
     public void startUp(ConfigurationContext configctx, AxisService service) {
-        //logger.info("XdsService:::startUp() - NOOP (not overridden)");
+        //logger.info("XdsService:::startup() - NOOP (not overridden)");
+        XLogger xlog = XLogger.getInstance();
+        xlog.startup();
+        startup();
     }
 
     /**
@@ -630,8 +633,16 @@ abstract public class XAbstractService implements ServiceLifeCycle, Lifecycle {
      * @param service
      */
     public void shutDown(ConfigurationContext configctx, AxisService service) {
-        //logger.info("XdsService:::shutDown() - NOOP (not overridden)");
+        //logger.info("XdsService:::shutdown() - NOOP (not overridden)");
+        shutdown();
+        XLogger xlog = XLogger.getInstance();
+        xlog.shutdown();
     }
+
+    // Methods to be overridden.
+    abstract public void startup();
+
+    abstract public void shutdown();
 
     /**
      *
