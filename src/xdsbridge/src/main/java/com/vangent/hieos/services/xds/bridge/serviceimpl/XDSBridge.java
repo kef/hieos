@@ -28,8 +28,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -107,31 +105,23 @@ public class XDSBridge extends XAbstractService {
     }
 
     /**
-     * Method description
-     *
-     *
-     * @param configctx
-     * @param service
+     * 
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
+    public void shutdown() {
 
-        super.shutDown(configctx, service);
+        //super.shutDown(configctx, service);
 
         XDSBridge.serviceContext = null;
     }
 
     /**
-     * Method description
-     *
-     *
-     * @param configctx
-     * @param service
+     * 
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
+    public void startup() {
 
-        super.startUp(configctx, service);
+        //super.startUp(configctx, service);
 
         // check environment
 
