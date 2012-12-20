@@ -23,10 +23,6 @@ import org.apache.axiom.om.OMNamespace;
 
 import org.apache.log4j.Logger;
 
-// Axis2 LifeCycle support:
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
-
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -110,8 +106,8 @@ public class XDRRecipient extends XAbstractService {
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("XDRRecipient::startUp()");
+    public void startup() {
+        logger.info("XDRRecipient::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -128,8 +124,8 @@ public class XDRRecipient extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("XDRRecipient::shutDown()");
+    public void shutdown() {
+        logger.info("XDRRecipient::shutdown()");
         this.ATNAlogStop(ATNAAuditEvent.ActorType.DOCRECIPIENT);
     }
 }
