@@ -20,8 +20,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Logger;
 
 /**
@@ -65,8 +63,8 @@ public class PDP extends XAbstractService {
      * Irrespective of the service scope this method will be called
      */
     @Override
-    public void startUp(ConfigurationContext configctx, AxisService service) {
-        logger.info("PDP::startUp()");
+    public void startup() {
+        logger.info("PDP::startup()");
         try {
             XConfig xconf;
             xconf = XConfig.getInstance();
@@ -82,7 +80,7 @@ public class PDP extends XAbstractService {
      * of the service scope this method will be called
      */
     @Override
-    public void shutDown(ConfigurationContext configctx, AxisService service) {
-        logger.info("PDP::shutDown()");
+    public void shutdown() {
+        logger.info("PDP::shutdown()");
     }
 }
