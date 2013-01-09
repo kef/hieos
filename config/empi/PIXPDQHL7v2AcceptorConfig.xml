@@ -1,10 +1,20 @@
 
 <config>
-    <acceptor-listener-port>5051</acceptor-listener-port>
-    <acceptor-thread-pool-size>20</acceptor-thread-pool-size>
-    <acceptor-enable-tls>false</acceptor-enable-tls>
-    <!-- only need to specify cipher suites if TLS is enabled -->
-    <acceptor-cipher-suites>SSL_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA</acceptor-cipher-suites>
+    <listeners>
+        <listener>
+            <enabled>false</enabled>
+            <tls-enabled>true</tls-enabled>
+            <port>5051</port>
+            <thread-pool-size>20</thread-pool-size>
+            <cipher-suites>SSL_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA</cipher-suites>
+        </listener>
+        <listener>
+            <enabled>true</enabled>
+            <tls-enabled>false</tls-enabled>
+            <port>5050</port>
+            <thread-pool-size>20</thread-pool-size>
+        </listener>
+    </listeners>
     <message-handlers>
         <message-handler>
             <!-- A01 - Admission of an in-patient into a facility -->
@@ -49,7 +59,7 @@
             <trigger-event>Q23</trigger-event>
             <class>com.vangent.hieos.services.pixpdqv2.v2handler.PIXQueryMessageHandler</class>
         </message-handler>
-         <message-handler>
+        <message-handler>
             <!-- Q22 - Find Candidates (PDQ Query) -->
             <message-type>QBP</message-type>
             <trigger-event>Q22</trigger-event>
