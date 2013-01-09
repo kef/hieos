@@ -1,8 +1,10 @@
 
 <config>
-    <acceptor-listener-port>6661</acceptor-listener-port>
-    <acceptor-enable-tls>false</acceptor-enable-tls>
+    <acceptor-listener-port>5051</acceptor-listener-port>
     <acceptor-thread-pool-size>20</acceptor-thread-pool-size>
+    <acceptor-enable-tls>false</acceptor-enable-tls>
+    <!-- only need to specify cipher suites if TLS is enabled -->
+    <acceptor-cipher-suites>SSL_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA</acceptor-cipher-suites>
     <message-handlers>
         <message-handler>
             <!-- A01 - Admission of an in-patient into a facility -->
