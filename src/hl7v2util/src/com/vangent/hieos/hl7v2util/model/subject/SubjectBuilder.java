@@ -51,6 +51,7 @@ public class SubjectBuilder {
     /**
      *
      * @return @throws HL7Exception
+     * @throws HL7Exception
      */
     public Subject buildSubject() throws HL7Exception {
         // Build Subject.

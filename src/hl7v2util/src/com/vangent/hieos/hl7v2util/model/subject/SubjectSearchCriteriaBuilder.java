@@ -44,6 +44,7 @@ public class SubjectSearchCriteriaBuilder {
     /**
      *
      * @return @throws HL7Exception
+     * @throws HL7Exception
      */
     public SubjectSearchCriteria buildSubjectSearchCriteriaFromPIXQuery() throws HL7Exception {
         // Build SubjectSearchCriteria.
@@ -76,7 +77,8 @@ public class SubjectSearchCriteriaBuilder {
 
     /**
      *
-     * @return @throws HL7Exception
+     * @return @throws HL7Exception 
+     * @throws HL7Exception
      */
     public SubjectSearchCriteria buildSubjectSearchCriteriaFromPDQ() throws HL7Exception {
         // Build SubjectSearchCriteria.

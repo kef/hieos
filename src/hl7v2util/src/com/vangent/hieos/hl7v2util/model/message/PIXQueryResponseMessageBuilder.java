@@ -151,6 +151,7 @@ public class PIXQueryResponseMessageBuilder extends QueryResponseMessageBuilder 
     /**
      *
      * @return @throws HL7Exception
+     * @throws HL7Exception
      */
     public RSP_K23 buildBaseErrorResponse() throws HL7Exception {
         // Inbound message header.

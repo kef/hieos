@@ -211,6 +211,7 @@ public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
     /**
      *
      * @return @throws HL7Exception
+     * @throws HL7Exception
      */
     public RSP_K21 buildBaseErrorResponse() throws HL7Exception {
         // Inbound message header.

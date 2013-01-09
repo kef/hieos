@@ -12,35 +12,24 @@
  */
 package com.vangent.hieos.hl7v2util.acceptor;
 
-import ca.uhn.hl7v2.llp.LowerLayerProtocol;
-import ca.uhn.hl7v2.parser.Parser;
-import ca.uhn.hl7v2.parser.PipeParser;
 import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
+import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class HL7v2Acceptor implements Runnable {
+public class HL7v2Acceptor {
 
     private static final Logger log = Logger.getLogger(HL7v2Acceptor.class);
-    private final LowerLayerProtocol llp;
-    private final Parser parser;
-    private ExecutorService pool = null;
-    private ConnectionManager connectionManager = null;
-    private final MessageRouter messageRouter;
+    private static final int SO_BACKLOG = 20;
     private final AcceptorConfig acceptorConfig;
-    private ExecutorService listener = null;
-    private Future<?> acceptorThread = null;
     private ServerSocket serverSocket;
+    private HL7v2Listener listener;
 
     /**
      * 
@@ -48,12 +37,6 @@ public class HL7v2Acceptor implements Runnable {
      */
     public HL7v2Acceptor(AcceptorConfig acceptorConfig) {
         this.acceptorConfig = acceptorConfig;
-        this.messageRouter = new MessageRouter(acceptorConfig);
-        this.llp = LowerLayerProtocol.makeLLP(); // The transport protocol
-        this.parser = new PipeParser(); // The message parser
-
-        // For the listener thread.
-        this.listener = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -65,175 +48,48 @@ public class HL7v2Acceptor implements Runnable {
     }
 
     /**
-     *
-     * @return
-     */
-    public LowerLayerProtocol getLowerLayerProtocol() {
-        return llp;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public MessageRouter getMessageRouter() {
-        return messageRouter;
-    }
-
-    /**
      * 
-     * @return
+     * @throws HL7v2UtilException
      */
-    public Parser getParser() {
-        return parser;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ExecutorService getPool() {
-        return pool;
-    }
-
-    /**
-     * 
-     */
-    public void start() throws IOException {
-        log.info("HL7v2Acceptor getting ServerSocket (port = "
+    public void startup() throws HL7v2UtilException {
+        log.info("HL7v2Acceptor: getting ServerSocket (port = "
                 + acceptorConfig.getAcceptorListenerPort()
                 + ", TLS=" + acceptorConfig.isAcceptorTLSEnabled()
                 + ", thread pool size = " + acceptorConfig.getAcceptorThreadPoolSize()
                 + ")");
-        // FIXME: Add TLSSocket support.
 
-        // Create listener socket.
-        this.serverSocket = new ServerSocket(acceptorConfig.getAcceptorListenerPort());
+        // See if TLS is enabled.
+        if (acceptorConfig.isAcceptorTLSEnabled()) {
+            // Create listener socket (TLS).
+            TLSSocketSupport socketSupport = new TLSSocketSupport();
+            try {
+                this.serverSocket = socketSupport.getSecureServerSocket(
+                        acceptorConfig.getAcceptorListenerPort(), SO_BACKLOG, acceptorConfig.getCipherSuites());
+            } catch (Exception ex) {
+                log.fatal("HL7v2Acceptor: could not open TLS socket", ex);
+                throw new HL7v2UtilException("HL7v2Acceptor: could not open TLS socket", ex);
+            }
+        } else {
+            try {
+                // Create listener socket (no TLS).
+                this.serverSocket = new ServerSocket(acceptorConfig.getAcceptorListenerPort(), SO_BACKLOG);
+            } catch (IOException ex) {
+                log.fatal("HL7v2Acceptor: could not open socket", ex);
+                throw new HL7v2UtilException("HL7v2Acceptor: could not open socket", ex);
+            }
+        }
 
-        // Create ConnectionManager instance (and tell about the server socket).
-        this.connectionManager = new ConnectionManager();
-
-        // Create acceptor thread pool.
-        this.pool = Executors.newFixedThreadPool(acceptorConfig.getAcceptorThreadPoolSize());
-
-
-        // Startup listener thread.
-        this.acceptorThread = listener.submit(this);
+        // Get and start listener.
+        listener = new HL7v2Listener(acceptorConfig, this.serverSocket);
+        listener.startup();
     }
 
     /**
-     *
+     * 
      */
-    public void run() { // run the service
-        try {
-            for (;;) {
-                log.info("HL7v2Acceptor Thread waiting for connection (HL7v2Acceptor thread name = "
-                        + Thread.currentThread().getName()
-                        + ", port = " + acceptorConfig.getAcceptorListenerPort()
-                        + ", TLS=" + acceptorConfig.isAcceptorTLSEnabled()
-                        + ", thread pool size = " + acceptorConfig.getAcceptorThreadPoolSize()
-                        + ")");
-                Connection connection = null;
-                // Wait on socket connection.
-                Socket socket = serverSocket.accept();
-                try {
-                    // Create a new Connection instance.
-                    connection = new Connection(acceptorConfig, parser, llp, messageRouter, socket);
-
-                    // Add connection to the ConnectionManager.
-                    connectionManager.addConnection(connection);
-                    log.info("HL7v2Acceptor Thread accepted connection (HL7v2Acceptor thread name = "
-                            + Thread.currentThread().getName()
-                            + ", remote ip = " + connection.getRemoteAddress()
-                            + ", remote port = " + connection.getRemotePort()
-                            + ")");
-
-                    // Handle the connection (from the thread pool).
-                    pool.execute(new ConnectionHandler(connectionManager, connection));
-                } catch (Exception ex) {
-                    log.error("Exception in HL7v2Acceptor thread", ex);
-                    // FIXME?
-                    //if (connection != null) {
-                    //    connection.close();
-                    //}
-                }
-            }
-        } catch (IOException ex) {
-            log.error("Exception in HL7v2Acceptor thread", ex);
-            //this.shutdownAndAwaitTermination();
-        }
-    }
-
-    /**
-     *
-     */
-    public void shutdownAndAwaitTermination() {
-        try {
-            log.info("Closing HL7v2Acceptor listener socket");
-            serverSocket.close();
-            log.info("HL7v2Acceptor listener socket closed!");
-        } catch (IOException ex) {
-            log.error("HL7v2Acceptor - problem closing socket", ex);
-        }
-
-        // Try to shutdown main listener now.
-        log.info("Shutting down listener for HL7v2Acceptor ...");
-        listener.shutdown();
-        try {
-            if (!listener.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-                listener.shutdownNow();
-                // Wait a while for tasks to respond to being cancelled
-                if (!listener.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-                    log.error("HL7v2Acceptor - listener did not terminate");
-                } else {
-                    log.warn("HL7v2Acceptor listener terminated after forced shutdown!");
-                }
-            } else {
-                log.info("HL7v2Acceptor listener terminated gracefully!");
-            }
-        } catch (InterruptedException ex) {// (Re-)Cancel if current thread also interrupted
-            listener.shutdownNow();
-            log.warn("HL7v2Acceptor listener terminated after forced shutdown!");
-            // Preserve interrupt status
-            // FIXME?
-            //Thread.currentThread().interrupt();
-        }
-
-
-        log.info("Shutting down thread pool for HL7v2Acceptor ...");
-        if (pool == null) {
-            return;  // Early exit!
-        }
-        pool.shutdown(); // Disable new tasks from being submitted
-        try {
-            // Wait a while for existing tasks to terminate
-            // FIXME: Make wait time configurable.
-            if (!pool.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-                pool.shutdownNow(); // Cancel currently executing tasks
-                // Wait a while for tasks to respond to being cancelled
-                if (!pool.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-                    log.error("HL7v2Acceptor - thread pool did not terminate");
-                } else {
-                    log.warn("HL7v2Acceptor thread pool terminated after forced shutdown!");
-                }
-            } else {
-                log.info("HL7v2Acceptor thread pool terminated gracefully!");
-            }
-        } catch (InterruptedException ie) {
-            // (Re-)Cancel if current thread also interrupted
-            pool.shutdownNow();
-            log.warn("HL7v2Acceptor thread pool terminated after forced shutdown!");
-            // Preserve interrupt status
-            // FIXME?
-            // Thread.currentThread().interrupt();
-        }
-
-        // Shutdown any open connections
-        log.info("Shutting down any open connections for HL7v2Acceptor ...");
-        if (connectionManager == null) {
-            return;  // Early exit!
-        }
-        connectionManager.closeConnections();
+    public void shutdown() {
+        // Shutdown listener (try gracefully).
+        listener.shutdownAndAwaitTermination();
     }
 
     /**
@@ -253,7 +109,7 @@ public class HL7v2Acceptor implements Runnable {
             String configFileName = args[1];
             AcceptorConfig acceptorConfig = new AcceptorConfig(configFileName);
             HL7v2Acceptor acceptor = new HL7v2Acceptor(acceptorConfig);
-            acceptor.run();
+            acceptor.startup();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -31,10 +31,12 @@ public class AcceptorConfig {
     private static String ACCEPTOR_ENABLE_TLS = "acceptor-enable-tls";
     private static String ACCEPTOR_LISTENER_PORT = "acceptor-listener-port";
     private static String ACCEPTOR_THREAD_POOL_SIZE = "acceptor-thread-pool-size";
+    private static String ACCEPTOR_CIPHER_SUITES = "acceptor-cipher-suites";
     private static String MESSAGE_HANDLERS = "message-handlers.message-handler";
     private int acceptorListenerPort = -1;
     private int acceptorThreadPoolSize = -1;
     private boolean acceptorEnableTLS;
+    private String[] cipherSuites = null;
     private List<MessageHandlerConfig> messageHandlerConfigs = new ArrayList<MessageHandlerConfig>();
 
     /**
@@ -66,6 +68,14 @@ public class AcceptorConfig {
      *
      * @return
      */
+    public String[] getCipherSuites() {
+        return cipherSuites;
+    }
+
+    /**
+     *
+     * @return
+     */
     public int getAcceptorThreadPoolSize() {
         return acceptorThreadPoolSize;
     }
@@ -90,6 +100,9 @@ public class AcceptorConfig {
             acceptorEnableTLS = xmlConfig.getBoolean(ACCEPTOR_ENABLE_TLS, false);
             acceptorListenerPort = xmlConfig.getInt(ACCEPTOR_LISTENER_PORT, -1);
             acceptorThreadPoolSize = xmlConfig.getInt(ACCEPTOR_THREAD_POOL_SIZE, -1);
+            if (acceptorEnableTLS) {
+                this.loadCipherSuites(xmlConfig);
+            }
             this.loadMessageHandlerConfigs(xmlConfig);
         } catch (ConfigurationException ex) {
             throw new HL7v2UtilException(
@@ -101,6 +114,18 @@ public class AcceptorConfig {
         }
         if (acceptorThreadPoolSize == -1) {
             throw new HL7v2UtilException("Must specify " + ACCEPTOR_THREAD_POOL_SIZE + " in configuration.");
+        }
+    }
+
+    /**
+     *
+     * @param xmlConfig
+     * @throws HL7v2UtilException
+     */
+    private void loadCipherSuites(XMLConfiguration xmlConfig) throws HL7v2UtilException {
+        cipherSuites = xmlConfig.getStringArray(ACCEPTOR_CIPHER_SUITES);
+        if (cipherSuites == null || cipherSuites.length == 0) {
+            throw new HL7v2UtilException("Must specify " + ACCEPTOR_CIPHER_SUITES + " in configuration.");
         }
     }
 

@@ -68,6 +68,7 @@ public class MessageRouter {
      * @param connection
      * @param in
      * @return
+     * @throws ApplicationException
      */
     public boolean canProcess(Connection connection, Message in) throws ApplicationException {
         try {

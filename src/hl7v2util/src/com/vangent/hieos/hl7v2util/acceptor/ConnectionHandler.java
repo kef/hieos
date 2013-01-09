@@ -49,7 +49,7 @@ public class ConnectionHandler implements Runnable {
      *
      */
     public void run() {
-        log.info("ConnectionHandler Thread servicing connection (ConnectionHandler thread name = "
+        log.info("ConnectionHandler: servicing connection (thread = "
                 + Thread.currentThread().getName()
                 + ", remote ip = " + connection.getRemoteAddress()
                 + ", remote port = " + connection.getRemotePort()
@@ -67,7 +67,7 @@ public class ConnectionHandler implements Runnable {
                 HL7Writer hl7Writer = connection.getHl7Writer();
                 hl7Writer.writeMessage(outgoingMessageString);
             }
-            log.info("ConnectionHandler Thread closing connection (ConnectionHandler thread name = "
+            log.info("ConnectionHandler: closing connection (thread = "
                     + Thread.currentThread().getName()
                     + ", remote ip = " + connection.getRemoteAddress()
                     + ", remote port = " + connection.getRemotePort()
@@ -75,7 +75,7 @@ public class ConnectionHandler implements Runnable {
             connectionManager.removeConnection(connection);
         } catch (Exception ex) {
             log.error("Exception in ConnectionHandler", ex);
-            log.info("ConnectionHandler Thread closing connection (ConnectionHandler thread name = "
+            log.info("ConnectionHandler: closing connection (thread = "
                     + Thread.currentThread().getName()
                     + ", remote ip = " + connection.getRemoteAddress()
                     + ", remote port = " + connection.getRemotePort()

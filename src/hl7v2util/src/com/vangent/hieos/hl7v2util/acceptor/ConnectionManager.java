@@ -33,6 +33,14 @@ public class ConnectionManager {
 
     /**
      *
+     * @return
+     */
+    public int getConnectionCount() {
+        return this.connections.size();
+    }
+
+    /**
+     *
      * @param connection
      */
     public void addConnection(Connection connection) {
