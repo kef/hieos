@@ -80,12 +80,11 @@ public class AdminService extends XAbstractService {
             config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
 
             // Start up listener.
-            // FIXME: Location HACK!
-            AcceptorConfig acceptorConfig = new AcceptorConfig("C:/dev/hieos/config/empi/PIXPDQHL7v2AcceptorConfig.xml");
+            String empiConfigDir = XConfig.getConfigLocation(XConfig.ConfigItem.EMPI_DIR);
+            AcceptorConfig acceptorConfig = new AcceptorConfig(
+                    empiConfigDir + "/PIXPDQHL7v2AcceptorConfig.xml");
             AdminService.hl7v2Acceptor = new HL7v2Acceptor(acceptorConfig);
-            AdminService.hl7v2Acceptor.start();
-            //AdminService.hl7v2AcceptorThread = new Thread(AdminService.hl7v2Acceptor);
-            //AdminService.hl7v2AcceptorThread.start();
+            AdminService.hl7v2Acceptor.startup();
 
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
@@ -100,7 +99,7 @@ public class AdminService extends XAbstractService {
     @Override
     public void shutdown() {
         logger.info("PatientIdentifierCrossReferenceManager::shutdown()");
-        AdminService.hl7v2Acceptor.shutdownAndAwaitTermination();
+        AdminService.hl7v2Acceptor.shutdown();
         this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER);
     }
 }
