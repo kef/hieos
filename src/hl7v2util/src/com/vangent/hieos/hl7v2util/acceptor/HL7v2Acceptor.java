@@ -13,10 +13,10 @@
 package com.vangent.hieos.hl7v2util.acceptor;
 
 import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.config.ListenerConfig;
 import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
-import com.vangent.hieos.xutil.socket.TLSSocketSupport;
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,10 +26,8 @@ import org.apache.log4j.Logger;
 public class HL7v2Acceptor {
 
     private static final Logger log = Logger.getLogger(HL7v2Acceptor.class);
-    private static final int SO_BACKLOG = 20;
     private final AcceptorConfig acceptorConfig;
-    private ServerSocket serverSocket;
-    private HL7v2Listener listener;
+    private List<HL7v2Listener> listeners = new ArrayList<HL7v2Listener>();
 
     /**
      * 
@@ -51,45 +49,39 @@ public class HL7v2Acceptor {
      * 
      * @throws HL7v2UtilException
      */
-    public void startup() throws HL7v2UtilException {
-        log.info("HL7v2Acceptor: getting ServerSocket (port = "
-                + acceptorConfig.getAcceptorListenerPort()
-                + ", TLS=" + acceptorConfig.isAcceptorTLSEnabled()
-                + ", thread pool size = " + acceptorConfig.getAcceptorThreadPoolSize()
-                + ")");
+    public void startup() {
 
-        // See if TLS is enabled.
-        if (acceptorConfig.isAcceptorTLSEnabled()) {
-            // Create listener socket (TLS).
-            TLSSocketSupport socketSupport = new TLSSocketSupport();
-            try {
-                this.serverSocket = socketSupport.getSecureServerSocket(
-                        acceptorConfig.getAcceptorListenerPort(), SO_BACKLOG, acceptorConfig.getCipherSuites());
-            } catch (Exception ex) {
-                log.fatal("HL7v2Acceptor: could not open TLS socket", ex);
-                throw new HL7v2UtilException("HL7v2Acceptor: could not open TLS socket", ex);
-            }
-        } else {
-            try {
-                // Create listener socket (no TLS).
-                this.serverSocket = new ServerSocket(acceptorConfig.getAcceptorListenerPort(), SO_BACKLOG);
-            } catch (IOException ex) {
-                log.fatal("HL7v2Acceptor: could not open socket", ex);
-                throw new HL7v2UtilException("HL7v2Acceptor: could not open socket", ex);
+        // Only need one of these.
+        MessageRouter messageRouter = new MessageRouter(acceptorConfig);
+
+        // Get list of listener configs.
+        List<ListenerConfig> listenerConfigs = acceptorConfig.getListenerConfigs();
+
+        // Startup all enabled listeners.
+        for (ListenerConfig listenerConfig : listenerConfigs) {
+            if (listenerConfig.isEnabled()) {
+                try {
+                    // Get listener and then start it up.
+                    HL7v2Listener listener;
+                    listener = new HL7v2Listener(listenerConfig, messageRouter);
+                    listener.startup();
+                    // Keep track of listeners (for later shutdown).
+                    listeners.add(listener);
+                } catch (HL7v2UtilException ex) {
+                    log.fatal("Could not startup listener", ex);
+                }
             }
         }
-
-        // Get and start listener.
-        listener = new HL7v2Listener(acceptorConfig, this.serverSocket);
-        listener.startup();
     }
 
     /**
      * 
      */
     public void shutdown() {
-        // Shutdown listener (try gracefully).
-        listener.shutdownAndAwaitTermination();
+        // Shutdown listeners (try gracefully).
+        for (HL7v2Listener listener : listeners) {
+            listener.shutdownAndAwaitTermination();
+        }
     }
 
     /**

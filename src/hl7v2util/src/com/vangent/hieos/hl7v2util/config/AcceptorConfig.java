@@ -28,16 +28,10 @@ import org.apache.log4j.Logger;
 public class AcceptorConfig {
 
     private final static Logger log = Logger.getLogger(AcceptorConfig.class);
-    private static String ACCEPTOR_ENABLE_TLS = "acceptor-enable-tls";
-    private static String ACCEPTOR_LISTENER_PORT = "acceptor-listener-port";
-    private static String ACCEPTOR_THREAD_POOL_SIZE = "acceptor-thread-pool-size";
-    private static String ACCEPTOR_CIPHER_SUITES = "acceptor-cipher-suites";
     private static String MESSAGE_HANDLERS = "message-handlers.message-handler";
-    private int acceptorListenerPort = -1;
-    private int acceptorThreadPoolSize = -1;
-    private boolean acceptorEnableTLS;
-    private String[] cipherSuites = null;
+    private static String LISTENERS = "listeners.listener";
     private List<MessageHandlerConfig> messageHandlerConfigs = new ArrayList<MessageHandlerConfig>();
+    private List<ListenerConfig> listenerConfigs = new ArrayList<ListenerConfig>();
 
     /**
      *
@@ -49,43 +43,19 @@ public class AcceptorConfig {
     }
 
     /**
-     *
-     * @return
-     */
-    public int getAcceptorListenerPort() {
-        return acceptorListenerPort;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public boolean isAcceptorTLSEnabled() {
-        return acceptorEnableTLS;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String[] getCipherSuites() {
-        return cipherSuites;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getAcceptorThreadPoolSize() {
-        return acceptorThreadPoolSize;
-    }
-
-    /**
      * 
      * @return
      */
     public List<MessageHandlerConfig> getMessageHandlerConfigs() {
         return messageHandlerConfigs;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<ListenerConfig> getListenerConfigs() {
+        return listenerConfigs;
     }
 
     /**
@@ -97,35 +67,13 @@ public class AcceptorConfig {
         try {
             log.info("Loading HL7v2Acceptor configuration from " + configLocation);
             XMLConfiguration xmlConfig = new XMLConfiguration(configLocation);
-            acceptorEnableTLS = xmlConfig.getBoolean(ACCEPTOR_ENABLE_TLS, false);
-            acceptorListenerPort = xmlConfig.getInt(ACCEPTOR_LISTENER_PORT, -1);
-            acceptorThreadPoolSize = xmlConfig.getInt(ACCEPTOR_THREAD_POOL_SIZE, -1);
-            if (acceptorEnableTLS) {
-                this.loadCipherSuites(xmlConfig);
-            }
+
             this.loadMessageHandlerConfigs(xmlConfig);
+            this.loadListenerConfigs(xmlConfig);
         } catch (ConfigurationException ex) {
             throw new HL7v2UtilException(
                     "HL7v2AcceptorConfig: Could not load configuration from "
                     + configLocation + " " + ex.getMessage());
-        }
-        if (acceptorListenerPort == -1) {
-            throw new HL7v2UtilException("Must specify " + ACCEPTOR_LISTENER_PORT + " in configuration.");
-        }
-        if (acceptorThreadPoolSize == -1) {
-            throw new HL7v2UtilException("Must specify " + ACCEPTOR_THREAD_POOL_SIZE + " in configuration.");
-        }
-    }
-
-    /**
-     *
-     * @param xmlConfig
-     * @throws HL7v2UtilException
-     */
-    private void loadCipherSuites(XMLConfiguration xmlConfig) throws HL7v2UtilException {
-        cipherSuites = xmlConfig.getStringArray(ACCEPTOR_CIPHER_SUITES);
-        if (cipherSuites == null || cipherSuites.length == 0) {
-            throw new HL7v2UtilException("Must specify " + ACCEPTOR_CIPHER_SUITES + " in configuration.");
         }
     }
 
@@ -143,6 +91,23 @@ public class AcceptorConfig {
             messageHandlerConfig.load(hcMessageHandler, this);
             // Keep track of message handler configurations.
             messageHandlerConfigs.add(messageHandlerConfig);
+        }
+    }
+
+    /**
+     *
+     * @param hc
+     * @throws HL7v2UtilException
+     */
+    private void loadListenerConfigs(HierarchicalConfiguration hc) throws HL7v2UtilException {
+        // Get message handler configurations.
+        List listeners = hc.configurationsAt(LISTENERS);
+        for (Iterator it = listeners.iterator(); it.hasNext();) {
+            HierarchicalConfiguration hcListenerConfig = (HierarchicalConfiguration) it.next();
+            ListenerConfig listenerConfig = new ListenerConfig();
+            listenerConfig.load(hcListenerConfig, this);
+            // Keep track of listener configurations.
+            listenerConfigs.add(listenerConfig);
         }
     }
 }

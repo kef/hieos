@@ -18,7 +18,6 @@ import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.app.Responder;
 import ca.uhn.hl7v2.llp.HL7Reader;
 import ca.uhn.hl7v2.llp.HL7Writer;
-import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -40,11 +39,9 @@ public class Connection {
     private MessageRouter messageRouter;
     private HL7Writer hl7Writer;
     private HL7Reader hl7Reader;
-    private AcceptorConfig acceptorConfig;
 
     /**
-     * 
-     * @param acceptorConfig
+     *
      * @param parser
      * @param llp
      * @param messageRouter
@@ -52,9 +49,8 @@ public class Connection {
      * @throws LLPException
      * @throws IOException
      */
-    public Connection(AcceptorConfig acceptorConfig, Parser parser, LowerLayerProtocol llp, MessageRouter messageRouter, Socket socket)
+    public Connection(Parser parser, LowerLayerProtocol llp, MessageRouter messageRouter, Socket socket)
             throws LLPException, IOException {
-        this.acceptorConfig = acceptorConfig;
         this.parser = parser;
         //this.llp = llp;
         this.messageRouter = messageRouter;
@@ -62,14 +58,6 @@ public class Connection {
         this.hl7Reader = llp.getReader(socket.getInputStream());
         this.socket = socket;
         this.responder = new Responder(parser);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public AcceptorConfig getAcceptorConfig() {
-        return acceptorConfig;
     }
 
     /**

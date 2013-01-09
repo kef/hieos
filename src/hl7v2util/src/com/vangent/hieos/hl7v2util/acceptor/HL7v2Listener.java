@@ -16,7 +16,9 @@ import ca.uhn.hl7v2.llp.LLPException;
 import ca.uhn.hl7v2.llp.LowerLayerProtocol;
 import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
-import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.config.ListenerConfig;
+import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
+import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,41 +34,80 @@ import org.apache.log4j.Logger;
 public class HL7v2Listener implements Runnable {
 
     private static final Logger log = Logger.getLogger(HL7v2Listener.class);
+    private static final int SO_BACKLOG = 20;
     private static final int SHUTDOWN_TIMEOUT_MSEC = 500;  // FIXME: Place in configuration file?
+    private final ListenerConfig listenerConfig;
+    private final MessageRouter messageRouter;
+    private ConnectionManager connectionManager;
+    private ServerSocket serverSocket;
     private final LowerLayerProtocol llp;
     private final Parser parser;
-    private ConnectionManager connectionManager;
-    private final MessageRouter messageRouter;
-    private final AcceptorConfig acceptorConfig;
-    private ServerSocket serverSocket;
-    private boolean shuttingDownSocket = false;
     private ExecutorService executorService;
     private ExecutorService workerPool;
+    private boolean shuttingDownSocket = false;
 
     /**
-     * 
-     * @param acceptorConfig
-     * @param serverSocket
+     *
+     * @param listenerConfig
+     * @param messageRouter
      */
-    public HL7v2Listener(AcceptorConfig acceptorConfig, ServerSocket serverSocket) {
-        this.acceptorConfig = acceptorConfig;
-        this.serverSocket = serverSocket;
-        this.messageRouter = new MessageRouter(acceptorConfig);
+    public HL7v2Listener(ListenerConfig listenerConfig, MessageRouter messageRouter) {
+        this.messageRouter = messageRouter;
+        this.listenerConfig = listenerConfig;
+        // Probably do not need to be unique to listener, but ok.
         this.llp = LowerLayerProtocol.makeLLP(); // The transport protocol
         this.parser = new PipeParser(); // The message parser
         this.connectionManager = new ConnectionManager();
 
         // Create thread pool.
-        this.workerPool = Executors.newFixedThreadPool(acceptorConfig.getAcceptorThreadPoolSize());
+        this.workerPool = Executors.newFixedThreadPool(listenerConfig.getThreadPoolSize());
     }
 
     /**
      * 
      */
-    public void startup() {
+    public void startup() throws HL7v2UtilException {
+        // Get server socket.
+        serverSocket = this.getServerSocket();
+
         // Start listener thread.
         executorService = Executors.newSingleThreadExecutor();
         executorService.submit(this);
+    }
+
+    /**
+     * 
+     * @return
+     * @throws HL7v2UtilException
+     */
+    private ServerSocket getServerSocket() throws HL7v2UtilException {
+        ServerSocket socket;
+        log.info(getVitals() + "getting ServerSocket ("
+                + ", TLS=" + listenerConfig.isTLSEnabled()
+                + ", thread pool size = " + listenerConfig.getThreadPoolSize()
+                + ")");
+
+        // See if TLS is enabled.
+        if (listenerConfig.isTLSEnabled()) {
+            // Create listener socket (TLS).
+            TLSSocketSupport socketSupport = new TLSSocketSupport();
+            try {
+                socket = socketSupport.getSecureServerSocket(
+                        listenerConfig.getPort(), SO_BACKLOG, listenerConfig.getCipherSuites());
+            } catch (Exception ex) {
+                log.fatal(getVitals() + "could not open TLS socket", ex);
+                throw new HL7v2UtilException(getVitals() + "could not open TLS socket", ex);
+            }
+        } else {
+            try {
+                // Create listener socket (no TLS).
+                socket = new ServerSocket(listenerConfig.getPort(), SO_BACKLOG);
+            } catch (IOException ex) {
+                log.fatal(getVitals() + "could not open socket", ex);
+                throw new HL7v2UtilException(getVitals() + "could not open socket", ex);
+            }
+        }
+        return socket;
     }
 
     /**
@@ -113,7 +154,6 @@ public class HL7v2Listener implements Runnable {
         workerPool.shutdown(); // Disable new tasks from being submitted
         try {
             // Wait a while for existing tasks to terminate
-            // FIXME: Make wait time configurable.
             if (!workerPool.awaitTermination(SHUTDOWN_TIMEOUT_MSEC, TimeUnit.MILLISECONDS)) {
                 workerPool.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
@@ -148,7 +188,7 @@ public class HL7v2Listener implements Runnable {
      * @return
      */
     private String getVitals() {
-        return "HL7v2Listener (port = " + acceptorConfig.getAcceptorListenerPort() + "): ";
+        return "HL7v2Listener (port = " + listenerConfig.getPort() + "): ";
     }
 
     /**
@@ -158,7 +198,7 @@ public class HL7v2Listener implements Runnable {
         while (!shuttingDownSocket) {
             log.info(getVitals() + "waiting for connection (thread = "
                     + Thread.currentThread().getName()
-                    + ", thread pool size = " + acceptorConfig.getAcceptorThreadPoolSize()
+                    + ", thread pool size = " + listenerConfig.getThreadPoolSize()
                     + ")");
             Connection connection = null;
             Socket socket = null;
@@ -171,7 +211,7 @@ public class HL7v2Listener implements Runnable {
                 }
             }
             try {
-                connection = new Connection(acceptorConfig, parser, llp, messageRouter, socket);
+                connection = new Connection(parser, llp, messageRouter, socket);
                 // Add connection to the ConnectionManager.
                 connectionManager.addConnection(connection);
                 log.info(getVitals() + "accepted connection (thread = "
