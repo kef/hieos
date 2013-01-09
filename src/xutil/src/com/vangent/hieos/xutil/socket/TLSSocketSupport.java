@@ -150,6 +150,18 @@ public class TLSSocketSupport {
      * @throws Exception
      */
     public java.net.ServerSocket getSecureServerSocket(int port, int backlog) throws Exception {
+        return this.getSecureServerSocket(port, backlog, this.getCipherSuites());
+    }
+
+    /**
+     *
+     * @param port
+     * @param backlog
+     * @param cipherSuites
+     * @return
+     * @throws Exception
+     */
+    public java.net.ServerSocket getSecureServerSocket(int port, int backlog, String[] cipherSuites) throws Exception {
         // Get props.
         String keyStoreFileName = System.getProperty(KEY_STORE_FILE_NAME);
         String keyStorePassword = System.getProperty(KEY_STORE_PASSWORD);
@@ -166,7 +178,7 @@ public class TLSSocketSupport {
         ServerSocketFactory serverSocketFactory = context.getServerSocketFactory();
         SSLServerSocket socket = (SSLServerSocket) serverSocketFactory.createServerSocket(port, backlog);
         socket.setNeedClientAuth(true);
-        TLSSocketSupport.enableAllSupportedCipherSuites(socket);
+        socket.setEnabledCipherSuites(cipherSuites);
         if (log.isTraceEnabled()) {
             printCipherSuites(socket);
         }
@@ -242,18 +254,17 @@ public class TLSSocketSupport {
     }
 
     /**
-     *
-     * @param socket
+     * 
+     * @return
      */
-    private static void enableAllSupportedCipherSuites(SSLServerSocket socket) {
+    private String[] getCipherSuites() {
         String ciphers = System.getProperty(CIPHER_SUITE);
         if (log.isTraceEnabled()) {
             log.trace("Enabling required cipher suites...");
             log.trace("Specified cipher suites:  " + ciphers);
         }
         //String[] suites = socket.getSupportedCipherSuites();
-        String[] suites = ciphers.split(",");
-        socket.setEnabledCipherSuites(suites);
+        return ciphers.split(",");
     }
 
     /**
