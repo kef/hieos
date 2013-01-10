@@ -83,7 +83,7 @@ public class HL7v2Listener implements Runnable {
     private ServerSocket getServerSocket() throws HL7v2UtilException {
         ServerSocket socket;
         log.info(getVitals() + "getting ServerSocket ("
-                + ", TLS=" + listenerConfig.isTLSEnabled()
+                + "TLS=" + listenerConfig.isTLSEnabled()
                 + ", thread pool size = " + listenerConfig.getThreadPoolSize()
                 + ")");
 
