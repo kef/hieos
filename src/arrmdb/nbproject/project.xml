@@ -5,8 +5,9 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>arrmdb</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
-            <included-library>file.reference.log4j-1.2.15.jar</included-library>
-            <included-library>reference.xutil.jar</included-library>
+            <included-library dirs="200">file.reference.log4j-1.2.15.jar</included-library>
+            <included-library dirs="200">reference.xutil.jar</included-library>
+            <included-library dirs="200">file.reference.log4j.properties</included-library>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>
