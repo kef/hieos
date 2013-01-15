@@ -14,6 +14,7 @@
                 <file file="${file.reference.hl7v3util.jar}"/>
                 <file file="${file.reference.subjectmodel.jar}"/>
                 <file file="${file.reference.empi.jar}"/>
+                <file file="${file.reference.pixnotifierutil.jar}"/>
                 <file file="${file.reference.commons-beanutils-1.8.3.jar}"/>
                 <file file="${file.reference.commons-collections-3.2.1.jar}"/>
                 <file file="${file.reference.commons-configuration-1.7.jar}"/>
