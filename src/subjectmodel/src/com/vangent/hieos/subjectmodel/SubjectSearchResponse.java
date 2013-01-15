@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectSearchResponse implements Cloneable {
+public class SubjectSearchResponse implements Cloneable, Serializable {
 
     private List<Subject> subjects = new ArrayList<Subject>();
     // TBD: add other attributes (outside of the list of subjects).

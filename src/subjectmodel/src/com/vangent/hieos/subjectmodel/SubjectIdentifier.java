@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectIdentifier extends SubjectAbstractEntity implements Cloneable {
+public class SubjectIdentifier extends SubjectAbstractEntity {
 
     public enum Type {
 

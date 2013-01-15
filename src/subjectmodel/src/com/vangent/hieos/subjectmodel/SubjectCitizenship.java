@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectCitizenship extends SubjectAbstractEntity implements Cloneable {
+public class SubjectCitizenship extends SubjectAbstractEntity {
 
     private CodedValue nationCode = null;
     private String nationName = null;

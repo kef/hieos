@@ -13,12 +13,13 @@
 package com.vangent.hieos.subjectmodel;
 
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import java.io.Serializable;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class DeviceInfo implements Cloneable {
+public class DeviceInfo implements Cloneable, Serializable {
 
     private String id;
     private String name;

@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class Subject extends SubjectAbstractEntity implements Cloneable {
+public class Subject extends SubjectAbstractEntity {
 
     private List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();

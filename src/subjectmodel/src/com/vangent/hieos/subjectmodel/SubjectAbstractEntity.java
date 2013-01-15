@@ -12,13 +12,14 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectAbstractEntity {
+public class SubjectAbstractEntity implements Cloneable, Serializable {
 
     private InternalId internalId = null;
     private Date lastUpdatedTime = new Date();

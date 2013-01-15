@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectPersonalRelationship extends SubjectAbstractEntity implements Cloneable {
+public class SubjectPersonalRelationship extends SubjectAbstractEntity {
 
     private CodedValue relationshipType = null;
     private Subject subject = null;

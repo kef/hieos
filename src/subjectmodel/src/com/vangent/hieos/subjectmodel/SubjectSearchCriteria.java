@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectSearchCriteria implements Cloneable {
+public class SubjectSearchCriteria implements Cloneable, Serializable {
 
     private Subject subject = null;
     private int minimumDegreeMatchPercentage = 100;  // Default.

@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class CodedValue implements Cloneable {
+public class CodedValue implements Cloneable, Serializable {
 
     private String code;
     private String codeSystem;

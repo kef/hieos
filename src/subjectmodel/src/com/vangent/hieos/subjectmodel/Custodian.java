@@ -16,7 +16,7 @@ package com.vangent.hieos.subjectmodel;
  *
  * @author Bernie Thuman
  */
-public class Custodian extends SubjectAbstractEntity implements Cloneable {
+public class Custodian extends SubjectAbstractEntity {
 
     private boolean supportsHealthDataLocator;
     private String custodianId;

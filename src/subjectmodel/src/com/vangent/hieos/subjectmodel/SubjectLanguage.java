@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectLanguage extends SubjectAbstractEntity implements Cloneable {
+public class SubjectLanguage extends SubjectAbstractEntity {
 
     private CodedValue languageCode = null;
     private Boolean preferenceIndicator = null;

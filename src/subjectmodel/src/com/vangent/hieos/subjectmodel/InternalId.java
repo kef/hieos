@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class InternalId implements Cloneable {
+public class InternalId implements Cloneable, Serializable {
 
     private Long id;
     private int seqNo = 0;

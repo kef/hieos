@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class SubjectIdentifierDomain implements Cloneable {
+public class SubjectIdentifierDomain implements Cloneable, Serializable {
 
     private int id = -1;
     private String namespaceId = null;

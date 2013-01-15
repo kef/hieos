@@ -12,11 +12,13 @@
  */
 package com.vangent.hieos.subjectmodel;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Bernie Thuman
  */
-public class SubjectMergeRequest implements Cloneable {
+public class SubjectMergeRequest implements Cloneable, Serializable {
     // Even though, we really only care about subject identifiers, there may be other
     // information we need (in the future).
 

@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Bernie Thuman
  */
-public class TelecomAddress extends SubjectAbstractEntity implements Cloneable {
+public class TelecomAddress extends SubjectAbstractEntity {
 
     private String use;
     private String value;
