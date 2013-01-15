@@ -59,7 +59,7 @@ public class PIXConsumerClient extends WebServiceClient {
         XConfigTransaction txn = config.getTransaction("PatientRegistryRecordRevised");
         soap.setAsync(txn.isAsyncTransaction());
         boolean soap12 = txn.isSOAP12Endpoint();
-        if (logMessage.isLogEnabled()) {
+        if (logMessage != null && logMessage.isLogEnabled()) {
             logMessage.addOtherParam("PIX Update Notification Request to " + txn.getEndpointURL(),
                     request.getMessageNode().toString());
         }
@@ -71,7 +71,7 @@ public class PIXConsumerClient extends WebServiceClient {
                 soap12,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION /* SOAP action */,
                 PIXConsumerClient.XREFCONSUMER_UPDATE_ACTION_RESPONSE /* SOAP action response */);
-        if (logMessage.isLogEnabled()) {
+        if (logMessage != null && logMessage.isLogEnabled()) {
             logMessage.addOtherParam("PIX Update Notification Response from " + txn.getEndpointURL(),
                     soapResponse.toString());
         }
