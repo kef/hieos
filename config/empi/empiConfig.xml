@@ -716,83 +716,6 @@
 
     <update-notification-enabled>false</update-notification-enabled>
 
-    <!-- List of cross reference consumers -->
-    <cross-reference-consumers>
-        <!--
-        <cross-reference-consumer>
-            <name>TIANI</name>
-            <enabled>true</enabled>
-            <device-id>1.3.6.1.4.1.21367.13.30.6</device-id>
-            <device-name>1.3.6.1.4.1.21367.13.30.6</device-name>
-            <identifier-domains>
-                <identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.3000</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE-BLUE</namespace-id>
-                </identifier-domain>
-            </identifier-domains>
-        </cross-reference-consumer>
-        -->
-        <cross-reference-consumer>
-            <name>NIST PIX PDQ Tool</name>
-            <enabled>true</enabled>
-            <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
-            <device-name>2.16.840.1.113883.3.72.6.1</device-name>
-            <!-- List of interested identifier domains -->
-            <identifier-domains>
-                <identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE_1000</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.1</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.2</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010-2</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.3</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010-3</namespace-id>
-                </identifier-domain>
-            </identifier-domains>
-        </cross-reference-consumer>
-        <!--<cross-reference-consumer>
-            <name>BOGUS DEVICE</name>
-            <enabled>true</enabled>
-            <device-id>bogus.device.id</device-id>
-            <device-name>bogus.device.name</device-name>
-            <interested-identifier-domains>
-                <identifier-domain>
-                    <universal-id>1.3.6.1.4.1.21367.13.20.1000</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>IHE_1000</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.1</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.2</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010-2</namespace-id>
-                </identifier-domain>
-                <identifier-domain>
-                    <universal-id>2.16.840.1.113883.3.72.5.9.3</universal-id>
-                    <universal-id-type>ISO</universal-id-type>
-                    <namespace-id>NIST2010-3</namespace-id>
-                </identifier-domain>
-            </interested-identifier-domains>
-        </cross-reference-consumer>-->
-        <!-- more cross-reference-consumer(s) go here .... -->
-    </cross-reference-consumers>
-
     <validate-identity-sources-enabled>false</validate-identity-sources-enabled>
     
     <!-- List of valid identifier sources -->
@@ -906,11 +829,10 @@
 
     <!-- Sequence number generators - database specific -->
     <!-- Postgres -->
-    <!--
     <subject-sequence-generator-sql>SELECT nextval('subject_seq')</subject-sequence-generator-sql>
-    -->
+    
     <!-- Microsoft SQL Server -->
-    <subject-sequence-generator-sql>SELECT NEXT VALUE FOR subject_seq</subject-sequence-generator-sql>
+    <!--<subject-sequence-generator-sql>SELECT NEXT VALUE FOR subject_seq</subject-sequence-generator-sql>-->
 
     <!-- List of valid identifier domains (not yet implemented) -->
     <identifier-domains>
