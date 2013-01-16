@@ -12,13 +12,13 @@
  */
 package com.vangent.hieos.services.pixmgr.notifier;
 
-import com.vangent.hieos.empi.config.CrossReferenceConsumerConfig;
-import com.vangent.hieos.empi.config.EMPIConfig;
-import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v3util.client.HL7V3ClientResponse;
 import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
 import com.vangent.hieos.pixnotifierutil.client.PIXUpdateNotification;
+import com.vangent.hieos.pixnotifierutil.config.CrossReferenceConsumerConfig;
+import com.vangent.hieos.pixnotifierutil.config.PIXNotifierConfig;
+import com.vangent.hieos.pixnotifierutil.exception.PIXNotifierUtilException;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
@@ -95,11 +95,11 @@ public class PIXNotifierMessageBean implements MessageListener {
     public void sendNotifications(PIXUpdateNotification pixUpdateNotification) {
 
         // Get EMPI configuration.
-        EMPIConfig empiConfig;
+        PIXNotifierConfig pixNotifierConfig;
         try {
-            empiConfig = EMPIConfig.getInstance();
-        } catch (EMPIException ex) {
-            logger.error("Error getting EMPI configuration when trying to send PIX Update Notifications", ex);
+            pixNotifierConfig = PIXNotifierConfig.getInstance();
+        } catch (PIXNotifierUtilException ex) {
+            logger.error("Error getting PIX Notifier configuration when trying to send PIX Update Notifications", ex);
             return;
         }
 
@@ -114,7 +114,7 @@ public class PIXNotifierMessageBean implements MessageListener {
         DeviceInfo senderDeviceInfo = new DeviceInfo(pixManagerConfig);
 
         // Go through each cross reference consumer configuration.
-        for (CrossReferenceConsumerConfig crossReferenceConsumerConfig : empiConfig.getCrossReferenceConsumerConfigs()) {
+        for (CrossReferenceConsumerConfig crossReferenceConsumerConfig : pixNotifierConfig.getCrossReferenceConsumerConfigs()) {
 
             // Only send notifications if enabled for the consumer.
             if (crossReferenceConsumerConfig.isEnabled()) {
@@ -212,7 +212,7 @@ public class PIXNotifierMessageBean implements MessageListener {
                 xATNALogger.audit(auditEvent);
             }
         } catch (Exception ex) {
-            logger.error("PIXManager EXCEPTION: Could not perform ATNA audit", ex);
+            logger.error("PIX Notifier EXCEPTION: Could not perform ATNA audit", ex);
         }
     }
 }

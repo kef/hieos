@@ -6,7 +6,6 @@
             <name>pixnotifier</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <included-library dirs="200">file.reference.pixnotifierutil.jar</included-library>
-            <included-library dirs="200">file.reference.empi.jar</included-library>
             <included-library dirs="200">file.reference.subjectmodel.jar</included-library>
             <included-library dirs="200">file.reference.hl7v3util.jar</included-library>
             <included-library dirs="200">file.reference.xutil.jar</included-library>

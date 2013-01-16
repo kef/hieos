@@ -441,7 +441,6 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="compile" name="library-inclusion-in-archive">
         <copyfiles files="${file.reference.pixnotifierutil.jar}" todir="${build.classes.dir}"/>
-        <copyfiles files="${file.reference.empi.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.subjectmodel.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.hl7v3util.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.xutil.jar}" todir="${build.classes.dir}"/>
@@ -472,7 +471,6 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
         <copyfiles files="${file.reference.pixnotifierutil.jar}" todir="${dist.ear.dir}/lib"/>
-        <copyfiles files="${file.reference.empi.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.subjectmodel.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.hl7v3util.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.xutil.jar}" todir="${dist.ear.dir}/lib"/>
