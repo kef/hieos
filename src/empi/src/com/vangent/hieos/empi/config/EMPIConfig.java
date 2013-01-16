@@ -21,10 +21,7 @@ import com.vangent.hieos.empi.match.CandidateFinder;
 import com.vangent.hieos.empi.match.MatchAlgorithm.MatchType;
 import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
-import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,7 +55,6 @@ public class EMPIConfig {
     private static String MATCH_CONFIG_FEED = "match-config-feed(0)";
     private static String MATCH_CONFIG_FIND = "match-config-find(0)";
     private static String EUID_CONFIG = "euid-config(0)";
-    private static String CROSS_REFERENCE_CONSUMER_CONFIGS = "cross-reference-consumers.cross-reference-consumer";
     private static String IDENTITY_SOURCE_CONFIGS = "identity-sources.identity-source";
     private static EMPIConfig _instance = null;
     //private BlockingConfig blockingConfig;
@@ -75,8 +71,6 @@ public class EMPIConfig {
     private Map<String, TransformFunctionConfig> transformFunctionConfigs = new HashMap<String, TransformFunctionConfig>();
     private Map<String, DistanceFunctionConfig> distanceFunctionConfigs = new HashMap<String, DistanceFunctionConfig>();
     private Map<String, FieldConfig> fieldConfigs = new HashMap<String, FieldConfig>();
-    private Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = new HashMap<String, XConfigActor>();
-    private List<CrossReferenceConsumerConfig> crossReferenceConsumerConfigs = new ArrayList<CrossReferenceConsumerConfig>();
     // Key = device id
     private Map<String, IdentitySourceConfig> identitySourceConfigs = new HashMap<String, IdentitySourceConfig>();
     private CodesConfig codesConfig;
@@ -334,22 +328,6 @@ public class EMPIConfig {
      *
      * @return
      */
-    public List<CrossReferenceConsumerConfig> getCrossReferenceConsumerConfigs() {
-        return crossReferenceConsumerConfigs;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public Map<String, XConfigActor> getCrossReferenceConsumerConfigActorMap() {
-        return crossReferenceConsumerConfigActorMap;
-    }
-
-    /**
-     *
-     * @return
-     */
     public Map<String, IdentitySourceConfig> getIdentitySourceConfigs() {
         return identitySourceConfigs;
     }
@@ -395,9 +373,6 @@ public class EMPIConfig {
             // Load EUID configuration.
             euidConfig = new EUIDConfig();
             euidConfig.load(xmlConfig.configurationAt(EUID_CONFIG), this);
-
-            // Load cross reference consumers.
-            this.loadCrossReferenceConsumers(xmlConfig);
 
             // Load identity sources.
             this.loadIdentitySources(xmlConfig);
@@ -469,25 +444,6 @@ public class EMPIConfig {
      * @param hc
      * @throws EMPIException
      */
-    private void loadCrossReferenceConsumers(HierarchicalConfiguration hc) throws EMPIException {
-        // Load up XConfig configuration items.
-        this.loadCrossReferenceConsumerConfigActorMap();
-
-        // Get cross-reference consumer configurations.
-        List crossReferenceConsumers = hc.configurationsAt(CROSS_REFERENCE_CONSUMER_CONFIGS);
-        for (Iterator it = crossReferenceConsumers.iterator(); it.hasNext();) {
-            HierarchicalConfiguration hcCrossReferenceConsumer = (HierarchicalConfiguration) it.next();
-            CrossReferenceConsumerConfig crossReferenceConsumerConfig = new CrossReferenceConsumerConfig();
-            crossReferenceConsumerConfig.load(hcCrossReferenceConsumer, this);
-            crossReferenceConsumerConfigs.add(crossReferenceConsumerConfig);
-        }
-    }
-
-    /**
-     *
-     * @param hc
-     * @throws EMPIException
-     */
     private void loadIdentitySources(HierarchicalConfiguration hc) throws EMPIException {
 
         // Get identity source(s) configurations.
@@ -520,27 +476,5 @@ public class EMPIConfig {
         String candidateFinderClassName = hc.getString(CANDIDATE_FINDER);
         // Get an instance of the match algorithm.
         this.candidateFinder = (CandidateFinder) ConfigHelper.loadClassInstance(candidateFinderClassName);
-    }
-
-    /**
-     *
-     * @throws EMPIException
-     */
-    private void loadCrossReferenceConsumerConfigActorMap() throws EMPIException {
-        XConfig xConfig;
-        try {
-            xConfig = XConfig.getInstance();
-        } catch (XConfigException ex) {
-            throw new EMPIException("Unable to load XConfig", ex);
-        }
-        List<XConfigObject> crossReferenceConsumerConfigObjects = xConfig.getXConfigObjectsOfType("PIXConsumerType");
-        for (XConfigObject configObject : crossReferenceConsumerConfigObjects) {
-            String deviceId = configObject.getProperty("DeviceId");
-            if (deviceId != null) {
-                crossReferenceConsumerConfigActorMap.put(deviceId, (XConfigActor) configObject);
-            } else {
-                logger.error("DeviceId not found in XConfig for PIX Consumer = " + configObject.getName());
-            }
-        }
     }
 }
