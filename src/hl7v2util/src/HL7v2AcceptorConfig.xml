@@ -1,8 +1,20 @@
 
 <config>
-    <acceptor-listener-port>6661</acceptor-listener-port>
-    <acceptor-enable-tls>false</acceptor-enable-tls>
-    <acceptor-thread-pool-size>20</acceptor-thread-pool-size>
+    <listeners>
+        <listener>
+            <enabled>true</enabled>
+            <tls-enabled>false</tls-enabled>
+            <port>5051</port>
+            <thread-pool-size>20</thread-pool-size>
+            <cipher-suites>SSL_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA</cipher-suites>
+        </listener>
+        <listener>
+            <enabled>true</enabled>
+            <tls-enabled>false</tls-enabled>
+            <port>5050</port>
+            <thread-pool-size>20</thread-pool-size>
+        </listener>
+    </listeners>
     <message-handlers>
         <message-handler>
             <message-type>ADT</message-type>

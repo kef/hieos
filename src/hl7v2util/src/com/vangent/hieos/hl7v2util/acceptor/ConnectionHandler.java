@@ -101,21 +101,21 @@ public class ConnectionHandler implements Runnable {
         String outgoingMessageString = null;
         Parser parser = connection.getParser();
         try {
-            // DEBUG:
-            log.info("[received] RAW HL7v2 Message:");
-            log.info(incomingMessageString);
+            // FIXME: Change to DEBUG
+            if (log.isInfoEnabled()) {
+                log.info("[inbound] RAW HL7v2 Message:\n" + incomingMessageString);
+            }
 
-            log.info("... parsing");
+            // Parse inbound message into HAPI HL7v2 message instance.
             incomingMessageObject = parser.parse(incomingMessageString);
-            log.info("... parsing complete");
-            
-            // DEBUG:
-            log.info("... XML parsing");
-            Parser xmlParser = new DefaultXMLParser();
-            String xmlEncodedMessage = xmlParser.encode(incomingMessageObject);
-            log.info("... XML parsing complete");
-            log.info("[received] XML Encoded Message:");
-            log.info(xmlEncodedMessage);
+
+            // FIXME: Change to DEBUG
+            if (log.isInfoEnabled()) {
+                Parser xmlParser = new DefaultXMLParser();
+                String xmlEncodedMessage = xmlParser.encode(incomingMessageObject);
+                log.info("[inbound] XML Encoded Message:\n" + xmlEncodedMessage);
+            }
+
         } catch (HL7Exception e) {
             // TODO this may also throw an Exception, which hides the
             // previous one.
@@ -132,7 +132,7 @@ public class ConnectionHandler implements Runnable {
             //}
         }
 
-        if (outgoingMessageString == null) {
+        if (outgoingMessageString == null) { // No error.
             try {
                 // optionally check integrity of parse
                 //try {
@@ -168,15 +168,14 @@ public class ConnectionHandler implements Runnable {
             }
         }
 
-        // DEBUG:
-        if (outgoingMessageString != null) {
-            log.info("[response] RAW HL7v2 Message:");
-            log.info(outgoingMessageString);
+        // FIXME: Change to DEBUG
+        if ((outgoingMessageString != null) && log.isInfoEnabled()) {
+            log.info("[inbound response] RAW HL7v2 Message:\n"
+                    + outgoingMessageString);
             Message outgoingMessageObject = parser.parse(outgoingMessageString);
             Parser xmlParser = new DefaultXMLParser();
-            String xmlEncodedMessage = xmlParser.encode(outgoingMessageObject);
-            log.info("[response] XML Encoded Message:");
-            log.info(xmlEncodedMessage);
+            log.info("[inbound response] XML Encoded Message:\n"
+                    + xmlParser.encode(outgoingMessageObject));
         }
         return outgoingMessageString;
     }
