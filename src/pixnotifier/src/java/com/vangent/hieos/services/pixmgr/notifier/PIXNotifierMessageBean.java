@@ -12,9 +12,6 @@
  */
 package com.vangent.hieos.services.pixmgr.notifier;
 
-import com.vangent.hieos.hl7v3util.atna.ATNAAuditEventHelper;
-import com.vangent.hieos.hl7v3util.client.HL7V3ClientResponse;
-import com.vangent.hieos.hl7v3util.client.PIXConsumerClient;
 import com.vangent.hieos.pixnotifierutil.client.PIXUpdateNotification;
 import com.vangent.hieos.pixnotifierutil.config.CrossReferenceConsumerConfig;
 import com.vangent.hieos.pixnotifierutil.config.PIXNotifierConfig;
@@ -23,9 +20,6 @@ import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
-import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
-import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientRecord;
-import com.vangent.hieos.xutil.atna.XATNALogger;
 import com.vangent.hieos.xutil.exception.XConfigException;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -118,31 +112,21 @@ public class PIXNotifierMessageBean implements MessageListener {
 
             // Only send notifications if enabled for the consumer.
             if (crossReferenceConsumerConfig.isEnabled()) {
-                XConfigActor pixConsumerActorConfig = crossReferenceConsumerConfig.getConfigActor();
-                if (pixConsumerActorConfig != null) {
 
-                    DeviceInfo receiverDeviceInfo = new DeviceInfo(pixConsumerActorConfig);
-                    PIXConsumerClient pixConsumerClient = new PIXConsumerClient(pixConsumerActorConfig, null /* XLogMessage */);
-                    // Now send notifications for each individual subject on notification list.
-                    for (Subject subject : pixUpdateNotification.getSubjects()) {
-                        try {
-                            Subject notificationSubject = this.getNotificationSubject(subject, crossReferenceConsumerConfig);
-                            if ((notificationSubject != null) && !notificationSubject.getSubjectIdentifiers().isEmpty()) {
-                                logger.info("Sending PIX Update Notification [device id = "
-                                        + receiverDeviceInfo.getId() + ", endpoint=" + 
-                                        pixConsumerActorConfig.getTransaction("PatientRegistryRecordRevised").getEndpointURL() + "]");
-                                HL7V3ClientResponse clientResponse = pixConsumerClient.patientRegistryRecordRevised(
-                                        senderDeviceInfo, receiverDeviceInfo, notificationSubject);
-                                this.performAuditPIXUpdateNotification(notificationSubject, clientResponse);
-                            }
-                        } catch (Exception ex) {
-                            logger.error("Error sending PIX Update Notification to receiver [device id = "
-                                    + receiverDeviceInfo.getId() + "]", ex);
+                // Now send notifications for each individual subject on notification list.
+                for (Subject subject : pixUpdateNotification.getSubjects()) {
+                    Subject notificationSubject = this.getNotificationSubject(subject, crossReferenceConsumerConfig);
+                    if ((notificationSubject != null) && !notificationSubject.getSubjectIdentifiers().isEmpty()) {
+                        // FIXME: Maybe cleanup logic. This works, but ugly implementation.
+                        if (crossReferenceConsumerConfig.isHL7v3NotificationEnabled()) {
+                            HL7v3Notifier notifier = new HL7v3Notifier(senderDeviceInfo, crossReferenceConsumerConfig);
+                            notifier.sendNotification(notificationSubject);
+                        }
+                        if (crossReferenceConsumerConfig.isHL7v2NotificationEnabled()) {
+                            HL7v2Notifier notifier = new HL7v2Notifier(senderDeviceInfo, crossReferenceConsumerConfig);
+                            notifier.sendNotification(notificationSubject);
                         }
                     }
-                } else {
-                    logger.error("Error sending PIX Update Notification (no XConfig entry) to receiver [device id = "
-                            + crossReferenceConsumerConfig.getDeviceId() + "]");
                 }
             }
         }
@@ -194,25 +178,5 @@ public class PIXNotifierMessageBean implements MessageListener {
         xconf = XConfig.getInstance();
         XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
         return (XConfigActor) homeCommunity.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
-    }
-
-    /**
-     *
-     * @param subject
-     * @param pixConsumerActorConfig
-     */
-    private void performAuditPIXUpdateNotification(
-            Subject subject, HL7V3ClientResponse clientResponse) {
-        try {
-            XATNALogger xATNALogger = new XATNALogger();
-            if (xATNALogger.isPerformAudit()) {
-                ATNAAuditEventPatientRecord auditEvent = ATNAAuditEventHelper.getATNAAuditEventPatientRecord(
-                        ATNAAuditEvent.ActorType.PIX_MANAGER, subject,
-                        clientResponse.getTargetEndpoint(), clientResponse.getMessageId());
-                xATNALogger.audit(auditEvent);
-            }
-        } catch (Exception ex) {
-            logger.error("PIX Notifier EXCEPTION: Could not perform ATNA audit", ex);
-        }
     }
 }
