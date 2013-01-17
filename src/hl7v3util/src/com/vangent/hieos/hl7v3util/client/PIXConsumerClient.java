@@ -38,10 +38,10 @@ public class PIXConsumerClient extends WebServiceClient {
 
     /**
      *
-     * @param gatewayConfig
+     * @param configActor
      */
-    public PIXConsumerClient(XConfigActor gatewayConfig, XLogMessage logMessage) {
-        super(gatewayConfig);
+    public PIXConsumerClient(XConfigActor configActor, XLogMessage logMessage) {
+        super(configActor);
         // FIXME: Move logMessage support to base class.
         this.logMessage = logMessage;
     }
