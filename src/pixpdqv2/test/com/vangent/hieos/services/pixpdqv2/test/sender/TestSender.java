@@ -56,7 +56,7 @@ public class TestSender {
         ConnectionHub connectionHub = ConnectionHub.getInstance();
 
         // A connection object represents a socket attached to an HL7 server
-        Connection connection = connectionHub.attach("localhost", 6661, new PipeParser(), MinLowerLayerProtocol.class);
+        Connection connection = connectionHub.attach("localhost", 5051, new PipeParser(), MinLowerLayerProtocol.class, true /* tls */);
 
         // The initiator is used to transmit unsolicited messages
         Initiator initiator = connection.getInitiator();

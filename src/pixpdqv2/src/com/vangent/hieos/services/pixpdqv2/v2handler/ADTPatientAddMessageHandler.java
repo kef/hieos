@@ -67,7 +67,7 @@ public class ADTPatientAddMessageHandler extends ADTMessageHandler {
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
-
+            this.sendUpdateNotifications(updateNotificationContent);
             // Build response.
             outMessage = this.buildAck(inMessage, "Success!", null /* errorText */, null /* errorCode */);
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {

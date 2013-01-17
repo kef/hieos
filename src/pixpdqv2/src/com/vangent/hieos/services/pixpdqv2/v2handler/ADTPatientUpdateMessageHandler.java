@@ -67,6 +67,7 @@ public class ADTPatientUpdateMessageHandler extends ADTMessageHandler {
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
+            this.sendUpdateNotifications(updateNotificationContent);
 
             // Build response.
             outMessage = this.buildAck(inMessage, "Success!", null /* errorText */, null /* errorCode */);

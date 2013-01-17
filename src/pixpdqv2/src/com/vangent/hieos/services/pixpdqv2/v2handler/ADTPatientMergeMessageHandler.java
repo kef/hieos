@@ -67,6 +67,7 @@ public class ADTPatientMergeMessageHandler extends ADTMessageHandler {
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
+            this.sendUpdateNotifications(updateNotificationContent);
 
             // Build response.
             outMessage = this.buildAck(inMessage, "Success!", null /* errorText */, null /* errorCode */);

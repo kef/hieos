@@ -14,6 +14,7 @@ package com.vangent.hieos.services.pixpdqv2.v2handler;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
+import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.hl7v2util.model.message.AckMessageBuilder;
 
 /**
@@ -34,5 +35,14 @@ public class ADTMessageHandler extends HL7V2MessageHandler {
     public Message buildAck(Message inMessage, String responseText, String errorText, String errorCode) throws HL7Exception {
         AckMessageBuilder ackMessageBuilder = new AckMessageBuilder(inMessage);
         return ackMessageBuilder.buildAck(responseText, errorText, errorCode);
+    }
+
+     /**
+     *
+     * @param updateNotificationContent
+     */
+    public void sendUpdateNotifications(EMPINotification updateNotificationContent) {
+        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler();
+        pixUpdateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
     }
 }
