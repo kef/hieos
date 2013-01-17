@@ -37,7 +37,8 @@ public class PIXNotifierConfig {
     private static String CONFIG_FILE_NAME = "PIXNotifierConfig.xml";
     private static String CROSS_REFERENCE_CONSUMER_CONFIGS = "cross-reference-consumers.cross-reference-consumer";
     private static PIXNotifierConfig _instance = null;
-    private Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = new HashMap<String, XConfigActor>();
+    private Map<String, XConfigActor> crossReferenceConsumerHL7v3ConfigActorMap = new HashMap<String, XConfigActor>();
+    private Map<String, XConfigActor> crossReferenceConsumerHL7v2ConfigActorMap = new HashMap<String, XConfigActor>();
     private List<CrossReferenceConsumerConfig> crossReferenceConsumerConfigs = new ArrayList<CrossReferenceConsumerConfig>();
 
     /**
@@ -69,11 +70,21 @@ public class PIXNotifierConfig {
     }
 
     /**
-     * 
+     *
+     * @param deviceId
      * @return
      */
-    public Map<String, XConfigActor> getCrossReferenceConsumerConfigActorMap() {
-        return crossReferenceConsumerConfigActorMap;
+    public XConfigActor getHL7v3ConfigActor(String deviceId) {
+        return crossReferenceConsumerHL7v3ConfigActorMap.get(deviceId);
+    }
+
+    /**
+     *
+     * @param deviceId
+     * @return
+     */
+    public XConfigActor getHL7v2ConfigActor(String deviceId) {
+        return crossReferenceConsumerHL7v2ConfigActorMap.get(deviceId);
     }
 
     /**
@@ -125,11 +136,23 @@ public class PIXNotifierConfig {
         } catch (XConfigException ex) {
             throw new PIXNotifierUtilException("Unable to load XConfig", ex);
         }
-        List<XConfigObject> crossReferenceConsumerConfigObjects = xConfig.getXConfigObjectsOfType("PIXConsumerType");
+        // FIXME: Don't really like this approach (v3 versus v2 types), but works for now.
+        this.loadCrossReferenceConsumerConfigs(xConfig, "PIXV3ConsumerType", crossReferenceConsumerHL7v3ConfigActorMap);
+        this.loadCrossReferenceConsumerConfigs(xConfig, "PIXV2ConsumerType", crossReferenceConsumerHL7v2ConfigActorMap);
+    }
+
+    /**
+     * 
+     * @param xConfig
+     * @param configActorType
+     * @param configActorMap
+     */
+    private void loadCrossReferenceConsumerConfigs(XConfig xConfig, String configActorType, Map<String, XConfigActor> configActorMap) {
+        List<XConfigObject> crossReferenceConsumerConfigObjects = xConfig.getXConfigObjectsOfType(configActorType);
         for (XConfigObject configObject : crossReferenceConsumerConfigObjects) {
             String deviceId = configObject.getProperty("DeviceId");
             if (deviceId != null) {
-                crossReferenceConsumerConfigActorMap.put(deviceId, (XConfigActor) configObject);
+                configActorMap.put(deviceId, (XConfigActor) configObject);
             } else {
                 logger.error("DeviceId not found in XConfig for PIX Consumer = " + configObject.getName());
             }

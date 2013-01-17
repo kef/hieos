@@ -18,7 +18,6 @@ import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
@@ -40,7 +39,8 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
     private String deviceId;
     private String deviceName;
     private List<SubjectIdentifierDomain> identifierDomains = new ArrayList<SubjectIdentifierDomain>();
-    private XConfigActor configActor = null;
+    private XConfigActor hl7v3ConfigActor = null;
+    private XConfigActor hl7v2ConfigActor = null;
 
     /**
      * 
@@ -78,6 +78,22 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
      *
      * @return
      */
+    public boolean isHL7v3NotificationEnabled() {
+        return this.hl7v3ConfigActor != null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isHL7v2NotificationEnabled() {
+        return this.hl7v2ConfigActor != null;
+    }
+
+    /**
+     *
+     * @return
+     */
     public List<SubjectIdentifierDomain> getIdentifierDomains() {
         return identifierDomains;
     }
@@ -86,8 +102,16 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
      * 
      * @return
      */
-    public XConfigActor getConfigActor() {
-        return configActor;
+    public XConfigActor getHL7v3ConfigActor() {
+        return hl7v3ConfigActor;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public XConfigActor getHL7v2ConfigActor() {
+        return hl7v2ConfigActor;
     }
 
     /**
@@ -115,7 +139,7 @@ public class CrossReferenceConsumerConfig implements ConfigItem {
             this.identifierDomains.add(identifierDomain);
         }
         // Set XConfigActor given "deviceId".
-        Map<String, XConfigActor> crossReferenceConsumerConfigActorMap = pixNotifierConfig.getCrossReferenceConsumerConfigActorMap();
-        configActor = crossReferenceConsumerConfigActorMap.get(this.deviceId);
+        hl7v3ConfigActor = pixNotifierConfig.getHL7v3ConfigActor(this.deviceId);
+        hl7v2ConfigActor = pixNotifierConfig.getHL7v2ConfigActor(this.deviceId);
     }
 }
