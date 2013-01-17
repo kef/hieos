@@ -18,8 +18,6 @@ import com.vangent.hieos.pixnotifierutil.client.PIXNotifierClientException;
 import com.vangent.hieos.empi.adapter.EMPINotification;
 import com.vangent.hieos.pixnotifierutil.client.PIXNotifierClient;
 import com.vangent.hieos.pixnotifierutil.client.PIXUpdateNotification;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xlog.client.XLogMessage;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,16 +27,11 @@ import org.apache.log4j.Logger;
 public class PIXUpdateNotificationHandler {
 
     private static final Logger logger = Logger.getLogger(PIXUpdateNotificationHandler.class);
-    private XConfigActor configActor = null;
-    private XLogMessage logMessage;
 
     /**
      *
-     * @param configActor
      */
-    public PIXUpdateNotificationHandler(XConfigActor configActor, XLogMessage logMessage) {
-        this.configActor = configActor;
-        this.logMessage = logMessage;
+    public PIXUpdateNotificationHandler() {
     }
 
     /**
@@ -70,5 +63,4 @@ public class PIXUpdateNotificationHandler {
             logger.error("Unable to send message to PIX Notifier", ex);
         }
     }
-        
 }

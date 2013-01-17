@@ -341,7 +341,7 @@ public class PIXRequestHandler extends RequestHandler {
      * @param updateNotificationContent
      */
     private void sendUpdateNotifications(EMPINotification updateNotificationContent) {
-        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler(this.getConfigActor(), this.log_message);
+        PIXUpdateNotificationHandler pixUpdateNotificationHandler = new PIXUpdateNotificationHandler();
         pixUpdateNotificationHandler.sendUpdateNotifications(updateNotificationContent);
     }
 
