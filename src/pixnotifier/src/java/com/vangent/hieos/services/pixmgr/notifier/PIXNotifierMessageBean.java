@@ -64,7 +64,6 @@ public class PIXNotifierMessageBean implements MessageListener {
                 if (so instanceof PIXUpdateNotification) {
                     PIXUpdateNotification pixUpdateNotification = (PIXUpdateNotification) so;
                     logger.info("Received message ");
-                    logger.info(pixUpdateNotification.getText());
                     this.sendNotifications(pixUpdateNotification);
                 }
             } else if (message instanceof TextMessage) {
