@@ -22,24 +22,7 @@ import java.util.List;
  */
 public class PIXUpdateNotification implements Serializable {
 
-    private String text;
     private List<Subject> subjects;
-
-    /**
-     * 
-     * @return
-     */
-    public String getText() {
-        return text;
-    }
-
-    /**
-     *
-     * @param text
-     */
-    public void setText(String text) {
-        this.text = text;
-    }
 
     /**
      *
