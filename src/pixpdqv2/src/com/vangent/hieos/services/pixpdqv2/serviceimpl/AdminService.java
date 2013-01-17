@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.services.pixpdqv2.serviceimpl;
 
-import com.vangent.hieos.hl7v2util.acceptor.HL7v2Acceptor;
-import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.acceptor.impl.HL7v2Acceptor;
 import com.vangent.hieos.services.pixpdqv2.transactions.AdminRequestHandler;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;

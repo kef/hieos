@@ -16,8 +16,8 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.util.Terser;
-import com.vangent.hieos.hl7v2util.acceptor.Connection;
-import com.vangent.hieos.hl7v2util.acceptor.MessageHandler;
+import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
+import com.vangent.hieos.hl7v2util.acceptor.impl.MessageHandler;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 
 /**

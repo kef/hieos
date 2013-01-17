@@ -56,7 +56,6 @@ public class PIXUpdateNotificationHandler {
         PIXNotifierClient pixNotifierClient = new PIXNotifierClient();
         try {
             PIXUpdateNotification pixUpdateNotification = new PIXUpdateNotification();
-            pixUpdateNotification.setText("This is a test notification!");
             pixUpdateNotification.setSubjects(updateNotificationContent.getSubjects());
             pixNotifierClient.sendNotification(pixUpdateNotification);
         } catch (PIXNotifierClientException ex) {

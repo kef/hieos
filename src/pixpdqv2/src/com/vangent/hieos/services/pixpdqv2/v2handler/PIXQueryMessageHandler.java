@@ -24,7 +24,7 @@ import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
-import com.vangent.hieos.hl7v2util.acceptor.Connection;
+import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
 import com.vangent.hieos.hl7v2util.model.message.PIXQueryResponseMessageBuilder;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
