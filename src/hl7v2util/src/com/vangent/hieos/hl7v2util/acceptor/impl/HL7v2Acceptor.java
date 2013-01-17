@@ -10,10 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.hl7v2util.acceptor;
+package com.vangent.hieos.hl7v2util.acceptor.impl;
 
-import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
-import com.vangent.hieos.hl7v2util.config.ListenerConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.ListenerConfig;
 import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
 import java.util.ArrayList;
 import java.util.List;

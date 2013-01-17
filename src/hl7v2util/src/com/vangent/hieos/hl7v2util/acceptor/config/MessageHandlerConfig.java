@@ -10,9 +10,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.hl7v2util.config;
+package com.vangent.hieos.hl7v2util.acceptor.config;
 
-import com.vangent.hieos.hl7v2util.acceptor.MessageHandler;
+import com.vangent.hieos.hl7v2util.acceptor.impl.MessageHandler;
 import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;

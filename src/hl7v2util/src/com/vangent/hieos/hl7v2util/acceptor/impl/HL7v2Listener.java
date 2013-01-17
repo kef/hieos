@@ -10,13 +10,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.hl7v2util.acceptor;
+package com.vangent.hieos.hl7v2util.acceptor.impl;
 
 import ca.uhn.hl7v2.llp.LLPException;
 import ca.uhn.hl7v2.llp.LowerLayerProtocol;
 import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
-import com.vangent.hieos.hl7v2util.config.ListenerConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.ListenerConfig;
 import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
 import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 import java.io.IOException;

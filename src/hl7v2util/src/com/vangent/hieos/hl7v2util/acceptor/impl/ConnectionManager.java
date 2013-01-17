@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.hl7v2util.acceptor;
+package com.vangent.hieos.hl7v2util.acceptor.impl;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;

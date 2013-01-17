@@ -10,14 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.vangent.hieos.hl7v2util.acceptor;
+package com.vangent.hieos.hl7v2util.acceptor.impl;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.util.Terser;
-import com.vangent.hieos.hl7v2util.config.AcceptorConfig;
-import com.vangent.hieos.hl7v2util.config.MessageHandlerConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.AcceptorConfig;
+import com.vangent.hieos.hl7v2util.acceptor.config.MessageHandlerConfig;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
