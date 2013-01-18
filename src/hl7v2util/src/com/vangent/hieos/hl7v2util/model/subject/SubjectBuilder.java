@@ -82,14 +82,15 @@ public class SubjectBuilder {
         // TODO - SSN
 
         // Account number:
-        CX patientAccountNumberCX = pid.getPatientAccountNumber();
-        if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
-            String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
-            System.out.println("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
-            SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
-            subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
-            subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
-        }
+        //  TODO - Account number ... problem with no identifier domain specified.
+        //CX patientAccountNumberCX = pid.getPatientAccountNumber();
+        //if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
+        //    String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
+        //    System.out.println("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
+        //    SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
+        //    subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+        //    subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
+        //}
 
         // Driver's license number:
         DLN driversLicenseNumberDLN = pid.getDriverSLicenseNumberPatient();

@@ -33,7 +33,6 @@ public class Connection {
 
     private static final Logger log = Logger.getLogger(Connection.class);
     private Responder responder;
-    //private LowerLayerProtocol llp;
     private Socket socket;
     private Parser parser;
     private MessageRouter messageRouter;
@@ -52,7 +51,6 @@ public class Connection {
     public Connection(Parser parser, LowerLayerProtocol llp, MessageRouter messageRouter, Socket socket)
             throws LLPException, IOException {
         this.parser = parser;
-        //this.llp = llp;
         this.messageRouter = messageRouter;
         this.hl7Writer = llp.getWriter(socket.getOutputStream());
         this.hl7Reader = llp.getReader(socket.getInputStream());
