@@ -2,7 +2,7 @@
 <config>
     <listeners>
         <listener>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
             <tls-enabled>true</tls-enabled>
             <port>5051</port>
             <thread-pool-size>20</thread-pool-size>
