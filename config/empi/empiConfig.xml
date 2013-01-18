@@ -721,7 +721,7 @@
     <!-- List of valid identifier sources -->
     <identity-sources>
         <identity-source>
-            <name>NIST PIX-PDQ</name>
+            <name>NIST PIX-PDQ v3</name>
             <device-id>2.16.840.1.113883.3.72.6.2</device-id>
             <device-name>2.16.840.1.113883.3.72.6.2</device-name>
             <identifier-domains>
@@ -739,6 +739,34 @@
                     <universal-id>2.16.840.1.113883.3.72.5.9.3</universal-id>
                     <universal-id-type>ISO</universal-id-type>
                     <namespace-id>NIST2010-3</namespace-id>
+                </identifier-domain>
+            </identifier-domains>
+        </identity-source>
+        <identity-source>
+            <name>NIST PIX-PDQ v2</name>
+            <!-- device-id = application, device-name = facility -->
+            <device-id>NIST_Pearl_PIX_Source</device-id>
+            <device-name>NIST</device-name>
+            <identifier-domains>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.1</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.2</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010-2</namespace-id>
+                </identifier-domain>
+                <identifier-domain>
+                    <universal-id>2.16.840.1.113883.3.72.5.9.3</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>NIST2010-3</namespace-id>
+                </identifier-domain>
+                 <identifier-domain>
+                    <universal-id>1.3.6.1.4.1.21367.2010.1.1</universal-id>
+                    <universal-id-type>ISO</universal-id-type>
+                    <namespace-id>IHE2010</namespace-id>
                 </identifier-domain>
             </identifier-domains>
         </identity-source>
