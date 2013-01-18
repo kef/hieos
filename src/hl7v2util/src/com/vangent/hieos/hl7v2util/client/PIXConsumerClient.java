@@ -45,7 +45,6 @@ public class PIXConsumerClient {
      * @param subject
      * @return
      */
-    // FIXME: Create wrapper for "Message" result.
     public Message patientRegistryRecordRevised(
             DeviceInfo senderDeviceInfo,
             DeviceInfo receiverDeviceInfo,
