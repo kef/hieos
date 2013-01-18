@@ -59,7 +59,7 @@ public class HL7V2MessageHandler implements MessageHandler {
         String facility = terser.get("/.MSH-4");
         System.out.println("Sending Application = " + application);
         System.out.println("Sending Facility = " + facility);
-        return getDeviceInfo(facility, application);
+        return getDeviceInfo(application, facility);
     }
 
     /**
@@ -71,21 +71,21 @@ public class HL7V2MessageHandler implements MessageHandler {
     public static DeviceInfo getReceiverDeviceInfo(Terser terser) throws HL7Exception {
         String application = terser.get("/.MSH-5");
         String facility = terser.get("/.MSH-6");
-        System.out.println("Sending Application = " + application);
-        System.out.println("Sending Facility = " + facility);
-        return getDeviceInfo(facility, application);
+        System.out.println("Receiver Application = " + application);
+        System.out.println("Receiver Facility = " + facility);
+        return getDeviceInfo(application, facility);
     }
 
     /**
-     *
-     * @param facility
+     * 
      * @param application
+     * @param facility
      * @return
      */
-    private static DeviceInfo getDeviceInfo(String facility, String application) {
+    private static DeviceInfo getDeviceInfo(String application, String facility) {
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.setId(facility);
-        deviceInfo.setName(application);
+        deviceInfo.setId(application);
+        deviceInfo.setName(facility);
         return deviceInfo;
     }
 

@@ -34,7 +34,6 @@ public class AdminService extends XAbstractService {
     private final static Logger logger = Logger.getLogger(AdminService.class);
     private static XConfigActor config = null;          // Singleton.
     private static HL7v2Acceptor hl7v2Acceptor = null;  // Singleton.
-    private static Thread hl7v2AcceptorThread = null;   // Singleton.
 
     @Override
     protected XConfigActor getConfigActor() {
@@ -72,13 +71,14 @@ public class AdminService extends XAbstractService {
     public void startup() {
         logger.info("PIXPDQV2:AdminService:startup()");
         try {
-            XConfig xconf;
-            xconf = XConfig.getInstance();
-            XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
+            //XConfig xconf;
+            //xconf = XConfig.getInstance();
+            //XConfigObject homeCommunity = xconf.getHomeCommunityConfig();
 
             // FIXME: Do we need XConfig here?
-            config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
-
+            //config = (XConfigActor) homeCommunity.getXConfigObjectWithName("pix", XConfig.PIX_MANAGER_TYPE);
+            config = null;  // XConfig not really used here.
+            
             // Start up listener.
             String empiConfigDir = XConfig.getConfigLocation(XConfig.ConfigItem.EMPI_DIR);
             AcceptorConfig acceptorConfig = new AcceptorConfig(
