@@ -19,7 +19,6 @@ import com.vangent.hieos.pixnotifierutil.config.CrossReferenceConsumerConfig;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 /**
