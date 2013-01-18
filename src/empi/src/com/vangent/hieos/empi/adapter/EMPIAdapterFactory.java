@@ -25,7 +25,7 @@ public class EMPIAdapterFactory {
      * @return
      */
     static public EMPIAdapter getInstance() {
-        // FIXME: Replace by dynamic load using xconfig file.
+        // FIXME: Replace by dynamic load using configuration file.
         EMPIAdapter empiAdaptor = new BaseEMPIAdapter();
         //empiAdaptor.setConfig(configActor);
         return empiAdaptor;
