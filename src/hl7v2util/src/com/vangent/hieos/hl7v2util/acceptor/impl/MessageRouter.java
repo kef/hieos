@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 public class MessageRouter {
     // FIXME: Possibly remove synchronization.
 
-    private static final Logger log = Logger.getLogger(MessageRouter.class);
+    private static final Logger logger = Logger.getLogger(MessageRouter.class);
     private Map<String, MessageHandler> messageHandlers;
     private AcceptorConfig acceptorConfig = null;
 

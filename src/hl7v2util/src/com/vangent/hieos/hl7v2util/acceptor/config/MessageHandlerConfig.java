@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public class MessageHandlerConfig implements ConfigItem {
 
-    private final static Logger log = Logger.getLogger(MessageHandlerConfig.class);
+    private final static Logger logger = Logger.getLogger(MessageHandlerConfig.class);
     private static String CLASS_NAME = "class";
     private static String MESSAGE_TYPE = "message-type";
     private static String TRIGGER_EVENT = "trigger-event";
@@ -74,7 +74,7 @@ public class MessageHandlerConfig implements ConfigItem {
         this.messageType = hc.getString(MESSAGE_TYPE);
         this.triggerEvent = hc.getString(TRIGGER_EVENT);
         this.className = hc.getString(CLASS_NAME);
-        log.info("... className = " + this.className);
+        logger.info("... className = " + this.className);
 
         // Get an instance of the message handler.
         this.messageHandler = (MessageHandler) ConfigHelper.loadClassInstance(this.className);

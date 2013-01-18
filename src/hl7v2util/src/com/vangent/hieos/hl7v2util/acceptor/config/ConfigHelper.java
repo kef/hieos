@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class ConfigHelper {
 
-    private final static Logger log = Logger.getLogger(ConfigHelper.class);
+    private final static Logger logger = Logger.getLogger(ConfigHelper.class);
 
     /**
      * 
@@ -30,27 +30,27 @@ public class ConfigHelper {
      * @throws HL7v2UtilException 
      */
     public static Object loadClassInstance(String className) throws HL7v2UtilException {
-        log.info("... className = " + className);
+        logger.info("... className = " + className);
 
         // Dynamically load the class.
         Class classInstance;
         try {
             classInstance = Class.forName(className);
         } catch (ClassNotFoundException ex) {
-            log.error("Could not load class '" + className + "': " + ex.getMessage());
+            logger.error("Could not load class '" + className + "': " + ex.getMessage());
             throw new HL7v2UtilException("Could not load class '" + className + "': " + ex.getMessage());
         }
 
         // Create a new instance of the class.
         Object obj;
         try {
-            log.info("... instantiating instance of = " + className);
+            logger.info("... instantiating instance of = " + className);
             obj = classInstance.newInstance();
         } catch (InstantiationException ex) {
-            log.error("Could not create instance '" + className + "': " + ex.getMessage());
+            logger.error("Could not create instance '" + className + "': " + ex.getMessage());
             throw new HL7v2UtilException("Could not create instance '" + className + "': " + ex.getMessage());
         } catch (IllegalAccessException ex) {
-            log.error("Could not create instance '" + className + "': " + ex.getMessage());
+            logger.error("Could not create instance '" + className + "': " + ex.getMessage());
             throw new HL7v2UtilException("Could not create instance '" + className + "': " + ex.getMessage());
         }
         return obj;

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
  */
 public class HL7v2Listener implements Runnable {
 
-    private static final Logger log = Logger.getLogger(HL7v2Listener.class);
+    private static final Logger logger = Logger.getLogger(HL7v2Listener.class);
     private static final int SO_BACKLOG = 20;
     private static final int SHUTDOWN_TIMEOUT_MSEC = 500;  // FIXME: Place in configuration file?
     private final ListenerConfig listenerConfig;
@@ -82,7 +82,7 @@ public class HL7v2Listener implements Runnable {
      */
     private ServerSocket getServerSocket() throws HL7v2UtilException {
         ServerSocket socket;
-        log.info(getVitals() + "getting ServerSocket ("
+        logger.info(getVitals() + "getting ServerSocket ("
                 + "TLS=" + listenerConfig.isTLSEnabled()
                 + ", thread pool size = " + listenerConfig.getThreadPoolSize()
                 + ")");
@@ -95,7 +95,7 @@ public class HL7v2Listener implements Runnable {
                 socket = socketSupport.getSecureServerSocket(
                         listenerConfig.getPort(), SO_BACKLOG, listenerConfig.getCipherSuites());
             } catch (Exception ex) {
-                log.fatal(getVitals() + "could not open TLS socket", ex);
+                logger.fatal(getVitals() + "could not open TLS socket", ex);
                 throw new HL7v2UtilException(getVitals() + "could not open TLS socket", ex);
             }
         } else {
@@ -103,7 +103,7 @@ public class HL7v2Listener implements Runnable {
                 // Create listener socket (no TLS).
                 socket = new ServerSocket(listenerConfig.getPort(), SO_BACKLOG);
             } catch (IOException ex) {
-                log.fatal(getVitals() + "could not open socket", ex);
+                logger.fatal(getVitals() + "could not open socket", ex);
                 throw new HL7v2UtilException(getVitals() + "could not open socket", ex);
             }
         }
@@ -115,39 +115,39 @@ public class HL7v2Listener implements Runnable {
      */
     public void shutdownAndAwaitTermination() {
         try {
-            log.info(getVitals() + "closing socket ...");
+            logger.info(getVitals() + "closing socket ...");
             shuttingDownSocket = true;
             serverSocket.close();
-            log.info(getVitals() + "socket closed");
+            logger.info(getVitals() + "socket closed");
         } catch (IOException ex) {
-            log.error(getVitals() + "exception when closing socket", ex);
+            logger.error(getVitals() + "exception when closing socket", ex);
         }
 
         // Try to shutdown main listener now.
-        log.info(getVitals() + "shutting down socket listener thread ...");
+        logger.info(getVitals() + "shutting down socket listener thread ...");
         executorService.shutdown();
         try {
             if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_MSEC, TimeUnit.MILLISECONDS)) {
                 executorService.shutdownNow();
                 // Wait a while for tasks to respond to being cancelled
                 if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_MSEC, TimeUnit.MILLISECONDS)) {
-                    log.error(getVitals() + "socket listener thread did not terminate");
+                    logger.error(getVitals() + "socket listener thread did not terminate");
                 } else {
-                    log.warn(getVitals() + "socket listener thread terminated after forced shutdown!");
+                    logger.warn(getVitals() + "socket listener thread terminated after forced shutdown!");
                 }
             } else {
-                log.info(getVitals() + "socket listener thread terminated gracefully!");
+                logger.info(getVitals() + "socket listener thread terminated gracefully!");
             }
         } catch (InterruptedException ex) {// (Re-)Cancel if current thread also interrupted
             executorService.shutdownNow();
-            log.warn(getVitals() + "socket listener thread terminated after forced shutdown!", ex);
+            logger.warn(getVitals() + "socket listener thread terminated after forced shutdown!", ex);
             // Preserve interrupt status
             // FIXME?
             //Thread.currentThread().interrupt();
         }
 
 
-        log.info(getVitals() + "shutting down thread pool ...");
+        logger.info(getVitals() + "shutting down thread pool ...");
         if (workerPool == null) {
             return;  // Early exit!
         }
@@ -158,28 +158,28 @@ public class HL7v2Listener implements Runnable {
                 workerPool.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
                 if (!workerPool.awaitTermination(SHUTDOWN_TIMEOUT_MSEC, TimeUnit.MILLISECONDS)) {
-                    log.error(getVitals() + "thread pool did not terminate");
+                    logger.error(getVitals() + "thread pool did not terminate");
                 } else {
-                    log.warn(getVitals() + "thread pool terminated after forced shutdown!");
+                    logger.warn(getVitals() + "thread pool terminated after forced shutdown!");
                 }
             } else {
-                log.info(getVitals() + "thread pool terminated gracefully!");
+                logger.info(getVitals() + "thread pool terminated gracefully!");
             }
         } catch (InterruptedException ex) {
             // (Re-)Cancel if current thread also interrupted
             workerPool.shutdownNow();
-            log.warn(getVitals() + "thread pool terminated after forced shutdown!", ex);
+            logger.warn(getVitals() + "thread pool terminated after forced shutdown!", ex);
             // Preserve interrupt status
             // FIXME?
             // Thread.currentThread().interrupt();
         }
 
         // Shutdown any open connections
-        log.info(getVitals() + "shutting down open connections ...");
+        logger.info(getVitals() + "shutting down open connections ...");
         if (connectionManager == null) {
             return;  // Early exit!
         }
-        log.info(getVitals() + "connection count (after listener termination) = " + connectionManager.getConnectionCount());
+        logger.info(getVitals() + "connection count (after listener termination) = " + connectionManager.getConnectionCount());
         connectionManager.closeConnections();
     }
 
@@ -196,7 +196,7 @@ public class HL7v2Listener implements Runnable {
      */
     public void run() { // run the service
         while (!shuttingDownSocket) {
-            log.info(getVitals() + "waiting for connection (thread = "
+            logger.info(getVitals() + "waiting for connection (thread = "
                     + Thread.currentThread().getName()
                     + ", thread pool size = " + listenerConfig.getThreadPoolSize()
                     + ")");
@@ -207,14 +207,14 @@ public class HL7v2Listener implements Runnable {
                 socket = serverSocket.accept();
             } catch (IOException ex) {
                 if (!shuttingDownSocket) {
-                    log.error(getVitals() + "exception on socket accept()", ex);
+                    logger.error(getVitals() + "exception on socket accept()", ex);
                 }
             }
             try {
                 connection = new Connection(parser, llp, messageRouter, socket);
                 // Add connection to the ConnectionManager.
                 connectionManager.addConnection(connection);
-                log.info(getVitals() + "accepted connection (thread = "
+                logger.info(getVitals() + "accepted connection (thread = "
                         + Thread.currentThread().getName()
                         + ", remote ip = " + connection.getRemoteAddress()
                         + ", remote port = " + connection.getRemotePort()
@@ -223,11 +223,11 @@ public class HL7v2Listener implements Runnable {
                 // Handle the connection (from the thread pool).
                 workerPool.execute(new ConnectionHandler(connectionManager, connection));
             } catch (LLPException ex) {
-                log.error(getVitals() + "exception accepting connection", ex);
+                logger.error(getVitals() + "exception accepting connection", ex);
             } catch (IOException ex) {
-                log.error(getVitals() + "exception accepting connection", ex);
+                logger.error(getVitals() + "exception accepting connection", ex);
             }
         }
-        log.info(getVitals() + "thread ended!");
+        logger.info(getVitals() + "thread ended!");
     }
 }

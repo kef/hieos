@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class ConnectionManager {
 
-    private static final Logger log = Logger.getLogger(ConnectionManager.class);
+    private static final Logger logger = Logger.getLogger(ConnectionManager.class);
     private ConcurrentLinkedQueue<Connection> connections;
 
     /**

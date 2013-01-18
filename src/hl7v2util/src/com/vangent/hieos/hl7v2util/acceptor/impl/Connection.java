@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class Connection {
 
-    private static final Logger log = Logger.getLogger(Connection.class);
+    private static final Logger logger = Logger.getLogger(Connection.class);
     private Responder responder;
     private Socket socket;
     private Parser parser;
@@ -141,7 +141,7 @@ public class Connection {
                 socket.close();
             }
         } catch (Exception e) {
-            log.error("Error while closing socket", e);
+            logger.error("Error while closing socket", e);
         }
     }
 }

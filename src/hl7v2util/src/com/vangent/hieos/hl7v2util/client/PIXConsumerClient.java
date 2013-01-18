@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  */
 public class PIXConsumerClient {
 
-    private static final Logger log = Logger.getLogger(PIXConsumerClient.class);
+    private static final Logger logger = Logger.getLogger(PIXConsumerClient.class);
     private XConfigActor pixConsumerActorConfig;
 
     /**
@@ -64,7 +64,7 @@ public class PIXConsumerClient {
             return responseMessage;
 
         } catch (HL7Exception ex) {
-            log.error("HL7Exception: ", ex);
+            logger.error("HL7Exception: ", ex);
             throw new HL7v2UtilException("Exception sending PIX Update Notification", ex);
         } finally {
         }

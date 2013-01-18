@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
  */
 public class HL7v2Client {
 
-    private static final Logger log = Logger.getLogger(HL7v2Client.class);
+    private static final Logger logger = Logger.getLogger(HL7v2Client.class);
     private HL7v2Endpoint endpoint;
 
     /**
@@ -68,20 +68,20 @@ public class HL7v2Client {
             connection.activate();
             
             // FIXME: Change to DEBUG
-            if (log.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 Parser xmlParser = new DefaultXMLParser();
-                log.info("[outbound] RAW HL7v2 Message:\n" + outMessage);
-                log.info("[outbound] XML Encoded Message:\n" + xmlParser.encode(outMessage));
+                logger.info("[outbound] RAW HL7v2 Message:\n" + outMessage);
+                logger.info("[outbound] XML Encoded Message:\n" + xmlParser.encode(outMessage));
             }
 
             // Send and receive response.
             Message response = initiator.sendAndReceive(outMessage);
 
             // FIXME: Change to DEBUG
-            if (log.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 Parser xmlParser = new DefaultXMLParser();
-                log.info("[outbound response] RAW HL7v2 Message:\n" + response);
-                log.info("[outbound response] XML Encoded Message:\n" + xmlParser.encode(response));
+                logger.info("[outbound response] RAW HL7v2 Message:\n" + response);
+                logger.info("[outbound response] XML Encoded Message:\n" + xmlParser.encode(response));
             }
 
             // Close connection.
@@ -90,13 +90,13 @@ public class HL7v2Client {
             // Return response.
             return response;
         } catch (LLPException ex) {
-            log.error("LLPException: ", ex);
+            logger.error("LLPException: ", ex);
             throw new HL7v2UtilException("Exception sending HL7v2 outbound message", ex);
         } catch (IOException ex) {
-            log.error("IOException: ", ex);
+            logger.error("IOException: ", ex);
             throw new HL7v2UtilException("Exception sending HL7v2 outbound message", ex);
         } catch (HL7Exception ex) {
-            log.error("HL7Exception: ", ex);
+            logger.error("HL7Exception: ", ex);
             throw new HL7v2UtilException("Exception sending HL7v2 outbound message", ex);
         } finally {
             if (connection != null && connection.isOpen()) {
@@ -121,7 +121,7 @@ public class HL7v2Client {
                 socket = socketSupport.getSecureClientSocket(
                         endpoint.getIpAddressOrHostName(), endpoint.getPort());
             } catch (Exception ex) {
-                log.error("Could not open TLS socket for HL7v2 outbound connection", ex);
+                logger.error("Could not open TLS socket for HL7v2 outbound connection", ex);
                 throw new HL7v2UtilException("Could not open TLS socket for HL7v2 outbound connection", ex);
             }
         } else {
@@ -129,7 +129,7 @@ public class HL7v2Client {
                 // Create listener socket (no TLS).
                 socket = new Socket(endpoint.getIpAddressOrHostName(), endpoint.getPort());
             } catch (IOException ex) {
-                log.error("Could not open socket for HL7v2 outbound connection", ex);
+                logger.error("Could not open socket for HL7v2 outbound connection", ex);
                 throw new HL7v2UtilException("Could not open socket for HL7v2 outbound connection", ex);
             }
         }

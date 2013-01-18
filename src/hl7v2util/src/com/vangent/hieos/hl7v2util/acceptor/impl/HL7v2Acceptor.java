@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
  */
 public class HL7v2Acceptor {
 
-    private static final Logger log = Logger.getLogger(HL7v2Acceptor.class);
+    private static final Logger logger = Logger.getLogger(HL7v2Acceptor.class);
     private final AcceptorConfig acceptorConfig;
     private List<HL7v2Listener> listeners = new ArrayList<HL7v2Listener>();
 
@@ -68,7 +68,7 @@ public class HL7v2Acceptor {
                     // Keep track of listeners (for later shutdown).
                     listeners.add(listener);
                 } catch (HL7v2UtilException ex) {
-                    log.fatal("Could not startup listener", ex);
+                    logger.fatal("Could not startup listener", ex);
                 }
             }
         }

@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  * @author Bernie Thuman
  */
 public class DefaultMessageHandler implements MessageHandler {
-     private static final Logger log = Logger.getLogger(DefaultMessageHandler.class);
+     private static final Logger logger = Logger.getLogger(DefaultMessageHandler.class);
 
     /**
      *
@@ -59,7 +59,7 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     public Message processMessage(Connection connection, Message in) throws ApplicationException, HL7Exception {
         //throw new UnsupportedOperationException("Not supported yet.");
-        log.info("Processing message ...");
+        logger.info("Processing message ...");
         try {
             Terser terser = new Terser(in);
             String messageType = terser.get("/.MSH-9-2");
@@ -68,15 +68,15 @@ public class DefaultMessageHandler implements MessageHandler {
             String messageControlId = terser.get("/.MSH-10");
             String sendingApplication = terser.get("/.MSH-3");
             String sendingFacility = terser.get("/.MSH-4");
-            log.info("Message Type = " + messageType);
-            log.info("Message Control Id = " + messageControlId);
-            log.info("Sending Application = " + sendingApplication);
-            log.info("Sending Facility = " + sendingFacility);
-            //log.info("Patient Id = " + patientId);
-            //log.info("Assigning Authority = " + assigningAuthorityUniversalId);
+            logger.info("Message Type = " + messageType);
+            logger.info("Message Control Id = " + messageControlId);
+            logger.info("Sending Application = " + sendingApplication);
+            logger.info("Sending Facility = " + sendingFacility);
+            //logger.info("Patient Id = " + patientId);
+            //logger.info("Assigning Authority = " + assigningAuthorityUniversalId);
             return this.generateACK(in);
         } catch (Exception e) {
-            log.error("Exception: " + e.getMessage());
+            logger.error("Exception: " + e.getMessage());
             throw new HL7Exception(e);
         }
     }

@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class ConnectionHandler implements Runnable {
 
-    private static final Logger log = Logger.getLogger(ConnectionHandler.class);
+    private static final Logger logger = Logger.getLogger(ConnectionHandler.class);
     private final ConnectionManager connectionManager;
     private final Connection connection;
 
@@ -49,7 +49,7 @@ public class ConnectionHandler implements Runnable {
      *
      */
     public void run() {
-        log.info("ConnectionHandler: servicing connection (thread = "
+        logger.info("ConnectionHandler: servicing connection (thread = "
                 + Thread.currentThread().getName()
                 + ", remote ip = " + connection.getRemoteAddress()
                 + ", remote port = " + connection.getRemotePort()
@@ -67,15 +67,15 @@ public class ConnectionHandler implements Runnable {
                 HL7Writer hl7Writer = connection.getHl7Writer();
                 hl7Writer.writeMessage(outgoingMessageString);
             }
-            log.info("ConnectionHandler: closing connection (thread = "
+            logger.info("ConnectionHandler: closing connection (thread = "
                     + Thread.currentThread().getName()
                     + ", remote ip = " + connection.getRemoteAddress()
                     + ", remote port = " + connection.getRemotePort()
                     + ")");
             connectionManager.removeConnection(connection);
         } catch (Exception ex) {
-            log.error("Exception in ConnectionHandler", ex);
-            log.info("ConnectionHandler: closing connection (thread = "
+            logger.error("Exception in ConnectionHandler", ex);
+            logger.info("ConnectionHandler: closing connection (thread = "
                     + Thread.currentThread().getName()
                     + ", remote ip = " + connection.getRemoteAddress()
                     + ", remote port = " + connection.getRemotePort()
@@ -102,24 +102,24 @@ public class ConnectionHandler implements Runnable {
         Parser parser = connection.getParser();
         try {
             // FIXME: Change to DEBUG
-            if (log.isInfoEnabled()) {
-                log.info("[inbound] RAW HL7v2 Message:\n" + incomingMessageString);
+            if (logger.isInfoEnabled()) {
+                logger.info("[inbound] RAW HL7v2 Message:\n" + incomingMessageString);
             }
 
             // Parse inbound message into HAPI HL7v2 message instance.
             incomingMessageObject = parser.parse(incomingMessageString);
 
             // FIXME: Change to DEBUG
-            if (log.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 Parser xmlParser = new DefaultXMLParser();
                 String xmlEncodedMessage = xmlParser.encode(incomingMessageObject);
-                log.info("[inbound] XML Encoded Message:\n" + xmlEncodedMessage);
+                logger.info("[inbound] XML Encoded Message:\n" + xmlEncodedMessage);
             }
 
         } catch (HL7Exception e) {
             // TODO this may also throw an Exception, which hides the
             // previous one.
-            log.error("Exception in ConnectionHandler", e);
+            logger.error("Exception in ConnectionHandler", e);
             outgoingMessageString = logAndMakeErrorMessage(e,
                     parser.getCriticalResponseData(incomingMessageString),
                     parser, parser.getEncoding(incomingMessageString));
@@ -169,12 +169,12 @@ public class ConnectionHandler implements Runnable {
         }
 
         // FIXME: Change to DEBUG
-        if ((outgoingMessageString != null) && log.isInfoEnabled()) {
-            log.info("[inbound response] RAW HL7v2 Message:\n"
+        if ((outgoingMessageString != null) && logger.isInfoEnabled()) {
+            logger.info("[inbound response] RAW HL7v2 Message:\n"
                     + outgoingMessageString);
             Message outgoingMessageObject = parser.parse(outgoingMessageString);
             Parser xmlParser = new DefaultXMLParser();
-            log.info("[inbound response] XML Encoded Message:\n"
+            logger.info("[inbound response] XML Encoded Message:\n"
                     + xmlParser.encode(outgoingMessageObject));
         }
         return outgoingMessageString;

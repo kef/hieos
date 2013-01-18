@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  */
 public class AcceptorConfig {
 
-    private final static Logger log = Logger.getLogger(AcceptorConfig.class);
+    private final static Logger logger = Logger.getLogger(AcceptorConfig.class);
     private static String MESSAGE_HANDLERS = "message-handlers.message-handler";
     private static String LISTENERS = "listeners.listener";
     private List<MessageHandlerConfig> messageHandlerConfigs = new ArrayList<MessageHandlerConfig>();
@@ -65,7 +65,7 @@ public class AcceptorConfig {
      */
     private void loadConfiguration(String configLocation) throws HL7v2UtilException {
         try {
-            log.info("Loading HL7v2Acceptor configuration from " + configLocation);
+            logger.info("Loading HL7v2Acceptor configuration from " + configLocation);
             XMLConfiguration xmlConfig = new XMLConfiguration(configLocation);
 
             this.loadMessageHandlerConfigs(xmlConfig);
