@@ -82,6 +82,7 @@ ALTER TABLE public.resource_lock OWNER TO empi;
 --
 CREATE TABLE subject (
     id int NOT NULL,
+    identity_source character varying(80) NOT NULL,
     type character(1),
     last_updated_time timestamp without time zone,
     CONSTRAINT subject_pkey PRIMARY KEY (id)
@@ -194,6 +195,7 @@ ALTER TABLE public.subject_language OWNER TO empi;
 --
 CREATE TABLE subject_match_fields (
     subject_id int NOT NULL,
+    identity_source character varying(80) NOT NULL,
     family_name_double_metaphone character varying(255),
     given_name_double_metaphone character varying(255),
     family_name character varying(100),
