@@ -63,6 +63,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
             // Build SubjectSearchCriteria from HL7v2 message.
             SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(terser);
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPDQ();
+            subjectSearchCriteria.setTargetIdentitySource(receiverDeviceInfo.getId());
 
             // Clone identifiers (for audit later).
             //List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
