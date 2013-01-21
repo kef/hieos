@@ -69,6 +69,7 @@ CREATE TABLE resource_lock (
 --
 CREATE TABLE subject (
     id int NOT NULL,
+    identity_source varchar(80) NOT NULL,
     type char(1),
     last_updated_time datetime,
     CONSTRAINT subject_pkey PRIMARY KEY (id)
@@ -182,6 +183,7 @@ CREATE TABLE subject_language (
 --
 CREATE TABLE subject_match_fields (
     subject_id int NOT NULL,
+    identity_source varchar(80) NOT NULL,
     family_name_double_metaphone varchar(255),
     given_name_double_metaphone varchar(255),
     family_name varchar(100),
