@@ -53,6 +53,28 @@ public class HL7FormatUtil {
     }
 
     /**
+     *
+     * @param value
+     * @return
+     */
+    public static boolean isCX_Formatted_WithExtraComponents(String value) {
+        int ASSIGNING_AUTHORITY_COMPONENT = 4;
+        int ASSIGNING_AUTHORITY_NUM_COMPONENTS = 3;
+
+        // Split into component parts.
+        String components[] = value.split(COMPONENT_SEPARATOR);
+        if (components.length >= ASSIGNING_AUTHORITY_COMPONENT) {
+
+            // Assigning authority.
+            String aa[] = components[ASSIGNING_AUTHORITY_COMPONENT - 1].split(SUB_COMPONENT_SEPARATOR);
+            if (aa.length == ASSIGNING_AUTHORITY_NUM_COMPONENTS) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Verify that given value only includes an XCN identifier where:
      *   Component 1 (ID): REQUIRED
      *   Component 9 (Assigning Authority): OPTIONAL
