@@ -80,8 +80,8 @@ public class IdentitySourceConfig implements ConfigItem {
         this.name = hc.getString(NAME);
         this.deviceId = hc.getString(DEVICE_ID);
         this.deviceName = hc.getString(DEVICE_NAME);
-        List identifierDomains = hc.configurationsAt(IDENTIFIER_DOMAINS);
-        for (Iterator it = identifierDomains.iterator(); it.hasNext();) {
+        List identifierDomainsConfigurations = hc.configurationsAt(IDENTIFIER_DOMAINS);
+        for (Iterator it = identifierDomainsConfigurations.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcIdentifierDomain = (HierarchicalConfiguration) it.next();
             String universalId = hcIdentifierDomain.getString(UNIVERSAL_ID);
             String universalIdType = hcIdentifierDomain.getString(UNIVERSAL_ID_TYPE);

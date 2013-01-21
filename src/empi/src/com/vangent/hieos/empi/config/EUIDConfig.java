@@ -24,8 +24,8 @@ public class EUIDConfig implements ConfigItem {
 
     private final static Logger logger = Logger.getLogger(EUIDConfig.class);
     private static String EUID_ASSIGN_ENABLED = "euid-assign-enabled";
-    private static String EUID_UNIVERSALID = "euid-universalid";
-    private static String EUID_UNIVERSALID_TYPE = "euid-universalid-type";
+    private static String EUID_UNIVERSAL_ID = "euid-universal-id";
+    private static String EUID_UNIVERSAL_ID_TYPE = "euid-universal-id-type";
     private boolean euidAssignEnabled = true;
     private String euidUniversalId = null;
     private String euidUniversalIdType = null;
@@ -85,8 +85,8 @@ public class EUIDConfig implements ConfigItem {
      * @throws EMPIException
      */
     public void load(HierarchicalConfiguration hc, EMPIConfig empiConfig) throws EMPIException {
-        this.euidUniversalId = hc.getString(EUID_UNIVERSALID);
-        this.euidUniversalIdType = hc.getString(EUID_UNIVERSALID_TYPE);
+        this.euidUniversalId = hc.getString(EUID_UNIVERSAL_ID);
+        this.euidUniversalIdType = hc.getString(EUID_UNIVERSAL_ID_TYPE);
         this.euidAssignEnabled = hc.getBoolean(EUID_ASSIGN_ENABLED, true);
     }
 }

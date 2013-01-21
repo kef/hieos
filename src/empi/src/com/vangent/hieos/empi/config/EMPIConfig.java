@@ -48,6 +48,7 @@ public class EMPIConfig {
     private static String VALIDATE_CODES_ENABLED = "validate-codes-enabled";
     private static String VALIDATE_IDENTITY_SOURCES_ENABLED = "validate-identity-sources-enabled";
     private static String MATCH_ALGORITHM = "match-algorithm";
+    private static String ACCOUNT_NUMBER_TREATMENT = "account-number-treatment";
     private static String CANDIDATE_FINDER = "candidate-finder";
     private static String DEFAULT_JNDI_RESOURCE_NAME = "jdbc/hieos-empi";
     private static String TRANSFORM_FUNCTIONS = "transform-functions.transform-function";
@@ -66,6 +67,7 @@ public class EMPIConfig {
     private MatchAlgorithm matchAlgorithm;
     private CandidateFinder candidateFinder;
     private EUIDConfig euidConfig;
+    private AccountNumberTreatmentConfig accountNumberTreatmentConfig;
     private boolean updateNotificationEnabled;
     private String subjectSequenceGeneratorSQL;
     private boolean validateCodesEnabled;
@@ -109,6 +111,14 @@ public class EMPIConfig {
             }
         }
         return false;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public AccountNumberTreatmentConfig getAccountNumberTreatmentConfig() {
+        return accountNumberTreatmentConfig;
     }
 
     /**
@@ -365,6 +375,9 @@ public class EMPIConfig {
             validateIdentitySourcesEnabled = xmlConfig.getBoolean(VALIDATE_IDENTITY_SOURCES_ENABLED, true);
             empiDeviceIds = xmlConfig.getStringArray(EMPI_DEVICE_IDS);
 
+            // Load account number treatment configuration.
+            this.loadAccountNumberTreatmentConfig(xmlConfig);
+
             // Load the candidate finder.
             this.loadCandidateFinder(xmlConfig);
 
@@ -471,6 +484,18 @@ public class EMPIConfig {
             identitySourceConfig.load(hcIdentitySource, this);
             identitySourceConfigs.put(identitySourceConfig.getDeviceId(), identitySourceConfig);
         }
+    }
+
+    /**
+     *
+     * @param hc
+     * @throws EMPIException
+     */
+    private void loadAccountNumberTreatmentConfig(HierarchicalConfiguration hc) throws EMPIException {
+        HierarchicalConfiguration hcAccountNumberTreatment = hc.configurationAt(ACCOUNT_NUMBER_TREATMENT);
+        accountNumberTreatmentConfig = new AccountNumberTreatmentConfig();
+        accountNumberTreatmentConfig.load(hcAccountNumberTreatment, this);
+        
     }
 
     /**
