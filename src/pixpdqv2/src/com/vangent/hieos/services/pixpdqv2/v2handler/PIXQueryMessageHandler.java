@@ -61,7 +61,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
             // Build SubjectSearchCriteria from HL7v2 message.
-            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(terser);
+            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = 
+                    new SubjectSearchCriteriaBuilder(getBuilderConfig(), terser);
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPIXQuery();
 
             // Clone identifiers (for audit later).
@@ -94,7 +95,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @return
      */
     private Message buildResponse(Message inMessage, SubjectSearchResponse subjectSearchResponse) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
+        PIXQueryResponseMessageBuilder responseBuilder = 
+                new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildPIXQueryResponse(subjectSearchResponse);
     }
 
@@ -106,7 +108,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, String errorText) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
+        PIXQueryResponseMessageBuilder responseBuilder = 
+                new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildErrorResponse(errorText);
     }
 
@@ -118,7 +121,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownSubjectIdentifier ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
+        PIXQueryResponseMessageBuilder responseBuilder = 
+                new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]
@@ -143,7 +147,8 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownIdentifierDomain ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = new PIXQueryResponseMessageBuilder(inMessage);
+        PIXQueryResponseMessageBuilder responseBuilder = 
+                new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]

@@ -57,7 +57,7 @@ public class ADTPatientUpdateMessageHandler extends ADTMessageHandler {
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
             // Build subject from HL7v2 message.
-            SubjectBuilder subjectBuilder = new SubjectBuilder(terser);
+            SubjectBuilder subjectBuilder = new SubjectBuilder(getBuilderConfig(), terser);
             Subject subject = subjectBuilder.buildSubject();
             subject.setIdentitySource(senderDeviceInfo.getId());
 

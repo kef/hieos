@@ -57,7 +57,8 @@ public class ADTPatientMergeMessageHandler extends ADTMessageHandler {
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
             // Build subject from HL7v2 message.
-            SubjectMergeRequestBuilder subjectMergeRequestBuilder = new SubjectMergeRequestBuilder(terser);
+            SubjectMergeRequestBuilder subjectMergeRequestBuilder = 
+                    new SubjectMergeRequestBuilder(getBuilderConfig(), terser);
             SubjectMergeRequest subjectMergeRequest = subjectMergeRequestBuilder.buildSubjectMergeRequest();
 
             // Clone identifiers (for audit later).

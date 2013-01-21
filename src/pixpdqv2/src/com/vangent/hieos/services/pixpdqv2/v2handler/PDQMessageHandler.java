@@ -25,6 +25,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.hl7v2util.model.message.PDQResponseMessageBuilder;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
@@ -53,6 +54,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
         logger.info("Processing PDQ message ...");
         Message outMessage;
         try {
+
             // Get Terser.
             Terser terser = new Terser(inMessage);
 
@@ -61,7 +63,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
             // Build SubjectSearchCriteria from HL7v2 message.
-            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(terser);
+            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(getBuilderConfig(), terser);
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPDQ();
             subjectSearchCriteria.setTargetIdentitySource(receiverDeviceInfo.getId());
 
@@ -93,9 +95,10 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
      * @param inMessage
      * @param subjectSearchResponse
      * @return
+     * @throws HL7Exception
      */
     private Message buildResponse(Message inMessage, SubjectSearchResponse subjectSearchResponse) throws HL7Exception {
-        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildPDQResponse(subjectSearchResponse);
     }
 
@@ -107,7 +110,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, String errorText) throws HL7Exception {
-        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildErrorResponse(errorText);
     }
 
@@ -119,7 +122,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownSubjectIdentifier ex) throws HL7Exception {
-        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K21 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]
@@ -144,7 +147,7 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownIdentifierDomain ex) throws HL7Exception {
-        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(inMessage);
+        PDQResponseMessageBuilder responseBuilder = new PDQResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K21 outMessage = responseBuilder.buildBaseErrorResponse();
 
         // SEGMENT: Error Segment [ERR]

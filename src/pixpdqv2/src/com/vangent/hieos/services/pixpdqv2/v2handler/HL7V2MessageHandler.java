@@ -16,15 +16,30 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.app.ApplicationException;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.util.Terser;
+import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
 import com.vangent.hieos.hl7v2util.acceptor.impl.MessageHandler;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class HL7V2MessageHandler implements MessageHandler {
+
+    private final static Logger logger = Logger.getLogger(HL7V2MessageHandler.class);
+    private BuilderConfig builderConfig;
+
+    /**
+     * 
+     * @return
+     */
+    public BuilderConfig getBuilderConfig() {
+        return builderConfig;
+    }
 
     /**
      *
@@ -89,4 +104,19 @@ public class HL7V2MessageHandler implements MessageHandler {
         return deviceInfo;
     }
 
+    /**
+     * 
+     * @throws HL7Exception
+     */
+    public void init() throws HL7Exception {
+        builderConfig = new BuilderConfig();
+        try {
+            // Convert EMPI configuration items to Builder config items for HL7v2 processing.
+            EMPIConfig empiConfig = EMPIConfig.getInstance();
+            builderConfig.setDefaultAccountNumberUniversalId(empiConfig.getAccountNumberTreatmentConfig().getDefaultUniversalId());
+        } catch (EMPIException ex) {
+            logger.error("Unable to get EMPI Configuration", ex);
+            throw new HL7Exception("Unable to get EMPI Configuration", ex);
+        }
+    }
 }
