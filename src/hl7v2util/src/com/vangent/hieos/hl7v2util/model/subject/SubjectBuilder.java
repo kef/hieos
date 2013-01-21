@@ -31,6 +31,8 @@ import com.vangent.hieos.subjectmodel.SubjectPersonalRelationship;
 import com.vangent.hieos.subjectmodel.TelecomAddress;
 import com.vangent.hieos.xutil.hl7.formatutil.HL7FormatUtil;
 import com.vangent.hieos.hl7v2util.model.builder.BuilderHelper;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -38,6 +40,7 @@ import com.vangent.hieos.hl7v2util.model.builder.BuilderHelper;
  */
 public class SubjectBuilder {
 
+    private static final Logger logger = Logger.getLogger(SubjectBuilder.class);
     private Terser terser;
 
     /**
@@ -67,7 +70,7 @@ public class SubjectBuilder {
             // Patient id is used.  We will build the list for now.
             CX patientIdentifierCX = patientIdentfierListCX[i];
             String patientIdentifierCXFormatted = patientIdentifierCX.encode();
-            System.out.println("patientIdentifierCXFormatted = " + patientIdentifierCXFormatted);
+            logger.info("patientIdentifierCXFormatted = " + patientIdentifierCXFormatted);
             if (!HL7FormatUtil.isCX_Formatted(patientIdentifierCXFormatted)) {
                 throw new HL7Exception("Invalid CX format for patient identifier");
             }
@@ -78,24 +81,33 @@ public class SubjectBuilder {
         // Other identifiers (SSN, account number, etc).
 
         // SSN:
-        System.out.println("SSN = " + BuilderHelper.buildString(pid.getSSNNumberPatient()));
-        // TODO - SSN
+        String ssn = BuilderHelper.buildString(pid.getSSNNumberPatient());
+        if (ssn != null) {
+            logger.info("SSN = " + ssn);
+            SubjectIdentifier ssnSubjectIdentifier = new SubjectIdentifier();
+            ssnSubjectIdentifier.setIdentifier(ssn);
+            ssnSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+            SubjectIdentifierDomain ssnIdentifierDomain = new SubjectIdentifierDomain();
+            ssnIdentifierDomain.setUniversalId(SubjectIdentifierDomain.SSN_UNIVERSAL_ID);
+            ssnSubjectIdentifier.setIdentifierDomain(ssnIdentifierDomain);
+            subject.getSubjectOtherIdentifiers().add(ssnSubjectIdentifier);
+        }
 
         // Account number:
         //  TODO - Account number ... problem with no identifier domain specified.
-        //CX patientAccountNumberCX = pid.getPatientAccountNumber();
-        //if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
-        //    String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
-        //    System.out.println("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
-        //    SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
-        //    subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
-        //    subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
-        //}
+        CX patientAccountNumberCX = pid.getPatientAccountNumber();
+        if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
+            String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
+            logger.info("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
+            //SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
+            //subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+            //subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
+        }
 
         // Driver's license number:
         DLN driversLicenseNumberDLN = pid.getDriverSLicenseNumberPatient();
         if (driversLicenseNumberDLN != null) {
-            System.out.println("driversLicenseNumberDLN = " + driversLicenseNumberDLN.encode());
+            logger.info("driversLicenseNumberDLN = " + driversLicenseNumberDLN.encode());
         }
         // TBD - Driver's License Number
 
@@ -116,7 +128,7 @@ public class SubjectBuilder {
         XPN[] patientNamesXPN = pid.getPatientName();
         for (int i = 0; i < patientNamesXPN.length; i++) {
             XPN patientNameXPN = patientNamesXPN[i];
-            System.out.println("patientNameXPN = " + patientNameXPN.encode());
+            logger.info("patientNameXPN = " + patientNameXPN.encode());
             SubjectName subjectName = BuilderHelper.buildSubjectName(patientNameXPN);
             subject.addSubjectName(subjectName);
         }
@@ -125,7 +137,7 @@ public class SubjectBuilder {
         XAD[] patientAddressesXAD = pid.getPatientAddress();
         for (int i = 0; i < patientAddressesXAD.length; i++) {
             XAD patientAddressXAD = patientAddressesXAD[i];
-            System.out.println("patientAddressXAD = " + patientAddressXAD.encode());
+            logger.info("patientAddressXAD = " + patientAddressXAD.encode());
             Address subjectAddress = new Address();
             subjectAddress.setStreetAddressLine1(patientAddressXAD.getStreetAddress().getValue());
             // FIXME: Multiple address lines?
@@ -144,7 +156,7 @@ public class SubjectBuilder {
         // FIXME: Decompose into finer grain parts -- impact on HL7 v3 also
         for (int i = 0; i < homePhoneNumbersXTN.length; i++) {
             XTN homePhoneNumberXTN = homePhoneNumbersXTN[i];
-            System.out.println("homePhoneNumberXTN = " + homePhoneNumberXTN.encode());
+            logger.info("homePhoneNumberXTN = " + homePhoneNumberXTN.encode());
             TelecomAddress subjectTelecomAddress = new TelecomAddress();
             subjectTelecomAddress.setUse(homePhoneNumberXTN.getTelecommunicationUseCode().getValue());
             subjectTelecomAddress.setValue(homePhoneNumberXTN.getPhoneNumber().getValue());
@@ -156,7 +168,7 @@ public class SubjectBuilder {
         XTN[] bizPhoneNumbersXTN = pid.getPhoneNumberBusiness();
         for (int i = 0; i < bizPhoneNumbersXTN.length; i++) {
             XTN bizPhoneNumberXTN = bizPhoneNumbersXTN[i];
-            System.out.println("bizPhoneNumberXTN = " + bizPhoneNumberXTN.encode());
+            logger.info("bizPhoneNumberXTN = " + bizPhoneNumberXTN.encode());
             TelecomAddress subjectTelecomAddress = new TelecomAddress();
             subjectTelecomAddress.setUse(bizPhoneNumberXTN.getTelecommunicationUseCode().getValue());
             subjectTelecomAddress.setValue(bizPhoneNumberXTN.getPhoneNumber().getValue());
@@ -167,7 +179,7 @@ public class SubjectBuilder {
         if (pid.getEthnicGroupReps() > 0) {
             CE ethnicGroupCE = pid.getEthnicGroup(0);  // FIXME: ?We only grab the first ethnic group
             if (ethnicGroupCE != null) {
-                System.out.println("ethnicGroupCE = " + ethnicGroupCE.encode());
+                logger.info("ethnicGroupCE = " + ethnicGroupCE.encode());
             }
             subject.setEthnicGroup(BuilderHelper.buildCodedValue(ethnicGroupCE));
         }
@@ -176,7 +188,7 @@ public class SubjectBuilder {
         if (pid.getRaceReps() > 0) {
             CE raceCE = pid.getRace(0); // FIXME: ?We only grab the first race
             if (raceCE != null) {
-                System.out.println("raceCE = " + raceCE.encode());
+                logger.info("raceCE = " + raceCE.encode());
             }
             subject.setRace(BuilderHelper.buildCodedValue(raceCE));
         }
@@ -184,7 +196,7 @@ public class SubjectBuilder {
         // Religion:
         CE religionCE = pid.getReligion();
         if (religionCE != null) {
-            System.out.println("religionCE = " + religionCE.encode());
+            logger.info("religionCE = " + religionCE.encode());
         }
         subject.setReligiousAffiliation(BuilderHelper.buildCodedValue(religionCE));
 
@@ -195,7 +207,7 @@ public class SubjectBuilder {
         subject.setDeceasedIndicator(BuilderHelper.buildBoolean(pid.getPatientDeathIndicator())); // Y - Yes, N - No
         if (subject.getDeceasedIndicator() != null) {
             if (pid.getPatientDeathDateAndTime() != null && pid.getPatientDeathDateAndTime().getTimeOfAnEvent() != null) {
-                System.out.println("Deceased Time = " + pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
+                logger.info("Deceased Time = " + pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
                 subject.setDeceasedTime(pid.getPatientDeathDateAndTime().getTimeOfAnEvent().getValueAsDate());
             }
         }
@@ -204,7 +216,7 @@ public class SubjectBuilder {
         CE[] citizenshipsCE = pid.getCitizenship();
         for (int i = 0; i < citizenshipsCE.length; i++) {
             CE citizenshipCE = citizenshipsCE[i];
-            System.out.println("citizenshipCE = " + citizenshipCE.encode());
+            logger.info("citizenshipCE = " + citizenshipCE.encode());
             SubjectCitizenship subjectCitizenship = new SubjectCitizenship();
             subjectCitizenship.setNationCode(BuilderHelper.buildCodedValue(citizenshipCE));
             subjectCitizenship.setNationName(citizenshipCE.getName());
@@ -219,7 +231,7 @@ public class SubjectBuilder {
         // FIXME - just use one maiden name.
         if (pid.getMotherSMaidenNameReps() > 0) {
             XPN mothersMaidenNameXPN = pid.getMotherSMaidenName(0);
-            System.out.println("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());
+            logger.info("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());
             // FIXME: Simplify storing maiden names (@ root level of subject), etc.
             SubjectPersonalRelationship subjectPersonalRelationship = new SubjectPersonalRelationship();
             CodedValue relationshipTypeCode = new CodedValue();

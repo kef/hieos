@@ -14,6 +14,7 @@ package com.vangent.hieos.hl7v2util.model.subject;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v25.segment.MSH;
 import ca.uhn.hl7v2.model.v25.segment.QPD;
 import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.subjectmodel.Address;
@@ -24,13 +25,15 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectName;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class SubjectSearchCriteriaBuilder {
-    
+
+    private static final Logger logger = Logger.getLogger(SubjectSearchCriteriaBuilder.class);
     private Terser terser;
 
     /**
@@ -86,6 +89,11 @@ public class SubjectSearchCriteriaBuilder {
         Subject subject = new Subject();
         subjectSearchCriteria.setSubject(subject);
 
+        // Get target of demographics query.
+        MSH msh = (MSH) terser.getSegment("/MSH");
+        String receivingApplication = msh.getReceivingApplication().encode();
+        logger.info("Receiving Application = " + receivingApplication);
+
         // Pull fields from QPD segment.
         QPD qpd = (QPD) terser.getSegment("/QPD");
 
@@ -104,12 +112,15 @@ public class SubjectSearchCriteriaBuilder {
         SubjectName subjectName = new SubjectName();
         Address subjectAddress = new Address();
         SubjectIdentifier accountNumberSubjectIdentifier = new SubjectIdentifier();
+        SubjectIdentifier ssnSubjectIdentifier = new SubjectIdentifier();
+        ssnSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
         boolean subjectNameQuery = false;
         boolean subjectAddressQuery = false;
         boolean subjectAccountNumberQuery = false;
+        boolean subjectSSNQuery = false;
         for (int i = 0; i < numDemographicFieldTypes; i++) {
             String demographicFieldText = demographicFieldTypes[i].encode();
-            System.out.println("demographicFieldText = " + demographicFieldText);
+            logger.info("demographicFieldText = " + demographicFieldText);
             String fieldQueryParts[] = demographicFieldText.split("\\^");
             if (fieldQueryParts.length == 2) {
                 String fieldName = fieldQueryParts[0];
@@ -172,16 +183,21 @@ public class SubjectSearchCriteriaBuilder {
                     subjectAddressQuery = true;
                 } else if (fieldName.equalsIgnoreCase("@PID.18.1")) { // Account number.
                     // TODO.
-                    System.out.println("Account number = " + fieldValue);
+                    logger.info("Account number = " + fieldValue);
                     accountNumberSubjectIdentifier.setIdentifier(fieldValue);
                     accountNumberSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
                     subjectAccountNumberQuery = true;
-                    
+
                 } // TODO - Account number identifier domain components (@PID.18.4.x).
                 else if (fieldName.equalsIgnoreCase("@PID.19")) // SSN.
                 {
                     // TODO.
-                    System.out.println("SSN = " + fieldValue);
+                    logger.info("SSN = " + fieldValue);
+                    ssnSubjectIdentifier.setIdentifier(fieldValue);
+                    SubjectIdentifierDomain ssnIdentifierDomain = new SubjectIdentifierDomain();
+                    ssnIdentifierDomain.setUniversalId(SubjectIdentifierDomain.SSN_UNIVERSAL_ID);
+                    ssnSubjectIdentifier.setIdentifierDomain(ssnIdentifierDomain);
+                    subjectSSNQuery = true;
                 }
                 // TODO: Add phone, etc.
                 //else if (fieldName.equalsIgnoreCase("@PID.11.6")) {
@@ -190,8 +206,8 @@ public class SubjectSearchCriteriaBuilder {
             } else {
                 // FIXME: Error ...
             }
-            
-            
+
+
         }
         if (subjectNameQuery) {
             subject.addSubjectName(subjectName);
@@ -201,6 +217,9 @@ public class SubjectSearchCriteriaBuilder {
         }
         if (subjectAccountNumberQuery) {
             subject.getSubjectOtherIdentifiers().add(accountNumberSubjectIdentifier);
+        }
+        if (subjectSSNQuery) {
+            subject.getSubjectOtherIdentifiers().add(ssnSubjectIdentifier);
         }
         return subjectSearchCriteria;
     }
