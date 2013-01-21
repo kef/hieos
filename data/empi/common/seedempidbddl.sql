@@ -1,4 +1,4 @@
-
+﻿
 -- subject_identifier_domain
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (1,'1.3.6.1.4.1.21367.13.20.9999', 'ISO', 'ENTERPRISE');
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (2,'2.16.840.1.113883.3.72.5.9.1', 'ISO', 'NIST2010');
@@ -10,6 +10,7 @@ INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespa
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (8,'1.3.6.1.4.1.21367.13.20.1000', 'ISO', 'IHERED');
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (9,'1.3.6.1.4.1.21367.13.20.2000', 'ISO', 'IHEGREEN');
 INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (10,'1.3.6.1.4.1.21367.2010.1.1', 'ISO', 'IHE2010');
+INSERT INTO subject_identifier_domain (id,universal_id,universal_id_type,namespace_id) VALUES (11,'HIEOS_EMPI_ACCOUNT_NUMBER', 'HIEOS_EMPI', 'HIEOS_EMPI');
 
 
 -- NEW (Connectathon)
