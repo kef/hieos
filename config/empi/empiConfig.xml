@@ -15,6 +15,25 @@
     <!-- when enabled, will validate codes in HL7V3 messages against codes.xml configuration. -->
     <validate-codes-enabled>false</validate-codes-enabled>
 
+    <!-- Use "," to separate EMPI known device id's - a list here to deal with
+         dual-mode (HL7v2 and HL7v3) IHE connectathon testing.  In this context, the assigned
+         HL7v3 receiver device id does not match the assigned HL7v2 application device id.
+         In reality, the HL7v3 receiver device id and HL7v2 application should be the same -
+         for the PIXPDQ manager.
+
+         This field is used to determine whether or not enterprise-level demographics are
+         returned during PDQ requests.  For example, if the "receiver device id" (HL7v3) or
+         the "receiver application" (HL7v2) is set to one of the configured values below,
+         then enterprise-level demographics will be returned versus a specific patient
+         identity source demographics.
+         -->
+    <!-- NIST TESTING - HIEOS_EMPI(HL7v2), 1.3.6.1.4.1.21367.13.10.417(HL7v3) -->
+    <empi-device-ids>HIEOS_EMPI,1.3.6.1.4.1.21367.13.10.417</empi-device-ids>
+
+    <!-- 2013 IHE Connectathon
+    <empi-device-ids>GATEWAY_GDIT_HIEOS,1.3.6.1.4.1.21367.13.30.74</empi-device-ids>
+     -->
+     
     <!-- Enterprise ID configuration items. -->
     <euid-config>
         <euid-assign-enabled>false</euid-assign-enabled>
@@ -714,9 +733,9 @@
         </match-fields>
     </match-config-find>
 
-    <update-notification-enabled>false</update-notification-enabled>
+    <update-notification-enabled>true</update-notification-enabled>
 
-    <validate-identity-sources-enabled>false</validate-identity-sources-enabled>
+    <validate-identity-sources-enabled>true</validate-identity-sources-enabled>
     
     <!-- List of valid identifier sources -->
     <identity-sources>
@@ -763,7 +782,7 @@
                     <universal-id-type>ISO</universal-id-type>
                     <namespace-id>NIST2010-3</namespace-id>
                 </identifier-domain>
-                 <identifier-domain>
+                <identifier-domain>
                     <universal-id>1.3.6.1.4.1.21367.2010.1.1</universal-id>
                     <universal-id-type>ISO</universal-id-type>
                     <namespace-id>IHE2010</namespace-id>
