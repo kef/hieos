@@ -91,4 +91,10 @@ public class DefaultMessageHandler implements MessageHandler {
         return true;
     }
 
+    /**
+     *
+     */
+    public void init() throws HL7Exception {
+        // Do nothing.
+    }
 }

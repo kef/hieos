@@ -12,8 +12,10 @@
  */
 package com.vangent.hieos.hl7v2util.acceptor.config;
 
+import ca.uhn.hl7v2.HL7Exception;
 import com.vangent.hieos.hl7v2util.acceptor.impl.MessageHandler;
 import com.vangent.hieos.hl7v2util.exception.HL7v2UtilException;
+import java.util.logging.Level;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 
@@ -76,7 +78,12 @@ public class MessageHandlerConfig implements ConfigItem {
         this.className = hc.getString(CLASS_NAME);
         logger.info("... className = " + this.className);
 
-        // Get an instance of the message handler.
+        // Get an instance of the message handler and initialize it.
         this.messageHandler = (MessageHandler) ConfigHelper.loadClassInstance(this.className);
+        try {
+            this.messageHandler.init();
+        } catch (HL7Exception ex) {
+            throw new HL7v2UtilException("Unable to initialize message handler", ex);
+        }
     }
 }

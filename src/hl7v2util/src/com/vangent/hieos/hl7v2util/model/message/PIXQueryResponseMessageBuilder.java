@@ -25,6 +25,7 @@ import ca.uhn.hl7v2.model.v25.segment.MSH;
 import ca.uhn.hl7v2.model.v25.segment.PID;
 import ca.uhn.hl7v2.model.v25.segment.QAK;
 import ca.uhn.hl7v2.model.v25.segment.QPD;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
@@ -39,10 +40,11 @@ public class PIXQueryResponseMessageBuilder extends QueryResponseMessageBuilder 
 
     /**
      *
+     * @param builderConfig
      * @param inMessage
      */
-    public PIXQueryResponseMessageBuilder(Message inMessage) {
-        super(inMessage);
+    public PIXQueryResponseMessageBuilder(BuilderConfig builderConfig, Message inMessage) {
+        super(builderConfig, inMessage);
     }
 
     /**
@@ -87,7 +89,6 @@ public class PIXQueryResponseMessageBuilder extends QueryResponseMessageBuilder 
         // SEGMENT: PID
         RSP_K23_QUERY_RESPONSE queryResponse = outMessage.getQUERY_RESPONSE();
         PID pid = queryResponse.getPID();
-
 
         // Go through list of returned subjects.
         int idCount = 0;

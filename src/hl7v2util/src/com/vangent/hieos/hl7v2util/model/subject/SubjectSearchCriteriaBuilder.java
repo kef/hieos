@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.model.Type;
 import ca.uhn.hl7v2.model.v25.segment.MSH;
 import ca.uhn.hl7v2.model.v25.segment.QPD;
 import ca.uhn.hl7v2.util.Terser;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Address;
 import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -34,13 +35,16 @@ import org.apache.log4j.Logger;
 public class SubjectSearchCriteriaBuilder {
 
     private static final Logger logger = Logger.getLogger(SubjectSearchCriteriaBuilder.class);
+    private BuilderConfig builderConfig;
     private Terser terser;
 
     /**
      *
+     * @param builderConfig
      * @param terser
      */
-    public SubjectSearchCriteriaBuilder(Terser terser) {
+    public SubjectSearchCriteriaBuilder(BuilderConfig builderConfig, Terser terser) {
+        this.builderConfig = builderConfig;
         this.terser = terser;
     }
 
@@ -184,8 +188,15 @@ public class SubjectSearchCriteriaBuilder {
                 } else if (fieldName.equalsIgnoreCase("@PID.18.1")) { // Account number.
                     // TODO.
                     logger.info("Account number = " + fieldValue);
+
+                    // FIXME: What if account number is qualified?
+                    // Not qualified by an assigning authority ...
+                    accountNumberSubjectIdentifier = new SubjectIdentifier();
                     accountNumberSubjectIdentifier.setIdentifier(fieldValue);
                     accountNumberSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+                    SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+                    identifierDomain.setUniversalId(builderConfig.getDefaultAccountNumberUniversalId());
+                    accountNumberSubjectIdentifier.setIdentifierDomain(identifierDomain);
                     subjectAccountNumberQuery = true;
 
                 } // TODO - Account number identifier domain components (@PID.18.4.x).
@@ -216,10 +227,10 @@ public class SubjectSearchCriteriaBuilder {
             subject.addAddress(subjectAddress);
         }
         if (subjectAccountNumberQuery) {
-            subject.getSubjectOtherIdentifiers().add(accountNumberSubjectIdentifier);
+            subject.getSubjectIdentifiers().add(accountNumberSubjectIdentifier);
         }
         if (subjectSSNQuery) {
-            subject.getSubjectOtherIdentifiers().add(ssnSubjectIdentifier);
+            subject.getSubjectIdentifiers().add(ssnSubjectIdentifier);
         }
         return subjectSearchCriteria;
     }

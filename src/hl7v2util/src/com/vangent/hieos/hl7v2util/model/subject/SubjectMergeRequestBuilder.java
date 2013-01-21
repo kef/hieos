@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.v231.datatype.CX;
 import ca.uhn.hl7v2.model.v231.segment.MRG;
 import ca.uhn.hl7v2.util.Terser;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
@@ -26,13 +27,16 @@ import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
  */
 public class SubjectMergeRequestBuilder {
 
+    private BuilderConfig builderConfig;
     private Terser terser;
 
     /**
-     *
+     * 
+     * @param builderConfig
      * @param terser
      */
-    public SubjectMergeRequestBuilder(Terser terser) {
+    public SubjectMergeRequestBuilder(BuilderConfig builderConfig, Terser terser) {
+        this.builderConfig = builderConfig;
         this.terser = terser;
     }
 
@@ -46,7 +50,7 @@ public class SubjectMergeRequestBuilder {
         SubjectMergeRequest subjectMergeRequest = new SubjectMergeRequest();
 
         // Surviving subject (in PID segment).
-        SubjectBuilder subjectBuilder = new SubjectBuilder(terser);
+        SubjectBuilder subjectBuilder = new SubjectBuilder(builderConfig, terser);
         Subject survivingSubject = subjectBuilder.buildSubject();
         subjectMergeRequest.setSurvivingSubject(survivingSubject);
 

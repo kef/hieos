@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.util.Terser;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import java.io.IOException;
 
 /**
@@ -27,10 +28,11 @@ public class AckMessageBuilder extends MessageBuilder {
 
     /**
      *
+     * @param builderConfig
      * @param inMessage
      */
-    public AckMessageBuilder(Message inMessage) {
-        super(inMessage);
+    public AckMessageBuilder(BuilderConfig builderConfig, Message inMessage) {
+        super(builderConfig, inMessage);
     }
 
     /**

@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v25.datatype.CX;
 import ca.uhn.hl7v2.model.v25.datatype.FN;
 import ca.uhn.hl7v2.model.v25.datatype.HD;
+import ca.uhn.hl7v2.model.v25.datatype.ST;
 import ca.uhn.hl7v2.model.v25.datatype.XAD;
 import ca.uhn.hl7v2.model.v25.datatype.XPN;
 import ca.uhn.hl7v2.model.v25.group.RSP_K21_QUERY_RESPONSE;
@@ -29,6 +30,7 @@ import ca.uhn.hl7v2.model.v25.segment.PID;
 import ca.uhn.hl7v2.model.v25.segment.QAK;
 import ca.uhn.hl7v2.model.v25.segment.QPD;
 import ca.uhn.hl7v2.model.v25.segment.QRI;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Address;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
@@ -46,11 +48,12 @@ import java.io.IOException;
 public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
 
     /**
-     *
+     * 
+     * @param builderConfig
      * @param inMessage
      */
-    public PDQResponseMessageBuilder(Message inMessage) {
-        super(inMessage);
+    public PDQResponseMessageBuilder(BuilderConfig builderConfig, Message inMessage) {
+        super(builderConfig, inMessage);
     }
 
     /**
@@ -102,12 +105,14 @@ public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
 
             // DOB.
             pid.getDateTimeOfBirth().getTime().setValue(Hl7Date.toHL7format(subject.getBirthTime()));
-            
+
             // Account number.
-            // TODO - many ...
-            
+            this.setAccountNumber(pid, subject);
+
             // SSN.
-            // TBD.
+            this.setSSN(pid, subject);
+
+            // TODO - many ...
 
             // Subject identifiers.
             int repCount = 0;
@@ -124,7 +129,7 @@ public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
                 assigningAuthority.getUniversalID().setValue(identifierDomain.getUniversalId());
                 assigningAuthority.getUniversalIDType().setValue(identifierDomain.getUniversalIdType());
             }
-            
+
             // Subject other identifiers.
             // TODO - subject other identifiers.
 
@@ -187,6 +192,50 @@ public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
         qpd.parse(inMessageQPD.encode());
 
         return outMessage;
+    }
+
+    /**
+     * 
+     * @param pid
+     * @param subject
+     * @throws HL7Exception
+     */
+    private void setAccountNumber(PID pid, Subject subject) throws HL7Exception {
+        BuilderConfig builderConfig = this.getBuilderConfig();
+        String defaultAccountNumberUniversalId = builderConfig.getDefaultAccountNumberUniversalId();
+        CX patientAccountNumberCX = pid.getPatientAccountNumber();
+        for (SubjectIdentifier subjectOtherIdentifier : subject.getSubjectOtherIdentifiers()) {
+            // Get identifier domain.
+            SubjectIdentifierDomain identifierDomain = subjectOtherIdentifier.getIdentifierDomain();
+            if (identifierDomain.getUniversalId().equalsIgnoreCase(defaultAccountNumberUniversalId)) {
+                // FIXME: Should we fully qualify.
+                patientAccountNumberCX.parse(subjectOtherIdentifier.getIdentifier());
+                // FIXME: Only picking the first one.  This is a limitation of HL7v2.
+                // This could be a problem for returned enterprise subjects.
+            }
+        }
+    }
+
+    /**
+     *
+     * @param pid
+     * @param subject
+     * @throws HL7Exception
+     */
+    private void setSSN(PID pid, Subject subject) throws HL7Exception {
+        // FIXME: Make SSN Universal ID configurable.
+        String defaultSSNUniversalId = SubjectIdentifierDomain.SSN_UNIVERSAL_ID;
+        ST ssnST = pid.getSSNNumberPatient();
+        for (SubjectIdentifier subjectOtherIdentifier : subject.getSubjectOtherIdentifiers()) {
+            // Get identifier domain.
+            SubjectIdentifierDomain identifierDomain = subjectOtherIdentifier.getIdentifierDomain();
+            if (identifierDomain.getUniversalId().equalsIgnoreCase(defaultSSNUniversalId)) {
+                // FIXME: Should we fully qualify.
+                ssnST.parse(subjectOtherIdentifier.getIdentifier());
+                // FIXME: Only picking the first one.  This is a limitation of HL7v2.
+                // This could be a problem for returned enterprise subjects.
+            }
+        }
     }
 
     /**

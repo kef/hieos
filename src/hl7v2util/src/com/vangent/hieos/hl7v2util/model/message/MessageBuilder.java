@@ -13,20 +13,33 @@
 package com.vangent.hieos.hl7v2util.model.message;
 
 import ca.uhn.hl7v2.model.Message;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 
 /**
  *
  * @author Bernie Thuman
  */
 public class MessageBuilder {
+
+    private BuilderConfig builderConfig;
     private Message inMessage;
 
     /**
      *
+     * @param builderConfig
      * @param inMessage
      */
-    public MessageBuilder(Message inMessage) {
+    public MessageBuilder(BuilderConfig builderConfig, Message inMessage) {
+        this.builderConfig = builderConfig;
         this.inMessage = inMessage;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public BuilderConfig getBuilderConfig() {
+        return builderConfig;
     }
 
     /**

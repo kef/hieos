@@ -21,6 +21,7 @@ import ca.uhn.hl7v2.model.v231.datatype.XPN;
 import ca.uhn.hl7v2.model.v231.datatype.XTN;
 import ca.uhn.hl7v2.model.v231.segment.PID;
 import ca.uhn.hl7v2.util.Terser;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Address;
 import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -41,13 +42,16 @@ import org.apache.log4j.Logger;
 public class SubjectBuilder {
 
     private static final Logger logger = Logger.getLogger(SubjectBuilder.class);
+    private BuilderConfig builderConfig;
     private Terser terser;
 
     /**
-     *
+     * 
+     * @param builderConfig
      * @param terser
      */
-    public SubjectBuilder(Terser terser) {
+    public SubjectBuilder(BuilderConfig builderConfig, Terser terser) {
+        this.builderConfig = builderConfig;
         this.terser = terser;
     }
 
@@ -71,7 +75,7 @@ public class SubjectBuilder {
             CX patientIdentifierCX = patientIdentfierListCX[i];
             String patientIdentifierCXFormatted = patientIdentifierCX.encode();
             logger.info("patientIdentifierCXFormatted = " + patientIdentifierCXFormatted);
-            if (!HL7FormatUtil.isCX_Formatted(patientIdentifierCXFormatted)) {
+            if (!HL7FormatUtil.isCX_Formatted_WithExtraComponents(patientIdentifierCXFormatted)) {
                 throw new HL7Exception("Invalid CX format for patient identifier");
             }
             SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientIdentifierCXFormatted);
@@ -99,9 +103,17 @@ public class SubjectBuilder {
         if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
             String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
             logger.info("patientAccountNumberCXFormatted = " + patientAccountNumberCXFormatted);
-            //SubjectIdentifier subjectIdentifier = new SubjectIdentifier(patientAccountNumberCXFormatted);
-            //subjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
-            //subject.getSubjectOtherIdentifiers().add(subjectIdentifier);
+
+            // FIXME: What if account number is qualified?
+            
+            // Not qualified by an assigning authority ...
+            SubjectIdentifier accountSubjectIdentifier = new SubjectIdentifier();
+            accountSubjectIdentifier.setIdentifier(patientAccountNumberCXFormatted);
+            accountSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+            SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
+            identifierDomain.setUniversalId(builderConfig.getDefaultAccountNumberUniversalId());
+            accountSubjectIdentifier.setIdentifierDomain(identifierDomain);
+            subject.getSubjectOtherIdentifiers().add(accountSubjectIdentifier);
         }
 
         // Driver's license number:

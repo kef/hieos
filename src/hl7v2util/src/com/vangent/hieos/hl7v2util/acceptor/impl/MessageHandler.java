@@ -43,4 +43,12 @@ public interface MessageHandler {
      */
     public boolean canProcess(Connection connection, Message in);
 
+    /**
+     * Called once message handler is instantiated for the first time.  It is safe to cache
+     * "read-only" instance values in the message handler.
+     *
+     * @throws HL7Exception
+     */
+    public void init() throws HL7Exception;
+
 }

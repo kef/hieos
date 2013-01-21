@@ -13,6 +13,7 @@
 package com.vangent.hieos.hl7v2util.model.message;
 
 import ca.uhn.hl7v2.model.Message;
+import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 
 /**
  *
@@ -22,10 +23,11 @@ public class QueryResponseMessageBuilder extends MessageBuilder {
     // FIXME: Remove class?
 
     /**
-     *
+     * 
+     * @param builderConfig
      * @param inMessage
      */
-    public QueryResponseMessageBuilder(Message inMessage) {
-        super(inMessage);
+    public QueryResponseMessageBuilder(BuilderConfig builderConfig, Message inMessage) {
+        super(builderConfig, inMessage);
     }
 }
