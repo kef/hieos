@@ -142,6 +142,8 @@ public class PDSRequestHandler extends RequestHandler {
     private SubjectSearchCriteria getSubjectSearchCriteria(PRPA_IN201305UV02_Message message) throws ModelBuilderException {
         SubjectSearchCriteriaBuilder builder = new SubjectSearchCriteriaBuilder();
         SubjectSearchCriteria subjectSearchCriteria = builder.buildSubjectSearchCriteria(message);
+        DeviceInfo receiverDeviceInfo = HL7V3MessageBuilderHelper.getReceiverDeviceInfo(message);
+        subjectSearchCriteria.setTargetIdentitySource(receiverDeviceInfo.getId());
         return subjectSearchCriteria;
     }
 

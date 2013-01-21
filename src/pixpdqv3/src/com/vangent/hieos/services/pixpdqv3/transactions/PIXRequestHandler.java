@@ -135,6 +135,7 @@ public class PIXRequestHandler extends RequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
+            subject.setIdentitySource(senderDeviceInfo.getId());
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
@@ -176,6 +177,7 @@ public class PIXRequestHandler extends RequestHandler {
         try {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
+            subject.setIdentitySource(senderDeviceInfo.getId());
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
