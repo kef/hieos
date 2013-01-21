@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class Record {
 
     private InternalId internalId;
+    private String identitySource;
     private List<Field> fields = new ArrayList<Field>();
 
     /**
@@ -40,6 +41,22 @@ public class Record {
      */
     public void setId(InternalId internalId) {
         this.internalId = internalId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getIdentitySource() {
+        return identitySource;
+    }
+
+    /**
+     * 
+     * @param identitySource
+     */
+    public void setIdentitySource(String identitySource) {
+        this.identitySource = identitySource;
     }
 
     /**

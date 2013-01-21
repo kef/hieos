@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.empi.impl.base;
 
+import com.vangent.hieos.empi.config.EMPIConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
@@ -69,6 +70,8 @@ public class FindSubjectsHandler extends BaseHandler {
         FindSubjectsValidator validator = new FindSubjectsValidator(pm, this.getSenderDeviceInfo());
         validator.setSubjectSearchCriteria(subjectSearchCriteria);
         validator.run();
+
+        logger.info("Target identity source for demographics -> " + subjectSearchCriteria.getTargetIdentitySource());
 
         // Create default response.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
@@ -158,6 +161,9 @@ public class FindSubjectsHandler extends BaseHandler {
         SubjectController subjectController = new SubjectController(pm);
         List<Subject> baseSubjects = subjectController.loadBaseSubjects(searchSubjectIdentifiers);
 
+        // Only select subjects for the target identity source.
+        baseSubjects = this.filterSubjectsByTargetIdentitySource(subjectSearchCriteria, baseSubjects);
+
         // Now, filter on demographics if required.
         if (!baseSubjects.isEmpty() && subjectSearchCriteria.hasSubjectDemographics()) {
             // Get a search record.
@@ -206,8 +212,64 @@ public class FindSubjectsHandler extends BaseHandler {
         List<ScoredRecord> matchedRecords =
                 this.filterMatchedRecordsByMinimumDegreeMatchPercentage(subjectSearchCriteria, matchResults.getMatches());
 
+        // Get (filter) records that match the target identity source.
+        matchedRecords = this.filterMatchesByTargetIdentitySource(subjectSearchCriteria, matchedRecords);
+
         // Load enterprise subjects for matched records.
         enterpriseSubjectLoader.loadEnterpriseSubjectsForMatchedRecords(matchedRecords);
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param baseSubjects
+     * @return
+     * @throws EMPIException
+     */
+    private List<Subject> filterSubjectsByTargetIdentitySource(SubjectSearchCriteria subjectSearchCriteria, List<Subject> baseSubjects) throws EMPIException {
+        List<Subject> filteredResults = new ArrayList<Subject>();
+        String targetIdentitySource = subjectSearchCriteria.getTargetIdentitySource();
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        for (Subject baseSubject : baseSubjects) {
+            // See if the target is the EMPI
+            if (targetIdentitySource == null || empiConfig.isEMPIDeviceId(targetIdentitySource)) {
+                // No filtering here.
+                filteredResults.add(baseSubject);
+            } else {
+                // Only keep those records for the target identity source.
+                String baseSubjectIdentitySource = baseSubject.getIdentitySource();
+                if (baseSubjectIdentitySource.equalsIgnoreCase(targetIdentitySource)) {
+                    filteredResults.add(baseSubject);
+                }
+            }
+        }
+        return filteredResults;
+    }
+
+    /**
+     *
+     * @param subjectSearchCriteria
+     * @param matchedRecords
+     * @return
+     */
+    private List<ScoredRecord> filterMatchesByTargetIdentitySource(SubjectSearchCriteria subjectSearchCriteria, List<ScoredRecord> matchedRecords) throws EMPIException {
+        List<ScoredRecord> filteredResults = new ArrayList<ScoredRecord>();
+        String targetIdentitySource = subjectSearchCriteria.getTargetIdentitySource();
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        for (ScoredRecord scoredRecord : matchedRecords) {
+            // See if the target is the EMPI
+            if (targetIdentitySource == null || empiConfig.isEMPIDeviceId(targetIdentitySource)) {
+                // No filtering here.
+                filteredResults.add(scoredRecord);
+            } else {
+                // Only keep those records for the target identity source.
+                String scoredRecordIdentitySource = scoredRecord.getRecord().getIdentitySource();
+                if (scoredRecordIdentitySource.equalsIgnoreCase(targetIdentitySource)) {
+                    filteredResults.add(scoredRecord);
+                }
+            }
+        }
+        return filteredResults;
     }
 
     /**

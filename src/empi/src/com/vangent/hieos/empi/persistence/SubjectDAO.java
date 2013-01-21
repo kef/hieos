@@ -108,7 +108,7 @@ public class SubjectDAO extends AbstractDAO {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT type,last_updated_time FROM subject WHERE id=?";
+            String sql = "SELECT type,identity_source,last_updated_time FROM subject WHERE id=?";
             if (logger.isTraceEnabled()) {
                 logger.trace("SQL = " + sql);
             }
@@ -121,7 +121,8 @@ public class SubjectDAO extends AbstractDAO {
             } else {
                 subject.setInternalId(subjectId);
                 subject.setType(SubjectDAO.getSubjectType(rs.getString(1)));
-                Date lastUpdatedTime = this.getDate(rs.getTimestamp(2));
+                subject.setIdentitySource(rs.getString(2));
+                Date lastUpdatedTime = this.getDate(rs.getTimestamp(3));
                 subject.setLastUpdatedTime(lastUpdatedTime);
             }
         } catch (SQLException ex) {
@@ -226,7 +227,7 @@ public class SubjectDAO extends AbstractDAO {
         }
         PreparedStatement stmt = null;
         try {
-            String sql = "INSERT INTO subject(id,type,last_updated_time) values(?,?,?)";
+            String sql = "INSERT INTO subject(id,type,identity_source,last_updated_time) values(?,?,?,?)";
             stmt = this.getPreparedStatement(sql);
             for (Subject subject : subjects) {
                 if (logger.isTraceEnabled()) {
@@ -239,7 +240,8 @@ public class SubjectDAO extends AbstractDAO {
                 subject.setLastUpdatedTime(new Date());  // Update timestamp.
                 stmt.setLong(1, subjectId);
                 stmt.setString(2, subjectTypeValue);
-                stmt.setTimestamp(3, this.getTimestamp(subject.getLastUpdatedTime()));
+                stmt.setString(3, subject.getIdentitySource());
+                stmt.setTimestamp(4, this.getTimestamp(subject.getLastUpdatedTime()));
                 stmt.addBatch();
             }
             long startTime = System.currentTimeMillis();

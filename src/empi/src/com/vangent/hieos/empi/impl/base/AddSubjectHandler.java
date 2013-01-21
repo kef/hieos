@@ -70,6 +70,7 @@ public class AddSubjectHandler extends BaseHandler {
         validator.run();
 
         // Store the subject @ system-level - will stamp with subjectId.
+        String identitySource = newSubject.getIdentitySource();
         newSubject.setType(Subject.SubjectType.SYSTEM);
         subjectController.insert(newSubject);
 
@@ -125,6 +126,7 @@ public class AddSubjectHandler extends BaseHandler {
 
         // Insert system-level subject match fields (for subsequent find operations).
         searchRecord.setId(systemSubjectId);
+        searchRecord.setIdentitySource(identitySource);
         subjectController.insert(searchRecord);
 
         // Create and store cross-reference to enterprise subject.

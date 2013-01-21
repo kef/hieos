@@ -142,6 +142,9 @@ public class EnterpriseSubjectController {
         // Clear out the subject's identifier lists (since they are already stored at the system-level).
         newEnterpriseSubject.clearIdentifiers();
 
+        // HACK:
+        newEnterpriseSubject.setIdentitySource("EMPI");
+
         // Stamp the subject with an enterprise id (if configured to do so).
         EUIDConfig euidConfig = empiConfig.getEuidConfig();
         if (euidConfig.isEuidAssignEnabled()) {

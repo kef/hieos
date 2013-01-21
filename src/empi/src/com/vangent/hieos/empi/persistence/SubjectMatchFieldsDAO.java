@@ -37,6 +37,8 @@ import org.apache.log4j.Logger;
 public class SubjectMatchFieldsDAO extends AbstractDAO {
 
     private final static Logger logger = Logger.getLogger(SubjectMatchFieldsDAO.class);
+    private final static int SUBJECT_ID_FIELD_INDEX = 1;
+    private final static int IDENTITY_SOURCE_FIELD_INDEX = 2;
 
     /**
      *
@@ -88,27 +90,27 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
      * @return
      * @throws EMPIException
      */
-    public String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, Record searchRecord, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
+    private String buildBlockingPassSQLSelectStatement(MatchConfig matchConfig, Record searchRecord, List<BlockingFieldConfig> activeBlockingFieldConfigs) throws EMPIException {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT subject_id,");  // Always extract the subject_id.
+        sb.append("SELECT subject_id,identity_source,");  // Always extract the subject_id.
 
         // Add list of fields to extract (only those we plan on matching against).
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-        int fieldIndex = 0;
+        int ix = 0;
         int mumMatchFields = matchFieldConfigs.size();
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
             FieldConfig fieldConfig = matchFieldConfig.getFieldConfig();
             String dbColumnName = fieldConfig.getMatchDatabaseColumn();
             sb.append(dbColumnName);
-            ++fieldIndex;
-            if (fieldIndex != mumMatchFields) {
+            ++ix;
+            if (ix != mumMatchFields) {
                 sb.append(",");
             }
         }
         sb.append(" FROM subject_match_fields WHERE ");
 
         // Build the where clause (on blocking fields).
-        fieldIndex = 0;
+        ix = 0;
         int numActiveBlockingFields = activeBlockingFieldConfigs.size();
         for (BlockingFieldConfig activeBlockingFieldConfig : activeBlockingFieldConfigs) {
             FieldConfig fieldConfig = activeBlockingFieldConfig.getFieldConfig();
@@ -123,11 +125,12 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
             } else {
                 sb.append(" = ?");
             }
-            ++fieldIndex;
-            if (fieldIndex != numActiveBlockingFields) {
+            ++ix;
+            if (ix != numActiveBlockingFields) {
                 sb.append(" AND ");
             }
         }
+
         String sql = sb.toString();
         if (logger.isTraceEnabled()) {
             logger.trace("SQL = " + sql);
@@ -220,10 +223,11 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         Record record = new Record();
         InternalId internalId = new InternalId(recordId);
         record.setId(internalId);
+        int fieldIndex = IDENTITY_SOURCE_FIELD_INDEX;
+        record.setIdentitySource(rs.getString(fieldIndex));
 
         // Fill in the match fields from the result set.
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-        int fieldIndex = 1;
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
             Field field = new Field(matchFieldConfig.getName(), rs.getString(++fieldIndex));
             record.addField(field);
@@ -239,18 +243,18 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
      */
     private String getSQLSelectStatement(MatchConfig matchConfig) throws EMPIException {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT subject_id,");  // Always extract the subject_id.
+        sb.append("SELECT subject_id,identity_source,");  // Always extract the subject_id.
 
         // Add list of fields to extract (only those we plan on matching against).
         List<MatchFieldConfig> matchFieldConfigs = matchConfig.getMatchFieldConfigs();
-        int fieldIndex = 0;
+        int ix = 0;
         int mumMatchFields = matchFieldConfigs.size();
         for (MatchFieldConfig matchFieldConfig : matchFieldConfigs) {
             FieldConfig fieldConfig = matchFieldConfig.getFieldConfig();
             String dbColumnName = fieldConfig.getMatchDatabaseColumn();
             sb.append(dbColumnName);
-            ++fieldIndex;
-            if (fieldIndex != mumMatchFields) {
+            ++ix;
+            if (ix != mumMatchFields) {
                 sb.append(",");
             }
         }
@@ -314,8 +318,10 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
 
         try {
             // Go through each field and set the proper values in the prepared statement.
-            int fieldIndex = 1;
+            int fieldIndex = SUBJECT_ID_FIELD_INDEX;
+            // Set internal id (the system-level subject) and the identity source for the search record.
             stmt.setLong(fieldIndex, record.getInternalId().getId());
+            stmt.setString(++fieldIndex, record.getIdentitySource());
             for (FieldConfig fieldConfig : fieldConfigs) {
                 boolean isStoreField = fieldConfig.isStoreField();
                 if (isStoreField) {
@@ -337,7 +343,7 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
      */
     private PreparedStatement buildSQLInsertPreparedStatement() throws EMPIException {
         StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO subject_match_fields(subject_id,");
+        sb.append("INSERT INTO subject_match_fields(subject_id,identity_source,");
 
         // Get EMPI configuration.
         EMPIConfig empiConfig = EMPIConfig.getInstance();
@@ -355,24 +361,24 @@ public class SubjectMatchFieldsDAO extends AbstractDAO {
         }
 
         // First, get the database columns (to insert).
-        int fieldIndex = 0;
+        int ix = 0;
         for (FieldConfig fieldConfig : fieldConfigs) {
             boolean isStoreField = fieldConfig.isStoreField();
             if (isStoreField) {
                 String dbColumnName = fieldConfig.getMatchDatabaseColumn();
                 sb.append(dbColumnName);
-                ++fieldIndex;
-                if (fieldIndex != numFieldsToStore) {
+                ++ix;
+                if (ix != numFieldsToStore) {
                     sb.append(",");
                 }
             }
         }
-        sb.append(") values(?,");  // Single ? for identifier.
+        sb.append(") values(?,?,");  // ? for ID and identity_source.
 
         // Now, add the ? to correspond to each database column.
-        for (fieldIndex = 1; fieldIndex <= numFieldsToStore; fieldIndex++) {
+        for (ix = 1; ix <= numFieldsToStore; ix++) {
             sb.append("?");
-            if (fieldIndex != numFieldsToStore) {
+            if (ix != numFieldsToStore) {
                 sb.append(",");
             }
         }

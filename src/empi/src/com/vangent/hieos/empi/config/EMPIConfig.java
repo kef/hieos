@@ -42,6 +42,7 @@ public class EMPIConfig {
     private static String EMPI_CONFIG_FILE_NAME = "empiConfig.xml";
     private static String EMPI_CODES_CONFIG_FILE_NAME = "codes.xml";
     private static String JNDI_RESOURCE_NAME = "jndi-resource-name";
+    private static String EMPI_DEVICE_IDS = "empi-device-ids";
     private static String UPDATE_NOTIFICATION_ENABLED = "update-notification-enabled";
     private static String SUBJECT_SEQUENCE_GENERATOR_SQL = "subject-sequence-generator-sql";
     private static String VALIDATE_CODES_ENABLED = "validate-codes-enabled";
@@ -61,6 +62,7 @@ public class EMPIConfig {
     private MatchConfig matchConfigFeed;
     private MatchConfig matchConfigFind;
     private String jndiResourceName;
+    private String[] empiDeviceIds;
     private MatchAlgorithm matchAlgorithm;
     private CandidateFinder candidateFinder;
     private EUIDConfig euidConfig;
@@ -93,6 +95,20 @@ public class EMPIConfig {
             _instance.loadConfiguration();
         }
         return _instance;
+    }
+
+    /**
+     * 
+     * @param deviceId
+     * @return
+     */
+    public boolean isEMPIDeviceId(String deviceId) {
+        for (int i = 0; i < empiDeviceIds.length; i++) {
+            if (empiDeviceIds[i].equalsIgnoreCase(deviceId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -347,6 +363,7 @@ public class EMPIConfig {
             updateNotificationEnabled = xmlConfig.getBoolean(UPDATE_NOTIFICATION_ENABLED, false);
             validateCodesEnabled = xmlConfig.getBoolean(VALIDATE_CODES_ENABLED, true);
             validateIdentitySourcesEnabled = xmlConfig.getBoolean(VALIDATE_IDENTITY_SOURCES_ENABLED, true);
+            empiDeviceIds = xmlConfig.getStringArray(EMPI_DEVICE_IDS);
 
             // Load the candidate finder.
             this.loadCandidateFinder(xmlConfig);
