@@ -50,7 +50,7 @@ public class SubjectIdentifierDomain implements Cloneable, Serializable {
     private void buildFromDomainCXFormatted(String domainCXFormatted) {
         // 5cfe5f4f31604fa^^^&1.3.6.1.4.1.21367.2005.3.7&ISO
         String parts[] = domainCXFormatted.split("\\^");
-        if (parts.length == 4) {
+        if (parts.length >= 4) {
             //this.identifier = parts[0];
 
             // Assigning authority.
