@@ -21,6 +21,8 @@ import java.util.List;
  * @author Bernie Thuman
  */
 public class SubjectIdentifierDomain implements Cloneable, Serializable {
+    // May not be the best place, but works.
+    public final static String SSN_UNIVERSAL_ID = "2.16.840.1.113883.4.1";
 
     private int id = -1;
     private String namespaceId = null;

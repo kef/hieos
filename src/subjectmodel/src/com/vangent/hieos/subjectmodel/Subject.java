@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class Subject extends SubjectAbstractEntity {
 
+    private String identitySource;
     private List<SubjectIdentifier> subjectIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectIdentifier> subjectOtherIdentifiers = new ArrayList<SubjectIdentifier>();
     private List<SubjectName> subjectNames = new ArrayList<SubjectName>();
@@ -66,6 +67,27 @@ public class Subject extends SubjectAbstractEntity {
          */
         VOIDED
     };
+
+    /**
+     * 
+     * @return
+     */
+    public String getIdentitySource() {
+        return identitySource;
+    }
+
+    /**
+     * 
+     * @param identitySource
+     */
+    public void setIdentitySource(String identitySource) {
+        this.identitySource = identitySource;
+        // Stamp subject personal relationship subject's with the given "identity source".
+        for (SubjectPersonalRelationship subjectPersonalRelationship : subjectPersonalRelationships) {
+            Subject subject = subjectPersonalRelationship.getSubject();
+            subject.setIdentitySource(identitySource);
+        }
+    }
 
     /**
      *
@@ -171,7 +193,7 @@ public class Subject extends SubjectAbstractEntity {
         this.subjectLanguages.add(subjectLanguage);
     }
 
-     /**
+    /**
      *
      * @param subjectCitizenship
      */

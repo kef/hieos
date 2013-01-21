@@ -23,6 +23,7 @@ import java.util.List;
 public class SubjectSearchCriteria implements Cloneable, Serializable {
 
     private Subject subject = null;
+    private String targetIdentitySource;
     private int minimumDegreeMatchPercentage = 100;  // Default.
     private boolean specifiedMinimumDegreeMatchPercentage = false;
     private SubjectIdentifierDomain communitySubjectIdentifierDomain = null;
@@ -42,6 +43,22 @@ public class SubjectSearchCriteria implements Cloneable, Serializable {
      */
     public void setSubject(Subject subject) {
         this.subject = subject;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getTargetIdentitySource() {
+        return targetIdentitySource;
+    }
+
+    /**
+     *
+     * @param targetIdentitySource
+     */
+    public void setTargetIdentitySource(String targetIdentitySource) {
+        this.targetIdentitySource = targetIdentitySource;
     }
 
     /**
