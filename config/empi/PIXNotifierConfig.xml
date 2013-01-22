@@ -5,7 +5,7 @@
         
         <cross-reference-consumer>
             <name>NIST PIX PDQ Tool HL7v3</name>
-            <enabled>true</enabled>
+            <enabled>false</enabled>
             <!-- device-id must match "xconfig.xml" configuration for endpoints -->
             <!-- no endpoints are stored here -->
             <device-id>2.16.840.1.113883.3.72.6.5.100.207</device-id>
