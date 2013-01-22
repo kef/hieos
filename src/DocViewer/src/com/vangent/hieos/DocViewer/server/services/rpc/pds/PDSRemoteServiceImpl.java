@@ -147,13 +147,12 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 		XConfigActor pdsConfig = this.getPDSConfig();
 		PDSClient pdsClient = new PDSClient(pdsConfig);
-		DeviceInfo senderDeviceInfo = new DeviceInfo();
-		// FIXME: Pull from xconfig.
-		senderDeviceInfo.setId("TBD");
-		senderDeviceInfo.setName("TBD");
+		DeviceInfo senderDeviceInfo = new DeviceInfo();		
+		senderDeviceInfo.setId(servletUtil.getProperty("DeviceId"));
+		senderDeviceInfo.setName(servletUtil.getProperty("DeviceName"));
 		DeviceInfo receiverDeviceInfo = new DeviceInfo();
-		receiverDeviceInfo.setId("TBD");
-		receiverDeviceInfo.setName("TBD");
+		receiverDeviceInfo.setId(pdsConfig.getProperty("DeviceId"));
+		receiverDeviceInfo.setName(pdsConfig.getProperty("DeviceName"));
 
 		try {
 			subjectSearchResponse = pdsClient
