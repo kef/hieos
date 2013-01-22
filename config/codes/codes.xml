@@ -275,10 +275,10 @@
 		some really restricted codes that are not used elsewhere.  Do not submit metadata with
 		these codes unless you are testing MPQ -->
 
-        <Code code="MPQ-classcode-1" codingScheme="Connect-a-thon classCodes"
+        <Code code="MPQ-classcode-1" codingScheme="MPQ Testing"
 			display="MPQ-classcode-1" />
 
-        <Code code="MPQ-classcode-2" codingScheme="Connect-a-thon classCodes"
+        <Code code="MPQ-classcode-2" codingScheme="MPQ Testing"
 			display="MPQ-classcode-2" />
 
 		<!-- Added for new content type 06/23/2011 -->
@@ -717,9 +717,9 @@
 		some really restricted codes that are not used elsewhere.  Do not submit metadata with
 		these codes unless you are testing MPQ -->
 
-        <Code code="MPQ-hcftcode-1" codingScheme="Connect-a-thon healthcareFacilityTypeCodes"
+        <Code code="MPQ-hcftcode-1" codingScheme="MPQ Testing"
 			display="MPQ-hcftcode-1" />
-        <Code code="MPQ-hcftcode-2" codingScheme="Connect-a-thon healthcareFacilityTypeCodes"
+        <Code code="MPQ-hcftcode-2" codingScheme="MPQ Testing"
 			display="MPQ-hcftcode-2" />
 
     </CodeType>
@@ -1351,9 +1351,9 @@
 		some really restricted codes that are not used elsewhere.  Do not submit metadata with
 		these codes unless you are testing MPQ -->
 
-        <Code code="MPQ-eventcode-1" codingScheme="Connect-a-thon eventCodeList"
+        <Code code="MPQ-eventcode-1" codingScheme="MPQ Testing"
 			display="MPQ-eventcode-1" />
-        <Code code="MPQ-eventcode-2" codingScheme="Connect-a-thon eventCodeList"
+        <Code code="MPQ-eventcode-2" codingScheme="MPQ Testing"
 			display="MPQ-eventcode-2" />
 
     </CodeType>
