@@ -47,5 +47,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/subjectmodel.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/authutil.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
