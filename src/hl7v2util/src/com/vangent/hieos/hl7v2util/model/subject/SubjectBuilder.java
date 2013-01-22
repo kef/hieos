@@ -70,8 +70,6 @@ public class SubjectBuilder {
         // Identifiers.
         CX[] patientIdentfierListCX = pid.getPatientIdentifierList();
         for (int i = 0; i < patientIdentfierListCX.length; i++) {
-            // FIXME?: Should we just pick the first one?  According to PIX v2, only the first
-            // Patient id is used.  We will build the list for now.
             CX patientIdentifierCX = patientIdentfierListCX[i];
             String patientIdentifierCXFormatted = patientIdentifierCX.encode();
             logger.info("patientIdentifierCXFormatted = " + patientIdentifierCXFormatted);
@@ -98,7 +96,6 @@ public class SubjectBuilder {
         }
 
         // Account number:
-        //  TODO - Account number ... problem with no identifier domain specified.
         CX patientAccountNumberCX = pid.getPatientAccountNumber();
         if (patientAccountNumberCX != null && patientAccountNumberCX.getID() != null && patientAccountNumberCX.getID().getValue() != null) {
             String patientAccountNumberCXFormatted = patientAccountNumberCX.encode();
@@ -116,12 +113,11 @@ public class SubjectBuilder {
             subject.getSubjectOtherIdentifiers().add(accountSubjectIdentifier);
         }
 
-        // Driver's license number:
+        // TODO: Driver's license number:
         DLN driversLicenseNumberDLN = pid.getDriverSLicenseNumberPatient();
         if (driversLicenseNumberDLN != null) {
             logger.info("driversLicenseNumberDLN = " + driversLicenseNumberDLN.encode());
         }
-        // TBD - Driver's License Number
 
         // Coded values.
         subject.setGender(BuilderHelper.buildCodedValue(pid.getSex()));
@@ -212,9 +208,6 @@ public class SubjectBuilder {
         }
         subject.setReligiousAffiliation(BuilderHelper.buildCodedValue(religionCE));
 
-        // Mother's maiden name:
-        // TODO - Mother's maiden name
-
         // Deceased indicator/time:
         subject.setDeceasedIndicator(BuilderHelper.buildBoolean(pid.getPatientDeathIndicator())); // Y - Yes, N - No
         if (subject.getDeceasedIndicator() != null) {
@@ -240,7 +233,7 @@ public class SubjectBuilder {
 
         // Mother's maiden name:
         //XPN[] mothersMaidenNameXPN[] = pid.getMotherSMaidenName();
-        // FIXME - just use one maiden name.
+        // FIXME - just using one maiden name.
         if (pid.getMotherSMaidenNameReps() > 0) {
             XPN mothersMaidenNameXPN = pid.getMotherSMaidenName(0);
             logger.info("Mothers Maiden Name XPN = " + mothersMaidenNameXPN.encode());

@@ -26,6 +26,7 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectName;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -83,11 +84,12 @@ public class SubjectSearchCriteriaBuilder {
     }
 
     /**
-     *
-     * @return @throws HL7Exception 
+     * 
+     * @param defaultTargetDomainUniversalId
+     * @return
      * @throws HL7Exception
      */
-    public SubjectSearchCriteria buildSubjectSearchCriteriaFromPDQ() throws HL7Exception {
+    public SubjectSearchCriteria buildSubjectSearchCriteriaFromPDQ(String defaultTargetDomainUniversalId) throws HL7Exception {
         // Build SubjectSearchCriteria.
         SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
         Subject subject = new Subject();
@@ -113,15 +115,32 @@ public class SubjectSearchCriteriaBuilder {
         // QIP - Demographic Fields (QPD-3).
         Type[] demographicFieldTypes = qpd.getField(3);  // QPD-3
         int numDemographicFieldTypes = demographicFieldTypes.length;
+
+        // Patient identifier.
+        SubjectIdentifier patientIdentifier = new SubjectIdentifier();
+        SubjectIdentifierDomain patientIdentifierDomain = new SubjectIdentifierDomain();
+        patientIdentifier.setIdentifierDomain(patientIdentifierDomain);
+        boolean patientIdentifierQuery = false;
+        boolean patientIdentifierIsQualified = false;
+
+        // Name.
         SubjectName subjectName = new SubjectName();
-        Address subjectAddress = new Address();
-        SubjectIdentifier accountNumberSubjectIdentifier = new SubjectIdentifier();
-        SubjectIdentifier ssnSubjectIdentifier = new SubjectIdentifier();
-        ssnSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
         boolean subjectNameQuery = false;
+
+        // Address.
+        Address subjectAddress = new Address();
         boolean subjectAddressQuery = false;
+
+        // Account number.
+        SubjectIdentifier accountNumberIdentifier = new SubjectIdentifier();
         boolean subjectAccountNumberQuery = false;
+
+        // SSN.
+        SubjectIdentifier ssnIdentifier = new SubjectIdentifier();
+        ssnIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
         boolean subjectSSNQuery = false;
+
+        // Loop through query parameters.
         for (int i = 0; i < numDemographicFieldTypes; i++) {
             String demographicFieldText = demographicFieldTypes[i].encode();
             logger.info("demographicFieldText = " + demographicFieldText);
@@ -129,96 +148,135 @@ public class SubjectSearchCriteriaBuilder {
             if (fieldQueryParts.length == 2) {
                 String fieldName = fieldQueryParts[0];
                 String fieldValue = fieldQueryParts[1];
-                // @PID.3.1 (PID)
-                // @PID.5.1.1 (Family Name)
-                // @PID.5.2 (Given Name)
-                // @PID.7.1 (Birth Date)
-                // @PID.8 (Gender)
-                // @PID.11 (Address)
-                // TODO: @PID.18 (Account Number)
+                // TODO: @PID.18 (Account Number) sub-components.
                 // TODO: @PID.19 (SSN)
                 // TODO: @PID.20 (Driver's License)
 
                 // FIXME: Deal with sub-components (e.g. account number CX components).
 
-                if (fieldName.equalsIgnoreCase("@PID.3.1")) // Patient identifier
-                {
-                    SubjectIdentifier subjectIdentifier = new SubjectIdentifier(fieldValue);
-                    if (subjectIdentifier.getIdentifierDomain().getUniversalId() == null
-                            && subjectIdentifier.getIdentifierDomain().getNamespaceId() == null) {
-                        // FIXME - HACK
-                        // Establish default domain.
-                        SubjectIdentifierDomain subjectIdentifierDomain = new SubjectIdentifierDomain();
-                        subjectIdentifierDomain.setNamespaceId("NIST2010");
-                        subjectIdentifier.setIdentifierDomain(subjectIdentifierDomain);
-                    }
-                    subject.addSubjectIdentifier(subjectIdentifier);
-                } else if (fieldName.equalsIgnoreCase("@PID.5.1.1")) // Family Name
-                {
+                /* Patient identifier */
+                if (fieldName.equalsIgnoreCase("@PID.3.1")) {
+                    patientIdentifier.setIdentifier(fieldValue);
+                    patientIdentifierQuery = true;
+
+                    /* Assigning authority (w/ only Namespace id). */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.4")) {
+                    patientIdentifierDomain.setNamespaceId(fieldValue);
+                    patientIdentifierIsQualified = true;
+
+                    /* Namespace id */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.4.1")) {
+                    patientIdentifierDomain.setNamespaceId(fieldValue);
+                    patientIdentifierIsQualified = true;
+
+                    /* Universal id */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.4.2")) {
+                    patientIdentifierDomain.setUniversalId(fieldValue);
+                    patientIdentifierIsQualified = true;
+
+                    /* Universal id type */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.4.3")) {
+                    patientIdentifierDomain.setUniversalIdType(fieldValue);
+
+                    /* Identifier type code */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.5")) {
+                    // TODO: not implemented
+
+                    /* Assigning facility */
+                } else if (fieldName.equalsIgnoreCase("@PID.3.6")) {
+                    // TODO: not implemented
+
+                    /* Family name */
+                } else if (fieldName.equalsIgnoreCase("@PID.5.1.1")) {
                     subjectName.setFamilyName(fieldValue);
                     subjectNameQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.5.2")) // Given Name
-                {
+
+                    /* Given name */
+                } else if (fieldName.equalsIgnoreCase("@PID.5.2")) {
                     subjectName.setGivenName(fieldValue);
                     subjectNameQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.7.1")) // Birth Date
-                {
+
+                    /* Birth date */
+                } else if (fieldName.equalsIgnoreCase("@PID.7.1")) {
                     subject.setBirthTime(Hl7Date.toDate(fieldValue));
-                } else if (fieldName.equalsIgnoreCase("@PID.8")) // Gender
-                {
+
+                    /* Gender */
+                } else if (fieldName.equalsIgnoreCase("@PID.8")) {
                     CodedValue genderCode = new CodedValue();
                     genderCode.setCode(fieldValue);
                     subject.setGender(genderCode);
-                } else if (fieldName.equalsIgnoreCase("@PID.11.1.1")) // Street address
-                {
+
+                    /* Street address */
+                } else if (fieldName.equalsIgnoreCase("@PID.11.1.1")) {
                     subjectAddress.setStreetAddressLine1(fieldValue);
                     subjectAddressQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.11.3")) // City
-                {
+
+                    /* City */
+                } else if (fieldName.equalsIgnoreCase("@PID.11.3")) {
                     subjectAddress.setCity(fieldValue);
                     subjectAddressQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.11.4")) // State
-                {
+
+                    /* State */
+                } else if (fieldName.equalsIgnoreCase("@PID.11.4")) {
                     subjectAddress.setState(fieldValue);
                     subjectAddressQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.11.5")) // Postal code
-                {
+
+                    /* Postal code */
+                } else if (fieldName.equalsIgnoreCase("@PID.11.5")) {
                     subjectAddress.setPostalCode(fieldValue);
                     subjectAddressQuery = true;
-                } else if (fieldName.equalsIgnoreCase("@PID.18.1")) { // Account number.
+
+                    /* Account number */
+                } else if (fieldName.equalsIgnoreCase("@PID.18.1")) {
                     // TODO.
                     logger.info("Account number = " + fieldValue);
 
                     // FIXME: What if account number is qualified?
                     // Not qualified by an assigning authority ...
-                    accountNumberSubjectIdentifier = new SubjectIdentifier();
-                    accountNumberSubjectIdentifier.setIdentifier(fieldValue);
-                    accountNumberSubjectIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
+                    accountNumberIdentifier.setIdentifier(fieldValue);
+                    accountNumberIdentifier.setIdentifierType(SubjectIdentifier.Type.OTHER);
                     SubjectIdentifierDomain identifierDomain = new SubjectIdentifierDomain();
                     identifierDomain.setUniversalId(builderConfig.getDefaultAccountNumberUniversalId());
-                    accountNumberSubjectIdentifier.setIdentifierDomain(identifierDomain);
+                    accountNumberIdentifier.setIdentifierDomain(identifierDomain);
                     subjectAccountNumberQuery = true;
 
-                } // TODO - Account number identifier domain components (@PID.18.4.x).
-                else if (fieldName.equalsIgnoreCase("@PID.19")) // SSN.
-                {
-                    // TODO.
+                } /* SSN */ else if (fieldName.equalsIgnoreCase("@PID.19")) {
                     logger.info("SSN = " + fieldValue);
-                    ssnSubjectIdentifier.setIdentifier(fieldValue);
+                    ssnIdentifier.setIdentifier(fieldValue);
                     SubjectIdentifierDomain ssnIdentifierDomain = new SubjectIdentifierDomain();
                     ssnIdentifierDomain.setUniversalId(SubjectIdentifierDomain.SSN_UNIVERSAL_ID);
-                    ssnSubjectIdentifier.setIdentifierDomain(ssnIdentifierDomain);
+                    ssnIdentifier.setIdentifierDomain(ssnIdentifierDomain);
                     subjectSSNQuery = true;
                 }
-                // TODO: Add phone, etc.
-                //else if (fieldName.equalsIgnoreCase("@PID.11.6")) {
-                //    subjectAddress.setCountry(fieldValue);
-                //}
+
             } else {
                 // FIXME: Error ...
             }
+        }
+        if (patientIdentifierQuery) {
+            if (!patientIdentifierIsQualified) {
 
+                // See if we have a default target domain (for the receiver).
+                if (defaultTargetDomainUniversalId != null) {
+                    logger.info("Defaulting PID domain (from configuration) universal id = " + defaultTargetDomainUniversalId);
+                    patientIdentifierDomain.setUniversalId(defaultTargetDomainUniversalId);
+                } else {
 
+                    // FIXME: Not ideal according to ITI Vol 2x Appendix M.
+
+                    // See if domains are specified.  If only one specified, use that one.
+                    List<SubjectIdentifierDomain> subjectIdentifierDomains = subjectSearchCriteria.getScopingSubjectIdentifierDomains();
+                    if (subjectIdentifierDomains.size() == 1) {
+                        SubjectIdentifierDomain defaultIdentifierDomain = subjectIdentifierDomains.get(0);
+                        patientIdentifier.setIdentifierDomain(defaultIdentifierDomain);
+                        logger.info("Defaulting PID domain (from QPD-8) universal id = " + defaultIdentifierDomain.getUniversalId());
+                    } else {
+                        throw new HL7Exception(
+                                "No default patient identifier domain configured for receiver - must qualify patient identifier domain of interest in @PID.3.4, @PID.3.4.1 or @PID3.4.2");
+                    }
+                }
+            }
+            subject.getSubjectIdentifiers().add(patientIdentifier);
         }
         if (subjectNameQuery) {
             subject.addSubjectName(subjectName);
@@ -227,10 +285,10 @@ public class SubjectSearchCriteriaBuilder {
             subject.addAddress(subjectAddress);
         }
         if (subjectAccountNumberQuery) {
-            subject.getSubjectIdentifiers().add(accountNumberSubjectIdentifier);
+            subject.getSubjectIdentifiers().add(accountNumberIdentifier);
         }
         if (subjectSSNQuery) {
-            subject.getSubjectIdentifiers().add(ssnSubjectIdentifier);
+            subject.getSubjectIdentifiers().add(ssnIdentifier);
         }
         return subjectSearchCriteria;
     }
