@@ -21,11 +21,12 @@ import ca.uhn.hl7v2.model.v25.segment.ERR;
 import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.empi.adapter.EMPIAdapter;
 import com.vangent.hieos.empi.adapter.EMPIAdapterFactory;
+import com.vangent.hieos.empi.config.EMPIConfig;
+import com.vangent.hieos.empi.config.IdentitySourceConfig;
 import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
-import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.hl7v2util.model.message.PDQResponseMessageBuilder;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
@@ -62,9 +63,12 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
             DeviceInfo senderDeviceInfo = getSenderDeviceInfo(terser);
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
+            // Get default target domain (universal id).
+            String defaultTargetDomainUniversalId = this.getDefaultTargetDomainUniversalId(receiverDeviceInfo);
+
             // Build SubjectSearchCriteria from HL7v2 message.
             SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = new SubjectSearchCriteriaBuilder(getBuilderConfig(), terser);
-            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPDQ();
+            SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPDQ(defaultTargetDomainUniversalId);
             subjectSearchCriteria.setTargetIdentitySource(receiverDeviceInfo.getId());
 
             // Clone identifiers (for audit later).
@@ -88,6 +92,22 @@ public class PDQMessageHandler extends HL7V2MessageHandler {
             outMessage = this.buildErrorResponse(inMessage, "Exception: " + ex.getClass().getName() + " - " + ex.getMessage());
         }
         return outMessage;
+    }
+
+    /**
+     * 
+     * @param targetIdentitySource
+     * @return
+     * @throws EMPIException
+     */
+    private String getDefaultTargetDomainUniversalId(DeviceInfo targetIdentitySource) throws EMPIException {
+        String defaultUniversalId = null;
+        EMPIConfig empiConfig = EMPIConfig.getInstance();
+        IdentitySourceConfig identitySourceConfig = empiConfig.getIdentitySourceConfig(targetIdentitySource);
+        if (identitySourceConfig != null) {
+            defaultUniversalId = identitySourceConfig.getDefaultUniversalId();
+        }
+        return defaultUniversalId;
     }
 
     /**
