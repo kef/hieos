@@ -28,6 +28,7 @@ public class IdentitySourceConfig implements ConfigItem {
     private static String NAME = "name";
     private static String DEVICE_ID = "device-id";
     private static String DEVICE_NAME = "device-name";
+    private static String DEFAULT_UNIVERSAL_ID = "default-universal-id";
     private static String IDENTIFIER_DOMAINS = "identifier-domains.identifier-domain";
     private static String UNIVERSAL_ID = "universal-id";
     private static String UNIVERSAL_ID_TYPE = "universal-id-type";
@@ -35,6 +36,7 @@ public class IdentitySourceConfig implements ConfigItem {
     private String name;
     private String deviceId;
     private String deviceName;
+    private String defaultUniversalId;
     private List<SubjectIdentifierDomain> identifierDomains = new ArrayList<SubjectIdentifierDomain>();
 
     /**
@@ -65,6 +67,22 @@ public class IdentitySourceConfig implements ConfigItem {
      *
      * @return
      */
+    public String getDefaultUniversalId() {
+        return defaultUniversalId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isMultiDomain() {
+        return identifierDomains.size() > 1;
+    }
+
+    /**
+     *
+     * @return
+     */
     public List<SubjectIdentifierDomain> getIdentifierDomains() {
         return identifierDomains;
     }
@@ -80,6 +98,7 @@ public class IdentitySourceConfig implements ConfigItem {
         this.name = hc.getString(NAME);
         this.deviceId = hc.getString(DEVICE_ID);
         this.deviceName = hc.getString(DEVICE_NAME);
+        this.defaultUniversalId = hc.getString(DEFAULT_UNIVERSAL_ID);
         List identifierDomainsConfigurations = hc.configurationsAt(IDENTIFIER_DOMAINS);
         for (Iterator it = identifierDomainsConfigurations.iterator(); it.hasNext();) {
             HierarchicalConfiguration hcIdentifierDomain = (HierarchicalConfiguration) it.next();
