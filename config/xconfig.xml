@@ -11,7 +11,7 @@
 <Config>
 
     <Object name="home" type="HomeCommunityType">
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.4</UniqueId>
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId>
         <ObjectReference name="ig" refname="localig" reftype="InitiatingGatewayType"/>
         <ObjectReference name="rg" refname="localrg" reftype="RespondingGatewayType"/>
 
@@ -31,8 +31,8 @@
 
          <!-- ATNA configuration parameters. -->
         <Property name="ATNAPerformAudit">false</Property>
-        <Property name="ATNALogSAMLAssertion">true</Property>
-        <Property name="ATNAsyslogProtocol">udp</Property>
+        <Property name="ATNALogSAMLAssertion">false</Property>
+        <Property name="ATNAsyslogProtocol">udp</Property>  <!-- FIXME tcp=tls really -->
 
         <!-- NIST Syslog Browser -->
         <!--
@@ -40,14 +40,14 @@
         <Property name="ATNAsyslogPort">3001</Property>
         -->
 
-        <Property name="ATNAsyslogHost">localhost</Property>
-        <Property name="ATNAsyslogPort">3110</Property>
+        <!--<Property name="ATNAsyslogHost">localhost</Property>
+        <Property name="ATNAsyslogPort">3201</Property>-->
         <!-- UDP Port 3110; TCP Port 3100-->
 
-        <!-- MIR SYSLOG -->
-	    <!-- MIR SYSLOG Browser URL: http://ihe-kudu.wustl.edu/mesa-logs/ -->
-	    <!--<Property name="ATNAsyslogHost">ihe-kudu.wustl.edu</Property>
-	    <Property name="ATNAsyslogPort">4001</Property>-->
+       <!-- Gazelle -->
+        <Property name="ATNAsyslogHost">128.252.175.39</Property>
+        <!-- TLS - 3201, TCP - 3101, UDP - 3001 -->
+        <Property name="ATNAsyslogPort">3001</Property>
 
 	    <!-- MESA SYSLOG -->
 	    <!--<Property name="ATNAsyslogHost">localhost</Property>
@@ -92,6 +92,9 @@
         <!-- XDR Document Recipient -->
         <ObjectReference name="docrecipient" refname="localdocrecipient" reftype="DocumentRecipientType"/>
 
+        <!-- Registry -->
+        <ObjectReference name="registry" refname="localregistry" reftype="DocumentRegistryType"/>
+
         <!-- Other global properties will go here. -->
     </Object>
 
@@ -130,10 +133,17 @@
         <!--<ObjectReference refname="simulate_remote_rg" reftype="RespondingGatewayType"/>-->
     </Object>
 
+    <Object name="NIST" type="AssigningAuthorityType">
+        <UniqueId>&amp;1.19.6.24.109.42.1.3&amp;ISO</UniqueId>
+        <ObjectReference refname="nistrg" reftype="RespondingGatewayType"/>
+        <!--<ObjectReference refname="LAWSON_RG" reftype="RespondingGatewayType"/>-->
+        <!--<ObjectReference refname="simulate_remote_rg" reftype="RespondingGatewayType"/>-->
+    </Object>
+
     <!-- List of Registries -->
     <Actor name="localregistry" type="DocumentRegistryType">
         <UniqueId>NA</UniqueId>
-        <Property name="XUAEnabled">true</Property>
+        <Property name="XUAEnabled">false</Property>
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
@@ -141,7 +151,7 @@
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegisterDocumentSet-b;urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2009:MultiPatientStoredQuery;urn:hl7-org:v3:PRPA_IN201301UV02;urn:hl7-org:v3:PRPA_IN201302UV02;urn:hl7-org:v3:PRPA_IN201304UV02;urn:hl7-org:v3:PRPA_IN201304UV02UNMERGE;urn:hieos:xds:PatientFeedRequest</Property>
         -->
-        <Property name="PolicyEnabled">true</Property>
+        <Property name="PolicyEnabled">false</Property>
         <!--
         <Property name="PolicyEnabledSOAPActions">ALL</Property>
         -->
@@ -170,14 +180,31 @@
         <Property name="ValidatePatientId">true</Property>
 
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
-        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.30.4</Property>
+        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="ReceiverDeviceName">GATEWAY_VANGENT_XDSbRegistry</Property>
         <Property name="MaxLeafObjectsAllowedFromQuery">25</Property>
     </Actor>
 
+      <!-- List of Registries -->
+    <Actor name="nistregistry" type="DocumentRegistryType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="RegisterDocumentSet-b" secure="true" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:12080/tf6/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:12081/tf6/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:12080/tf6/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:12081/tf6/services/xdsregistrybas</Endpoint>
+        </Transaction>
+        <Transaction name="RegistryStoredQuery" secure="true" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:12080/tf6/services/xdsregistryb</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:12081/tf6/services/xdsregistryb</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:12080/tf6/services/xdsregistrybas</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:12081/tf6/services/xdsregistrybas</Endpoint>
+        </Transaction>
+    </Actor>
+
      <!-- List of Repositories -->
     <Actor name="localrepository" type="DocumentRepositoryType">
-        <UniqueId>1.3.6.1.4.1.21367.13.40.3</UniqueId>
+        <UniqueId>1.3.6.1.4.1.21367.13.40.74</UniqueId>
         <Property name="XUAEnabled">false</Property>
         <Property name="XUAEnabledSOAPActions">ALL</Property>
         <!--
@@ -206,7 +233,7 @@
         <Transaction name="RetrieveDocumentSet" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xdsrepositoryb</Endpoint>
             <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/xdsrepositoryb</Endpoint>
-            <Endpoint secure="false" async="true">http://localhost:28081/axis2/services/xdsrepositorybas</Endpoint>
+            <Endpoint secure="false" async="true">http://localhost:8081/axis2/services/xdsrepositorybas</Endpoint>
             <Endpoint secure="true"  async="true">https://localhost:8181/axis2/services/xdsrepositorybas</Endpoint>
         </Transaction>
         <Transaction name="ProvideAndRegisterDocumentSet-b" secure="false" async="false">
@@ -224,8 +251,8 @@
 
     <!-- XCA/XCPD Initiating Gateway -->
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.4</UniqueId> <!-- Home Community ID -->
-        <Property name="XUAEnabled">true</Property>
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId> <!-- Home Community ID -->
+        <Property name="XUAEnabled">false</Property>
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
         <!--
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery;urn:ihe:iti:2007:RetrieveDocumentSet;urn:hl7-org:v3:PRPA_IN201305UV02;urn:hl7-org:v3:PRPA_IN201309UV02;urn:hl7-org:v3:PRPA_IN201301UV02</Property>
@@ -264,7 +291,7 @@
         <!-- The configuration to use to determine which XCPD Responding Gateways to connect to for CrossGatewayPatientDiscovery requests. -->
         <ObjectReference name="xcpd_rgs" refname="XCPDRespondingGateways" reftype="XCPDRespondingGatewaysType"/>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCAIG</Property>
         
         <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
@@ -317,7 +344,7 @@
 
     <!-- XCA/XCPD Responding Gateway -->
     <Actor name="localrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
-        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.4</UniqueId>  <!-- Home Community ID -->
+        <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId>  <!-- Home Community ID -->
         <Property name="XUAEnabled">false</Property>
         <Property name="XUAEnabledSOAPActions">ALL</Property>
         <!--
@@ -360,7 +387,7 @@
         <!-- To support outbound PDQ requests -->
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
         <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
 
@@ -394,10 +421,27 @@
             <Endpoint secure="true"  async="true">https://208.81.185.143:8181/axis2/services/xcpdrgas</Endpoint>
         </Transaction>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
         <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
 
+    </Actor>
+
+    <Actor name="nistrg" type="RespondingGatewayType"> <!-- Local Responding Gateway -->
+        <UniqueId>urn:oid:1.19.6.24.109.42.1.3</UniqueId>  <!-- Home Community ID -->
+
+        <Transaction name="CrossGatewayQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:12080/tf6/services/rg</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:12081/tf6/services/rgas</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:12080/tf6/services/rg</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:12081/tf6/services/rgas</Endpoint>
+        </Transaction>
+        <Transaction name="CrossGatewayRetrieve" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://ihexds.nist.gov:12080/tf6/services/rg</Endpoint>
+            <Endpoint secure="true"  async="false">https://ihexds.nist.gov:12081/tf6/services/rgas</Endpoint>
+            <Endpoint secure="false" async="true">http://ihexds.nist.gov:12080/tf6/services/rg</Endpoint>
+            <Endpoint secure="true"  async="true">https://ihexds.nist.gov:12081/tf6/services/rgas</Endpoint>
+        </Transaction>
     </Actor>
 
     <!-- Patient Identifier Cross Reference Manager (PIX) -->
@@ -442,14 +486,16 @@
         <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
         -->
 
+        <!-- To support NIST PIXPDQv3 testing -->
+        <!--
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="DeviceName">1.3.6.1.4.1.21367.13.10.417</Property>
-        
-        <!-- Connectathon 2012 -->
-        <!--
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
-        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
         -->
+        
+        <!-- Connectathon 2013 -->
+       
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
+        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
     </Actor>
 
     <!-- Patient Demographics Supplier (PDS) -->
@@ -471,13 +517,13 @@
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
-         <!-- Connectathon 2012 -->
-        <!--
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.3</Property>
+         <!-- Connectathon 2013 -->
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_PDS</Property>
-        -->
+        <!-- NIST
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.10.417</Property>
         <Property name="DeviceName">1.3.6.1.4.1.21367.13.10.417</Property>
+        -->
     </Actor>
 
     <!-- Secure Token Service (STS) -->
@@ -487,15 +533,15 @@
         <Property name="PolicyEnabled">false</Property>  <!-- should always be false (for now). -->
 
         <Transaction name="IssueToken" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/sts</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/sts</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:50139/axis2/services/sts</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:50142/axis2/services/sts</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
 
         <Transaction name="ValidateToken" secure="false" async="false">
-            <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/sts</Endpoint>
-            <Endpoint secure="true"  async="false">https://localhost:8181/axis2/services/sts</Endpoint>
+            <Endpoint secure="false" async="false">http://localhost:50139/axis2/services/sts</Endpoint>
+            <Endpoint secure="true"  async="false">https://localhost:50142/axis2/services/sts</Endpoint>
             <Endpoint secure="false" async="true">http://XXXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
         </Transaction>
@@ -557,8 +603,6 @@
         <Property name="AuthHandlerLDAP_BASE_DN">OU=yourdivision,DC=yourorganization,DC=com</Property>
 
     </Actor>
-
-   
 
     <!-- XDR Document Recipient -->
     <Actor name="localdocrecipient" type="DocumentRecipientType">
@@ -658,7 +702,7 @@
         <Property name="ConfigFile">xdsbridgeconfig.xml</Property>
         <Property name="ProvideAndRegisterMetadataTemplate">ProvideAndRegisterMetadata.xml</Property>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.4</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">HIEOS_XDSBridge</Property>
     </Actor>
 
@@ -684,7 +728,7 @@
         </Transaction>
 
         <!-- "ReceiverDeviceId" is used by the patient identity feed to identify the registry in ACKs -->
-        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.30.4</Property>
+        <Property name="ReceiverDeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="ReceiverDeviceName">GATEWAY_VANGENT_XDSbRegistry</Property>
     </Actor>
 
@@ -732,13 +776,16 @@
         <!-- To support outbound PDQ requests -->
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
 
-        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.4</Property>
+        <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCARG</Property>
         <Property name="CommunityAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
 
     </Actor>
 
-    <Actor name="nistpixconsumer" type="PIXConsumerType">
+<!-- List of PIX Consumer's - remove entry from configuration file if you do not
+  want notifications sent to a specific consumer (also, depends on PIXNotifierConfig.xml configuration).
+  -->
+    <Actor name="nistpixv3consumer" type="PIXV3ConsumerType">
         <UniqueId>NA</UniqueId>
         <Transaction name="PatientRegistryRecordRevised" secure="false" async="false">
             <!--<Endpoint secure="false" async="false">http://localhost:9090</Endpoint>-->
@@ -750,5 +797,19 @@
         <Property name="DeviceId">2.16.840.1.113883.3.72.6.5.100.207</Property>
         <Property name="DeviceName">2.16.840.1.113883.3.72.6.1</Property>
     </Actor>
-   
+
+    <Actor name="nistpixv2consumer" type="PIXV2ConsumerType">
+        <UniqueId>NA</UniqueId>
+        <Transaction name="PatientRegistryRecordRevised" secure="false" async="false">
+            <Endpoint secure="false" async="false">mllp://129.6.24.143:9080</Endpoint>
+            <!-- Points to TLS Simulator -->
+            <Endpoint secure="true" async="false">mllps://131.254.209.16:10071</Endpoint>
+        </Transaction>
+        <!-- DeviceId = Application Name -->
+        <Property name="DeviceId">NIST_RCVR_BTHUMAN</Property>
+
+        <!-- DeviceName = Facility -->
+        <Property name="DeviceName">NIST</Property>
+    </Actor>
+
 </Config>
