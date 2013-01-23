@@ -18,6 +18,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
+import com.vangent.hieos.empi.query.cache.QueryCache;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
@@ -196,5 +197,15 @@ public class BaseEMPIAdapter implements EMPIAdapter {
             }
         }
         return subjectSearchResponse;
+    }
+
+    /**
+     * 
+     * @param queryId
+     * @throws EMPIException
+     */
+    public void cancelQuery(String queryId) throws EMPIException {
+        QueryCache queryCache = QueryCache.getInstance();
+        queryCache.cancelQuery(queryId);
     }
 }

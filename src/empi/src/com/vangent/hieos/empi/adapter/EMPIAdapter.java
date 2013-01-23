@@ -88,4 +88,11 @@ public interface EMPIAdapter {
      * @throws EMPIExceptionUnknownSubjectIdentifier
      */
     public SubjectSearchResponse getBySubjectIdentifiers(SubjectSearchCriteria subjectSearchCriteria) throws EMPIException, EMPIExceptionUnknownIdentifierDomain, EMPIExceptionUnknownSubjectIdentifier;
+
+    /**
+     * 
+     * @param queryId
+     * @throws EMPIException
+     */
+    public void cancelQuery(String queryId) throws EMPIException;
 }

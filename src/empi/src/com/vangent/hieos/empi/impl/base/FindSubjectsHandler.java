@@ -25,6 +25,7 @@ import com.vangent.hieos.empi.match.ScoredRecord;
 import com.vangent.hieos.empi.persistence.EnterpriseSubjectLoader;
 import com.vangent.hieos.empi.persistence.PersistenceManager;
 import com.vangent.hieos.empi.persistence.SubjectController;
+import com.vangent.hieos.empi.query.cache.QueryCache;
 import com.vangent.hieos.empi.validator.FindSubjectsValidator;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -76,16 +77,42 @@ public class FindSubjectsHandler extends BaseHandler {
         // Create default response.
         SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 
-        // Determine which path to take.
-        if (subjectSearchCriteria.hasSubjectIdentifiers()) {
-            logger.trace("Searching based on identifiers ...");
-            subjectSearchResponse = this.loadSubjectMatchesByIdentifiers(subjectSearchCriteria);
-        } else if (subjectSearchCriteria.hasSubjectDemographics()) {
-            logger.trace("Searching based on demographics ...");
-            subjectSearchResponse = this.loadSubjectMatchesByDemographics(subjectSearchCriteria);
+        // See if we are responding to a continuation request.
+        if (subjectSearchCriteria.hasRequestedNextIncrement()) {
+
+            // Pull next items from cache.
+            QueryCache queryCache = QueryCache.getInstance();
+            List<Subject> subjects = queryCache.getNextIncrement(
+                    subjectSearchCriteria.getContinuationPointerId());
+            subjectSearchResponse.setSubjects(subjects);
         } else {
-            // Do nothing ...
-            logger.trace("Not searching at all!!");
+            if (subjectSearchCriteria.hasSubjectIdentifiers()) {
+                logger.trace("Searching based on identifiers ...");
+                subjectSearchResponse = this.loadSubjectMatchesByIdentifiers(subjectSearchCriteria);
+            } else if (subjectSearchCriteria.hasSubjectDemographics()) {
+                logger.trace("Searching based on demographics ...");
+                subjectSearchResponse = this.loadSubjectMatchesByDemographics(subjectSearchCriteria);
+            } else {
+                // Do nothing ...
+                logger.trace("Not searching at all!!");
+            }
+
+            // See if we are responding to an initial continuation request.
+            boolean incrementalQuery = subjectSearchCriteria.hasSpecifiedIncrementQuantity();
+            int numSubjectsFound = subjectSearchResponse.getSubjects().size();
+            if (incrementalQuery && (numSubjectsFound > 0)) {
+                int incrementQuantity = subjectSearchCriteria.getIncrementQuantity();
+                if (numSubjectsFound > incrementQuantity) {
+                    QueryCache queryCache = QueryCache.getInstance();
+                    String continuationPointerId = 
+                            queryCache.addSubjectsToCache(
+                            subjectSearchCriteria.getQueryId(),
+                            subjectSearchResponse.getSubjects(),
+                            subjectSearchCriteria.getIncrementQuantity());
+                    subjectSearchResponse.setContinuationPointerId(continuationPointerId);
+                    subjectSearchResponse.setSubjects(queryCache.getNextIncrement(continuationPointerId));
+                }
+            }
         }
         return subjectSearchResponse;
     }
