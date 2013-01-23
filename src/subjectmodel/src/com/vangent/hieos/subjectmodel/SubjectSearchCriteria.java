@@ -28,6 +28,73 @@ public class SubjectSearchCriteria implements Cloneable, Serializable {
     private boolean specifiedMinimumDegreeMatchPercentage = false;
     private SubjectIdentifierDomain communitySubjectIdentifierDomain = null;
     private List<SubjectIdentifierDomain> scopingSubjectIdentifierDomains = new ArrayList<SubjectIdentifierDomain>();
+    private String queryId = null;
+    private String continuationPointerId = null;
+    private int incrementQuantity = -1;
+
+    /**
+     *
+     * @return
+     */
+    public String getQueryId() {
+        return queryId;
+    }
+
+    /**
+     *
+     * @param queryId
+     */
+    public void setQueryId(String queryId) {
+        this.queryId = queryId;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean hasRequestedNextIncrement() {
+        return continuationPointerId != null;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean hasSpecifiedIncrementQuantity() {
+        return incrementQuantity != -1;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getContinuationPointerId() {
+        return continuationPointerId;
+    }
+
+    /**
+     *
+     * @param continuationPointerId
+     */
+    public void setContinuationPointerId(String continuationPointerId) {
+        this.continuationPointerId = continuationPointerId;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getIncrementQuantity() {
+        return incrementQuantity;
+    }
+
+    /**
+     *
+     * @param incrementQuantity
+     */
+    public void setIncrementQuantity(int incrementQuantity) {
+        this.incrementQuantity = incrementQuantity;
+    }
 
     /**
      *

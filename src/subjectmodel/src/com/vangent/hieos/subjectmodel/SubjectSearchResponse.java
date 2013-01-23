@@ -23,7 +23,32 @@ import java.util.List;
 public class SubjectSearchResponse implements Cloneable, Serializable {
 
     private List<Subject> subjects = new ArrayList<Subject>();
-    // TBD: add other attributes (outside of the list of subjects).
+    private String continuationPointerId = null;
+
+    /**
+     * 
+     * @return
+     */
+    public boolean hasMoreSubjectsToReturn()
+    {
+        return continuationPointerId != null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getContinuationPointerId() {
+        return continuationPointerId;
+    }
+
+    /**
+     *
+     * @param continuationPointerId
+     */
+    public void setContinuationPointerId(String continuationPointerId) {
+        this.continuationPointerId = continuationPointerId;
+    }
 
     /**
      *
