@@ -12,10 +12,7 @@
  */
 package com.vangent.hieos.services.pixpdqv2.v2handler;
 
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.model.Message;
 import com.vangent.hieos.empi.adapter.EMPINotification;
-import com.vangent.hieos.hl7v2util.model.message.AckMessageBuilder;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,20 +23,7 @@ public class ADTMessageHandler extends HL7V2MessageHandler {
 
     private final static Logger logger = Logger.getLogger(ADTMessageHandler.class);
 
-    /**
-     *
-     * @param builderConfig
-     * @param inMessage
-     * @param responseText
-     * @param errorText
-     * @param errorCode
-     * @return
-     * @throws HL7Exception
-     */
-    public Message buildAck(Message inMessage, String responseText, String errorText, String errorCode) throws HL7Exception {
-        AckMessageBuilder ackMessageBuilder = new AckMessageBuilder(this.getBuilderConfig(), inMessage);
-        return ackMessageBuilder.buildAck(responseText, errorText, errorCode);
-    }
+   
 
     /**
      *

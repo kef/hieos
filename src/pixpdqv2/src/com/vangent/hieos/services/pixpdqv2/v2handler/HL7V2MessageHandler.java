@@ -21,6 +21,7 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
 import com.vangent.hieos.hl7v2util.acceptor.impl.MessageHandler;
 import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
+import com.vangent.hieos.hl7v2util.model.message.AckMessageBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import org.apache.log4j.Logger;
 
@@ -39,6 +40,21 @@ public class HL7V2MessageHandler implements MessageHandler {
      */
     public BuilderConfig getBuilderConfig() {
         return builderConfig;
+    }
+
+    /**
+     *
+     * @param builderConfig
+     * @param inMessage
+     * @param responseText
+     * @param errorText
+     * @param errorCode
+     * @return
+     * @throws HL7Exception
+     */
+    public Message buildAck(Message inMessage, String responseText, String errorText, String errorCode) throws HL7Exception {
+        AckMessageBuilder ackMessageBuilder = new AckMessageBuilder(this.getBuilderConfig(), inMessage);
+        return ackMessageBuilder.buildAck(responseText, errorText, errorCode);
     }
 
     /**
