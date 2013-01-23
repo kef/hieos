@@ -51,8 +51,11 @@ public class AckMessageBuilder extends MessageBuilder {
             // FIXME: use errorCode????
             retVal = DefaultApplication.makeACK(inHeader);
             Terser terser = new Terser(retVal);
+            terser.set("/.MSH-9-3", "ACK");
             if (errorText == null) {
-                terser.set("/.MSA-3-1", responseText);
+                if (responseText != null) {
+                    terser.set("/.MSA-3-1", responseText);
+                }
             } else {
                 //logger.error("ErrorText = " + errorText);
                 terser.set("/.MSA-1", "AR");

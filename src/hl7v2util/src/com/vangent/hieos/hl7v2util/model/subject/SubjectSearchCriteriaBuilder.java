@@ -14,8 +14,13 @@ package com.vangent.hieos.hl7v2util.model.subject;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.v25.datatype.CQ;
+import ca.uhn.hl7v2.model.v25.datatype.NM;
+import ca.uhn.hl7v2.model.v25.datatype.ST;
+import ca.uhn.hl7v2.model.v25.segment.DSC;
 import ca.uhn.hl7v2.model.v25.segment.MSH;
 import ca.uhn.hl7v2.model.v25.segment.QPD;
+import ca.uhn.hl7v2.model.v25.segment.RCP;
 import ca.uhn.hl7v2.util.Terser;
 import com.vangent.hieos.hl7v2util.model.builder.BuilderConfig;
 import com.vangent.hieos.subjectmodel.Address;
@@ -100,8 +105,43 @@ public class SubjectSearchCriteriaBuilder {
         String receivingApplication = msh.getReceivingApplication().encode();
         logger.info("Receiving Application = " + receivingApplication);
 
+        // Continuation handling ...
+
+        // SEGMENT: DSC (Omitted on first request).
+        DSC dsc = (DSC) terser.getSegment("/DSC");
+        if (dsc != null) {
+            ST continuationPointerST = dsc.getContinuationPointer();
+            if (continuationPointerST != null && continuationPointerST.getValue() != null) {
+                String continuationPointer = continuationPointerST.getValue();
+                logger.info("continuationPointer = " + continuationPointer);
+                subjectSearchCriteria.setContinuationPointerId(continuationPointer);
+                return subjectSearchCriteria;  // Early exit!
+            }
+        }
+
+        // SEGMENT: RCP
+        RCP rcp = (RCP) terser.getSegment("/RCP");
+        if (rcp != null) {
+            //ID queryPriorityID = rcp.getQueryPriority();
+            CQ quantityLimitedRequestCQ = rcp.getQuantityLimitedRequest();
+            NM numberOfIncrementsNM = quantityLimitedRequestCQ.getQuantity();
+            String numberOfIncrementsAsString = numberOfIncrementsNM.getValue();
+            if (numberOfIncrementsAsString != null) {
+                int incrementQuantity = new Integer(numberOfIncrementsAsString);
+                logger.info("incrementQuantity = " + incrementQuantity);
+                subjectSearchCriteria.setIncrementQuantity(incrementQuantity);
+            }
+        }
+
         // Pull fields from QPD segment.
         QPD qpd = (QPD) terser.getSegment("/QPD");
+
+        // Get query tag.
+        ST queryTagST = qpd.getQueryTag();
+        if (queryTagST == null || queryTagST.getValue() == null) {
+            throw new HL7Exception("No query tag specified");
+        }
+        subjectSearchCriteria.setQueryId(queryTagST.getValue());
 
         // Get list (repeating field 8) of assigning authorities of interest - "What Domains Returned?"
         Type[] scopedAssigningAuthorityTypes = qpd.getField(8);

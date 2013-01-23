@@ -22,6 +22,7 @@ import ca.uhn.hl7v2.model.v25.datatype.XAD;
 import ca.uhn.hl7v2.model.v25.datatype.XPN;
 import ca.uhn.hl7v2.model.v25.group.RSP_K21_QUERY_RESPONSE;
 import ca.uhn.hl7v2.model.v25.message.RSP_K21;
+import ca.uhn.hl7v2.model.v25.segment.DSC;
 import ca.uhn.hl7v2.model.v25.segment.ERR;
 import ca.uhn.hl7v2.model.v25.segment.MSA;
 import ca.uhn.hl7v2.model.v25.segment.MSH;
@@ -190,6 +191,17 @@ public class PDQResponseMessageBuilder extends QueryResponseMessageBuilder {
         // Echo back in-bound message QPD segment.
         QPD qpd = outMessage.getQPD();
         qpd.parse(inMessageQPD.encode());
+
+          // Continuation handling ...
+        
+        // Only return DSC segment if more subjects are available to return.
+        if (subjectSearchResponse.hasMoreSubjectsToReturn()) {
+            // SEGMENT: DSC
+            DSC dsc = outMessage.getDSC();
+            dsc.getContinuationPointer().setValue(subjectSearchResponse.getContinuationPointerId());
+        }
+
+        // SEGMENT: RCP
 
         return outMessage;
     }
