@@ -31,6 +31,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.proxy.AuthenticationService;
 import com.vangent.hieos.DocViewer.client.services.proxy.ConfigRetrieveService;
 import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
+import com.vangent.hieos.DocViewer.client.services.proxy.LogoutService;
 import com.vangent.hieos.DocViewer.client.services.proxy.PatientQueryService;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentListObserver;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentViewContainer;
@@ -64,7 +65,7 @@ public class DocViewerController {
 	 * @param userid
 	 * @param password
 	 */
-	public void authenticateUser(AuthenticationObserver authObserver,
+	public void login(AuthenticationObserver authObserver,
 			String userid, String password, String authDomainTypeKey) {
 		Credentials creds = new Credentials();
 		creds.setPassword(password);
@@ -74,6 +75,22 @@ public class DocViewerController {
 		timeOutHelper.setPrompt("Authenticating ...");
 		AuthenticationService service = new AuthenticationService(creds,
 				authObserver, timeOutHelper);
+		service.doWork();
+	}
+	
+	/**
+	 * 
+	 * @param observer
+	 */
+	public void logout(LogoutObserver observer)
+	{
+		// Reset view elements.
+		this.patientViewContainer = null;
+		this.patientTabSet = null;
+		
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		LogoutService service = new LogoutService(this.getAuthContext(), 
+				observer, timeOutHelper);
 		service.doWork();
 	}
 

@@ -17,6 +17,7 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
@@ -40,5 +41,13 @@ public interface PDSRemoteService extends RemoteService {
 			return instance;
 		}
 	}
-	public List<Patient> getPatients(AuthenticationContext authCtxt, PatientSearchCriteria criteria);
+	
+	/**
+	 * 
+	 * @param authCtxt
+	 * @param criteria
+	 * @return
+	 * @throws RemoteServiceException
+	 */
+	public List<Patient> getPatients(AuthenticationContext authCtxt, PatientSearchCriteria criteria) throws RemoteServiceException;
 }

@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
@@ -58,12 +61,21 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	}
 
 	/**
+	 * @throws RemoteServiceException 
 	 * 
 	 */
 	@Override
-	public List<Patient> getPatients(AuthenticationContext authCtxt, PatientSearchCriteria patientSearchCriteria) {
+	public List<Patient> getPatients(AuthenticationContext authCtxt,
+			PatientSearchCriteria patientSearchCriteria) throws RemoteServiceException {
+		// See if we have a valid session ...
+		HttpServletRequest request = this.getThreadLocalRequest();
+		boolean validSession = ServletUtilMixin.isValidSession(request);
+		if (!validSession) {
+			throw new RemoteServiceException("Invalid Session!");
+		}
+
 		// Issue PDQ - and do necessary conversions.
-		
+
 		// TODO: Implement use of AuthenticationContext (XUA, etc.).
 
 		// Convert PatientSearchCriteria to SubjectSearchCriteria.
@@ -100,7 +112,8 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		// Name:
 		subjectName.setGivenName(patientSearchCriteria.getGivenName());
 		subjectName.setFamilyName(patientSearchCriteria.getFamilyName());
-		subjectName.setFuzzySearchMode(patientSearchCriteria.isFuzzyNameSearch());
+		subjectName.setFuzzySearchMode(patientSearchCriteria
+				.isFuzzyNameSearch());
 		subject.addSubjectName(subjectName);
 
 		// DOB:
@@ -147,7 +160,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 		XConfigActor pdsConfig = this.getPDSConfig();
 		PDSClient pdsClient = new PDSClient(pdsConfig);
-		DeviceInfo senderDeviceInfo = new DeviceInfo();		
+		DeviceInfo senderDeviceInfo = new DeviceInfo();
 		senderDeviceInfo.setId(servletUtil.getProperty("DeviceId"));
 		senderDeviceInfo.setName(servletUtil.getProperty("DeviceName"));
 		DeviceInfo receiverDeviceInfo = new DeviceInfo();

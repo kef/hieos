@@ -44,7 +44,7 @@ public class AuthenticationService extends ProxyService {
 
 		this.getTimeOutHelper().startTimer();
 		// RPC:
-		AuthenticationRemoteService.Util.getInstance().authenticateUser(creds,
+		AuthenticationRemoteService.Util.getInstance().login(creds,
 				new AsyncCallback<AuthenticationContext>() {
 
 					public void onSuccess(AuthenticationContext authCtx) {

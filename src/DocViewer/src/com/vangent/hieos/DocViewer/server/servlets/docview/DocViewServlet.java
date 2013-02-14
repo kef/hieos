@@ -73,7 +73,15 @@ public class DocViewServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		// ServletContext servletContext = this.getServletContext();
 		// System.out.println("Context Path" + servletContext.getContextPath());
-		this.getDocument(request, response);
+
+		// See if we have a valid session ...
+		boolean validSession = ServletUtilMixin.isValidSession(request);
+		if (!validSession) {
+			this.writeErrorToOutput(response, "Invalid Session!");
+		} else {
+			// Continue.
+			this.getDocument(request, response);
+		}
 	}
 
 	// <editor-fold defaultstate="collapsed"
@@ -139,17 +147,21 @@ public class DocViewServlet extends HttpServlet {
 			// Get the proper initiating gateway configuration.
 			String searchMode = servletRequest.getParameter("search_mode");
 
-			InitiatingGateway ig = InitiatingGatewayFactory.getInitiatingGateway(searchMode, servletUtil);
-						
+			InitiatingGateway ig = InitiatingGatewayFactory
+					.getInitiatingGateway(searchMode, servletUtil);
+
 			// Issue Document Retrieve ...
 			System.out.println("Doc Retrieve ...");
-			OMElement response = ig.soapCall(InitiatingGateway.TransactionType.DOC_RETRIEVE, retrieve);
-			if (response != null) // FIXME: Need to check for registry errors!!!!
+			OMElement response = ig.soapCall(
+					InitiatingGateway.TransactionType.DOC_RETRIEVE, retrieve);
+			if (response != null) // FIXME: Need to check for registry
+									// errors!!!!
 			{
 				OMElement documentNode = this.getDocument(response);
 				String mimeType = this.getDocumentMimeType(response);
 				if (documentNode != null) {
-					// FIXME: Should really use coded value type (formatCode?) from registry
+					// FIXME: Should really use coded value type (formatCode?)
+					// from registry
 					// passed in as a parameter to the servlet.
 					this.writeDocumentToOutput(servletRequest, servletResponse,
 							documentNode, mimeType);
@@ -167,29 +179,29 @@ public class DocViewServlet extends HttpServlet {
 			this.writeExceptionToOutput(servletResponse, ex);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param response
 	 * @return
 	 * @throws XPathHelperException
 	 */
-	private OMElement getDocument(OMElement response) throws XPathHelperException
-	{
+	private OMElement getDocument(OMElement response)
+			throws XPathHelperException {
 		OMElement documentNode = XPathHelper.selectSingleNode(response,
 				"//*/ns:DocumentResponse/ns:Document[1]",
 				"urn:ihe:iti:xds-b:2007");
 		return documentNode;
 	}
-	
+
 	/**
 	 * 
 	 * @param response
 	 * @return
 	 * @throws XPathHelperException
 	 */
-	private String getDocumentMimeType(OMElement response) throws XPathHelperException
-	{
+	private String getDocumentMimeType(OMElement response)
+			throws XPathHelperException {
 		OMElement mimeTypeNode = XPathHelper.selectSingleNode(response,
 				"//*/ns:DocumentResponse/ns:mimeType[1]",
 				"urn:ihe:iti:xds-b:2007");
@@ -204,7 +216,8 @@ public class DocViewServlet extends HttpServlet {
 	 * @param mimeType
 	 */
 	private void writeDocumentToOutput(HttpServletRequest request,
-			HttpServletResponse response, OMElement documentNode, String mimeType) {
+			HttpServletResponse response, OMElement documentNode,
+			String mimeType) {
 		Mtom mtom = new Mtom();
 		try {
 			mtom.decode(documentNode);
@@ -212,7 +225,7 @@ public class DocViewServlet extends HttpServlet {
 			this.writeExceptionToOutput(response, ex);
 			return;
 		}
-		//String contentType = mtom.getContent_type();
+		// String contentType = mtom.getContent_type();
 		System.out.println("mimeType = " + mimeType);
 		if (mimeType.equals("text/xml")) {
 			String document = this.getHMTL(request, this.getServletContext(),
@@ -319,7 +332,8 @@ public class DocViewServlet extends HttpServlet {
 		String homeCommunityID = request.getParameter("hc_id");
 		String repositoryID = request.getParameter("repo_id");
 		String documentID = request.getParameter("doc_id");
-		String template = servletUtil.getTemplateString(servletUtil.getProperty(DocViewServlet.PROP_RETRIEVE_SINGLE_DOC_TEMPLATE));
+		String template = servletUtil.getTemplateString(servletUtil
+				.getProperty(DocViewServlet.PROP_RETRIEVE_SINGLE_DOC_TEMPLATE));
 		HashMap<String, String> replacements = new HashMap<String, String>();
 		replacements.put("HOME_COMMUNITY_ID", homeCommunityID);
 		replacements.put("REPOSITORY_UNIQUE_ID", repositoryID);

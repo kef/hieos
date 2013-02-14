@@ -25,5 +25,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  */
 public interface DocumentRemoteServiceAsync {
+	
+	/**
+	 * 
+	 * @param authCtxt
+	 * @param criteria
+	 * @param callback
+	 */
 	public void findDocuments(AuthenticationContext authCtxt, DocumentSearchCriteria criteria, AsyncCallback<List<DocumentMetadata>> callback);
 }

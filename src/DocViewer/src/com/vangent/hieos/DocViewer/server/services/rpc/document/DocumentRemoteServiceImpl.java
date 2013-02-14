@@ -17,11 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletContext;
-//import javax.xml.namespace.QName;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.axiom.om.OMElement;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
@@ -78,7 +79,15 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 */
 	@Override
 	public List<DocumentMetadata> findDocuments(AuthenticationContext authCtxt,
-			DocumentSearchCriteria criteria) {
+			DocumentSearchCriteria criteria) throws RemoteServiceException {
+
+		// See if we have a valid session ...
+		HttpServletRequest request = this.getThreadLocalRequest();
+		boolean validSession = ServletUtilMixin.isValidSession(request);
+		if (!validSession) {
+			throw new RemoteServiceException("Invalid Session!");
+		}
+
 		ServletContext servletContext = this.getServletContext();
 
 		// First build the query message (from a template).

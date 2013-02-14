@@ -15,6 +15,7 @@ package com.vangent.hieos.DocViewer.server.services.rpc.config;
 
 import java.util.List;
 
+import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
 import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
@@ -35,7 +36,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	@Override
-	public Config getConfig() {
+	public Config getConfig() throws RemoteServiceException {
 		System.out.println("********* ConfigRemoteServiceImpl ********");
 
 		// Get the mixin to allow access to xconfig.xml.

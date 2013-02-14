@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 
@@ -33,9 +35,14 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ServletUtilMixin {
 
-	static final String XCONFIG_FILE = "/resources/xconfig.xml";
+	private static final String XCONFIG_FILE = "/resources/xconfig.xml";
+	public static final String SESSION_PROPERTY_LOGIN_STATUS = "login_status";
 	private ServletContext servletContext;
 
+	/**
+	 * 
+	 * @param servletContext
+	 */
 	public void init(ServletContext servletContext) {
 		this.servletContext = servletContext;
 		// FIXME: ? This may happen more than once, but likely OK since
@@ -56,6 +63,42 @@ public class ServletUtilMixin {
 
 	/**
 	 * 
+	 * @param request
+	 * @return
+	 */
+	static public boolean isValidSession(HttpServletRequest request) {
+		boolean validSession = false;
+
+		// Get session.
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+
+			// See if we have a valid session.
+			String loginSuccess = (String) session
+					.getAttribute(SESSION_PROPERTY_LOGIN_STATUS);
+			if (loginSuccess == null || !loginSuccess.equals("true")) {
+				// Do not continue.
+				validSession = false;
+			} else {
+				// Continue.
+				validSession = true;
+			}
+		}
+		return validSession;
+	}
+
+	/**
+	 * 
+	 * @param request
+	 */
+	static public void invalidateSession(HttpServletRequest request) {
+		// Get session and invalidate.
+		HttpSession session = request.getSession();
+		session.invalidate();
+	}
+
+	/**
+	 * 
 	 * @param servletContext
 	 * @param key
 	 * @return
@@ -69,14 +112,14 @@ public class ServletUtilMixin {
 		return value;
 	}
 
-        public String getProperty(String key, String defaultString) {
+	public String getProperty(String key, String defaultString) {
 		String value = null;
 		XConfigObject configObject = this.getConfig();
 		if (configObject != null) {
 			value = configObject.getProperty(key);
-                        if (StringUtils.isBlank(value)) {
-                            value = defaultString;
-                        }
+			if (StringUtils.isBlank(value)) {
+				value = defaultString;
+			}
 		}
 		return value;
 	}

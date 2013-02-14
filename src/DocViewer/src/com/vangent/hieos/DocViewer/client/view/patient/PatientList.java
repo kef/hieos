@@ -36,21 +36,21 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 public class PatientList extends Canvas implements DoubleClickHandler {
 	private final ListGrid patientListGrid;
 	private final DocViewerController controller;
-	
+
 	/**
 	 * @wbp.parser.constructor
 	 * @param mainController
 	 */
-	public PatientList(DocViewerController mainController)
-	{
-		
-                this.controller = mainController;
-                Config controllerConfig = this.controller.getConfig();
-                
+	public PatientList(DocViewerController mainController) {
+
+		this.controller = mainController;
+		Config controllerConfig = this.controller.getConfig();
+
 		this.patientListGrid = new ListGrid();
 		patientListGrid.addDoubleClickHandler(this);
 		patientListGrid.setShowEmptyMessage(true);
-		patientListGrid.setEmptyMessage("<br>Click the <b>Find</b> button to populate this grid.");
+		patientListGrid
+				.setEmptyMessage("<br>Click the <b>Find</b> button to populate this grid.");
 		patientListGrid.setSelectionType(SelectionStyle.SINGLE);
 		patientListGrid.setShowAllRecords(true);
 		patientListGrid.setSortField(PatientRecord.MATCH_CONFIDENCE_FIELD);
@@ -62,34 +62,37 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setTooltip("Double-click to find patient records");
 
 		// Given Name:
-                String givenNameLabel = controllerConfig.get(Config.KEY_LABEL_GIVEN_NAME);
-		final ListGridField givenNameField = new ListGridField(PatientRecord.GIVEN_NAME_FIELD, givenNameLabel, 90);	
+		String givenNameLabel = controllerConfig
+				.get(Config.KEY_LABEL_GIVEN_NAME);
+		final ListGridField givenNameField = new ListGridField(
+				PatientRecord.GIVEN_NAME_FIELD, givenNameLabel, 90);
 		givenNameField.setType(ListGridFieldType.TEXT);
-                givenNameField.setShowHover(true);
-                givenNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_GIVEN_NAME)));
+		givenNameField.setShowHover(true);
+		givenNameField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_GIVEN_NAME)));
 
 		// Family Name:
-                String familyNameLabel = controllerConfig.get(Config.KEY_LABEL_FAMILY_NAME);
-		final ListGridField familyNameField = new ListGridField(PatientRecord.FAMILY_NAME_FIELD,
-				familyNameLabel, 90);
+		String familyNameLabel = controllerConfig
+				.get(Config.KEY_LABEL_FAMILY_NAME);
+		final ListGridField familyNameField = new ListGridField(
+				PatientRecord.FAMILY_NAME_FIELD, familyNameLabel, 90);
 		familyNameField.setType(ListGridFieldType.TEXT);
-                familyNameField.setShowHover(true);
-                familyNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_FAMILY_NAME)));
-		
+		familyNameField.setShowHover(true);
+		familyNameField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_FAMILY_NAME)));
+
 		// Gender:
-		final ListGridField genderField = new ListGridField(PatientRecord.GENDER_FIELD,
-				"Gender", 60);
+		final ListGridField genderField = new ListGridField(
+				PatientRecord.GENDER_FIELD, "Gender", 60);
 		genderField.setAlign(Alignment.LEFT);
 		genderField.setType(ListGridFieldType.TEXT);
 		genderField.setCellFormatter(new CellFormatter() {
-                        @Override
+			@Override
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
 				if (record == null)
 					return null;
-				PatientRecord patientRecord = (PatientRecord) record;				
+				PatientRecord patientRecord = (PatientRecord) record;
 				String imageName = "person.png";
 				Patient patient = patientRecord.getPatient();
 				if (patient.getGender().equals("M")) {
@@ -99,21 +102,21 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 				}
 				return Canvas.imgHTML(imageName) + " "
 						+ patientRecord.getFormattedGender();
-				
-				//return patientRecord.getFormattedGender();
+
+				// return patientRecord.getFormattedGender();
 			}
 		});
-                genderField.setShowHover(true);
-                genderField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_GENDER)));
-		
+		genderField.setShowHover(true);
+		genderField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_GENDER)));
+
 		// Date of Birth:
-		final ListGridField dateOfBirthField = new ListGridField(PatientRecord.DOB_FIELD,
-				"Date of Birth", 80);
+		final ListGridField dateOfBirthField = new ListGridField(
+				PatientRecord.DOB_FIELD, "Date of Birth", 80);
 		dateOfBirthField.setType(ListGridFieldType.DATE);
 		dateOfBirthField.setAlign(Alignment.LEFT);
 		dateOfBirthField.setCellFormatter(new CellFormatter() {
-                        @Override
+			@Override
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
 				if (record == null)
@@ -121,54 +124,52 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 				PatientRecord patientRecord = (PatientRecord) record;
 				return patientRecord.getFormattedDateOfBirth();
 			}
-		});		
-                dateOfBirthField.setShowHover(true);
-                dateOfBirthField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_DATE_OF_BIRTH)));
-		
-		
+		});
+		dateOfBirthField.setShowHover(true);
+		dateOfBirthField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_DATE_OF_BIRTH)));
+
 		// EUID:
-                String euidLabel = controllerConfig.get(Config.KEY_LABEL_EUID);
-		final ListGridField euidField = new ListGridField(PatientRecord.EUID_FIELD, euidLabel, 90);
+		String euidLabel = controllerConfig.get(Config.KEY_LABEL_EUID);
+		final ListGridField euidField = new ListGridField(
+				PatientRecord.EUID_FIELD, euidLabel, 90);
 		euidField.setType(ListGridFieldType.TEXT);
-                euidField.setShowHover(true);
-                euidField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_EUID)));
-		
+		euidField.setShowHover(true);
+		euidField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_EUID)));
+
 		// SSN:
-		final ListGridField ssnField = new ListGridField(PatientRecord.SSN_FIELD, "SSN", 85);
+		final ListGridField ssnField = new ListGridField(
+				PatientRecord.SSN_FIELD, "SSN", 85);
 		ssnField.setType(ListGridFieldType.TEXT);
-                ssnField.setShowHover(true);
-                ssnField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_SSN)));
-		
+		ssnField.setShowHover(true);
+		ssnField.setHoverCustomizer(new PatientListHoverCustomizer(
+				controllerConfig.get(Config.KEY_TOOLTIP_SSN)));
+
 		// Match Weight:
-		final ListGridField matchConfidencePercentageField = new ListGridField(PatientRecord.MATCH_CONFIDENCE_FIELD, "Confidence", 65);
+		final ListGridField matchConfidencePercentageField = new ListGridField(
+				PatientRecord.MATCH_CONFIDENCE_FIELD, "Confidence", 65);
 		matchConfidencePercentageField.setType(ListGridFieldType.INTEGER);
 		matchConfidencePercentageField.setAlign(Alignment.CENTER);
 		matchConfidencePercentageField.setCellFormatter(new CellFormatter() {
-                        @Override
+			@Override
 			public String format(Object value, ListGridRecord record,
 					int rowNum, int colNum) {
 				if (record == null)
 					return null;
 				PatientRecord patientRecord = (PatientRecord) record;
-				return new Integer(patientRecord.getPatient().getMatchConfidencePercentage()).toString();
+				return new Integer(patientRecord.getPatient()
+						.getMatchConfidencePercentage()).toString();
 			}
 		});
-                matchConfidencePercentageField.setShowHover(true);
-                matchConfidencePercentageField.setHoverCustomizer(new PatientListHoverCustomizer(
-                        controllerConfig.get(Config.KEY_TOOLTIP_CONFIDENCE)));
-		
-		
-		patientListGrid.setFields(new ListGridField[] {
-				familyNameField, 
-				givenNameField,
-				dateOfBirthField, 
-				genderField,
-				ssnField,
-				euidField, 
-				matchConfidencePercentageField });
+		matchConfidencePercentageField.setShowHover(true);
+		matchConfidencePercentageField
+				.setHoverCustomizer(new PatientListHoverCustomizer(
+						controllerConfig.get(Config.KEY_TOOLTIP_CONFIDENCE)));
+
+		patientListGrid.setFields(new ListGridField[] { familyNameField,
+				givenNameField, dateOfBirthField, genderField, ssnField,
+				euidField, matchConfidencePercentageField });
 		addChild(patientListGrid);
 	}
 
@@ -182,7 +183,8 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 
 	@Override
 	public void onDoubleClick(DoubleClickEvent event) {
-		PatientRecord patientRecord = (PatientRecord) patientListGrid.getSelectedRecord();
+		PatientRecord patientRecord = (PatientRecord) patientListGrid
+				.getSelectedRecord();
 		if (patientRecord != null) {
 			controller.findDocuments(patientRecord);
 		}

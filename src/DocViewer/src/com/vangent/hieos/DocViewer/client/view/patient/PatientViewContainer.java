@@ -29,7 +29,7 @@ import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class PatientViewContainer extends Canvas {
 	private final DocViewerController controller;
@@ -45,15 +45,15 @@ public class PatientViewContainer extends Canvas {
 		this.patientList = new PatientList(controller);
 		this.patientSearch = new PatientSearch(controller);
 		final DynamicForm optionsForm = this.getOptionsForm();
-	
+
 		// Now add to the layout.
-                final VLayout vlayout = new VLayout();
-                vlayout.addMember(optionsForm);
-                final LayoutSpacer spacer0 = new LayoutSpacer();
-                spacer0.setHeight(10);
-                vlayout.addMember(spacer0);
-                vlayout.addMember(this.patientSearch);
-                
+		final VLayout vlayout = new VLayout();
+		vlayout.addMember(optionsForm);
+		final LayoutSpacer spacer0 = new LayoutSpacer();
+		spacer0.setHeight(10);
+		vlayout.addMember(spacer0);
+		vlayout.addMember(this.patientSearch);
+
 		final HLayout layout = new HLayout();
 		layout.addMember(vlayout);
 		final LayoutSpacer spacer1 = new LayoutSpacer();
@@ -63,29 +63,31 @@ public class PatientViewContainer extends Canvas {
 
 		this.addChild(layout);
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	private DynamicForm getOptionsForm()
-	{
+	private DynamicForm getOptionsForm() {
 		final RadioGroupItem searchModeRadioGroupItem = new RadioGroupItem();
 		searchModeRadioGroupItem.setTitle("");
 		searchModeRadioGroupItem.setShowTitle(false);
-                
-                Config cfg = controller.getConfig();
+
+		Config cfg = controller.getConfig();
 		LinkedHashMap<String, String> searchModeMap = new LinkedHashMap<String, String>();
-		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE, cfg.get(Config.KEY_LABEL_HIE_MODE));
-		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE, cfg.get(Config.KEY_LABEL_NHIN_MODE));
+		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE,
+				cfg.get(Config.KEY_LABEL_HIE_MODE));
+		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE,
+				cfg.get(Config.KEY_LABEL_NHIN_MODE));
 		searchModeRadioGroupItem.setValueMap(searchModeMap);
-		searchModeRadioGroupItem.setDefaultValue(cfg.get(Config.KEY_SEARCH_MODE));
+		searchModeRadioGroupItem.setDefaultValue(cfg
+				.get(Config.KEY_SEARCH_MODE));
 		searchModeRadioGroupItem.addChangedHandler(new ChangedHandler() {
 			@Override
 			public void onChanged(ChangedEvent event) {
 				String searchMode = (String) event.getValue();
 				controller.getConfig().put(Config.KEY_SEARCH_MODE, searchMode);
-				//SC.say("value = " + searchMode);
+				// SC.say("value = " + searchMode);
 			}
 		});
 

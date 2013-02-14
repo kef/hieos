@@ -42,6 +42,7 @@ import com.smartgwt.client.widgets.layout.VStack;
 import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
 import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
+import com.vangent.hieos.DocViewer.client.controller.LogoutObserver;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
@@ -184,7 +185,7 @@ public class DocViewer implements EntryPoint {
 								authDomainSelected = authDomainList
 										.getValueAsString();
 							}
-							controller.authenticateUser(authObserver,
+							controller.login(authObserver,
 									userIdItem.getValueAsString(),
 									passwordItem.getValueAsString(),
 									authDomainSelected);
@@ -337,6 +338,7 @@ public class DocViewer implements EntryPoint {
 
 		// Create "Logout" button.
 		final ToolStripButton logoutButton = new ToolStripButton();
+		final DocViewer entryPoint = this;
 		logoutButton.setTooltip("Logout");
 		logoutButton.setTitle("Logout");
 		logoutButton.setIcon("logout.png");
@@ -344,10 +346,9 @@ public class DocViewer implements EntryPoint {
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						// Clear the authentication Context
-						controller.setAuthContext(null);
-						// Load the Login page
-						loadLoginPage();
+						LogoutObserver observer = new LogoutObserver(
+								entryPoint);
+						controller.logout(observer);
 					}
 				});
 

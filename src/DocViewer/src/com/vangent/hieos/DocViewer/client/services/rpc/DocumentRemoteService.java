@@ -17,6 +17,7 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
@@ -41,5 +42,12 @@ public interface DocumentRemoteService extends RemoteService {
 		}
 	}
 	
-	public List<DocumentMetadata> findDocuments(AuthenticationContext authCtxt, DocumentSearchCriteria criteria);
+	/**
+	 * 
+	 * @param authCtxt
+	 * @param criteria
+	 * @return
+	 * @throws RemoteServiceException
+	 */
+	public List<DocumentMetadata> findDocuments(AuthenticationContext authCtxt, DocumentSearchCriteria criteria) throws RemoteServiceException;
 }

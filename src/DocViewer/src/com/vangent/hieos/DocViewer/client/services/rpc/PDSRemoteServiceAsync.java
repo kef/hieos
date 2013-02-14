@@ -25,5 +25,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  */
 public interface PDSRemoteServiceAsync {
+	
+	/**
+	 * 
+	 * @param authCtxt
+	 * @param criteria
+	 * @param callback
+	 */
 	public void getPatients(AuthenticationContext authCtxt, PatientSearchCriteria criteria, AsyncCallback<List<Patient>> callback);
 }

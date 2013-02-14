@@ -16,5 +16,10 @@ import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ConfigRemoteServiceAsync {
+	
+	/**
+	 * 
+	 * @param callback
+	 */
 	public void getConfig(AsyncCallback<Config> callback);
 }

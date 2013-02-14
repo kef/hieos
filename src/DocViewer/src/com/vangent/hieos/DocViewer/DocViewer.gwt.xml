@@ -5,4 +5,8 @@
 	<!--<inherits name="com.smartclient.theme.silverwave.SilverWave"/>-->
 	<entry-point class="com.vangent.hieos.DocViewer.client.entrypoint.DocViewer"/>
 	<!--  --><inherits name="com.smartgwt.tools.SmartGwtTools"/>-->
+	<!--
+	<source path="com.vangent.hieos.DocViewer.client.*"/>
+	<source path="com.vangent.hieos.DocViewer.server.exception"/>
+	-->
 </module>

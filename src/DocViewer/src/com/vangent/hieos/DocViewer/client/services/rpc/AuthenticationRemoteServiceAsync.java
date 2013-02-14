@@ -18,8 +18,19 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface AuthenticationRemoteServiceAsync {
 
-	void authenticateUser(Credentials creds,
-			AsyncCallback<AuthenticationContext> callback);
+	/**
+	 * 
+	 * @param creds
+	 * @param callback
+	 */
+	public void login(Credentials creds, AsyncCallback<AuthenticationContext> callback);
+
+	/**
+	 * 
+	 * @param authCtxt
+	 * @param callback
+	 */
+	public void logout(AuthenticationContext authCtxt, AsyncCallback<Void> callback);
 
 }
 
