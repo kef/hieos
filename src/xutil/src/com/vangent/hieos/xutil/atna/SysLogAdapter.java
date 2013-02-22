@@ -32,11 +32,17 @@ import com.vangent.hieos.xutil.socket.TLSSocketSupport;
 public class SysLogAdapter {
 
     private final static Logger logger = Logger.getLogger(SysLogAdapter.class);
+
+    private enum Protocol {
+
+        TLS, UDP
+    };
     private final static String APP_NAME = "HIEOS";
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private String syslogHost = null;
     private int syslogPort = 514;
-    private String protocol = null;
+    //private String protocol = null;
+    private Protocol protocol = Protocol.TLS;  // Default.
     private UDPSocketSupport udpSocket;
     private TLSSocketSupport tlsSocket;
 
@@ -65,15 +71,17 @@ public class SysLogAdapter {
         if (logger.isTraceEnabled()) {
             logger.trace("Initializing ATNA/syslog using protocol=" + syslogProtocol);
         }
-        this.protocol = syslogProtocol;
+        //this.protocol = syslogProtocol;
         this.syslogPort = syslogPort;
         this.syslogHost = syslogHost;
 
         // Instantiate either a UDP or TLS Socket
-        if (this.protocol.equalsIgnoreCase("UDP")) {
+        if (syslogProtocol.equalsIgnoreCase("UDP")) {
+            protocol = Protocol.UDP;
             udpSocket = new UDPSocketSupport(syslogHost, syslogPort);
 
         } else {
+            protocol = Protocol.TLS;
             tlsSocket = new TLSSocketSupport();
         }
     }
@@ -86,8 +94,9 @@ public class SysLogAdapter {
     public void write(String msg) {
         // Format message in RFC5424 syslog format
         String syslogMsg = buildSysLogMessage(msg);
+        logger.info("AUDIT MESSAGE: " + syslogMsg);
 
-        if (this.protocol.equalsIgnoreCase("UDP")) {
+        if (protocol == Protocol.UDP) {
             // UDP Protocol
             udpSocket.write(syslogMsg);
         } else {
@@ -95,8 +104,8 @@ public class SysLogAdapter {
             try {
                 tlsSocket.sendSecureMessage(syslogHost, syslogPort, syslogMsg);
             } catch (IOException ex) {
-                logger.error("TLS Connection could not be established with Audit Repository" +
-                        ", NO TLS ATNA logs will be captured: " + ex);
+                logger.error("TLS Connection could not be established with Audit Repository"
+                        + ", NO TLS ATNA logs will be captured: " + ex);
             }
         }
     }
@@ -129,7 +138,11 @@ public class SysLogAdapter {
         // APP-NAME
         // PROCID
         // MSGID
-        String syslogMsg = "<85>1 " + currentDateTime + " " + localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
-        return syslogMsg;
+        String syslogMessage = "<85>1 " + currentDateTime + " " + localHostName + " " + APP_NAME + " " + "- " + "- " + "- " + msg;
+        if (protocol == Protocol.TLS) {
+            int messageLength = syslogMessage.length();
+            syslogMessage = Integer.toString(messageLength) + " " + syslogMessage;
+        }
+        return syslogMessage;
     }
 }
