@@ -23,6 +23,7 @@ import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.util.MessageIDGenerator;
 import ca.uhn.hl7v2.util.Terser;
 import java.io.IOException;
+import java.net.Socket;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,24 +56,39 @@ public class ConnectionHandler implements Runnable {
                 + ", remote port = " + connection.getRemotePort()
                 + ")");
         try {
+            boolean done = false;
             // Get HL7Reader and get raw message.
             HL7Reader hl7Reader = connection.getHl7Reader();
-            String incomingMessageString = hl7Reader.getMessage();
+            //Socket socket = connection.getSocket();
+            //int SOCKET_BLOCK_INTERVAL_MSECS = 30000;
+            //socket.setSoTimeout(SOCKET_BLOCK_INTERVAL_MSECS);
+            while (!done) {
+                logger.info("ConnectionHandler: waiting for message (thread = "
+                        + Thread.currentThread().getName()
+                        + ", remote ip = " + connection.getRemoteAddress()
+                        + ", remote port = " + connection.getRemotePort()
+                        + ")");
+                String incomingMessageString = hl7Reader.getMessage();
+                logger.info("ConnectionHandler: received message (thread = "
+                        + Thread.currentThread().getName()
+                        + ", remote ip = " + connection.getRemoteAddress()
+                        + ", remote port = " + connection.getRemotePort()
+                        + ")");
+                // Process message and send out response.
+                String outgoingMessageString = this.processMessage(incomingMessageString);
+                if (outgoingMessageString != null) {
 
-            // Process message and send out response.
-            String outgoingMessageString = this.processMessage(incomingMessageString);
-            if (outgoingMessageString != null) {
-
-                // Get HL7Writer and send out raw message.
-                HL7Writer hl7Writer = connection.getHl7Writer();
-                hl7Writer.writeMessage(outgoingMessageString);
+                    // Get HL7Writer and send out raw message.
+                    HL7Writer hl7Writer = connection.getHl7Writer();
+                    hl7Writer.writeMessage(outgoingMessageString);
+                }
+                //logger.info("ConnectionHandler: closing connection (thread = "
+                //        + Thread.currentThread().getName()
+                //        + ", remote ip = " + connection.getRemoteAddress()
+                //        + ", remote port = " + connection.getRemotePort()
+                //       + ")");
+                //connectionManager.removeConnection(connection);
             }
-            logger.info("ConnectionHandler: closing connection (thread = "
-                    + Thread.currentThread().getName()
-                    + ", remote ip = " + connection.getRemoteAddress()
-                    + ", remote port = " + connection.getRemotePort()
-                    + ")");
-            connectionManager.removeConnection(connection);
         } catch (Exception ex) {
             logger.error("Exception in ConnectionHandler", ex);
             logger.info("ConnectionHandler: closing connection (thread = "
