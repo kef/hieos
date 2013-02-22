@@ -158,6 +158,44 @@ public class XATNALogger {
     }
 
     /**
+     *
+     * @param auditEvent
+     * @throws Exception
+     */
+    public void audit(ATNAHL7v2AuditEventQuery auditEvent) throws Exception {
+        this.setContextVariables();
+        if (auditEvent.getAuditEventType().equals(ATNAAuditEvent.AuditEventType.QUERY_INITIATOR)) {
+            //this.auditQueryInitiator(auditEvent);
+            throw new Exception("Not implemented - no use case yet!");
+        } else if (auditEvent.getAuditEventType().equals(ATNAAuditEvent.AuditEventType.QUERY_PROVIDER)) {
+            this.auditQueryProvider(auditEvent);
+        }
+        this.persistMessage(auditEvent);
+    }
+
+    /**
+     *
+     * @param auditEvent
+     */
+    private void auditQueryProvider(ATNAHL7v2AuditEventQuery auditEvent) {
+        this.setContextVariables();
+        this.addEvent(auditEvent, "110112", "Query", "E");
+
+        // Query initiator.
+        this.addSource(auditEvent.getSourceUserId(),
+                null, this.userName, "true", auditEvent.getSourceIP());
+
+        // Destination (PIX Manager):
+        this.addDestination(auditEvent.getDestinationUserId(), this.pid, null, "false", this.hostAddress);
+
+        // Patient IDs:
+        this.addPatientIds(auditEvent.getPatientIds(), auditEvent.getMessageControlId(), auditEvent.getMessageControlIdType());
+
+        // Query:
+        this.addQueryDetails(auditEvent);
+    }
+
+    /**
      * 
      * @param auditEvent
      * @throws Exception 
@@ -178,7 +216,41 @@ public class XATNALogger {
      */
     public void audit(ATNAAuditEventPatientIdentityFeed auditEvent) {
         this.setContextVariables();
-        this.auditPatientIdentityFeedToRegistry(auditEvent);
+        this.addEvent(auditEvent, "110110", "Patient Record", auditEvent.getEventActionCodeAsString());
+
+        // Source (Patient Identity Source):
+        String sourceIdentity = auditEvent.getSourceIdentity();
+        String sourceIP = auditEvent.getSourceIP();
+        this.addSource(sourceIdentity != null ? sourceIdentity : this.replyTo,
+                null, this.userName, "true", sourceIP != null ? sourceIP : this.fromAddress);
+
+        // Destination (Registry):
+        this.addDestination(this.endpoint, this.pid, null, "false", this.hostAddress);
+
+        // Patient/Message ID:
+        this.addPatientId(auditEvent.getPatientId(), auditEvent.getMessageId());
+        this.persistMessage(auditEvent);
+    }
+
+    /**
+     *
+     * @param auditEvent
+     */
+    public void audit(ATNAHL7v2AuditEventPatientIdentityFeed auditEvent) {
+        this.setContextVariables();
+        this.addEvent(auditEvent, "110110", "Patient Record", auditEvent.getEventActionCodeAsString());
+
+        // Source (Patient Identity Source):
+        this.addSource(auditEvent.getSourceUserId(),
+                null, this.userName, "true", auditEvent.getSourceIP());
+
+        // Destination (PIX Manager, etc.):
+        this.addDestination(
+                auditEvent.getDestinationUserId(), this.pid, null, "false", this.hostAddress);
+
+        // Patient/Message ID:
+        this.addPatientId(auditEvent.getPatientId(),
+                auditEvent.getMessageControlId(), auditEvent.getMessageControlIdType());
         this.persistMessage(auditEvent);
     }
 
@@ -284,7 +356,7 @@ public class XATNALogger {
         this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
 
         // Query:
-        this.addQueryDetails(auditEvent);
+        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
     }
 
     /**
@@ -308,7 +380,7 @@ public class XATNALogger {
         this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
 
         // Query:
-        this.addQueryDetails(auditEvent);
+        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
     }
 
     /**
@@ -351,26 +423,6 @@ public class XATNALogger {
 
         // Submission Set:
         this.addSubmissionSet(auditEvent);
-    }
-
-    /**
-     *
-     * @param auditEvent
-     */
-    private void auditPatientIdentityFeedToRegistry(ATNAAuditEventPatientIdentityFeed auditEvent) {
-        this.addEvent(auditEvent, "110110", "Patient Record", auditEvent.isUpdateMode() ? "U" : "C");
-
-        // Source (Patient Identity Source):
-        String sourceIdentity = auditEvent.getSourceIdentity();
-        String sourceIP = auditEvent.getSourceIP();
-        this.addSource(sourceIdentity != null ? sourceIdentity : this.replyTo,
-                null, this.userName, "true", sourceIP != null ? sourceIP : this.fromAddress);
-
-        // Destination (Registry):
-        this.addDestination(this.endpoint, this.pid, null, "false", this.hostAddress);
-
-        // Patient/Message ID:
-        this.addPatientId(auditEvent.getPatientId(), auditEvent.getMessageId());
     }
 
     /**
@@ -458,7 +510,7 @@ public class XATNALogger {
     }
 
     /**
-     *
+     * 
      * @param patientId
      * @param messageId
      */
@@ -485,11 +537,71 @@ public class XATNALogger {
 
     /**
      *
+     * @param patientIds
+     * @param messageControlId
+     * @param messageControlIdType
+     */
+    private void addPatientIds(List<String> patientIds, String messageControlId, String messageControlIdType) {
+        for (String patientId : patientIds) {
+            this.addPatientId(patientId, messageControlId, messageControlIdType);
+        }
+    }
+
+    /**
+     * 
+     * @param patientId
+     * @param messageControlId
+     * @param messageControlIdType
+     */
+    private void addPatientId(String patientId, String messageControlId, String messageControlIdType) {
+        CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
+        byte[] messageIdValue = Base64.encodeBase64(messageControlId.getBytes());
+        amb.setParticipantObject(
+                "1", /* participantObjectTypeCode */
+                "1", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                patientId, /* participantObjectId */
+                null, /* participantObjectName */
+                null, /* participantObjectQuery */
+                messageControlIdType, /* participantObjectDetailName */
+                messageIdValue); /* participantObjectDetailValue */
+    }
+
+    /**
+     * 
      * @param auditEvent
      */
-    private void addQueryDetails(ATNAAuditEventQuery auditEvent) {
-
+    private void addQueryDetails(ATNAHL7v2AuditEventQuery auditEvent) {
         byte[] queryBase64Bytes = Base64.encodeBase64(auditEvent.getQueryText().getBytes());
+        byte[] messageIdValue = Base64.encodeBase64(auditEvent.getMessageControlId().getBytes());
+
+        CodedValueType participantObjectIdentifier = this.getCodedValueType(auditEvent.getTransaction().toString(),
+                IHE_TX, auditEvent.getTransactionDisplayName());
+
+        amb.setParticipantObject(
+                "2", /* participantObjectTypeCode */
+                "24", /* participantObjectTypeCodeRole */
+                null, /* participantObjectDataLifeCycle */
+                participantObjectIdentifier, /* participantIDTypeCode */
+                null, /* participantObjectSensitivity */
+                null, /* participantObjectId */
+                null, /*homeCommunityId,*/ /* participantObjectName */
+                queryBase64Bytes /* participantObjectQuery */,
+                auditEvent.getMessageControlIdType(), /* participantObjectDetailName */
+                messageIdValue); /* participantObjectDetailValue */
+    }
+
+    /**
+     * 
+     * @param auditEvent
+     * @param queryText
+     * @param queryId
+     */
+    private void addQueryDetails(ATNAAuditEvent auditEvent, String queryText, String queryId) {
+
+        byte[] queryBase64Bytes = Base64.encodeBase64(queryText.getBytes());
 
         CodedValueType participantObjectIdentifier = this.getCodedValueType(auditEvent.getTransaction().toString(),
                 IHE_TX, auditEvent.getTransactionDisplayName());
@@ -516,7 +628,7 @@ public class XATNALogger {
                 null, /* participantObjectDataLifeCycle */
                 participantObjectIdentifier, /* participantIDTypeCode */
                 null, /* participantObjectSensitivity */
-                auditEvent.getQueryId(), /* participantObjectId */
+                queryId, /* participantObjectId */
                 null, /*homeCommunityId,*/ /* participantObjectName */
                 queryBase64Bytes, /* participantObjectQuery */
                 participantObjectDetailNames, /* participantObjectDetailNames */
