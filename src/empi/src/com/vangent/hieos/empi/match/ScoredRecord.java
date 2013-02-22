@@ -69,11 +69,13 @@ public class ScoredRecord {
             // Divorce this field from any calculations.
             //    scores[fieldIndex] = -1.0;  // Not used (just an indicator for debugging).
             //} else {
-            double fieldScore = this.computeFieldScore(fieldIndex, matchFieldConfig);
-            scores[fieldIndex] = fieldScore;
-            fieldScore *= matchFieldConfig.getWeight();
-            fieldWeightSum += matchFieldConfig.getWeight();
-            fieldScoreSum += fieldScore;
+            if (distances[fieldIndex] != -1.0) {
+                double fieldScore = this.computeFieldScore(fieldIndex, matchFieldConfig);
+                scores[fieldIndex] = fieldScore;
+                fieldScore *= matchFieldConfig.getWeight();
+                fieldWeightSum += matchFieldConfig.getWeight();
+                fieldScoreSum += fieldScore;
+            }
             //}
             ++fieldIndex;
         }

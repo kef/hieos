@@ -204,7 +204,7 @@ public class FRILMatchAlgorithm extends MatchAlgorithm {
      */
     private double getEmptyFieldDistance(MatchType matchType) {
         if (matchType.equals(MatchType.SUBJECT_FIND)) {
-            return 1.0;
+            return -1.0;
         } else {
             // MatchType.NOMATCH_EMTPY_FIELDS
             return 0.0;
