@@ -96,7 +96,15 @@ public class ATNAAuditEvent {
         /**
          *
          */
-        PIX_MANAGER
+        PIX_MANAGER,
+        /**
+         *
+         */
+        PATIENT_DEMOGRAPHICS_SUPPLIER_V2,
+        /**
+         *
+         */
+        PIX_MANAGER_V2
     }
 
     // BHT: Deals with OutcomeIndicator as defined by DICOM Supplement 95
@@ -142,6 +150,12 @@ public class ATNAAuditEvent {
          *
          */
         ITI8("ITI-8"),
+
+        /**
+         *
+         */
+        ITI9("ITI-9"),
+
         /**
          *
          */
@@ -343,6 +357,7 @@ public class ATNAAuditEvent {
             case ITI43:
                 displayName = "Retrieve Document Set";
                 break;
+            case ITI9:
             case ITI45:
                 displayName = "PIX Query";
                 break;
