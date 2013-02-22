@@ -189,7 +189,6 @@ public class SubjectSearchCriteriaBuilder {
                 String fieldName = fieldQueryParts[0];
                 String fieldValue = fieldQueryParts[1];
                 // TODO: @PID.18 (Account Number) sub-components.
-                // TODO: @PID.19 (SSN)
                 // TODO: @PID.20 (Driver's License)
 
                 // FIXME: Deal with sub-components (e.g. account number CX components).
@@ -319,6 +318,24 @@ public class SubjectSearchCriteriaBuilder {
             subject.getSubjectIdentifiers().add(patientIdentifier);
         }
         if (subjectNameQuery) {
+            // Check for wild cards.
+            String familyName = subjectName.getFamilyName();
+            String givenName = subjectName.getGivenName();
+
+            // FIXME: Currently, only deal with end of name wild cards
+            if (familyName != null && familyName.endsWith("*")) {
+                familyName = familyName.replace("*", "");
+                subjectName.setFamilyName(familyName);
+                subjectName.setFuzzySearchMode(true);
+                logger.info("Fuzzy familyName match = " + familyName);
+            }
+            if (givenName != null && givenName.endsWith("*")) {
+                givenName = familyName.replace("*", "");
+                subjectName.setGivenName(givenName);
+                subjectName.setFuzzySearchMode(true);
+                logger.info("Fuzzy givenName match = " + givenName);
+            }
+
             subject.addSubjectName(subjectName);
         }
         if (subjectAddressQuery) {
