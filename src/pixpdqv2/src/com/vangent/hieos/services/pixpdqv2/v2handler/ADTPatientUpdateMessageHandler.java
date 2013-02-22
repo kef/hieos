@@ -26,6 +26,9 @@ import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.xutil.atna.ATNAHL7v2AuditEventPatientIdentityFeed;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -62,16 +65,27 @@ public class ADTPatientUpdateMessageHandler extends ADTMessageHandler {
             subject.setIdentitySource(senderDeviceInfo.getId());
 
             // Clone identifiers (for audit later).
-            //List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
+            List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
 
             // Go to EMPI to update subject.
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
+
+            // Send PIX Update Notifications (if enabled).
             this.sendUpdateNotifications(updateNotificationContent);
 
             // Build response.
             outMessage = this.buildAck(inMessage, "Success!", null /* errorText */, null /* errorCode */);
+
+             // Perform ATNA audit.
+            this.performAuditPatientIdentityFeed(
+                    senderDeviceInfo,
+                    receiverDeviceInfo,
+                    terser,
+                    connection.getRemoteAddress().getHostAddress(),
+                     ATNAHL7v2AuditEventPatientIdentityFeed.EventActionCode.UPDATE,
+                    subjectIdentifiers);
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             outMessage = this.buildAck(inMessage, null /* responseText */, ex.getMessage(),
                     EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);

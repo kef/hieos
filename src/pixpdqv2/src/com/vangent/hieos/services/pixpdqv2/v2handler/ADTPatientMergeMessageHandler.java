@@ -25,7 +25,10 @@ import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectMergeRequestBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectMergeRequest;
+import com.vangent.hieos.xutil.atna.ATNAHL7v2AuditEventPatientIdentityFeed;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -61,17 +64,39 @@ public class ADTPatientMergeMessageHandler extends ADTMessageHandler {
                     new SubjectMergeRequestBuilder(getBuilderConfig(), terser);
             SubjectMergeRequest subjectMergeRequest = subjectMergeRequestBuilder.buildSubjectMergeRequest();
 
-            // Clone identifiers (for audit later).
-            //List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
+             // Clone identifiers (for audit later).
+            List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
+            List<SubjectIdentifier> subsumedSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSubsumedSubject().getSubjectIdentifiers());
 
             // Go to EMPI to merge subjects.
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
+
+            // Send update notifications.
             this.sendUpdateNotifications(updateNotificationContent);
 
             // Build response.
             outMessage = this.buildAck(inMessage, "Success!", null /* errorText */, null /* errorCode */);
+
+            // Perform ATNA audit (for surviving subject -- an update).
+            this.performAuditPatientIdentityFeed(
+                    senderDeviceInfo,
+                    receiverDeviceInfo,
+                    terser,
+                    connection.getRemoteAddress().getHostAddress(),
+                    ATNAHL7v2AuditEventPatientIdentityFeed.EventActionCode.UPDATE,
+                    survivingSubjectIdentifiers);
+            
+            // Perform ATNA audit (for subsumed subject -- an delete).
+            this.performAuditPatientIdentityFeed(
+                    senderDeviceInfo,
+                    receiverDeviceInfo,
+                    terser,
+                    connection.getRemoteAddress().getHostAddress(),
+                    ATNAHL7v2AuditEventPatientIdentityFeed.EventActionCode.DELETE,
+                    subsumedSubjectIdentifiers);
+
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             outMessage = this.buildAck(inMessage, null /* responseText */, ex.getMessage(),
                     EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);

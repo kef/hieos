@@ -20,7 +20,6 @@ import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.services.framework.XAbstractService;
 import com.vangent.hieos.xutil.xconfig.XConfig;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
-import com.vangent.hieos.xutil.xconfig.XConfigObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.log4j.Logger;
@@ -69,7 +68,7 @@ public class AdminService extends XAbstractService {
      */
     @Override
     public void startup() {
-        logger.info("PIXPDQV2:AdminService:startup()");
+        logger.info("PIXPDQv2:AdminService:startup()");
         try {
             //XConfig xconf;
             //xconf = XConfig.getInstance();
@@ -89,7 +88,8 @@ public class AdminService extends XAbstractService {
         } catch (Exception ex) {
             logger.fatal("Unable to get configuration for service", ex);
         }
-        this.ATNAlogStart(ATNAAuditEvent.ActorType.PIX_MANAGER);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.PIX_MANAGER_V2);
+        this.ATNAlogStart(ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER_V2);
     }
 
     /**
@@ -98,8 +98,9 @@ public class AdminService extends XAbstractService {
      */
     @Override
     public void shutdown() {
-        logger.info("PatientIdentifierCrossReferenceManager::shutdown()");
+        logger.info("PIXPDQv2:AdminService:shutdown()");
         AdminService.hl7v2Acceptor.shutdown();
-        this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.PIX_MANAGER_V2);
+        this.ATNAlogStop(ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_SUPPLIER_V2);
     }
 }

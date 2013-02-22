@@ -25,11 +25,15 @@ import com.vangent.hieos.empi.exception.EMPIException;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownIdentifierDomain;
 import com.vangent.hieos.empi.exception.EMPIExceptionUnknownSubjectIdentifier;
 import com.vangent.hieos.hl7v2util.acceptor.impl.Connection;
+import com.vangent.hieos.hl7v2util.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.hl7v2util.model.message.PIXQueryResponseMessageBuilder;
 import com.vangent.hieos.hl7v2util.model.subject.SubjectSearchCriteriaBuilder;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAHL7v2AuditEventQuery;
+import com.vangent.hieos.xutil.atna.XATNALogger;
 import org.apache.log4j.Logger;
 
 /**
@@ -61,7 +65,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
             DeviceInfo receiverDeviceInfo = getReceiverDeviceInfo(terser);
 
             // Build SubjectSearchCriteria from HL7v2 message.
-            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder = 
+            SubjectSearchCriteriaBuilder subjectSearchCriteriaBuilder =
                     new SubjectSearchCriteriaBuilder(getBuilderConfig(), terser);
             SubjectSearchCriteria subjectSearchCriteria = subjectSearchCriteriaBuilder.buildSubjectSearchCriteriaFromPIXQuery();
 
@@ -75,6 +79,12 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
 
             // Build response.
             outMessage = this.buildResponse(inMessage, subjectSearchResponse);
+
+            // Perform ATNA audit.
+            this.performAuditPIXQueryProvider(
+                    senderDeviceInfo, receiverDeviceInfo, terser,
+                    connection.getRemoteAddress().getHostAddress(),
+                    subjectSearchResponse);
 
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             outMessage = this.buildErrorResponse(inMessage, ex);
@@ -95,7 +105,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @return
      */
     private Message buildResponse(Message inMessage, SubjectSearchResponse subjectSearchResponse) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = 
+        PIXQueryResponseMessageBuilder responseBuilder =
                 new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildPIXQueryResponse(subjectSearchResponse);
     }
@@ -108,7 +118,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, String errorText) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = 
+        PIXQueryResponseMessageBuilder responseBuilder =
                 new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         return responseBuilder.buildErrorResponse(errorText);
     }
@@ -121,7 +131,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownSubjectIdentifier ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = 
+        PIXQueryResponseMessageBuilder responseBuilder =
                 new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
 
@@ -147,7 +157,7 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
      * @throws HL7Exception
      */
     private Message buildErrorResponse(Message inMessage, EMPIExceptionUnknownIdentifierDomain ex) throws HL7Exception {
-        PIXQueryResponseMessageBuilder responseBuilder = 
+        PIXQueryResponseMessageBuilder responseBuilder =
                 new PIXQueryResponseMessageBuilder(getBuilderConfig(), inMessage);
         RSP_K23 outMessage = responseBuilder.buildBaseErrorResponse();
 
@@ -171,6 +181,38 @@ public class PIXQueryMessageHandler extends HL7V2MessageHandler {
         err.getHL7ErrorCode().getIdentifier().setValue(EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
         err.getHL7ErrorCode().getText().setValue(ex.getMessage());
         return outMessage;
+    }
+
+    /**
+     * 
+     * @param senderDeviceInfo
+     * @param receiverDeviceInfo
+     * @param terser
+     * @param sourceIP
+     * @param subjectIdentifiers
+     */
+    private void performAuditPIXQueryProvider(
+            DeviceInfo senderDeviceInfo,
+            DeviceInfo receiverDeviceInfo,
+            Terser terser,
+            String sourceIP,
+            SubjectSearchResponse subjectSearchResponse) {
+        try {
+            XATNALogger xATNALogger = new XATNALogger();
+            if (xATNALogger.isPerformAudit()) {
+                ATNAHL7v2AuditEventQuery auditEvent =
+                        ATNAAuditEventHelper.getATNAAuditEventPIXQueryProvider(
+                        ATNAAuditEvent.ActorType.PIX_MANAGER_V2,
+                        senderDeviceInfo,
+                        receiverDeviceInfo,
+                        terser,
+                        sourceIP,
+                        subjectSearchResponse);
+                xATNALogger.audit(auditEvent);
+            }
+        } catch (Exception ex) {
+            logger.error("PIXv2Manager EXCEPTION: Could not perform ATNA audit", ex);
+        }
     }
 
     /**
