@@ -148,7 +148,7 @@ public class AuditLogDAO extends AbstractDAO {
                 log.setClientIPAddress(rs.getString(2));
                 log.setReceivedDateTime((java.util.Date) rs.getTimestamp(3));
                 log.setProtocol(rs.getString(4));
-                log.setXml(rs.getString(5));
+                log.setXml(new String(rs.getBytes(5)));
                 log.setErrorMessage(rs.getString(6));
                 atnaLogs.add(log);
             }
