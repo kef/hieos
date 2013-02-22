@@ -35,23 +35,23 @@ public class ATNAAuditEventHelper {
 
     private final static Logger logger = Logger.getLogger(ATNAAuditEventHelper.class);
 
-    /**
-     * 
-     * @param actorType
-     * @param message
-     * @param updateMode
-     * @param subjectIdentifiers 
-     * @return
-     */
+   /**
+    *
+    * @param actorType
+    * @param message
+    * @param eventActionCode
+    * @param subjectIdentifiers
+    * @return
+    */
     public static ATNAAuditEventPatientIdentityFeed getATNAAuditEventPatientIdentityFeed(
             ATNAAuditEvent.ActorType actorType,
             HL7V3Message message,
-            boolean updateMode,
+            ATNAAuditEventPatientIdentityFeed.EventActionCode eventActionCode,
             List<SubjectIdentifier> subjectIdentifiers) {
         ATNAAuditEventPatientIdentityFeed auditEvent = new ATNAAuditEventPatientIdentityFeed();
         auditEvent.setTransaction(IHETransaction.ITI44);
         auditEvent.setActorType(actorType);
-        auditEvent.setUpdateMode(updateMode);
+        auditEvent.setEventActionCode(eventActionCode);
         String messageId = HL7V3MessageBuilderHelper.getMessageId(message);
         auditEvent.setMessageId(messageId);
         String patientId = ATNAAuditEventHelper.getPatientId(subjectIdentifiers);
