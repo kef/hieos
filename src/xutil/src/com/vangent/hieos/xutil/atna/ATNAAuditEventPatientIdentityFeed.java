@@ -18,9 +18,13 @@ package com.vangent.hieos.xutil.atna;
  * @author Bernie Thuman
  */
 public class ATNAAuditEventPatientIdentityFeed extends ATNAAuditEvent {
+     public enum EventActionCode {
+
+        CREATE, UPDATE, DELETE
+    };
+    private EventActionCode eventActionCode;
 
     private String messageId;
-    private boolean updateMode;
     private String sourceIdentity = null;
     private String sourceIP = null;
     private String patientId;
@@ -39,6 +43,38 @@ public class ATNAAuditEventPatientIdentityFeed extends ATNAAuditEvent {
      */
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+     /**
+     *
+     * @return
+     */
+    public EventActionCode getEventActionCode() {
+        return eventActionCode;
+    }
+
+    /**
+     *
+     * @param eventActionCode
+     */
+    public void setEventActionCode(EventActionCode eventActionCode) {
+        this.eventActionCode = eventActionCode;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getEventActionCodeAsString() {
+        switch (eventActionCode) {
+            case CREATE:
+                return "C";
+            case UPDATE:
+                return "U";
+            case DELETE:
+            default:
+                return "D";
+        }
     }
 
     /**
@@ -71,22 +107,6 @@ public class ATNAAuditEventPatientIdentityFeed extends ATNAAuditEvent {
      */
     public void setSourceIdentity(String sourceIdentity) {
         this.sourceIdentity = sourceIdentity;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public boolean isUpdateMode() {
-        return updateMode;
-    }
-
-    /**
-     * 
-     * @param updateMode
-     */
-    public void setUpdateMode(boolean updateMode) {
-        this.updateMode = updateMode;
     }
 
     /**
