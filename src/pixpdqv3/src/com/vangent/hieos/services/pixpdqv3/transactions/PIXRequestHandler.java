@@ -138,11 +138,20 @@ public class PIXRequestHandler extends RequestHandler {
             subject.setIdentitySource(senderDeviceInfo.getId());
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
+
+            // Add subject using EMPI.
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.addSubject(subject);
+
+            // Send out notifications.
             this.sendUpdateNotifications(updateNotificationContent);
-            this.performAuditPatientIdentityFeed(request, false /* update mode */, subjectIdentifiers);
+
+            // Perform ATNA audit.
+            this.performAuditPatientIdentityFeed(request, 
+                    ATNAAuditEventPatientIdentityFeed.EventActionCode.CREATE,
+                    subjectIdentifiers);
+            
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
         } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
@@ -178,13 +187,23 @@ public class PIXRequestHandler extends RequestHandler {
             SubjectBuilder builder = new SubjectBuilder();
             Subject subject = builder.buildSubject(request);
             subject.setIdentitySource(senderDeviceInfo.getId());
+
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> subjectIdentifiers = SubjectIdentifier.clone(subject.getSubjectIdentifiers());
+
+            // Update subject through EMPI.
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
             EMPINotification updateNotificationContent = adapter.updateSubject(subject);
+
+            // Send out notifications.
             this.sendUpdateNotifications(updateNotificationContent);
-            this.performAuditPatientIdentityFeed(request, true /* update mode */, subjectIdentifiers);
+
+            // Perform ATNA audit.
+            this.performAuditPatientIdentityFeed(request, 
+                    ATNAAuditEventPatientIdentityFeed.EventActionCode.UPDATE,
+                    subjectIdentifiers);
+            
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
         } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
@@ -219,15 +238,28 @@ public class PIXRequestHandler extends RequestHandler {
         try {
             SubjectMergeRequestBuilder builder = new SubjectMergeRequestBuilder();
             SubjectMergeRequest subjectMergeRequest = builder.buildSubjectMergeRequest(request);
+
             // Clone identifiers (for audit later).
             List<SubjectIdentifier> survivingSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSurvivingSubject().getSubjectIdentifiers());
+            List<SubjectIdentifier> subsumedSubjectIdentifiers = SubjectIdentifier.clone(subjectMergeRequest.getSubsumedSubject().getSubjectIdentifiers());
+
+            // Merge the subjects (clone first - above - since merge has side-effects).
             EMPIAdapter adapter = EMPIAdapterFactory.getInstance();
             adapter.setSenderDeviceInfo(senderDeviceInfo);
-
-            // Merge the subjects (clone first since merge has side-effects).
             EMPINotification updateNotificationContent = adapter.mergeSubjects(subjectMergeRequest);
+
+            // Send update notifications.
             this.sendUpdateNotifications(updateNotificationContent);
-            this.performAuditPatientIdentityFeed(request, true /* update mode */, survivingSubjectIdentifiers);
+
+            // Perform ATNA audits.
+            this.performAuditPatientIdentityFeed(request, 
+                    ATNAAuditEventPatientIdentityFeed.EventActionCode.UPDATE,
+                    survivingSubjectIdentifiers);
+
+            this.performAuditPatientIdentityFeed(request,
+                    ATNAAuditEventPatientIdentityFeed.EventActionCode.DELETE,
+                    subsumedSubjectIdentifiers);
+
         } catch (EMPIExceptionUnknownIdentifierDomain ex) {
             errorDetail = new HL7V3ErrorDetail(ex.getMessage(), EMPIExceptionUnknownIdentifierDomain.UNKNOWN_KEY_IDENTIFIER_ERROR_CODE);
         } catch (EMPIExceptionUnknownSubjectIdentifier ex) {
@@ -370,17 +402,19 @@ public class PIXRequestHandler extends RequestHandler {
     /**
      *
      * @param request
-     * @param updateMode
+     * @param eventActionCode
      * @param subjectIdentifiers
      */
     private void performAuditPatientIdentityFeed(
-            HL7V3Message request, boolean updateMode, List<SubjectIdentifier> subjectIdentifiers) {
+            HL7V3Message request, 
+            ATNAAuditEventPatientIdentityFeed.EventActionCode eventActionCode,
+            List<SubjectIdentifier> subjectIdentifiers) {
         try {
             XATNALogger xATNALogger = new XATNALogger();
             if (xATNALogger.isPerformAudit()) {
                 //String homeCommunityId = null;  // FIXME: Should we set this and use it?
                 ATNAAuditEventPatientIdentityFeed auditEvent = ATNAAuditEventHelper.getATNAAuditEventPatientIdentityFeed(
-                        ATNAAuditEvent.ActorType.PIX_MANAGER, request, updateMode, subjectIdentifiers);
+                        ATNAAuditEvent.ActorType.PIX_MANAGER, request, eventActionCode, subjectIdentifiers);
                 xATNALogger.audit(auditEvent);
             }
         } catch (Exception ex) {
