@@ -60,6 +60,8 @@ public class HL7v3Notifier extends HL7Notifier {
             try {
                 HL7V3ClientResponse clientResponse;
                 clientResponse = pixConsumerClient.patientRegistryRecordRevised(this.getSenderDeviceInfo(), receiverDeviceInfo, notificationSubject);
+                logger.info("PIX Update Notification (Request) - " + clientResponse.getClientMessage().getMessageNode().toString());
+                logger.info("PIX Update Notification (Response) - " + clientResponse.getTargetResponse().getMessageNode().toString());
                 this.performAuditPIXUpdateNotification(notificationSubject, clientResponse);
             } catch (Exception ex) {
                 logger.error("Error sending PIX Update Notification to receiver [device id = "
