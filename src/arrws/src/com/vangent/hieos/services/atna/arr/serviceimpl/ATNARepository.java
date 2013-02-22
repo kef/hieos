@@ -92,7 +92,9 @@ public class ATNARepository {
             atnaRecordNode.addChild(createChildNode("transactionShortName", ns, atnaRecord.getTransactionShortName()));
             atnaRecordNode.addChild(createChildNode("transactionLongName", ns, atnaRecord.getTransactionLongName()));
 
+            System.out.println("XML log entry = " + atnaRecord.getXml());
             byte[] syslogBase64Bytes = Base64.encodeBase64(atnaRecord.getXml().getBytes());
+            System.out.println("XML log entry (base64) = " + new String(syslogBase64Bytes));
             atnaRecordNode.addChild(createChildNode("syslog", ns, new String(syslogBase64Bytes)));
 
             atnaRecordNode.addChild(createChildNode("errorMessage", ns, atnaRecord.getErrorMessage()));
