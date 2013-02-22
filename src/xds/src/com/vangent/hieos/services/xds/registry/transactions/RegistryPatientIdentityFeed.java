@@ -22,6 +22,7 @@ import com.vangent.hieos.adt.db.AdtJdbcConnection;
 import com.vangent.hieos.services.xds.registry.backend.BackendRegistry;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed;
+import com.vangent.hieos.xutil.atna.ATNAAuditEventPatientIdentityFeed.EventActionCode;
 import com.vangent.hieos.xutil.hl7.date.Hl7Date;
 import com.vangent.hieos.xutil.exception.ExceptionUtil;
 
@@ -95,21 +96,26 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     public OMElement run(OMElement request, MessageType messageType) {
         OMElement result = null;
         Exception ex = null;
-        boolean updateMode = true;
+        EventActionCode eventActionCode = EventActionCode.CREATE;
         try {
             _adtConn = this.adtGetDatabaseConnection();  // Get ADT connection.
             switch (messageType) {
                 case PatientRegistryRecordAdded:
-                    updateMode = false;
+                    eventActionCode = EventActionCode.CREATE;
                     this.processPatientRegistryRecordAdded(request);
                     break;
                 case PatientRegistryRecordUpdated:
+                    eventActionCode = EventActionCode.UPDATE;
                     this.processPatientRegistryRecordUpdated(request);
                     break;
                 case PatientRegistryDuplicatesResolved:
+                    eventActionCode = EventActionCode.UPDATE;
+                    // FIXME: Need to fixup how ATNA is handled; ATNA delete not generated for
+                    // subsumed patient id.
                     this.processPatientRegistyDuplicatesResolved(request);
                     break;
                 case PatientRegistryRecordUnmerged:
+                    eventActionCode = EventActionCode.UPDATE;
                     this.processPatientRegistryRecordUnmerged(request);
                     break;
             }
@@ -138,7 +144,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                 ATNAAuditEvent.IHETransaction.ITI44,
                 this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
-                updateMode /* updateMode */,
+                eventActionCode,
                 this.errorDetected ? ATNAAuditEvent.OutcomeIndicator.MINOR_FAILURE : ATNAAuditEvent.OutcomeIndicator.SUCCESS,
                 null /* sourceIdentity */,
                 null /* sourceIP */);
@@ -147,7 +153,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
     }
 
     /**
-     * Processs Patient ID Feeds for HL7 v2 messages
+     * Process Patient ID Feeds for HL7 v2 messages
      * @param request
      * @param messageType
      * @return
@@ -174,13 +180,16 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
             String logServiceText = log_message.getTestMessage() + "-" + action;
             log_message.setTestMessage(logServiceText);
         }
-        boolean updateMode = true;
+        ATNAAuditEventPatientIdentityFeed.EventActionCode eventActionCode = EventActionCode.CREATE;
         try {
             _adtConn = this.adtGetDatabaseConnection();  // Get ADT connection.
             if (action.equals("ADD")) {
-                updateMode = false;
+                eventActionCode = EventActionCode.CREATE;
                 this.processPatientRegistryRecordAdded_Simple(patientFeedRequest);
             } else if (action.equals("MERGE")) {
+                // FIXME: Need to fixup how ATNA is handled; ATNA delete not generated for
+                // subsumed patient id.
+                eventActionCode = EventActionCode.UPDATE;
                 this.processPatientRegistyDuplicatesResolved_Simple(patientFeedRequest);
             } else {
                 throw new PatientIdentityFeedException("Action not known");
@@ -211,7 +220,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                 ATNAAuditEvent.IHETransaction.ITI8,
                 this._patientId,
                 (messageId != null) ? messageId : "UNKNOWN",
-                updateMode /* updateMode */,
+                eventActionCode,
                 this.errorDetected ? ATNAAuditEvent.OutcomeIndicator.MINOR_FAILURE : ATNAAuditEvent.OutcomeIndicator.SUCCESS,
                 this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIdentity") /* sourceIdentity */,
                 this.getPatientFeedRequestNodeText(patientFeedRequest, "SourceIPAddress") /* sourceIP */);
@@ -1237,18 +1246,19 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
 
 // All of the log methods below should not generate exceptions if problems occur.
     /**
-     *
+     * 
      * @param transaction
      * @param patientId
      * @param messageId
-     * @param updateMode
+     * @param eventActionCode
      * @param outcome
      * @param sourceIdentity
      * @param sourceIP
      */
     private void auditPatientIdentityFeed(
             ATNAAuditEvent.IHETransaction transaction,
-            String patientId, String messageId, boolean updateMode, ATNAAuditEvent.OutcomeIndicator outcome,
+            String patientId, String messageId,
+            EventActionCode eventActionCode, ATNAAuditEvent.OutcomeIndicator outcome,
             String sourceIdentity, String sourceIP) {
         try {
             XATNALogger xATNALogger = new XATNALogger();
@@ -1258,7 +1268,7 @@ public class RegistryPatientIdentityFeed extends XBaseTransaction {
                 auditEvent.setActorType(ATNAAuditEvent.ActorType.REGISTRY);
                 auditEvent.setPatientId(patientId);
                 auditEvent.setMessageId(messageId);
-                auditEvent.setUpdateMode(updateMode);
+                auditEvent.setEventActionCode(eventActionCode);
                 auditEvent.setOutcomeIndicator(outcome);
                 auditEvent.setSourceIP(sourceIP);
                 auditEvent.setSourceIdentity(sourceIdentity);
