@@ -156,7 +156,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @return
 	 */
 	private SubjectSearchResponse findCandidatesQuery(
-			SubjectSearchCriteria subjectSearchCriteria) {
+			SubjectSearchCriteria subjectSearchCriteria) throws RemoteServiceException {
 		SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 		XConfigActor pdsConfig = this.getPDSConfig();
 		PDSClient pdsClient = new PDSClient(pdsConfig);
@@ -171,9 +171,9 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			subjectSearchResponse = pdsClient
 					.findCandidatesQuery(senderDeviceInfo, receiverDeviceInfo,
 							subjectSearchCriteria);
-		} catch (SOAPFaultException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SOAPFaultException ex) {
+			ex.printStackTrace();
+			throw new RemoteServiceException("Unable to contact patient demographics service - " + ex.getMessage());
 		}
 		return subjectSearchResponse;
 	}

@@ -128,12 +128,12 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 							response);
 				}
 			}
-		} catch (SOAPFaultException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (XdsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SOAPFaultException ex) {
+			ex.printStackTrace();
+			throw new RemoteServiceException("Unable to contact document query service - " + ex.getMessage());
+		} catch (XdsException ex) {
+			ex.printStackTrace();
+			throw new RemoteServiceException("Exception while contacting document query service - " + ex.getMessage());			
 		}
 		System.out.println("Returning ...");
 		return documentMetadataList;
