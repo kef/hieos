@@ -32,7 +32,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
-import org.apache.commons.codec.binary.Base64;
+//import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 /**
@@ -171,6 +171,54 @@ public class XATNALogger {
             this.auditQueryProvider(auditEvent);
         }
         this.persistMessage(auditEvent);
+    }
+
+    /**
+     *
+     * @param auditEvent
+     * @throws UnsupportedEncodingException
+     * @throws MalformedURLException
+     */
+    private void auditQueryInitiator(
+            ATNAAuditEventQuery auditEvent) throws UnsupportedEncodingException, MalformedURLException {
+        this.addEvent(auditEvent, "110112", "Query", "E");
+
+        // Source (Document Consumer / Gateway):
+        this.addSource(this.endpoint, this.pid, this.userName, "true", this.hostAddress);
+
+        // Destination (Registry / Gateway):
+        URL url = new URL(auditEvent.getTargetEndpoint());
+        this.addDestination(auditEvent.getTargetEndpoint(), null, null, "false", url.getHost());
+        
+        this.addHumanRequestor();  // Add human requestor (if exists).
+
+        // Patient IDs:
+        this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
+
+        // Query:
+        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
+    }
+
+    /**
+     *
+     * @param auditEvent
+     * @throws UnsupportedEncodingException
+     */
+    private void auditQueryProvider(
+            ATNAAuditEventQuery auditEvent) throws UnsupportedEncodingException {
+        this.addEvent(auditEvent, "110112", "Query", "E");
+
+        // Source (Initiating Gateway):
+        this.addSource(this.replyTo, null, this.userName, "true", this.fromAddress);
+
+        // Destination (Responding Gateway):
+        this.addDestination(this.endpoint, this.pid, null, "false", this.hostAddress);
+
+        // Patient IDs:
+        this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
+
+        // Query:
+        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
     }
 
     /**
@@ -337,51 +385,9 @@ public class XATNALogger {
         this.addDocuments(auditEvent);
     }
 
-    /**
-     *
-     * @param auditEvent
-     * @throws UnsupportedEncodingException
-     */
-    private void auditQueryProvider(
-            ATNAAuditEventQuery auditEvent) throws UnsupportedEncodingException {
-        this.addEvent(auditEvent, "110112", "Query", "E");
+    
 
-        // Source (Initiating Gateway):
-        this.addSource(this.replyTo, null, this.userName, "true", this.fromAddress);
-
-        // Destination (Responding Gateway):
-        this.addDestination(this.endpoint, this.pid, null, "false", this.hostAddress);
-
-        // Patient IDs:
-        this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
-
-        // Query:
-        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
-    }
-
-    /**
-     *
-     * @param auditEvent
-     * @throws UnsupportedEncodingException
-     * @throws MalformedURLException
-     */
-    private void auditQueryInitiator(
-            ATNAAuditEventQuery auditEvent) throws UnsupportedEncodingException, MalformedURLException {
-        this.addEvent(auditEvent, "110112", "Query", "E");
-
-        // Source (Document Consumer / Gateway):
-        this.addSource(this.endpoint, this.pid, this.userName, "true", this.hostAddress);
-
-        // Destination (Registry / Gateway):
-        URL url = new URL(auditEvent.getTargetEndpoint());
-        this.addDestination(auditEvent.getTargetEndpoint(), null, null, "false", url.getHost());
-
-        // Patient IDs:
-        this.addPatientIds(auditEvent.getPatientIds(), null /* message id */);
-
-        // Query:
-        this.addQueryDetails(auditEvent, auditEvent.getQueryText(), auditEvent.getQueryId());
-    }
+    
 
     /**
      *
@@ -499,7 +505,7 @@ public class XATNALogger {
     }
 
     /**
-     * 
+     *
      * @param patientIds
      * @param messageId
      */
@@ -555,7 +561,8 @@ public class XATNALogger {
      */
     private void addPatientId(String patientId, String messageControlId, String messageControlIdType) {
         CodedValueType participantObjectIdentifier = this.getCodedValueType("2", "RFC-3881", "Patient Number");
-        byte[] messageIdValue = Base64.encodeBase64(messageControlId.getBytes());
+        //byte[] messageIdValue = Base64.encodeBase64(messageControlId.getBytes());
+        byte[] messageIdValue = messageControlId.getBytes();
         amb.setParticipantObject(
                 "1", /* participantObjectTypeCode */
                 "1", /* participantObjectTypeCodeRole */
@@ -574,8 +581,11 @@ public class XATNALogger {
      * @param auditEvent
      */
     private void addQueryDetails(ATNAHL7v2AuditEventQuery auditEvent) {
-        byte[] queryBase64Bytes = Base64.encodeBase64(auditEvent.getQueryText().getBytes());
-        byte[] messageIdValue = Base64.encodeBase64(auditEvent.getMessageControlId().getBytes());
+        //byte[] queryBase64Bytes = Base64.encodeBase64(auditEvent.getQueryText().getBytes());
+        //byte[] messageIdValue = Base64.encodeBase64(auditEvent.getMessageControlId().getBytes());
+
+        byte[] queryBase64Bytes = auditEvent.getQueryText().getBytes();
+        byte[] messageIdValue = auditEvent.getMessageControlId().getBytes();
 
         CodedValueType participantObjectIdentifier = this.getCodedValueType(auditEvent.getTransaction().toString(),
                 IHE_TX, auditEvent.getTransactionDisplayName());
@@ -601,7 +611,8 @@ public class XATNALogger {
      */
     private void addQueryDetails(ATNAAuditEvent auditEvent, String queryText, String queryId) {
 
-        byte[] queryBase64Bytes = Base64.encodeBase64(queryText.getBytes());
+        //byte[] queryBase64Bytes = Base64.encodeBase64(queryText.getBytes());
+        byte[] queryBase64Bytes = queryText.getBytes();
 
         CodedValueType participantObjectIdentifier = this.getCodedValueType(auditEvent.getTransaction().toString(),
                 IHE_TX, auditEvent.getTransactionDisplayName());
