@@ -96,6 +96,10 @@ public class ATNAAuditEvent {
         /**
          *
          */
+        PATIENT_DEMOGRAPHICS_CONSUMER,
+        /**
+         *
+         */
         PIX_MANAGER,
         /**
          *
