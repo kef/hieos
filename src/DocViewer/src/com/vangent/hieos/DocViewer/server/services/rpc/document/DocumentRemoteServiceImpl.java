@@ -24,7 +24,6 @@ import org.apache.axiom.om.OMElement;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
@@ -35,6 +34,7 @@ import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
+import com.vangent.hieos.DocViewer.server.xua.XUAService;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
@@ -44,8 +44,6 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
-import com.vangent.hieos.xutil.xconfig.XConfig;
-import com.vangent.hieos.xutil.xconfig.XConfigActor;
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -118,12 +116,11 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 				System.out.println("Doc Query ...");
 
 				// FIXME: Move this code.
-				XConfigActor igConfig = ig.getIGConfig();
-				if (igConfig.getPropertyAsBoolean("XUAEnabled")) {
-					XUAObject xuaObj = this.getXUAObject(authCreds, authCtxt,
-							ig, InitiatingGateway.TransactionType.DOC_QUERY);
-					OMElement samlClaimsNode = this.getSAMLClaims(authCreds,
-							authCtxt, criteria.getPatient());
+				InitiatingGateway.TransactionType txnType = InitiatingGateway.TransactionType.DOC_QUERY;
+				if (XUAService.isXUAEnabled(ig, txnType)) {
+					XUAService xuaService = new XUAService(servletUtil, authCreds, authCtxt);
+					XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
+					OMElement samlClaimsNode = xuaService.getSAMLClaims(criteria.getPatient());
 					// System.out.println("SAML Claims: " +
 					// samlClaimsNode.toString());
 					xuaObj.setClaims(samlClaimsNode);
@@ -400,83 +397,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		return TemplateUtil.getOMElementFromTemplate(template, replacements);
 	}
 
-	// FIXME: Move these methods to another class.
-
-	/**
-	 * 
-	 * @param authCreds
-	 * @param authCtxt
-	 * @param ig
-	 * @param txnType
-	 * @return
-	 */
-	private XUAObject getXUAObject(
-			Credentials authCreds,
-			AuthenticationContext authCtxt,
-			InitiatingGateway ig, InitiatingGateway.TransactionType txnType) {
-		XUAObject xuaObj = new XUAObject();
-		XConfigActor igConfig = ig.getIGConfig();
-		xuaObj.setXUASupportedSOAPActions(igConfig
-				.getProperty("XUAEnabledSOAPActions"));
-		if (!xuaObj.containsSOAPAction(ig.getSOAPAction(txnType))) {
-			return null; // Early exit!
-		}
-		xuaObj.setUserName(authCreds.getUserId());
-		xuaObj.setPassword(authCreds.getPassword());
-		xuaObj.setXUAEnabled(true);
-		xuaObj.setSTSUri("http://www.vangent.com/X-ServiceProvider-HIEOS"); // FIXME?
-		XConfigActor stsConfig = this.getSTSConfig();
-		String stsEndpointURL = stsConfig.getTransaction("IssueToken")
-				.getEndpointURL();
-		System.out.println("STS endpoint URL: " + stsEndpointURL);
-		xuaObj.setSTSUrl(stsEndpointURL);
-		// Claims to be filled in later.
-		// xuaObj.setClaims(null);
-
-		return xuaObj;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public XConfigActor getSTSConfig() {
-		return servletUtil.getActorConfig("sts", XConfig.STS_TYPE);
-	}
-
-	// FIXME: Complete .. remove hard-coded values and pull from authCtxt where
-	// applicable.
-
-	/**
-	 * 
-	 * @param authCreds
-	 * @param authCtxt
-	 * @param patient
-	 * @return
-	 */
-	public OMElement getSAMLClaims(
-			Credentials authCreds,
-			AuthenticationContext authCtxt,
-			Patient patient) {
-		String template = servletUtil.getTemplateString(servletUtil
-				.getProperty(Config.KEY_SAML_CLAIMS_TEMPLATE));
-		HashMap<String, String> replacements = new HashMap<String, String>();
-		// SUBJECT_ID
-		replacements.put("SUBJECT_ID", authCreds.getUserId());
-		// SUBJECT_ORGANIZATION_ID
-		replacements.put("SUBJECT_ORGANIZATION_ID", "^^^^^^^^^1.1.1");
-		// SUBJECT_ORGANIZATION
-		replacements.put("SUBJECT_ORGANIZATION", "GDIT");
-		// SUBJECT_PURPOSE_OF_USE
-		replacements.put("SUBJECT_PURPOSE_OF_USE", "TREATMENT");
-		// SUBJECT_ROLE
-		replacements.put("SUBJECT_ROLE", "DOCTOR");
-		// RESOURCE_ID = Patient ID (CX formatted)
-		System.out.println("SAML Claims RESOURCE_ID = "
-				+ patient.getPatientID());
-		replacements.put("RESOURCE_ID", patient.getPatientID());
-		return TemplateUtil.getOMElementFromTemplate(template, replacements);
-	}
+	
 	
 	/**
 	 * 
@@ -500,6 +421,4 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 					homeCommunityId, targetEndpoint, outcome);
 		}
 	}
-
-
 }
