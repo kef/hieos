@@ -18,7 +18,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
@@ -33,14 +32,13 @@ public class DocumentQueryService extends ProxyService {
 	
 	/**
 	 * 
-	 * @param authCtxt
 	 * @param criteria
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public DocumentQueryService(AuthenticationContext authCtxt, DocumentSearchCriteria criteria,
+	public DocumentQueryService(DocumentSearchCriteria criteria,
 			Observer observer, TimeOutHelper timeOutHelper) {
-		super(authCtxt, observer, timeOutHelper);
+		super(observer, timeOutHelper);
 		this.criteria = criteria;
 	}
 
@@ -50,7 +48,7 @@ public class DocumentQueryService extends ProxyService {
 	public void doWork() {
 		this.getTimeOutHelper().startTimer();
 		// RPC:
-		DocumentRemoteService.Util.getInstance().findDocuments(this.getAuthenticationContext(), criteria,
+		DocumentRemoteService.Util.getInstance().findDocuments(criteria,
 				new AsyncCallback<List<DocumentMetadata>>() {
 					/**
 					 * 

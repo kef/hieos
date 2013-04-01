@@ -71,16 +71,18 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		HttpServletRequest request = this.getThreadLocalRequest();
 		HttpSession session = request.getSession();
 		if (authCtxt.hasSuccessStatus()) {
-			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_LOGIN_STATUS, "true");
+			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_STATUS, "true");
+			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CREDS, authCredentials);
+			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CONTEXT, authCtxt);
 		} else {
-			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_LOGIN_STATUS, "false");
+			session.setAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_STATUS, "false");
 		}
 
 		// Return authentication context to client.
 		AuthenticationContext guiAuthCtxt = this
 				.getAuthenticationContext(authCtxt);
 		// Echo back credentials used.
-		guiAuthCtxt.setCredentials(guiCreds);
+		//guiAuthCtxt.setCredentials(guiCreds);
 
 		return guiAuthCtxt;
 	}
@@ -90,7 +92,7 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 * 
 	 */
 	@Override
-	public void logout(AuthenticationContext authCtxt)
+	public void logout()
 			throws RemoteServiceException {
 		HttpServletRequest request = this.getThreadLocalRequest();
 		ServletUtilMixin.invalidateSession(request);

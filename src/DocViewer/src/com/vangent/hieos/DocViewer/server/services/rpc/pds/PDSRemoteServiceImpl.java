@@ -19,15 +19,23 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
+import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.hl7v3util.client.PDSClient;
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
 import com.vangent.hieos.subjectmodel.CodedValue;
 import com.vangent.hieos.subjectmodel.DeviceInfo;
 import com.vangent.hieos.subjectmodel.Subject;
@@ -36,8 +44,12 @@ import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
 import com.vangent.hieos.subjectmodel.SubjectName;
 import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
 import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.OutcomeIndicator;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
+import com.vangent.hieos.xutil.xconfig.XConfigTransaction;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -61,12 +73,11 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 	}
 
 	/**
-	 * @throws RemoteServiceException 
 	 * 
 	 */
 	@Override
-	public List<Patient> getPatients(AuthenticationContext authCtxt,
-			PatientSearchCriteria patientSearchCriteria) throws RemoteServiceException {
+	public List<Patient> getPatients(PatientSearchCriteria patientSearchCriteria)
+			throws RemoteServiceException {
 		// See if we have a valid session ...
 		HttpServletRequest request = this.getThreadLocalRequest();
 		boolean validSession = ServletUtilMixin.isValidSession(request);
@@ -77,6 +88,12 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		// Issue PDQ - and do necessary conversions.
 
 		// TODO: Implement use of AuthenticationContext (XUA, etc.).
+		// Get authentication context from session.
+		HttpSession session = request.getSession(false);
+		AuthenticationContext authCtxt = (AuthenticationContext) session
+				.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CONTEXT);
+		Credentials authCreds = (Credentials) session
+				.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CREDS);
 
 		// Convert PatientSearchCriteria to SubjectSearchCriteria.
 		System.out.println("Converting ...");
@@ -85,8 +102,8 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 
 		// Issue PDQ.
 		System.out.println("PDQ ...");
-		SubjectSearchResponse subjectSearchResponse = this
-				.findCandidatesQuery(subjectSearchCriteria);
+		SubjectSearchResponse subjectSearchResponse = this.findCandidatesQuery(
+				authCreds, authCtxt, subjectSearchCriteria);
 
 		// Convert response.
 		System.out.println("Converting ...");
@@ -152,11 +169,17 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 
 	/**
 	 * 
+	 * @param authCreds
+	 * @param authCtxt
 	 * @param subjectSearchCriteria
 	 * @return
+	 * @throws RemoteServiceException
 	 */
 	private SubjectSearchResponse findCandidatesQuery(
-			SubjectSearchCriteria subjectSearchCriteria) throws RemoteServiceException {
+			Credentials authCreds,
+			AuthenticationContext authCtxt,
+			SubjectSearchCriteria subjectSearchCriteria)
+			throws RemoteServiceException {
 		SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
 		XConfigActor pdsConfig = this.getPDSConfig();
 		PDSClient pdsClient = new PDSClient(pdsConfig);
@@ -168,12 +191,61 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		receiverDeviceInfo.setName(pdsConfig.getProperty("DeviceName"));
 
 		try {
-			subjectSearchResponse = pdsClient
-					.findCandidatesQuery(senderDeviceInfo, receiverDeviceInfo,
-							subjectSearchCriteria);
+			subjectSearchResponse = this.findCandidatesQuery(authCreds,
+					authCtxt, pdsClient, senderDeviceInfo, receiverDeviceInfo,
+					subjectSearchCriteria);
 		} catch (SOAPFaultException ex) {
 			ex.printStackTrace();
-			throw new RemoteServiceException("Unable to contact patient demographics service - " + ex.getMessage());
+			throw new RemoteServiceException(
+					"Unable to contact patient demographics service - "
+							+ ex.getMessage());
+		}
+		return subjectSearchResponse;
+	}
+
+	/**
+	 * 
+	 * @param authCreds
+	 * @param authCtxt
+	 * @param pdsClient
+	 * @param senderDeviceInfo
+	 * @param receiverDeviceInfo
+	 * @param subjectSearchCriteria
+	 * @return
+	 * @throws SOAPFaultException
+	 */
+	public SubjectSearchResponse findCandidatesQuery(
+			Credentials authCreds,
+			AuthenticationContext authCtxt,
+			PDSClient pdsClient, DeviceInfo senderDeviceInfo,
+			DeviceInfo receiverDeviceInfo,
+			SubjectSearchCriteria subjectSearchCriteria)
+			throws SOAPFaultException {
+		SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+
+		// Build the HL7v3 message.
+		PRPA_IN201305UV02_Message_Builder pdqQueryBuilder = new PRPA_IN201305UV02_Message_Builder(
+				senderDeviceInfo, receiverDeviceInfo);
+
+		PRPA_IN201305UV02_Message request = pdqQueryBuilder
+				.buildPRPA_IN201305UV02_Message(subjectSearchCriteria);
+		try {
+			PRPA_IN201306UV02_Message queryResponse = pdsClient
+					.findCandidatesQuery(request);
+			if (queryResponse != null) {
+				SubjectBuilder subjectBuilder = new SubjectBuilder();
+				subjectSearchResponse = subjectBuilder
+						.buildSubjectSearchResponse(queryResponse);
+
+				// ATNA Audit.
+				this.audit(authCreds, authCtxt, pdsClient, request,
+						subjectSearchResponse,
+						ATNAAuditEvent.OutcomeIndicator.SUCCESS);
+
+			}
+
+		} catch (ModelBuilderException ex) {
+			throw new SOAPFaultException(ex.getMessage());
 		}
 		return subjectSearchResponse;
 	}
@@ -355,4 +427,32 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 		return unknownDate;
 	}
 
+	/**
+	 * 
+	 * @param authCreds
+	 * @param authCtxt
+	 * @param pdsClient
+	 * @param request
+	 * @param subjectSearchResponse
+	 * @param outcome
+	 */
+	private void audit(Credentials authCreds,
+			AuthenticationContext authCtxt,
+			PDSClient pdsClient, PRPA_IN201305UV02_Message request,
+			SubjectSearchResponse subjectSearchResponse,
+			OutcomeIndicator outcome) {
+		
+		if (ATNAAuditService.isPerformAudit()) {
+			ATNAAuditService auditService = new ATNAAuditService(authCreds, authCtxt);
+			XConfigActor pdsConfig = pdsClient.getConfig();
+			XConfigTransaction txn = pdsConfig
+					.getTransaction("PatientRegistryFindCandidatesQuery");
+			String targetEndpoint = txn.getEndpointURL();
+			String homeCommunityId = null; // FIXME?
+
+			auditService.auditPatientDemographicsQuery(request,
+					subjectSearchResponse, homeCommunityId, targetEndpoint,
+					outcome);
+		}
+	}
 }

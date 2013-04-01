@@ -17,7 +17,6 @@ import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.services.rpc.AuthenticationRemoteService;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 
 /**
  * 
@@ -29,13 +28,11 @@ public class LogoutService extends ProxyService {
 	
 	/**
 	 * 
-	 * @param authCtxt
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public LogoutService(AuthenticationContext authCtxt, 
-			Observer observer, TimeOutHelper timeOutHelper) {
-		super(authCtxt, observer, timeOutHelper);
+	public LogoutService(Observer observer, TimeOutHelper timeOutHelper) {
+		super(observer, timeOutHelper);
 	}
 	
 
@@ -46,8 +43,7 @@ public class LogoutService extends ProxyService {
 
 		this.getTimeOutHelper().startTimer();
 		// RPC:
-		AuthenticationRemoteService.Util.getInstance().logout(this.getAuthenticationContext(),
-				new AsyncCallback<Void>() {
+		AuthenticationRemoteService.Util.getInstance().logout(new AsyncCallback<Void>() {
 
 			        /**
 			         * 

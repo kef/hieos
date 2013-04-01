@@ -89,8 +89,7 @@ public class DocViewerController {
 		this.patientTabSet = null;
 		
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		LogoutService service = new LogoutService(this.getAuthContext(), 
-				observer, timeOutHelper);
+		LogoutService service = new LogoutService(observer, timeOutHelper);
 		service.doWork();
 	}
 
@@ -173,8 +172,7 @@ public class DocViewerController {
 	public void findPatients(PatientSearchCriteria criteria,
 			final PatientListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		PatientQueryService service = new PatientQueryService(this.getAuthContext(), criteria,
-				observer, timeOutHelper);
+		PatientQueryService service = new PatientQueryService(criteria, observer, timeOutHelper);
 		service.doWork();
 	}
 
@@ -201,8 +199,7 @@ public class DocViewerController {
 			final DocumentListObserver observer) {
 
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		DocumentQueryService service = new DocumentQueryService(this.getAuthContext(), criteria,
-				observer, timeOutHelper);
+		DocumentQueryService service = new DocumentQueryService(criteria, observer, timeOutHelper);
 		service.doWork();
 	}
 

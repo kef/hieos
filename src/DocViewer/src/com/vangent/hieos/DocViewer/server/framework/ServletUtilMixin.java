@@ -36,7 +36,9 @@ import org.apache.commons.lang.StringUtils;
 public class ServletUtilMixin {
 
 	private static final String XCONFIG_FILE = "/resources/xconfig.xml";
-	public static final String SESSION_PROPERTY_LOGIN_STATUS = "login_status";
+	public static final String SESSION_PROPERTY_AUTH_STATUS = "auth_status";
+	public static final String SESSION_PROPERTY_AUTH_CREDS = "auth_creds";
+	public static final String SESSION_PROPERTY_AUTH_CONTEXT = "auth_context";
 	private ServletContext servletContext;
 
 	/**
@@ -75,7 +77,7 @@ public class ServletUtilMixin {
 
 			// See if we have a valid session.
 			String loginSuccess = (String) session
-					.getAttribute(SESSION_PROPERTY_LOGIN_STATUS);
+					.getAttribute(SESSION_PROPERTY_AUTH_STATUS);
 			if (loginSuccess == null || !loginSuccess.equals("true")) {
 				// Do not continue.
 				validSession = false;

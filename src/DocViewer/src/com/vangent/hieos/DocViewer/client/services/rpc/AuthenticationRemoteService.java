@@ -47,5 +47,5 @@ public interface AuthenticationRemoteService extends RemoteService {
 	 * @param authCtxt
 	 * @throws RemoteServiceException
 	 */
-	public void logout(AuthenticationContext authCtxt) throws RemoteServiceException;
+	public void logout() throws RemoteServiceException;
 }

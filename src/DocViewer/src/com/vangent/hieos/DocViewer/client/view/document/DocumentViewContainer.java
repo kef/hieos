@@ -17,7 +17,7 @@ import java.util.List;
 
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
+//import com.google.gwt.core.client.GWT;
 //import com.google.gwt.user.client.Window;
 //import com.google.gwt.user.client.ui.FlowPanel;
 import com.smartgwt.client.widgets.Window;  
@@ -283,7 +283,6 @@ public class DocumentViewContainer extends Canvas {
 	{
 		//String baseURL = GWT.getModuleBaseURL();
 		//com.google.gwt.user.client.Window.alert("baseURL = " + baseURL);
-		
 		htmlPane.setContentsURL(metadata.getContentURL());
 		//htmlPane.setContentsURL("http://www.google.com");
 	}

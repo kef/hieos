@@ -29,31 +29,12 @@ public class AuthenticationContext implements IsSerializable {
     private boolean successStatus;
     private Date creationDate;
     private UserProfile userProfile;
-    private Credentials credentials;  // Credentials used to authenticate user.
 
     /**
      * 
      */
     public AuthenticationContext() {
     }
-    
-    /**
-     * 
-     * @return
-     */
-    public Credentials getCredentials() {
-		return credentials;
-	}
-
-    /**
-     * 
-     * @param credentials
-     */
-	public void setCredentials(Credentials credentials) {
-		this.credentials = credentials;
-	}
-
-
 
 	/**
      * 

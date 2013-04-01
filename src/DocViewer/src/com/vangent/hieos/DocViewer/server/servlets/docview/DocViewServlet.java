@@ -12,9 +12,14 @@
  */
 package com.vangent.hieos.DocViewer.server.servlets.docview;
 
+import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Credentials;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.OutcomeIndicator;
 import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.template.TemplateUtil;
@@ -29,6 +34,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletOutputStream;
 import javax.xml.transform.Transformer;
@@ -140,6 +146,13 @@ public class DocViewServlet extends HttpServlet {
 	private void getDocument(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse) {
 		try {
+			// Get authentication context from session.
+			HttpSession session = servletRequest.getSession(false);
+			AuthenticationContext authCtxt = (AuthenticationContext) session
+					.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CONTEXT);
+			Credentials authCreds = (Credentials) session
+					.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CREDS);
+
 			ServletContext servletContext = this.getServletContext();
 			OMElement retrieve = this.getRetrieveSingleDocument(servletRequest,
 					servletContext);
@@ -149,6 +162,10 @@ public class DocViewServlet extends HttpServlet {
 
 			InitiatingGateway ig = InitiatingGatewayFactory
 					.getInitiatingGateway(searchMode, servletUtil);
+
+			// ATNA Audit.
+			this.audit(authCreds, authCtxt, ig, retrieve,
+					ATNAAuditEvent.OutcomeIndicator.SUCCESS);
 
 			// Issue Document Retrieve ...
 			System.out.println("Doc Retrieve ...");
@@ -387,5 +404,27 @@ public class DocViewServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		return output.toString();
+	}
+
+	/**
+	 * 
+	 * @param authCreds
+	 * @param authCtxt
+	 * @param ig
+	 * @param request
+	 * @param outcome
+	 */
+	private void audit(Credentials authCreds,
+			AuthenticationContext authCtxt,
+			InitiatingGateway ig, OMElement request, OutcomeIndicator outcome) {
+		
+		if (ATNAAuditService.isPerformAudit()) {
+			ATNAAuditService auditService = new ATNAAuditService(authCreds, authCtxt);
+			String targetEndpoint = ig
+					.getTransactionEndpointURL(InitiatingGateway.TransactionType.DOC_RETRIEVE);
+			String homeCommunityId = ig.getIGConfig().getUniqueId();
+			auditService.auditRetrieveDocumentSet(request, homeCommunityId,
+					targetEndpoint, outcome);
+		}
 	}
 }

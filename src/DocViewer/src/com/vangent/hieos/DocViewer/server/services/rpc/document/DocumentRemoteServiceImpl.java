@@ -18,13 +18,12 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.axiom.om.OMElement;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
@@ -32,9 +31,14 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
+import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Credentials;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.OutcomeIndicator;
 import com.vangent.hieos.xutil.exception.MetadataException;
 import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
@@ -78,8 +82,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	@Override
-	public List<DocumentMetadata> findDocuments(AuthenticationContext authCtxt,
-			DocumentSearchCriteria criteria) throws RemoteServiceException {
+	public List<DocumentMetadata> findDocuments(DocumentSearchCriteria criteria)
+			throws RemoteServiceException {
 
 		// See if we have a valid session ...
 		HttpServletRequest request = this.getThreadLocalRequest();
@@ -87,6 +91,13 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		if (!validSession) {
 			throw new RemoteServiceException("Invalid Session!");
 		}
+
+		// Get authentication context from session.
+		HttpSession session = request.getSession(false);
+		AuthenticationContext authCtxt = (AuthenticationContext) session
+				.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CONTEXT);
+		Credentials authCreds = (Credentials) session
+				.getAttribute(ServletUtilMixin.SESSION_PROPERTY_AUTH_CREDS);
 
 		ServletContext servletContext = this.getServletContext();
 
@@ -109,20 +120,25 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 				// FIXME: Move this code.
 				XConfigActor igConfig = ig.getIGConfig();
 				if (igConfig.getPropertyAsBoolean("XUAEnabled")) {
-					XUAObject xuaObj = this.getXUAObject(authCtxt, ig,
-							InitiatingGateway.TransactionType.DOC_QUERY);
-					OMElement samlClaimsNode = this.getSAMLClaims(authCtxt,
-							criteria.getPatient());
+					XUAObject xuaObj = this.getXUAObject(authCreds, authCtxt,
+							ig, InitiatingGateway.TransactionType.DOC_QUERY);
+					OMElement samlClaimsNode = this.getSAMLClaims(authCreds,
+							authCtxt, criteria.getPatient());
 					// System.out.println("SAML Claims: " +
 					// samlClaimsNode.toString());
 					xuaObj.setClaims(samlClaimsNode);
 					ig.setXuaObject(xuaObj);
 				}
 
+				// ATNA Audit.
+				this.audit(authCreds, authCtxt, ig, query,
+						ATNAAuditEvent.OutcomeIndicator.SUCCESS);
+
 				OMElement response = ig.soapCall(
 						InitiatingGateway.TransactionType.DOC_QUERY, query);
 				if (response != null) // TBD: Need to check for errors!!!!
 				{
+
 					// Convert the response into value objects.
 					this.loadDocumentMetadataList(documentMetadataList,
 							response);
@@ -130,15 +146,20 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 			}
 		} catch (SOAPFaultException ex) {
 			ex.printStackTrace();
-			throw new RemoteServiceException("Unable to contact document query service - " + ex.getMessage());
+			throw new RemoteServiceException(
+					"Unable to contact document query service - "
+							+ ex.getMessage());
 		} catch (XdsException ex) {
 			ex.printStackTrace();
-			throw new RemoteServiceException("Exception while contacting document query service - " + ex.getMessage());			
+			throw new RemoteServiceException(
+					"Exception while contacting document query service - "
+							+ ex.getMessage());
 		}
 		System.out.println("Returning ...");
 		return documentMetadataList;
 	}
 
+	
 	/**
 	 * 
 	 * @param documentMetadataList
@@ -383,12 +404,15 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 
 	/**
 	 * 
+	 * @param authCreds
 	 * @param authCtxt
 	 * @param ig
 	 * @param txnType
 	 * @return
 	 */
-	private XUAObject getXUAObject(AuthenticationContext authCtxt,
+	private XUAObject getXUAObject(
+			Credentials authCreds,
+			AuthenticationContext authCtxt,
 			InitiatingGateway ig, InitiatingGateway.TransactionType txnType) {
 		XUAObject xuaObj = new XUAObject();
 		XConfigActor igConfig = ig.getIGConfig();
@@ -397,9 +421,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		if (!xuaObj.containsSOAPAction(ig.getSOAPAction(txnType))) {
 			return null; // Early exit!
 		}
-		Credentials creds = authCtxt.getCredentials();
-		xuaObj.setUserName(creds.getUserId());
-		xuaObj.setPassword(creds.getPassword());
+		xuaObj.setUserName(authCreds.getUserId());
+		xuaObj.setPassword(authCreds.getPassword());
 		xuaObj.setXUAEnabled(true);
 		xuaObj.setSTSUri("http://www.vangent.com/X-ServiceProvider-HIEOS"); // FIXME?
 		XConfigActor stsConfig = this.getSTSConfig();
@@ -426,17 +449,20 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 
 	/**
 	 * 
+	 * @param authCreds
 	 * @param authCtxt
 	 * @param patient
 	 * @return
 	 */
-	public OMElement getSAMLClaims(AuthenticationContext authCtxt,
+	public OMElement getSAMLClaims(
+			Credentials authCreds,
+			AuthenticationContext authCtxt,
 			Patient patient) {
 		String template = servletUtil.getTemplateString(servletUtil
 				.getProperty(Config.KEY_SAML_CLAIMS_TEMPLATE));
 		HashMap<String, String> replacements = new HashMap<String, String>();
 		// SUBJECT_ID
-		replacements.put("SUBJECT_ID", authCtxt.getCredentials().getUserId());
+		replacements.put("SUBJECT_ID", authCreds.getUserId());
 		// SUBJECT_ORGANIZATION_ID
 		replacements.put("SUBJECT_ORGANIZATION_ID", "^^^^^^^^^1.1.1");
 		// SUBJECT_ORGANIZATION
@@ -451,5 +477,29 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		replacements.put("RESOURCE_ID", patient.getPatientID());
 		return TemplateUtil.getOMElementFromTemplate(template, replacements);
 	}
+	
+	/**
+	 * 
+	 * @param authCreds
+	 * @param authCtxt
+	 * @param ig
+	 * @param queryRequest
+	 * @param outcome
+	 */
+	private void audit(Credentials authCreds,
+			AuthenticationContext authCtxt,
+			InitiatingGateway ig, OMElement queryRequest,
+			OutcomeIndicator outcome) {
+		
+		if (ATNAAuditService.isPerformAudit()) {
+			ATNAAuditService auditService = new ATNAAuditService(authCreds, authCtxt);
+			String targetEndpoint = ig
+					.getTransactionEndpointURL(InitiatingGateway.TransactionType.DOC_QUERY);
+			String homeCommunityId = ig.getIGConfig().getUniqueId();
+			auditService.auditRegistryStoredQuery(queryRequest,
+					homeCommunityId, targetEndpoint, outcome);
+		}
+	}
+
 
 }

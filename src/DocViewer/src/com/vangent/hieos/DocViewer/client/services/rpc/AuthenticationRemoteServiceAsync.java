@@ -30,7 +30,7 @@ public interface AuthenticationRemoteServiceAsync {
 	 * @param authCtxt
 	 * @param callback
 	 */
-	public void logout(AuthenticationContext authCtxt, AsyncCallback<Void> callback);
+	public void logout(AsyncCallback<Void> callback);
 
 }
 

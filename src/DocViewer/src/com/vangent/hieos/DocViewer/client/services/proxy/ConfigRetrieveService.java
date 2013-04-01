@@ -27,7 +27,7 @@ public class ConfigRetrieveService extends ProxyService {
 	 * @param timeOutHelper
 	 */
 	public ConfigRetrieveService(Observer observer, TimeOutHelper timeOutHelper) {
-		super(null /* AuthenticationContext */, observer, timeOutHelper);
+		super(observer, timeOutHelper);
 	}
 
 	/**
