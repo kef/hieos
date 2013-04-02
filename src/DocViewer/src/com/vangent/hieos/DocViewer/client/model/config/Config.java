@@ -49,23 +49,30 @@ public class Config implements IsSerializable {
 	public static final String KEY_LABEL_EUID = "LabelEUIDText";
 	public static final String KEY_LABEL_FAMILY_NAME = "LabelFamilyNameText";
 	public static final String KEY_LABEL_GIVEN_NAME = "LabelGivenNameText";
+	/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+	public static final String KEY_LABEL_MIDDLE_NAME = "LabelMiddleNameText";
 	public static final String KEY_LABEL_HIE_MODE = "LabelHIEModeText";
 	public static final String KEY_LABEL_NHIN_MODE = "LabelNHINModeText";
 
 	public static final String DEFAULT_LABEL_EUID = "EUID";
 	public static final String DEFAULT_LABEL_FAMILY_NAME = "Family name";
 	public static final String DEFAULT_LABEL_GIVEN_NAME = "Given name";
+	/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+	public static final String DEFAULT_LABEL_MIDDLE_NAME = "Middle name";
 	public static final String DEFAULT_LABEL_HIE_MODE = "HIE";
 	public static final String DEFAULT_LABEL_NHIN_MODE = "NHIN Exchange";
 
 	public static final String KEY_TOOLTIP_GIVEN_NAME = "ToolTipGivenNameColumn";
 	public static final String KEY_TOOLTIP_FAMILY_NAME = "ToolTipFamilyNameColumn";
+	/* [03/14/13] IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+	public static final String KEY_TOOLTIP_MIDDLE_NAME = "ToolTipMiddleNameColumn";
 	public static final String KEY_TOOLTIP_DATE_OF_BIRTH = "ToolTipDateOfBirthColumn";
 	public static final String KEY_TOOLTIP_GENDER = "ToolTipGenderColumn";
 	public static final String KEY_TOOLTIP_SSN = "ToolTipSSNColumn";
 	public static final String KEY_TOOLTIP_EUID = "ToolTipEUIDColumn";
 	public static final String KEY_TOOLTIP_CONFIDENCE = "ToolTipConfidenceColumn";
-
+//Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
+	public static final String DEFAULT_ATHENTICATION_DOMAIN_TYPE = "default";
 	/**
 	 * 
 	 */

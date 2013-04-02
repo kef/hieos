@@ -81,6 +81,15 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		familyNameField.setHoverCustomizer(new PatientListHoverCustomizer(
 				controllerConfig.get(Config.KEY_TOOLTIP_FAMILY_NAME)));
 
+        /* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+        // Middle Name:
+                String middleNameLabel = controllerConfig.get(Config.KEY_LABEL_MIDDLE_NAME);
+		final ListGridField middleNameField = new ListGridField(PatientRecord.MIDDLE_NAME_FIELD, middleNameLabel, 90);
+		middleNameField.setType(ListGridFieldType.TEXT);
+		middleNameField.setShowHover(true);
+		middleNameField.setHoverCustomizer(new PatientListHoverCustomizer(
+                controllerConfig.get(Config.KEY_TOOLTIP_MIDDLE_NAME)));
+
 		// Gender:
 		final ListGridField genderField = new ListGridField(
 				PatientRecord.GENDER_FIELD, "Gender", 60);
@@ -167,9 +176,10 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 				.setHoverCustomizer(new PatientListHoverCustomizer(
 						controllerConfig.get(Config.KEY_TOOLTIP_CONFIDENCE)));
 
+		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
 		patientListGrid.setFields(new ListGridField[] { familyNameField,
-				givenNameField, dateOfBirthField, genderField, ssnField,
-				euidField, matchConfidencePercentageField });
+				givenNameField, middleNameField, dateOfBirthField, genderField,
+				ssnField, euidField, matchConfidencePercentageField });
 		addChild(patientListGrid);
 	}
 

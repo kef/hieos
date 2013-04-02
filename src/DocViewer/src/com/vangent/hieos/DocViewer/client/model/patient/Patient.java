@@ -24,6 +24,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Patient implements IsSerializable {
 	private String familyName;
 	private String givenName;
+	/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+	private String middleName;
 	private String euid;
 	private Date dateOfBirth;
 	private String gender;
@@ -59,6 +61,15 @@ public class Patient implements IsSerializable {
 
 	public void setGivenName(String givenName) {
 		this.givenName = givenName;
+	}
+
+	/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
 	}
 
 	public String getEuid() {

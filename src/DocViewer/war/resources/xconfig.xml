@@ -12,7 +12,7 @@
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId>
 
         <!-- ATNA configuration parameters. --> 
-        <Property name="ATNAPerformAudit">false</Property>
+        <Property name="ATNAPerformAudit">true</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
 	
         <!-- HIEOS ATNA log -->
@@ -64,17 +64,22 @@
         <Property name="ShowTitleBranding">true</Property>
         <Property name="ShowFindDocumentsButton">true</Property>
         <Property name="ShowOrganizationColumn">true</Property>
+		<!-- Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer.-->
         <Property name="ShowAuthDomainList">false</Property>
         <Property name="ShowFuzzyNameSearch">true</Property>
         
         <Property name="LabelGivenNameText">First Name</Property>
         <Property name="LabelFamilyNameText">Last Name</Property>
+        <!-- [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) --> 
+        <Property name="LabelMiddleNameText">Middle Name</Property>
         <Property name="LabelEUIDText">MPI ID</Property>
         <Property name="LabelHIEModeText">Cross Community</Property>
         <Property name="LabelNHINModeText">NHIN Exchange</Property>
         
         <Property name="ToolTipGivenNameColumn">Displays first name.</Property>
         <Property name="ToolTipFamilyNameColumn">Displays last name.</Property>
+        <!-- [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) -->
+        <Property name="ToolTipMiddleNameColumn">Displays middle name.</Property>
         <Property name="ToolTipDateOfBirthColumn">Displays date of birth.</Property>
         <Property name="ToolTipGenderColumn">Displays gender.</Property>
         <Property name="ToolTipSSNColumn">Displays SSN.</Property>
@@ -82,13 +87,20 @@
         <Property name="ToolTipConfidenceColumn">Displays confidence.</Property>
         
 	<!-- Permission Mappings  -->
-        <Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
+        <!-- changed for Active directory ldap test in lab (vtil domain)
+		<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Groups,DC=company,DC=com</Property>
+		-->
+		<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Users,OU=SETHS,DC=vtil,DC=vangent,DC=local</Property>
         <Property name="PermittedRoles_ViewConsent">Role1</Property>
         <Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
+		<!--
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
-<!--
+		-->
+		
+
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>
--->
+		
+
 
         <!-- Sender Device information for DocViewer -->
         <Property name="DeviceId">HIEOS_DOC_VIEWER</Property>
@@ -104,12 +116,18 @@
         <ObjectReference refname="VADocumentTemplate" reftype="DocumentTemplateType"/>
         <ObjectReference refname="MEDVADocumentTemplate" reftype="DocumentTemplateType"/>
         <ObjectReference refname="CCRDocumentTemplate" reftype="DocumentTemplateType"/>
+		<ObjectReference refname="HIMSSDocumentTemplate" reftype="DocumentTemplateType"/>
     </Object>
     
     <!-- will extend later with types, etc. -->
     <Object name="IHSDocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">IHS Template</Property>
         <Property name="FileName">raa/CCD.xsl</Property>
+    </Object>
+	
+	<Object name="HIMSSDocumentTemplate" type="DocumentTemplateType">
+        <Property name="DisplayName">HIMSS Template</Property>
+        <Property name="FileName">himss/CDA.xsl</Property>
     </Object>
      
     <Object name="BasicDocumentTemplate" type="DocumentTemplateType">
@@ -146,15 +164,24 @@
     </Object>
 
     <!-- will extend later with types, etc. -->
-    <Object name="facilityDefault" type="AuthDomainType">
+	<!-- original - changed for Active directory ldap test in lab (vtil domain) -->
+    <!-- <Object name="facilityDefault" type="AuthDomainType"> -->
+        <!-- <Property name="DisplayName">Default Site</Property>-->
+        <!--<Property name="AuthDomainTypeKey">default</Property> -->
+        <!--<Property name="AuthHandlerLDAP_URL">ldap://localhost:10389</Property>-->
+        <!--<Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc=example,dc=com</Property> -->
+         <!-- <Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property> -->
+        <!-- <Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property> -->
+       <!-- <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property> -->
+    <!-- </Object> -->
+	
+	<Object name="facilityDefault" type="AuthDomainType">
         <Property name="DisplayName">Default Site</Property>
         <Property name="AuthDomainTypeKey">default</Property>
-        <Property name="AuthHandlerLDAP_URL">ldap://localhost:10389</Property>
-        <Property name="AuthHandlerLDAP_BASE_DN">ou=users,dc=example,dc=com</Property>
-        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">uid=${UserName},ou=users,dc=example,dc=com</Property-->
-        <!--Property name="AuthHandlerLDAP_USERNAME_FORMAT">WINDOMAIN\${UserName}</Property-->
-        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">D1\${UserName}</Property>
-    </Object>
+        <Property name="AuthHandlerLDAP_URL">ldap://10.0.10.151:389</Property>
+        <Property name="AuthHandlerLDAP_BASE_DN">OU=Users,OU=SETHS,DC=vtil,DC=vangent,DC=local</Property>
+        <Property name="AuthHandlerLDAP_USERNAME_FORMAT">vtil\${UserName}</Property>
+     </Object> 
 
     <Object name="facility111" type="AuthDomainType">
         <Property name="DisplayName">Facility 1</Property>

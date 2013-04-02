@@ -121,6 +121,9 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 				Config.DEFAULT_LABEL_FAMILY_NAME);
 		copyToConfig(config, Config.KEY_LABEL_GIVEN_NAME,
 				Config.DEFAULT_LABEL_GIVEN_NAME);
+		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+		copyToConfig(config, Config.KEY_LABEL_MIDDLE_NAME,
+				Config.DEFAULT_LABEL_MIDDLE_NAME);
 		copyToConfig(config, Config.KEY_LABEL_HIE_MODE,
 				Config.DEFAULT_LABEL_HIE_MODE);
 		copyToConfig(config, Config.KEY_LABEL_NHIN_MODE,
@@ -133,6 +136,8 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		copyToConfig(config, Config.KEY_TOOLTIP_EUID);
 		copyToConfig(config, Config.KEY_TOOLTIP_FAMILY_NAME);
 		copyToConfig(config, Config.KEY_TOOLTIP_GIVEN_NAME);
+		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+		copyToConfig(config, Config.KEY_TOOLTIP_MIDDLE_NAME);
 		copyToConfig(config, Config.KEY_TOOLTIP_GENDER);
 		copyToConfig(config, Config.KEY_TOOLTIP_SSN);
 
@@ -211,10 +216,17 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 			// Get the authentication domains from xconfig.xml.
 			for (XConfigObject configObject : configObjects) {
 				AuthenticationDomainConfig authDomainConfig = new AuthenticationDomainConfig();
+				/**
+				 * Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
 				authDomainConfig.setAuthDomainName(configObject
 						.getProperty("AuthDomainName"));
 				authDomainConfig.setAuthDomainValue(configObject
 						.getProperty("DisplayName"));
+						*/
+				authDomainConfig.setAuthDomainName(configObject
+						.getProperty("DisplayName"));
+		authDomainConfig.setAuthDomainValue(configObject
+				.getProperty("AuthDomainTypeKey"));
 				authDomainConfig.setAuthHandlerLdapBaseDn(configObject
 						.getProperty("AuthHandlerLDAP_BASE_DN"));
 				authDomainConfig.setAuthHandlerLdapUrl("AuthHandlerLDAP_URL");

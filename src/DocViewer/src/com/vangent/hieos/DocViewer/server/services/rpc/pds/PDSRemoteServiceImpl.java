@@ -319,6 +319,8 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			SubjectName subjectName = subjectNames.get(0);
 			patient.setGivenName(subjectName.getGivenName());
 			patient.setFamilyName(subjectName.getFamilyName());
+			/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+			patient.setMiddleName(subjectName.getMiddleName());
 		}
 		// Gender.
 		CodedValue gender = subject.getGender();
