@@ -115,7 +115,9 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      */
     private void configure(String authDomainTypeKey) {
         // Get the list of authentication domains from the xconfig file.
-        XConfigObject authDomainListConfig = this.config.getXConfigObjectWithName("AuthDomainList", "AuthDomainListType");
+        //Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
+   //     XConfigObject authDomainListConfig = this.config.getXConfigObjectWithName("AuthDomainList", "AuthDomainListType");
+             XConfigObject authDomainListConfig = this.config.getXConfigObjectWithName("AuthDomains", "AuthDomainListType");
         List<XConfigObject> configObjects = authDomainListConfig.getXConfigObjectsWithType("AuthDomainType");
 
         // Find the LDAP configuration that matches the authentication domain name.

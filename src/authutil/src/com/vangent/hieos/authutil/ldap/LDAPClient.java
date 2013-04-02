@@ -215,9 +215,11 @@ public class LDAPClient {
     }
 
     public static void main(String[] args) throws Exception {
-        LDAPClient adc = new LDAPClient("ldap://yourldap.com:389");
-        if (adc.bind("testuser", "abc123")) {
-            System.out.println(adc.lookupUserAttributes("testuser", "abc123", new String[]{"memberOf"}));
+       // LDAPClient adc = new LDAPClient("ldap://yourldap.com:389");
+         LDAPClient adc = new LDAPClient("ldap://10.0.10.151:389");
+       // if (adc.bind("testuser", "abc123")) {
+          if (adc.bind("vtil\\poleth", "PUsWec2e7At5Uv")) {
+            System.out.println(adc.lookupUserAttributes("thumbe", "OU=Users,OU=SETHS,DC=vtil,DC=vangent,DC=local", new String[]{"memberOf"}));
             adc.unbind();
         }
         else System.out.println("Could not bind");
