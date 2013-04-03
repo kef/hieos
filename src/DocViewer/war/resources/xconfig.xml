@@ -12,12 +12,12 @@
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId>
 
         <!-- ATNA configuration parameters. --> 
-        <Property name="ATNAPerformAudit">true</Property>
+        <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
 	
-        <!-- HIEOS ATNA log -->
-        <Property name="ATNAsyslogHost">localhost</Property>
-        <Property name="ATNAsyslogPort">3110</Property>	<!-- UDP Port 3110; TCP Port 3100-->
+        <!-- NIST ATNA log -->
+        <Property name="ATNAsyslogHost">128.252.175.39</Property>
+        <Property name="ATNAsyslogPort">3001</Property>	<!-- UDP Port 3110; TCP Port 3100-->
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
@@ -93,13 +93,13 @@
 		<Property name="PermittedRoles_ViewDocs">Role1;CN=ViewDocs,OU=Users,OU=SETHS,DC=vtil,DC=vangent,DC=local</Property>
         <Property name="PermittedRoles_ViewConsent">Role1</Property>
         <Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
-		<!--
+		
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
-		-->
 		
-
+		
+		<!--
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>
-		
+		-->
 
 
         <!-- Sender Device information for DocViewer -->
@@ -116,18 +116,12 @@
         <ObjectReference refname="VADocumentTemplate" reftype="DocumentTemplateType"/>
         <ObjectReference refname="MEDVADocumentTemplate" reftype="DocumentTemplateType"/>
         <ObjectReference refname="CCRDocumentTemplate" reftype="DocumentTemplateType"/>
-		<ObjectReference refname="HIMSSDocumentTemplate" reftype="DocumentTemplateType"/>
     </Object>
     
     <!-- will extend later with types, etc. -->
     <Object name="IHSDocumentTemplate" type="DocumentTemplateType">
         <Property name="DisplayName">IHS Template</Property>
         <Property name="FileName">raa/CCD.xsl</Property>
-    </Object>
-	
-	<Object name="HIMSSDocumentTemplate" type="DocumentTemplateType">
-        <Property name="DisplayName">HIMSS Template</Property>
-        <Property name="FileName">himss/CDA.xsl</Property>
     </Object>
      
     <Object name="BasicDocumentTemplate" type="DocumentTemplateType">
@@ -243,7 +237,7 @@
     <!-- For direct HIEOS XCA query/retrieves -->
     <Actor name="localig" type="InitiatingGatewayType"> <!-- Local Initiating Gateway -->
         <UniqueId>urn:oid:1.3.6.1.4.1.21367.13.70.43</UniqueId> <!-- Home Community ID -->
-        <Property name="XUAEnabled">false</Property>
+        <Property name="XUAEnabled">true</Property>
         <Property name="XUAEnabledSOAPActions">urn:ihe:iti:2007:RegistryStoredQuery</Property>
         <Transaction name="RegistryStoredQuery" secure="false" async="false">
             <Endpoint secure="false" async="false">http://localhost:8080/axis2/services/xcaig</Endpoint>
