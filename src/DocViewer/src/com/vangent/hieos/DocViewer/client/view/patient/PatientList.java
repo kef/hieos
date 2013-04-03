@@ -55,7 +55,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		patientListGrid.setShowAllRecords(true);
 		patientListGrid.setSortField(PatientRecord.MATCH_CONFIDENCE_FIELD);
 		patientListGrid.setSortDirection(SortDirection.DESCENDING);
-		patientListGrid.setWidth(720);
+		patientListGrid.setWidth(700);
 		patientListGrid.setHeight(408);
 		patientListGrid.setWrapCells(true);
 		patientListGrid.setFixedRecordHeights(false);
@@ -81,18 +81,23 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		familyNameField.setHoverCustomizer(new PatientListHoverCustomizer(
 				controllerConfig.get(Config.KEY_TOOLTIP_FAMILY_NAME)));
 
-        /* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
-        // Middle Name:
-                String middleNameLabel = controllerConfig.get(Config.KEY_LABEL_MIDDLE_NAME);
-		final ListGridField middleNameField = new ListGridField(PatientRecord.MIDDLE_NAME_FIELD, middleNameLabel, 90);
+		/*
+		 * [03/14/13] IHS Release 1.3 (Requirement # 7333 - Middle Name updates
+		 * in DocViewer)
+		 */
+		// Middle Name:
+		String middleNameLabel = controllerConfig
+				.get(Config.KEY_LABEL_MIDDLE_NAME);
+		final ListGridField middleNameField = new ListGridField(
+				PatientRecord.MIDDLE_NAME_FIELD, middleNameLabel, 90);
 		middleNameField.setType(ListGridFieldType.TEXT);
 		middleNameField.setShowHover(true);
 		middleNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-                controllerConfig.get(Config.KEY_TOOLTIP_MIDDLE_NAME)));
+				controllerConfig.get(Config.KEY_TOOLTIP_MIDDLE_NAME)));
 
 		// Gender:
 		final ListGridField genderField = new ListGridField(
-				PatientRecord.GENDER_FIELD, "Gender", 60);
+				PatientRecord.GENDER_FIELD, "Gender", 65);
 		genderField.setAlign(Alignment.LEFT);
 		genderField.setType(ListGridFieldType.TEXT);
 		genderField.setCellFormatter(new CellFormatter() {
@@ -121,7 +126,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 
 		// Date of Birth:
 		final ListGridField dateOfBirthField = new ListGridField(
-				PatientRecord.DOB_FIELD, "Date of Birth", 80);
+				PatientRecord.DOB_FIELD, "Date of Birth", 75);
 		dateOfBirthField.setType(ListGridFieldType.DATE);
 		dateOfBirthField.setAlign(Alignment.LEFT);
 		dateOfBirthField.setCellFormatter(new CellFormatter() {
@@ -141,7 +146,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		// EUID:
 		String euidLabel = controllerConfig.get(Config.KEY_LABEL_EUID);
 		final ListGridField euidField = new ListGridField(
-				PatientRecord.EUID_FIELD, euidLabel, 90);
+				PatientRecord.EUID_FIELD, euidLabel, 95);
 		euidField.setType(ListGridFieldType.TEXT);
 		euidField.setShowHover(true);
 		euidField.setHoverCustomizer(new PatientListHoverCustomizer(
@@ -176,7 +181,10 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 				.setHoverCustomizer(new PatientListHoverCustomizer(
 						controllerConfig.get(Config.KEY_TOOLTIP_CONFIDENCE)));
 
-		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
+		/*
+		 * [03/14/13] IHS Release 1.3 (Requirement # 7333 - Middle Name updates
+		 * in DocViewer)
+		 */
 		patientListGrid.setFields(new ListGridField[] { familyNameField,
 				givenNameField, middleNameField, dateOfBirthField, genderField,
 				ssnField, euidField, matchConfidencePercentageField });
