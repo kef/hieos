@@ -59,11 +59,6 @@ public class DocViewer implements EntryPoint {
 	private final DocViewerController controller = new DocViewerController();
 	private final Canvas mainCanvas = new Canvas();
 	private Canvas currentCanvas = null;
-//Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
-//	private String[] authDomainDisplayName;
-//	private String[] authDomainValueList;
-
-	// private String authDomainValue;
 
 	/**
 	 * 
@@ -145,18 +140,21 @@ public class DocViewer implements EntryPoint {
 				});
 
 		// Get the authentication domains from xconfig.xml.
-//Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
-			boolean showAuthDomainList = Boolean.parseBoolean(config.get(Config.KEY_SHOW_AUTHDOMAIN_LIST) + "");
+		// Changed for the IHS requirement- work order: 7334- Provide means for
+		// Tribal Sites (non-D1 users) to authenticate and log onto the HIE
+		// DocViewer” .
+		boolean showAuthDomainList = Boolean.parseBoolean(config
+				.get(Config.KEY_SHOW_AUTHDOMAIN_LIST) + "");
 		java.util.LinkedHashMap<String, String> map = getAuthDomainList();
 		// Show the authentication domain selection box.
 		if (showAuthDomainList) {
-			////this.getAuthDomainList(); 
+			// //this.getAuthDomainList();
 			// Set up the authDomain drop-down box.
 			authDomainList.setShowAllOptions(true); // true makes sure something
 													// is selected. false makes
 													// the first selection
 													// blank.
-			//authDomainList.setValueMap(authDomainDisplayName);
+			// authDomainList.setValueMap(authDomainDisplayName);
 			authDomainList.setValueMap(map);
 			authDomainList.setRequired(true);
 			authDomainList.setRequiredMessage("Please specify "
@@ -164,9 +162,11 @@ public class DocViewer implements EntryPoint {
 			loginForm.setFields(header, userIdItem, passwordItem,
 					authDomainList, loginButton);
 		} else {
-			if( !map.keySet().contains(Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE)){
-				System.out.println("Check xconfig.xml. Domain: '" + 
-			Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE + "' does not exist");
+			if (!map.keySet()
+					.contains(Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE)) {
+				System.out.println("Check xconfig.xml. Domain: '"
+						+ Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE
+						+ "' does not exist");
 			}
 			loginForm.setFields(header, userIdItem, passwordItem, loginButton);
 		}
@@ -185,8 +185,11 @@ public class DocViewer implements EntryPoint {
 									entryPoint);
 
 							// Initialize the authDomain select to nothing.
-//Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
-							//String authDomainSelected = "default";
+							// Changed for the IHS requirement- work order:
+							// 7334- Provide means for Tribal Sites (non-D1
+							// users) to authenticate and log onto the HIE
+							// DocViewer” .
+							// String authDomainSelected = "default";
 							String authDomainSelected = Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE;
 
 							// Check if the default authDomain is used.
@@ -355,8 +358,7 @@ public class DocViewer implements EntryPoint {
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						LogoutObserver observer = new LogoutObserver(
-								entryPoint);
+						LogoutObserver observer = new LogoutObserver(entryPoint);
 						controller.logout(observer);
 					}
 				});
@@ -414,32 +416,32 @@ public class DocViewer implements EntryPoint {
 	}
 
 	/**
-	 * Get the list of authentication domains.
-	* Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
+	 * Get the list of authentication domains. Changed for the IHS requirement-
+	 * work order: 7334- Provide means for Tribal Sites (non-D1 users) to
+	 * authenticate and log onto the HIE DocViewer” .
 	 */
 	private java.util.LinkedHashMap<String, String> getAuthDomainList() {
-		// FIXME: Why do like this?  Rewrite.  Weak means to pass around params.
+		// FIXME: Why do like this? Rewrite. Weak means to pass around params.
 		Config config = controller.getConfig();
 		List<AuthenticationDomainConfig> authDomainConfigs = config
 				.getAuthDomainListConfigs();
-/**
-		authDomainDisplayName = new String[authDomainConfigs.size()];
-		authDomainValueList = new String[authDomainConfigs.size()];
-		int i = 0;
+		/**
+		 * authDomainDisplayName = new String[authDomainConfigs.size()];
+		 * authDomainValueList = new String[authDomainConfigs.size()]; int i =
+		 * 0;
+		 * 
+		 * // Loop through all the authentication domains. for
+		 * (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
+		 * authDomainDisplayName[i] = authDomainConfig.getAuthDomainName();
+		 * authDomainValueList[i] = authDomainConfig.getAuthDomainValue(); ++i;
+		 * } // Set the authDomain value to the first authDomain. //
+		 * this.authDomainValue = authDomainValueList[0];
+		 */
+		java.util.LinkedHashMap<String, String> domainListMap = new java.util.LinkedHashMap<String, String>();
+		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
+			domainListMap.put(authDomainConfig.getAuthDomainValue(),
+					authDomainConfig.getAuthDomainName());
 
-		// Loop through all the authentication domains.
-		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
-			authDomainDisplayName[i] = authDomainConfig.getAuthDomainName();
-			authDomainValueList[i] = authDomainConfig.getAuthDomainValue();
-			++i;
-		}
-		// Set the authDomain value to the first authDomain.
-		// this.authDomainValue = authDomainValueList[0];
-*/
-java.util.LinkedHashMap<String, String> domainListMap = new java.util.LinkedHashMap<String, String>();
-		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
-			domainListMap.put(authDomainConfig.getAuthDomainValue(), authDomainConfig.getAuthDomainName());
-		
 		}
 		return domainListMap;
 	}
