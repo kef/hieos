@@ -16,6 +16,7 @@ import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
+import com.vangent.hieos.DocViewer.server.xua.XUAService;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
@@ -24,6 +25,8 @@ import com.vangent.hieos.xutil.exception.XPathHelperException;
 import com.vangent.hieos.xutil.soap.Mtom;
 import com.vangent.hieos.xutil.template.TemplateUtil;
 import com.vangent.hieos.xutil.xml.XPathHelper;
+import com.vangent.hieos.xutil.xua.utils.XUAObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -159,9 +162,23 @@ public class DocViewServlet extends HttpServlet {
 
 			// Get the proper initiating gateway configuration.
 			String searchMode = servletRequest.getParameter("search_mode");
+			String patientID = servletRequest.getParameter("patient_id");
+			patientID = this.getFormattedPatientID(patientID);
 
 			InitiatingGateway ig = InitiatingGatewayFactory
 					.getInitiatingGateway(searchMode, servletUtil);
+			
+			// FIXME: Move this code.
+			InitiatingGateway.TransactionType txnType = InitiatingGateway.TransactionType.DOC_RETRIEVE;
+			if (XUAService.isXUAEnabled(ig, txnType)) {
+				XUAService xuaService = new XUAService(servletUtil, authCreds, authCtxt);
+				XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
+				OMElement samlClaimsNode = xuaService.getSAMLClaims(patientID);
+				// System.out.println("SAML Claims: " +
+				// samlClaimsNode.toString());
+				xuaObj.setClaims(samlClaimsNode);
+				ig.setXuaObject(xuaObj);
+			}
 
 			// ATNA Audit.
 			this.audit(authCreds, authCtxt, ig, retrieve,
@@ -195,6 +212,17 @@ public class DocViewServlet extends HttpServlet {
 			ex.printStackTrace();
 			this.writeExceptionToOutput(servletResponse, ex);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param patientID
+	 * @return
+	 */
+	private String getFormattedPatientID(String patientID)
+	{
+		//20130303112338^^^&amp;1.3.6.1.4.1.21367.13.20.3000&amp;ISO
+		return patientID.replace("&", "&amp;");
 	}
 
 	/**

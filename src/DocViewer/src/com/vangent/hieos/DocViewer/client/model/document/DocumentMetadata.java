@@ -32,6 +32,7 @@ public class DocumentMetadata implements IsSerializable {
 	private String documentID;
 	private String homeCommunityID;
 	private String euid;
+	private String patientID;
 	private String assigningAuthority;
 	private int size;
 	private String classCode;
@@ -87,6 +88,14 @@ public class DocumentMetadata implements IsSerializable {
 
 	public void setHomeCommunityID(String homeCommunityID) {
 		this.homeCommunityID = homeCommunityID;
+	}
+
+	public String getPatientID() {
+		return patientID;
+	}
+
+	public void setPatientID(String patientID) {
+		this.patientID = patientID;
 	}
 
 	public String getSource() {

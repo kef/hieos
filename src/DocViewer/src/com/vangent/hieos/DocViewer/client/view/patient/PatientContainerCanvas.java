@@ -17,7 +17,7 @@ package com.vangent.hieos.DocViewer.client.view.patient;
 //import com.google.gwt.user.client.ui.FlowPanel;
 //import com.google.gwt.user.client.Window;
 import com.smartgwt.client.types.SelectionType;
-import com.smartgwt.client.util.SC;
+//import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.layout.HLayout;
@@ -40,6 +40,7 @@ public class PatientContainerCanvas extends Canvas {
 	private final DocViewerController controller;
 	private final DocumentContainerCanvas documentContainerCanvas;
 	private final PatientDemographicsCanvas patientDemographicsCanvas;
+	private final PatientConsentCanvas patientConsentCanvas;
 	private Canvas currentPatientContainerView;
 	private final PatientBannerCanvas patientBannerCanvas;
 	private VLayout layout;
@@ -61,24 +62,27 @@ public class PatientContainerCanvas extends Canvas {
 		patientBannerCanvas.update(patientRecord);
 
 		// Build out containers.
-		this.documentContainerCanvas = new DocumentContainerCanvas(patientRecord,
-				controller);
+		this.documentContainerCanvas = new DocumentContainerCanvas(
+				patientRecord, controller);
 		this.patientDemographicsCanvas = new PatientDemographicsCanvas(
 				patientRecord, controller);
+		this.patientConsentCanvas = new PatientConsentCanvas(patientRecord,
+				controller);
 
 		// Default patient view.
 		this.patientDemographicsCanvas.update(patientRecord); // Fill it in.
 		this.currentPatientContainerView = this.patientDemographicsCanvas;
 
 		// Add components to the layout.
-		//final VLayout layout = new VLayout();
+		// final VLayout layout = new VLayout();
 		layout = new VLayout();
 		layout.setWidth100();
 		layout.setHeight100();
-		//layout.setOpacity(100);
+		// layout.setOpacity(100);
 
 		// Add secondary navigation.
-		final ToolStrip navToolStrip = this.getSecondaryNavigation(patientRecord);
+		final ToolStrip navToolStrip = this
+				.getSecondaryNavigation(patientRecord);
 		final HLayout bannerLayout = new HLayout();
 		bannerLayout.setWidth100();
 		bannerLayout.setHeight(25);
@@ -88,24 +92,13 @@ public class PatientContainerCanvas extends Canvas {
 		bannerLayout.addMember(bannerSpacer);
 		bannerLayout.addMember(navToolStrip);
 
-		// layout.addMember(this.patientBanner);
 		layout.addMember(bannerLayout);
 		final LayoutSpacer spacer = new LayoutSpacer();
 		spacer.setHeight(4);
 		layout.addMember(spacer);
 		layout.addMember(this.currentPatientContainerView);
 
-		// Create patient content layout.
-		// final HLayout patientContentLayout = new HLayout();
-		//patientContentLayout.setWidth100();
-		//patientContentLayout.setHeight100();
-
-		// patientContentLayout.addMember(toolStrip);
-		//patientContentLayout.addMember(this.currentPatientContainerView);
-		//layout.addMember(patientContentLayout);
-
 		this.addChild(layout);
-		// this.markForRedraw();
 	}
 
 	/**
@@ -115,8 +108,8 @@ public class PatientContainerCanvas extends Canvas {
 	 */
 	private ToolStrip getSecondaryNavigation(final PatientRecord patientRecord) {
 		final ToolStripButton documentsButton = new ToolStripButton();
-		//documentsButton.setAlign(Alignment.LEFT);
-		//documentsButton.setIconAlign("left");
+		// documentsButton.setAlign(Alignment.LEFT);
+		// documentsButton.setIconAlign("left");
 		documentsButton.setTitle("Documents");
 		documentsButton.setTooltip("View Patient Documents");
 		documentsButton.setIcon("document.png");
@@ -128,16 +121,18 @@ public class PatientContainerCanvas extends Canvas {
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						patientContainerCanvas.setPatientContentCanvas(documentContainerCanvas);
-						controller.findDocuments(patientRecord, documentContainerCanvas);
+						patientContainerCanvas
+								.setPatientContentCanvas(documentContainerCanvas);
+						controller.findDocuments(patientRecord,
+								documentContainerCanvas);
 						// SC.warn("Documents");
 					}
 				});
 
 		// Demographics ...
 		final ToolStripButton demographicsButton = new ToolStripButton();
-		//demographicsButton.setAlign(Alignment.LEFT);
-		//demographicsButton.setIconAlign("left");
+		// demographicsButton.setAlign(Alignment.LEFT);
+		// demographicsButton.setIconAlign("left");
 		demographicsButton.setTitle("Demographics");
 		demographicsButton.setTooltip("View Patient Demographics");
 		demographicsButton.setIcon("patient.png");
@@ -149,38 +144,33 @@ public class PatientContainerCanvas extends Canvas {
 					@Override
 					public void onClick(ClickEvent event) {
 						// SC.warn("Demographics");
-						patientContainerCanvas.setPatientContentCanvas(patientDemographicsCanvas);
+						patientContainerCanvas
+								.setPatientContentCanvas(patientDemographicsCanvas);
 					}
 				});
 
 		// Consent ...
 		final ToolStripButton consentButton = new ToolStripButton();
-		//consentButton.setAlign(Alignment.LEFT);
-		//consentButton.setIconAlign("left");
+		// consentButton.setAlign(Alignment.LEFT);
+		// consentButton.setIconAlign("left");
 		consentButton.setTitle("Consent");
 		consentButton.setTooltip("View/Modify Patient Consent Options");
 		consentButton.setIcon("privacy.png");
 		consentButton.setActionType(SelectionType.RADIO);
 		consentButton.setRadioGroup(patientRecord.getPatient().getEuid());
+		final PatientConsentCanvas patientConsentCanvas = this.patientConsentCanvas;
 		consentButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						SC.warn("Consent - Under Construction");
+						patientContainerCanvas
+								.setPatientContentCanvas(patientConsentCanvas);
 					}
 				});
 
-		// Disable buttons if not permitted for user.
-		AuthenticationContext authContext = controller.getAuthContext();
-		boolean hasPermission = authContext
-				.hasPermissionToFeature(AuthenticationContext.PERMISSION_VIEWDOCS);
-		if (!hasPermission) {
-			documentsButton.setDisabled(true);
-		}
-
 		// Now create the tool strip (that holds the buttons).
 		final ToolStrip toolStrip = new ToolStrip();
-		//toolStrip.addSpacer(10);
+		// toolStrip.addSpacer(10);
 		toolStrip.setHeight(25);
 		toolStrip.setWidth100();
 		// toolStrip.setVertical(true);
@@ -197,7 +187,22 @@ public class PatientContainerCanvas extends Canvas {
 		demographicsButton.setSelected(true); // Default (FOR NOW).
 		toolStrip.addMember(consentButton);
 		toolStrip.addFill();
-	
+
+		// Disable buttons if not permitted for user.
+		
+		// Ability to view documents?
+		AuthenticationContext authContext = controller.getAuthContext();
+		boolean hasPermission = authContext
+				.hasPermissionToFeature(AuthenticationContext.PERMISSION_VIEWDOCS);
+		if (!hasPermission) {
+			documentsButton.setDisabled(true);
+		}
+		
+		// Ability to manage consent (to some degree)?
+		hasPermission = authContext.hasPermissionToConsentManagementFeature();
+		if (!hasPermission) {
+			consentButton.setDisabled(true);
+		}
 
 		return toolStrip;
 	}

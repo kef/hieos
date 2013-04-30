@@ -24,7 +24,7 @@ import com.smartgwt.client.widgets.Window;
 //import com.google.gwt.user.client.Window;
 import com.smartgwt.client.types.ContentsType;
 import com.smartgwt.client.types.Side;
-import com.smartgwt.client.util.SC;
+//import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.HTMLPane;
 import com.smartgwt.client.widgets.events.CloseClickHandler;
@@ -66,6 +66,20 @@ public class DocumentContainerCanvas extends Canvas {
 	private String documentTemplateFileName;
 
 	/**
+	 * Gets the name of the used browser.
+	 */
+	public static native String getBrowserName() /*-{
+		return navigator.userAgent.toLowerCase();
+	}-*/;
+
+	/**
+	 * Returns true if the current browser is IE (Internet Explorer).
+	 */
+	public static boolean isIEBrowser() {
+		return getBrowserName().contains("msie");
+	}
+
+	/**
 	 * 
 	 * @param patientRecord
 	 * @param controller
@@ -84,9 +98,9 @@ public class DocumentContainerCanvas extends Canvas {
 	 * @return
 	 */
 	private TabSet getDocumentTabSet() {
-		final DynamicForm optionsForm = this.getOptionsForm();
+		
 
-		// Create the tab set.
+		// Create the tab set (to holder list of documents and individually selected documents).
 		final TabSet tabSet = new TabSet();
 		tabSet.setWidth100();
 		tabSet.setHeight100();
@@ -96,23 +110,25 @@ public class DocumentContainerCanvas extends Canvas {
 		Tab documentsTab = new Tab("Documents", "folder.png");
 		tabSet.addTab(documentsTab);
 
+		final DynamicForm documentTemplateOptionsForm = this.getDocumentTemplateOptionsForm();
+		
 		// Now layout it out.
-		VStack vLayout = new VStack();
-		vLayout.addMember(this.documentListCanvas);
-		final LayoutSpacer optionsFormSpacer = new LayoutSpacer();
-		optionsFormSpacer.setHeight(5);
-		vLayout.addMember(optionsFormSpacer);
-		vLayout.addMember(optionsForm);
+		VStack verticalLayout = new VStack();
+		verticalLayout.addMember(this.documentListCanvas);
+		LayoutSpacer layoutSpacer = new LayoutSpacer();
+		layoutSpacer.setHeight(5);
+		verticalLayout.addMember(layoutSpacer);
+		verticalLayout.addMember(documentTemplateOptionsForm);
 
-		HLayout layout = new HLayout();
-		layout.setWidth(500);
-		layout.addMember(vLayout);
-		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setWidth(10);
-		layout.addMember(spacer);
+		HLayout mainLayout = new HLayout();
+		mainLayout.setWidth(500);
+		mainLayout.addMember(verticalLayout);
+		layoutSpacer = new LayoutSpacer();
+		layoutSpacer.setWidth(10);
+		mainLayout.addMember(layoutSpacer);
 		// layout.addMember(optionsForm);
-		layout.addMember(this.documentDetailCanvas);
-		documentsTab.setPane(layout);
+		mainLayout.addMember(this.documentDetailCanvas);
+		documentsTab.setPane(mainLayout);
 
 		return tabSet;
 	}
@@ -121,7 +137,7 @@ public class DocumentContainerCanvas extends Canvas {
 	 * 
 	 * @return
 	 */
-	private DynamicForm getOptionsForm() {
+	private DynamicForm getDocumentTemplateOptionsForm() {
 		this.initializeDocumentTemplates();
 		this.documentTemplateSelectItem = new SelectItem();
 		documentTemplateSelectItem.setDefaultToFirstOption(true);
@@ -222,32 +238,29 @@ public class DocumentContainerCanvas extends Canvas {
 		documentTab.setPane(layout);
 
 		// Begin HACK.
-		
-		// HACK to avoid opacity issues with IE8.
-		layout.removeMember(htmlPane);
-		documentTab.addTabDeselectedHandler(new TabDeselectedHandler() {
-			@Override
-			public void onTabDeselected(TabDeselectedEvent event) {
-				// Clear the contents of the tab.
-				SC.warn("Tab Deselected!");
-				layout.removeMember(htmlPane);
-				//documentTab.setPane(null);
-			}
-		});
-		// Continue HACK.
-		documentTab.addTabSelectedHandler(new TabSelectedHandler() {
-			@Override
-			public void onTabSelected(TabSelectedEvent event) {
-				// Restore the contents of the tab.
-				SC.warn("Tab Selected!");
-				//if (documentTab.getPane() == null) {
-				
-				layout.addMember(htmlPane);
-				//	documentTab.setPane(layout);
-				//}
-			}
-		});
-		// End HACK.
+		if (DocumentContainerCanvas.isIEBrowser()) {
+
+			// HACK to avoid opacity issues with IE8.
+			layout.removeMember(htmlPane);
+			documentTab.addTabDeselectedHandler(new TabDeselectedHandler() {
+				@Override
+				public void onTabDeselected(TabDeselectedEvent event) {
+					// Clear the contents of the tab.
+					// SC.warn("Tab Deselected!");
+					layout.removeMember(htmlPane);
+				}
+			});
+			// Continue HACK.
+			documentTab.addTabSelectedHandler(new TabSelectedHandler() {
+				@Override
+				public void onTabSelected(TabSelectedEvent event) {
+					// Restore the contents of the tab.
+					// SC.warn("Tab Selected!");
+					layout.addMember(htmlPane);
+				}
+			});
+			// End HACK.
+		}
 
 		// Retrieve the document and show it.
 		this.loadDocument(metadata, htmlPane);
@@ -278,6 +291,7 @@ public class DocumentContainerCanvas extends Canvas {
 		urlParams.put("hc_id", metadata.getHomeCommunityID());
 		urlParams.put("doc_id", metadata.getDocumentID());
 		urlParams.put("repo_id", metadata.getRepositoryID());
+		urlParams.put("patient_id", metadata.getPatientID());
 		urlParams.put("template_filename", this.documentTemplateFileName);
 		String searchMode = controller.getConfig().get(Config.KEY_SEARCH_MODE);
 		urlParams.put("search_mode", searchMode);

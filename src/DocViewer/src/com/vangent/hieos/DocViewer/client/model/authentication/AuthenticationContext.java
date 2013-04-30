@@ -103,6 +103,25 @@ public class AuthenticationContext implements IsSerializable {
 		}
 		return permitted;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean hasPermissionToConsentManagementFeature() {
+		// Check if the user has permission to use the application
+		List<Permission> permissions = this.getUserProfile().getPermissions();
+		boolean permitted = false;
+		for (Permission perm : permissions) {
+			String permissionName = perm.getName();
+			if (permissionName.equals(PERMISSION_VIEWCONSENT)
+					|| permissionName.equals(PERMISSION_EDITCONSENT)) {
+				permitted = true;
+				break;
+			}
+		}
+		return permitted;
+	}
 
 	/**
 	 * 

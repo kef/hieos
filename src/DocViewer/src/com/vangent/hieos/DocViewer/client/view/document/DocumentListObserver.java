@@ -51,17 +51,8 @@ public class DocumentListObserver implements Observer {
 			gridRecords[gridRecord++] = documentRecord;
 		}
 
-		// Create a document view container for the patient's documents.
-		//final DocumentViewContainer documentViewContainer = new DocumentViewContainer(
-		//		patientRecord, controller);
-
-		// documentViewContainer.setLoadingDataMessage("Loading data ...");
-
 		// Update the document list.
 		documentContainerCanvas.updateDocumentList(gridRecords);
-
-		// Add a new patient tab.
-		//controller.addPatientTab(patientRecord, documentViewContainer);
 	}
 
 	@SuppressWarnings("unchecked")

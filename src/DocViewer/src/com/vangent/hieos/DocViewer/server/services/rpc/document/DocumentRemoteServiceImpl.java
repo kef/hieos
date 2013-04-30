@@ -120,7 +120,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 				if (XUAService.isXUAEnabled(ig, txnType)) {
 					XUAService xuaService = new XUAService(servletUtil, authCreds, authCtxt);
 					XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
-					OMElement samlClaimsNode = xuaService.getSAMLClaims(criteria.getPatient());
+					OMElement samlClaimsNode = xuaService.getSAMLClaims(criteria.getPatient().getPatientID());
 					// System.out.println("SAML Claims: " +
 					// samlClaimsNode.toString());
 					xuaObj.setClaims(samlClaimsNode);
@@ -218,6 +218,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 			e.printStackTrace();
 			patientID = "UNKNOWN";
 		}
+		documentMetadata.setPatientID(patientID);
 		documentMetadata.setEuid(PatientUtil.getIDFromPIDString(patientID));
 		documentMetadata.setAssigningAuthority(PatientUtil
 				.getAssigningAuthorityFromPIDString(patientID));

@@ -62,7 +62,8 @@ public class XUAService {
 			InitiatingGateway.TransactionType txnType) {
 		boolean xuaEnabled = false;
 		XConfigActor igConfig = ig.getIGConfig();
-		if (igConfig.getPropertyAsBoolean("XUAEnabled")) {
+		
+		if (igConfig.isXUAEnabled()) {
 			XUAObject xuaObj = new XUAObject();
 			xuaObj.setXUASupportedSOAPActions(igConfig
 					.getProperty("XUAEnabledSOAPActions"));
@@ -110,13 +111,16 @@ public class XUAService {
 
 	/**
 	 * 
-	 * @param patient
+	 * @param patientID
 	 * @return
 	 */
-	public OMElement getSAMLClaims(Patient patient) {
+	public OMElement getSAMLClaims(String patientID) {
 		String template = servletUtil.getTemplateString(servletUtil
 				.getProperty(Config.KEY_SAML_CLAIMS_TEMPLATE));
 		HashMap<String, String> replacements = new HashMap<String, String>();
+		
+		// FIXME: Need to complete and pull from authentication context!!!
+		
 		// SUBJECT_ID
 		replacements.put("SUBJECT_ID", authCreds.getUserId());
 		// SUBJECT_ORGANIZATION_ID
@@ -129,8 +133,8 @@ public class XUAService {
 		replacements.put("SUBJECT_ROLE", "DOCTOR");
 		// RESOURCE_ID = Patient ID (CX formatted)
 		System.out.println("SAML Claims RESOURCE_ID = "
-				+ patient.getPatientID());
-		replacements.put("RESOURCE_ID", patient.getPatientID());
+				+ patientID);
+		replacements.put("RESOURCE_ID", patientID);
 		return TemplateUtil.getOMElementFromTemplate(template, replacements);
 	}
 }
