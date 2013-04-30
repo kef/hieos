@@ -19,6 +19,7 @@ import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tab.events.CloseClickHandler;
 import com.smartgwt.client.widgets.tab.events.TabCloseClickEvent;
+import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
@@ -37,6 +38,7 @@ import com.vangent.hieos.DocViewer.client.view.document.DocumentListObserver;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentViewContainer;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientListObserver;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientViewContainer;
+import com.vangent.hieos.DocViewer.client.view.patient.SinglePatientViewContainer;
 
 //import com.vangent.hieos.DocViewer.client.services.PDSRemoteService.Util;
 
@@ -51,6 +53,7 @@ public class DocViewerController {
 	private PatientViewContainer patientViewContainer;
 	private TabSet patientTabSet = null;
 	private Config config = null;
+	private ToolStripButton viewPatientsButton;
 
 	/**
 	 * 
@@ -65,8 +68,8 @@ public class DocViewerController {
 	 * @param userid
 	 * @param password
 	 */
-	public void login(AuthenticationObserver authObserver,
-			String userid, String password, String authDomainTypeKey) {
+	public void login(AuthenticationObserver authObserver, String userid,
+			String password, String authDomainTypeKey) {
 		Credentials creds = new Credentials();
 		creds.setPassword(password);
 		creds.setUserId(userid);
@@ -77,17 +80,16 @@ public class DocViewerController {
 				authObserver, timeOutHelper);
 		service.doWork();
 	}
-	
+
 	/**
 	 * 
 	 * @param observer
 	 */
-	public void logout(LogoutObserver observer)
-	{
+	public void logout(LogoutObserver observer) {
 		// Reset view elements.
 		this.patientViewContainer = null;
 		this.patientTabSet = null;
-		
+
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		LogoutService service = new LogoutService(observer, timeOutHelper);
 		service.doWork();
@@ -97,7 +99,7 @@ public class DocViewerController {
 	 * 
 	 */
 	public void loadConfig(Observer observer) {
-		//ConfigObserver observer = new ConfigObserver(this);
+		// ConfigObserver observer = new ConfigObserver(this);
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		timeOutHelper.setPrompt("Loading configuration ...");
 		ConfigRetrieveService service = new ConfigRetrieveService(observer,
@@ -144,6 +146,23 @@ public class DocViewerController {
 	public void setMainCanvas(Canvas canvas) {
 		mainCanvas = canvas;
 	}
+	
+
+	/**
+	 * 
+	 * @return
+	 */
+	public ToolStripButton getViewPatientsButton() {
+		return viewPatientsButton;
+	}
+
+	/**
+	 * 
+	 * @param viewPatientsButton
+	 */
+	public void setViewPatientsButton(ToolStripButton viewPatientsButton) {
+		this.viewPatientsButton = viewPatientsButton;
+	}
 
 	/**
 	 * 
@@ -172,7 +191,8 @@ public class DocViewerController {
 	public void findPatients(PatientSearchCriteria criteria,
 			final PatientListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		PatientQueryService service = new PatientQueryService(criteria, observer, timeOutHelper);
+		PatientQueryService service = new PatientQueryService(criteria,
+				observer, timeOutHelper);
 		service.doWork();
 	}
 
@@ -180,13 +200,34 @@ public class DocViewerController {
 	 * 
 	 * @param patientRecord
 	 */
-	public void findDocuments(PatientRecord patientRecord) {
+	public void viewPatient(PatientRecord patientRecord) {
+		// Create a patient view container for the patient.
+		viewPatientsButton.setSelected(true);
+		final SinglePatientViewContainer singlePatientViewContainer = new SinglePatientViewContainer(
+				patientRecord, this);
+		this.addPatientTab(patientRecord, singlePatientViewContainer);
+
+		/*
+		 * DocumentSearchCriteria criteria = new DocumentSearchCriteria();
+		 * criteria.setPatient(patientRecord.getPatient()); String searchMode =
+		 * this.getConfig().get(Config.KEY_SEARCH_MODE);
+		 * criteria.setSearchMode(searchMode); DocumentListObserver observer =
+		 * new DocumentListObserver(patientRecord, this);
+		 * this.findDocuments(criteria, observer);
+		 */
+	}
+
+	/**
+	 * 
+	 * @param patientRecord
+	 * @param documentViewContainer
+	 */
+	public void findDocuments(PatientRecord patientRecord, DocumentViewContainer documentViewContainer) {
 		DocumentSearchCriteria criteria = new DocumentSearchCriteria();
 		criteria.setPatient(patientRecord.getPatient());
 		String searchMode = this.getConfig().get(Config.KEY_SEARCH_MODE);
 		criteria.setSearchMode(searchMode);
-		DocumentListObserver observer = new DocumentListObserver(patientRecord,
-				this);
+		DocumentListObserver observer = new DocumentListObserver(documentViewContainer);
 		this.findDocuments(criteria, observer);
 	}
 
@@ -197,20 +238,20 @@ public class DocViewerController {
 	 */
 	private void findDocuments(final DocumentSearchCriteria criteria,
 			final DocumentListObserver observer) {
-
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
-		DocumentQueryService service = new DocumentQueryService(criteria, observer, timeOutHelper);
+		DocumentQueryService service = new DocumentQueryService(criteria,
+				observer, timeOutHelper);
 		service.doWork();
 	}
 
 	/**
 	 * 
 	 */
-	public void showPatients() {
+	public void showViewPatients() {
 		if (patientTabSet != null) {
 			this.addPaneToMainCanvas(patientTabSet);
 		} else {
-			SC.warn("You must choose a Patient using \"Find Patients\" before being able to view documents");
+			SC.warn("You must choose a Patient using \"Find Patients\" before being able to view patient data");
 		}
 	}
 
@@ -227,13 +268,13 @@ public class DocViewerController {
 	/**
 	 * 
 	 * @param patientRecord
-	 * @param documentViewContainer
+	 * @param singlePatientViewContainer
 	 */
 	public void addPatientTab(PatientRecord patientRecord,
-			DocumentViewContainer documentViewContainer) {
+			SinglePatientViewContainer singlePatientViewContainer) {
 		// Add the document view container to the patient tab.
 		final Tab patientTab = this.getPatientTab(patientRecord);
-		patientTab.setPane(documentViewContainer);
+		patientTab.setPane(singlePatientViewContainer);
 		this.addPaneToMainCanvas(patientTabSet);
 
 		// Show the patient as the current tab.
@@ -281,7 +322,7 @@ public class DocViewerController {
 		patientTabSet.setWidth100();
 		patientTabSet.setHeight100();
 		patientTabSet.addCloseClickHandler(new CloseClickHandler() {
-                        @Override
+			@Override
 			public void onCloseClick(TabCloseClickEvent event) {
 				// Tab tab = event.getTab();
 				int numTabs = patientTabSet.getTabs().length;

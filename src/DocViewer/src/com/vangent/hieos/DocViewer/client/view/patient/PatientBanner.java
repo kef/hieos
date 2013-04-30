@@ -12,6 +12,7 @@
  */
 package com.vangent.hieos.DocViewer.client.view.patient;
 
+
 import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.Label;
@@ -22,7 +23,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class PatientBanner extends Canvas {
 	private final Label name;
@@ -36,7 +37,7 @@ public class PatientBanner extends Canvas {
 	 */
 	public PatientBanner() {
 		final ToolStrip topBar = new ToolStrip();
-		topBar.setHeight(20);
+		topBar.setHeight(25);
 		topBar.setWidth100();
 		topBar.addSpacer(5);
 		topBar.setAlign(VerticalAlignment.CENTER);
@@ -61,6 +62,11 @@ public class PatientBanner extends Canvas {
 		topBar.addMember(ssn);
 		topBar.addSeparator();
 		topBar.addMember(euid);
+
+		
+		//topBar.addSeparator();
+		//topBar.addMember(navToolStrip);
+		//topBar.addButton(demographicsButton);
 
 		topBar.addFill();
 		addChild(topBar);

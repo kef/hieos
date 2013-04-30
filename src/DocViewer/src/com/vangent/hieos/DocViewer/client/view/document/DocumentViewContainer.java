@@ -20,10 +20,11 @@ import java.util.Map;
 //import com.google.gwt.core.client.GWT;
 //import com.google.gwt.user.client.Window;
 //import com.google.gwt.user.client.ui.FlowPanel;
-import com.smartgwt.client.widgets.Window;  
+import com.smartgwt.client.widgets.Window;
 //import com.google.gwt.user.client.Window;
 import com.smartgwt.client.types.ContentsType;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.HTMLPane;
 import com.smartgwt.client.widgets.events.CloseClickHandler;
@@ -35,84 +36,66 @@ import com.smartgwt.client.widgets.form.fields.events.ChangeHandler;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
-import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.layout.VStack;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
+import com.smartgwt.client.widgets.tab.events.TabDeselectedEvent;
+import com.smartgwt.client.widgets.tab.events.TabDeselectedHandler;
+import com.smartgwt.client.widgets.tab.events.TabSelectedEvent;
+import com.smartgwt.client.widgets.tab.events.TabSelectedHandler;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
-import com.vangent.hieos.DocViewer.client.view.patient.PatientBanner;
-
-
 
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class DocumentViewContainer extends Canvas {
 	private final DocViewerController controller;
 	private final DocumentList documentList;
 	private final DocumentDetail documentDetail;
 	private final TabSet documentTabSet;
-	private final PatientBanner patientBanner;
 	private SelectItem documentTemplateSelectItem;
 	private String[] documentTemplateDisplayNames;
 	private String[] documentTemplateFileNames;
-	private String documentTemplateFileName;	
+	private String documentTemplateFileName;
 
 	/**
 	 * 
 	 * @param patientRecord
 	 * @param controller
 	 */
-	public DocumentViewContainer(PatientRecord patientRecord, DocViewerController controller) {
+	public DocumentViewContainer(final PatientRecord patientRecord,
+			final DocViewerController controller) {
 		this.controller = controller;
-
-		// Create sub components.		
-		this.patientBanner = new PatientBanner();
-		patientBanner.update(patientRecord);
-
 		this.documentList = new DocumentList(this);
 		this.documentDetail = new DocumentDetail();
 		this.documentTabSet = this.getDocumentTabSet();
-		
-		// Add components to the layout.
-		final VLayout layout = new VLayout();
-		layout.setWidth100();
-		layout.setHeight100();
-		layout.addMember(this.patientBanner);
-		final LayoutSpacer spacer = new LayoutSpacer();
-		spacer.setHeight(4);
-		layout.addMember(spacer);
-		layout.addMember(this.documentTabSet);
-
-		this.addChild(layout);
-		//this.markForRedraw();
+		this.addChild(documentTabSet);
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	private TabSet getDocumentTabSet()
-	{
+	private TabSet getDocumentTabSet() {
 		final DynamicForm optionsForm = this.getOptionsForm();
-		
+
 		// Create the tab set.
 		final TabSet tabSet = new TabSet();
 		tabSet.setWidth100();
 		tabSet.setHeight100();
 		tabSet.setTabBarPosition(Side.TOP);
-		
+
 		// Add the document tab.
 		Tab documentsTab = new Tab("Documents", "folder.png");
 		tabSet.addTab(documentsTab);
-		
+
 		// Now layout it out.
 		VStack vLayout = new VStack();
 		vLayout.addMember(this.documentList);
@@ -120,79 +103,81 @@ public class DocumentViewContainer extends Canvas {
 		optionsFormSpacer.setHeight(5);
 		vLayout.addMember(optionsFormSpacer);
 		vLayout.addMember(optionsForm);
-		
+
 		HLayout layout = new HLayout();
 		layout.setWidth(500);
 		layout.addMember(vLayout);
 		final LayoutSpacer spacer = new LayoutSpacer();
 		spacer.setWidth(10);
 		layout.addMember(spacer);
-		//layout.addMember(optionsForm);
+		// layout.addMember(optionsForm);
 		layout.addMember(this.documentDetail);
 		documentsTab.setPane(layout);
+
 		return tabSet;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	private DynamicForm getOptionsForm()
-	{
+	private DynamicForm getOptionsForm() {
 		this.initializeDocumentTemplates();
-		this.documentTemplateSelectItem = new SelectItem();   
-		documentTemplateSelectItem.setDefaultToFirstOption(true);    
-		documentTemplateSelectItem.setTitle("Document Template");  
+		this.documentTemplateSelectItem = new SelectItem();
+		documentTemplateSelectItem.setDefaultToFirstOption(true);
+		documentTemplateSelectItem.setTitle("Document Template");
 		documentTemplateSelectItem.setWidth(105);
-		documentTemplateSelectItem.setValueMap(this.documentTemplateDisplayNames);   
-		documentTemplateSelectItem.addChangeHandler(new ChangeHandler() {   
-            @Override
-            public void onChange(ChangeEvent event) {   
-            	setDocumentTemplateFileName(event.getValue().toString());
-            }   
-        });   
+		documentTemplateSelectItem
+				.setValueMap(this.documentTemplateDisplayNames);
+		documentTemplateSelectItem.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				setDocumentTemplateFileName(event.getValue().toString());
+			}
+		});
 
 		DynamicForm optionsForm = new DynamicForm();
-		//optionsForm.setTitle("Options");
+		// optionsForm.setTitle("Options");
 		optionsForm.setGroupTitle("<b>Display Options</b>");
 		optionsForm.setAutoWidth();
-		optionsForm.setIsGroup(true);   
-		//optionsForm.setWidth(300);
+		optionsForm.setIsGroup(true);
+		// optionsForm.setWidth(300);
 		optionsForm.setHeight(30);
 		optionsForm.setNumCols(1);
 		optionsForm.setItems(documentTemplateSelectItem);
-		
+
 		return optionsForm;
 	}
-	
+
 	/**
 	 * 
 	 */
-	private void initializeDocumentTemplates()
-	{
+	private void initializeDocumentTemplates() {
 		// Probably not best way to integrate, but will do for now..
 		Config config = controller.getConfig();
-		List<DocumentTemplateConfig> documentTemplateConfigs = config.getDocumentTemplateConfigs();
-		documentTemplateDisplayNames = new String[documentTemplateConfigs.size()];
+		List<DocumentTemplateConfig> documentTemplateConfigs = config
+				.getDocumentTemplateConfigs();
+		documentTemplateDisplayNames = new String[documentTemplateConfigs
+				.size()];
 		documentTemplateFileNames = new String[documentTemplateConfigs.size()];
 		int i = 0;
-		for (DocumentTemplateConfig documentTemplateConfig : documentTemplateConfigs)
-		{
-			documentTemplateDisplayNames[i] = documentTemplateConfig.getDisplayName();
+		for (DocumentTemplateConfig documentTemplateConfig : documentTemplateConfigs) {
+			documentTemplateDisplayNames[i] = documentTemplateConfig
+					.getDisplayName();
 			documentTemplateFileNames[i] = documentTemplateConfig.getFileName();
 			++i;
 		}
 		documentTemplateFileName = documentTemplateFileNames[0];
 	}
-	
+
 	/**
 	 * 
 	 * @param documentTemplateDisplayName
 	 */
-	private void setDocumentTemplateFileName(String documentTemplateDisplayName)
-	{
+	private void setDocumentTemplateFileName(String documentTemplateDisplayName) {
 		for (int i = 0; i < documentTemplateDisplayNames.length; i++) {
-			if (documentTemplateDisplayNames[i].equals(documentTemplateDisplayName)) {
+			if (documentTemplateDisplayNames[i]
+					.equals(documentTemplateDisplayName)) {
 				documentTemplateFileName = documentTemplateFileNames[i];
 				break;
 			}
@@ -204,7 +189,7 @@ public class DocumentViewContainer extends Canvas {
 	 * @param metadata
 	 */
 	public void showDocument(DocumentMetadata metadata) {
-		
+
 		// Get HTMLPane to hold document.
 		final HTMLPane htmlPane = this.getHTMLPaneForDocument(metadata);
 
@@ -214,13 +199,13 @@ public class DocumentViewContainer extends Canvas {
 		String title = metadata.getTitle();
 
 		// Trim the document tab title if configured to do so.
-		boolean trimDocumentTabTitles = config.getAsBoolean(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
-		if (trimDocumentTabTitles == true)
-		{
-			Integer trimDocumentTabTitlesLength = config.getAsInteger(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
-			if (title.length() > trimDocumentTabTitlesLength)
-			{
-				int endIndex = trimDocumentTabTitlesLength-1;
+		boolean trimDocumentTabTitles = config
+				.getAsBoolean(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
+		if (trimDocumentTabTitles == true) {
+			Integer trimDocumentTabTitlesLength = config
+					.getAsInteger(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
+			if (title.length() > trimDocumentTabTitlesLength) {
+				int endIndex = trimDocumentTabTitlesLength - 1;
 				title = title.substring(0, endIndex) + "...";
 			}
 		}
@@ -228,37 +213,64 @@ public class DocumentViewContainer extends Canvas {
 		documentTab.setCanClose(true);
 		documentTab.setPrompt(metadata.getTitle());
 		documentTabSet.addTab(documentTab);
-		
+
 		// Put htmlPane into an HLayout (to avoid Firefox problem).
 		final HLayout layout = new HLayout();
 		layout.setWidth100();
 		layout.setHeight100();
 		layout.addMember(htmlPane);
 		documentTab.setPane(layout);
+
+		// Begin HACK.
+		
+		// HACK to avoid opacity issues with IE8.
+		layout.removeMember(htmlPane);
+		documentTab.addTabDeselectedHandler(new TabDeselectedHandler() {
+			@Override
+			public void onTabDeselected(TabDeselectedEvent event) {
+				// Clear the contents of the tab.
+				SC.warn("Tab Deselected!");
+				layout.removeMember(htmlPane);
+				//documentTab.setPane(null);
+			}
+		});
+		// Continue HACK.
+		documentTab.addTabSelectedHandler(new TabSelectedHandler() {
+			@Override
+			public void onTabSelected(TabSelectedEvent event) {
+				// Restore the contents of the tab.
+				SC.warn("Tab Selected!");
+				//if (documentTab.getPane() == null) {
 				
+				layout.addMember(htmlPane);
+				//	documentTab.setPane(layout);
+				//}
+			}
+		});
+		// End HACK.
+
 		// Retrieve the document and show it.
 		this.loadDocument(metadata, htmlPane);
-	
+
 		// Now make sure the new tab is selected.
-		documentTabSet.selectTab(documentTab);		
+		documentTabSet.selectTab(documentTab);
 	}
-	
+
 	/**
 	 * 
 	 * @param metadata
 	 * @return
 	 */
-	private HTMLPane getHTMLPaneForDocument(DocumentMetadata metadata)
-	{
+	private HTMLPane getHTMLPaneForDocument(DocumentMetadata metadata) {
 		// Create HTMLPane to hold document.
 		final HTMLPane htmlPane = new HTMLPane();
 		htmlPane.setContentsType(ContentsType.PAGE);
 		htmlPane.setContents("No document selected");
 		htmlPane.setWidth100();
 		htmlPane.setHeight100();
-		htmlPane.setOpacity(100);  // Fixes refresh problem (on IE).
-		htmlPane.setScrollbarSize(0);  // Fixes vertical scroll bar problem.
-		//htmlFlow.setAutoHeight();
+		htmlPane.setOpacity(100); // Fixes refresh problem (on IE).
+		htmlPane.setScrollbarSize(0); // Fixes vertical scroll bar problem.
+		// htmlFlow.setAutoHeight();
 		htmlPane.setLoadingMessage("Loading...");
 
 		// Setup the URL parameters for the request.
@@ -270,7 +282,7 @@ public class DocumentViewContainer extends Canvas {
 		String searchMode = controller.getConfig().get(Config.KEY_SEARCH_MODE);
 		urlParams.put("search_mode", searchMode);
 		htmlPane.setContentsURLParams(urlParams);
-		
+
 		return htmlPane;
 	}
 
@@ -279,15 +291,13 @@ public class DocumentViewContainer extends Canvas {
 	 * @param metadata
 	 * @param htmlPane
 	 */
-	private void loadDocument(DocumentMetadata metadata, HTMLPane htmlPane)
-	{
-		//String baseURL = GWT.getModuleBaseURL();
-		//com.google.gwt.user.client.Window.alert("baseURL = " + baseURL);
+	private void loadDocument(DocumentMetadata metadata, HTMLPane htmlPane) {
+		// String baseURL = GWT.getModuleBaseURL();
+		// com.google.gwt.user.client.Window.alert("baseURL = " + baseURL);
 		htmlPane.setContentsURL(metadata.getContentURL());
-		//htmlPane.setContentsURL("http://www.google.com");
+		// htmlPane.setContentsURL("http://www.google.com");
 	}
 
-	
 	/**
 	 * 
 	 * @param message
@@ -303,56 +313,55 @@ public class DocumentViewContainer extends Canvas {
 	 */
 	public void updateDocumentList(ListGridRecord[] gridRecords) {
 		this.documentList.update(gridRecords);
-		if (gridRecords.length > 0)
-		{
+		if (gridRecords.length > 0) {
 			// Select the first record ...
 			ListGridRecord firstRecord = gridRecords[0];
-			DocumentMetadataRecord metadataRecord = (DocumentMetadataRecord)firstRecord;
+			DocumentMetadataRecord metadataRecord = (DocumentMetadataRecord) firstRecord;
 			this.documentList.selectRecord(metadataRecord);
-			// Should not have to do this next line also, so there must be a timing issue ...
+			// Should not have to do this next line also, so there must be a
+			// timing issue ...
 			this.showDocumentDetails(metadataRecord.getDocumentMetadata());
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param metadata
 	 */
-	public void showDocumentWindow(DocumentMetadata metadata)
-	{
+	public void showDocumentWindow(DocumentMetadata metadata) {
 		// Get HTMLPane to hold document.
 		final HTMLPane htmlPane = this.getHTMLPaneForDocument(metadata);
 
 		// Create window to hold HTML pane.
-		final Window window = new Window();  
+		final Window window = new Window();
 		window.setWidth100();
-		window.setHeight100();  
-		window.setTitle(metadata.getTitle());  
-		window.setShowMinimizeButton(false);  
-		window.setCanDragResize(true); 
-		window.setIsModal(true);  
+		window.setHeight100();
+		window.setTitle(metadata.getTitle());
+		window.setShowMinimizeButton(false);
+		window.setCanDragResize(true);
+		window.setIsModal(true);
 		window.setShowModalMask(true);
-		window.centerInPage();  
-		
+		window.centerInPage();
+
 		// Create layout (not sure if needed).
 		final HLayout layout = new HLayout();
 		layout.setWidth100();
 		layout.setHeight100();
 		layout.addMember(htmlPane);
 		window.addItem(layout);
-		window.addCloseClickHandler(new CloseClickHandler() {  
-                @Override
-		public void onCloseClick(CloseClientEvent event) {  
-			window.destroy();  
-		}  
+		window.addCloseClickHandler(new CloseClickHandler() {
+			@Override
+			public void onCloseClick(CloseClientEvent event) {
+				window.destroy();
+			}
 		});
-		
+
 		// Now, get the content.
 		this.loadDocument(metadata, htmlPane);
 
 		window.show();
 	}
-	
+
 	/**
 	 * 
 	 * @param metadata
@@ -360,5 +369,4 @@ public class DocumentViewContainer extends Canvas {
 	public void showDocumentDetails(DocumentMetadata metadata) {
 		documentDetail.update(metadata);
 	}
-
 }

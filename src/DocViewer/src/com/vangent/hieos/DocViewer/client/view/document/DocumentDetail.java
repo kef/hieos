@@ -36,19 +36,19 @@ public class DocumentDetail extends Canvas {
 		detailViewer.setWidth100();
 		//detailViewer.setMargin(15);
 		detailViewer.setEmptyMessage("Select a document to view its details");
-		final DetailViewerField titleField = new DetailViewerField("title", "Title");
-		final DetailViewerField creationDateField = new DetailViewerField("creation_date", "Creation Date");
-		final DetailViewerField euidField = new DetailViewerField("euid", "EUID");
-		final DetailViewerField euidUniversalIDField = new DetailViewerField("assigning_authority", "Assigning Authority");
-		final DetailViewerField homeCommunityIDField = new DetailViewerField("home_community_id", "Home Community ID");
-		final DetailViewerField repositoryIDField = new DetailViewerField("repository_id", "Repository ID");
-		final DetailViewerField documentIDField = new DetailViewerField("document_id", "Document ID");
-		final DetailViewerField authorNameField = new DetailViewerField("author_name", "Author Name");
-		final DetailViewerField authorInstitutionField = new DetailViewerField("author_institution", "Author Institution");
-		final DetailViewerField mimeTypeField = new DetailViewerField("mime_type", "Mime Type");
-		final DetailViewerField classCodeField = new DetailViewerField("class_code", "Class Code");
-		final DetailViewerField formatCodeField = new DetailViewerField("format_code", "Format Code");
-		final DetailViewerField typeCodeField = new DetailViewerField("type_code", "Type Code");
+		final DetailViewerField titleField = new DetailViewerField(DocumentMetadataRecord.TITLE_FIELD, "Title");
+		final DetailViewerField creationDateField = new DetailViewerField(DocumentMetadataRecord.CREATION_DATE_FIELD, "Creation Date");
+		final DetailViewerField euidField = new DetailViewerField(DocumentMetadataRecord.EUID_FIELD, "EUID");
+		final DetailViewerField euidUniversalIDField = new DetailViewerField(DocumentMetadataRecord.ASSIGNING_AUTHORITY_FIELD, "Assigning Authority");
+		final DetailViewerField homeCommunityIDField = new DetailViewerField(DocumentMetadataRecord.HOME_COMMUNITY_ID_FIELD, "Home Community ID");
+		final DetailViewerField repositoryIDField = new DetailViewerField(DocumentMetadataRecord.REPOSITORY_ID_FIELD, "Repository ID");
+		final DetailViewerField documentIDField = new DetailViewerField(DocumentMetadataRecord.DOCUMENT_ID_FIELD, "Document ID");
+		final DetailViewerField authorNameField = new DetailViewerField(DocumentMetadataRecord.AUTHOR_NAME_FIELD, "Author Name");
+		final DetailViewerField authorInstitutionField = new DetailViewerField(DocumentMetadataRecord.AUTHOR_INSTITUTION_FIELD, "Author Institution");
+		final DetailViewerField mimeTypeField = new DetailViewerField(DocumentMetadataRecord.MIME_TYPE_FIELD, "Mime Type");
+		final DetailViewerField classCodeField = new DetailViewerField(DocumentMetadataRecord.CLASS_CODE_FIELD, "Class Code");
+		final DetailViewerField formatCodeField = new DetailViewerField(DocumentMetadataRecord.FORMAT_CODE_FIELD, "Format Code");
+		final DetailViewerField typeCodeField = new DetailViewerField(DocumentMetadataRecord.TYPE_CODE_FIELD, "Type Code");
 		
 		// Setup format for creation date ...
 		creationDateField.setDetailFormatter(new DetailFormatter() {

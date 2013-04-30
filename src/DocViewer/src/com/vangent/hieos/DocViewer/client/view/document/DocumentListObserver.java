@@ -15,11 +15,9 @@ package com.vangent.hieos.DocViewer.client.view.document;
 import java.util.List;
 
 import com.smartgwt.client.widgets.grid.ListGridRecord;
-import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
 /**
  * 
@@ -27,19 +25,14 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * 
  */
 public class DocumentListObserver implements Observer {
-	private PatientRecord patientRecord;
-	private DocViewerController controller;
+	private DocumentViewContainer documentViewContainer;
 
 	/**
 	 * 
-	 * @param patientRecord
-	 * @param controller
-	 * @param patientTabSet
+	 * @param documentViewContainer
 	 */
-	public DocumentListObserver(PatientRecord patientRecord,
-			DocViewerController controller) {
-		this.patientRecord = patientRecord;
-		this.controller = controller;
+	public DocumentListObserver(DocumentViewContainer documentViewContainer) {
+		this.documentViewContainer = documentViewContainer;
 	}
 
 	/**
@@ -59,8 +52,8 @@ public class DocumentListObserver implements Observer {
 		}
 
 		// Create a document view container for the patient's documents.
-		final DocumentViewContainer documentViewContainer = new DocumentViewContainer(
-				patientRecord, controller);
+		//final DocumentViewContainer documentViewContainer = new DocumentViewContainer(
+		//		patientRecord, controller);
 
 		// documentViewContainer.setLoadingDataMessage("Loading data ...");
 
@@ -68,7 +61,7 @@ public class DocumentListObserver implements Observer {
 		documentViewContainer.updateDocumentList(gridRecords);
 
 		// Add a new patient tab.
-		controller.addPatientTab(patientRecord, documentViewContainer);
+		//controller.addPatientTab(patientRecord, documentViewContainer);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -20,6 +20,7 @@ import com.google.gwt.core.client.EntryPoint;
 //import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.types.Alignment;
+import com.smartgwt.client.types.SelectionType;
 import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
@@ -321,32 +322,26 @@ public class DocViewer implements EntryPoint {
 					}
 				});
 
-		// Create the "Show Documents" button.
-		final ToolStripButton showDocumentsButton = new ToolStripButton();
-		showDocumentsButton.setTitle("Show Documents");
-		showDocumentsButton
-				.setTooltip("Show documents for patients already selected");
-		showDocumentsButton.setIcon("document.png");
-		showDocumentsButton
-				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						controller.showPatients();
-					}
-				});
+		findPatientButton.setActionType(SelectionType.RADIO);
+		findPatientButton.setRadioGroup("maintoolbar");
+		findPatientButton.setSelected(true);
+
+		// Create the "View Patients" button.
+		ToolStripButton viewPatientsButton = this.getViewPatientsButton();
+		controller.setViewPatientsButton(viewPatientsButton);
 
 		// Create the "Patient Consent" button.
-		final ToolStripButton patientConsentButton = new ToolStripButton();
-		patientConsentButton.setTitle("Patient Consent");
-		patientConsentButton.setTooltip("Add/Update Patient Consent");
-		patientConsentButton.setIcon("privacy.png");
-		patientConsentButton
-				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						SC.warn("Under construction!");
-					}
-				});
+		/*
+		 * final ToolStripButton patientConsentButton = new ToolStripButton();
+		 * patientConsentButton.setTitle("Patient Consent");
+		 * patientConsentButton.setTooltip("Add/Update Patient Consent");
+		 * patientConsentButton.setIcon("privacy.png"); patientConsentButton
+		 * .addClickHandler(new
+		 * com.smartgwt.client.widgets.events.ClickHandler() {
+		 * 
+		 * @Override public void onClick(ClickEvent event) {
+		 * SC.warn("Under construction!"); } });
+		 */
 
 		// Create "Logout" button.
 		final ToolStripButton logoutButton = new ToolStripButton();
@@ -383,14 +378,65 @@ public class DocViewer implements EntryPoint {
 		}
 
 		toolStrip.addButton(findPatientButton);
-		toolStrip.addButton(showDocumentsButton);
-		toolStrip.addButton(patientConsentButton);
+		if (viewPatientsButton != null) {
+			toolStrip.addSeparator();
+			toolStrip.addButton(viewPatientsButton);
+		}
+		// toolStrip.addButton(patientConsentButton);
 
-		// Create "Find Documents" button.
+		// Create "Find Documents" button (only if user has permissions -
+		// usually for debug only).
 		boolean showFindDocuments = config
 				.getAsBoolean(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
 		if (showFindDocuments) {
-			final ToolStripButton findDocumentsButton = new ToolStripButton();
+			final ToolStripButton findDocumentsButton = this
+					.getFindDocumentsButton();
+			if (findDocumentsButton != null) {
+				toolStrip.addSeparator();
+				toolStrip.addButton(findDocumentsButton);
+			}
+		}
+
+		toolStrip.addFill();
+		toolStrip.addButton(logoutButton);
+
+		return toolStrip;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ToolStripButton getViewPatientsButton() {
+		// Create the "Show Patients" button.
+		ToolStripButton viewPatientsButton = null;
+		viewPatientsButton = new ToolStripButton();
+		viewPatientsButton.setTitle("View Patients");
+		viewPatientsButton.setTooltip("View patients already selected");
+		viewPatientsButton.setIcon("document.png");
+		viewPatientsButton
+				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						controller.showViewPatients();
+					}
+				});
+		viewPatientsButton.setActionType(SelectionType.RADIO);
+		viewPatientsButton.setRadioGroup("maintoolbar");
+		return viewPatientsButton;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ToolStripButton getFindDocumentsButton() {
+		ToolStripButton findDocumentsButton = null;
+		boolean hasPermission = controller.getAuthContext()
+				.hasPermissionToFeature(
+						AuthenticationContext.PERMISSION_VIEWDOCS);
+		if (hasPermission) {
+			findDocumentsButton = new ToolStripButton();
 			findDocumentsButton.setTooltip("Find documents given a patient id");
 			findDocumentsButton.setTitle("Find Documents");
 			findDocumentsButton.setIcon("document.png");
@@ -405,14 +451,10 @@ public class DocViewer implements EntryPoint {
 									callback);
 						}
 					});
-
-			toolStrip.addButton(findDocumentsButton);
+			//findDocumentsButton.setActionType(SelectionType.RADIO);
+			//findDocumentsButton.setRadioGroup("maintoolbar");
 		}
-
-		toolStrip.addFill();
-		toolStrip.addButton(logoutButton);
-
-		return toolStrip;
+		return findDocumentsButton;
 	}
 
 	/**
@@ -492,7 +534,7 @@ public class DocViewer implements EntryPoint {
 
 			// Now do the document search.
 			final PatientRecord patientRecord = new PatientRecord(patient);
-			controller.findDocuments(patientRecord);
+			controller.viewPatient(patientRecord);
 		}
 
 	}

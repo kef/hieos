@@ -204,7 +204,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 		PatientRecord patientRecord = (PatientRecord) patientListGrid
 				.getSelectedRecord();
 		if (patientRecord != null) {
-			controller.findDocuments(patientRecord);
+			controller.viewPatient(patientRecord);
 		}
 	}
 }
