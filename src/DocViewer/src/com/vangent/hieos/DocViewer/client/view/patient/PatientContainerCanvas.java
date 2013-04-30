@@ -28,20 +28,20 @@ import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
-import com.vangent.hieos.DocViewer.client.view.document.DocumentViewContainer;
-import com.vangent.hieos.DocViewer.client.view.patient.PatientBanner;
+import com.vangent.hieos.DocViewer.client.view.document.DocumentContainerCanvas;
+import com.vangent.hieos.DocViewer.client.view.patient.PatientBannerCanvas;
 
 /**
  * 
  * @author Bernie Thuman
  * 
  */
-public class SinglePatientViewContainer extends Canvas {
+public class PatientContainerCanvas extends Canvas {
 	private final DocViewerController controller;
-	private final DocumentViewContainer documentViewContainer;
-	private final SinglePatientDemographicsView singlePatientDemographicsView;
+	private final DocumentContainerCanvas documentContainerCanvas;
+	private final PatientDemographicsCanvas patientDemographicsCanvas;
 	private Canvas currentPatientContainerView;
-	private final PatientBanner patientBanner;
+	private final PatientBannerCanvas patientBannerCanvas;
 	private VLayout layout;
 
 	/**
@@ -49,7 +49,7 @@ public class SinglePatientViewContainer extends Canvas {
 	 * @param patientRecord
 	 * @param controller
 	 */
-	public SinglePatientViewContainer(final PatientRecord patientRecord,
+	public PatientContainerCanvas(final PatientRecord patientRecord,
 			final DocViewerController controller) {
 		this.controller = controller;
 
@@ -57,18 +57,18 @@ public class SinglePatientViewContainer extends Canvas {
 
 		// Patient banner.
 
-		this.patientBanner = new PatientBanner();
-		patientBanner.update(patientRecord);
+		this.patientBannerCanvas = new PatientBannerCanvas();
+		patientBannerCanvas.update(patientRecord);
 
 		// Build out containers.
-		this.documentViewContainer = new DocumentViewContainer(patientRecord,
+		this.documentContainerCanvas = new DocumentContainerCanvas(patientRecord,
 				controller);
-		this.singlePatientDemographicsView = new SinglePatientDemographicsView(
+		this.patientDemographicsCanvas = new PatientDemographicsCanvas(
 				patientRecord, controller);
 
 		// Default patient view.
-		this.singlePatientDemographicsView.update(patientRecord); // Fill it in.
-		this.currentPatientContainerView = this.singlePatientDemographicsView;
+		this.patientDemographicsCanvas.update(patientRecord); // Fill it in.
+		this.currentPatientContainerView = this.patientDemographicsCanvas;
 
 		// Add components to the layout.
 		//final VLayout layout = new VLayout();
@@ -82,7 +82,7 @@ public class SinglePatientViewContainer extends Canvas {
 		final HLayout bannerLayout = new HLayout();
 		bannerLayout.setWidth100();
 		bannerLayout.setHeight(25);
-		bannerLayout.addMember(this.patientBanner);
+		bannerLayout.addMember(this.patientBannerCanvas);
 		final LayoutSpacer bannerSpacer = new LayoutSpacer();
 		bannerSpacer.setWidth(10);
 		bannerLayout.addMember(bannerSpacer);
@@ -122,16 +122,14 @@ public class SinglePatientViewContainer extends Canvas {
 		documentsButton.setIcon("document.png");
 		documentsButton.setActionType(SelectionType.RADIO);
 		documentsButton.setRadioGroup(patientRecord.getPatient().getEuid());
-		final DocumentViewContainer documentViewContainer = this.documentViewContainer;
-		final SinglePatientViewContainer singlePatientViewContainer = this;
+		final DocumentContainerCanvas documentContainerCanvas = this.documentContainerCanvas;
+		final PatientContainerCanvas patientContainerCanvas = this;
 		documentsButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
-						singlePatientViewContainer
-								.setPatientContentCanvas(documentViewContainer);
-						controller.findDocuments(patientRecord,
-								documentViewContainer);
+						patientContainerCanvas.setPatientContentCanvas(documentContainerCanvas);
+						controller.findDocuments(patientRecord, documentContainerCanvas);
 						// SC.warn("Documents");
 					}
 				});
@@ -145,14 +143,13 @@ public class SinglePatientViewContainer extends Canvas {
 		demographicsButton.setIcon("patient.png");
 		demographicsButton.setActionType(SelectionType.RADIO);
 		demographicsButton.setRadioGroup(patientRecord.getPatient().getEuid());
-		final SinglePatientDemographicsView singlePatientDemographicsView = this.singlePatientDemographicsView;
+		final PatientDemographicsCanvas patientDemographicsCanvas = this.patientDemographicsCanvas;
 		demographicsButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
 						// SC.warn("Demographics");
-						singlePatientViewContainer
-								.setPatientContentCanvas(singlePatientDemographicsView);
+						patientContainerCanvas.setPatientContentCanvas(patientDemographicsCanvas);
 					}
 				});
 

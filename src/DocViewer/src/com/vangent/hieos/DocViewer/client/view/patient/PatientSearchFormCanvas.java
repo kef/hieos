@@ -36,7 +36,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
  * @author Bernie Thuman
  * 
  */
-public class PatientSearch extends Canvas implements ClickHandler,
+public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 		SubmitValuesHandler {
 	private DocViewerController controller;
 	private final DynamicForm searchForm;
@@ -53,7 +53,7 @@ public class PatientSearch extends Canvas implements ClickHandler,
 	/**
 	 * 
 	 */
-	public PatientSearch(DocViewerController mainController) {
+	public PatientSearchFormCanvas(DocViewerController mainController) {
 
 		this.controller = mainController;
 

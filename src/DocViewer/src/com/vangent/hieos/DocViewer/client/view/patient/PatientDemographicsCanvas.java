@@ -29,7 +29,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * @author Bernie Thuman
  * 
  */
-public class SinglePatientDemographicsView extends Canvas {
+public class PatientDemographicsCanvas extends Canvas {
 	private final DocViewerController controller;
 	final DetailViewer detailViewer = new DetailViewer();
 	
@@ -39,7 +39,7 @@ public class SinglePatientDemographicsView extends Canvas {
 	 * @param patientRecord
 	 * @param controller
 	 */
-	public SinglePatientDemographicsView(final PatientRecord patientRecord,
+	public PatientDemographicsCanvas(final PatientRecord patientRecord,
 			final DocViewerController controller) {
 		this.controller = controller;
 		detailViewer.setWidth(300);

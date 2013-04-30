@@ -36,16 +36,16 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
  * @author Bernie Thuman
  *
  */
-public class DocumentList extends Canvas {
+public class DocumentListCanvas extends Canvas {
 	private final ListGrid documentListGrid;
-	private final DocumentViewContainer parentContainer;
+	private final DocumentContainerCanvas parentContainerCanvas;
 
 	/**
 	 * 
 	 * @param parent
 	 * @wbp.parser.constructor
 	 */
-	public DocumentList(DocumentViewContainer parent) {
+	public DocumentListCanvas(DocumentContainerCanvas parent) {
 		this.documentListGrid = new ListGrid() {
 			@Override
 			protected Canvas createRecordComponent(
@@ -66,7 +66,7 @@ public class DocumentList extends Canvas {
 					zoomButton.addClickHandler(new ClickHandler() {
 						public void onClick(ClickEvent event) {
 							DocumentMetadataRecord record = (DocumentMetadataRecord) iListGridRecord;
-							parentContainer.showDocumentWindow(record
+							parentContainerCanvas.showDocumentWindow(record
 									.getDocumentMetadata());
 						}
 					});
@@ -81,7 +81,7 @@ public class DocumentList extends Canvas {
 			}
 		};
 
-		this.parentContainer = parent;
+		this.parentContainerCanvas = parent;
 
 		documentListGrid.setSelectionAppearance(SelectionAppearance.ROW_STYLE);
 		documentListGrid.setSelectionType(SelectionStyle.SINGLE);
@@ -145,7 +145,7 @@ public class DocumentList extends Canvas {
 				DocumentMetadataRecord metadataRecord = (DocumentMetadataRecord) documentListGrid
 						.getSelectedRecord();
 				if (metadataRecord != null) {
-					parentContainer.showDocument(metadataRecord
+					parentContainerCanvas.showDocument(metadataRecord
 							.getDocumentMetadata());
 				}
 			}
@@ -157,7 +157,7 @@ public class DocumentList extends Canvas {
 				DocumentMetadataRecord metadataRecord = (DocumentMetadataRecord) documentListGrid
 						.getSelectedRecord();
 				if (metadataRecord != null) {
-					parentContainer.showDocumentDetails(metadataRecord
+					parentContainerCanvas.showDocumentDetails(metadataRecord
 							.getDocumentMetadata());
 				}
 			}

@@ -25,7 +25,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * @author Bernie Thuman
  * 
  */
-public class PatientBanner extends Canvas {
+public class PatientBannerCanvas extends Canvas {
 	private final Label name;
 	private final Label dob;
 	private final Label gender;
@@ -35,7 +35,7 @@ public class PatientBanner extends Canvas {
 	/**
 	 * 
 	 */
-	public PatientBanner() {
+	public PatientBannerCanvas() {
 		final ToolStrip topBar = new ToolStrip();
 		topBar.setHeight(25);
 		topBar.setWidth100();

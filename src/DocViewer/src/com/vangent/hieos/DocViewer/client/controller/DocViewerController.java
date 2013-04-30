@@ -35,10 +35,10 @@ import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
 import com.vangent.hieos.DocViewer.client.services.proxy.LogoutService;
 import com.vangent.hieos.DocViewer.client.services.proxy.PatientQueryService;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentListObserver;
-import com.vangent.hieos.DocViewer.client.view.document.DocumentViewContainer;
+import com.vangent.hieos.DocViewer.client.view.document.DocumentContainerCanvas;
+import com.vangent.hieos.DocViewer.client.view.patient.FindPatientsMainCanvas;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientListObserver;
-import com.vangent.hieos.DocViewer.client.view.patient.PatientViewContainer;
-import com.vangent.hieos.DocViewer.client.view.patient.SinglePatientViewContainer;
+import com.vangent.hieos.DocViewer.client.view.patient.PatientContainerCanvas;
 
 //import com.vangent.hieos.DocViewer.client.services.PDSRemoteService.Util;
 
@@ -50,7 +50,7 @@ import com.vangent.hieos.DocViewer.client.view.patient.SinglePatientViewContaine
 public class DocViewerController {
 	private Canvas mainCanvas;
 	private AuthenticationContext authContext;
-	private PatientViewContainer patientViewContainer;
+	private FindPatientsMainCanvas findPatientsMainCanvas;
 	private TabSet patientTabSet = null;
 	private Config config = null;
 	private ToolStripButton viewPatientsButton;
@@ -87,7 +87,7 @@ public class DocViewerController {
 	 */
 	public void logout(LogoutObserver observer) {
 		// Reset view elements.
-		this.patientViewContainer = null;
+		this.findPatientsMainCanvas = null;
 		this.patientTabSet = null;
 
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
@@ -166,11 +166,11 @@ public class DocViewerController {
 
 	/**
 	 * 
-	 * @param patientViewContainer
+	 * @param findPatientsMainCanvas
 	 */
 	public void setPatientViewContainer(
-			PatientViewContainer patientViewContainer) {
-		this.patientViewContainer = patientViewContainer;
+			FindPatientsMainCanvas findPatientsMainCanvas) {
+		this.findPatientsMainCanvas = findPatientsMainCanvas;
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class DocViewerController {
 	 */
 	public void findPatients(PatientSearchCriteria criteria) {
 		PatientListObserver observer = new PatientListObserver(
-				patientViewContainer);
+				findPatientsMainCanvas);
 		this.findPatients(criteria, observer);
 	}
 
@@ -203,9 +203,9 @@ public class DocViewerController {
 	public void viewPatient(PatientRecord patientRecord) {
 		// Create a patient view container for the patient.
 		viewPatientsButton.setSelected(true);
-		final SinglePatientViewContainer singlePatientViewContainer = new SinglePatientViewContainer(
+		final PatientContainerCanvas patientContainerCanvas = new PatientContainerCanvas(
 				patientRecord, this);
-		this.addPatientTab(patientRecord, singlePatientViewContainer);
+		this.addPatientTab(patientRecord, patientContainerCanvas);
 
 		/*
 		 * DocumentSearchCriteria criteria = new DocumentSearchCriteria();
@@ -220,14 +220,14 @@ public class DocViewerController {
 	/**
 	 * 
 	 * @param patientRecord
-	 * @param documentViewContainer
+	 * @param documentContainerCanvas
 	 */
-	public void findDocuments(PatientRecord patientRecord, DocumentViewContainer documentViewContainer) {
+	public void findDocuments(PatientRecord patientRecord, DocumentContainerCanvas documentContainerCanvas) {
 		DocumentSearchCriteria criteria = new DocumentSearchCriteria();
 		criteria.setPatient(patientRecord.getPatient());
 		String searchMode = this.getConfig().get(Config.KEY_SEARCH_MODE);
 		criteria.setSearchMode(searchMode);
-		DocumentListObserver observer = new DocumentListObserver(documentViewContainer);
+		DocumentListObserver observer = new DocumentListObserver(documentContainerCanvas);
 		this.findDocuments(criteria, observer);
 	}
 
@@ -259,22 +259,22 @@ public class DocViewerController {
 	 * 
 	 */
 	public void showFindPatients() {
-		if (patientViewContainer == null) {
-			patientViewContainer = new PatientViewContainer(this);
+		if (findPatientsMainCanvas == null) {
+			findPatientsMainCanvas = new FindPatientsMainCanvas(this);
 		}
-		this.addPaneToMainCanvas(patientViewContainer);
+		this.addPaneToMainCanvas(findPatientsMainCanvas);
 	}
 
 	/**
 	 * 
 	 * @param patientRecord
-	 * @param singlePatientViewContainer
+	 * @param patientContainerCanvas
 	 */
 	public void addPatientTab(PatientRecord patientRecord,
-			SinglePatientViewContainer singlePatientViewContainer) {
+			PatientContainerCanvas patientContainerCanvas) {
 		// Add the document view container to the patient tab.
 		final Tab patientTab = this.getPatientTab(patientRecord);
-		patientTab.setPane(singlePatientViewContainer);
+		patientTab.setPane(patientContainerCanvas);
 		this.addPaneToMainCanvas(patientTabSet);
 
 		// Show the patient as the current tab.

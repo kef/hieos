@@ -25,14 +25,14 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
  * 
  */
 public class DocumentListObserver implements Observer {
-	private DocumentViewContainer documentViewContainer;
+	private DocumentContainerCanvas documentContainerCanvas;
 
 	/**
 	 * 
-	 * @param documentViewContainer
+	 * @param documentContainerCanvas
 	 */
-	public DocumentListObserver(DocumentViewContainer documentViewContainer) {
-		this.documentViewContainer = documentViewContainer;
+	public DocumentListObserver(DocumentContainerCanvas documentContainerCanvas) {
+		this.documentContainerCanvas = documentContainerCanvas;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class DocumentListObserver implements Observer {
 		// documentViewContainer.setLoadingDataMessage("Loading data ...");
 
 		// Update the document list.
-		documentViewContainer.updateDocumentList(gridRecords);
+		documentContainerCanvas.updateDocumentList(gridRecords);
 
 		// Add a new patient tab.
 		//controller.addPatientTab(patientRecord, documentViewContainer);

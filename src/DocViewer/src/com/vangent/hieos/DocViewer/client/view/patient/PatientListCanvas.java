@@ -33,7 +33,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * @author Bernie Thuman
  * 
  */
-public class PatientList extends Canvas implements DoubleClickHandler {
+public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 	private final ListGrid patientListGrid;
 	private final DocViewerController controller;
 
@@ -41,7 +41,7 @@ public class PatientList extends Canvas implements DoubleClickHandler {
 	 * @wbp.parser.constructor
 	 * @param mainController
 	 */
-	public PatientList(DocViewerController mainController) {
+	public PatientListCanvas(DocViewerController mainController) {
 
 		this.controller = mainController;
 		Config controllerConfig = this.controller.getConfig();

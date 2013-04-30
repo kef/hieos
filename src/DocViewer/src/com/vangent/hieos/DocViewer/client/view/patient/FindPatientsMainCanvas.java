@@ -31,19 +31,19 @@ import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
  * @author Bernie Thuman
  * 
  */
-public class PatientViewContainer extends Canvas {
+public class FindPatientsMainCanvas extends Canvas {
 	private final DocViewerController controller;
-	private final PatientList patientList;
-	private final PatientSearch patientSearch;
+	private final PatientListCanvas patientListCanvas;
+	private final PatientSearchFormCanvas patientSearchFormCanvas;
 
 	/**
 	 * @wbp.parser.constructor
 	 * @param mainController
 	 */
-	public PatientViewContainer(DocViewerController mainController) {
+	public FindPatientsMainCanvas(DocViewerController mainController) {
 		this.controller = mainController;
-		this.patientList = new PatientList(controller);
-		this.patientSearch = new PatientSearch(controller);
+		this.patientListCanvas = new PatientListCanvas(controller);
+		this.patientSearchFormCanvas = new PatientSearchFormCanvas(controller);
 		final DynamicForm optionsForm = this.getOptionsForm();
 
 		// Now add to the layout.
@@ -52,14 +52,14 @@ public class PatientViewContainer extends Canvas {
 		final LayoutSpacer spacer0 = new LayoutSpacer();
 		spacer0.setHeight(10);
 		vlayout.addMember(spacer0);
-		vlayout.addMember(this.patientSearch);
+		vlayout.addMember(this.patientSearchFormCanvas);
 
 		final HLayout layout = new HLayout();
 		layout.addMember(vlayout);
 		final LayoutSpacer spacer1 = new LayoutSpacer();
 		spacer1.setWidth(8);
 		layout.addMember(spacer1);
-		layout.addMember(this.patientList);
+		layout.addMember(this.patientListCanvas);
 
 		this.addChild(layout);
 	}
@@ -107,6 +107,6 @@ public class PatientViewContainer extends Canvas {
 	 * @param gridRecords
 	 */
 	public void updatePatientList(ListGridRecord[] gridRecords) {
-		this.patientList.update(gridRecords);
+		this.patientListCanvas.update(gridRecords);
 	}
 }

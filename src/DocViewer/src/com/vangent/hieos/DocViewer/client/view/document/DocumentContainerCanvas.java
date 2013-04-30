@@ -55,10 +55,10 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * @author Bernie Thuman
  * 
  */
-public class DocumentViewContainer extends Canvas {
+public class DocumentContainerCanvas extends Canvas {
 	private final DocViewerController controller;
-	private final DocumentList documentList;
-	private final DocumentDetail documentDetail;
+	private final DocumentListCanvas documentListCanvas;
+	private final DocumentDetailCanvas documentDetailCanvas;
 	private final TabSet documentTabSet;
 	private SelectItem documentTemplateSelectItem;
 	private String[] documentTemplateDisplayNames;
@@ -70,11 +70,11 @@ public class DocumentViewContainer extends Canvas {
 	 * @param patientRecord
 	 * @param controller
 	 */
-	public DocumentViewContainer(final PatientRecord patientRecord,
+	public DocumentContainerCanvas(final PatientRecord patientRecord,
 			final DocViewerController controller) {
 		this.controller = controller;
-		this.documentList = new DocumentList(this);
-		this.documentDetail = new DocumentDetail();
+		this.documentListCanvas = new DocumentListCanvas(this);
+		this.documentDetailCanvas = new DocumentDetailCanvas();
 		this.documentTabSet = this.getDocumentTabSet();
 		this.addChild(documentTabSet);
 	}
@@ -98,7 +98,7 @@ public class DocumentViewContainer extends Canvas {
 
 		// Now layout it out.
 		VStack vLayout = new VStack();
-		vLayout.addMember(this.documentList);
+		vLayout.addMember(this.documentListCanvas);
 		final LayoutSpacer optionsFormSpacer = new LayoutSpacer();
 		optionsFormSpacer.setHeight(5);
 		vLayout.addMember(optionsFormSpacer);
@@ -111,7 +111,7 @@ public class DocumentViewContainer extends Canvas {
 		spacer.setWidth(10);
 		layout.addMember(spacer);
 		// layout.addMember(optionsForm);
-		layout.addMember(this.documentDetail);
+		layout.addMember(this.documentDetailCanvas);
 		documentsTab.setPane(layout);
 
 		return tabSet;
@@ -304,7 +304,7 @@ public class DocumentViewContainer extends Canvas {
 	 */
 	public void setLoadingDataMessage(String message) {
 		// FIXME: not necessarily working .... ?
-		this.documentList.setLoadingDataMessage(message);
+		this.documentListCanvas.setLoadingDataMessage(message);
 	}
 
 	/**
@@ -312,12 +312,12 @@ public class DocumentViewContainer extends Canvas {
 	 * @param gridRecords
 	 */
 	public void updateDocumentList(ListGridRecord[] gridRecords) {
-		this.documentList.update(gridRecords);
+		this.documentListCanvas.update(gridRecords);
 		if (gridRecords.length > 0) {
 			// Select the first record ...
 			ListGridRecord firstRecord = gridRecords[0];
 			DocumentMetadataRecord metadataRecord = (DocumentMetadataRecord) firstRecord;
-			this.documentList.selectRecord(metadataRecord);
+			this.documentListCanvas.selectRecord(metadataRecord);
 			// Should not have to do this next line also, so there must be a
 			// timing issue ...
 			this.showDocumentDetails(metadataRecord.getDocumentMetadata());
@@ -367,6 +367,6 @@ public class DocumentViewContainer extends Canvas {
 	 * @param metadata
 	 */
 	public void showDocumentDetails(DocumentMetadata metadata) {
-		documentDetail.update(metadata);
+		documentDetailCanvas.update(metadata);
 	}
 }

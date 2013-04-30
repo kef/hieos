@@ -25,14 +25,14 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * 
  */
 public class PatientListObserver implements Observer {
-	private PatientViewContainer patientViewContainer;
+	private FindPatientsMainCanvas findPatientsMainCanvas;
 
 	/**
 	 * 
-	 * @param patientViewContainer
+	 * @param findPatientsMainCanvas
 	 */
-	public PatientListObserver(PatientViewContainer patientViewContainer) {
-		this.patientViewContainer = patientViewContainer;
+	public PatientListObserver(FindPatientsMainCanvas findPatientsMainCanvas) {
+		this.findPatientsMainCanvas = findPatientsMainCanvas;
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class PatientListObserver implements Observer {
 			gridRecords[gridRecord++] = patientRecord;
 		}
 		// Update the patient list.
-		patientViewContainer.updatePatientList(gridRecords);
+		findPatientsMainCanvas.updatePatientList(gridRecords);
 	}
 
 	@SuppressWarnings("unchecked")

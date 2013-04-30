@@ -26,13 +26,13 @@ import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
  * @author Bernie Thuman
  *
  */
-public class DocumentDetail extends Canvas {
+public class DocumentDetailCanvas extends Canvas {
 	final DetailViewer detailViewer = new DetailViewer();
 
 	/**
 	 * 
 	 */
-	public DocumentDetail() {
+	public DocumentDetailCanvas() {
 		detailViewer.setWidth100();
 		//detailViewer.setMargin(15);
 		detailViewer.setEmptyMessage("Select a document to view its details");
