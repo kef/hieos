@@ -24,11 +24,14 @@ import com.smartgwt.client.widgets.Window;
 //import com.google.gwt.user.client.Window;
 import com.smartgwt.client.types.ContentsType;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.util.SC;
 //import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.HTMLPane;
 import com.smartgwt.client.widgets.events.CloseClickHandler;
 import com.smartgwt.client.widgets.events.CloseClientEvent;
+import com.smartgwt.client.widgets.events.VisibilityChangedEvent;
+import com.smartgwt.client.widgets.events.VisibilityChangedHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
@@ -55,7 +58,8 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
  * @author Bernie Thuman
  * 
  */
-public class DocumentContainerCanvas extends Canvas {
+public class DocumentContainerCanvas extends Canvas implements
+		VisibilityChangedHandler {
 	private final DocViewerController controller;
 	private final DocumentListCanvas documentListCanvas;
 	private final DocumentDetailCanvas documentDetailCanvas;
@@ -72,10 +76,15 @@ public class DocumentContainerCanvas extends Canvas {
 		return navigator.userAgent.toLowerCase();
 	}-*/;
 
+	public static native boolean isOpacitySupported() /*-{
+		return 'opacity' in document.body.style;
+	}-*/;
+
 	/**
 	 * Returns true if the current browser is IE (Internet Explorer).
 	 */
 	public static boolean isIEBrowser() {
+
 		return getBrowserName().contains("msie");
 	}
 
@@ -89,6 +98,7 @@ public class DocumentContainerCanvas extends Canvas {
 		this.controller = controller;
 		this.documentListCanvas = new DocumentListCanvas(this);
 		this.documentDetailCanvas = new DocumentDetailCanvas();
+		this.documentDetailCanvas.setCanSelectText(true);
 		this.documentTabSet = this.getDocumentTabSet();
 		this.addChild(documentTabSet);
 	}
@@ -98,20 +108,21 @@ public class DocumentContainerCanvas extends Canvas {
 	 * @return
 	 */
 	private TabSet getDocumentTabSet() {
-		
 
-		// Create the tab set (to holder list of documents and individually selected documents).
-		final TabSet tabSet = new TabSet();
-		tabSet.setWidth100();
-		tabSet.setHeight100();
-		tabSet.setTabBarPosition(Side.TOP);
+		// Create the tab set (to holder list of documents and individually
+		// selected documents).
+		final TabSet documentsTabSet = new TabSet();
+		documentsTabSet.setWidth100();
+		documentsTabSet.setHeight100();
+		documentsTabSet.setTabBarPosition(Side.TOP);
 
-		// Add the document tab.
+		// Add the documents tab.
 		Tab documentsTab = new Tab("Documents", "folder.png");
-		tabSet.addTab(documentsTab);
+		documentsTabSet.addTab(documentsTab);
 
-		final DynamicForm documentTemplateOptionsForm = this.getDocumentTemplateOptionsForm();
-		
+		final DynamicForm documentTemplateOptionsForm = this
+				.getDocumentTemplateOptionsForm();
+
 		// Now layout it out.
 		VStack verticalLayout = new VStack();
 		verticalLayout.addMember(this.documentListCanvas);
@@ -130,7 +141,7 @@ public class DocumentContainerCanvas extends Canvas {
 		mainLayout.addMember(this.documentDetailCanvas);
 		documentsTab.setPane(mainLayout);
 
-		return tabSet;
+		return documentsTabSet;
 	}
 
 	/**
@@ -202,17 +213,17 @@ public class DocumentContainerCanvas extends Canvas {
 
 	/**
 	 * 
-	 * @param metadata
+	 * @param documentMetadata
 	 */
-	public void showDocument(DocumentMetadata metadata) {
+	public void showDocument(DocumentMetadata documentMetadata) {
 
 		// Get HTMLPane to hold document.
-		final HTMLPane htmlPane = this.getHTMLPaneForDocument(metadata);
+		final HTMLPane htmlPane = this.getHTMLPaneForDocument(documentMetadata);
 
 		// Create tab to hold document.
 		final Tab documentTab = new Tab();
 		Config config = controller.getConfig();
-		String title = metadata.getTitle();
+		String documentTitle = documentMetadata.getTitle();
 
 		// Trim the document tab title if configured to do so.
 		boolean trimDocumentTabTitles = config
@@ -220,50 +231,64 @@ public class DocumentContainerCanvas extends Canvas {
 		if (trimDocumentTabTitles == true) {
 			Integer trimDocumentTabTitlesLength = config
 					.getAsInteger(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
-			if (title.length() > trimDocumentTabTitlesLength) {
+			if (documentTitle.length() > trimDocumentTabTitlesLength) {
 				int endIndex = trimDocumentTabTitlesLength - 1;
-				title = title.substring(0, endIndex) + "...";
+				documentTitle = documentTitle.substring(0, endIndex) + "...";
 			}
 		}
-		documentTab.setTitle(Canvas.imgHTML("document.png") + " " + title);
+		documentTab.setTitle(Canvas.imgHTML("document.png") + " "
+				+ documentTitle);
 		documentTab.setCanClose(true);
-		documentTab.setPrompt(metadata.getTitle());
+		documentTab.setPrompt(documentMetadata.getTitle());
+
+		// Add tab to document tab set.
 		documentTabSet.addTab(documentTab);
 
 		// Put htmlPane into an HLayout (to avoid Firefox problem).
-		final HLayout layout = new HLayout();
-		layout.setWidth100();
-		layout.setHeight100();
-		layout.addMember(htmlPane);
-		documentTab.setPane(layout);
 
-		// Begin HACK.
-		if (DocumentContainerCanvas.isIEBrowser()) {
-
-			// HACK to avoid opacity issues with IE8.
-			layout.removeMember(htmlPane);
+		// Begin HACK (to avoid burn through of HTML Pane in IE).
+		final DocumentTabLayout documentTabLayout = new DocumentTabLayout();
+		documentTabLayout.setWidth100();
+		documentTabLayout.setHeight100();
+		documentTabLayout.addMember(htmlPane);
+		documentTab.setPane(documentTabLayout);
+		documentTabLayout.setDocumentTab(documentTab);
+		documentTabLayout.setHTMLPane(htmlPane);
+		documentTabLayout.addVisibilityChangedHandler(this);
+		// HACK to avoid issues with IE and opacity issues.
+		if (!isOpacitySupported()) {
+			documentTabLayout.addVisibilityChangedHandler(this);
 			documentTab.addTabDeselectedHandler(new TabDeselectedHandler() {
+
 				@Override
 				public void onTabDeselected(TabDeselectedEvent event) {
+
 					// Clear the contents of the tab.
 					// SC.warn("Tab Deselected!");
-					layout.removeMember(htmlPane);
+					// layout.setVisible(false);
+					if (documentTabLayout.hasMember(htmlPane)) {
+						documentTabLayout.removeMember(htmlPane);
+					}
 				}
 			});
+
 			// Continue HACK.
 			documentTab.addTabSelectedHandler(new TabSelectedHandler() {
+
 				@Override
-				public void onTabSelected(TabSelectedEvent event) {
+				public void onTabSelected(TabSelectedEvent event) { //
 					// Restore the contents of the tab.
 					// SC.warn("Tab Selected!");
-					layout.addMember(htmlPane);
+					if (!documentTabLayout.hasMember(htmlPane)) {
+						documentTabLayout.addMember(htmlPane);
+					}
 				}
 			});
-			// End HACK.
+
 		}
 
 		// Retrieve the document and show it.
-		this.loadDocument(metadata, htmlPane);
+		this.loadDocument(documentMetadata, htmlPane);
 
 		// Now make sure the new tab is selected.
 		documentTabSet.selectTab(documentTab);
@@ -282,6 +307,7 @@ public class DocumentContainerCanvas extends Canvas {
 		htmlPane.setWidth100();
 		htmlPane.setHeight100();
 		htmlPane.setOpacity(100); // Fixes refresh problem (on IE).
+		// htmlPane.setUseOpacityFilter(true);
 		htmlPane.setScrollbarSize(0); // Fixes vertical scroll bar problem.
 		// htmlFlow.setAutoHeight();
 		htmlPane.setLoadingMessage("Loading...");
@@ -378,9 +404,58 @@ public class DocumentContainerCanvas extends Canvas {
 
 	/**
 	 * 
-	 * @param metadata
+	 * @param documentMetadata
 	 */
-	public void showDocumentDetails(DocumentMetadata metadata) {
-		documentDetailCanvas.update(metadata);
+	public void showDocumentDetails(DocumentMetadata documentMetadata) {
+		documentDetailCanvas.update(documentMetadata);
+	}
+
+	@Override
+	public void onVisibilityChanged(VisibilityChangedEvent event) {
+		DocumentTabLayout documentTabLayout = (DocumentTabLayout) event
+				.getSource();
+		HTMLPane htmlPane = documentTabLayout.getHTMLPane();
+		if (event.getIsVisible()) {
+			if (!documentTabLayout.hasMember(htmlPane)) {
+				documentTabLayout.addMember(htmlPane);
+			}
+
+		} else {
+			if (documentTabLayout.hasMember(htmlPane)) {
+				documentTabLayout.removeMember(htmlPane);
+			}
+		}
+		// SC.warn("Visibility changed to - " + event.getIsVisible());
+	}
+
+	/**
+	 * 
+	 * @author Bernie Thuman
+	 * 
+	 */
+	public class DocumentTabLayout extends HLayout {
+		private HTMLPane htmlPane;
+		private Tab documentTab;
+
+		public DocumentTabLayout() {
+
+		}
+
+		public HTMLPane getHTMLPane() {
+			return htmlPane;
+		}
+
+		public void setHTMLPane(HTMLPane htmlPane) {
+			this.htmlPane = htmlPane;
+		}
+
+		public Tab getDocumentTab() {
+			return documentTab;
+		}
+
+		public void setDocumentTab(Tab documentTab) {
+			this.documentTab = documentTab;
+		}
+
 	}
 }

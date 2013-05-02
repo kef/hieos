@@ -46,6 +46,8 @@ public class DocumentListCanvas extends Canvas {
 	 * @wbp.parser.constructor
 	 */
 	public DocumentListCanvas(DocumentContainerCanvas parent) {
+		
+		// Create grid to hold list of documents.
 		this.documentListGrid = new ListGrid() {
 			@Override
 			protected Canvas createRecordComponent(

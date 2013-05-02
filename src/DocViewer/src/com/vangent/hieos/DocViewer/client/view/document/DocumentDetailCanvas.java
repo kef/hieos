@@ -34,8 +34,10 @@ public class DocumentDetailCanvas extends Canvas {
 	 */
 	public DocumentDetailCanvas() {
 		detailViewer.setWidth100();
+		detailViewer.setShowEmptyMessage(false);
+		detailViewer.setCanSelectText(true);
 		//detailViewer.setMargin(15);
-		detailViewer.setEmptyMessage("Select a document to view its details");
+		//detailViewer.setEmptyMessage("Select a document to view its details");
 		final DetailViewerField titleField = new DetailViewerField(DocumentMetadataRecord.TITLE_FIELD, "Title");
 		final DetailViewerField creationDateField = new DetailViewerField(DocumentMetadataRecord.CREATION_DATE_FIELD, "Creation Date");
 		final DetailViewerField euidField = new DetailViewerField(DocumentMetadataRecord.EUID_FIELD, "EUID");
@@ -80,11 +82,11 @@ public class DocumentDetailCanvas extends Canvas {
 	
 	/**
 	 * 
-	 * @param metadataRecord
+	 * @param documentMetadata
 	 */
-	public void update(DocumentMetadata document) {
+	public void update(DocumentMetadata documentMetadata) {
 		//Window.alert("DocumentDetail ... document selected!");
-		DocumentMetadataRecord metadataRecord = new DocumentMetadataRecord(document);
+		DocumentMetadataRecord metadataRecord = new DocumentMetadataRecord(documentMetadata);
 		detailViewer.setData(new Record[]{metadataRecord});		
 	}
 }

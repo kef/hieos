@@ -15,10 +15,6 @@ package com.vangent.hieos.DocViewer.client.controller;
 //import com.google.gwt.user.client.Window;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
-import com.smartgwt.client.widgets.tab.Tab;
-import com.smartgwt.client.widgets.tab.TabSet;
-import com.smartgwt.client.widgets.tab.events.CloseClickHandler;
-import com.smartgwt.client.widgets.tab.events.TabCloseClickEvent;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
@@ -26,21 +22,22 @@ import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
 import com.vangent.hieos.DocViewer.client.services.proxy.AuthenticationService;
 import com.vangent.hieos.DocViewer.client.services.proxy.ConfigRetrieveService;
 import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
 import com.vangent.hieos.DocViewer.client.services.proxy.LogoutService;
+import com.vangent.hieos.DocViewer.client.services.proxy.PatientConsentQueryService;
 import com.vangent.hieos.DocViewer.client.services.proxy.PatientQueryService;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentListObserver;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentContainerCanvas;
 import com.vangent.hieos.DocViewer.client.view.patient.FindPatientsMainCanvas;
+import com.vangent.hieos.DocViewer.client.view.patient.PatientConsentObserver;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientListObserver;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientContainerCanvas;
-
-//import com.vangent.hieos.DocViewer.client.services.PDSRemoteService.Util;
+import com.vangent.hieos.DocViewer.client.view.patient.PatientTabSetMainCanvas;
 
 /**
  * 
@@ -51,15 +48,17 @@ public class DocViewerController {
 	private Canvas mainCanvas;
 	private AuthenticationContext authContext;
 	private FindPatientsMainCanvas findPatientsMainCanvas;
-	private TabSet patientTabSet = null;
+	private PatientTabSetMainCanvas patientTabSetMainCanvas;
+	
 	private Config config = null;
 	private ToolStripButton viewPatientsButton;
+	private ToolStripButton findPatientsButton;
 
 	/**
 	 * 
 	 */
 	public DocViewerController() {
-
+		this.patientTabSetMainCanvas = new PatientTabSetMainCanvas(this);
 	}
 
 	/**
@@ -88,7 +87,7 @@ public class DocViewerController {
 	public void logout(LogoutObserver observer) {
 		// Reset view elements.
 		this.findPatientsMainCanvas = null;
-		this.patientTabSet = null;
+		this.patientTabSetMainCanvas = null;
 
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		LogoutService service = new LogoutService(observer, timeOutHelper);
@@ -146,7 +145,6 @@ public class DocViewerController {
 	public void setMainCanvas(Canvas canvas) {
 		mainCanvas = canvas;
 	}
-	
 
 	/**
 	 * 
@@ -166,9 +164,25 @@ public class DocViewerController {
 
 	/**
 	 * 
+	 * @return
+	 */
+	public ToolStripButton getFindPatientsButton() {
+		return findPatientsButton;
+	}
+
+	/**
+	 * 
+	 * @param findPatientsButton
+	 */
+	public void setFindPatientsButton(ToolStripButton findPatientsButton) {
+		this.findPatientsButton = findPatientsButton;
+	}
+
+	/**
+	 * 
 	 * @param findPatientsMainCanvas
 	 */
-	public void setPatientViewContainer(
+	public void setFindPatientsMainCanvas(
 			FindPatientsMainCanvas findPatientsMainCanvas) {
 		this.findPatientsMainCanvas = findPatientsMainCanvas;
 	}
@@ -205,16 +219,7 @@ public class DocViewerController {
 		viewPatientsButton.setSelected(true);
 		final PatientContainerCanvas patientContainerCanvas = new PatientContainerCanvas(
 				patientRecord, this);
-		this.addPatientTab(patientRecord, patientContainerCanvas);
-
-		/*
-		 * DocumentSearchCriteria criteria = new DocumentSearchCriteria();
-		 * criteria.setPatient(patientRecord.getPatient()); String searchMode =
-		 * this.getConfig().get(Config.KEY_SEARCH_MODE);
-		 * criteria.setSearchMode(searchMode); DocumentListObserver observer =
-		 * new DocumentListObserver(patientRecord, this);
-		 * this.findDocuments(criteria, observer);
-		 */
+		patientTabSetMainCanvas.addPatientTab(patientRecord, patientContainerCanvas);
 	}
 
 	/**
@@ -222,12 +227,14 @@ public class DocViewerController {
 	 * @param patientRecord
 	 * @param documentContainerCanvas
 	 */
-	public void findDocuments(PatientRecord patientRecord, DocumentContainerCanvas documentContainerCanvas) {
+	public void findDocuments(PatientRecord patientRecord,
+			DocumentContainerCanvas documentContainerCanvas) {
 		DocumentSearchCriteria criteria = new DocumentSearchCriteria();
 		criteria.setPatient(patientRecord.getPatient());
 		String searchMode = this.getConfig().get(Config.KEY_SEARCH_MODE);
 		criteria.setSearchMode(searchMode);
-		DocumentListObserver observer = new DocumentListObserver(documentContainerCanvas);
+		DocumentListObserver observer = new DocumentListObserver(
+				documentContainerCanvas);
 		this.findDocuments(criteria, observer);
 	}
 
@@ -246,11 +253,26 @@ public class DocViewerController {
 
 	/**
 	 * 
+	 * @param criteria
+	 * @param observer
+	 */
+	public void getConsentDirectives(
+			final PatientConsentSearchCriteria criteria,
+			final PatientConsentObserver observer) {
+		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		PatientConsentQueryService service = new PatientConsentQueryService(
+				criteria, observer, timeOutHelper);
+		service.doWork();
+	}
+
+	/**
+	 * 
 	 */
 	public void showViewPatients() {
-		if (patientTabSet != null) {
-			this.addPaneToMainCanvas(patientTabSet);
+		if (!patientTabSetMainCanvas.isEmpty()) {
+			this.addPaneToMainCanvas(patientTabSetMainCanvas);
 		} else {
+			findPatientsButton.setSelected(true); // Reset.
 			SC.warn("You must choose a Patient using \"Find Patients\" before being able to view patient data");
 		}
 	}
@@ -263,84 +285,16 @@ public class DocViewerController {
 			findPatientsMainCanvas = new FindPatientsMainCanvas(this);
 		}
 		this.addPaneToMainCanvas(findPatientsMainCanvas);
+		findPatientsButton.setSelected(true);
 	}
 
-	/**
-	 * 
-	 * @param patientRecord
-	 * @param patientContainerCanvas
-	 */
-	public void addPatientTab(PatientRecord patientRecord,
-			PatientContainerCanvas patientContainerCanvas) {
-		// Add the document view container to the patient tab.
-		final Tab patientTab = this.getPatientTab(patientRecord);
-		patientTab.setPane(patientContainerCanvas);
-		this.addPaneToMainCanvas(patientTabSet);
-
-		// Show the patient as the current tab.
-		patientTabSet.selectTab(patientTab);
-	}
-
-	/**
-	 * 
-	 * @param patientRecord
-	 * @return
-	 */
-	private Tab getPatientTab(PatientRecord patientRecord) {
-		// Create patient tab set if it does not already exist.
-		if (patientTabSet == null) {
-			this.createPatientTabSet();
-		}
-
-		// Create a new tab for the patient.
-		final Tab patientTab = new Tab();
-		String imageName = "person.png";
-		Patient patient = patientRecord.getPatient();
-		if (patient.getGender() != null) {
-			if (patient.getGender().equals("M")) {
-				imageName = "gender_male.png";
-			} else if (patient.getGender().equals("F")) {
-				imageName = "gender_female.png";
-			}
-		}
-		patientTab.setTitle(Canvas.imgHTML(imageName) + " "
-				+ patientRecord.getFormattedName());
-		patientTab.setCanClose(true);
-
-		// Add tab to the tab set.
-		patientTabSet.addTab(patientTab);
-
-		return patientTab;
-	}
-
-	/**
-	 * 
-	 */
-	private void createPatientTabSet() {
-		// Create patient tab set if it does not already exist.
-		patientTabSet = new TabSet();
-		patientTabSet.setWidth100();
-		patientTabSet.setHeight100();
-		patientTabSet.addCloseClickHandler(new CloseClickHandler() {
-			@Override
-			public void onCloseClick(TabCloseClickEvent event) {
-				// Tab tab = event.getTab();
-				int numTabs = patientTabSet.getTabs().length;
-				if (numTabs == 1) {
-					// Clear out the tabs.
-					patientTabSet = null;
-					// Show the find patients view.
-					showFindPatients();
-				}
-			}
-		});
-	}
+	
 
 	/**
 	 * 
 	 * @param childPane
 	 */
-	private void addPaneToMainCanvas(Canvas childPane) {
+	public void addPaneToMainCanvas(Canvas childPane) {
 		Canvas[] children = mainCanvas.getChildren();
 		boolean foundPane = false;
 		for (int i = 0; i < children.length; i++) {

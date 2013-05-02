@@ -27,6 +27,7 @@ import com.smartgwt.client.widgets.toolbar.ToolStrip;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.view.document.DocumentContainerCanvas;
 import com.vangent.hieos.DocViewer.client.view.patient.PatientBannerCanvas;
@@ -165,6 +166,10 @@ public class PatientContainerCanvas extends Canvas {
 					public void onClick(ClickEvent event) {
 						patientContainerCanvas
 								.setPatientContentCanvas(patientConsentCanvas);
+						PatientConsentSearchCriteria criteria = new PatientConsentSearchCriteria();
+						criteria.setPatientID(patientRecord.getPatient().getPatientID());
+						PatientConsentObserver observer = new PatientConsentObserver(patientConsentCanvas);
+						controller.getConsentDirectives(criteria, observer);
 					}
 				});
 

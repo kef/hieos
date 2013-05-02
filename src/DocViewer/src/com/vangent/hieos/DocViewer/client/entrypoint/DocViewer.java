@@ -309,12 +309,12 @@ public class DocViewer implements EntryPoint {
 
 		Config config = controller.getConfig();
 
-		// Create the "Find Patient" button.
-		final ToolStripButton findPatientButton = new ToolStripButton();
-		findPatientButton.setTitle("Find Patients");
-		findPatientButton.setTooltip("Search network for available patients");
-		findPatientButton.setIcon("person.png");
-		findPatientButton
+		// Create the "Find Patients" button.
+		final ToolStripButton findPatientsButton = new ToolStripButton();
+		findPatientsButton.setTitle("Find Patients");
+		findPatientsButton.setTooltip("Search network for available patients");
+		findPatientsButton.setIcon("person.png");
+		findPatientsButton
 				.addClickHandler(new com.smartgwt.client.widgets.events.ClickHandler() {
 					@Override
 					public void onClick(ClickEvent event) {
@@ -322,13 +322,14 @@ public class DocViewer implements EntryPoint {
 					}
 				});
 
-		findPatientButton.setActionType(SelectionType.RADIO);
-		findPatientButton.setRadioGroup("maintoolbar");
-		findPatientButton.setSelected(true);
+		findPatientsButton.setActionType(SelectionType.RADIO);
+		findPatientsButton.setRadioGroup("maintoolbar");
+		findPatientsButton.setSelected(true);
 
 		// Create the "View Patients" button.
 		ToolStripButton viewPatientsButton = this.getViewPatientsButton();
 		controller.setViewPatientsButton(viewPatientsButton);
+		controller.setFindPatientsButton(findPatientsButton);
 
 		// Create the "Patient Consent" button.
 		/*
@@ -377,7 +378,7 @@ public class DocViewer implements EntryPoint {
 			toolStrip.addSeparator();
 		}
 
-		toolStrip.addButton(findPatientButton);
+		toolStrip.addButton(findPatientsButton);
 		if (viewPatientsButton != null) {
 			toolStrip.addSeparator();
 			toolStrip.addButton(viewPatientsButton);
