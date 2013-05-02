@@ -9,6 +9,15 @@
 		<servlet-name>PDSRemoteService</servlet-name>
 		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/PDSRemoteService</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>PIPRemoteService</servlet-name>
+		<servlet-class>com.vangent.hieos.DocViewer.server.services.rpc.pip.PIPRemoteServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PIPRemoteService</servlet-name>
+		<url-pattern>/com.vangent.hieos.DocViewer.DocViewer/PIPRemoteService</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>DocumentRemoteService</servlet-name>
