@@ -12,7 +12,8 @@
  */
 package com.vangent.hieos.DocViewer.server.services.rpc.pip;
 
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives;
 
 /**
  * 
@@ -26,25 +27,25 @@ public class PatientConsentDirectivesTransform {
 	 * @param patientConsentDirectives
 	 * @return
 	 */
-	public static PatientConsentDirectives transform(
-			com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives patientConsentDirectives) {
-		PatientConsentDirectives patientConsentDirectivesX = new PatientConsentDirectives();
+	public static PatientConsentDirectivesDTO transform(
+			PatientConsentDirectives patientConsentDirectives) {
+		PatientConsentDirectivesDTO patientConsentDirectivesDTO = new PatientConsentDirectivesDTO();
 		/*switch (patientConsentDirectives.getStatus())
 		{
 		case com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives.StatusType.
 		}
 		patientConsentDirectivesX.setStatus(patientConsentDirectives.getStatus());*/
-		return patientConsentDirectivesX;
+		return patientConsentDirectivesDTO;
 
 	}
 
 	/**
 	 * 
-	 * @param patientConsentDirectives
+	 * @param patientConsentDirectivesDTO
 	 * @return
 	 */
-	public static com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives transform(
-			PatientConsentDirectives patientConsentDirectivesX) {
+	public static PatientConsentDirectives transform(
+			PatientConsentDirectivesDTO patientConsentDirectivesDTO) {
 		return null;
 
 	}

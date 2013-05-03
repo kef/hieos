@@ -12,16 +12,13 @@
  */
 package com.vangent.hieos.DocViewer.server.services.rpc.pip;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentRule;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.PIPRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
@@ -30,6 +27,7 @@ import com.vangent.hieos.policyutil.exception.PolicyException;
 import com.vangent.hieos.policyutil.pip.client.PIPClient;
 import com.vangent.hieos.policyutil.pip.model.PIPRequest;
 import com.vangent.hieos.policyutil.pip.model.PIPResponse;
+import com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
@@ -61,7 +59,7 @@ public class PIPRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	@Override
-	public PatientConsentDirectives getPatientConsentDirectives(PatientConsentSearchCriteria patientConsentSearchCriteria)
+	public PatientConsentDirectivesDTO getPatientConsentDirectives(PatientConsentSearchCriteriaDTO patientConsentSearchCriteria)
 			throws RemoteServiceException {
 		// See if we have a valid session ...
 		HttpServletRequest request = this.getThreadLocalRequest();
@@ -91,11 +89,11 @@ public class PIPRemoteServiceImpl extends RemoteServiceServlet implements
 			PIPResponse pipResponse = pipClient.getPatientConsentDirectives(pipRequest, true /* buildDomainModel */);
 			
 			// Transform response.
-			com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives patientConsentDirectives = pipResponse.getPatientConsentDirectives();
-			PatientConsentDirectives patientConsentDirectivesX = PatientConsentDirectivesTransform.transform(patientConsentDirectives);
+			PatientConsentDirectives patientConsentDirectives = pipResponse.getPatientConsentDirectives();
+			PatientConsentDirectivesDTO patientConsentDirectivesDTO = PatientConsentDirectivesTransform.transform(patientConsentDirectives);
 			
 			// Return response.
-			return patientConsentDirectivesX;
+			return patientConsentDirectivesDTO;
 		} catch (PolicyException e) {
 			throw new RemoteServiceException("Exception: " + e.getMessage());
 		}
