@@ -24,9 +24,9 @@ import org.apache.axiom.om.OMElement;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadata;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadataDTO;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
@@ -80,7 +80,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	@Override
-	public List<DocumentMetadata> findDocuments(DocumentSearchCriteria criteria)
+	public List<DocumentMetadataDTO> findDocuments(DocumentSearchCriteriaDTO criteria)
 			throws RemoteServiceException {
 
 		// See if we have a valid session ...
@@ -104,7 +104,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 				+ criteria.getPatient().getPatientID());
 		OMElement query = this.getAdhocQuerySinglePID(servletContext,
 				criteria.getPatient());
-		List<DocumentMetadata> documentMetadataList = new ArrayList<DocumentMetadata>();
+		List<DocumentMetadataDTO> documentMetadataList = new ArrayList<DocumentMetadataDTO>();
 		try {
 			if (query != null) {
 				// Get the proper initiating gateway configuration.
@@ -165,7 +165,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @throws MetadataValidationException
 	 */
 	private void loadDocumentMetadataList(
-			List<DocumentMetadata> documentMetadataList, OMElement response)
+			List<DocumentMetadataDTO> documentMetadataList, OMElement response)
 			throws MetadataException, MetadataValidationException {
 
 		// Parse the SOAP response to get Metadata instance.
@@ -177,7 +177,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		System.out.println("# of documents: " + extrinsicObjects.size());
 		for (OMElement extrinsicObject : extrinsicObjects) {
 			System.out.println("Document found!!!!");
-			DocumentMetadata documentMetadata = this.buildDocumentMetadata(m,
+			DocumentMetadataDTO documentMetadata = this.buildDocumentMetadata(m,
 					extrinsicObject);
 			documentMetadataList.add(documentMetadata);
 		}
@@ -190,11 +190,11 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @return
 	 * @throws MetadataException
 	 */
-	private DocumentMetadata buildDocumentMetadata(Metadata m,
+	private DocumentMetadataDTO buildDocumentMetadata(Metadata m,
 			OMElement extrinsicObject) {
 
 		// Create the DocumentMetadata instance.
-		DocumentMetadata documentMetadata = new DocumentMetadata();
+		DocumentMetadataDTO documentMetadata = new DocumentMetadataDTO();
 
 		// Document id.
 		String documentID;
@@ -255,7 +255,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		documentMetadata.setSize(size);
 
 		// Authors.
-		List<DocumentAuthorMetadata> authors = this.getAuthors(m,
+		List<DocumentAuthorMetadataDTO> authors = this.getAuthors(m,
 				extrinsicObject);
 		documentMetadata.setAuthors(authors);
 
@@ -277,9 +277,9 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @param extrinsicObject
 	 * @return
 	 */
-	private List<DocumentAuthorMetadata> getAuthors(Metadata m,
+	private List<DocumentAuthorMetadataDTO> getAuthors(Metadata m,
 			OMElement extrinsicObject) {
-		List<DocumentAuthorMetadata> documentAuthors = new ArrayList<DocumentAuthorMetadata>();
+		List<DocumentAuthorMetadataDTO> documentAuthors = new ArrayList<DocumentAuthorMetadataDTO>();
 		try {
 			List<OMElement> authorNodes = m.getClassifications(extrinsicObject,
 					MetadataSupport.XDSDocumentEntry_author_uuid);
@@ -292,7 +292,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 						"authorInstitution", 0);
 
 				// Now create and load the DocumentAuthorMetadata instance.
-				DocumentAuthorMetadata authorMetadata = new DocumentAuthorMetadata();
+				DocumentAuthorMetadataDTO authorMetadata = new DocumentAuthorMetadataDTO();
 				authorMetadata.setName(authorPerson);
 				authorMetadata.setInstitution(authorInstitution);
 				documentAuthors.add(authorMetadata);

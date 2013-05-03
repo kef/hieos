@@ -17,17 +17,17 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
-public class DocumentRetrieveCriteria implements IsSerializable {
-	public DocumentMetadata getDocumentMetadata() {
+public class DocumentRetrieveCriteriaDTO implements IsSerializable {
+	private DocumentMetadataDTO documentMetadata;
+
+	public DocumentMetadataDTO getDocumentMetadata() {
 		return documentMetadata;
 	}
 
-	public void setDocumentMetadata(DocumentMetadata documentMetadata) {
+	public void setDocumentMetadata(DocumentMetadataDTO documentMetadata) {
 		this.documentMetadata = documentMetadata;
 	}
-
-	private DocumentMetadata documentMetadata;
 
 }

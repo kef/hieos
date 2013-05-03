@@ -18,8 +18,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
 
 /**
@@ -28,7 +28,7 @@ import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
  * 
  */
 public class DocumentQueryService extends ProxyService {
-	private DocumentSearchCriteria criteria;
+	private DocumentSearchCriteriaDTO criteria;
 	
 	/**
 	 * 
@@ -36,7 +36,7 @@ public class DocumentQueryService extends ProxyService {
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public DocumentQueryService(DocumentSearchCriteria criteria,
+	public DocumentQueryService(DocumentSearchCriteriaDTO criteria,
 			Observer observer, TimeOutHelper timeOutHelper) {
 		super(observer, timeOutHelper);
 		this.criteria = criteria;
@@ -49,12 +49,12 @@ public class DocumentQueryService extends ProxyService {
 		this.getTimeOutHelper().startTimer();
 		// RPC:
 		DocumentRemoteService.Util.getInstance().findDocuments(criteria,
-				new AsyncCallback<List<DocumentMetadata>>() {
+				new AsyncCallback<List<DocumentMetadataDTO>>() {
 					/**
 					 * 
 					 * @param documents
 					 */
-					public void onSuccess(List<DocumentMetadata> documents) {
+					public void onSuccess(List<DocumentMetadataDTO> documents) {
 						cancelTimer();
 						if (getAbortFlag()) {
 							// Timeout already occurred. discard result

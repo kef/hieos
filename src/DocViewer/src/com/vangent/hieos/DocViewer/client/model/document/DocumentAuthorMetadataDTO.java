@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  *
  */
-public class DocumentAuthorMetadata implements IsSerializable {
+public class DocumentAuthorMetadataDTO implements IsSerializable {
 	private String name;
 	private String institution;
 

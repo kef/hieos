@@ -21,7 +21,7 @@ import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
 import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
@@ -229,7 +229,7 @@ public class DocViewerController {
 	 */
 	public void findDocuments(PatientRecord patientRecord,
 			DocumentContainerCanvas documentContainerCanvas) {
-		DocumentSearchCriteria criteria = new DocumentSearchCriteria();
+		DocumentSearchCriteriaDTO criteria = new DocumentSearchCriteriaDTO();
 		criteria.setPatient(patientRecord.getPatient());
 		String searchMode = this.getConfig().get(ConfigDTO.KEY_SEARCH_MODE);
 		criteria.setSearchMode(searchMode);
@@ -243,7 +243,7 @@ public class DocViewerController {
 	 * @param criteria
 	 * @param observer
 	 */
-	private void findDocuments(final DocumentSearchCriteria criteria,
+	private void findDocuments(final DocumentSearchCriteriaDTO criteria,
 			final DocumentListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		DocumentQueryService service = new DocumentQueryService(criteria,

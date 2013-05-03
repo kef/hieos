@@ -16,7 +16,7 @@ import java.util.List;
 
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 
 /**
@@ -39,13 +39,13 @@ public class DocumentListObserver implements Observer {
 	 * 
 	 * @param documents
 	 */
-	private void update(List<DocumentMetadata> documents) {
+	private void update(List<DocumentMetadataDTO> documents) {
 		// Will only get called if documents exist for the patient ...
 
 		// Put documents in a list of grid records.
 		ListGridRecord[] gridRecords = new ListGridRecord[documents.size()];
 		int gridRecord = 0;
-		for (DocumentMetadata document : documents) {
+		for (DocumentMetadataDTO document : documents) {
 			DocumentMetadataRecord documentRecord = new DocumentMetadataRecord(
 					document);
 			gridRecords[gridRecord++] = documentRecord;
@@ -58,6 +58,6 @@ public class DocumentListObserver implements Observer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void update(Object object) {
-		this.update((List<DocumentMetadata>) object);
+		this.update((List<DocumentMetadataDTO>) object);
 	}
 }

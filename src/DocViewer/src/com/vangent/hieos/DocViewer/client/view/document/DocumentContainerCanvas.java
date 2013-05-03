@@ -49,7 +49,7 @@ import com.smartgwt.client.widgets.tab.events.TabSelectedHandler;
 import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfigDTO;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
@@ -215,7 +215,7 @@ public class DocumentContainerCanvas extends Canvas implements
 	 * 
 	 * @param documentMetadata
 	 */
-	public void showDocument(DocumentMetadata documentMetadata) {
+	public void showDocument(DocumentMetadataDTO documentMetadata) {
 
 		// Get HTMLPane to hold document.
 		final HTMLPane htmlPane = this.getHTMLPaneForDocument(documentMetadata);
@@ -299,7 +299,7 @@ public class DocumentContainerCanvas extends Canvas implements
 	 * @param metadata
 	 * @return
 	 */
-	private HTMLPane getHTMLPaneForDocument(DocumentMetadata metadata) {
+	private HTMLPane getHTMLPaneForDocument(DocumentMetadataDTO metadata) {
 		// Create HTMLPane to hold document.
 		final HTMLPane htmlPane = new HTMLPane();
 		htmlPane.setContentsType(ContentsType.PAGE);
@@ -331,7 +331,7 @@ public class DocumentContainerCanvas extends Canvas implements
 	 * @param metadata
 	 * @param htmlPane
 	 */
-	private void loadDocument(DocumentMetadata metadata, HTMLPane htmlPane) {
+	private void loadDocument(DocumentMetadataDTO metadata, HTMLPane htmlPane) {
 		// String baseURL = GWT.getModuleBaseURL();
 		// com.google.gwt.user.client.Window.alert("baseURL = " + baseURL);
 		htmlPane.setContentsURL(metadata.getContentURL());
@@ -368,7 +368,7 @@ public class DocumentContainerCanvas extends Canvas implements
 	 * 
 	 * @param metadata
 	 */
-	public void showDocumentWindow(DocumentMetadata metadata) {
+	public void showDocumentWindow(DocumentMetadataDTO metadata) {
 		// Get HTMLPane to hold document.
 		final HTMLPane htmlPane = this.getHTMLPaneForDocument(metadata);
 
@@ -406,7 +406,7 @@ public class DocumentContainerCanvas extends Canvas implements
 	 * 
 	 * @param documentMetadata
 	 */
-	public void showDocumentDetails(DocumentMetadata documentMetadata) {
+	public void showDocumentDetails(DocumentMetadataDTO documentMetadata) {
 		documentDetailCanvas.update(documentMetadata);
 	}
 

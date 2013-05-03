@@ -13,7 +13,9 @@
 package com.vangent.hieos.DocViewer.server.services.rpc.pip;
 
 import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentRuleDTO;
 import com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives;
+import com.vangent.hieos.policyutil.pip.model.PatientConsentRule;
 
 /**
  * 
@@ -30,11 +32,40 @@ public class PatientConsentDirectivesTransform {
 	public static PatientConsentDirectivesDTO transform(
 			PatientConsentDirectives patientConsentDirectives) {
 		PatientConsentDirectivesDTO patientConsentDirectivesDTO = new PatientConsentDirectivesDTO();
-		/*switch (patientConsentDirectives.getStatus())
-		{
-		case com.vangent.hieos.policyutil.pip.model.PatientConsentDirectives.StatusType.
+
+		// Set status.
+		switch (patientConsentDirectives.getStatus()) {
+		case ACTIVE:
+			patientConsentDirectivesDTO
+					.setStatus(PatientConsentDirectivesDTO.StatusType.ACTIVE);
+			break;
+		case INACTIVE:
+			patientConsentDirectivesDTO
+					.setStatus(PatientConsentDirectivesDTO.StatusType.INACTIVE);
+			break;
+		case NOT_ESTABLISHED:
+			patientConsentDirectivesDTO
+					.setStatus(PatientConsentDirectivesDTO.StatusType.NOT_ESTABLISHED);
+		default:
+			break;
 		}
-		patientConsentDirectivesX.setStatus(patientConsentDirectives.getStatus());*/
+
+		// Now, the consent rules.
+		for (PatientConsentRule patientConsentRule : patientConsentDirectives
+				.getPatientConsentRules()) {
+			PatientConsentRuleDTO patientConsentRuleDTO = new PatientConsentRuleDTO();
+			// action.
+			if (patientConsentRule.getAction() == PatientConsentRule.ActionType.PERMIT) {
+				patientConsentRuleDTO
+						.setAction(PatientConsentRuleDTO.ActionType.PERMIT);
+			} else {
+				patientConsentRuleDTO
+						.setAction(PatientConsentRuleDTO.ActionType.DENY);
+			}
+
+			// TODO: Implement other types ... POU, role, etc.
+			patientConsentDirectivesDTO.add(patientConsentRuleDTO);
+		}
 		return patientConsentDirectivesDTO;
 
 	}
@@ -46,6 +77,7 @@ public class PatientConsentDirectivesTransform {
 	 */
 	public static PatientConsentDirectives transform(
 			PatientConsentDirectivesDTO patientConsentDirectivesDTO) {
+		// TODO: Implement (on save).
 		return null;
 
 	}

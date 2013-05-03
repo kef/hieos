@@ -40,13 +40,13 @@ public class DocumentMetadataRecord extends ListGridRecord {
 	static public final String EUID_FIELD = "euid";
 	static public final String ASSIGNING_AUTHORITY_FIELD = "assigning_authority";
 	
-	private DocumentMetadata documentMetadata;
+	private DocumentMetadataDTO documentMetadata;
 
 	/**
 	 * 
 	 * @return
 	 */
-	public DocumentMetadata getDocumentMetadata() {
+	public DocumentMetadataDTO getDocumentMetadata() {
 		return this.documentMetadata;
 	}
 
@@ -54,7 +54,7 @@ public class DocumentMetadataRecord extends ListGridRecord {
 	 * 
 	 * @param documentMetadata
 	 */
-	public DocumentMetadataRecord(DocumentMetadata documentMetadata) {
+	public DocumentMetadataRecord(DocumentMetadataDTO documentMetadata) {
 		this.documentMetadata = documentMetadata;
 		// To allow grouping/sorting:
 		setAttribute(CREATION_DATE_FIELD, documentMetadata.getCreationTime());
@@ -95,12 +95,12 @@ public class DocumentMetadataRecord extends ListGridRecord {
 	 */
 	public String getFormattedAuthorInstitution()
 	{
-		List<DocumentAuthorMetadata> authors = documentMetadata.getAuthors();
+		List<DocumentAuthorMetadataDTO> authors = documentMetadata.getAuthors();
 		String authorInstitution = "UNKNOWN";
 		if (authors != null && authors.size() > 0)
 		{
 			// FIXME: ? Just take the first one.
-			DocumentAuthorMetadata author = authors.get(0);
+			DocumentAuthorMetadataDTO author = authors.get(0);
 			authorInstitution = author.getInstitution();
 		} 
 		return authorInstitution;
@@ -112,12 +112,12 @@ public class DocumentMetadataRecord extends ListGridRecord {
 	 */
 	public String getFormattedAuthorName()
 	{
-		List<DocumentAuthorMetadata> authors = documentMetadata.getAuthors();
+		List<DocumentAuthorMetadataDTO> authors = documentMetadata.getAuthors();
 		String authorName = "UNKNOWN";
 		if (authors != null && authors.size() > 0)
 		{
 			// FIXME: ? Just take the first one.
-			DocumentAuthorMetadata author = authors.get(0);
+			DocumentAuthorMetadataDTO author = authors.get(0);
 			authorName = author.getName();
 		} 
 		return authorName;

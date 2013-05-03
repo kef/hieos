@@ -18,7 +18,7 @@ import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.viewer.DetailFormatter;
 import com.smartgwt.client.widgets.viewer.DetailViewer;
 import com.smartgwt.client.widgets.viewer.DetailViewerField;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
 
 /**
@@ -84,7 +84,7 @@ public class DocumentDetailCanvas extends Canvas {
 	 * 
 	 * @param documentMetadata
 	 */
-	public void update(DocumentMetadata documentMetadata) {
+	public void update(DocumentMetadataDTO documentMetadata) {
 		//Window.alert("DocumentDetail ... document selected!");
 		DocumentMetadataRecord metadataRecord = new DocumentMetadataRecord(documentMetadata);
 		detailViewer.setData(new Record[]{metadataRecord});		

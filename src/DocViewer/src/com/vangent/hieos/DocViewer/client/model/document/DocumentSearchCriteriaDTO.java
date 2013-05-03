@@ -20,7 +20,7 @@ import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
  * @author Bernie Thuman
  * 
  */
-public class DocumentSearchCriteria implements IsSerializable {
+public class DocumentSearchCriteriaDTO implements IsSerializable {
 	private PatientDTO patient;
 	private String searchMode;
 

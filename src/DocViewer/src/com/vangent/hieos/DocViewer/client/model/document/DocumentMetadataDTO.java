@@ -22,12 +22,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  *
  */
-public class DocumentMetadata implements IsSerializable {
+public class DocumentMetadataDTO implements IsSerializable {
 	private String source;
 	private String mimeType;
 	private Date creationTime;
 	private String title;
-	private List<DocumentAuthorMetadata> authors;
+	private List<DocumentAuthorMetadataDTO> authors;
 	private String repositoryID;
 	private String documentID;
 	private String homeCommunityID;
@@ -58,11 +58,11 @@ public class DocumentMetadata implements IsSerializable {
 		this.title = title;
 	}
 
-	public List<DocumentAuthorMetadata> getAuthors() {
+	public List<DocumentAuthorMetadataDTO> getAuthors() {
 		return authors;
 	}
 
-	public void setAuthors(List<DocumentAuthorMetadata> authors) {
+	public void setAuthors(List<DocumentAuthorMetadataDTO> authors) {
 		this.authors = authors;
 	}
 

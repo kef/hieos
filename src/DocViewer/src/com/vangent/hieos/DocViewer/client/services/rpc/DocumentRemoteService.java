@@ -18,8 +18,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
-import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
+import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteriaDTO;
 
 /**
  * 
@@ -47,5 +47,5 @@ public interface DocumentRemoteService extends RemoteService {
 	 * @return
 	 * @throws RemoteServiceException
 	 */
-	public List<DocumentMetadata> findDocuments(DocumentSearchCriteria criteria) throws RemoteServiceException;
+	public List<DocumentMetadataDTO> findDocuments(DocumentSearchCriteriaDTO criteria) throws RemoteServiceException;
 }
