@@ -27,7 +27,7 @@ import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
 import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
@@ -389,7 +389,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @return
 	 */
 	public OMElement getAdhocQuerySinglePID(ServletContext servletContext,
-			Patient patient) {
+			PatientDTO patient) {
 		String template = servletUtil
 				.getTemplateString(servletUtil
 						.getProperty(DocumentRemoteServiceImpl.PROP_ADHOCQUERY_SINGLEPID_TEMPLATE));
