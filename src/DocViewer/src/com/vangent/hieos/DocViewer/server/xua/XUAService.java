@@ -17,7 +17,7 @@ import java.util.HashMap;
 import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
@@ -115,7 +115,7 @@ public class XUAService {
 	 */
 	public OMElement getSAMLClaims(String patientID) {
 		String template = servletUtil.getTemplateString(servletUtil
-				.getProperty(Config.KEY_SAML_CLAIMS_TEMPLATE));
+				.getProperty(ConfigDTO.KEY_SAML_CLAIMS_TEMPLATE));
 		HashMap<String, String> replacements = new HashMap<String, String>();
 		
 		// FIXME: Need to complete and pull from authentication context!!!

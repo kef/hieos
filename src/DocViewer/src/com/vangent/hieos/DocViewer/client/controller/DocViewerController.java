@@ -18,7 +18,7 @@ import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
@@ -50,7 +50,7 @@ public class DocViewerController {
 	private FindPatientsMainCanvas findPatientsMainCanvas;
 	private PatientTabSetMainCanvas patientTabSetMainCanvas;
 	
-	private Config config = null;
+	private ConfigDTO config = null;
 	private ToolStripButton viewPatientsButton;
 	private ToolStripButton findPatientsButton;
 
@@ -110,7 +110,7 @@ public class DocViewerController {
 	 * 
 	 * @param config
 	 */
-	public void setConfig(Config config) {
+	public void setConfig(ConfigDTO config) {
 		this.config = config;
 	}
 
@@ -118,7 +118,7 @@ public class DocViewerController {
 	 * 
 	 * @return
 	 */
-	public Config getConfig() {
+	public ConfigDTO getConfig() {
 		return this.config;
 	}
 
@@ -231,7 +231,7 @@ public class DocViewerController {
 			DocumentContainerCanvas documentContainerCanvas) {
 		DocumentSearchCriteria criteria = new DocumentSearchCriteria();
 		criteria.setPatient(patientRecord.getPatient());
-		String searchMode = this.getConfig().get(Config.KEY_SEARCH_MODE);
+		String searchMode = this.getConfig().get(ConfigDTO.KEY_SEARCH_MODE);
 		criteria.setSearchMode(searchMode);
 		DocumentListObserver observer = new DocumentListObserver(
 				documentContainerCanvas);

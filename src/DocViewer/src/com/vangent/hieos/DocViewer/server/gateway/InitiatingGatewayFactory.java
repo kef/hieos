@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.DocViewer.server.gateway;
 
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 
 /**
@@ -40,7 +40,7 @@ public class InitiatingGatewayFactory {
 	 */
 	public static InitiatingGateway getInitiatingGateway(String searchMode, ServletUtilMixin servletUtil) {
 		InitiatingGatewayFactory.InitiatingGatewayType igType;
-		if (searchMode.equals(Config.VAL_SEARCH_MODE_HIE)) {
+		if (searchMode.equals(ConfigDTO.VAL_SEARCH_MODE_HIE)) {
 			igType = InitiatingGatewayFactory.InitiatingGatewayType.IHE;
 
 		} else {

@@ -14,7 +14,7 @@ package com.vangent.hieos.DocViewer.client.controller;
 
 import com.vangent.hieos.DocViewer.client.entrypoint.DocViewer;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 
 /**
  * 
@@ -41,7 +41,7 @@ public class ConfigObserver implements Observer {
 	 */
 	@Override
 	public void update(Object object) {
-		Config config = (Config) object;
+		ConfigDTO config = (ConfigDTO) object;
 		controller.setConfig(config);
 		docViewer.loadLoginPage();
 	}

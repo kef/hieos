@@ -16,7 +16,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.ConfigRemoteService;
 
 public class ConfigRetrieveService extends ProxyService {
@@ -38,10 +38,10 @@ public class ConfigRetrieveService extends ProxyService {
 		this.getTimeOutHelper().startTimer();
 		// RPC:
 		ConfigRemoteService.Util.getInstance().getConfig(
-				new AsyncCallback<Config>() {
+				new AsyncCallback<ConfigDTO>() {
 
 					@Override
-					public void onSuccess(Config config) {
+					public void onSuccess(ConfigDTO config) {
 						cancelTimer();
 						if (getAbortFlag()) {
 							// Timeout already occurred. discard result

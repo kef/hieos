@@ -24,7 +24,7 @@ import com.smartgwt.client.types.ListGridFieldType;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.SortDirection;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
@@ -44,7 +44,7 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 	public PatientListCanvas(DocViewerController mainController) {
 
 		this.controller = mainController;
-		Config controllerConfig = this.controller.getConfig();
+		ConfigDTO controllerConfig = this.controller.getConfig();
 
 		this.patientListGrid = new ListGrid();
 		patientListGrid.addDoubleClickHandler(this);
@@ -63,23 +63,23 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 
 		// Given Name:
 		String givenNameLabel = controllerConfig
-				.get(Config.KEY_LABEL_GIVEN_NAME);
+				.get(ConfigDTO.KEY_LABEL_GIVEN_NAME);
 		final ListGridField givenNameField = new ListGridField(
 				PatientRecord.GIVEN_NAME_FIELD, givenNameLabel, 90);
 		givenNameField.setType(ListGridFieldType.TEXT);
 		givenNameField.setShowHover(true);
 		givenNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_GIVEN_NAME)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_GIVEN_NAME)));
 
 		// Family Name:
 		String familyNameLabel = controllerConfig
-				.get(Config.KEY_LABEL_FAMILY_NAME);
+				.get(ConfigDTO.KEY_LABEL_FAMILY_NAME);
 		final ListGridField familyNameField = new ListGridField(
 				PatientRecord.FAMILY_NAME_FIELD, familyNameLabel, 90);
 		familyNameField.setType(ListGridFieldType.TEXT);
 		familyNameField.setShowHover(true);
 		familyNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_FAMILY_NAME)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_FAMILY_NAME)));
 
 		/*
 		 * [03/14/13] IHS Release 1.3 (Requirement # 7333 - Middle Name updates
@@ -87,13 +87,13 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 		 */
 		// Middle Name:
 		String middleNameLabel = controllerConfig
-				.get(Config.KEY_LABEL_MIDDLE_NAME);
+				.get(ConfigDTO.KEY_LABEL_MIDDLE_NAME);
 		final ListGridField middleNameField = new ListGridField(
 				PatientRecord.MIDDLE_NAME_FIELD, middleNameLabel, 90);
 		middleNameField.setType(ListGridFieldType.TEXT);
 		middleNameField.setShowHover(true);
 		middleNameField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_MIDDLE_NAME)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_MIDDLE_NAME)));
 
 		// Gender:
 		final ListGridField genderField = new ListGridField(
@@ -122,7 +122,7 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 		});
 		genderField.setShowHover(true);
 		genderField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_GENDER)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_GENDER)));
 
 		// Date of Birth:
 		final ListGridField dateOfBirthField = new ListGridField(
@@ -141,16 +141,16 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 		});
 		dateOfBirthField.setShowHover(true);
 		dateOfBirthField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_DATE_OF_BIRTH)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_DATE_OF_BIRTH)));
 
 		// EUID:
-		String euidLabel = controllerConfig.get(Config.KEY_LABEL_EUID);
+		String euidLabel = controllerConfig.get(ConfigDTO.KEY_LABEL_EUID);
 		final ListGridField euidField = new ListGridField(
 				PatientRecord.EUID_FIELD, euidLabel, 95);
 		euidField.setType(ListGridFieldType.TEXT);
 		euidField.setShowHover(true);
 		euidField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_EUID)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_EUID)));
 
 		// SSN:
 		final ListGridField ssnField = new ListGridField(
@@ -158,7 +158,7 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 		ssnField.setType(ListGridFieldType.TEXT);
 		ssnField.setShowHover(true);
 		ssnField.setHoverCustomizer(new PatientListHoverCustomizer(
-				controllerConfig.get(Config.KEY_TOOLTIP_SSN)));
+				controllerConfig.get(ConfigDTO.KEY_TOOLTIP_SSN)));
 
 		// Match Weight:
 		final ListGridField matchConfidencePercentageField = new ListGridField(
@@ -179,7 +179,7 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 		matchConfidencePercentageField.setShowHover(true);
 		matchConfidencePercentageField
 				.setHoverCustomizer(new PatientListHoverCustomizer(
-						controllerConfig.get(Config.KEY_TOOLTIP_CONFIDENCE)));
+						controllerConfig.get(ConfigDTO.KEY_TOOLTIP_CONFIDENCE)));
 
 		/*
 		 * [03/14/13] IHS Release 1.3 (Requirement # 7333 - Middle Name updates

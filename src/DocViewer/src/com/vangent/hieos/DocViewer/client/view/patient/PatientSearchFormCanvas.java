@@ -28,7 +28,7 @@ import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.events.SubmitValuesHandler;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 
 /**
@@ -57,7 +57,7 @@ public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 
 		this.controller = mainController;
 
-		Config controllerConfig = this.controller.getConfig();
+		ConfigDTO controllerConfig = this.controller.getConfig();
 
 		this.searchForm = new DynamicForm();
 		this.searchForm.setIsGroup(true);
@@ -68,13 +68,13 @@ public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 
 		// Family name:
 		String familyNameLabel = controllerConfig
-				.get(Config.KEY_LABEL_FAMILY_NAME);
+				.get(ConfigDTO.KEY_LABEL_FAMILY_NAME);
 		this.familyNameField = new TextItem("familyName", familyNameLabel);
 		this.familyNameField.setRequired(true);
 
 		// Given name:
 		String givenNameLabel = controllerConfig
-				.get(Config.KEY_LABEL_GIVEN_NAME);
+				.get(ConfigDTO.KEY_LABEL_GIVEN_NAME);
 		this.givenNameField = new TextItem("givenName", givenNameLabel);
 		this.givenNameField.setRequired(true);
 
@@ -115,7 +115,7 @@ public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 		this.fuzzyNameSearchCheckboxItem.setTitle("Fuzzy Name Search");
 		this.fuzzyNameSearchCheckboxItem.setValue(true);
 
-		this.showFuzzyNameSearch = controllerConfig.get(Config.KEY_SHOW_FUZZY_NAME_SEARCH);
+		this.showFuzzyNameSearch = controllerConfig.get(ConfigDTO.KEY_SHOW_FUZZY_NAME_SEARCH);
 		
 		// Check to display Fuzzy Name Search checkbox.
 		if (this.showFuzzyNameSearch.equals("false"))

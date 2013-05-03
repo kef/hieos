@@ -23,7 +23,7 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.smartgwt.client.widgets.layout.VLayout;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 
 /**
@@ -73,20 +73,20 @@ public class FindPatientsMainCanvas extends Canvas {
 		searchModeRadioGroupItem.setTitle("");
 		searchModeRadioGroupItem.setShowTitle(false);
 
-		Config cfg = controller.getConfig();
+		ConfigDTO cfg = controller.getConfig();
 		LinkedHashMap<String, String> searchModeMap = new LinkedHashMap<String, String>();
-		searchModeMap.put(Config.VAL_SEARCH_MODE_HIE,
-				cfg.get(Config.KEY_LABEL_HIE_MODE));
-		searchModeMap.put(Config.VAL_SEARCH_MODE_NHIN_EXCHANGE,
-				cfg.get(Config.KEY_LABEL_NHIN_MODE));
+		searchModeMap.put(ConfigDTO.VAL_SEARCH_MODE_HIE,
+				cfg.get(ConfigDTO.KEY_LABEL_HIE_MODE));
+		searchModeMap.put(ConfigDTO.VAL_SEARCH_MODE_NHIN_EXCHANGE,
+				cfg.get(ConfigDTO.KEY_LABEL_NHIN_MODE));
 		searchModeRadioGroupItem.setValueMap(searchModeMap);
 		searchModeRadioGroupItem.setDefaultValue(cfg
-				.get(Config.KEY_SEARCH_MODE));
+				.get(ConfigDTO.KEY_SEARCH_MODE));
 		searchModeRadioGroupItem.addChangedHandler(new ChangedHandler() {
 			@Override
 			public void onChanged(ChangedEvent event) {
 				String searchMode = (String) event.getValue();
-				controller.getConfig().put(Config.KEY_SEARCH_MODE, searchMode);
+				controller.getConfig().put(ConfigDTO.KEY_SEARCH_MODE, searchMode);
 				// SC.say("value = " + searchMode);
 			}
 		});

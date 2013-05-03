@@ -19,11 +19,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  *
  */
-public class DocumentTemplateConfig implements IsSerializable {
+public class DocumentTemplateConfigDTO implements IsSerializable {
 	private String displayName;
 	private String fileName;
 	
-	public DocumentTemplateConfig()
+	public DocumentTemplateConfigDTO()
 	{
 		
 	}

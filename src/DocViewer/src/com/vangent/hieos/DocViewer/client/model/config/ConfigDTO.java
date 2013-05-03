@@ -23,10 +23,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  * 
  */
-public class Config implements IsSerializable {
+public class ConfigDTO implements IsSerializable {
 	private HashMap<String, String> props = new HashMap<String, String>();
-	private List<DocumentTemplateConfig> documentTemplateConfigs = new ArrayList<DocumentTemplateConfig>();
-	private List<AuthenticationDomainConfig> authDomainList = new ArrayList<AuthenticationDomainConfig>();
+	private List<DocumentTemplateConfigDTO> documentTemplateConfigs = new ArrayList<DocumentTemplateConfigDTO>();
+	private List<AuthenticationDomainConfigDTO> authDomainList = new ArrayList<AuthenticationDomainConfigDTO>();
 
 	public static final String KEY_SEARCH_MODE = "DefaultSearchMode";
 	public static final String VAL_SEARCH_MODE_HIE = "hie";
@@ -76,7 +76,7 @@ public class Config implements IsSerializable {
 	/**
 	 * 
 	 */
-	public Config() {
+	public ConfigDTO() {
 		// Do nothing.
 	}
 
@@ -133,7 +133,7 @@ public class Config implements IsSerializable {
 	 * @param documentTemplateConfigs
 	 */
 	public void setDocumentTemplateConfigs(
-			List<DocumentTemplateConfig> documentTemplateConfigs) {
+			List<DocumentTemplateConfigDTO> documentTemplateConfigs) {
 		this.documentTemplateConfigs = documentTemplateConfigs;
 	}
 
@@ -142,7 +142,7 @@ public class Config implements IsSerializable {
 	 * @param documentTemplateConfig
 	 */
 	public void addDocumentTemplateConfig(
-			DocumentTemplateConfig documentTemplateConfig) {
+			DocumentTemplateConfigDTO documentTemplateConfig) {
 		this.documentTemplateConfigs.add(documentTemplateConfig);
 	}
 
@@ -150,7 +150,7 @@ public class Config implements IsSerializable {
 	 * 
 	 * @return
 	 */
-	public List<DocumentTemplateConfig> getDocumentTemplateConfigs() {
+	public List<DocumentTemplateConfigDTO> getDocumentTemplateConfigs() {
 		return documentTemplateConfigs;
 	}
 
@@ -161,7 +161,7 @@ public class Config implements IsSerializable {
 	 *            List of facilities from xconfig.xml.
 	 */
 	public void setAuthDomainListConfigs(
-			List<AuthenticationDomainConfig> authDomainConfig) {
+			List<AuthenticationDomainConfigDTO> authDomainConfig) {
 		this.authDomainList = authDomainConfig;
 	}
 
@@ -172,7 +172,7 @@ public class Config implements IsSerializable {
 	 *            List of facilities from xconfig.xml.
 	 */
 	public void addAuthDomainListConfig(
-			AuthenticationDomainConfig authDomainConfig) {
+			AuthenticationDomainConfigDTO authDomainConfig) {
 		this.authDomainList.add(authDomainConfig);
 	}
 
@@ -181,7 +181,7 @@ public class Config implements IsSerializable {
 	 * 
 	 * @return List List of facilities.
 	 */
-	public List<AuthenticationDomainConfig> getAuthDomainListConfigs() {
+	public List<AuthenticationDomainConfigDTO> getAuthDomainListConfigs() {
 		return authDomainList;
 	}
 }

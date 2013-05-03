@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Daniel Ng
  */
-public class AuthenticationDomainConfig implements IsSerializable {
+public class AuthenticationDomainConfigDTO implements IsSerializable {
 	private String authHandlerLdapBaseDn;
 	private String authHandlerLdapUrl;
 	private String authHandlerLdapUsernameFormat;

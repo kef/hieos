@@ -16,7 +16,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 
 @RemoteServiceRelativePath("ConfigRemoteService")
 public interface ConfigRemoteService extends RemoteService {
@@ -38,5 +38,5 @@ public interface ConfigRemoteService extends RemoteService {
 	 * @return
 	 * @throws RemoteServiceException
 	 */
-	public Config getConfig() throws RemoteServiceException;
+	public ConfigDTO getConfig() throws RemoteServiceException;
 }

@@ -46,8 +46,8 @@ import com.smartgwt.client.widgets.tab.events.TabDeselectedEvent;
 import com.smartgwt.client.widgets.tab.events.TabDeselectedHandler;
 import com.smartgwt.client.widgets.tab.events.TabSelectedEvent;
 import com.smartgwt.client.widgets.tab.events.TabSelectedHandler;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
+import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfigDTO;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadata;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataRecord;
@@ -181,14 +181,14 @@ public class DocumentContainerCanvas extends Canvas implements
 	 */
 	private void initializeDocumentTemplates() {
 		// Probably not best way to integrate, but will do for now..
-		Config config = controller.getConfig();
-		List<DocumentTemplateConfig> documentTemplateConfigs = config
+		ConfigDTO config = controller.getConfig();
+		List<DocumentTemplateConfigDTO> documentTemplateConfigs = config
 				.getDocumentTemplateConfigs();
 		documentTemplateDisplayNames = new String[documentTemplateConfigs
 				.size()];
 		documentTemplateFileNames = new String[documentTemplateConfigs.size()];
 		int i = 0;
-		for (DocumentTemplateConfig documentTemplateConfig : documentTemplateConfigs) {
+		for (DocumentTemplateConfigDTO documentTemplateConfig : documentTemplateConfigs) {
 			documentTemplateDisplayNames[i] = documentTemplateConfig
 					.getDisplayName();
 			documentTemplateFileNames[i] = documentTemplateConfig.getFileName();
@@ -222,15 +222,15 @@ public class DocumentContainerCanvas extends Canvas implements
 
 		// Create tab to hold document.
 		final Tab documentTab = new Tab();
-		Config config = controller.getConfig();
+		ConfigDTO config = controller.getConfig();
 		String documentTitle = documentMetadata.getTitle();
 
 		// Trim the document tab title if configured to do so.
 		boolean trimDocumentTabTitles = config
-				.getAsBoolean(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
+				.getAsBoolean(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES);
 		if (trimDocumentTabTitles == true) {
 			Integer trimDocumentTabTitlesLength = config
-					.getAsInteger(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
+					.getAsInteger(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
 			if (documentTitle.length() > trimDocumentTabTitlesLength) {
 				int endIndex = trimDocumentTabTitlesLength - 1;
 				documentTitle = documentTitle.substring(0, endIndex) + "...";
@@ -319,7 +319,7 @@ public class DocumentContainerCanvas extends Canvas implements
 		urlParams.put("repo_id", metadata.getRepositoryID());
 		urlParams.put("patient_id", metadata.getPatientID());
 		urlParams.put("template_filename", this.documentTemplateFileName);
-		String searchMode = controller.getConfig().get(Config.KEY_SEARCH_MODE);
+		String searchMode = controller.getConfig().get(ConfigDTO.KEY_SEARCH_MODE);
 		urlParams.put("search_mode", searchMode);
 		htmlPane.setContentsURLParams(urlParams);
 

@@ -16,9 +16,9 @@ package com.vangent.hieos.DocViewer.server.services.rpc.config;
 import java.util.List;
 
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfig;
-import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
+import com.vangent.hieos.DocViewer.client.model.config.DocumentTemplateConfigDTO;
+import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfigDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.ConfigRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.xutil.xconfig.XConfig;
@@ -36,110 +36,110 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	private final ServletUtilMixin servletUtil = new ServletUtilMixin();
 
 	@Override
-	public Config getConfig() throws RemoteServiceException {
+	public ConfigDTO getConfig() throws RemoteServiceException {
 		System.out.println("********* ConfigRemoteServiceImpl ********");
 
 		// Get the mixin to allow access to xconfig.xml.
 		servletUtil.init(this.getServletContext());
 
 		// Create the Config instance that will be sent back to the client.
-		Config config = new Config();
+		ConfigDTO config = new ConfigDTO();
 
 		// Now get the relevant properties
 
 		// DefaultSearchMode:
 		String defaultSearchMode = servletUtil
-				.getProperty(Config.KEY_SEARCH_MODE);
+				.getProperty(ConfigDTO.KEY_SEARCH_MODE);
 		System.out.println("DefaultSearchMode = " + defaultSearchMode);
 		if (defaultSearchMode == null) {
-			defaultSearchMode = Config.VAL_SEARCH_MODE_HIE;
+			defaultSearchMode = ConfigDTO.VAL_SEARCH_MODE_HIE;
 		}
 
 		// TrimDocumentTabTitles:
 		String trimDocumentTabTitles = servletUtil
-				.getProperty(Config.KEY_TRIM_DOCUMENT_TAB_TITLES);
+				.getProperty(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES);
 		if (trimDocumentTabTitles == null) {
 			trimDocumentTabTitles = "false";
 		}
 
 		// TrimDocumentTabTitlesLength:
 		String trimDocumentTabTitlesLength = servletUtil
-				.getProperty(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
+				.getProperty(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH);
 		if (trimDocumentTabTitlesLength == null) {
 			trimDocumentTabTitlesLength = "50";
 		}
 
 		// Title:
-		String title = servletUtil.getProperty(Config.KEY_TITLE);
+		String title = servletUtil.getProperty(ConfigDTO.KEY_TITLE);
 		if (title == null) {
 			title = "HIEOS Doc Viewer";
 		}
 
 		// LogoFileName:
 		String logoFileName = servletUtil
-				.getProperty(Config.KEY_LOGO_FILE_NAME);
+				.getProperty(ConfigDTO.KEY_LOGO_FILE_NAME);
 		System.out.println("LogoFileName = " + logoFileName);
 		if (logoFileName == null) {
 			logoFileName = "search_computer.png";
 		}
 
 		// LogoWidth/LogoHeight:
-		String logoWidth = servletUtil.getProperty(Config.KEY_LOGO_WIDTH);
-		String logoHeigth = servletUtil.getProperty(Config.KEY_LOGO_HEIGHT);
+		String logoWidth = servletUtil.getProperty(ConfigDTO.KEY_LOGO_WIDTH);
+		String logoHeigth = servletUtil.getProperty(ConfigDTO.KEY_LOGO_HEIGHT);
 
 		// Authentication domain list configuration:
 		String showAuthDomainList = servletUtil
-				.getProperty(Config.KEY_SHOW_AUTHDOMAIN_LIST);
+				.getProperty(ConfigDTO.KEY_SHOW_AUTHDOMAIN_LIST);
 		if (showAuthDomainList == null) {
 			showAuthDomainList = "false";
 		}
 		String authDomainName = servletUtil
-				.getProperty(Config.KEY_LABEL_AUTHDOMAIN_NAME);
+				.getProperty(ConfigDTO.KEY_LABEL_AUTHDOMAIN_NAME);
 		String authDomainSelect = servletUtil
-				.getProperty(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
+				.getProperty(ConfigDTO.KEY_LABEL_AUTHDOMAIN_SELECT);
 
 		// Fill up the config:
-		config.put(Config.KEY_SEARCH_MODE, defaultSearchMode);
-		config.put(Config.KEY_TRIM_DOCUMENT_TAB_TITLES, trimDocumentTabTitles);
-		config.put(Config.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH,
+		config.put(ConfigDTO.KEY_SEARCH_MODE, defaultSearchMode);
+		config.put(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES, trimDocumentTabTitles);
+		config.put(ConfigDTO.KEY_TRIM_DOCUMENT_TAB_TITLES_LENGTH,
 				trimDocumentTabTitlesLength);
-		config.put(Config.KEY_TITLE, title);
-		config.put(Config.KEY_LOGO_FILE_NAME, logoFileName);
-		config.put(Config.KEY_LOGO_WIDTH, logoWidth);
-		config.put(Config.KEY_LOGO_HEIGHT, logoHeigth);
-		config.put(Config.KEY_SHOW_AUTHDOMAIN_LIST, showAuthDomainList);
-		config.put(Config.KEY_LABEL_AUTHDOMAIN_NAME, authDomainName);
-		config.put(Config.KEY_LABEL_AUTHDOMAIN_SELECT, authDomainSelect);
+		config.put(ConfigDTO.KEY_TITLE, title);
+		config.put(ConfigDTO.KEY_LOGO_FILE_NAME, logoFileName);
+		config.put(ConfigDTO.KEY_LOGO_WIDTH, logoWidth);
+		config.put(ConfigDTO.KEY_LOGO_HEIGHT, logoHeigth);
+		config.put(ConfigDTO.KEY_SHOW_AUTHDOMAIN_LIST, showAuthDomainList);
+		config.put(ConfigDTO.KEY_LABEL_AUTHDOMAIN_NAME, authDomainName);
+		config.put(ConfigDTO.KEY_LABEL_AUTHDOMAIN_SELECT, authDomainSelect);
 
 		// copy properties from xconfig to config
-		copyToConfig(config, Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
-		copyToConfig(config, Config.KEY_SHOW_ORGANIZATION_COLUMN);
-		copyToConfig(config, Config.KEY_SHOW_TITLE_BRANDING);
+		copyToConfig(config, ConfigDTO.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+		copyToConfig(config, ConfigDTO.KEY_SHOW_ORGANIZATION_COLUMN);
+		copyToConfig(config, ConfigDTO.KEY_SHOW_TITLE_BRANDING);
 
-		copyToConfig(config, Config.KEY_LABEL_EUID, Config.DEFAULT_LABEL_EUID);
-		copyToConfig(config, Config.KEY_LABEL_FAMILY_NAME,
-				Config.DEFAULT_LABEL_FAMILY_NAME);
-		copyToConfig(config, Config.KEY_LABEL_GIVEN_NAME,
-				Config.DEFAULT_LABEL_GIVEN_NAME);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_EUID, ConfigDTO.DEFAULT_LABEL_EUID);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_FAMILY_NAME,
+				ConfigDTO.DEFAULT_LABEL_FAMILY_NAME);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_GIVEN_NAME,
+				ConfigDTO.DEFAULT_LABEL_GIVEN_NAME);
 		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
-		copyToConfig(config, Config.KEY_LABEL_MIDDLE_NAME,
-				Config.DEFAULT_LABEL_MIDDLE_NAME);
-		copyToConfig(config, Config.KEY_LABEL_HIE_MODE,
-				Config.DEFAULT_LABEL_HIE_MODE);
-		copyToConfig(config, Config.KEY_LABEL_NHIN_MODE,
-				Config.DEFAULT_LABEL_NHIN_MODE);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_MIDDLE_NAME,
+				ConfigDTO.DEFAULT_LABEL_MIDDLE_NAME);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_HIE_MODE,
+				ConfigDTO.DEFAULT_LABEL_HIE_MODE);
+		copyToConfig(config, ConfigDTO.KEY_LABEL_NHIN_MODE,
+				ConfigDTO.DEFAULT_LABEL_NHIN_MODE);
 		// Set the default label to blank, since one already exist.
-		copyToConfig(config, Config.KEY_SHOW_FUZZY_NAME_SEARCH, "");
+		copyToConfig(config, ConfigDTO.KEY_SHOW_FUZZY_NAME_SEARCH, "");
 
-		copyToConfig(config, Config.KEY_TOOLTIP_CONFIDENCE);
-		copyToConfig(config, Config.KEY_TOOLTIP_DATE_OF_BIRTH);
-		copyToConfig(config, Config.KEY_TOOLTIP_EUID);
-		copyToConfig(config, Config.KEY_TOOLTIP_FAMILY_NAME);
-		copyToConfig(config, Config.KEY_TOOLTIP_GIVEN_NAME);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_CONFIDENCE);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_DATE_OF_BIRTH);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_EUID);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_FAMILY_NAME);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_GIVEN_NAME);
 		/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */
-		copyToConfig(config, Config.KEY_TOOLTIP_MIDDLE_NAME);
-		copyToConfig(config, Config.KEY_TOOLTIP_GENDER);
-		copyToConfig(config, Config.KEY_TOOLTIP_SSN);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_MIDDLE_NAME);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_GENDER);
+		copyToConfig(config, ConfigDTO.KEY_TOOLTIP_SSN);
 
 		this.loadDocumentTemplateConfigs(config);
 
@@ -151,11 +151,11 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 		return config;
 	}
 
-	private void copyToConfig(Config config, String propertyName) {
+	private void copyToConfig(ConfigDTO config, String propertyName) {
 		copyToConfig(config, propertyName, null);
 	}
 
-	private void copyToConfig(Config config, String propertyName,
+	private void copyToConfig(ConfigDTO config, String propertyName,
 			String defaultName) {
 
 		if (defaultName != null) {
@@ -173,7 +173,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 * @param config
 	 */
-	private void loadDocumentTemplateConfigs(Config config) {
+	private void loadDocumentTemplateConfigs(ConfigDTO config) {
 		try {
 			XConfig xconf = XConfig.getInstance();
 			XConfigObject propertiesObject = xconf.getXConfigObjectByName(
@@ -184,7 +184,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 			List<XConfigObject> configObjects = documentTemplateListConfig
 					.getXConfigObjectsWithType("DocumentTemplateType");
 			for (XConfigObject configObject : configObjects) {
-				DocumentTemplateConfig documentTemplateConfig = new DocumentTemplateConfig();
+				DocumentTemplateConfigDTO documentTemplateConfig = new DocumentTemplateConfigDTO();
 				documentTemplateConfig.setDisplayName(configObject
 						.getProperty("DisplayName"));
 				documentTemplateConfig.setFileName(configObject
@@ -203,7 +203,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 * @param config
 	 */
-	private void loadAuthDomainListConfig(Config config) {
+	private void loadAuthDomainListConfig(ConfigDTO config) {
 		try {
 			XConfig xconf = XConfig.getInstance();
 			XConfigObject propertiesObject = xconf.getXConfigObjectByName(
@@ -215,7 +215,7 @@ public class ConfigRemoteServiceImpl extends RemoteServiceServlet implements
 					.getXConfigObjectsWithType("AuthDomainType");
 			// Get the authentication domains from xconfig.xml.
 			for (XConfigObject configObject : configObjects) {
-				AuthenticationDomainConfig authDomainConfig = new AuthenticationDomainConfig();
+				AuthenticationDomainConfigDTO authDomainConfig = new AuthenticationDomainConfigDTO();
 				/**
 				 * Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
 				authDomainConfig.setAuthDomainName(configObject

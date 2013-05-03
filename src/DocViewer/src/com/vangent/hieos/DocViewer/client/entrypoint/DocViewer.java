@@ -45,8 +45,8 @@ import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.controller.LogoutObserver;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
-import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
+import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfigDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
@@ -87,11 +87,11 @@ public class DocViewer implements EntryPoint {
 	 */
 	public void loadLoginPage() {
 		// Get Title and Logo details from config file
-		Config config = controller.getConfig();
-		String title = config.get(Config.KEY_TITLE);
-		String logoFileName = config.get(Config.KEY_LOGO_FILE_NAME);
-		Integer logoWidth = config.getAsInteger(Config.KEY_LOGO_WIDTH);
-		Integer logoHeight = config.getAsInteger(Config.KEY_LOGO_HEIGHT);
+		ConfigDTO config = controller.getConfig();
+		String title = config.get(ConfigDTO.KEY_TITLE);
+		String logoFileName = config.get(ConfigDTO.KEY_LOGO_FILE_NAME);
+		Integer logoWidth = config.getAsInteger(ConfigDTO.KEY_LOGO_WIDTH);
+		Integer logoHeight = config.getAsInteger(ConfigDTO.KEY_LOGO_HEIGHT);
 
 		// Set up Login Form
 		final DynamicForm loginForm = new DynamicForm();
@@ -114,9 +114,9 @@ public class DocViewer implements EntryPoint {
 		final PasswordItem passwordItem = new PasswordItem("Password",
 				"Password");
 
-		String authDomainName = config.get(Config.KEY_LABEL_AUTHDOMAIN_NAME);
+		String authDomainName = config.get(ConfigDTO.KEY_LABEL_AUTHDOMAIN_NAME);
 		String authDomainSelect = config
-				.get(Config.KEY_LABEL_AUTHDOMAIN_SELECT);
+				.get(ConfigDTO.KEY_LABEL_AUTHDOMAIN_SELECT);
 		final SelectItem authDomainList = new SelectItem(authDomainSelect,
 				authDomainName);
 
@@ -145,7 +145,7 @@ public class DocViewer implements EntryPoint {
 		// Tribal Sites (non-D1 users) to authenticate and log onto the HIE
 		// DocViewer” .
 		boolean showAuthDomainList = Boolean.parseBoolean(config
-				.get(Config.KEY_SHOW_AUTHDOMAIN_LIST) + "");
+				.get(ConfigDTO.KEY_SHOW_AUTHDOMAIN_LIST) + "");
 		java.util.LinkedHashMap<String, String> map = getAuthDomainList();
 		// Show the authentication domain selection box.
 		if (showAuthDomainList) {
@@ -164,9 +164,9 @@ public class DocViewer implements EntryPoint {
 					authDomainList, loginButton);
 		} else {
 			if (!map.keySet()
-					.contains(Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE)) {
+					.contains(ConfigDTO.DEFAULT_ATHENTICATION_DOMAIN_TYPE)) {
 				System.out.println("Check xconfig.xml. Domain: '"
-						+ Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE
+						+ ConfigDTO.DEFAULT_ATHENTICATION_DOMAIN_TYPE
 						+ "' does not exist");
 			}
 			loginForm.setFields(header, userIdItem, passwordItem, loginButton);
@@ -191,7 +191,7 @@ public class DocViewer implements EntryPoint {
 							// users) to authenticate and log onto the HIE
 							// DocViewer” .
 							// String authDomainSelected = "default";
-							String authDomainSelected = Config.DEFAULT_ATHENTICATION_DOMAIN_TYPE;
+							String authDomainSelected = ConfigDTO.DEFAULT_ATHENTICATION_DOMAIN_TYPE;
 
 							// Check if the default authDomain is used.
 							if (authDomainList.getValueAsString() != null) {
@@ -307,7 +307,7 @@ public class DocViewer implements EntryPoint {
 	 */
 	private ToolStrip createToolStrip() {
 
-		Config config = controller.getConfig();
+		ConfigDTO config = controller.getConfig();
 
 		// Create the "Find Patients" button.
 		final ToolStripButton findPatientsButton = new ToolStripButton();
@@ -368,7 +368,7 @@ public class DocViewer implements EntryPoint {
 		toolStrip.addSpacer(5);
 
 		boolean showBranding = config
-				.getAsBoolean(Config.KEY_SHOW_TITLE_BRANDING);
+				.getAsBoolean(ConfigDTO.KEY_SHOW_TITLE_BRANDING);
 		if (showBranding) {
 			// Title:
 			final Label title = new Label("HIEOS DocViewer");
@@ -388,7 +388,7 @@ public class DocViewer implements EntryPoint {
 		// Create "Find Documents" button (only if user has permissions -
 		// usually for debug only).
 		boolean showFindDocuments = config
-				.getAsBoolean(Config.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
+				.getAsBoolean(ConfigDTO.KEY_SHOW_FIND_DOCUMENTS_BUTTON);
 		if (showFindDocuments) {
 			final ToolStripButton findDocumentsButton = this
 					.getFindDocumentsButton();
@@ -465,8 +465,8 @@ public class DocViewer implements EntryPoint {
 	 */
 	private java.util.LinkedHashMap<String, String> getAuthDomainList() {
 		// FIXME: Why do like this? Rewrite. Weak means to pass around params.
-		Config config = controller.getConfig();
-		List<AuthenticationDomainConfig> authDomainConfigs = config
+		ConfigDTO config = controller.getConfig();
+		List<AuthenticationDomainConfigDTO> authDomainConfigs = config
 				.getAuthDomainListConfigs();
 		/**
 		 * authDomainDisplayName = new String[authDomainConfigs.size()];
@@ -481,7 +481,7 @@ public class DocViewer implements EntryPoint {
 		 * this.authDomainValue = authDomainValueList[0];
 		 */
 		java.util.LinkedHashMap<String, String> domainListMap = new java.util.LinkedHashMap<String, String>();
-		for (AuthenticationDomainConfig authDomainConfig : authDomainConfigs) {
+		for (AuthenticationDomainConfigDTO authDomainConfig : authDomainConfigs) {
 			domainListMap.put(authDomainConfig.getAuthDomainValue(),
 					authDomainConfig.getAuthDomainName());
 

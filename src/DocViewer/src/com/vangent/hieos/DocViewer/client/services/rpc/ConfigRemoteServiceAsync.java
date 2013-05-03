@@ -12,7 +12,7 @@
  */
 package com.vangent.hieos.DocViewer.client.services.rpc;
 
-import com.vangent.hieos.DocViewer.client.model.config.Config;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ConfigRemoteServiceAsync {
@@ -21,5 +21,5 @@ public interface ConfigRemoteServiceAsync {
 	 * 
 	 * @param callback
 	 */
-	public void getConfig(AsyncCallback<Config> callback);
+	public void getConfig(AsyncCallback<ConfigDTO> callback);
 }
