@@ -18,7 +18,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.log4j.Logger;
 
 import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.gateway.InitiatingGateway;
 import com.vangent.hieos.authutil.model.AuthenticationContext;

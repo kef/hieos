@@ -16,8 +16,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.PIPRemoteService;
 
 /**
@@ -26,7 +26,7 @@ import com.vangent.hieos.DocViewer.client.services.rpc.PIPRemoteService;
  * 
  */
 public class PatientConsentQueryService extends ProxyService {
-	private PatientConsentSearchCriteria criteria;
+	private PatientConsentSearchCriteriaDTO criteria;
 
 	/**
 	 * 
@@ -34,7 +34,7 @@ public class PatientConsentQueryService extends ProxyService {
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public PatientConsentQueryService(PatientConsentSearchCriteria criteria,
+	public PatientConsentQueryService(PatientConsentSearchCriteriaDTO criteria,
 			Observer observer, TimeOutHelper timeOutHelper) {
 		super(observer, timeOutHelper);
 		this.criteria = criteria;
@@ -62,13 +62,13 @@ public class PatientConsentQueryService extends ProxyService {
 
 		// RPC:
 		PIPRemoteService.Util.getInstance().getPatientConsentDirectives(criteria,
-				new AsyncCallback<PatientConsentDirectives>() {
+				new AsyncCallback<PatientConsentDirectivesDTO>() {
 
 					/**
 					 * 
 					 * @param patientConsentDirectives
 					 */
-					public void onSuccess(PatientConsentDirectives patientConsentDirectives) {
+					public void onSuccess(PatientConsentDirectivesDTO patientConsentDirectives) {
 						cancelTimer();
 						if (getAbortFlag()) {
 							// Timeout already occurred. discard result

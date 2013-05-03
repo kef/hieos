@@ -29,7 +29,7 @@ import com.smartgwt.client.widgets.form.events.SubmitValuesHandler;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 
 /**
  * 
@@ -155,7 +155,7 @@ public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 		boolean validatedOk = searchForm.validate();
 		if (validatedOk == true) {
 			// Pull values off of form.
-			PatientSearchCriteria criteria = this.getPatientSearchCriteria();
+			PatientSearchCriteriaDTO criteria = this.getPatientSearchCriteria();
 			// Conduct the search.
 			controller.findPatients(criteria);
 		}
@@ -165,8 +165,8 @@ public class PatientSearchFormCanvas extends Canvas implements ClickHandler,
 	 * 
 	 * @return
 	 */
-	private PatientSearchCriteria getPatientSearchCriteria() {
-		PatientSearchCriteria criteria = new PatientSearchCriteria();
+	private PatientSearchCriteriaDTO getPatientSearchCriteria() {
+		PatientSearchCriteriaDTO criteria = new PatientSearchCriteriaDTO();
 		// Name:
 		criteria.setFamilyName(familyNameField.getValueAsString());
 		criteria.setGivenName(givenNameField.getValueAsString());

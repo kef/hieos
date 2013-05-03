@@ -22,9 +22,9 @@ import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteria;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.services.proxy.AuthenticationService;
 import com.vangent.hieos.DocViewer.client.services.proxy.ConfigRetrieveService;
 import com.vangent.hieos.DocViewer.client.services.proxy.DocumentQueryService;
@@ -191,7 +191,7 @@ public class DocViewerController {
 	 * 
 	 * @param criteria
 	 */
-	public void findPatients(PatientSearchCriteria criteria) {
+	public void findPatients(PatientSearchCriteriaDTO criteria) {
 		PatientListObserver observer = new PatientListObserver(
 				findPatientsMainCanvas);
 		this.findPatients(criteria, observer);
@@ -202,7 +202,7 @@ public class DocViewerController {
 	 * @param criteria
 	 * @param observer
 	 */
-	public void findPatients(PatientSearchCriteria criteria,
+	public void findPatients(PatientSearchCriteriaDTO criteria,
 			final PatientListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		PatientQueryService service = new PatientQueryService(criteria,
@@ -257,7 +257,7 @@ public class DocViewerController {
 	 * @param observer
 	 */
 	public void getConsentDirectives(
-			final PatientConsentSearchCriteria criteria,
+			final PatientConsentSearchCriteriaDTO criteria,
 			final PatientConsentObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		PatientConsentQueryService service = new PatientConsentQueryService(

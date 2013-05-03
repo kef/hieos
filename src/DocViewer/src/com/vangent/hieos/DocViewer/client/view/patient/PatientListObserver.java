@@ -16,7 +16,7 @@ import java.util.List;
 
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
 /**
@@ -39,10 +39,10 @@ public class PatientListObserver implements Observer {
 	 * 
 	 * @param patients
 	 */
-	private void update(List<Patient> patients) {
+	private void update(List<PatientDTO> patients) {
 		ListGridRecord[] gridRecords = new ListGridRecord[patients.size()];
 		int gridRecord = 0;
-		for (Patient patient : patients) {
+		for (PatientDTO patient : patients) {
 			PatientRecord patientRecord = new PatientRecord(patient);
 			gridRecords[gridRecord++] = patientRecord;
 		}
@@ -53,6 +53,6 @@ public class PatientListObserver implements Observer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void update(Object object) {
-		this.update((List<Patient>) object);
+		this.update((List<PatientDTO>) object);
 	}
 }

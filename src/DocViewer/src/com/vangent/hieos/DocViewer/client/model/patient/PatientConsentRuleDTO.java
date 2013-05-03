@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  * 
  */
-public class PatientConsentRule implements IsSerializable {
+public class PatientConsentRuleDTO implements IsSerializable {
 	/**
     *
     */

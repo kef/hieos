@@ -18,8 +18,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
 
 /**
@@ -28,7 +28,7 @@ import com.vangent.hieos.DocViewer.client.services.rpc.PDSRemoteService;
  * 
  */
 public class PatientQueryService extends ProxyService {
-	private PatientSearchCriteria criteria;
+	private PatientSearchCriteriaDTO criteria;
 
 	/**
 	 * 
@@ -36,7 +36,7 @@ public class PatientQueryService extends ProxyService {
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public PatientQueryService(PatientSearchCriteria criteria,
+	public PatientQueryService(PatientSearchCriteriaDTO criteria,
 			Observer observer, TimeOutHelper timeOutHelper) {
 		super(observer, timeOutHelper);
 		this.criteria = criteria;
@@ -64,13 +64,13 @@ public class PatientQueryService extends ProxyService {
 
 		// RPC:
 		PDSRemoteService.Util.getInstance().getPatients(criteria,
-				new AsyncCallback<List<Patient>>() {
+				new AsyncCallback<List<PatientDTO>>() {
 
 					/**
 					 * 
 					 * @param patients
 					 */
-					public void onSuccess(List<Patient> patients) {
+					public void onSuccess(List<PatientDTO> patients) {
 						cancelTimer();
 						if (getAbortFlag()) {
 							// Timeout already occurred. discard result

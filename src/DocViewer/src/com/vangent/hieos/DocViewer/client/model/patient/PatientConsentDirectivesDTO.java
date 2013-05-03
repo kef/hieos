@@ -22,14 +22,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  * 
  */
-public class PatientConsentDirectives implements IsSerializable {
+public class PatientConsentDirectivesDTO implements IsSerializable {
 	public enum StatusType {
 		ACTIVE, INACTIVE, NOT_ESTABLISHED
 	};
 
 	private String patientID;
 	private StatusType status;
-	private List<PatientConsentRule> patientConsentRules = new ArrayList<PatientConsentRule>();
+	private List<PatientConsentRuleDTO> patientConsentRules = new ArrayList<PatientConsentRuleDTO>();
 
 	/**
 	 * 
@@ -67,7 +67,7 @@ public class PatientConsentDirectives implements IsSerializable {
 	 * 
 	 * @return
 	 */
-	public List<PatientConsentRule> getPatientConsentRules() {
+	public List<PatientConsentRuleDTO> getPatientConsentRules() {
 		return this.patientConsentRules;
 	}
 
@@ -75,7 +75,7 @@ public class PatientConsentDirectives implements IsSerializable {
 	 * 
 	 * @param patientConsentRule
 	 */
-	public void add(PatientConsentRule patientConsentRule) {
+	public void add(PatientConsentRuleDTO patientConsentRule) {
 		this.patientConsentRules.add(patientConsentRule);
 	}
 }

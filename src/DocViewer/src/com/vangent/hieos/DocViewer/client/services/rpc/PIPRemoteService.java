@@ -16,8 +16,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 
 /**
  * 
@@ -45,5 +45,5 @@ public interface PIPRemoteService extends RemoteService {
 	 * @return
 	 * @throws RemoteServiceException
 	 */
-	public PatientConsentDirectives getPatientConsentDirectives(PatientConsentSearchCriteria criteria) throws RemoteServiceException;
+	public PatientConsentDirectivesDTO getPatientConsentDirectives(PatientConsentSearchCriteriaDTO criteria) throws RemoteServiceException;
 }

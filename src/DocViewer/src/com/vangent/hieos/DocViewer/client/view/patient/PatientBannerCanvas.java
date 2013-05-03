@@ -17,7 +17,7 @@ import com.smartgwt.client.types.VerticalAlignment;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.Label;
 import com.smartgwt.client.widgets.toolbar.ToolStrip;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
 /**
@@ -77,7 +77,7 @@ public class PatientBannerCanvas extends Canvas {
 	 * @param patientRecord
 	 */
 	public void update(PatientRecord patientRecord) {
-		Patient patient = patientRecord.getPatient();
+		PatientDTO patient = patientRecord.getPatient();
 		if (patient.getFamilyName() != null && patient.getGivenName() != null) {
 			name.setContents("<b>" + patientRecord.getFormattedName() + "</b>");
 		} else {

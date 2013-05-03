@@ -13,22 +13,22 @@
 package com.vangent.hieos.DocViewer.client.model.document;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class DocumentSearchCriteria implements IsSerializable {
-	private Patient patient;
+	private PatientDTO patient;
 	private String searchMode;
-	
-	public void setPatient(Patient patient) {
+
+	public void setPatient(PatientDTO patient) {
 		this.patient = patient;
 	}
 
-	public Patient getPatient() {
+	public PatientDTO getPatient() {
 		return this.patient;
 	}
 
@@ -39,7 +39,5 @@ public class DocumentSearchCriteria implements IsSerializable {
 	public String getSearchMode() {
 		return searchMode;
 	}
-	
 
-	
 }

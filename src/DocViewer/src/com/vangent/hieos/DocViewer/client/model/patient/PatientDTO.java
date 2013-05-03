@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  *
  */
-public class Patient implements IsSerializable {
+public class PatientDTO implements IsSerializable {
 	private String familyName;
 	private String givenName;
 	/* [03/14/13]  IHS Release 1.3 (Requirement # 7333 - Middle Name updates in DocViewer) */

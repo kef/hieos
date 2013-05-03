@@ -34,13 +34,13 @@ public class PatientRecord extends ListGridRecord {
 	static public final String MATCH_CONFIDENCE_FIELD = "match_confidence";
 
 	
-	private Patient patient;
+	private PatientDTO patient;
 
 	/**
 	 * 
 	 * @param patient
 	 */
-	public PatientRecord(Patient patient) {
+	public PatientRecord(PatientDTO patient) {
 		this.patient = patient;
 		// To allow grouping/sorting:
 		setAttribute(DOB_FIELD, patient.getDateOfBirth());
@@ -58,7 +58,7 @@ public class PatientRecord extends ListGridRecord {
 	 * 
 	 * @return
 	 */
-	public Patient getPatient() {
+	public PatientDTO getPatient() {
 		return this.patient;
 	}
 

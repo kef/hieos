@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bernie Thuman
  * 
  */
-public class PatientSearchCriteria implements IsSerializable {
+public class PatientSearchCriteriaDTO implements IsSerializable {
 
 	private String givenName;
 	private String familyName;

@@ -18,8 +18,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 
 /**
  * 
@@ -47,5 +47,5 @@ public interface PDSRemoteService extends RemoteService {
 	 * @return
 	 * @throws RemoteServiceException
 	 */
-	public List<Patient> getPatients(PatientSearchCriteria criteria) throws RemoteServiceException;
+	public List<PatientDTO> getPatients(PatientSearchCriteriaDTO criteria) throws RemoteServiceException;
 }

@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.DocViewer.client.services.rpc;
 
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteriaDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -23,6 +23,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface PIPRemoteServiceAsync {
 
-	public void getPatientConsentDirectives(PatientConsentSearchCriteria criteria,
-			AsyncCallback<PatientConsentDirectives> callback);
+	public void getPatientConsentDirectives(PatientConsentSearchCriteriaDTO criteria,
+			AsyncCallback<PatientConsentDirectivesDTO> callback);
 }

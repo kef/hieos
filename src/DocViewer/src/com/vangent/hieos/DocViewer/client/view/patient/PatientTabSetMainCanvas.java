@@ -19,7 +19,7 @@ import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tab.events.CloseClickHandler;
 import com.smartgwt.client.widgets.tab.events.TabCloseClickEvent;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
 /**
@@ -89,7 +89,7 @@ public class PatientTabSetMainCanvas extends Canvas implements
 		// Create a new tab for the patient.
 		final Tab patientTab = new Tab();
 		String imageName = "person.png";
-		Patient patient = patientRecord.getPatient();
+		PatientDTO patient = patientRecord.getPatient();
 		if (patient.getGender() != null) {
 			if (patient.getGender().equals("M")) {
 				imageName = "gender_male.png";

@@ -47,7 +47,7 @@ import com.vangent.hieos.DocViewer.client.controller.LogoutObserver;
 import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 
@@ -522,7 +522,7 @@ public class DocViewer implements EntryPoint {
 			}
 
 			// Create patient instance -- just with patient id.
-			final Patient patient = new Patient();
+			final PatientDTO patient = new PatientDTO();
 			patient.setEuid(PatientUtil.getIDFromPIDString(patientID));
 			patient.setEuidUniversalID(PatientUtil
 					.getUniversalIDFromPIDString(patientID));

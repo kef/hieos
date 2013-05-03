@@ -25,7 +25,7 @@ import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.SortDirection;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
-import com.vangent.hieos.DocViewer.client.model.patient.Patient;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
 
 /**
@@ -108,7 +108,7 @@ public class PatientListCanvas extends Canvas implements DoubleClickHandler {
 					return null;
 				PatientRecord patientRecord = (PatientRecord) record;
 				String imageName = "person.png";
-				Patient patient = patientRecord.getPatient();
+				PatientDTO patient = patientRecord.getPatient();
 				if (patient.getGender().equals("M")) {
 					imageName = "gender_male.png";
 				} else {

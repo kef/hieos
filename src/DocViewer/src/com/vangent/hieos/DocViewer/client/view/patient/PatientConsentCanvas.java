@@ -31,10 +31,10 @@ import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentRule;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentRuleDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteria;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientSearchCriteriaDTO;
 
 /**
  * 
@@ -93,17 +93,17 @@ public class PatientConsentCanvas extends Canvas implements
 	 * 
 	 * @param patientConsentDirectives
 	 */
-	public void update(PatientConsentDirectives patientConsentDirectives) {
+	public void update(PatientConsentDirectivesDTO patientConsentDirectives) {
 		// TODO: IMPLEMENT
 		// SC.warn("RETURNED -> " + patientConsentDirectives.getPatientID() +
 		// ", ACTIVE = " +
 		// (patientConsentDirectives.isActive() ? "TRUE" : "FALSE"));
-		patientActiveCheckBoxItem.setValue(patientConsentDirectives.getStatus() == PatientConsentDirectives.StatusType.ACTIVE);
+		patientActiveCheckBoxItem.setValue(patientConsentDirectives.getStatus() == PatientConsentDirectivesDTO.StatusType.ACTIVE);
 		
 		// TBD: Implement more complex UI.
 		
 		// Only deal with Opt-In / Opt-Out for now.
-		List<PatientConsentRule> patientConsentRules = patientConsentDirectives.getPatientConsentRules();
+		List<PatientConsentRuleDTO> patientConsentRules = patientConsentDirectives.getPatientConsentRules();
 		
 		// TBD: Implement.
 	}

@@ -13,7 +13,7 @@
 package com.vangent.hieos.DocViewer.client.view.patient;
 
 import com.vangent.hieos.DocViewer.client.helper.Observer;
-import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectives;
+import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentDirectivesDTO;
 
 /**
  * 
@@ -35,12 +35,12 @@ public class PatientConsentObserver implements Observer {
 	 * 
 	 * @param patientConsentDirectives
 	 */
-	private void update(PatientConsentDirectives patientConsentDirectives) {
+	private void update(PatientConsentDirectivesDTO patientConsentDirectives) {
 		patientConsentCanvas.update(patientConsentDirectives);
 	}
 
 	@Override
 	public void update(Object object) {
-		this.update((PatientConsentDirectives) object);
+		this.update((PatientConsentDirectivesDTO) object);
 	}
 }
