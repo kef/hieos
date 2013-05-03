@@ -21,6 +21,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-io-1.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/hl7v3util.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/policyutil.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/httpcore-4.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/httpcore-nio-4.0.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jaxb-impl-2.1.7.jar"/>
