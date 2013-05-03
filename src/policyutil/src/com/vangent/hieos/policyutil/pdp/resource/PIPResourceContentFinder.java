@@ -85,6 +85,6 @@ public class PIPResourceContentFinder {
         PIPClient pipClient = new PIPClient(this.pipConfig);
         PIPRequest pipRequest = new PIPRequest();
         pipRequest.setPatientId(patientId);
-        return pipClient.getPatientConsentDirectives(pipRequest);
+        return pipClient.getPatientConsentDirectives(pipRequest, false /* buildDomainModel */);
     }
 }

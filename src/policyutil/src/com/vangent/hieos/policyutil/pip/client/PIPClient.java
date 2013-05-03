@@ -46,18 +46,21 @@ public class PIPClient extends WebServiceClient {
      * Simple client interface for issuing PIP requests and receiving PIP responses.
      *
      * @param pipRequest
+     * @param buildDomainModel
      * @return PIPResponse
      * @throws PolicyException
      */
     public PIPResponse getPatientConsentDirectives(
-            PIPRequest pipRequest) throws PolicyException {
+            PIPRequest pipRequest, boolean buildDomainModel) throws PolicyException {
         try {
             // Get configuration.
             XConfigActor config = this.getConfig();
             XConfigTransaction txn = config.getTransaction("GetConsentDirectives");
 
             // Perform SOAP call to PIP.
-            PIPResponse pipResponse = this.send(pipRequest, PolicyConstants.PIP_GET_CONSENT_DIRECTIVES_SOAP_ACTION, txn.getEndpointURL(), txn.isSOAP12Endpoint());
+            PIPResponse pipResponse = this.send(pipRequest,
+                    PolicyConstants.PIP_GET_CONSENT_DIRECTIVES_SOAP_ACTION,
+                    txn.getEndpointURL(), txn.isSOAP12Endpoint(), buildDomainModel);
             return pipResponse;
         } catch (Exception ex) {
             throw new PolicyException("Unable to contact Policy Information Point: " + ex.getMessage());
@@ -72,10 +75,12 @@ public class PIPClient extends WebServiceClient {
      * @param soapAction
      * @param endpointURL
      * @param soap12
+     * @param buildDomainModel
      * @return PIPResponse
      * @throws PolicyException
      */
-    private PIPResponse send(PIPRequest pipRequest, String soapAction, String endpointURL, boolean soap12) throws PolicyException {
+    private PIPResponse send(PIPRequest pipRequest, String soapAction, String endpointURL, 
+            boolean soap12, boolean buildDomainModel) throws PolicyException {
         try {
             // Builder the request (in XML).
             PIPRequestBuilder requestBuilder = new PIPRequestBuilder();
@@ -101,7 +106,9 @@ public class PIPClient extends WebServiceClient {
 
             // Build the PIP Response.
             PIPResponseBuilder responseBuilder = new PIPResponseBuilder();
-            PIPResponse pipResponse = responseBuilder.buildPIPResponse(new PIPResponseElement(pipResponseNode));
+            PIPResponse pipResponse = 
+                    responseBuilder.buildPIPResponse(new PIPResponseElement(pipResponseNode),
+                    buildDomainModel);
             return pipResponse;
 
         } catch (Exception ex) {
