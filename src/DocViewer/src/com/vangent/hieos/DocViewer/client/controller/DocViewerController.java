@@ -16,8 +16,8 @@ package com.vangent.hieos.DocViewer.client.controller;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
@@ -46,7 +46,7 @@ import com.vangent.hieos.DocViewer.client.view.patient.PatientTabSetMainCanvas;
  */
 public class DocViewerController {
 	private Canvas mainCanvas;
-	private AuthenticationContext authContext;
+	private AuthenticationContextDTO authContext;
 	private FindPatientsMainCanvas findPatientsMainCanvas;
 	private PatientTabSetMainCanvas patientTabSetMainCanvas;
 	
@@ -69,7 +69,7 @@ public class DocViewerController {
 	 */
 	public void login(AuthenticationObserver authObserver, String userid,
 			String password, String authDomainTypeKey) {
-		Credentials creds = new Credentials();
+		CredentialsDTO creds = new CredentialsDTO();
 		creds.setPassword(password);
 		creds.setUserId(userid);
 		creds.setAuthDomainTypeKey(authDomainTypeKey);
@@ -126,7 +126,7 @@ public class DocViewerController {
 	 * 
 	 * @return
 	 */
-	public AuthenticationContext getAuthContext() {
+	public AuthenticationContextDTO getAuthContext() {
 		return authContext;
 	}
 
@@ -134,7 +134,7 @@ public class DocViewerController {
 	 * 
 	 * @param authContext
 	 */
-	public void setAuthContext(AuthenticationContext authContext) {
+	public void setAuthContext(AuthenticationContextDTO authContext) {
 		this.authContext = authContext;
 	}
 

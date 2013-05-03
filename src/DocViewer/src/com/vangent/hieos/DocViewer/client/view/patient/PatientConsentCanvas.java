@@ -98,7 +98,7 @@ public class PatientConsentCanvas extends Canvas implements
 		// SC.warn("RETURNED -> " + patientConsentDirectives.getPatientID() +
 		// ", ACTIVE = " +
 		// (patientConsentDirectives.isActive() ? "TRUE" : "FALSE"));
-		patientActiveCheckBoxItem.setValue(patientConsentDirectives.isActive());
+		patientActiveCheckBoxItem.setValue(patientConsentDirectives.getStatus() == PatientConsentDirectives.StatusType.ACTIVE);
 		
 		// TBD: Implement more complex UI.
 		

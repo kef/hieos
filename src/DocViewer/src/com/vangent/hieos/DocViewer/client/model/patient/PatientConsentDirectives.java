@@ -20,30 +20,16 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * 
  * @author Bernie Thuman
- *
+ * 
  */
 public class PatientConsentDirectives implements IsSerializable {
-	private boolean active;
-	private String patientID;
-	private List<PatientConsentRule> patientConsentRules = new ArrayList<PatientConsentRule>();
+	public enum StatusType {
+		ACTIVE, INACTIVE, NOT_ESTABLISHED
+	};
 
-	/**
-	 * 
-	 * @param active
-	 */
-	public void setActive(boolean active)
-	{
-		this.active = active;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isActive()
-	{
-		return active;
-	}
+	private String patientID;
+	private StatusType status;
+	private List<PatientConsentRule> patientConsentRules = new ArrayList<PatientConsentRule>();
 
 	/**
 	 * 
@@ -60,22 +46,36 @@ public class PatientConsentDirectives implements IsSerializable {
 	public void setPatientID(String patientID) {
 		this.patientID = patientID;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public List<PatientConsentRule> getPatientConsentRules()
-	{
+	public StatusType getStatus() {
+		return status;
+	}
+
+	/**
+	 * 
+	 * @param status
+	 */
+	public void setStatus(StatusType status) {
+		this.status = status;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public List<PatientConsentRule> getPatientConsentRules() {
 		return this.patientConsentRules;
 	}
-	
+
 	/**
 	 * 
 	 * @param patientConsentRule
 	 */
-	public void add(PatientConsentRule patientConsentRule)
-	{
+	public void add(PatientConsentRule patientConsentRule) {
 		this.patientConsentRules.add(patientConsentRule);
 	}
 }

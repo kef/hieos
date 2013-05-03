@@ -17,12 +17,12 @@ import com.smartgwt.client.util.SC;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
 import com.vangent.hieos.DocViewer.client.helper.TimeOutHelper;
 import com.vangent.hieos.DocViewer.client.services.rpc.AuthenticationRemoteService;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
 
 public class AuthenticationService extends ProxyService {
 
-	private Credentials creds;
+	private CredentialsDTO creds;
 	
 	
 	/**
@@ -31,7 +31,7 @@ public class AuthenticationService extends ProxyService {
 	 * @param observer
 	 * @param timeOutHelper
 	 */
-	public AuthenticationService(Credentials creds, Observer observer, TimeOutHelper timeOutHelper) {
+	public AuthenticationService(CredentialsDTO creds, Observer observer, TimeOutHelper timeOutHelper) {
 		super(observer, timeOutHelper);
 		this.creds = creds;
 	}
@@ -45,9 +45,9 @@ public class AuthenticationService extends ProxyService {
 		this.getTimeOutHelper().startTimer();
 		// RPC:
 		AuthenticationRemoteService.Util.getInstance().login(creds,
-				new AsyncCallback<AuthenticationContext>() {
+				new AsyncCallback<AuthenticationContextDTO>() {
 
-					public void onSuccess(AuthenticationContext authCtx) {
+					public void onSuccess(AuthenticationContextDTO authCtx) {
 						cancelTimer();
 						if (getAbortFlag()) {
 							// Timeout already occurred. discard result

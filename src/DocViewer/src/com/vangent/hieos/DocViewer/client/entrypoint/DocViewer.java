@@ -44,7 +44,7 @@ import com.vangent.hieos.DocViewer.client.controller.AuthenticationObserver;
 import com.vangent.hieos.DocViewer.client.controller.ConfigObserver;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.controller.LogoutObserver;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 import com.vangent.hieos.DocViewer.client.model.config.Config;
 import com.vangent.hieos.DocViewer.client.model.config.AuthenticationDomainConfig;
 import com.vangent.hieos.DocViewer.client.model.patient.Patient;
@@ -233,7 +233,7 @@ public class DocViewer implements EntryPoint {
 	 * 
 	 * @param authContext
 	 */
-	public void loadMainPageOnLoginSuccess(AuthenticationContext authContext) {
+	public void loadMainPageOnLoginSuccess(AuthenticationContextDTO authContext) {
 		controller.setAuthContext(authContext);
 		if (authContext.getSuccessStatus() == true) {
 			// Check if the user has permission to use the application
@@ -435,7 +435,7 @@ public class DocViewer implements EntryPoint {
 		ToolStripButton findDocumentsButton = null;
 		boolean hasPermission = controller.getAuthContext()
 				.hasPermissionToFeature(
-						AuthenticationContext.PERMISSION_VIEWDOCS);
+						AuthenticationContextDTO.PERMISSION_VIEWDOCS);
 		if (hasPermission) {
 			findDocumentsButton = new ToolStripButton();
 			findDocumentsButton.setTooltip("Find documents given a patient id");

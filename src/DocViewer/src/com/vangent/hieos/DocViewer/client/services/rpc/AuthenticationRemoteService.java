@@ -16,8 +16,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
 
 @RemoteServiceRelativePath("AuthenticationRemoteService")
 public interface AuthenticationRemoteService extends RemoteService {
@@ -40,7 +40,7 @@ public interface AuthenticationRemoteService extends RemoteService {
 	 * @return
 	 * @throws RemoteServiceException
 	 */
-	public AuthenticationContext login(Credentials creds) throws RemoteServiceException;
+	public AuthenticationContextDTO login(CredentialsDTO creds) throws RemoteServiceException;
 	
 	/**
 	 * 

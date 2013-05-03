@@ -17,10 +17,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Permission;
-import com.vangent.hieos.DocViewer.client.model.authentication.UserProfile;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.PermissionDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.UserProfileDTO;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Role;
+import com.vangent.hieos.authutil.model.UserProfile;
 /**
  * 
  * @author Anand Sastry
@@ -28,7 +31,7 @@ import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
  *
  */
 public class AuthenticationContextTransform {
-	private com.vangent.hieos.authutil.model.AuthenticationContext authContext;
+	private AuthenticationContext authContext;
 	private ServletUtilMixin servletUtil;
 	
 	/**
@@ -36,7 +39,7 @@ public class AuthenticationContextTransform {
 	 * @param authContext
 	 * @param servletUtil
 	 */
-	public AuthenticationContextTransform(com.vangent.hieos.authutil.model.AuthenticationContext authContext, ServletUtilMixin servletUtil)
+	public AuthenticationContextTransform(AuthenticationContext authContext, ServletUtilMixin servletUtil)
 	{
 		this.authContext = authContext;
 		this.servletUtil = servletUtil;
@@ -46,51 +49,50 @@ public class AuthenticationContextTransform {
 	 * 
 	 * @return
 	 */
-	public AuthenticationContext doWork() {
-		AuthenticationContext guiAuthCtxt = new AuthenticationContext();
+	public AuthenticationContextDTO doWork() {
+		AuthenticationContextDTO authCtxtDTO = new AuthenticationContextDTO();
 		if (this.authContext != null) {
-			setDate(guiAuthCtxt);
-			setUserProfile(guiAuthCtxt);
-			setStatus(guiAuthCtxt);
+			setDate(authCtxtDTO);
+			setUserProfile(authCtxtDTO);
+			setStatus(authCtxtDTO);
 		}
 
-		return guiAuthCtxt;
+		return authCtxtDTO;
 	}
 
 	/**
 	 * 
-	 * @param guiAuthCtxt
+	 * @param authCtxtDTO
 	 */
 	private void setUserProfile(
-			AuthenticationContext guiAuthCtxt) {
+			AuthenticationContextDTO authCtxtDTO) {
 		if (this.authContext.getUserProfile() != null) {
-			UserProfile guiUserProfile = new UserProfile();
-			setNames(guiUserProfile);
-			setPermissions(guiUserProfile);
-			guiAuthCtxt.setUserProfile(guiUserProfile);
+			UserProfileDTO userProfileDTO = new UserProfileDTO();
+			setNames(userProfileDTO);
+			setPermissions(userProfileDTO);
+			authCtxtDTO.setUserProfile(userProfileDTO);
 		} else {
-			guiAuthCtxt.setUserProfile(null);
+			authCtxtDTO.setUserProfile(null);
 		}
 
 	}
 
 	/**
 	 * 
-	 * @param guiUserProfile
+	 * @param userProfileDTO
 	 */
-	private void setPermissions(UserProfile guiUserProfile) {
+	private void setPermissions(UserProfileDTO userProfileDTO) {
 
-		com.vangent.hieos.authutil.model.UserProfile userProfile = this.authContext.getUserProfile();
+		UserProfile userProfile = this.authContext.getUserProfile();
 		if (userProfile.getRoles() == null) {
-			guiUserProfile.setPermissions(null);
+			userProfileDTO.setPermissions(null);
 		} else {
-			Iterator<com.vangent.hieos.authutil.model.Role> it = userProfile
-					.getRoles().iterator();
-			List<Permission> guiPermissions = new ArrayList<Permission>();
+			Iterator<Role> it = userProfile.getRoles().iterator();
+			List<PermissionDTO> permissionsDTO = new ArrayList<PermissionDTO>();
 			while (it.hasNext()) {
-				addPermission(it.next(), guiPermissions);
+				addPermission(it.next(), permissionsDTO);
 			}
-			guiUserProfile.setPermissions(guiPermissions);
+			userProfileDTO.setPermissions(permissionsDTO);
 		}
 
 	}
@@ -98,44 +100,44 @@ public class AuthenticationContextTransform {
 	/**
 	 * 
 	 * @param role
-	 * @param guiPermissions
+	 * @param permissionsDTO
 	 */
 	private void addPermission(
 			com.vangent.hieos.authutil.model.Role role,
-			List<Permission> guiPermissions) {
+			List<PermissionDTO> permissionsDTO) {
 		
 		// Get the permission mappings from xconfig			
 		System.out.println("Role: " + role.getName());
 		//System.out.println("Permission Permitted: " + authPermission.isPermitted());
 		
 		String roleName = role.getName();
-		setPermissions("PermittedRoles_ViewDocs", guiPermissions, roleName, AuthenticationContext.PERMISSION_VIEWDOCS);
-		setPermissions("PermittedRoles_ViewConsent", guiPermissions, roleName, AuthenticationContext.PERMISSION_VIEWCONSENT);
-		setPermissions("PermittedRoles_EditConsent", guiPermissions, roleName, AuthenticationContext.PERMISSION_EDITCONSENT);
+		setPermissions("PermittedRoles_ViewDocs", permissionsDTO, roleName, AuthenticationContextDTO.PERMISSION_VIEWDOCS);
+		setPermissions("PermittedRoles_ViewConsent", permissionsDTO, roleName, AuthenticationContextDTO.PERMISSION_VIEWCONSENT);
+		setPermissions("PermittedRoles_EditConsent", permissionsDTO, roleName, AuthenticationContextDTO.PERMISSION_EDITCONSENT);
 	}
 	
 	/**
 	 * 
 	 * @param propName
-	 * @param guiPermissions
+	 * @param permissionsDTO
 	 * @param roleName
 	 * @param permissionName
 	 */
-	private void setPermissions(String propName, List<Permission> guiPermissions,
+	private void setPermissions(String propName, List<PermissionDTO> permissionsDTO,
 			String roleName, String permissionName)
 	{
 		String permittedRoles = servletUtil.getProperty(propName);	
 		System.out.println("propName = " + propName + ", Permitted Roles: " + permittedRoles);
 		StringTokenizer tokenizer = new StringTokenizer(permittedRoles, ";");
-		Permission guiPermission = new Permission();
+		PermissionDTO permissionDTO = new PermissionDTO();
 		while (tokenizer.hasMoreElements()){
 			String stRoleMapping = tokenizer.nextToken();
 			System.out.println("Role Mapping: " + stRoleMapping);
 			if (roleName.equals(stRoleMapping)) {
 				System.out.println(".. Role Matched: " + stRoleMapping);
-				guiPermission.setName(permissionName);
-				guiPermission.setAccess(true);
-				guiPermissions.add(guiPermission);
+				permissionDTO.setName(permissionName);
+				permissionDTO.setAccess(true);
+				permissionsDTO.add(permissionDTO);
 				break;  // No reason to continue - we matched on the given role.
 			}			
 		}	
@@ -143,34 +145,34 @@ public class AuthenticationContextTransform {
 
 	/**
 	 * 
-	 * @param guiUserProfile
+	 * @param userProfileDTO
 	 */
-	private void setNames(UserProfile guiUserProfile) {
-		com.vangent.hieos.authutil.model.UserProfile userProfile = this.authContext.getUserProfile();
-		guiUserProfile.setDistinguishedName(userProfile.getDistinguishedName());
-		guiUserProfile.setFamilyName(userProfile.getFamilyName());
-		guiUserProfile.setGivenName(userProfile.getGivenName());
-		guiUserProfile.setFullName(userProfile.getFullName());
+	private void setNames(UserProfileDTO userProfileDTO) {
+		UserProfile userProfile = this.authContext.getUserProfile();
+		userProfileDTO.setDistinguishedName(userProfile.getDistinguishedName());
+		userProfileDTO.setFamilyName(userProfile.getFamilyName());
+		userProfileDTO.setGivenName(userProfile.getGivenName());
+		userProfileDTO.setFullName(userProfile.getFullName());
 	}
 
 	/**
 	 * 
-	 * @param guiAuthCtxt
+	 * @param authCtxtDTO
 	 */
-	private void setStatus(AuthenticationContext guiAuthCtxt) {
+	private void setStatus(AuthenticationContextDTO authCtxtDTO) {
 		if (this.authContext.hasSuccessStatus()) {
-			guiAuthCtxt.setSuccessFlag(true);
+			authCtxtDTO.setSuccessFlag(true);
 		} else {
-			guiAuthCtxt.setSuccessFlag(false);
+			authCtxtDTO.setSuccessFlag(false);
 		}
 	}
 
 	/**
 	 * 
-	 * @param guiAuthCtxt
+	 * @param authCtxtDTO
 	 */
-	private void setDate(AuthenticationContext guiAuthCtxt) {
-		guiAuthCtxt.setCreationDate(this.authContext.getCreationDate());
+	private void setDate(AuthenticationContextDTO authCtxtDTO) {
+		authCtxtDTO.setCreationDate(this.authContext.getCreationDate());
 	}
 
 }

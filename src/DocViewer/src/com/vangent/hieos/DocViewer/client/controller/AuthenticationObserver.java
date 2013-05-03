@@ -14,7 +14,7 @@ package com.vangent.hieos.DocViewer.client.controller;
 
 import com.vangent.hieos.DocViewer.client.entrypoint.DocViewer;
 import com.vangent.hieos.DocViewer.client.helper.Observer;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class AuthenticationObserver implements Observer {
 	 * 
 	 */
 	public void update(Object object) {
-		AuthenticationContext authCtx = (AuthenticationContext) object;
+		AuthenticationContextDTO authCtx = (AuthenticationContextDTO) object;
 		//SC.say("CLIENTSIDE ===== " + authCtx.toString());
 		docViewer.loadMainPageOnLoginSuccess(authCtx);
 	}

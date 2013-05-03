@@ -20,88 +20,172 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  */
 public class PatientConsentRule implements IsSerializable {
-	public final static String DENY = "DENY";
-	public final static String PERMIT = "PERMIT";
+	/**
+    *
+    */
+	public enum ActionType {
 
-	private String action; // PERMIT or DENY.
+		/**
+        * 
+        */
+		PERMIT,
+		/**
+        * 
+        */
+		DENY
+	};
+
+	private ActionType action;
 	private String purposeOfUse;
+	private String organization;
+	private String individual;
 	private String role;
-	private String organizationID;
-	private String individualID;
 	private String documentType;
-	private String documentID;
-	private String homeCommunityID;
+	private String documentId;
+	private String homeCommunityId;
 	private String confidentialityCode;
 
-	public String getAction() {
+	/**
+	 * 
+	 * @return
+	 */
+	public ActionType getAction() {
 		return action;
 	}
 
-	public void setAction(String action) {
+	/**
+	 * 
+	 * @param action
+	 */
+	public void setAction(ActionType action) {
 		this.action = action;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getPurposeOfUse() {
 		return purposeOfUse;
 	}
 
+	/**
+	 * 
+	 * @param purposeOfUse
+	 */
 	public void setPurposeOfUse(String purposeOfUse) {
 		this.purposeOfUse = purposeOfUse;
 	}
 
-	public String getOrganizationID() {
-		return organizationID;
-	}
-
-	public void setOrganizationID(String organizationID) {
-		this.organizationID = organizationID;
-	}
-
-	public String getIndividualID() {
-		return individualID;
-	}
-
-	public void setIndividualID(String individualID) {
-		this.individualID = individualID;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public String getDocumentType() {
-		return documentType;
-	}
-
-	public void setDocumentType(String documentType) {
-		this.documentType = documentType;
-	}
-
-	public String getDocumentID() {
-		return documentID;
-	}
-
-	public void setDocumentID(String documentID) {
-		this.documentID = documentID;
-	}
-
-	public String getHomeCommunityID() {
-		return homeCommunityID;
-	}
-
-	public void setHomeCommunityID(String homeCommunityID) {
-		this.homeCommunityID = homeCommunityID;
-	}
-
+	/**
+	 * 
+	 * @return
+	 */
 	public String getConfidentialityCode() {
 		return confidentialityCode;
 	}
 
+	/**
+	 * 
+	 * @param confidentialityCode
+	 */
 	public void setConfidentialityCode(String confidentialityCode) {
 		this.confidentialityCode = confidentialityCode;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getDocumentId() {
+		return documentId;
+	}
+
+	/**
+	 * 
+	 * @param documentId
+	 */
+	public void setDocumentId(String documentId) {
+		this.documentId = documentId;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getDocumentType() {
+		return documentType;
+	}
+
+	/**
+	 * 
+	 * @param documentType
+	 */
+	public void setDocumentType(String documentType) {
+		this.documentType = documentType;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getHomeCommunityId() {
+		return homeCommunityId;
+	}
+
+	/**
+	 * 
+	 * @param homeCommunityId
+	 */
+	public void setHomeCommunityId(String homeCommunityId) {
+		this.homeCommunityId = homeCommunityId;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getIndividual() {
+		return individual;
+	}
+
+	/**
+	 * 
+	 * @param individual
+	 */
+	public void setIndividual(String individual) {
+		this.individual = individual;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getOrganization() {
+		return organization;
+	}
+
+	/**
+	 * 
+	 * @param organization
+	 */
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRole() {
+		return role;
+	}
+
+	/**
+	 * 
+	 * @param role
+	 */
+	public void setRole(String role) {
+		this.role = role;
 	}
 }

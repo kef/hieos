@@ -25,7 +25,7 @@ import com.smartgwt.client.widgets.layout.LayoutSpacer;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.toolbar.ToolStrip;
 import com.smartgwt.client.widgets.toolbar.ToolStripButton;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 import com.vangent.hieos.DocViewer.client.controller.DocViewerController;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientConsentSearchCriteria;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientRecord;
@@ -196,9 +196,9 @@ public class PatientContainerCanvas extends Canvas {
 		// Disable buttons if not permitted for user.
 		
 		// Ability to view documents?
-		AuthenticationContext authContext = controller.getAuthContext();
+		AuthenticationContextDTO authContext = controller.getAuthContext();
 		boolean hasPermission = authContext
-				.hasPermissionToFeature(AuthenticationContext.PERMISSION_VIEWDOCS);
+				.hasPermissionToFeature(AuthenticationContextDTO.PERMISSION_VIEWDOCS);
 		if (!hasPermission) {
 			documentsButton.setDisabled(true);
 		}

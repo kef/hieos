@@ -19,18 +19,18 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  *
  * @author Anand Sastry
  */
-public class UserProfile implements IsSerializable {
-    private List<Permission> permissions;
+public class UserProfileDTO implements IsSerializable {
+    private List<PermissionDTO> permissions;
     private String givenName;
     private String familyName;
     private String fullName;
     private String distinguishedName;
 
-    public void setPermissions(List<Permission> permissions) {
+    public void setPermissions(List<PermissionDTO> permissions) {
         this.permissions = permissions;
     }
 
-    public List<Permission> getPermissions() {
+    public List<PermissionDTO> getPermissions() {
         return this.permissions;
     }
 

@@ -17,12 +17,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 *
 * @author Anand Sastry
 */
-public class Credentials implements IsSerializable {
+public class CredentialsDTO implements IsSerializable {
 	private String authDomainTypeKey;
 	private String userId;
 	private String password;
 
-	public Credentials() {
+	public CredentialsDTO() {
 	}
 
 	public String getAuthDomainTypeKey() {

@@ -21,19 +21,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Anand Sastry
  */
-public class AuthenticationContext implements IsSerializable {
+public class AuthenticationContextDTO implements IsSerializable {
 	public final static String PERMISSION_VIEWDOCS = "ViewDocs";
 	public final static String PERMISSION_VIEWCONSENT = "ViewConsent";
 	public final static String PERMISSION_EDITCONSENT = "EditConsent";
 
 	private boolean successStatus;
 	private Date creationDate;
-	private UserProfile userProfile;
+	private UserProfileDTO userProfile;
 
 	/**
      * 
      */
-	public AuthenticationContext() {
+	public AuthenticationContextDTO() {
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class AuthenticationContext implements IsSerializable {
 	 * 
 	 * @param userProfile
 	 */
-	public void setUserProfile(UserProfile userProfile) {
+	public void setUserProfile(UserProfileDTO userProfile) {
 		this.userProfile = userProfile;
 	}
 
@@ -80,7 +80,7 @@ public class AuthenticationContext implements IsSerializable {
 	 * 
 	 * @return
 	 */
-	public UserProfile getUserProfile() {
+	public UserProfileDTO getUserProfile() {
 		return this.userProfile;
 	}
 
@@ -90,9 +90,9 @@ public class AuthenticationContext implements IsSerializable {
 	 */
 	public boolean hasPermissionToApplication() {
 		// Check if the user has permission to use the application
-		List<Permission> permissions = this.getUserProfile().getPermissions();
+		List<PermissionDTO> permissions = this.getUserProfile().getPermissions();
 		boolean permitted = false;
-		for (Permission perm : permissions) {
+		for (PermissionDTO perm : permissions) {
 			String permissionName = perm.getName();
 			if (permissionName.equals(PERMISSION_VIEWDOCS)
 					|| permissionName.equals(PERMISSION_VIEWCONSENT)
@@ -110,9 +110,9 @@ public class AuthenticationContext implements IsSerializable {
 	 */
 	public boolean hasPermissionToConsentManagementFeature() {
 		// Check if the user has permission to use the application
-		List<Permission> permissions = this.getUserProfile().getPermissions();
+		List<PermissionDTO> permissions = this.getUserProfile().getPermissions();
 		boolean permitted = false;
-		for (Permission perm : permissions) {
+		for (PermissionDTO perm : permissions) {
 			String permissionName = perm.getName();
 			if (permissionName.equals(PERMISSION_VIEWCONSENT)
 					|| permissionName.equals(PERMISSION_EDITCONSENT)) {
@@ -130,9 +130,9 @@ public class AuthenticationContext implements IsSerializable {
 	 */
 	public boolean hasPermissionToFeature(String permissionRequest) {
 		// Check if the user has permission to the requested feature.
-		List<Permission> permissions = this.getUserProfile().getPermissions();
+		List<PermissionDTO> permissions = this.getUserProfile().getPermissions();
 		boolean permitted = false;
-		for (Permission perm : permissions) {
+		for (PermissionDTO perm : permissions) {
 			String permissionName = perm.getName();
 			if (permissionName.equals(permissionRequest)) {
 				permitted = true;

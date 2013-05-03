@@ -12,8 +12,8 @@
  */
 package com.vangent.hieos.DocViewer.client.services.rpc;
 
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface AuthenticationRemoteServiceAsync {
@@ -23,7 +23,7 @@ public interface AuthenticationRemoteServiceAsync {
 	 * @param creds
 	 * @param callback
 	 */
-	public void login(Credentials creds, AsyncCallback<AuthenticationContext> callback);
+	public void login(CredentialsDTO creds, AsyncCallback<AuthenticationContextDTO> callback);
 
 	/**
 	 * 

@@ -17,12 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
-import com.vangent.hieos.DocViewer.client.model.authentication.Credentials;
-import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContext;
+import com.vangent.hieos.DocViewer.client.model.authentication.CredentialsDTO;
+import com.vangent.hieos.DocViewer.client.model.authentication.AuthenticationContextDTO;
 import com.vangent.hieos.DocViewer.client.services.rpc.AuthenticationRemoteService;
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
 import com.vangent.hieos.DocViewer.server.services.rpc.authentication.AuthenticationContextTransform;
 import com.vangent.hieos.authutil.framework.AuthenticationService;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
+import com.vangent.hieos.authutil.model.Credentials;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -55,16 +57,15 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 * 
 	 */
 	@Override
-	public AuthenticationContext login(Credentials guiCreds) throws RemoteServiceException {
+	public AuthenticationContextDTO login(CredentialsDTO credentialsDTO) throws RemoteServiceException {
 		// Get the mixin to allow access to xconfig.xml.
 		//servletUtil.init(this.getServletContext());
 
-		com.vangent.hieos.authutil.model.AuthenticationContext authCtxt = null;
-		AuthenticationService authService = new AuthenticationService(
-				servletUtil.getConfig());
-		com.vangent.hieos.authutil.model.Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(
-				guiCreds.getUserId(), guiCreds.getPassword(),
-				guiCreds.getAuthDomainTypeKey());
+		AuthenticationContext authCtxt = null;
+		AuthenticationService authService = new AuthenticationService(servletUtil.getConfig());
+		Credentials authCredentials = new com.vangent.hieos.authutil.model.Credentials(
+				credentialsDTO.getUserId(), credentialsDTO.getPassword(),
+				credentialsDTO.getAuthDomainTypeKey());
 		authCtxt = authService.authenticate(authCredentials);
 
 		// Create session w/ login status.
@@ -79,12 +80,11 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 		}
 
 		// Return authentication context to client.
-		AuthenticationContext guiAuthCtxt = this
-				.getAuthenticationContext(authCtxt);
+		AuthenticationContextDTO authCtxtDTO = this.getAuthenticationContext(authCtxt);
 		// Echo back credentials used.
 		//guiAuthCtxt.setCredentials(guiCreds);
 
-		return guiAuthCtxt;
+		return authCtxtDTO;
 	}
 	
 
@@ -105,8 +105,7 @@ public class AuthenticationRemoteServiceImpl extends RemoteServiceServlet
 	 * @param authCtxt
 	 * @return
 	 */
-	private AuthenticationContext getAuthenticationContext(
-			com.vangent.hieos.authutil.model.AuthenticationContext authCtxt) {
+	private AuthenticationContextDTO getAuthenticationContext(AuthenticationContext authCtxt) {
 		AuthenticationContextTransform authContextTransform = new AuthenticationContextTransform(
 				authCtxt, this.servletUtil);
 		return authContextTransform.doWork();

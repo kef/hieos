@@ -19,15 +19,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  *
  * @author Anand Sastry
  */
-public class Permission implements IsSerializable {
+public class PermissionDTO implements IsSerializable {
 
     private String name;
     private boolean access = false;
 
-    public Permission () {
+    public PermissionDTO() {
     	
     }
-    public Permission(String name, boolean access) {
+    public PermissionDTO(String name, boolean access) {
         this.name = name;
         this.access = access;
     }
