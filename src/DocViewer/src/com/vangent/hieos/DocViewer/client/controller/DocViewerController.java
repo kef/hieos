@@ -86,8 +86,10 @@ public class DocViewerController {
 	 */
 	public void logout(LogoutObserver observer) {
 		// Reset view elements.
-		this.findPatientsMainCanvas = null;
-		this.patientTabSetMainCanvas = null;
+		this.removePaneFromMainCanvas(findPatientsMainCanvas);
+		this.removePaneFromMainCanvas(patientTabSetMainCanvas);
+		findPatientsMainCanvas = null;
+		patientTabSetMainCanvas = new PatientTabSetMainCanvas(this);
 
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
 		LogoutService service = new LogoutService(observer, timeOutHelper);
@@ -309,6 +311,20 @@ public class DocViewerController {
 		}
 		if (foundPane == false) {
 			mainCanvas.addChild(childPane);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param childPane
+	 */
+	private void removePaneFromMainCanvas(Canvas childPane) {
+		Canvas[] children = mainCanvas.getChildren();
+		for (int i = 0; i < children.length; i++) {
+			if (children[i] == childPane) {
+				mainCanvas.removeChild(children[i]);
+				break;
+			}
 		}
 	}
 }
