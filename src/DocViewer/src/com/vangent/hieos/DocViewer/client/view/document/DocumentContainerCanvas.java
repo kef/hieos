@@ -254,9 +254,10 @@ public class DocumentContainerCanvas extends Canvas implements
 		documentTab.setPane(documentTabLayout);
 		documentTabLayout.setDocumentTab(documentTab);
 		documentTabLayout.setHTMLPane(htmlPane);
-		documentTabLayout.addVisibilityChangedHandler(this);
+		//documentTabLayout.addVisibilityChangedHandler(this);
 		// HACK to avoid issues with IE and opacity issues.
 		if (!isOpacitySupported()) {
+		//if (isIEBrowser()) {
 			documentTabLayout.addVisibilityChangedHandler(this);
 			documentTab.addTabDeselectedHandler(new TabDeselectedHandler() {
 
