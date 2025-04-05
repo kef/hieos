@@ -25,6 +25,39 @@ public class UserProfile {
     private String familyName;
     private String fullName;
     private String distinguishedName;
+    //ravi start
+    private String organization;
+    private String userName;
+    private String initials;
+
+    public String getInitials() {
+        return initials;
+    }
+
+    public void setInitials(String initials) {
+        this.initials = initials;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    //ravi end
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
+    
+
+    public String getOrganization() {
+        return organization;
+    }
+
+        
 
     public void setPermissions(List<Permission> permissions) {
         this.permissions = permissions;
@@ -88,7 +121,15 @@ public class UserProfile {
            .append(this.fullName)
            .append("], Distinguished Name [")
            .append(this.distinguishedName)
-           .append("]");
+           .append("] organization [")
+           .append(this.organization)
+           .append("] UserName [")
+           .append(this.userName)
+           .append("] Initials [")
+           .append(this.initials)
+            .append("]");
+           
+
         return buf.toString();
     }
 }

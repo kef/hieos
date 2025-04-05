@@ -111,12 +111,13 @@ $(document).ready(function(){
 		<xsl:variable name = "birthMonth" select = "substring(/n1:ClinicalDocument/n1:recordTarget/n1:patientRole/n1:patient/n1:birthTime/@value, 5, 2)"></xsl:variable>
 		<xsl:variable name = "birthDay" select = "substring(/n1:ClinicalDocument/n1:recordTarget/n1:patientRole/n1:patient/n1:birthTime/@value, 7, 2)"></xsl:variable>
 		
-		(Age 
+		<!-- (Age 
 		<xsl:choose>
 			<xsl:when test = "5 > $birthMonth"><xsl:value-of select = "2010 - $birthYear"/></xsl:when>
 			<xsl:otherwise><xsl:value-of select = "2010 - ($birthYear + 1)"/></xsl:otherwise>
-		</xsl:choose>)
-
+		</xsl:choose>) 
+		-->
+		
 		</b>	
 		
 		<xsl:text>&#160;&#160;&#160;&#160;|&#160;&#160;&#160;Gender: </xsl:text>
@@ -360,7 +361,7 @@ $(document).ready(function(){
                         <xsl:text>03/</xsl:text>
                 </xsl:when>
                 <xsl:when test="$month='04'">
-                        <xsl:text>04 </xsl:text>
+                        <xsl:text>04/</xsl:text>
                 </xsl:when>
                 <xsl:when test="$month='05'">
                         <xsl:text>05/</xsl:text>
@@ -384,12 +385,12 @@ $(document).ready(function(){
                         <xsl:text>11/</xsl:text>
                 </xsl:when>
                 <xsl:when test="$month='12'">
-                        <xsl:text>12</xsl:text>
+                        <xsl:text>12/</xsl:text>
                 </xsl:when>
         </xsl:choose>
         <xsl:choose>
                 <xsl:when test='substring ($date, 7, 1)="0"'>
-                        <xsl:value-of select="substring ($date, 8, 1)"/>
+                        <xsl:value-of select="substring ($date, 7, 2)"/>
                         <xsl:text>/</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>

@@ -63,6 +63,8 @@ public class MockAuthHandler implements AuthenticationHandler {
         userProfile.setGivenName("Given Name for " + credentials.getUserId());
         userProfile.setFamilyName("Family Name for " + credentials.getUserId());
         userProfile.setFullName("Full Name for " + credentials.getUserId());
+         userProfile.setOrganization("Organization for " + credentials.getUserId());
+          userProfile.setUserName("User Id for " + credentials.getUserId());
         userProfile.setRoles(getRoles());
         return userProfile;
     }

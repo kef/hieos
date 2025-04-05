@@ -25,6 +25,24 @@ public class UserProfileDTO implements IsSerializable {
     private String familyName;
     private String fullName;
     private String distinguishedName;
+    private String userName;
+    public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getOrganizationName() {
+		return organizationName;
+	}
+
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
+	}
+
+	private String organizationName;
 
     public void setPermissions(List<PermissionDTO> permissions) {
         this.permissions = permissions;
@@ -79,6 +97,10 @@ public class UserProfileDTO implements IsSerializable {
            .append(this.fullName)
            .append("], Distinguished Name [")
            .append(this.distinguishedName)
+           .append("] organization [")
+           .append(this.organizationName)
+            .append("] UserName [")
+           .append(this.userName)
            .append("]");
         return buf.toString();
     }

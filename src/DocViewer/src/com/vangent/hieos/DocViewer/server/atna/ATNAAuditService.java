@@ -24,6 +24,7 @@ import com.vangent.hieos.subjectmodel.Subject;
 import com.vangent.hieos.subjectmodel.SubjectIdentifier;
 import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
+import com.vangent.hieos.xutil.atna.ATNAAuditEvent.IHETransaction;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventHelper;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventQuery;
 import com.vangent.hieos.xutil.atna.ATNAAuditEventRetrieveDocumentSet;
@@ -87,7 +88,7 @@ public class ATNAAuditService {
 	public void auditPatientDemographicsQuery(
 			PRPA_IN201305UV02_Message request,
 			SubjectSearchResponse subjectSearchResponse,
-			String homeCommunityId, String targetEndpoint,
+			String homeCommunityId, String targetEndpoint,IHETransaction iheTransaction,
 			ATNAAuditEvent.OutcomeIndicator outcome) {
 		try {
 			XATNALogger xATNALogger = new XATNALogger(this.userContext);
@@ -95,7 +96,7 @@ public class ATNAAuditService {
 					.getATNAAuditEventPDQQueryInitiator(
 							ATNAAuditEvent.ActorType.PATIENT_DEMOGRAPHICS_CONSUMER,
 							request, homeCommunityId, targetEndpoint);
-			auditEvent.setTransaction(ATNAAuditEvent.IHETransaction.ITI47);
+			auditEvent.setTransaction(iheTransaction);
 			auditEvent.setOutcomeIndicator(outcome);
 
 			// Load up patient ids.
@@ -114,6 +115,7 @@ public class ATNAAuditService {
 		}
 	}
 
+		
 	/**
 	 * 
 	 * @param request

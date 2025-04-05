@@ -22,7 +22,7 @@ import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
  */
 public class InitiatingGatewayFactory {
 	public enum InitiatingGatewayType {
-		NHIN_EXCHANGE, IHE
+		NHIN_EXCHANGE, IHE,
 	};
 	
 	/**

@@ -207,6 +207,7 @@ public class DocViewerController {
 	public void findPatients(PatientSearchCriteriaDTO criteria,
 			final PatientListObserver observer) {
 		TimeOutHelper timeOutHelper = new TimeOutHelper();
+		
 		PatientQueryService service = new PatientQueryService(criteria,
 				observer, timeOutHelper);
 		service.doWork();

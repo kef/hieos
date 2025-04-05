@@ -1,0 +1,42 @@
+<ns3:assertion xmlns:ns3="{NAMESPACE}" xmlns:urn1="urn:gov:hhs:fha:nhinc:common:nhinccommon">      
+    <urn1:haveSecondWitnessSignature>false</urn1:haveSecondWitnessSignature>
+    <urn1:haveSignature>false</urn1:haveSignature>
+    <urn1:haveWitnessSignature>false</urn1:haveWitnessSignature>
+    <urn1:homeCommunity>
+        <urn1:description>IHS</urn1:description>
+        <urn1:homeCommunityId>{HOME_COMMUNITY_ID}</urn1:homeCommunityId>
+        <urn1:name>IHS</urn1:name>
+    </urn1:homeCommunity>   
+            <!--1 or more repetitions:-->
+    <urn1:uniquePatientId>{UNIQUE_PATIENT_ID}</urn1:uniquePatientId>      
+    <urn1:userInfo>
+        <urn1:personName>
+            <urn1:familyName>{FAMILY_NAME}</urn1:familyName>
+            <urn1:givenName>{GIVEN_NAME}</urn1:givenName>
+            <urn1:secondNameOrInitials>{SECOND_NAME}</urn1:secondNameOrInitials>     
+        </urn1:personName>
+        <urn1:userName>{USER_NAME}</urn1:userName>
+        <urn1:org>
+            <urn1:name>{USER_ORGANIZATION}</urn1:name>
+        </urn1:org>
+               <!--Optional:-->
+			   <!--These values are hard coded as we do not have a way to get these values dynamically-->
+        <urn1:roleCoded>
+            <urn1:code>112247003</urn1:code>
+            <urn1:codeSystem>2.16.840.1.113883.6.96</urn1:codeSystem>
+            <urn1:codeSystemName>SNOMED_CT</urn1:codeSystemName>
+            <urn1:displayName>Medical doctor</urn1:displayName>            
+                  <!--Zero or more repetitions:-->
+            <urn1:translation/>
+        </urn1:roleCoded>
+    </urn1:userInfo>
+    <urn1:authorized>false</urn1:authorized>
+            <!--Optional:-->
+			<!--These values are hard coded as we do not have a way to get these values dynamically-->
+    <urn1:purposeOfDisclosureCoded>
+        <urn1:code>TREATMENT</urn1:code>
+        <urn1:codeSystem>2.16.840.1.113883.3.18.7.1</urn1:codeSystem>
+        <urn1:codeSystemName>nhin-purpose</urn1:codeSystemName>
+        <urn1:displayName>Treatment</urn1:displayName>              
+    </urn1:purposeOfDisclosureCoded>
+</ns3:assertion>

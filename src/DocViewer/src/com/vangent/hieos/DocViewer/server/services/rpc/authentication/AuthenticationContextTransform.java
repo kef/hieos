@@ -153,6 +153,8 @@ public class AuthenticationContextTransform {
 		userProfileDTO.setFamilyName(userProfile.getFamilyName());
 		userProfileDTO.setGivenName(userProfile.getGivenName());
 		userProfileDTO.setFullName(userProfile.getFullName());
+		userProfileDTO.setUserName(userProfile.getUserName());
+		userProfileDTO.setOrganizationName(userProfile.getOrganization());
 	}
 
 	/**

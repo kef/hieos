@@ -15,6 +15,7 @@ package com.vangent.hieos.DocViewer.server.gateway;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.xutil.soap.SoapActionFactory;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
 
@@ -27,11 +28,15 @@ public class IHEInitiatingGateway extends InitiatingGateway {
 	public IHEInitiatingGateway(ServletUtilMixin servletUtil) {
 		super(servletUtil);
 	}
-	
+
 	@Override
 	public String getSOAPAction(TransactionType txnType) {
+
 		if (txnType == TransactionType.DOC_QUERY) {
 			return SoapActionFactory.XDSB_REGISTRY_SQ_ACTION;
+		} else if (txnType == TransactionType.XCPD_QUERY) {
+			//These values are not added to SOAP action factory since these are not standard IHE SOAP actions
+			return "urn:RespondingGateway_PRPA_IN201305UV02";
 		} else {
 			return SoapActionFactory.XDSB_REPOSITORY_RET_ACTION;
 		}
@@ -39,21 +44,27 @@ public class IHEInitiatingGateway extends InitiatingGateway {
 
 	@Override
 	public String getSOAPActionResponse(TransactionType txnType) {
+
 		if (txnType == TransactionType.DOC_QUERY) {
 			return SoapActionFactory.XDSB_REGISTRY_SQ_ACTION_RESPONSE;
+		} else if (txnType == TransactionType.XCPD_QUERY) {
+			//These values are not added to SOAP action factory since these are not standard IHE SOAP actions
+			return "urn:gov:hhs:fha:nhinc:entitypatientdiscovery:RespondingGateway_PRPA_IN201306UV02ResponseMessage";
 		} else {
 			return SoapActionFactory.XDSB_REPOSITORY_RET_ACTION_RESPONSE;
 		}
 	}
-	
+
 	@Override
 	public XConfigActor getIGConfig() {
-		return this.getServletUtil().getActorConfig("ig", "InitiatingGatewayType");
+		return this.getServletUtil().getActorConfig("ig",
+				"InitiatingGatewayType");
 	}
 
 	@Override
 	public OMElement getSOAPRequestMessage(TransactionType txnType,
-			OMElement request) {
+			OMElement request, AuthenticationContext authContext,
+			String patientId) {
 		// No need to wrap request here -- just echo back request.
 		return request;
 	}

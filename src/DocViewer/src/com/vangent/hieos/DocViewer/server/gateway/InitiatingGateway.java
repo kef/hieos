@@ -15,6 +15,7 @@ package com.vangent.hieos.DocViewer.server.gateway;
 import org.apache.axiom.om.OMElement;
 
 import com.vangent.hieos.DocViewer.server.framework.ServletUtilMixin;
+import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.soap.Soap;
 import com.vangent.hieos.xutil.xconfig.XConfigActor;
@@ -32,7 +33,8 @@ public abstract class InitiatingGateway {
 	private XUAObject xuaObj = null;
 
 	public enum TransactionType {
-		DOC_QUERY, DOC_RETRIEVE
+		DOC_QUERY, DOC_RETRIEVE,XCPD_QUERY
+
 	};
 
 	/**
@@ -74,11 +76,11 @@ public abstract class InitiatingGateway {
 	 * @return
 	 * @throws XdsException
 	 */
-	public OMElement soapCall(TransactionType txnType, OMElement request)
+	public OMElement soapCall(TransactionType txnType, OMElement request,AuthenticationContext authCtxt,String patientId)
 			throws SOAPFaultException {
 		// Wrapper the message (if necessary) ...
 		OMElement outboundRequest = this
-				.getSOAPRequestMessage(txnType, request);
+				.getSOAPRequestMessage(txnType, request,authCtxt,patientId);
 		String endpointURL = this.getTransactionEndpointURL(txnType);
 
 		// Issue Document Retrieve ...
@@ -113,11 +115,18 @@ public abstract class InitiatingGateway {
 	 */
 	public String getTransactionEndpointURL(TransactionType txnType) {
 		String txn = "";
+		//XConfigActor igConfig=null;
 		if (txnType == TransactionType.DOC_QUERY) {
-			txn = "RegistryStoredQuery";
-		} else {
-			txn = "RetrieveDocumentSet";
-		}
+            txn = "RegistryStoredQuery";
+            //igConfig = this.getIGConfig();
+     } else if (txnType == TransactionType.XCPD_QUERY) {
+            txn = "CrossGatewayFindCandidatesQuery";
+          //  igConfig = this.getXCPDConfig();
+     } else {
+            txn = "RetrieveDocumentSet";
+        //    igConfig = this.getIGConfig();
+     }
+
 		XConfigActor igConfig = this.getIGConfig();
 		XConfigTransaction txnConfig = igConfig.getTransaction(txn);
 		return txnConfig.getEndpointURL();
@@ -129,7 +138,9 @@ public abstract class InitiatingGateway {
 	abstract public String getSOAPActionResponse(TransactionType txnType);
 
 	abstract public OMElement getSOAPRequestMessage(TransactionType txnType,
-			OMElement request);
+			OMElement request,AuthenticationContext authCtxt,String patientId);
 
 	abstract public XConfigActor getIGConfig();
+	
+	
 }

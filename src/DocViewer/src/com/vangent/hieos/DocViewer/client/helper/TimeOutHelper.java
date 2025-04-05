@@ -21,7 +21,7 @@ import com.smartgwt.client.util.SC;
  * 
  */
 public class TimeOutHelper {
-	static final int TIMEOUT_INTERVAL_MSECS = 15000; // 15 sec
+	static final int TIMEOUT_INTERVAL_MSECS = 300000; // 15 sec- changed from 15 sec to 300 sec to be compatible with 
 	static final String DEFAULT_PROMPT = "Searching ....";
 	private Timer timer = null;
 	private int timeOutInterval = TIMEOUT_INTERVAL_MSECS;
@@ -42,6 +42,7 @@ public class TimeOutHelper {
 	public void setTimeOutInterval(int timeOutInterval)
 	{
 		this.timeOutInterval = timeOutInterval;
+		
 	}
 
 	/**

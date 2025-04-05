@@ -453,7 +453,7 @@ public class PDSRemoteServiceImpl extends RemoteServiceServlet implements
 			String homeCommunityId = null; // FIXME?
 
 			auditService.auditPatientDemographicsQuery(request,
-					subjectSearchResponse, homeCommunityId, targetEndpoint,
+					subjectSearchResponse, homeCommunityId, targetEndpoint,ATNAAuditEvent.IHETransaction.ITI47,
 					outcome);
 		}
 	}

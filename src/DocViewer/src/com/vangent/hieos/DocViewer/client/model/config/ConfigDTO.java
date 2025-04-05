@@ -73,6 +73,7 @@ public class ConfigDTO implements IsSerializable {
 	public static final String KEY_TOOLTIP_CONFIDENCE = "ToolTipConfidenceColumn";
 //Changed for the IHS requirement- work order: 7334- Provide means for Tribal Sites (non-D1 users) to authenticate and log onto the HIE DocViewer” .
 	public static final String DEFAULT_ATHENTICATION_DOMAIN_TYPE = "default";
+	public static final String CLIENT_TIMEOUT_IN_MILLISECONDS = "ClientTimeOutInMilliseconds";
 	/**
 	 * 
 	 */

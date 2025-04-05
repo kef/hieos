@@ -158,11 +158,14 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
         }
 
         UserProfile userProfile = new UserProfile();
+        userProfile.setUserName(userName); //Added to populate the user id
         userProfile.setDistinguishedName(getDistinguishedName(userAttrs));
         userProfile.setGivenName(getGivenName(userAttrs));
         userProfile.setFamilyName(getSurname(userAttrs));
         userProfile.setFullName(getCommonName(userAttrs));
         userProfile.setRoles(getRoles(userAttrs));
+        userProfile.setOrganization(getOrganizationName(userAttrs)); // Added to get Organization Name
+        userProfile.setInitials(getInitials(userAttrs)); // Added to get Initials Name
 
         return userProfile;
     }
@@ -189,7 +192,7 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
      * @return
      */
     private String[] userAttributes() {
-        String retAttrs[] = {"distinguishedName", "givenName", "sn", "cn", "memberOf"};
+        String retAttrs[] = {"distinguishedName", "givenName", "sn", "cn", "company","initials","memberOf"};
         return retAttrs;
 
     }
@@ -203,7 +206,26 @@ public class LDAPAuthenticationHandler implements AuthenticationHandler {
         ArrayList dn = (ArrayList) userAttrs.get("distinguishedName");
         return (String) dn.get(0);
     }
+/**
+     *
+     * @param userAttrs
+     * @return
+     */
+    private String getOrganizationName(Map userAttrs) {
+        ArrayList company = (ArrayList) userAttrs.get("company");        
+        return (String) company.get(0);
+        
+    }
+    /**
+     *
+     * @param userAttrs
+     * @return
+     */
+    private String getInitials(Map userAttrs) {
+        ArrayList initials = (ArrayList) userAttrs.get("initials");
+        return (String) initials.get(0);
 
+    }
     /**
      *
      * @param userAttrs

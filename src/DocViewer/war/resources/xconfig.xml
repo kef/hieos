@@ -14,10 +14,12 @@
         <!-- ATNA configuration parameters. --> 
         <Property name="ATNAPerformAudit">false</Property>
         <Property name="ATNAsyslogProtocol">udp</Property>
-	
-        <!-- NIST ATNA log -->
-        <Property name="ATNAsyslogHost">128.252.175.39</Property>
+		<!-- localhost ATNA Log -->
+		<Property name="ATNAsyslogHost">localhost</Property>
         <Property name="ATNAsyslogPort">3001</Property>	<!-- UDP Port 3110; TCP Port 3100-->
+        <!-- NIST ATNA log -->
+        <!--<Property name="ATNAsyslogHost">128.252.175.39</Property>
+        <Property name="ATNAsyslogPort">3001</Property> -->	<!-- UDP Port 3110; TCP Port 3100-->
 
         <!-- SOAP configuration parameters. -->
         <Property name="SOAPTimeOutInMilliseconds">10000</Property> <!-- 45(10-connectathon) seconds -->
@@ -36,6 +38,7 @@
         <ObjectReference name="nhinig" refname="localnhinig" reftype="NHINExchangeInitiatingGatewayType"/>
         <ObjectReference name="pds" refname="localpds" reftype="PDSType"/>
         <ObjectReference name="sts" refname="localsts" reftype="SecureTokenServiceType"/>
+		<!-- <ObjectReference name="xcpd" refname="localxcpd" reftype="XCPDType"/> -->
         <!--<ObjectReference name="pds" refname="nistpds" reftype="PDSType"/>-->
         <!--<Property name="ContentURL">http://localhost:8888/docview</Property>-->
        
@@ -43,9 +46,12 @@
         
         <Property name="AdhocQuerySinglePIDTemplate">adhocquery_singlepid_template.xml</Property>
         <Property name="RetrieveSingleDocTemplate">retrieve_singledoc_template.xml</Property>
-        <Property name="NHINCAssertionTemplate">nhinc_assertion_template.xml</Property>
+		
+        <Property name="NHINCAssertionTemplate">nhinc_simple_assertion_template.xml</Property>
+		<!-- <Property name="NHINC_XCPD_AssertionTemplate">ihs_xcpd_entity_assertion_template.xml</Property> -->
+		
         <Property name="SAMLClaimsTemplate">saml_claims_template.xml</Property>
-        <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
+        <Property name="EnterpriseAssigningAuthority">1.3.6.1.4.1.21367.13.20.9999</Property>
         <!-- Valid DefaultSearchMode values: hie, nhin_exchange -->
         <Property name="DefaultSearchMode">hie</Property>
         <Property name="Title">HIEOS Doc Viewer</Property>
@@ -95,16 +101,15 @@
         <Property name="PermittedRoles_EditConsent">Role2; Role3</Property>
 		
         <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.mock.MockAuthHandler</Property>
-		
-		
+				
 		<!--
-        <Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>
+		<Property name="AuthHandlerClassImpl">com.vangent.hieos.authutil.ldap.LDAPAuthenticationHandler</Property>	
 		-->
-
 
         <!-- Sender Device information for DocViewer -->
         <Property name="DeviceId">HIEOS_DOC_VIEWER</Property>
         <Property name="DeviceName">HIEOS_DOC_VIEWER</Property>
+		 <Property name="ClientTimeOutInMilliseconds">30000</Property> 
     </Object>
     
     
@@ -254,7 +259,7 @@
 
         <Property name="DeviceId">1.3.6.1.4.1.21367.13.30.74</Property>
         <Property name="DeviceName">GATEWAY_VANGENT_XCAIG</Property>
-        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.3000</Property>
+        <Property name="CommunityPatientIdAssigningAuthority">1.3.6.1.4.1.21367.13.20.9999</Property>
         
     </Actor>
     
@@ -275,6 +280,15 @@
             <Endpoint secure="false" async="true">http://XXX</Endpoint>
             <Endpoint secure="true"  async="true">https://XXX</Endpoint>
         </Transaction>
+		<!-- To support XCPD request from DocViewer -->
+		<Transaction name="CrossGatewayFindCandidatesQuery" secure="false" async="false">
+            <Endpoint secure="false" async="false">http://localhost:8080/test-url</Endpoint>
+            <Endpoint secure="true"  async="false">https://XXXX</Endpoint>
+            <Endpoint secure="false" async="true">http://XXXX</Endpoint>
+            <Endpoint secure="true"  async="true">https://XXXX</Endpoint>
+        </Transaction>
+		<Property name="DeviceId">urn:oid:1.3.6.1.4.1.21367.13.30.74</Property> <!-- Need to prefix the value with "urn:oid:"-->
+        <Property name="DeviceName">GATEWAY_VANGENT_PIX</Property>
     </Actor>
 
     <!-- Not currently used here, but may be later. -->

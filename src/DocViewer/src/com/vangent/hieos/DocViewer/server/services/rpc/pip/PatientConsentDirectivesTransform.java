@@ -64,6 +64,17 @@ public class PatientConsentDirectivesTransform {
 			}
 
 			// TODO: Implement other types ... POU, role, etc.
+			/** Similar to as shown below
+			patientConsentRuleDTO.setOrganization(patientConsentRule.getOrganization());
+			patientConsentRuleDTO.setPurposeOfUse(patientConsentRule.getPurposeOfUse());
+			patientConsentRuleDTO.setConfidentialityCode(patientConsentRule.getConfidentialityCode());
+			patientConsentRuleDTO.setDocumentId(patientConsentRule.getDocumentId());
+			patientConsentRuleDTO.setDocumentType(patientConsentRule.getDocumentType());
+			patientConsentRuleDTO.setHomeCommunityId(patientConsentRule.getHomeCommunityId());
+			patientConsentRuleDTO.setIndividual(patientConsentRule.getIndividual());
+			patientConsentRuleDTO.setRole(patientConsentRule.getRole());
+			*/
+			
 			patientConsentDirectivesDTO.add(patientConsentRuleDTO);
 		}
 		return patientConsentDirectivesDTO;

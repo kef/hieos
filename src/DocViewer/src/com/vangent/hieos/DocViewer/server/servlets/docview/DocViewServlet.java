@@ -174,8 +174,8 @@ public class DocViewServlet extends HttpServlet {
 				XUAService xuaService = new XUAService(servletUtil, authCreds, authCtxt);
 				XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
 				OMElement samlClaimsNode = xuaService.getSAMLClaims(patientID);
-				// System.out.println("SAML Claims: " +
-				// samlClaimsNode.toString());
+				 System.out.println("SAML Claims: " +
+				 samlClaimsNode.toString());
 				xuaObj.setClaims(samlClaimsNode);
 				ig.setXuaObject(xuaObj);
 			}
@@ -187,7 +187,7 @@ public class DocViewServlet extends HttpServlet {
 			// Issue Document Retrieve ...
 			System.out.println("Doc Retrieve ...");
 			OMElement response = ig.soapCall(
-					InitiatingGateway.TransactionType.DOC_RETRIEVE, retrieve);
+					InitiatingGateway.TransactionType.DOC_RETRIEVE, retrieve,authCtxt,patientID);
 			if (response != null) // FIXME: Need to check for registry
 									// errors!!!!
 			{

@@ -22,12 +22,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.axiom.om.OMElement;
 
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vangent.hieos.DocViewer.client.exception.RemoteServiceException;
+import com.vangent.hieos.DocViewer.client.model.config.ConfigDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentAuthorMetadataDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentMetadataDTO;
 import com.vangent.hieos.DocViewer.client.model.document.DocumentSearchCriteriaDTO;
 import com.vangent.hieos.DocViewer.client.model.patient.PatientDTO;
+
 import com.vangent.hieos.DocViewer.client.model.patient.PatientUtil;
 import com.vangent.hieos.DocViewer.client.services.rpc.DocumentRemoteService;
 import com.vangent.hieos.DocViewer.server.atna.ATNAAuditService;
@@ -37,6 +40,20 @@ import com.vangent.hieos.DocViewer.server.gateway.InitiatingGatewayFactory;
 import com.vangent.hieos.DocViewer.server.xua.XUAService;
 import com.vangent.hieos.authutil.model.AuthenticationContext;
 import com.vangent.hieos.authutil.model.Credentials;
+
+import com.vangent.hieos.hl7v3util.model.exception.ModelBuilderException;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201305UV02_Message_Builder;
+import com.vangent.hieos.hl7v3util.model.message.PRPA_IN201306UV02_Message;
+import com.vangent.hieos.hl7v3util.model.subject.SubjectBuilder;
+import com.vangent.hieos.subjectmodel.CodedValue;
+import com.vangent.hieos.subjectmodel.DeviceInfo;
+import com.vangent.hieos.subjectmodel.Subject;
+import com.vangent.hieos.subjectmodel.SubjectIdentifier;
+import com.vangent.hieos.subjectmodel.SubjectIdentifierDomain;
+import com.vangent.hieos.subjectmodel.SubjectName;
+import com.vangent.hieos.subjectmodel.SubjectSearchCriteria;
+import com.vangent.hieos.subjectmodel.SubjectSearchResponse;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent;
 import com.vangent.hieos.xutil.atna.ATNAAuditEvent.OutcomeIndicator;
 import com.vangent.hieos.xutil.exception.MetadataException;
@@ -44,6 +61,8 @@ import com.vangent.hieos.xutil.exception.MetadataValidationException;
 import com.vangent.hieos.xutil.exception.SOAPFaultException;
 import com.vangent.hieos.xutil.exception.XdsException;
 import com.vangent.hieos.xutil.template.TemplateUtil;
+import com.vangent.hieos.xutil.xconfig.XConfigActor;
+
 import com.vangent.hieos.xutil.xua.utils.XUAObject;
 import com.vangent.hieos.xutil.metadata.structure.Metadata;
 import com.vangent.hieos.xutil.metadata.structure.MetadataParser;
@@ -80,8 +99,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	@Override
-	public List<DocumentMetadataDTO> findDocuments(DocumentSearchCriteriaDTO criteria)
-			throws RemoteServiceException {
+	public List<DocumentMetadataDTO> findDocuments(
+			DocumentSearchCriteriaDTO criteria) throws RemoteServiceException {
 
 		// See if we have a valid session ...
 		HttpServletRequest request = this.getThreadLocalRequest();
@@ -111,16 +130,23 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 				String searchMode = criteria.getSearchMode();
 				InitiatingGateway ig = InitiatingGatewayFactory
 						.getInitiatingGateway(searchMode, servletUtil);
+				 
+				//Prepare XCPD call only when the user has selected the "NHIN exchange" radio button 
+				if(searchMode.equals(ConfigDTO.VAL_SEARCH_MODE_NHIN_EXCHANGE)){
+					prepareXCPDCall(criteria, authCtxt, authCreds, ig);
+				}
 
-				// Issue Document Retrieve ...
+				// Issue Document Query ...
 				System.out.println("Doc Query ...");
 
 				// FIXME: Move this code.
 				InitiatingGateway.TransactionType txnType = InitiatingGateway.TransactionType.DOC_QUERY;
 				if (XUAService.isXUAEnabled(ig, txnType)) {
-					XUAService xuaService = new XUAService(servletUtil, authCreds, authCtxt);
+					XUAService xuaService = new XUAService(servletUtil,
+							authCreds, authCtxt);
 					XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
-					OMElement samlClaimsNode = xuaService.getSAMLClaims(criteria.getPatient().getPatientID());
+					OMElement samlClaimsNode = xuaService
+							.getSAMLClaims(criteria.getPatient().getPatientID());
 					// System.out.println("SAML Claims: " +
 					// samlClaimsNode.toString());
 					xuaObj.setClaims(samlClaimsNode);
@@ -132,7 +158,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 						ATNAAuditEvent.OutcomeIndicator.SUCCESS);
 
 				OMElement response = ig.soapCall(
-						InitiatingGateway.TransactionType.DOC_QUERY, query);
+						InitiatingGateway.TransactionType.DOC_QUERY, query,
+						authCtxt, criteria.getPatient().getPatientID());
 				if (response != null) // TBD: Need to check for errors!!!!
 				{
 
@@ -141,6 +168,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 							response);
 				}
 			}
+
 		} catch (SOAPFaultException ex) {
 			ex.printStackTrace();
 			throw new RemoteServiceException(
@@ -156,7 +184,94 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		return documentMetadataList;
 	}
 
-	
+	/**
+	 * 
+	 * @param m
+	 * @param extrinsicObject
+	 * @return
+	 * @throws SOAPFaultException
+	 */
+	private void prepareXCPDCall(DocumentSearchCriteriaDTO criteria,
+			AuthenticationContext authCtxt, Credentials authCreds,
+			InitiatingGateway ig) throws SOAPFaultException {
+
+		String patientId = criteria.getPatient().getPatientID();
+
+		//InitiatingGateway.TransactionType txnType = InitiatingGateway.TransactionType.XCPD_QUERY;
+		/**
+		if (XUAService.isXUAEnabled(ig, txnType)) {
+			XUAService xuaService = new XUAService(servletUtil, authCreds,
+					authCtxt);
+			XUAObject xuaObj = xuaService.getXUAObject(ig, txnType);
+			OMElement samlClaimsNode = xuaService.getSAMLClaims(criteria
+					.getPatient().getPatientID());
+			// System.out.println("SAML Claims: " +
+			// samlClaimsNode.toString());
+			xuaObj.setClaims(samlClaimsNode);
+			ig.setXuaObject(xuaObj);
+		}
+		 */
+		// Get both sender & Receiver device info
+		//XConfigActor pdsConfig = this.getPDSConfig();
+		XConfigActor igConfig = ig.getIGConfig();
+		//PDSClient pdsClient = new PDSClient(pdsConfig);
+		DeviceInfo senderDeviceInfo = new DeviceInfo();
+		senderDeviceInfo.setId(servletUtil.getProperty("DeviceId"));
+		senderDeviceInfo.setName(servletUtil.getProperty("DeviceName"));
+		DeviceInfo receiverDeviceInfo = new DeviceInfo();
+		receiverDeviceInfo.setId(igConfig.getProperty("DeviceId"));
+		receiverDeviceInfo.setName(igConfig.getProperty("DeviceName"));
+
+		// Prepare Subject Search Criteria
+		SubjectSearchCriteria subjectSearchCriteria = this
+				.buildSubjectSearchCriteria(criteria.getPatient());
+
+		// Create SubjectIdentifierDomain object and add it to SubjectSearchCriteria
+		SubjectIdentifierDomain subjectIdentifierDomain = new SubjectIdentifierDomain(
+				patientId);
+		subjectSearchCriteria
+				.setCommunitySubjectIdentifierDomain(subjectIdentifierDomain);
+
+		PRPA_IN201305UV02_Message_Builder pdqQueryBuilder = new PRPA_IN201305UV02_Message_Builder(
+				senderDeviceInfo, receiverDeviceInfo);
+
+		PRPA_IN201305UV02_Message request = pdqQueryBuilder
+				.buildPRPA_IN201305UV02_Message(subjectSearchCriteria);
+		
+		//System.out.println("*********************** before making a call XCPD request ********************");
+		//System.out.println(request.getElement().toString());
+		//System.out.println("*********************************************************");
+
+
+		// Make SOAP call for XCPD
+		try {
+			OMElement response = ig.soapCall(
+					InitiatingGateway.TransactionType.XCPD_QUERY, request
+							.getMessageNode(), authCtxt, criteria.getPatient()
+							.getPatientID());
+
+			if (response != null) {
+				SubjectSearchResponse subjectSearchResponse = new SubjectSearchResponse();
+				SubjectBuilder subjectBuilder = new SubjectBuilder();
+				subjectSearchResponse = subjectBuilder
+						.buildSubjectSearchResponse(new PRPA_IN201306UV02_Message(
+								response));
+				//System.out.println("*********************** Response from XCPD call ********************");
+				//System.out.println(response.toString());
+				//System.out.println("*********************************************************");
+
+				// ATNA Audit.
+				this.auditXCPD(authCreds, authCtxt,request, ig,
+						subjectSearchResponse,
+						ATNAAuditEvent.OutcomeIndicator.SUCCESS);
+			}
+
+		} catch (ModelBuilderException ex) {
+			throw new SOAPFaultException(ex.getMessage());
+		}
+
+	}
+
 	/**
 	 * 
 	 * @param documentMetadataList
@@ -177,8 +292,8 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 		System.out.println("# of documents: " + extrinsicObjects.size());
 		for (OMElement extrinsicObject : extrinsicObjects) {
 			System.out.println("Document found!!!!");
-			DocumentMetadataDTO documentMetadata = this.buildDocumentMetadata(m,
-					extrinsicObject);
+			DocumentMetadataDTO documentMetadata = this.buildDocumentMetadata(
+					m, extrinsicObject);
 			documentMetadataList.add(documentMetadata);
 		}
 	}
@@ -399,7 +514,7 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	}
 
 	
-	
+
 	/**
 	 * 
 	 * @param authCreds
@@ -408,13 +523,42 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 	 * @param queryRequest
 	 * @param outcome
 	 */
-	private void audit(Credentials authCreds,
-			AuthenticationContext authCtxt,
+	private void auditXCPD(Credentials authCreds,
+			AuthenticationContext authCtxt, 
+			PRPA_IN201305UV02_Message request,InitiatingGateway ig,
+			SubjectSearchResponse subjectSearchResponse,
+			OutcomeIndicator outcome) {
+
+		if (ATNAAuditService.isPerformAudit()) {
+			ATNAAuditService auditService = new ATNAAuditService(authCreds,
+					authCtxt);
+			//XConfigActor pdsConfig = pdsClient.getConfig();
+			//XConfigTransaction txn = pdsConfig
+				//	.getTransaction("CrossGatewayPatientDiscoveryQuery");
+			String targetEndpoint =ig.getTransactionEndpointURL(InitiatingGateway.TransactionType.XCPD_QUERY); //txn.getEndpointURL();
+			String homeCommunityId = ig.getIGConfig().getUniqueId();//  this.getXCPDConfig().getUniqueId(); 
+
+			auditService.auditPatientDemographicsQuery(request,
+					subjectSearchResponse, homeCommunityId, targetEndpoint,
+					ATNAAuditEvent.IHETransaction.ITI55, outcome);
+		}
+	}
+
+	/**
+	 * 
+	 * @param authCreds
+	 * @param authCtxt
+	 * @param ig
+	 * @param queryRequest
+	 * @param outcome
+	 */
+	private void audit(Credentials authCreds, AuthenticationContext authCtxt,
 			InitiatingGateway ig, OMElement queryRequest,
 			OutcomeIndicator outcome) {
-		
+
 		if (ATNAAuditService.isPerformAudit()) {
-			ATNAAuditService auditService = new ATNAAuditService(authCreds, authCtxt);
+			ATNAAuditService auditService = new ATNAAuditService(authCreds,
+					authCtxt);
 			String targetEndpoint = ig
 					.getTransactionEndpointURL(InitiatingGateway.TransactionType.DOC_QUERY);
 			String homeCommunityId = ig.getIGConfig().getUniqueId();
@@ -422,4 +566,79 @@ public class DocumentRemoteServiceImpl extends RemoteServiceServlet implements
 					homeCommunityId, targetEndpoint, outcome);
 		}
 	}
+
+	/**
+	 * 
+	 * @return
+	
+	private XConfigActor getPDSConfig() {
+		return servletUtil.getActorConfig("xcpd", "XCPDType");
+	}
+ */
+	/**
+	 * 
+	 * @param patientSearchCriteria
+	 * @return SubjectSearchCriteria
+	 */
+	private SubjectSearchCriteria buildSubjectSearchCriteria(
+			PatientDTO patientSearchCriteria) {
+		SubjectSearchCriteria subjectSearchCriteria = new SubjectSearchCriteria();
+		Subject subject = new Subject();
+
+		SubjectName subjectName = new SubjectName();
+		// Name:
+		subjectName.setGivenName(patientSearchCriteria.getGivenName());
+		subjectName.setFamilyName(patientSearchCriteria.getFamilyName());
+		subject.addSubjectName(subjectName);
+
+		// DOB:
+		subject.setBirthTime(patientSearchCriteria.getDateOfBirth());
+		
+		//Living Subject Id
+		System.out.println("patientSearchCriteria.getEuidUniversalID()     :  "+patientSearchCriteria.getEuidUniversalID());
+		System.out.println("patientSearchCriteria.getEuid()     :  "+patientSearchCriteria.getEuid());
+		 List<SubjectIdentifier> subjectIdentifiers= new ArrayList<SubjectIdentifier>();
+		 //FIXME Need to fix how subject identifier takes care when it received patient id. 
+		 //currently it doesn't take care of "amp;" token in the patient id
+		 //subjectIdentifiers.add(new SubjectIdentifier(patientSearchCriteria.getPatientID()));
+		 subjectIdentifiers.add(new SubjectIdentifier(patientSearchCriteria.getEuid()+"^^^&"+patientSearchCriteria.getEuidUniversalID()+"&ISO"));
+		// subjectIdentifiers.add(new SubjectIdentifier(patientSearchCriteria.getEuidUniversalID()));		 
+		subject.setSubjectIdentifiers(subjectIdentifiers);
+
+		/**
+		 * Verify if we need this or not ?????? // SSN(last4) String ssnValue =
+		 * patientSearchCriteria.getSSN(); if (StringUtils.isNotBlank(ssnValue))
+		 * {
+		 * 
+		 * SubjectIdentifierDomain ssnDomain = new SubjectIdentifierDomain();
+		 * ssnDomain.setUniversalId(SSN_IDENTIFIER_DOMAIN);
+		 * ssnDomain.setUniversalIdType("ISO");
+		 * 
+		 * SubjectIdentifier ssnId = new SubjectIdentifier();
+		 * ssnId.setIdentifierDomain(ssnDomain); ssnId.setIdentifier(ssnValue);
+		 * 
+		 * subject.addSubjectIdentifier(ssnId); }
+		 */
+
+		// Gender:
+		String genderCode = patientSearchCriteria.getGender();
+		if (genderCode.equals("UN")) {
+			// Do not send.
+			genderCode = null;
+		}
+		if (genderCode != null) {
+			CodedValue gender = new CodedValue();
+			gender.setCode(genderCode);
+			subject.setGender(gender);
+		}
+
+		subjectSearchCriteria.setSubject(subject);
+		return subjectSearchCriteria;
+	}
+	/**
+	private XConfigActor getXCPDConfig() {
+		return this.servletUtil.getActorConfig("xcpd",
+				"XCPDType");
+	}
+	**/
 }
